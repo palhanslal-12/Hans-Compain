@@ -1,0 +1,6 @@
+{
+  "name": "HansAI",
+  "description": "Smart AI digital teacher, study mentor, and business guide created by Hanslal Pal to help students and aspiring entrepreneurs.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
