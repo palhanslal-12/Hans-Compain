@@ -425,6 +425,11 @@ export default function App() {
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isAppLauncherOpen, setIsAppLauncherOpen] = useState<boolean>(false);
+  
+  // Universal Feature Hub (Hide / Show Drawers for Universal Users & Students)
+  const [isFeatureHubOpen, setIsFeatureHubOpen] = useState<boolean>(false);
+  const [activeFeatureCategory, setActiveFeatureCategory] = useState<string | null>('study');
 
   // Gemini model settings (Flash vs Pro Preview)
   const [selectedModel, setSelectedModel] = useState<'gemini-3.5-flash' | 'gemini-3.1-pro-preview'>(() => {
@@ -437,23 +442,67 @@ export default function App() {
     return saved !== null ? saved === 'true' : true;
   });
 
-  // SCREEN LIGHT / EYE-CARE COLOR MODES
-  const [screenColorMode, setScreenColorMode] = useState<'dark' | 'warm_yellow' | 'eco_gray'>(() => {
-    return (localStorage.getItem('hansai-color-mode') as 'dark' | 'warm_yellow' | 'eco_gray') || 'dark';
+  // SCREEN LIGHT / EYE-CARE COLOR MODES (4 Themes: Dark, Warm Yellow, Eco Gray, Cyber Blue)
+  const [screenColorMode, setScreenColorMode] = useState<'dark' | 'warm_yellow' | 'eco_gray' | 'cyber_blue'>(() => {
+    return (localStorage.getItem('hansai-color-mode') as 'dark' | 'warm_yellow' | 'eco_gray' | 'cyber_blue') || 'dark';
   });
+
+  const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState<boolean>(false);
 
   // Theme generator based on color modes
   const getThemeClasses = () => {
-    // Overwritten for the premium high-contrast three-color palette across all dark modes
+    if (screenColorMode === 'warm_yellow') {
+      return {
+        bgMain: "bg-[#FAF6E9] text-[#4A2810]",
+        bgCard: "bg-[#F3EAD3] border-[#D97706]/30",
+        bgInner: "bg-[#FFFDF7]",
+        border: "border-[#D97706]/30",
+        textTitle: "text-[#78350F]",
+        textMuted: "text-[#92400E]",
+        sidebar: "bg-[#F3EAD3] border-r border-[#D97706]/30",
+        header: "bg-[#FAF6E9] border-b border-[#D97706]/30",
+        buttonSecondary: "bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#78350F]",
+        inputBg: "bg-[#FFFDF7] border-[#D97706]/30 text-[#78350F]"
+      };
+    }
+    if (screenColorMode === 'eco_gray') {
+      return {
+        bgMain: "bg-[#F1F3F5] text-slate-800",
+        bgCard: "bg-[#E2E8F0] border-slate-300",
+        bgInner: "bg-white",
+        border: "border-slate-300",
+        textTitle: "text-slate-900",
+        textMuted: "text-slate-600",
+        sidebar: "bg-[#E2E8F0] border-r border-slate-300",
+        header: "bg-[#F1F3F5] border-b border-slate-300",
+        buttonSecondary: "bg-slate-200 hover:bg-slate-300 text-slate-800",
+        inputBg: "bg-white border-slate-300 text-slate-900"
+      };
+    }
+    if (screenColorMode === 'cyber_blue') {
+      return {
+        bgMain: "bg-[#03132B] text-cyan-100",
+        bgCard: "bg-[#0A2246] border-cyan-500/40",
+        bgInner: "bg-[#051833]",
+        border: "border-cyan-500/40",
+        textTitle: "text-cyan-300",
+        textMuted: "text-cyan-200/80",
+        sidebar: "bg-[#0A2246] border-r border-cyan-500/40",
+        header: "bg-[#03132B] border-b border-cyan-500/40",
+        buttonSecondary: "bg-[#0D2D5E] hover:bg-[#123A78] text-cyan-200",
+        inputBg: "bg-[#051833] border-cyan-500/40 text-cyan-100"
+      };
+    }
+    // Default Dark Midnight
     return {
-      bgMain: "bg-[#000000] text-white",
+      bgMain: "bg-[#03060E] text-white",
       bgCard: "bg-[#121214] border-[#00E5FF]/25",
       bgInner: "bg-[#000000]",
       border: "border-[#00E5FF]/25",
       textTitle: "text-white",
       textMuted: "text-slate-300",
       sidebar: "bg-[#121214] border-r border-[#00E5FF]/25",
-      header: "bg-[#000000] border-b border-[#00E5FF]/25",
+      header: "bg-[#03060E] border-b border-[#00E5FF]/25",
       buttonSecondary: "bg-[#1A1A1E] hover:bg-slate-800 text-white",
       inputBg: "bg-[#000000] border-[#00E5FF]/25 text-white"
     };
@@ -534,6 +583,45 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Browser Back Button & Popstate History Management (Prevents exiting app when back button pressed)
+  useEffect(() => {
+    // Whenever activeView changes to a sub-feature (not 'chat'), push state into history
+    if (activeView !== 'chat') {
+      window.history.pushState({ view: activeView }, '', `#${activeView}`);
+    }
+  }, [activeView]);
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // 1. Close open modals first
+      if (isShareModalOpen) {
+        setIsShareModalOpen(false);
+        return;
+      }
+      if (isSettingsOpen) {
+        setIsSettingsOpen(false);
+        return;
+      }
+      if (isAppLauncherOpen) {
+        setIsAppLauncherOpen(false);
+        return;
+      }
+      if (isFeatureHubOpen) {
+        setIsFeatureHubOpen(false);
+        return;
+      }
+      // 2. Return to Home ('chat') if inside sub-view
+      if (activeView !== 'chat') {
+        setActiveView('chat');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [activeView, isShareModalOpen, isSettingsOpen, isAppLauncherOpen, isFeatureHubOpen]);
 
   // Owner analytics state (for owner dashboard)
   const [ownerAnalyticsData, setOwnerAnalyticsData] = useState<{
@@ -706,6 +794,11 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('hansai-saved-chats', JSON.stringify(savedChats));
   }, [savedChats]);
+
+  const deleteSavedChat = (id: string) => {
+    setSavedChats(prev => prev.filter(c => c.id !== id));
+    showToast('Chat session deleted', 'info');
+  };
 
   const filteredSavedChats = (Array.isArray(savedChats) ? savedChats : []).filter(s => 
     s && (!sidebarSearchQuery.trim() || 
@@ -1877,7 +1970,6 @@ export default function App() {
   // Study Alarm & External App Launcher States
   const [timerAlarmTitle, setTimerAlarmTitle] = useState<string>("Shorthand & Polity Revision");
   const [isAlarmRingingModalOpen, setIsAlarmRingingModalOpen] = useState<boolean>(false);
-  const [isAppLauncherOpen, setIsAppLauncherOpen] = useState<boolean>(false);
   const [launcherSearchTopic, setLauncherSearchTopic] = useState<string>("");
   const [customLauncherUrl, setCustomLauncherUrl] = useState<string>("");
   const [customAlarmMinutes, setCustomAlarmMinutes] = useState<string>("");
@@ -2955,80 +3047,74 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
   };
 
   return (
-    <div className={`min-h-screen flex flex-col ${
+    <div className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col ${
       screenColorMode === 'dark' ? 'bg-[#03060E] text-slate-100' : 
       screenColorMode === 'warm_yellow' ? 'bg-[#FAF6E9] text-[#78350F] font-sans' : 
-      'bg-[#F1F3F5] text-slate-800'
+      screenColorMode === 'eco_gray' ? 'bg-[#F1F3F5] text-slate-800' :
+      'bg-[#03132B] text-cyan-100'
     }`}>
 
       {/* HANSAI ANIMATED SPLASH SCREEN OVERLAY */}
       {showSplashScreen && (
-        <div className="fixed inset-0 z-50 bg-[#030611] flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden transition-opacity duration-700">
-          {/* Background glowing particles/radial aura */}
-          <div className="absolute w-96 h-96 bg-gradient-to-tr from-amber-500/20 via-indigo-600/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-30 pointer-events-none" />
+        <div className="fixed inset-0 z-50 bg-[#02050E] flex flex-col items-center justify-center p-4 text-center select-none overflow-hidden transition-opacity duration-700">
+          {/* Google 3-Color Dynamic Glowing Radial Aura */}
+          <div className="absolute w-[450px] h-[450px] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#4285F4]/30 via-[#EA4335]/20 via-[#FBBC05]/25 to-[#34A853]/30 rounded-full blur-3xl animate-pulse pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
 
-          <div className="relative z-10 max-w-sm w-full space-y-6 flex flex-col items-center">
-            {/* Animated Glowing Swan Icon Badge */}
+          <div className="relative z-10 max-w-sm w-full space-y-4 flex flex-col items-center px-4">
+            {/* Quantum Swan Logo Glowing Center Frame */}
             <div className="relative group cursor-pointer">
-              <div className="w-28 h-28 rounded-[28px] bg-gradient-to-b from-[#0F172A] to-[#020617] border-2 border-amber-500/40 p-1 shadow-[0_0_50px_rgba(245,158,11,0.3)] flex items-center justify-center relative transform hover:scale-105 transition-all duration-500 animate-bounce">
-                {/* Pulsing Outer Gold Neon Ring */}
-                <div className="absolute -inset-1 rounded-[30px] border border-amber-400/50 animate-ping pointer-events-none" />
+              {/* Electric Lightning Bolts / Sparks Flashing behind Swan */}
+              <div className="absolute -top-5 -left-5 text-amber-300 text-2xl animate-bounce drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]">⚡</div>
+              <div className="absolute -top-3 -right-5 text-cyan-300 text-xl animate-pulse delay-150 drop-shadow-[0_0_15px_rgba(6,182,212,0.9)]">⚡</div>
+
+              {/* Glowing Card Frame with Multi-Color Border Accent */}
+              <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#020617] to-[#0A0F1D] border-2 border-cyan-400/60 p-2 shadow-[0_0_50px_rgba(66,133,244,0.5)] flex items-center justify-center relative transform hover:scale-105 transition-all duration-500">
+                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-[#4285F4] via-[#FBBC05] to-[#34A853] opacity-50 animate-pulse blur-sm pointer-events-none" />
                 
-                <div className="w-full h-full rounded-[22px] bg-gradient-to-tr from-[#020617] via-[#0D1527] to-[#1E293B] flex items-center justify-center relative overflow-hidden">
-                  {/* Swan SVG */}
-                  <svg viewBox="0 0 100 100" className="w-20 h-20 text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.7)]">
-                    <path 
-                      d="M75,30 Q65,15 50,30 T40,65 Q30,75 55,75 T80,68 T75,30 Z" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="3.5" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                    />
-                    <path 
-                      d="M30,60 Q15,55 25,40 T45,55 L58,72" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2.5" 
-                      strokeLinecap="round" 
-                    />
-                    <circle cx="75" cy="27" r="3" fill="#FFF" className="animate-ping" />
-                  </svg>
+                <div className="w-full h-full rounded-2xl bg-gradient-to-tr from-[#030712] via-[#0B132B] to-[#1C2541] flex items-center justify-center relative overflow-hidden">
+                  <QuantumSwanLogo className="w-16 h-16 text-cyan-300 drop-shadow-[0_0_20px_rgba(0,229,255,0.9)]" />
                   
-                  {/* Sparkle */}
-                  <div className="absolute top-2 right-2 animate-spin duration-3000">
-                    <Sparkle className="w-5 h-5 text-amber-300 fill-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.9)]" />
+                  {/* Floating Energy Sparkle */}
+                  <div className="absolute top-1.5 right-1.5 animate-spin duration-3000">
+                    <Sparkle className="w-4 h-4 text-amber-300 fill-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.95)]" />
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Brand Title & Tagline */}
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-indigo-200 to-cyan-300 drop-shadow-md">
-                HansAI • हंस-एआई
-              </h1>
-              <p className="text-xs text-amber-200/90 font-medium tracking-wide">
-                Intelligence & Wisdom Platform • By <strong className="text-white">Hanslal Pal Ji</strong>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">⚡</span>
+                <h1 className="text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 via-amber-200 to-emerald-300 drop-shadow-md">
+                  HansAI • हंस-एआई
+                </h1>
+                <span className="text-lg">⚡</span>
+              </div>
+              <p className="text-xs text-amber-300 font-bold tracking-wide">
+                Universal Intelligence Platform • Hanslal Pal Ji
               </p>
+              <div className="p-2 bg-indigo-950/70 border border-indigo-500/30 rounded-xl text-[11px] text-indigo-200 font-sans italic shadow-sm">
+                ✨ "ज्ञानम् परमम् बलम् • हंस-ज्ञान, अनुशासन एवं निरंतर प्रगति"
+              </div>
             </div>
 
             {/* Live Activity Counters Badge */}
-            <div className="px-3.5 py-1.5 bg-emerald-950/60 border border-emerald-500/30 rounded-full flex items-center gap-2 text-xs font-semibold text-emerald-300 shadow-lg">
+            <div className="px-3 py-1 bg-slate-900/90 border border-cyan-500/30 rounded-full flex items-center gap-1.5 text-[11px] font-semibold text-cyan-300 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>🟢 1,420 Online • 12,850+ AI Chats Today</span>
+              <span>🟢 1,420 Online • HansAI Active</span>
             </div>
 
             {/* Loading Progress Bar */}
-            <div className="w-full space-y-2 pt-2">
-              <div className="w-full bg-slate-900/80 border border-slate-800 rounded-full h-2.5 overflow-hidden p-0.5">
+            <div className="w-full space-y-1.5 pt-1">
+              <div className="w-full bg-slate-900/80 border border-slate-800 rounded-full h-2 overflow-hidden p-0.5">
                 <div 
-                  className="bg-gradient-to-r from-amber-500 via-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(245,158,11,0.6)]"
+                  className="bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] h-full rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(66,133,244,0.7)]"
                   style={{ width: `${splashProgress}%` }}
                 />
               </div>
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
                 <span>{splashStatus}</span>
                 <span className="text-amber-400 font-bold">{splashProgress}%</span>
               </div>
@@ -3038,12 +3124,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       )}
       
       {/* HEADER SECTION */}
-      <header className={`px-4 sm:px-6 h-16 border-b flex items-center justify-between sticky top-0 z-40 backdrop-blur-md ${
-        screenColorMode === 'dark' ? 'bg-[#03060E]/80 border-slate-900' :
-        screenColorMode === 'warm_yellow' ? 'bg-[#FAF6E9]/80 border-amber-900/10' :
-        'bg-[#F1F3F5]/80 border-slate-200'
+      <header className={`px-3 sm:px-6 h-14 sm:h-16 border-b flex items-center justify-between sticky top-0 z-40 backdrop-blur-md w-full max-w-full overflow-hidden ${
+        screenColorMode === 'dark' ? 'bg-[#03060E]/90 border-slate-900' :
+        screenColorMode === 'warm_yellow' ? 'bg-[#FAF6E9]/90 border-amber-900/10' :
+        screenColorMode === 'eco_gray' ? 'bg-[#F1F3F5]/90 border-slate-200' :
+        'bg-[#03132B]/90 border-cyan-500/30'
       }`}>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-1.5 hover:bg-slate-800/80 rounded-xl transition-all cursor-pointer"
@@ -3052,160 +3139,236 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <Menu className="w-5 h-5 text-indigo-400" />
           </button>
           
-          <div className="flex items-center gap-2 font-sans">
+          <div className="flex items-center gap-1.5 sm:gap-2 font-sans cursor-pointer" onClick={() => setActiveView('chat')}>
             {/* Quantum Swan AI Logo */}
-            <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-              <QuantumSwanLogo className="w-7 h-7" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0">
+              <QuantumSwanLogo className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <h1 className="text-sm font-extrabold tracking-wide text-white">HansAI</h1>
-              <span className="text-[8px] font-black uppercase text-[#00E5FF] tracking-widest leading-none block">QUANTUM LAB CORE</span>
+              <h1 className="text-xs sm:text-sm font-extrabold tracking-wide text-white leading-tight">HansAI</h1>
+              <span className="text-[7px] sm:text-[8px] font-black uppercase text-[#00E5FF] tracking-widest leading-none block">QUANTUM LAB</span>
             </div>
           </div>
         </div>
 
-        {/* Header Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Hands-Free Voice Assistant Toggle Button ("Ok AI" / "Ok Open AI") */}
+        {/* Header Right Actions - Responsive Mobile Options Menu */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          
+          {/* Voice Assistant Toggle */}
           <button
             onClick={startVoiceAssistantMode}
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer border ${
+            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer border ${
               isVoiceAssistantActive
-                ? 'bg-rose-600 text-white border-rose-400 animate-pulse shadow-rose-600/40'
+                ? 'bg-rose-600 text-white border-rose-400 animate-pulse'
                 : 'bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border-rose-500/40'
             }`}
-            title="Hands-Free Voice Assistant (Say 'Ok AI' or 'Ok Open AI')"
+            title="Hands-Free Voice Assistant"
           >
             <Mic className={`w-3.5 h-3.5 ${isVoiceAssistantActive ? 'animate-bounce text-white' : 'text-rose-300'}`} />
-            <span className="hidden sm:inline">
-              {isVoiceAssistantActive ? 'Ok AI Assistant ON 🟢' : 'Voice Assistant / Ok AI 🎙️'}
+            <span className="hidden md:inline">
+              {isVoiceAssistantActive ? 'Ok AI ON 🟢' : 'Voice Assistant 🎙️'}
             </span>
           </button>
 
-          {/* User History Button */}
-          <button
-            onClick={() => setActiveView('history')}
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer border ${
-              activeView === 'history'
-                ? 'bg-emerald-600 text-white border-emerald-400 shadow-emerald-600/40'
-                : 'bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border-emerald-500/40'
-            }`}
-            title="View My Activity & Search History / अपना इतिहास देखें"
-          >
-            <History className="w-3.5 h-3.5 text-emerald-300" />
-            <span className="hidden sm:inline">My History / इतिहास</span>
-          </button>
-
-          {/* Share App Button */}
-          <button
-            onClick={() => setIsShareModalOpen(true)}
-            className="px-2.5 py-1.5 bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer border border-cyan-400/30"
-            title="Share App / ऐप शेयर करें (WhatsApp, Instagram, FB)"
-          >
-            <Share2 className="w-3.5 h-3.5 text-cyan-200" />
-            <span className="hidden sm:inline">Share / शेयर करें</span>
-          </button>
-
-          {/* Owner Admin Dashboard Direct Access Button */}
-          <button
-            onClick={() => handleOpenOwnerDashboard()}
-            className="px-2.5 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer border-none"
-            title="Owner Admin Dashboard (Hanslal Pal Ji)"
-          >
-            <span>👑</span>
-            <span className="hidden sm:inline">Owner Admin</span>
-          </button>
-
-          {/* Color theme mode switcher */}
-          <button
-            onClick={() => {
-              const colors: Array<'dark' | 'warm_yellow' | 'eco_gray'> = ['dark', 'warm_yellow', 'eco_gray'];
-              const nextIndex = (colors.indexOf(screenColorMode) + 1) % colors.length;
-              const nextMode = colors[nextIndex];
-              setScreenColorMode(nextMode);
-              localStorage.setItem('hansai-color-mode', nextMode);
-              showToast("Theme changed successfully!", "success");
-            }}
-            className="p-1.5 sm:px-2.5 sm:py-1.5 bg-slate-800 hover:bg-slate-750/80 rounded-xl text-xs font-bold text-amber-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
-          >
-            <span className="text-sm">👁️</span>
-            <span className="text-[10px] hidden md:inline">
-              {screenColorMode === 'dark' ? 'Warm Yellow' : screenColorMode === 'warm_yellow' ? 'Eco Gray' : 'Default Dark'}
-            </span>
-          </button>
-
+          {/* Quick Return to Chat button if inside sub-view */}
           {activeView !== 'chat' && (
             <button
               onClick={() => setActiveView('chat')}
-              className="px-2.5 py-1.5 bg-indigo-650 hover:bg-indigo-600 rounded-xl text-[10px] font-extrabold text-white flex items-center gap-1 transition-all cursor-pointer"
+              className="px-2 py-1.5 bg-indigo-650 hover:bg-indigo-600 rounded-xl text-[10px] font-extrabold text-white flex items-center gap-1 transition-all cursor-pointer shadow-md"
             >
               <Cpu className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Return to Chat</span>
+              <span className="hidden sm:inline">Home Chat</span>
             </button>
           )}
 
-          {user ? (
-              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-slate-800/80 pl-2 sm:pl-3 font-sans">
-                <img 
-                  src={user.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100"} 
-                  alt={user.name} 
-                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-indigo-500/40 shadow-sm object-cover animate-fade-in"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="flex flex-col items-start hidden xl:flex text-left font-sans">
-                  <span className="text-[10px] text-white font-black block leading-none">
-                    {(() => {
-                      if (!user.name || user.name.includes('@')) {
-                        if (user.email && user.email.toLowerCase().includes('palhanslal4')) return 'Hanslal Pal';
-                        return 'Student / प्रतियोगी छात्र';
-                      }
-                      if (user.name.toLowerCase() === 'kendo') return 'Scholar';
-                      return user.name;
-                    })()}
-                  </span>
-                  <span className="text-[8px] text-slate-400 block truncate max-w-[100px] leading-tight mt-0.5">{user.email}</span>
+          {/* Main Quick Options / Settings Button (Replaces cluttered header buttons) */}
+          <button
+            onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
+            className="px-2.5 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+            title="Header Options & Theme Switcher"
+          >
+            <span>⚙️</span>
+            <span className="text-xs font-bold">Options</span>
+            <span className="text-[10px] text-indigo-300">▼</span>
+          </button>
+
+          {/* User Avatar */}
+          {user && (
+            <img 
+              src={user.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100"} 
+              alt={user.name} 
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-indigo-500/40 shadow-sm object-cover hidden sm:block"
+              referrerPolicy="no-referrer"
+            />
+          )}
+        </div>
+      </header>
+
+      {/* HEADER QUICK OPTIONS & 4 THEMES DROPDOWN POPOVER */}
+      {isHeaderMenuOpen && (
+        <div className="fixed top-16 right-2 sm:right-6 z-50 w-80 max-w-[92vw] bg-[#0A0F1D] border-2 border-indigo-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-xl animate-fade-in space-y-4 text-left">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <h3 className="text-xs font-extrabold text-white flex items-center gap-1.5">
+              <span>⚙️</span>
+              <span>HansAI Settings & Tools</span>
+            </h3>
+            <button 
+              onClick={() => setIsHeaderMenuOpen(false)}
+              className="text-slate-400 hover:text-white text-xs font-bold p-1 rounded-lg hover:bg-slate-800"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* 4 Theme Color Selectors (As Requested by User) */}
+          <div className="space-y-2">
+            <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider block">🎨 Select Screen Theme (4 Color Modes):</span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                onClick={() => {
+                  setScreenColorMode('dark');
+                  localStorage.setItem('hansai-color-mode', 'dark');
+                  showToast("Theme: Midnight Dark", "success");
+                }}
+                className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
+                  screenColorMode === 'dark' ? 'bg-indigo-600 text-white border-indigo-400 shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                }`}
+              >
+                <span>🌙</span>
+                <div>
+                  <div className="text-[11px]">Midnight Dark</div>
+                  <div className="text-[9px] text-slate-400">Deep Space</div>
                 </div>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('hansai-user-session');
-                    setUser(null);
-                    showToast(language === 'hindi' ? "सफलतापूर्वक लॉगआउट किया गया! 👋" : "Successfully Logged Out! 👋", "info");
-                    setActiveView('chat');
-                  }}
-                  className="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/80 text-rose-300 hover:text-white rounded-lg text-[9px] font-black uppercase transition-all"
-                >
-                  {t('logoutBtn')}
-                </button>
+              </button>
+
+              <button
+                onClick={() => {
+                  setScreenColorMode('warm_yellow');
+                  localStorage.setItem('hansai-color-mode', 'warm_yellow');
+                  showToast("Theme: Warm Yellow (Eye-Care)", "success");
+                }}
+                className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
+                  screenColorMode === 'warm_yellow' ? 'bg-amber-600 text-white border-amber-400 shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                }`}
+              >
+                <span>☀️</span>
+                <div>
+                  <div className="text-[11px]">Warm Yellow</div>
+                  <div className="text-[9px] text-amber-200">Eye-Care Reading</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setScreenColorMode('eco_gray');
+                  localStorage.setItem('hansai-color-mode', 'eco_gray');
+                  showToast("Theme: Eco Slate Gray", "success");
+                }}
+                className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
+                  screenColorMode === 'eco_gray' ? 'bg-slate-700 text-white border-slate-400 shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                }`}
+              >
+                <span>🌿</span>
+                <div>
+                  <div className="text-[11px]">Eco Gray</div>
+                  <div className="text-[9px] text-slate-400">Cool Slate</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setScreenColorMode('cyber_blue');
+                  localStorage.setItem('hansai-color-mode', 'cyber_blue');
+                  showToast("Theme: Cyber Blue", "success");
+                }}
+                className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
+                  screenColorMode === 'cyber_blue' ? 'bg-cyan-600 text-white border-cyan-400 shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                }`}
+              >
+                <span>💎</span>
+                <div>
+                  <div className="text-[11px]">Cyber Blue</div>
+                  <div className="text-[9px] text-cyan-200">High-Tech Neon</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Action Navigation Buttons */}
+          <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
+            <button
+              onClick={() => { setActiveView('history'); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <History className="w-4 h-4 text-emerald-300" />
+                <span>My Activity & History / इतिहास</span>
               </div>
+              <span className="text-[10px] opacity-70">Open →</span>
+            </button>
+
+            <button
+              onClick={() => { setIsShareModalOpen(true); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 rounded-xl text-cyan-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-cyan-300" />
+                <span>Share App / शेयर करें</span>
+              </div>
+              <span className="text-[10px] opacity-70">Share →</span>
+            </button>
+
+            <button
+              onClick={() => { handleOpenOwnerDashboard(); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-amber-950/60 border border-slate-800 hover:border-amber-500/40 rounded-xl text-amber-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>👑</span>
+                <span>Owner Admin Dashboard</span>
+              </div>
+              <span className="text-[10px] opacity-70">Admin →</span>
+            </button>
+
+            {user ? (
+              <button
+                onClick={() => {
+                  localStorage.removeItem('hansai-user-session');
+                  setUser(null);
+                  setIsHeaderMenuOpen(false);
+                  showToast(language === 'hindi' ? "सफलतापूर्वक लॉगआउट किया गया! 👋" : "Successfully Logged Out! 👋", "info");
+                  setActiveView('chat');
+                }}
+                className="w-full p-2.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 rounded-xl text-rose-300 flex items-center justify-between transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <span>🚪</span>
+                  <span>Logout ({user.email})</span>
+                </div>
+                <span className="text-[10px]">Exit</span>
+              </button>
             ) : (
-              <div className="flex items-center gap-1.5">
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <button
-                  onClick={() => setIsAuthLoginOpen(true)}
-                  className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer border border-indigo-500/30"
+                  onClick={() => { setIsAuthLoginOpen(true); setIsHeaderMenuOpen(false); }}
+                  className="p-2 bg-slate-900 hover:bg-slate-800 text-indigo-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1 border border-indigo-500/30"
                 >
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Login / लॉग इन</span>
+                  <span>Login</span>
                 </button>
                 <button
-                  onClick={() => setIsAuthRegisterOpen(true)}
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+                  onClick={() => { setIsAuthRegisterOpen(true); setIsHeaderMenuOpen(false); }}
+                  className="p-2 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-md"
                 >
                   <User className="w-3.5 h-3.5" />
-                  <span>Register / रजिस्टर</span>
+                  <span>Register</span>
                 </button>
               </div>
             )}
-            
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-bold text-emerald-400" title="Active Students & Live Chat Stats">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>1,420 Online • 12k+ Chats</span>
-            </div>
-
-            <span className={`w-2.5 h-2.5 rounded-full ${isOffline ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500 shadow-sm shadow-emerald-500/20'}`} title={isOffline ? "Offline Mode" : "System Online"}></span>
           </div>
-        </header>
+        </div>
+      )}
 
-        {/* Offline Status Top Banner */}
+      {/* Offline Status Top Banner */}
         {isOffline && (
           <div className="bg-[#1e1b4b] border-b border-[#00E5FF]/30 px-4 py-2 text-center text-xs font-semibold text-[#00E5FF] flex items-center justify-center gap-2">
             <span>📶</span>
@@ -3603,35 +3766,29 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 </div>
 
                 {/* MAIN CHAT CONTENT AREA */}
-                <div className="flex-1 flex flex-col justify-between max-w-4xl w-full mx-auto p-4 sm:p-6 overflow-hidden">
+                <div className="flex-1 flex flex-col max-w-4xl w-full mx-auto p-3 sm:p-5 overflow-y-auto scrollbar-thin">
                   
                   {/* Hands-Free Voice Assistant Active Status Banner */}
                   {isVoiceAssistantActive && (
-                    <div className="mb-4 bg-gradient-to-r from-rose-950/90 via-indigo-950/90 to-slate-900/90 border border-rose-500/50 p-3.5 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-white text-xs animate-fade-in relative overflow-hidden flex-shrink-0">
+                    <div className="mb-3 bg-gradient-to-r from-rose-950/90 via-indigo-950/90 to-slate-900/90 border border-rose-500/50 p-3 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-white text-xs animate-fade-in relative overflow-hidden flex-shrink-0">
                       <div className="flex items-center gap-3 text-left">
                         <div className="relative flex-shrink-0">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isVoiceAssistantSpeaking ? 'bg-amber-500' : 'bg-rose-600'} text-white shadow-lg shadow-rose-500/30`}>
-                            <Mic className={`w-5 h-5 ${isVoiceAssistantListening ? 'animate-pulse' : ''}`} />
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center ${isVoiceAssistantSpeaking ? 'bg-amber-500' : 'bg-rose-600'} text-white shadow-lg shadow-rose-500/30`}>
+                            <Mic className={`w-4 h-4 ${isVoiceAssistantListening ? 'animate-pulse' : ''}`} />
                           </div>
                           {(isVoiceAssistantListening || isVoiceAssistantSpeaking) && (
-                            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full animate-ping" />
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping" />
                           )}
                         </div>
                         <div className="text-left">
                           <div className="flex items-center gap-2">
                             <span className="px-2 py-0.5 rounded bg-rose-500/30 text-rose-200 text-[9px] font-extrabold uppercase tracking-wider">
-                              🎙️ HANDS-FREE VOICE ASSISTANT ACTIVE
+                              🎙️ VOICE ASSISTANT ACTIVE
                             </span>
-                            <span className="text-[10px] text-slate-300 font-mono hidden sm:inline">Wake: "Ok AI" / "Ok Open AI"</span>
                           </div>
                           <p className="text-xs font-bold text-amber-300 mt-0.5">
                             {voiceAssistantStatus}
                           </p>
-                          {voiceAssistantTranscript && (
-                            <p className="text-[11px] text-slate-300 italic truncate max-w-md">
-                              "{voiceAssistantTranscript}"
-                            </p>
-                          )}
                         </div>
                       </div>
 
@@ -3642,14 +3799,14 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                               if ('speechSynthesis' in window) window.speechSynthesis.cancel();
                               setIsVoiceAssistantSpeaking(false);
                             }}
-                            className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-white border border-amber-500/40 rounded-xl text-[10px] font-bold transition-all cursor-pointer"
+                            className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-white border border-amber-500/40 rounded-xl text-[10px] font-bold transition-all cursor-pointer"
                           >
-                            ⏹️ Stop Speaking
+                            ⏹️ Stop
                           </button>
                         )}
                         <button
                           onClick={stopVoiceAssistantMode}
-                          className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-md border-none"
+                          className="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-md border-none"
                         >
                           Turn Off ❌
                         </button>
@@ -3657,82 +3814,66 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                   )}
                   
-                  {/* NEW CHAT WELCOME STATE (ChatGPT / Gemini Style) */}
+                  {/* NEW CHAT WELCOME STATE (Clean, Spaced, Non-Overlapping Layout) */}
                   {chatMessages.length === 0 ? (
-                    <div className="my-auto py-6 sm:py-10 space-y-6 sm:space-y-8 flex flex-col items-center w-full max-w-2xl mx-auto text-center animate-fade-in overflow-y-auto">
+                    <div className="my-auto py-2 px-1 space-y-4 flex flex-col items-center w-full max-w-2xl mx-auto text-center animate-fade-in pb-8">
                       
-                      {/* Logo and Greeting */}
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
-                          <QuantumSwanLogo className="w-16 h-16 sm:w-20 sm:h-20" />
+                      {/* Logo and Greeting - Compact & Focused */}
+                      <div className="flex flex-col items-center space-y-1.5">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+                          <QuantumSwanLogo className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-400" />
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans">
+                        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight font-sans">
                           HansAI - What can I help with today?
                         </h2>
-                        <p className="text-xs sm:text-sm text-indigo-300 font-medium">
+                        <p className="text-[11px] sm:text-xs text-indigo-300 font-medium max-w-md">
                           आज मैं आपकी प्रतियोगी परीक्षाओं, अध्ययन, व्याकरण या नोट्स में क्या मदद कर सकता हूँ?
                         </p>
                       </div>
 
-                      {/* Quick Utility Feature Bar: Alarm & External App Launcher */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                      {/* Quick Utility Tools Horizontal Grid (3 Clean Boxes) */}
+                      <div className="grid grid-cols-3 gap-2 w-full text-left">
                         <button
                           onClick={() => { setActiveView('timer'); }}
-                          className="p-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-2xl flex items-center justify-between text-left group cursor-pointer transition-all shadow-md"
+                          className="p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-xl">⏰</span>
-                            <div>
-                              <h4 className="text-xs font-bold text-amber-300">Set Time Alarm / अलार्म सेट करें</h4>
-                              <p className="text-[10px] text-slate-400">Pomodoro, exam timer & dictation alarm chime</p>
-                            </div>
+                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-300">
+                            <span>⏰</span>
+                            <span>Set Alarm</span>
                           </div>
-                          <span className="text-[10px] font-bold text-amber-400">Open Alarm →</span>
+                          <span className="text-[9px] text-slate-400">Pomodoro Exam Timer</span>
                         </button>
 
                         <button
                           onClick={() => { setIsAppLauncherOpen(true); }}
-                          className="p-3 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-2xl flex items-center justify-between text-left group cursor-pointer transition-all shadow-md"
+                          className="p-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-xl">🌐</span>
-                            <div>
-                              <h4 className="text-xs font-bold text-cyan-300">App Launcher (YouTube / ChatGPT)</h4>
-                              <p className="text-[10px] text-slate-400">Open YouTube, OpenAI, Scholar, NCERT</p>
-                            </div>
+                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-cyan-300">
+                            <span>🌐</span>
+                            <span>App Launcher</span>
                           </div>
-                          <span className="text-[10px] font-bold text-cyan-400">Launch Apps →</span>
+                          <span className="text-[9px] text-slate-400">YouTube, OpenAI</span>
+                        </button>
+
+                        <button
+                          onClick={() => { setIsHeaderMenuOpen(true); }}
+                          className="p-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
+                        >
+                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-indigo-300">
+                            <span>🧰</span>
+                            <span>All Features</span>
+                          </div>
+                          <span className="text-[9px] text-slate-400">Menu Options & Tools</span>
                         </button>
                       </div>
 
-                      {/* What can HansAI do featured button */}
-                      <button
-                        onClick={() => handleSendChat("क्या-क्या कर सकते हो? Please list all your features and how you can help me.")}
-                        className="w-full p-3.5 bg-gradient-to-r from-amber-500/15 via-indigo-600/15 to-emerald-500/15 hover:from-amber-500/25 hover:to-emerald-500/25 border border-amber-500/40 rounded-2xl flex items-center justify-between text-left group cursor-pointer transition-all shadow-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">✨</span>
-                          <div>
-                            <h4 className="text-xs font-extrabold text-amber-300 group-hover:text-amber-200">
-                              What Can HansAI Do? / क्या-क्या सहायता कर सकते हैं?
-                            </h4>
-                            <p className="text-[10px] text-slate-300">
-                              Click to view all features: SSC exam prep, Pitman shorthand, live quizzes, offline notes & more!
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-xs font-bold text-amber-300 bg-amber-500/20 px-3 py-1.5 rounded-xl group-hover:bg-amber-500/30 whitespace-nowrap">
-                          Explore Features →
-                        </span>
-                      </button>
-
-                      {/* Quick Prompt Suggestions Grid (ChatGPT / Gemini Style) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
+                      {/* Quick Prompt Suggestions Grid (4 Distinct Prompts with Clear Separation) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full text-left pt-1">
                         <button
                           onClick={() => {
                             setChatInput("Explain the SSC CGL Tier 1 exam pattern and key subjects in simple Hindi.");
                           }}
-                          className="p-3.5 rounded-2xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
+                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">📘 SSC CGL Exam Pattern</span>
@@ -3745,7 +3886,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           onClick={() => {
                             setChatInput("Provide a memorization trick for Indian Constitution Fundamental Rights (Articles 12-35).");
                           }}
-                          className="p-3.5 rounded-2xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
+                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">🏛️ Constitution Trick</span>
@@ -3758,7 +3899,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           onClick={() => {
                             setChatInput("How can I improve my shorthand dictation speed and accuracy for Stenographer exams?");
                           }}
-                          className="p-3.5 rounded-2xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
+                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">🎙️ Shorthand Dictation Rules</span>
@@ -3771,7 +3912,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           onClick={() => {
                             setChatInput("What are the most important General Science formulas for competitive exams?");
                           }}
-                          className="p-3.5 rounded-2xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
+                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">🧬 General Science Formulas</span>
@@ -9094,12 +9235,12 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <input
                   type="text"
                   readOnly
-                  value="https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app"
+                  value={typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com'}
                   className="w-full text-xs bg-transparent text-cyan-300 font-mono outline-none px-2 truncate"
                 />
                 <button
                   onClick={() => {
-                    const shareUrl = "https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app";
+                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
                     navigator.clipboard.writeText(shareUrl);
                     showToast("📋 HansAI App Link copied to clipboard!", "success");
                   }}
@@ -9121,8 +9262,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* WhatsApp */}
                 <button
                   onClick={() => {
-                    const url = "https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app";
-                    const text = encodeURIComponent(`📚 *HansAI Digital Teacher & Shorthand Platform*\nनिःशुल्क अध्ययन, AI डाउट सॉल्वर, SSC एवं आशुलिपि तैयारी के लिए ऐप खोलें:\n${url}`);
+                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
+                    const text = encodeURIComponent(`📚 *HansAI Digital Teacher & Shorthand Platform*\nनिःशुल्क अध्ययन, AI डाउट सॉल्वर, SSC एवं आशुलिपि तैयारी के लिए ऐप खोलें:\n${shareUrl}`);
                     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
                   }}
                   className="p-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
@@ -9134,7 +9275,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Telegram */}
                 <button
                   onClick={() => {
-                    const url = encodeURIComponent("https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app");
+                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
+                    const url = encodeURIComponent(shareUrl);
                     const text = encodeURIComponent("HansAI Quantum Lab • Digital AI Teacher for SSC & Shorthand Aspirants");
                     window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
                   }}
@@ -9147,7 +9289,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Instagram */}
                 <button
                   onClick={() => {
-                    const shareUrl = "https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app";
+                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
                     navigator.clipboard.writeText(shareUrl);
                     showToast("📋 Link copied! Paste on Instagram Story or Message! 📸", "success");
                     window.open("https://www.instagram.com", "_blank");
@@ -9161,7 +9303,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Facebook */}
                 <button
                   onClick={() => {
-                    const url = encodeURIComponent("https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app");
+                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
+                    const url = encodeURIComponent(shareUrl);
                     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
                   }}
                   className="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
@@ -9173,7 +9316,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* X / Twitter */}
                 <button
                   onClick={() => {
-                    const url = encodeURIComponent("https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app");
+                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
+                    const url = encodeURIComponent(shareUrl);
                     const text = encodeURIComponent("Check out HansAI Digital Teacher Platform for SSC & Shorthand preparation!");
                     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
                   }}
@@ -9186,7 +9330,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Native Device Share API */}
                 <button
                   onClick={() => {
-                    const shareUrl = "https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app";
+                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
                     if (navigator.share) {
                       navigator.share({
                         title: 'HansAI Quantum Lab',

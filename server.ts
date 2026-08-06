@@ -1314,6 +1314,11 @@ app.post("/api/audio-transcribe", async (req, res) => {
   }
 });
 
+// Google Search Console Verification Endpoint
+app.get('/google4b979116600de942.html', (req, res) => {
+  res.type('text/html').send('google-site-verification: google4b979116600de942.html');
+});
+
 // Start routing & server/vite split
 async function startServer() {
   // Vite dev or production static paths
