@@ -226,7 +226,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
               <div className="bg-amber-500/10 border border-amber-500/25 rounded-xl p-4 space-y-2 text-xs">
                 <div className="font-extrabold text-amber-300 flex items-center gap-1.5">
                   <CheckCircle className="w-4 h-4" />
-                  Aspirant Golden Rules by Founder Hanslal Pal
+                  Aspirant Golden Rules for Exam Success
                 </div>
                 <ul className="list-disc pl-4 space-y-1 text-slate-300">
                   {planResult.highYieldTips.map((tip: string, tpIdx: number) => (

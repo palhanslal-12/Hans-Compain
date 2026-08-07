@@ -22,7 +22,7 @@ export const INITIAL_MUSIC_TRACKS: MusicTrack[] = [
     title: "Focus & Grit (जीत का कड़क जोश - Motivation Rap)",
     genre: "Rap",
     bpm: 95,
-    creatorName: "Hanslal Pal Ji",
+    creatorName: "HansAI Studio",
     createdAt: "2026-07-28",
     plays: 1420,
     lyrics: `[Verse 1]\nपावन माटी से उठकर अब तुमको इतिहास बनाना है,\nआलस की जंजीरें तोड़, खुद को अब मेहनत में तपाना है!\nगाँव के खेतों की खुशबू, तेरे पुरखों का संघर्ष याद रख,\nहाथ में कलम, दिमाग में सपना, खुद पर तू पूर्ण विश्वास रख!\n\n[Chorus]\nमेहनत कर, लड़ जा रे बंदे, लक्ष्य को तू पा के रहेगा,\nदुनिया जो आज हंसती है तुझपे, कल वो खुद सर झुका के कहेगा—\n"वाह रे शूरवीर तूने कर दिखाया, असंभव को भी संभव बनाया!"`
@@ -312,7 +312,7 @@ export function MusicStudioView({ user, showToast, isAdminEmbedded = false }: Mu
       title: newTitle.trim(),
       genre: newGenre,
       bpm: Number(newBpm) || 90,
-      creatorName: user?.name || "Hanslal Pal Student",
+      creatorName: user?.name || "HansAI Student",
       createdAt: new Date().toISOString().split('T')[0],
       lyrics: newLyrics.trim(),
       plays: 1,

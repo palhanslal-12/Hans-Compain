@@ -309,7 +309,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
 
         <div className="pt-3 border-t border-slate-800/80 text-center text-[10px] text-slate-400 space-y-1">
           <div>SHA-256 Encrypted Security & Active OTP Password Recovery</div>
-          <div className="font-extrabold text-slate-300">HansAI Academic System • Founder Hanslal Pal</div>
+          <div className="font-extrabold text-slate-300">HansAI Academic System • Digital Learning Ecosystem</div>
         </div>
 
       </div>

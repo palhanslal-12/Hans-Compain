@@ -4,6 +4,7 @@ import {
   TrendingUp, 
   Landmark, 
   Check, 
+  Zap,
   Sparkles, 
   Share2,
   BookOpen, 
@@ -73,6 +74,8 @@ import { AuthModals } from './components/AuthModals';
 import { AuthGateView } from './components/AuthGateView';
 import { MusicStudioView } from './components/MusicStudioView';
 import { ArticleVoiceReader } from './components/ArticleVoiceReader';
+import { FileConverterView } from './components/FileConverterView';
+import { WeatherAlertView } from './components/WeatherAlertView';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -133,7 +136,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     micListening: "Listening... speak now",
     micTooltip: "Use Voice Dictation (Speech-to-Text)",
     speakerTooltip: "Read aloud latest assistant output",
-    creatorAnswerText: "HansAI has been designed under the visionary guidance of Hanslal Pal Ji to empower students, researchers, and professionals.",
+    creatorAnswerText: "HansAI has been designed to empower students, researchers, and professionals.",
     noAccountHeader: "Verify your Account",
     selectAccountHeader: "Google Account Chooser",
     useAnotherAccount: "Use another account / Custom Google Account",
@@ -203,7 +206,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     micListening: "सुन रहा हूँ... अब बोलें",
     micTooltip: "आवाज द्वारा टाइप करें (स्पीच-टू-टेक्स्ट)",
     speakerTooltip: "सहायक के उत्तर को बोलकर सुनें",
-    creatorAnswerText: "हंसएआई को दूरदर्शी हंसलाल पाल जी के कड़क मार्गदर्शन में विद्यार्थियों और शोधकर्ताओं को सशक्त बनाने हेतु तैयार किया गया है।",
+    creatorAnswerText: "हंसएआई को विद्यार्थियों और शोधकर्ताओं को सशक्त बनाने एवं त्वरित अध्ययन में सहायता हेतु तैयार किया गया है।",
     noAccountHeader: "अपने खाते को सत्यापित करें",
     selectAccountHeader: "गूगल खाता चुनने वाला",
     useAnotherAccount: "नया गूगल अकाउंट जोड़ें",
@@ -3065,25 +3068,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
 
           <div className="relative z-10 max-w-sm w-full space-y-4 flex flex-col items-center px-4">
-            {/* Quantum Swan Logo Glowing Center Frame */}
-            <div className="relative group cursor-pointer">
-              {/* Electric Lightning Bolts / Sparks Flashing behind Swan */}
-              <div className="absolute -top-5 -left-5 text-amber-300 text-2xl animate-bounce drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]">⚡</div>
-              <div className="absolute -top-3 -right-5 text-cyan-300 text-xl animate-pulse delay-150 drop-shadow-[0_0_15px_rgba(6,182,212,0.9)]">⚡</div>
-
-              {/* Glowing Card Frame with Multi-Color Border Accent */}
-              <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#020617] to-[#0A0F1D] border-2 border-cyan-400/60 p-2 shadow-[0_0_50px_rgba(66,133,244,0.5)] flex items-center justify-center relative transform hover:scale-105 transition-all duration-500">
-                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-[#4285F4] via-[#FBBC05] to-[#34A853] opacity-50 animate-pulse blur-sm pointer-events-none" />
-                
-                <div className="w-full h-full rounded-2xl bg-gradient-to-tr from-[#030712] via-[#0B132B] to-[#1C2541] flex items-center justify-center relative overflow-hidden">
-                  <QuantumSwanLogo className="w-16 h-16 text-cyan-300 drop-shadow-[0_0_20px_rgba(0,229,255,0.9)]" />
-                  
-                  {/* Floating Energy Sparkle */}
-                  <div className="absolute top-1.5 right-1.5 animate-spin duration-3000">
-                    <Sparkle className="w-4 h-4 text-amber-300 fill-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.95)]" />
-                  </div>
-                </div>
-              </div>
+            {/* Quantum Swan Logo Glowing Center Shape */}
+            <div className="relative group cursor-pointer flex items-center justify-center py-2">
+              <QuantumSwanLogo className="w-24 h-24 sm:w-28 sm:h-28 text-cyan-300 drop-shadow-[0_0_40px_rgba(0,229,255,0.95)] filter saturate-150 animate-vibrant-swan" />
             </div>
 
             {/* Brand Title & Tagline */}
@@ -3096,10 +3083,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <span className="text-lg">⚡</span>
               </div>
               <p className="text-xs text-amber-300 font-bold tracking-wide">
-                Universal Intelligence Platform • Hanslal Pal Ji
+                Universal Intelligence Platform • HansAI Academic Companion
               </p>
               <div className="p-2 bg-indigo-950/70 border border-indigo-500/30 rounded-xl text-[11px] text-indigo-200 font-sans italic shadow-sm">
-                ✨ "ज्ञानम् परमम् बलम् • हंस-ज्ञान, अनुशासन एवं निरंतर प्रगति"
+                "ज्ञानम् परमम् बलम् • हंस-ज्ञान, अनुशासन एवं निरंतर प्रगति"
               </div>
             </div>
 
@@ -3659,6 +3646,20 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <span className="truncate">Voice Assistant (Say 'Ok AI') 🎙️</span>
                       </button>
                       <button
+                        onClick={() => { setActiveView('file-converter'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-indigo-300 hover:text-indigo-200 hover:bg-[#121829] transition-all text-left bg-indigo-500/10 border border-indigo-500/20 cursor-pointer font-bold"
+                      >
+                        <span className="text-sm">📄</span>
+                        <span className="truncate">File Format Converter (PDF/Word)</span>
+                      </button>
+                      <button
+                        onClick={() => { setActiveView('weather-alerts'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/10 border border-amber-500/20 cursor-pointer font-bold"
+                      >
+                        <span className="text-sm">🌧️</span>
+                        <span className="truncate">{language === 'hindi' ? 'मौसम एवं आपदा चेतावनी (Weather Alerts)' : 'Weather & Climate Alerts 🌧️'}</span>
+                      </button>
+                      <button
                         onClick={() => { setActiveView('planner'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
                         className="w-full flex items-center gap-2.5 p-2 rounded-xl text-indigo-300 hover:text-indigo-200 hover:bg-[#121829] transition-all text-left bg-indigo-500/10 border border-indigo-500/20 cursor-pointer font-bold"
                       >
@@ -3759,7 +3760,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-sm">👑</span>
-                        <span>Owner Admin Console (Hanslal Pal Ji)</span>
+                        <span>Owner Admin Console</span>
                       </div>
                       <span className="text-[9px] bg-amber-500/30 px-1.5 py-0.5 rounded text-amber-200">Admin</span>
                     </button>
@@ -3770,7 +3771,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-sm">👤</span>
-                        <span>About Creator (Hanslal Pal)</span>
+                        <span>About Creator & Vision</span>
                       </div>
                       <span className="text-[10px] text-slate-500">{isCreatorDrawerOpen ? '▲' : '▼'}</span>
                     </button>
@@ -4033,8 +4034,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                               <div className="relative w-8 h-8 flex-shrink-0 flex items-center justify-center">
                                 <div className="absolute inset-0 rounded-full border border-teal-400/35 animate-ping opacity-60" style={{ animationDuration: '3s' }} />
                                 <div className="absolute inset-0.5 rounded-full border border-dashed border-indigo-400/60 animate-spin" style={{ animationDuration: '10s' }} />
-                                <div className="w-5.5 h-5.5 rounded-full bg-gradient-to-tr from-[#00E5FF] to-[#9D4EDD] shadow-lg shadow-teal-500/20 flex items-center justify-center text-[9px] font-black text-slate-950 z-10 select-none">
-                                  ✨
+                                <div className="w-5.5 h-5.5 rounded-full bg-gradient-to-tr from-[#00E5FF] to-[#9D4EDD] shadow-lg shadow-teal-500/20 flex items-center justify-center text-[10px] font-black text-slate-950 z-10 select-none">
+                                  🦢
                                 </div>
                               </div>
                             )}
@@ -4209,18 +4210,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
                         placeholder="Ask HansAI..."
-                        className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm focus:outline-none placeholder-slate-500 text-slate-100"
+                        className="flex-1 w-full bg-transparent px-3 py-2 text-xs sm:text-sm focus:outline-none placeholder-slate-500 text-slate-100"
                         disabled={isChatLoading}
                       />
-
-                      <button
-                        type="button"
-                        onClick={handlePasteInput}
-                        className="p-1 px-2.5 text-[11px] font-bold text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-all border-none bg-transparent cursor-pointer"
-                        title="Paste content from clipboard / पेस्ट करें"
-                      >
-                        पेस्ट करें
-                      </button>
 
                       <button
                         type="button"
@@ -4246,6 +4238,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         type="submit"
                         className="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all disabled:opacity-30 disabled:hover:bg-indigo-600 flex-shrink-0 border-none cursor-pointer"
                         disabled={isChatLoading || (!chatInput.trim() && !chatAttachedImage)}
+                        title="Send Message / भेजें"
                       >
                         <Send className="w-4 h-4" />
                       </button>
@@ -4377,7 +4370,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-4 h-4 text-white" />
+                            <Zap className="w-4 h-4 text-white" />
                             Generate Dynamic AI Quiz
                           </>
                         )}
@@ -4784,7 +4777,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-4 h-4 text-indigo-200 animate-pulse" />
+                          <Zap className="w-4 h-4 text-indigo-200 animate-pulse" />
                           Run Unrestricted Deep AI Research
                         </>
                       )}
@@ -4890,7 +4883,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {/* Summary Segment */}
                   <div className="space-y-2">
                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-450 text-indigo-400" />
+                      <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
                       1. Core Syllabus Abstract / अध्याय का संक्षिप्त सार
                     </h4>
                     <p className="text-sm text-slate-300 leading-relaxed font-sans text-justify print-text-dark">
@@ -6913,7 +6906,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {/* Flash Celebration Overlay */}
                   <div className="fixed inset-0 bg-emerald-500/5 backdrop-blur-[1px] flex items-center justify-center transition-all duration-300">
                     <div className="bg-[#1E1B4B]/95 border border-emerald-500/30 p-6 rounded-2xl text-center space-y-2 max-w-xs shadow-2xl scale-110">
-                      <Sparkles className="w-8 h-8 text-amber-400 mx-auto animate-bounce" />
+                      <Award className="w-8 h-8 text-amber-400 mx-auto animate-bounce" />
                       <h4 className="text-sm font-bold text-white uppercase tracking-wider">Goal Accomplished! / लक्ष्य पूर्ण!</h4>
                       <p className="text-xs text-slate-350">बधाई हो! आपने अपना दैनिक लक्ष्य पूरा कर लिया है। कड़क तैयारी जारी रखें!</p>
                     </div>
@@ -8542,7 +8535,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           <div className="relative flex flex-col w-full max-w-xs bg-[#090D16] border-r border-slate-850 text-slate-100 h-full p-5 shadow-2xl overflow-y-auto animate-slide-in">
             <div className="flex items-center justify-between pb-4 border-b border-slate-850">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-450 animate-pulse" />
+                <BookOpen className="w-5 h-5 text-indigo-400" />
                 <div>
                   <h3 className="font-extrabold text-xs tracking-wider text-white uppercase leading-none">HansAI Terminal</h3>
                   <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1 block">Study Workspace Companion</span>
@@ -8629,7 +8622,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
             <div className="border-t border-slate-850 pt-5 mt-auto text-center space-y-2">
               <span className="text-[8px] tracking-widest text-[#a5b4fc] block uppercase font-black leading-none">HANS.AI/VERCEL/LIVE</span>
-              <p className="text-[8px] text-slate-500 font-mono">Developed with Guidance of Founder Scholar Hanslal Pal</p>
+              <p className="text-[8px] text-slate-500 font-mono">HansAI Learning & Research System</p>
             </div>
           </div>
         </div>
@@ -8686,7 +8679,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       const sampleQuotes = [
                         { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
                         { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                        { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Hanslal Pal's Vision" },
+                        { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                         { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
                         { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
                       ];
@@ -8699,7 +8692,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       const sampleQuotes = [
                         { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
                         { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                        { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Hanslal Pal's Vision" },
+                        { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                         { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
                         { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
                       ];
@@ -8718,7 +8711,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   
                   <div className="bg-[#02050A]/80 p-2 rounded-xl border border-slate-850 text-center">
                     <p className="text-[7.5px] font-mono text-emerald-400/95 font-bold tracking-tight">
-                      Developed under guidance of Founder Hanslal Pal
+                      Developed for HansAI Academic Ecosystem
                     </p>
                   </div>
                 </div>
@@ -8733,13 +8726,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   const sampleQuotes = [
                     { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
                     { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                    { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Hanslal Pal's Vision" },
+                    { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                     { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
                     { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
                   ];
                   const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                   
-                  const shareText = `🎯 _HansAI Space - Daily Study Motivation_ 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 *Start practicing studies, quizzes & live GIS maps for exams too!* Join Free At: https://hansai.vercel.app\n\n🕊️ _Spiritual support guide: Founder Scholar Hanslal Pal_`;
+                  const shareText = `🎯 _HansAI Space - Daily Study Motivation_ 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 *Start practicing studies, quizzes & live GIS maps for exams too!* Join Free At: https://hansai.vercel.app\n\n🕊️ _HansAI Academic Ecosystem_`;
                   
                   if (navigator.share) {
                     navigator.share({
@@ -8767,13 +8760,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   const sampleQuotes = [
                     { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
                     { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                    { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Hanslal Pal's Vision" },
+                    { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                     { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
                     { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
                   ];
                   const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                   
-                  const shareText = `🎯 _HansAI Space - Daily Study Motivation_ 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 JOIN AT: https://hansai.vercel.app\n\n🕊️ _Founder: Scholar Hanslal Pal_`;
+                  const shareText = `🎯 _HansAI Space - Daily Study Motivation_ 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 JOIN AT: https://hansai.vercel.app\n\n🕊️ _HansAI Academic Ecosystem_`;
                   navigator.clipboard.writeText(shareText);
                   showToast("📋 Copying layout text for clipboard sharing!", "success");
                 }}
@@ -8884,7 +8877,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Additional KPI context */}
                 <div className="bg-[#090d16]/75 border border-indigo-950 rounded-xl p-3 text-[10px] text-slate-400 leading-relaxed text-left">
                   <p className="font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <Zap className="w-3.5 h-3.5 text-indigo-400" />
                     How to optimize shorthand speed:
                   </p>
                   Practice high-frequency English and Hindi vocabulary outlines daily, maintain steady pen movements, and utilize HansAI's custom shorthand transcription feedback alerts.
@@ -9267,6 +9260,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         <SecurityHubView user={user} showToast={showToast} />
       )}
 
+      {/* VIEW: FILE FORMAT CONVERTER (IMAGE TO PDF, PDF TO IMAGE, TEXT TO WORD) */}
+      {activeView === 'file-converter' && (
+        <FileConverterView 
+          showToast={showToast} 
+          language={language} 
+          onBack={() => setActiveView('chat')} 
+        />
+      )}
+
+      {/* VIEW: WEATHER & CLIMATE ALERT CENTER (CONSENT BASED) */}
+      {activeView === 'weather-alerts' && (
+        <WeatherAlertView 
+          showToast={showToast} 
+          language={language} 
+          onBack={() => setActiveView('chat')} 
+        />
+      )}
+
       {/* SECURE AUTH MODALS (LOGIN, REGISTER, FORGOT PASSWORD) */}
       <AuthModals
         isRegisterOpen={isAuthRegisterOpen}
@@ -9450,7 +9461,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             {/* Footer note */}
             <div className="pt-2 border-t border-slate-800 text-center">
               <span className="text-[10px] text-slate-400">
-                HansAI Platform • Directed by Founder Owner Hanslal Pal Ji (हंसलाल पाल जी)
+                HansAI Platform • Digital Learning & Research Ecosystem
               </span>
             </div>
 
@@ -9486,7 +9497,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <div className="p-3.5 bg-amber-950/40 border border-amber-500/30 rounded-2xl text-xs text-amber-200 leading-relaxed space-y-1.5">
               <p className="font-bold flex items-center gap-1.5 text-amber-300">
                 <span>🛡️</span>
-                <span>सुरक्षित ओनर डैशबोर्ड (Founder Hanslal Pal Ji)</span>
+                <span>सुरक्षित ओनर डैशबोर्ड (Admin Console)</span>
               </p>
               <p className="text-[11px] text-slate-300">
                 सामान्य छात्र यूजर इस सेक्शन में प्रवेश नहीं कर सकते। ओनर कंसोल खोलने के लिए अपना <strong>Secret Owner PIN</strong> दर्ज करें (Owner Passcode: <strong>9988</strong> या <strong>1234</strong>)।
