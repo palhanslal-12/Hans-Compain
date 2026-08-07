@@ -58,7 +58,9 @@ import {
   ZoomIn,
   ZoomOut,
   Search,
-  MessageSquare
+  MessageSquare,
+  ArrowLeft,
+  Headphones
 } from 'lucide-react';
 import { Message, QuizQuestion, BusinessCalculation, BusinessResult } from './types';
 import { HELP_TOPICS, PITMAN_STROKES, PRESET_MOTIVATIONAL_RAPS } from './constants';
@@ -70,6 +72,7 @@ import { SecurityHubView } from './components/SecurityHubView';
 import { AuthModals } from './components/AuthModals';
 import { AuthGateView } from './components/AuthGateView';
 import { MusicStudioView } from './components/MusicStudioView';
+import { ArticleVoiceReader } from './components/ArticleVoiceReader';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -185,7 +188,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     yourNameLabel: "आपका नाम",
     emailLabel: "ईमेल पता",
     googleSignInBtn: "गूगल से साइन इन करें",
-    verifyProceed: "सत्यापित करें and आगे बढ़ें",
+    verifyProceed: "सत्यापित करें और आगे बढ़ें",
     feedbackTitle: "उपयोगकर्ता अनुभव समीक्षाएँ",
     feedbackWrite: "एक समीक्षा लिखें",
     feedbackLoggedOutWarning: "समीक्षा दर्ज करने के लिए कृपया अपने गूगल खाते से साइन इन करें।",
@@ -3294,8 +3297,50 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           </div>
 
+          {/* SYSTEM LANGUAGE TOGGLE (HINDI / ENGLISH) */}
+          <div className="space-y-1.5 pt-2 border-t border-slate-800">
+            <span className="text-[10px] font-black uppercase text-indigo-400 tracking-wider block">🌐 {language === 'hindi' ? 'सिस्टम भाषा (System Language):' : 'System Language:'}</span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                onClick={() => {
+                  setLanguage('hindi');
+                  localStorage.setItem('hansai-language', 'hindi');
+                  showToast("भाषा: हिंदी (Hindi Active) 🇮🇳", "success");
+                }}
+                className={`p-2 rounded-xl border text-center font-bold cursor-pointer transition-all ${
+                  language === 'hindi' ? 'bg-indigo-600 text-white border-indigo-400 shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                }`}
+              >
+                🇮🇳 हिंदी (Hindi)
+              </button>
+              <button
+                onClick={() => {
+                  setLanguage('english');
+                  localStorage.setItem('hansai-language', 'english');
+                  showToast("Language: English Active 🇬🇧", "success");
+                }}
+                className={`p-2 rounded-xl border text-center font-bold cursor-pointer transition-all ${
+                  language === 'english' ? 'bg-indigo-600 text-white border-indigo-400 shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                }`}
+              >
+                🇬🇧 English
+              </button>
+            </div>
+          </div>
+
           {/* Quick Action Navigation Buttons */}
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
+            <button
+              onClick={() => { setActiveView('article-reader'); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>🎙️</span>
+                <span>{language === 'hindi' ? 'आर्टिकल वाइस रीडर एवं ट्रांसलेटर' : 'Article Voice Reader & Translator'}</span>
+              </div>
+              <span className="text-[10px] opacity-70">{language === 'hindi' ? 'सुनें →' : 'Listen →'}</span>
+            </button>
+
             <button
               onClick={() => { setActiveView('history'); setIsHeaderMenuOpen(false); }}
               className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
@@ -3445,6 +3490,32 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         {/* ACTIVE CANVAS VIEW */}
         <div className={`flex-1 ${activeView === 'chat' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
           
+          {/* UNIVERSAL BACK BUTTON TOP BAR FOR ALL NON-CHAT SUB-VIEWS */}
+          {activeView !== 'chat' && (
+            <div className="sticky top-0 z-50 bg-[#060913]/95 backdrop-blur-md border-b border-indigo-500/30 px-3 py-2 flex items-center justify-between shadow-xl">
+              <button
+                onClick={() => setActiveView('chat')}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer border border-indigo-400/30 active:scale-95 shrink-0"
+                title={language === 'hindi' ? 'मुख्य चैट पर जाएँ' : 'Back to Chat'}
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-extrabold text-indigo-300 capitalize px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hidden sm:inline">
+                  {activeView.replace('-', ' ')}
+                </span>
+                <button
+                  onClick={() => setActiveView('chat')}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-xl bg-slate-800/80 hover:bg-slate-700 transition-all cursor-pointer"
+                  title="Close View & Return to Chat"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          
           {/* VIEW: CHAT BOT (CHATGPT & GEMINI STYLE WITH SIDEBAR & NON-SCROLLABLE HOME) */}
           {activeView === 'chat' && (
             !user ? (
@@ -3566,6 +3637,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       Specialized AI Hub / ऐप्स
                     </span>
                     <div className="space-y-1 text-xs font-semibold">
+                      <button
+                        onClick={() => { setActiveView('article-reader'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/10 border border-amber-500/20 cursor-pointer font-bold"
+                      >
+                        <Headphones className="w-4 h-4 text-amber-300" />
+                        <span className="truncate">{language === 'hindi' ? 'आर्टिकल वाइस रीडर 🎙️' : 'Article Voice Reader 🎙️'}</span>
+                      </button>
                       <button
                         onClick={() => { setActiveView('history'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
                         className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/10 border border-emerald-500/20 cursor-pointer font-bold"
@@ -3831,8 +3909,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </p>
                       </div>
 
-                      {/* Quick Utility Tools Horizontal Grid (3 Clean Boxes) */}
-                      <div className="grid grid-cols-3 gap-2 w-full text-left">
+                      {/* Quick Utility Tools Grid (4 Clean Boxes) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full text-left">
                         <button
                           onClick={() => { setActiveView('timer'); }}
                           className="p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
@@ -3842,6 +3920,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             <span>Set Alarm</span>
                           </div>
                           <span className="text-[9px] text-slate-400">Pomodoro Exam Timer</span>
+                        </button>
+
+                        <button
+                          onClick={() => { setActiveView('article-reader'); }}
+                          className="p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
+                        >
+                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-emerald-300">
+                            <span>🎙️</span>
+                            <span>{language === 'hindi' ? 'आर्टिकल वाइस रीडर' : 'Voice Article Reader'}</span>
+                          </div>
+                          <span className="text-[9px] text-slate-400">{language === 'hindi' ? 'सुनें एवं अनुवाद करें' : 'Listen & translate'}</span>
                         </button>
 
                         <button
@@ -7565,11 +7654,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <div className="flex items-center gap-2">
                         <span className="w-3 h-3 rounded-full bg-amber-500 shadow-md shadow-amber-500/20 animate-pulse" />
                         <h2 className="text-xl font-bold text-white uppercase tracking-wider">
-                          👑 Owner Admin Console / Hanslal Pal Ji (हंसलाल पाल जी) डैशबोर्ड
+                          👑 {language === 'hindi' ? 'हंसलाल पाल जी मालिक एडमिन डैशबोर्ड' : 'Owner Admin Console - Hanslal Pal'}
                         </h2>
                       </div>
                       <p className="text-xs text-slate-400 mt-1">
-                        Secure password-protected owner administration console (palhanslal4@gmail.com)
+                        {language === 'hindi' 
+                          ? 'सुरक्षित पासवर्ड-संरक्षित ऑनर एडमिनिस्ट्रेशन कंसोल (palhanslal4@gmail.com)' 
+                          : 'Secure password-protected owner administration console (palhanslal4@gmail.com)'}
                       </p>
                     </div>
 
@@ -7577,12 +7668,12 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <button
                         onClick={() => {
                           setIsOwnerAuthenticated(false);
-                          showToast("Owner Console Locked 🔒", "info");
+                          showToast(language === 'hindi' ? "ऑनर कंसोल लॉक हुआ 🔒" : "Owner Console Locked 🔒", "info");
                         }}
                         className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md border border-amber-500/30"
                       >
                         <Lock className="w-3.5 h-3.5" />
-                        <span>Lock Console 🔒</span>
+                        <span>{language === 'hindi' ? 'कंसोल लॉक करें 🔒' : 'Lock Console 🔒'}</span>
                       </button>
 
                       <button
@@ -7591,7 +7682,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md disabled:opacity-50"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${isOwnerAnalyticsLoading ? 'animate-spin' : ''}`} />
-                        <span>{isOwnerAnalyticsLoading ? 'लोड हो रहा है...' : 'Refresh / रिफ्रेश'}</span>
+                        <span>{isOwnerAnalyticsLoading ? (language === 'hindi' ? 'लोड हो रहा है...' : 'Loading...') : (language === 'hindi' ? 'रीफ्रेश डेटा' : 'Refresh Data')}</span>
                       </button>
                     </div>
                   </div>
@@ -7599,34 +7690,34 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {/* Real-time Stats Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Total Registered Users</span>
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'कुल पंजीकृत छात्र/उपयोगकर्ता' : 'Total Registered Users'}</span>
                       <span className="text-2xl font-black text-indigo-400 block font-mono">{ownerAnalyticsData.totalUsers || ownerAnalyticsData.users.length}</span>
-                      <span className="text-[9px] text-[#22c55e] block font-semibold">Registered via Name & Email</span>
+                      <span className="text-[9px] text-[#22c55e] block font-semibold">{language === 'hindi' ? 'नाम एवं ईमेल द्वारा रजिस्टर्ड' : 'Registered via Name & Email'}</span>
                     </div>
                     <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Total User Searches & Prompts</span>
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'कुल छात्र सर्च एवं प्रश्न' : 'Total User Searches & Prompts'}</span>
                       <span className="text-2xl font-black text-emerald-400 block font-mono">{ownerAnalyticsData.totalQueries || ownerAnalyticsData.logs.length}</span>
-                      <span className="text-[9px] text-slate-400 block">Logged activity records</span>
+                      <span className="text-[9px] text-slate-400 block">{language === 'hindi' ? 'सहेजी गई गतिविधि' : 'Logged activity records'}</span>
                     </div>
                     <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Offline Status</span>
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'ऑफ़लाइन स्थिति' : 'Offline Status'}</span>
                       <span className="text-2xl font-black text-amber-400 block font-mono">{isOffline ? 'OFFLINE' : 'ONLINE'}</span>
-                      <span className="text-[9px] text-slate-400 block font-semibold">Service Worker cached</span>
+                      <span className="text-[9px] text-slate-400 block font-semibold">{language === 'hindi' ? 'सर्विस वर्कर कैश सक्रिय' : 'Service Worker cached'}</span>
                     </div>
                     <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">User Feedback Rate</span>
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'उपयोगकर्ता रेटिंग औसतन' : 'User Feedback Rate'}</span>
                       <span className="text-2xl font-black text-pink-400 block font-mono">4.9 / 5.0</span>
-                      <span className="text-[9px] text-slate-400 block">From {feedbacks.length} student audits</span>
+                      <span className="text-[9px] text-slate-400 block">{language === 'hindi' ? `${feedbacks.length} छात्र समीक्षाओं द्वारा` : `From ${feedbacks.length} student audits`}</span>
                     </div>
                   </div>
 
-                  {/* SECTION 1: REGISTERED USERS LIST (कौन-कौन चलाया है) */}
+                  {/* SECTION 1: REGISTERED USERS LIST */}
                   <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                       <div>
                         <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                           <Users className="w-4 h-4 text-indigo-400" />
-                          1. Registered Users Directory / कौन-कौन प्रयोग किया है ({ownerAnalyticsData.users.length})
+                          {language === 'hindi' ? '1. पंजीकृत छात्रों की सूची (कौन-कौन चलाया है)' : '1. Registered Users Directory'} ({ownerAnalyticsData.users.length})
                         </h3>
                         <p className="text-[11px] text-slate-400">
                           List of all students who submitted Name & Email before using HansAI.
@@ -9164,6 +9255,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       {/* VIEW: PHOTO DOUBT SOLVER & OCR */}
       {activeView === 'photo-doubt' && (
         <PhotoDoubtView onExportPdf={handleExportPdf} showToast={showToast} />
+      )}
+
+      {/* VIEW: ARTICLE VOICE READER & TRANSLATOR */}
+      {activeView === 'article-reader' && (
+        <ArticleVoiceReader onBackToChat={() => setActiveView('chat')} showToast={showToast} language={language} />
       )}
 
       {/* VIEW: SECURITY SYSTEM AUDIT HUB */}
