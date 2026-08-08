@@ -4224,7 +4224,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className={`flex-1 flex flex-col h-full overflow-hidden ${themeColors.bgMain} relative transition-colors duration-300`}>
                 
                 {/* MAIN CHAT CONTENT AREA */}
-                <div className="flex-1 flex flex-col max-w-4xl w-full mx-auto p-3 sm:p-5 overflow-y-auto scrollbar-thin">
+                <div className="flex-1 flex flex-col w-full max-w-6xl mx-auto p-2 sm:p-4 overflow-y-auto scrollbar-thin">
                   
                   {/* Hands-Free Voice Assistant Active Status Banner */}
                   {isVoiceAssistantActive && (
@@ -4272,16 +4272,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                   )}
                   
-                  {/* NEW CHAT WELCOME STATE (Clean, Spaced, Non-Overlapping Layout) */}
+                  {/* NEW CHAT WELCOME STATE (Clean Full Display Layout) */}
                   {chatMessages.length === 0 ? (
-                    <div className="my-auto py-2 px-1 space-y-4 flex flex-col items-center w-full max-w-2xl mx-auto text-center animate-fade-in pb-8">
+                    <div className="my-auto py-2 px-2 space-y-3 flex flex-col items-center w-full max-w-5xl mx-auto text-center animate-fade-in">
                       
                       {/* Logo and Greeting - Compact & Focused */}
-                      <div className="flex flex-col items-center space-y-1.5">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
-                          <QuantumSwanLogo className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-400" />
+                      <div className="flex flex-col items-center space-y-1">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
+                          <QuantumSwanLogo className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-400" />
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-black tracking-tight font-sans">
+                        <h2 className="text-lg sm:text-xl font-black tracking-tight font-sans text-white">
                           HansAI - What can I help with today?
                         </h2>
                       </div>
@@ -4334,12 +4334,12 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
 
                       {/* Primary Quick Syllabus & Exam Roadmap Card */}
-                      <div className="w-full text-left pt-1">
+                      <div className="w-full text-left pt-0.5">
                         <button
                           onClick={() => {
                             setIsAllExamsSyllabusOpen(true);
                           }}
-                          className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-slate-900 border border-indigo-500/50 hover:border-indigo-400 transition-all text-left space-y-1.5 group cursor-pointer shadow-lg"
+                          className="w-full p-3 rounded-2xl bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-slate-900 border border-indigo-500/50 hover:border-indigo-400 transition-all text-left space-y-1 group cursor-pointer shadow-lg"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-xs sm:text-sm font-black text-indigo-200 group-hover:text-white flex items-center gap-2">
@@ -4359,43 +4359,42 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                   ) : (
                     /* ACTIVE CHAT MESSAGES THREAD */
-                    <div className="flex-1 space-y-6 max-w-3xl mx-auto w-full mb-4 overflow-y-auto pr-1">
+                    <div className="flex-1 space-y-6 w-full max-w-5xl mx-auto mb-3 overflow-y-auto pr-1">
                       {chatMessages.map((msg) => (
                         <div 
                           key={msg.id}
-                          className={`flex flex-col space-y-1.5 py-2 ${
+                          className={`flex flex-col space-y-1 py-1 w-full ${
                             msg.role === 'user' ? 'items-end' : 'items-start'
                           }`}
                         >
-                          <div className={`flex items-start gap-3.5 max-w-[90%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                          <div className={`flex items-start gap-3 w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             
                             {/* Avatar */}
                             {msg.role === 'user' ? (
-                              <div className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm bg-indigo-600 text-white">
+                              <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-[11px] flex-shrink-0 shadow-sm bg-indigo-600 text-white mt-0.5">
                                 U
                               </div>
                             ) : (
-                              <div className="relative w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                              <div className="relative w-7 h-7 flex-shrink-0 flex items-center justify-center mt-0.5">
                                 <div className="absolute inset-0 rounded-full border border-teal-400/35 animate-ping opacity-60" style={{ animationDuration: '3s' }} />
-                                <div className="absolute inset-0.5 rounded-full border border-dashed border-indigo-400/60 animate-spin" style={{ animationDuration: '10s' }} />
-                                <div className="w-5.5 h-5.5 rounded-full bg-gradient-to-tr from-[#00E5FF] to-[#9D4EDD] shadow-lg shadow-teal-500/20 flex items-center justify-center text-[10px] font-black text-slate-950 z-10 select-none">
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#00E5FF] to-[#9D4EDD] shadow-md flex items-center justify-center text-[11px] font-black text-slate-950 z-10 select-none">
                                   🦢
                                 </div>
                               </div>
                             )}
 
-                            {/* Speech Bubble */}
-                            <div className="flex flex-col">
+                            {/* Speech Body - Frameless & Unboxed for Assistant */}
+                            <div className="flex flex-col flex-1 min-w-0">
                               {msg.imagePreviewUrl && (
                                 <div className="mb-2 max-w-xs overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40 shadow-md">
                                   <img src={msg.imagePreviewUrl} alt="User contribution" className="max-h-48 object-contain rounded-xl" referrerPolicy="no-referrer" />
                                 </div>
                               )}
 
-                              <div className={`rounded-2xl p-4 ${textSizeClass} leading-relaxed whitespace-pre-wrap shadow-sm ${
+                              <div className={`leading-relaxed whitespace-pre-wrap ${textSizeClass} ${
                                 msg.role === 'user' 
-                                  ? 'bg-indigo-600/90 text-white rounded-tr-none' 
-                                  : 'bg-slate-900/90 text-slate-200 border border-slate-800/70 rounded-tl-none'
+                                  ? 'bg-indigo-600 text-white rounded-2xl py-2 px-4 shadow-sm inline-block max-w-[85%] self-end' 
+                                  : 'bg-transparent text-slate-100 border-none p-0 sm:p-1 w-full text-left font-sans'
                               }`}>
                                 {renderMessageWithHighlights(msg.content)}
                               </div>
@@ -4404,10 +4403,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                           {/* Msg Actions Console */}
                           {msg.role === 'assistant' && (
-                            <div className="flex items-center gap-3 pl-12 text-[10px] text-slate-500 font-medium select-none">
+                            <div className="flex items-center gap-3 pl-10 text-[10px] text-slate-500 font-medium select-none pt-1">
                               <button
                                 onClick={() => handleCopyMessage(msg.id, msg.content)}
-                                className="flex items-center gap-1 hover:text-indigo-400 transition-colors py-1 px-1.5 hover:bg-slate-800/40 rounded-md border-none bg-transparent cursor-pointer"
+                                className="flex items-center gap-1 hover:text-indigo-400 transition-colors py-0.5 px-1.5 hover:bg-slate-800/40 rounded-md border-none bg-transparent cursor-pointer text-slate-400"
                                 title="Copy response to clipboard"
                               >
                                 <Copy className="w-3 h-3" />
@@ -4415,10 +4414,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                               </button>
                               <button
                                 onClick={() => handleToggleSpeech(msg.id, msg.content)}
-                                className={`flex items-center gap-1 transition-all py-1 px-1.5 rounded-md border-none cursor-pointer ${
+                                className={`flex items-center gap-1 transition-all py-0.5 px-1.5 rounded-md border-none cursor-pointer ${
                                   currentlySpeakingMsgId === msg.id 
                                     ? 'text-emerald-400 bg-emerald-500/10 font-bold' 
-                                    : 'hover:text-amber-400 hover:bg-slate-800/40 bg-transparent'
+                                    : 'hover:text-amber-400 hover:bg-slate-800/40 bg-transparent text-slate-400'
                                 }`}
                                 title="Hear this read out loud"
                               >
@@ -4467,13 +4466,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                       {/* Loading placeholder spinner */}
                       {isChatLoading && (
-                        <div className="flex items-start gap-3.5 py-4">
-                          <div className="w-8 h-8 rounded-xl bg-slate-800 text-indigo-400 border border-slate-700/80 flex items-center justify-center font-bold text-xs">
-                            AI
+                        <div className="flex items-center gap-3 py-3 pl-1">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#00E5FF] to-[#9D4EDD] flex items-center justify-center text-[10px] font-black text-slate-950">
+                            🦢
                           </div>
-                          <div className="bg-slate-900/35 border border-slate-800/80 p-4 rounded-2xl rounded-tl-none html-loader text-slate-400 text-xs sm:text-sm flex items-center gap-3">
-                            <span className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-ping"></span>
-                            <span className="italic text-slate-500">HansAI is formulating custom study response...</span>
+                          <div className="text-slate-400 text-xs sm:text-sm flex items-center gap-2">
+                            <span className="w-2 h-2 bg-indigo-400 rounded-full animate-ping"></span>
+                            <span className="italic text-slate-400 font-medium">HansAI - Generating response...</span>
                           </div>
                         </div>
                       )}
@@ -4482,7 +4481,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   )}
 
                   {/* FIXED CHAT INPUT AREA AT BOTTOM (Full Width Spacious Box with Camera Upload) */}
-                  <div className="max-w-4xl w-full mx-auto pt-2 pb-2">
+                  <div className="max-w-5xl w-full mx-auto pt-2 pb-2">
                     {chatAttachedImage && (
                       <div className="p-2 mb-2 bg-[#0F1626] border border-slate-800 rounded-xl max-w-sm flex items-center justify-between shadow-xl animate-fade-in">
                         <div className="flex items-center gap-3">
