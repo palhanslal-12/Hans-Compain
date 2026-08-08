@@ -1843,9 +1843,14 @@ export default function App() {
   const [newSegmentEmoji, setNewSegmentEmoji] = useState<string>("🚀");
   const [isAddingSegment, setIsAddingSegment] = useState<boolean>(false);
   
-  // Quiz Generator state
-  const [quizSubject, setQuizSubject] = useState('SSC General Awareness');
-  const [quizLevel, setQuizLevel] = useState('Basic to Intermediate');
+  // Quiz Generator & A1 Report Card state
+  const [quizSubject, setQuizSubject] = useState('Chapter 1: Real Numbers & Algebra');
+  const [quizLevel, setQuizLevel] = useState('Class 10th / Competitive');
+  const [studentName, setStudentName] = useState('Hanslal Pal');
+  const [studentRoll, setStudentRoll] = useState('HS-2026-8809');
+  const [positiveMarkVal, setPositiveMarkVal] = useState(2.0);
+  const [negativeMarkVal, setNegativeMarkVal] = useState(0.5);
+  const [userQuizAnswers, setUserQuizAnswers] = useState<Record<number, number>>({});
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [quizzes, setQuizzes] = useState<QuizQuestion[]>([]);
   const [currentQuizIdx, setCurrentQuizIdx] = useState(0);
@@ -1853,6 +1858,137 @@ export default function App() {
   const [isQuizSubmitted, setIsQuizSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [quizError, setQuizError] = useState<string | null>(null);
+
+  const handleDownloadA1Card = () => {
+    const totalQ = quizzes.length;
+    let correctQ = 0;
+    let wrongQ = 0;
+    quizzes.forEach((q, idx) => {
+      const uAns = userQuizAnswers[idx];
+      if (uAns !== undefined && uAns !== null) {
+        if (uAns === q.answerIndex) correctQ++;
+        else wrongQ++;
+      }
+    });
+    const unattempted = Math.max(0, totalQ - (correctQ + wrongQ));
+    const posMarks = (correctQ * positiveMarkVal).toFixed(2);
+    const negMarks = (wrongQ * negativeMarkVal).toFixed(2);
+    const netScoreVal = Math.max(0, (correctQ * positiveMarkVal) - (wrongQ * negativeMarkVal)).toFixed(2);
+    const maxScoreVal = (totalQ * positiveMarkVal).toFixed(2);
+    const pct = maxScoreVal !== "0.00" ? Math.min(100, Math.max(0, Math.round((parseFloat(netScoreVal) / parseFloat(maxScoreVal)) * 100))) : 0;
+
+    const cardHtml = `<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A1 Scorecard - ${studentName} - ${quizSubject}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #030712; color: #f3f4f6; padding: 30px 15px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .certificate-card { width: 100%; max-width: 880px; background: linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #030712 100%); border: 8px double #f59e0b; border-radius: 28px; padding: 35px; box-shadow: 0 25px 60px rgba(0,0,0,0.85); position: relative; overflow: hidden; }
+    .bg-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; font-weight: 900; color: rgba(255,255,255,0.02); pointer-events: none; user-select: none; z-index: 0; text-transform: uppercase; white-space: nowrap; }
+    .content-wrap { position: relative; z-index: 1; }
+    .header { text-align: center; border-bottom: 2px solid rgba(245, 158, 11, 0.4); padding-bottom: 20px; margin-bottom: 25px; }
+    .org-title { font-size: 26px; font-weight: 900; color: #fbbf24; letter-spacing: 2px; text-transform: uppercase; }
+    .sub-org { font-size: 12px; color: #e0e7ff; margin-top: 4px; letter-spacing: 1px; font-weight: 600; }
+    .card-type { font-size: 15px; color: #818cf8; margin-top: 8px; font-weight: 800; letter-spacing: 1px; background: rgba(99, 102, 241, 0.15); display: inline-block; padding: 4px 16px; border-radius: 20px; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 25px; font-size: 13px; }
+    .meta-item strong { color: #94a3b8; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .meta-item span { color: #ffffff; font-weight: 700; font-size: 15px; margin-top: 2px; display: block; }
+    .table-container { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-radius: 12px; overflow: hidden; }
+    .table-container th, .table-container td { border: 1px solid rgba(255,255,255,0.1); padding: 12px; text-align: center; font-size: 13px; }
+    .table-container th { background: #1e1b4b; color: #e0e7ff; font-weight: 700; font-size: 12px; text-transform: uppercase; }
+    .table-container td { background: rgba(15, 23, 42, 0.6); }
+    .pos { color: #4ade80; font-weight: 800; }
+    .neg { color: #f87171; font-weight: 800; }
+    .score-summary { background: linear-gradient(90deg, #1e293b, #0f172a); border: 2px solid #10b981; border-radius: 20px; padding: 20px; display: flex; justify-content: space-around; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+    .big-score { font-size: 38px; font-weight: 900; color: #34d399; }
+    .grade-badge { background: #d97706; color: #ffffff; padding: 8px 22px; border-radius: 50px; font-weight: 800; font-size: 14px; display: inline-block; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4); }
+    .footer { font-size: 11px; color: #64748b; margin-top: 25px; border-top: 1px solid #1e293b; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div class="certificate-card">
+    <div class="bg-watermark">HANS-AI</div>
+    <div class="content-wrap">
+      <div class="header">
+        <div class="org-title">🏆 HANS-AI ACADEMIC EVALUATION COUNCIL</div>
+        <div class="sub-org">राष्ट्रीय परीक्षा मूल्यांकन एवं डिजिटल लर्निंग सिस्टम (A1 GRADE REPORT)</div>
+        <div class="card-type">OFFICIAL CHAPTER SCORECARD & A1 CERTIFICATE</div>
+      </div>
+      <div class="meta-grid">
+        <div class="meta-item"><strong>Student Name / विद्यार्थी का नाम</strong><span>${studentName}</span></div>
+        <div class="meta-item"><strong>Roll / Reg Number</strong><span>${studentRoll}</span></div>
+        <div class="meta-item"><strong>Chapter / Subject / अध्याय</strong><span>${quizSubject}</span></div>
+        <div class="meta-item"><strong>Level / Target Exam</strong><span>${quizLevel}</span></div>
+      </div>
+      <table class="table-container">
+        <thead>
+          <tr>
+            <th>Total MCQs</th>
+            <th>Correct Answers</th>
+            <th>Wrong Answers</th>
+            <th>Unattempted</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${totalQ}</td>
+            <td class="pos">${correctQ}</td>
+            <td class="neg">${wrongQ}</td>
+            <td>${unattempted}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table-container">
+        <thead>
+          <tr>
+            <th>Positive Marks (+${positiveMarkVal})</th>
+            <th>Negative Marks (-${negativeMarkVal})</th>
+            <th>Net Score Obtained</th>
+            <th>Percentage Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="pos">+${posMarks}</td>
+            <td class="neg">-${negMarks}</td>
+            <td style="font-size:15px; font-weight:bold; color:#fbbf24;">${netScoreVal} / ${maxScoreVal}</td>
+            <td style="font-size:15px; font-weight:bold; color:#38bdf8;">${pct}%</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="score-summary">
+        <div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:bold; text-transform:uppercase;">PERFORMANCE PERCENTAGE</div>
+          <div class="big-score">${pct}%</div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:bold; text-transform:uppercase;">CERTIFICATE GRADE</div>
+          <div class="grade-badge">${pct >= 85 ? 'DISTINCTION (GRADE A+)' : pct >= 60 ? 'PASSED (GRADE A)' : pct >= 40 ? 'PASSED (GRADE B)' : 'NEEDS REVISION (GRADE C)'}</div>
+        </div>
+      </div>
+      <div class="footer">
+        <div>Verified By: HansAI Educational Platform (Hanslal Pal Vision)</div>
+        <div>Certificate Ref: #HS-A1-${Date.now().toString().slice(-6)}</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([cardHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `HansAI_A1_Card_${studentName.replace(/\s+/g, '_')}_${quizSubject.replace(/\s+/g, '_')}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast("A1 Size Report Card Downloaded Successfully! 📜", "success");
+  };
 
   // Interactive Quiz Tabs: 'syllabus' | 'saved'
   const [activeQuizTab, setActiveQuizTab] = useState<'syllabus' | 'saved'>('syllabus');
@@ -1953,9 +2089,10 @@ export default function App() {
     setCurrentQuizIdx(0);
     setSelectedOptionIdx(null);
     setIsQuizSubmitted(false);
+    setUserQuizAnswers({});
     setScore(0);
 
-    const targetedSubject = subjectParam || quizSubject || "SSC General Awareness";
+    const targetedSubject = subjectParam || quizSubject || "Chapter 1: Real Numbers & Algebra";
 
     // Log quiz activity query for owner analytics
     logUserActivity('quiz', `Quiz Generated: ${targetedSubject}`);
@@ -2067,6 +2204,7 @@ export default function App() {
   const submitQuizAnswer = () => {
     if (selectedOptionIdx === null) return;
     const currentQ = quizzes[currentQuizIdx];
+    setUserQuizAnswers(prev => ({ ...prev, [currentQuizIdx]: selectedOptionIdx }));
     if (selectedOptionIdx === currentQ.answerIndex) {
       setScore(prev => prev + 1);
     }
@@ -2076,13 +2214,31 @@ export default function App() {
   const advanceQuiz = () => {
     const isLastQ = currentQuizIdx === quizzes.length - 1;
     if (isLastQ) {
-      const finalScore = score + (selectedOptionIdx === quizzes[currentQuizIdx].answerIndex ? 0 : 0);
-      const scoreStr = `${finalScore} / ${quizzes.length} Correct`;
+      let correctQ = 0;
+      let wrongQ = 0;
+      const finalAnswers = { ...userQuizAnswers };
+      if (selectedOptionIdx !== null) {
+        finalAnswers[currentQuizIdx] = selectedOptionIdx;
+      }
+      quizzes.forEach((q, idx) => {
+        const uAns = finalAnswers[idx];
+        if (uAns !== undefined && uAns !== null) {
+          if (uAns === q.answerIndex) correctQ++;
+          else wrongQ++;
+        }
+      });
+      const posMarks = correctQ * positiveMarkVal;
+      const negMarks = wrongQ * negativeMarkVal;
+      const netScoreVal = Math.max(0, posMarks - negMarks);
+      const maxScoreVal = quizzes.length * positiveMarkVal;
+      const pct = maxScoreVal > 0 ? Math.round((netScoreVal / maxScoreVal) * 100) : 0;
+
+      const scoreStr = `Net: ${netScoreVal.toFixed(1)}/${maxScoreVal.toFixed(1)} (${pct}%) [+${posMarks.toFixed(1)}, -${negMarks.toFixed(1)}]`;
       const logItem = {
         id: `hist-quiz-${Date.now()}`,
         type: 'quiz' as const,
         title: `${quizSubject} Assessment Finished`,
-        subtitle: `Level: ${quizLevel}. Focused dynamic testing.`,
+        subtitle: `Student: ${studentName} | Roll: ${studentRoll}`,
         score: scoreStr,
         timestamp: new Date().toISOString()
       };
@@ -2098,6 +2254,7 @@ export default function App() {
     setCurrentQuizIdx(0);
     setSelectedOptionIdx(null);
     setIsQuizSubmitted(false);
+    setUserQuizAnswers({});
     setScore(0);
     setQuizError(null);
   };
@@ -4122,14 +4279,14 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       {/* Quick Utility Tools Grid (4 Clean Unique Colored Boxes) */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full text-left">
                         <button
-                          onClick={() => { setActiveView('timer'); }}
-                          className="p-3 bg-gradient-to-br from-amber-950/80 via-amber-900/40 to-slate-900 border border-amber-500/60 hover:border-amber-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20"
+                          onClick={() => { setActiveView('quiz'); }}
+                          className="p-3 bg-gradient-to-br from-purple-950/80 via-indigo-900/40 to-slate-900 border border-purple-500/60 hover:border-purple-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:text-amber-200">
-                            <span>⏰</span>
-                            <span>Set Alarm</span>
+                          <div className="flex items-center gap-1.5 text-xs font-black text-purple-300 group-hover:text-purple-200">
+                            <span>🧠</span>
+                            <span>{language === 'hindi' ? 'अध्याय आधारित क्विज' : 'Auto Chapter Quiz'}</span>
                           </div>
-                          <span className="text-[9px] text-amber-200/80 font-medium">Pomodoro Exam Timer</span>
+                          <span className="text-[9px] text-purple-200/80 font-medium">{language === 'hindi' ? 'क्विज टेस्ट एवं A1 कार्ड' : 'Solving & A1 Scorecard'}</span>
                         </button>
 
                         <button
@@ -4519,56 +4676,125 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                   {activeQuizTab === 'syllabus' ? (
                     <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4 text-left">
+                      
+                      {/* Student A1 Report Card Meta */}
+                      <div className="p-3.5 bg-[#090D16] border border-amber-500/30 rounded-xl space-y-3">
+                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+                          <Award className="w-3.5 h-3.5 text-amber-400" />
+                          A1 Scorecard Profile & Student Details (कार्ड विवरण)
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="block text-[10px] text-slate-400 font-bold">Student Name (छात्र का नाम):</label>
+                            <input
+                              type="text"
+                              value={studentName}
+                              onChange={(e) => setStudentName(e.target.value)}
+                              placeholder="Hanslal Pal"
+                              className="w-full text-xs py-2 px-3 bg-slate-900 border border-slate-800 rounded-lg text-white font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-[10px] text-slate-400 font-bold">Roll / Reg Number (अनुक्रमांक):</label>
+                            <input
+                              type="text"
+                              value={studentRoll}
+                              onChange={(e) => setStudentRoll(e.target.value)}
+                              placeholder="HS-2026-8809"
+                              className="w-full text-xs py-2 px-3 bg-slate-900 border border-slate-800 rounded-lg text-amber-300 font-mono font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Positive & Negative Marking Scheme */}
+                        <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-850">
+                          <div className="space-y-1">
+                            <label className="block text-[10px] text-emerald-400 font-bold">Positive Mark (+Per Question):</label>
+                            <input
+                              type="number"
+                              step="0.5"
+                              value={positiveMarkVal}
+                              onChange={(e) => setPositiveMarkVal(parseFloat(e.target.value) || 2.0)}
+                              className="w-full text-xs py-1.5 px-3 bg-slate-900 border border-emerald-500/40 rounded-lg text-emerald-300 font-bold focus:outline-none"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-[10px] text-rose-400 font-bold">Negative Mark (-Per Question):</label>
+                            <input
+                              type="number"
+                              step="0.25"
+                              value={negativeMarkVal}
+                              onChange={(e) => setNegativeMarkVal(parseFloat(e.target.value) || 0.5)}
+                              className="w-full text-xs py-1.5 px-3 bg-slate-900 border border-rose-500/40 rounded-lg text-rose-300 font-bold focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Chapter Name & Exam Input */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block text-xs text-slate-400">विशिष्ट विषय का नाम (Write Subject Name):</label>
+                          <label className="block text-xs font-bold text-slate-300">अध्याय या विषय का नाम (Chapter Name):</label>
                           <input
                             type="text"
                             value={quizSubject}
                             onChange={(e) => setQuizSubject(e.target.value)}
-                            placeholder="जैसे: BPSC Bihar History, Stenographer Dictation Rules, UPSC Polity..."
-                            className="w-full text-xs py-2.5 px-3.5 bg-[#090D16] border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white"
+                            placeholder="जैसे: Chapter 1: Real Numbers, Chapter 3: Laws of Motion..."
+                            className="w-full text-xs py-2.5 px-3.5 bg-[#090D16] border border-indigo-500/40 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white font-medium"
                           />
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs text-slate-400">कठिनाई का स्तर (Target Level / Exam):</label>
+                          <label className="block text-xs font-bold text-slate-300">कठिनाई एवं लक्ष्य परीक्षा (Level / Exam):</label>
                           <input
                             type="text"
                             value={quizLevel}
                             onChange={(e) => setQuizLevel(e.target.value)}
-                            placeholder="जैसे: BPSC Prelims, SSC Stenographer Skill Test, UPSC GS, SSC General Awareness..."
-                            className="w-full text-xs py-2.5 px-3.5 bg-[#090D16] border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white"
+                            placeholder="जैसे: Class 10th Board, SSC CGL, BPSC Prelims..."
+                            className="w-full text-xs py-2.5 px-3.5 bg-[#090D16] border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white font-medium"
                           />
                         </div>
                       </div>
 
+                      {/* Quick Chapter Preset Buttons */}
                       <div className="space-y-2">
-                        <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Quick Preset Topics</span>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Quick Chapter Presets (त्वरित अध्याय चुनाव)</span>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <button 
-                            onClick={() => { setQuizSubject("English Preposition Rules"); handleGenerateQuiz("English Preposition Rules"); }}
-                            className="p-2 py-2.5 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl text-ellipsis truncate"
+                            onClick={() => { const sub = "Chapter 1: Real Numbers & Polynomials"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
                           >
-                            📖 Prep Grammar
+                            📐 Ch 1: Real Numbers
                           </button>
                           <button 
-                            onClick={() => { setQuizSubject("Newton Laws Mechanics"); handleGenerateQuiz("Newton Laws Mechanics"); }}
-                            className="p-2 py-2.5 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl text-ellipsis truncate"
+                            onClick={() => { const sub = "Chapter 3: Laws of Motion & Physics"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
                           >
-                            🧪 Mechanics (Physics)
+                            🧪 Ch 3: Laws of Motion
                           </button>
                           <button 
-                            onClick={() => { setQuizSubject("Bihar GK and Rivers"); handleGenerateQuiz("Bihar GK and Rivers"); }}
-                            className="p-2 py-2.5 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl text-ellipsis truncate"
+                            onClick={() => { const sub = "Chapter 5: Constitution Articles & Rights"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
                           >
-                            🚩 बिहार सामान्य ज्ञान
+                            🏛️ Ch 5: Fundamental Rights
                           </button>
                           <button 
-                            onClick={() => { setQuizSubject("Indian Constitution Articles"); handleGenerateQuiz("Indian Constitution Articles"); }}
-                            className="p-2 py-2.5 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl text-ellipsis truncate"
+                            onClick={() => { const sub = "Chapter 2: Trigonometry & Geometry"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
                           >
-                            🏛️ Indian Polity & GK
+                            📐 Ch 2: Trigonometry
+                          </button>
+                          <button 
+                            onClick={() => { const sub = "Chapter 4: Modern Indian History 1857-1947"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                          >
+                            🚩 Ch 4: Freedom Movement
+                          </button>
+                          <button 
+                            onClick={() => { const sub = "Chapter 1: English Preposition Rules"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                          >
+                            📖 Ch 1: English Prepositions
                           </button>
                         </div>
                       </div>
@@ -4583,17 +4809,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <button
                         onClick={() => handleGenerateQuiz()}
                         disabled={isGeneratingQuiz || !quizSubject}
-                        className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-xl text-xs font-bold uppercase transition-all shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-45"
+                        className="w-full py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white rounded-xl text-xs font-bold uppercase transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-45"
                       >
                         {isGeneratingQuiz ? (
                           <>
                             <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                            Generating MCQs via Gemini AI...
+                            Generating Chapter MCQs & Complete Solving...
                           </>
                         ) : (
                           <>
-                            <Zap className="w-4 h-4 text-white" />
-                            Generate Dynamic AI Quiz
+                            <Zap className="w-4 h-4 text-amber-400" />
+                            Start Chapter Quiz & Generate A1 Card
                           </>
                         )}
                       </button>
@@ -4740,30 +4966,158 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       )}
                     </div>
                   ) : (
-                    <div className="text-center py-6 space-y-4">
-                      <div className="text-4xl">🏆</div>
-                      <div>
-                        <h4 className="text-base font-bold text-white">Quiz Session Completed!</h4>
-                        <p className="text-xs text-slate-400 mt-1">Excellent self-discipline. Your score summary:</p>
+                    <div className="space-y-6 text-left animate-fade-in">
+                      {/* A1 SIZE OFFICIAL CERTIFICATE & SCORECARD */}
+                      <div className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-indigo-950/80 to-slate-900 border-4 border-amber-500/80 rounded-3xl p-5 sm:p-8 text-center text-white shadow-2xl space-y-6">
+                        
+                        {/* Gold Double Border Inner Frame */}
+                        <div className="absolute inset-2 border-2 border-dashed border-amber-500/30 rounded-2xl pointer-events-none" />
+
+                        {/* Certificate Header */}
+                        <div className="relative z-10 border-b border-amber-500/30 pb-4 space-y-1">
+                          <div className="inline-flex items-center gap-2 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                            <Award className="w-3.5 h-3.5 text-amber-400" />
+                            OFFICIAL A1 ACADEMIC EVALUATION
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-black text-amber-300 tracking-wider uppercase font-sans">
+                            HansAI Chapter Quiz Evaluation Council
+                          </h3>
+                          <p className="text-xs text-indigo-200 font-semibold">
+                            राष्ट्रीय अध्याय परीक्षा रिपोर्ट कार्ड एवं ए1 स्कोरकार्ड (National A1 Scorecard)
+                          </p>
+                        </div>
+
+                        {/* Student & Chapter Info Grid */}
+                        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-left text-xs">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Student Name</span>
+                            <span className="text-sm font-extrabold text-white truncate block">{studentName || 'Hanslal Pal'}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Roll / Reg No</span>
+                            <span className="text-sm font-extrabold text-amber-300 truncate block">{studentRoll || 'HS-2026-8809'}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Chapter / Subject</span>
+                            <span className="text-sm font-extrabold text-indigo-300 truncate block">{quizSubject}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Target Level</span>
+                            <span className="text-sm font-extrabold text-cyan-300 truncate block">{quizLevel}</span>
+                          </div>
+                        </div>
+
+                        {/* Marks & Performance Metrics Breakdown */}
+                        {(() => {
+                          let correctQ = 0;
+                          let wrongQ = 0;
+                          quizzes.forEach((q, idx) => {
+                            const uAns = userQuizAnswers[idx];
+                            if (uAns !== undefined && uAns !== null) {
+                              if (uAns === q.answerIndex) correctQ++;
+                              else wrongQ++;
+                            }
+                          });
+                          const unattempted = Math.max(0, quizzes.length - (correctQ + wrongQ));
+                          const posMarks = (correctQ * positiveMarkVal);
+                          const negMarks = (wrongQ * negativeMarkVal);
+                          const netScoreVal = Math.max(0, posMarks - negMarks);
+                          const maxScoreVal = quizzes.length * positiveMarkVal;
+                          const pct = maxScoreVal > 0 ? Math.min(100, Math.max(0, Math.round((netScoreVal / maxScoreVal) * 100))) : 0;
+
+                          return (
+                            <div className="relative z-10 space-y-4">
+                              {/* Questions Analysis Row */}
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                <div className="bg-slate-900/90 border border-slate-800 p-3 rounded-2xl text-center">
+                                  <span className="text-[10px] text-slate-400 font-bold block">TOTAL MCQS</span>
+                                  <span className="text-lg font-black text-white">{quizzes.length}</span>
+                                </div>
+                                <div className="bg-emerald-950/40 border border-emerald-500/40 p-3 rounded-2xl text-center">
+                                  <span className="text-[10px] text-emerald-400 font-bold block">CORRECT ANSWERS</span>
+                                  <span className="text-lg font-black text-emerald-300">+{correctQ}</span>
+                                </div>
+                                <div className="bg-rose-950/40 border border-rose-500/40 p-3 rounded-2xl text-center">
+                                  <span className="text-[10px] text-rose-400 font-bold block">WRONG ANSWERS</span>
+                                  <span className="text-lg font-black text-rose-300">-{wrongQ}</span>
+                                </div>
+                                <div className="bg-slate-900/90 border border-slate-800 p-3 rounded-2xl text-center">
+                                  <span className="text-[10px] text-slate-400 font-bold block">UNATTEMPTED</span>
+                                  <span className="text-lg font-black text-slate-400">{unattempted}</span>
+                                </div>
+                              </div>
+
+                              {/* Positive / Negative Marks Row */}
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                <div className="bg-emerald-950/60 border border-emerald-500/50 p-3 rounded-2xl text-center">
+                                  <span className="text-[10px] text-emerald-300 font-bold block">POSITIVE MARKS (+{positiveMarkVal})</span>
+                                  <span className="text-xl font-black text-emerald-400">+{posMarks.toFixed(1)}</span>
+                                </div>
+                                <div className="bg-rose-950/60 border border-rose-500/50 p-3 rounded-2xl text-center">
+                                  <span className="text-[10px] text-rose-300 font-bold block">NEGATIVE MARKS (-{negativeMarkVal})</span>
+                                  <span className="text-xl font-black text-rose-400">-{negMarks.toFixed(1)}</span>
+                                </div>
+                                <div className="bg-indigo-950/80 border border-indigo-500/60 p-3 rounded-2xl text-center sm:col-span-2">
+                                  <span className="text-[10px] text-indigo-300 font-bold block">NET OBTAINED MARKS</span>
+                                  <span className="text-xl font-black text-amber-300">{netScoreVal.toFixed(1)} / {maxScoreVal.toFixed(1)}</span>
+                                </div>
+                              </div>
+
+                              {/* Net Score & Grade Summary Header */}
+                              <div className="bg-gradient-to-r from-amber-950/90 via-indigo-900/90 to-purple-950/90 border border-amber-500/60 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="text-center sm:text-left">
+                                  <span className="text-[10px] text-amber-300 font-extrabold uppercase tracking-widest block">FINAL SCORE PERCENTAGE</span>
+                                  <span className="text-3xl font-black text-amber-400">{pct}%</span>
+                                </div>
+                                <div className="text-center sm:text-right">
+                                  <span className="text-[10px] text-indigo-300 font-extrabold uppercase tracking-widest block font-mono">OFFICIAL GRADE</span>
+                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase mt-1 ${
+                                    pct >= 85 ? 'bg-amber-500 text-slate-950' : pct >= 60 ? 'bg-emerald-500 text-slate-950' : pct >= 40 ? 'bg-indigo-500 text-white' : 'bg-rose-600 text-white'
+                                  }`}>
+                                    {pct >= 85 ? '🏆 DISTINCTION (A+ GRADE)' : pct >= 60 ? '🌟 PASSED (A GRADE)' : pct >= 40 ? '👍 PASSED (B GRADE)' : '📘 NEEDS REVISION'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Certificate Stamp Footer */}
+                        <div className="relative z-10 flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-800 pt-3">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <span>Verified HansAI Academic Portal</span>
+                          </div>
+                          <span>A1 Ref: #HS-${Date.now().toString().slice(-6)}</span>
+                        </div>
                       </div>
 
-                      <div className="bg-[#090D16] border border-slate-850 p-4 inline-block rounded-xl">
-                        <span className="text-3xl font-black text-indigo-400">{score}</span>
-                        <span className="text-slate-500 text-sm font-semibold"> / {quizzes.length} Answers Correct</span>
-                      </div>
-
-                      <div className="flex gap-2 max-w-sm mx-auto">
+                      {/* Action Buttons Row */}
+                      <div className="flex flex-wrap gap-3 justify-center pt-2">
+                        <button
+                          onClick={handleDownloadA1Card}
+                          className="flex-1 min-w-[200px] py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer border-none"
+                        >
+                          <Download className="w-4 h-4 text-slate-950" />
+                          Download A1 Report Card (डाउनलोड कार्ड)
+                        </button>
+                        <button
+                          onClick={() => window.print()}
+                          className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs uppercase rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
+                        >
+                          🖨️ Print / Save PDF
+                        </button>
                         <button
                           onClick={() => handleGenerateQuiz(quizSubject)}
-                          className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white rounded-lg transition-all"
+                          className="py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer border-none"
                         >
-                          Play Again
+                          🔄 Retake Test
                         </button>
                         <button
                           onClick={restartQuizFlow}
-                          className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg transition-all"
+                          className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer border-none"
                         >
-                          New Subject
+                          📖 Change Chapter
                         </button>
                       </div>
                     </div>
