@@ -1884,28 +1884,34 @@ export default function App() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A1 Scorecard - ${studentName} - ${quizSubject}</title>
   <style>
+    @page { size: A4 portrait; margin: 8mm; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #030712; color: #f3f4f6; padding: 30px 15px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .certificate-card { width: 100%; max-width: 880px; background: linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #030712 100%); border: 8px double #f59e0b; border-radius: 28px; padding: 35px; box-shadow: 0 25px 60px rgba(0,0,0,0.85); position: relative; overflow: hidden; }
-    .bg-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; font-weight: 900; color: rgba(255,255,255,0.02); pointer-events: none; user-select: none; z-index: 0; text-transform: uppercase; white-space: nowrap; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #030712; color: #f3f4f6; padding: 20px 12px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .certificate-card { width: 100%; max-width: 820px; background: linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #030712 100%); border: 6px double #f59e0b; border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.85); position: relative; overflow: hidden; page-break-inside: avoid; }
+    .bg-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 140px; font-weight: 900; color: rgba(255,255,255,0.02); pointer-events: none; user-select: none; z-index: 0; text-transform: uppercase; white-space: nowrap; }
     .content-wrap { position: relative; z-index: 1; }
-    .header { text-align: center; border-bottom: 2px solid rgba(245, 158, 11, 0.4); padding-bottom: 20px; margin-bottom: 25px; }
-    .org-title { font-size: 26px; font-weight: 900; color: #fbbf24; letter-spacing: 2px; text-transform: uppercase; }
-    .sub-org { font-size: 12px; color: #e0e7ff; margin-top: 4px; letter-spacing: 1px; font-weight: 600; }
-    .card-type { font-size: 15px; color: #818cf8; margin-top: 8px; font-weight: 800; letter-spacing: 1px; background: rgba(99, 102, 241, 0.15); display: inline-block; padding: 4px 16px; border-radius: 20px; border: 1px solid rgba(99, 102, 241, 0.3); }
-    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 25px; font-size: 13px; }
-    .meta-item strong { color: #94a3b8; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .meta-item span { color: #ffffff; font-weight: 700; font-size: 15px; margin-top: 2px; display: block; }
-    .table-container { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-radius: 12px; overflow: hidden; }
-    .table-container th, .table-container td { border: 1px solid rgba(255,255,255,0.1); padding: 12px; text-align: center; font-size: 13px; }
-    .table-container th { background: #1e1b4b; color: #e0e7ff; font-weight: 700; font-size: 12px; text-transform: uppercase; }
+    .header { text-align: center; border-bottom: 2px solid rgba(245, 158, 11, 0.4); padding-bottom: 14px; margin-bottom: 18px; }
+    .org-title { font-size: 22px; font-weight: 900; color: #fbbf24; letter-spacing: 1.5px; text-transform: uppercase; }
+    .sub-org { font-size: 11px; color: #e0e7ff; margin-top: 3px; letter-spacing: 0.5px; font-weight: 600; }
+    .card-type { font-size: 13px; color: #818cf8; margin-top: 6px; font-weight: 800; letter-spacing: 1px; background: rgba(99, 102, 241, 0.15); display: inline-block; padding: 3px 14px; border-radius: 16px; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; text-align: left; margin-bottom: 18px; font-size: 12px; }
+    .meta-item strong { color: #94a3b8; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .meta-item span { color: #ffffff; font-weight: 700; font-size: 14px; margin-top: 2px; display: block; }
+    .table-container { width: 100%; border-collapse: collapse; margin-bottom: 15px; border-radius: 10px; overflow: hidden; }
+    .table-container th, .table-container td { border: 1px solid rgba(255,255,255,0.1); padding: 9px; text-align: center; font-size: 12px; }
+    .table-container th { background: #1e1b4b; color: #e0e7ff; font-weight: 700; font-size: 11px; text-transform: uppercase; }
     .table-container td { background: rgba(15, 23, 42, 0.6); }
     .pos { color: #4ade80; font-weight: 800; }
     .neg { color: #f87171; font-weight: 800; }
-    .score-summary { background: linear-gradient(90deg, #1e293b, #0f172a); border: 2px solid #10b981; border-radius: 20px; padding: 20px; display: flex; justify-content: space-around; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
-    .big-score { font-size: 38px; font-weight: 900; color: #34d399; }
-    .grade-badge { background: #d97706; color: #ffffff; padding: 8px 22px; border-radius: 50px; font-weight: 800; font-size: 14px; display: inline-block; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4); }
-    .footer { font-size: 11px; color: #64748b; margin-top: 25px; border-top: 1px solid #1e293b; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .score-summary { background: linear-gradient(90deg, #1e293b, #0f172a); border: 2px solid #10b981; border-radius: 16px; padding: 15px; display: flex; justify-content: space-around; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+    .big-score { font-size: 32px; font-weight: 900; color: #34d399; }
+    .grade-badge { background: #d97706; color: #ffffff; padding: 6px 18px; border-radius: 40px; font-weight: 800; font-size: 13px; display: inline-block; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4); }
+    .footer { font-size: 10px; color: #64748b; margin-top: 18px; border-top: 1px solid #1e293b; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    @media print {
+      body { padding: 0; background: #030712 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .certificate-card { width: 100% !important; max-width: 100% !important; border-width: 4px !important; box-shadow: none !important; border-radius: 0 !important; }
+    }
   </style>
 </head>
 <body>
@@ -3440,7 +3446,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       } else if (isNotUnderstanding) {
         customReply = `### 💡 आसान रूप (Simplified Explanation):\n\n\`\`\`\n  [मूल सिद्धांत / Core Concept]\n         │\n         ├──➤ [नियम / Rule/Formula]\n         │      └──➤ अनुप्रयोग (Application in Practice Exams)\n         └──➤ [स्मरण ट्रिक / Memorization Hack]\n\`\`\``;
       } else {
-        customReply = `Thank you for your academic query under HansAI. I am currently operating in fallback mode, but you can explore our premium core elements or enter specified study goals to bolster preparation!`;
+        if (language === 'hindi') {
+          customReply = `### 📚 हंस-एआई (HansAI) - अध्ययन सहायता एवं समाधान\n\nआपकी जिज्ञासा **"${messageContent.slice(0, 60)}${messageContent.length > 60 ? '...' : ''}"** के संदर्भ में त्वरित मार्गदर्शन:\n\n1. **मुख्य अवधारणा (Core Concept):** प्रतियोगी परीक्षाओं (SSC CGL, Stenographer, State/UPSC) एवं अध्याय वार मूल्यांकन में इस विषय की समझ एवं निरंतर अभ्यास अत्यंत महत्वपूर्ण है।\n2. **तैयारी रणनीति:** महत्वपूर्ण सूत्रों, नियमों एवं परिभाषाओं का शॉर्ट नोट्स बनाकर रिवीजन करें।\n3. **स्कोरकार्ड टेस्ट:** आप **Auto Chapter Quiz** सेक्शन में जाकर इस विषय पर तुरंत MCQs हल कर अपना **A1 Report Card & Certificate** भी डाउनलोड कर सकते हैं!`;
+        } else {
+          customReply = `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${messageContent.slice(0, 60)}${messageContent.length > 60 ? '...' : ''}"**:\n\n1. **Key Concept:** Mastering the core principles and consistent daily practice is vital for top academic performance.\n2. **Exam Strategy:** Revisit core formulas, grammar/steno rules, and practice chapter-wise MCQs regularly.\n3. **Interactive Test:** Navigate to the **Auto Chapter Quiz** tab to solve custom MCQs on this topic and download your official **A1 Scorecard**!`;
+        }
       }
 
       setChatMessages(prev => [...prev, {
