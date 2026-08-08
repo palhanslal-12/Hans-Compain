@@ -67,6 +67,41 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
 
         {/* Form Controls */}
         <form onSubmit={handleGeneratePlan} className="bg-[#0A0E1A] border border-slate-800 rounded-2xl p-5 space-y-4 shadow-md">
+          {/* Quick Target Exam Selector Chips */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+              Select Exam Category / परीक्षा चुनें (10th, 12th, SSC, Railway, UPSC)
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                "10th Board Exam (CBSE/UP/Bihar)",
+                "12th Board Exam (Arts/Science/Commerce)",
+                "SSC CGL Tier 1 & 2",
+                "SSC CHSL / MTS",
+                "SSC Stenographer Grade C & D",
+                "Railway RRB NTPC & Group D",
+                "Banking IBPS PO & Clerk",
+                "UPSC CSE / State PCS (BPSC/UPPSC)",
+                "Defense NDA / CDS / Airforce",
+                "CTET / Teacher Eligibility",
+                "Pitman Shorthand 80-100 wpm Speed"
+              ].map((examName) => (
+                <button
+                  key={examName}
+                  type="button"
+                  onClick={() => setGoal(examName)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer ${
+                    goal === examName
+                      ? 'bg-indigo-600 text-white border-indigo-400 shadow-md'
+                      : 'bg-[#03060E] text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white'
+                  }`}
+                >
+                  {examName}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
@@ -77,7 +112,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
                 type="text"
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
-                placeholder="e.g. SSC CGL Tier 1, BPSC, SSC Stenographer"
+                placeholder="e.g. 10th Board, 12th Science, SSC CGL, Stenographer"
                 className="w-full text-xs p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
                 required
               />

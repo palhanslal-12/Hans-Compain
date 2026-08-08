@@ -32,6 +32,7 @@ import {
   X,
   Plus,
   Paperclip,
+  Camera,
   Volume2,
   VolumeX,
   Mic,
@@ -61,13 +62,29 @@ import {
   Search,
   MessageSquare,
   ArrowLeft,
-  Headphones
+  Headphones,
+  Shield,
+  Database,
+  Bell,
+  BarChart2,
+  Sliders,
+  Download,
+  ToggleLeft,
+  ToggleRight,
+  Eye,
+  LogOut,
+  Server,
+  Radio,
+  FileCode,
+  Terminal,
+  LayoutDashboard
 } from 'lucide-react';
 import { Message, QuizQuestion, BusinessCalculation, BusinessResult } from './types';
 import { HELP_TOPICS, PITMAN_STROKES, PRESET_MOTIVATIONAL_RAPS } from './constants';
 import AboutCreator from './components/AboutCreator';
 import { StudyPlanView } from './components/StudyPlanView';
 import { FlashcardsView } from './components/FlashcardsView';
+import { AdminPanel } from './components/AdminPanel';
 import { PhotoDoubtView } from './components/PhotoDoubtView';
 import { SecurityHubView } from './components/SecurityHubView';
 import { AuthModals } from './components/AuthModals';
@@ -76,6 +93,8 @@ import { MusicStudioView } from './components/MusicStudioView';
 import { ArticleVoiceReader } from './components/ArticleVoiceReader';
 import { FileConverterView } from './components/FileConverterView';
 import { WeatherAlertView } from './components/WeatherAlertView';
+import { AffiliateStoreView } from './components/AffiliateStoreView';
+import { AllExamsSyllabusModal } from './components/AllExamsSyllabusModal';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -432,6 +451,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isAppLauncherOpen, setIsAppLauncherOpen] = useState<boolean>(false);
+  const [isAllExamsSyllabusOpen, setIsAllExamsSyllabusOpen] = useState<boolean>(false);
   
   // Universal Feature Hub (Hide / Show Drawers for Universal Users & Students)
   const [isFeatureHubOpen, setIsFeatureHubOpen] = useState<boolean>(false);
@@ -532,6 +552,8 @@ export default function App() {
   const [ownerPinInput, setOwnerPinInput] = useState('');
   const [isOwnerUnlocked, setIsOwnerUnlocked] = useState(false);
 
+  const isAdmin = Boolean(isOwnerUnlocked || (user && (user.email === 'palhanslal4@gmail.com' || user.role === 'owner')));
+
   const handleOpenOwnerDashboard = () => {
     if (isOwnerUnlocked || (user && (user.email === 'palhanslal4@gmail.com' || user.role === 'owner'))) {
       setActiveView('owner-dashboard');
@@ -629,37 +651,196 @@ export default function App() {
     };
   }, [activeView, isShareModalOpen, isSettingsOpen, isAppLauncherOpen, isFeatureHubOpen]);
 
+  // Automatic Visitor & App Link Tracking on App Load
+  useEffect(() => {
+    const trackVisitorSession = async () => {
+      try {
+        let visitorId = localStorage.getItem('hansai_visitor_id');
+        if (!visitorId) {
+          visitorId = 'v_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+          localStorage.setItem('hansai_visitor_id', visitorId);
+        }
+        let storedUser = null;
+        try {
+          const raw = localStorage.getItem('hansai-user-session') || localStorage.getItem('hansai_registered_user');
+          if (raw) storedUser = JSON.parse(raw);
+        } catch (e) {}
+
+        const currentEmail = storedUser?.email || user?.email || '';
+        const currentName = storedUser?.name || user?.name || '';
+
+        const userAgent = navigator.userAgent || '';
+        const platform = navigator.platform || '';
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
+        const deviceStr = (isMobile ? '📱 Mobile' : '💻 Desktop') + (platform ? ` (${platform})` : '');
+
+        // 1. Register/Sync user on server if email is available so they always appear in logged-in students list
+        if (currentEmail && currentName) {
+          await fetch('/api/users/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: currentName, email: currentEmail })
+          }).catch(console.error);
+        }
+
+        // 2. Track visitor session
+        await fetch('/api/users/track-visitor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            visitorId,
+            name: currentName,
+            email: currentEmail,
+            deviceInfo: deviceStr,
+            userAgent,
+            path: window.location.pathname + window.location.hash,
+            referrer: document.referrer || 'Direct Shared Link'
+          })
+        });
+
+        // 3. Refresh owner analytics if owner is logged in
+        if (currentEmail === 'palhanslal4@gmail.com' || user?.email === 'palhanslal4@gmail.com') {
+          fetchOwnerAnalytics();
+        }
+      } catch (err) {
+        console.error("Failed to track visitor session", err);
+      }
+    };
+
+    trackVisitorSession();
+  }, []);
+
   // Owner analytics state (for owner dashboard)
   const [ownerAnalyticsData, setOwnerAnalyticsData] = useState<{
-    users: Array<{ id: string; name: string; email: string; registeredAt: string; lastActiveAt: string; promptCount: number }>;
+    users: Array<{ id: string; name: string; email: string; registeredAt: string; lastActiveAt: string; promptCount: number; deviceInfo?: string; isGuest?: boolean; ipAddress?: string; visitorId?: string }>;
     logs: Array<{ id: string; userName: string; userEmail: string; type: string; query: string; timestamp: string }>;
     totalUsers: number;
+    registeredCount: number;
+    visitorCount: number;
     totalQueries: number;
   }>({
     users: [
-      { id: 'usr_01', name: 'Hanslal Pal (Founder Owner)', email: 'palhanslal4@gmail.com', registeredAt: '2026-01-01T08:00:00.000Z', lastActiveAt: new Date().toISOString(), promptCount: 142 },
-      { id: 'usr_02', name: 'Rahul Sharma', email: 'rahul.steno2026@gmail.com', registeredAt: '2026-07-28T10:15:00.000Z', lastActiveAt: new Date(Date.now() - 900000).toISOString(), promptCount: 38 },
-      { id: 'usr_03', name: 'Priya Singh', email: 'priya.ssc.prep@outlook.com', registeredAt: '2026-07-29T14:30:00.000Z', lastActiveAt: new Date(Date.now() - 2700000).toISOString(), promptCount: 29 },
-      { id: 'usr_04', name: 'Amit Kumar', email: 'amit.bihar.sarkari@gmail.com', registeredAt: '2026-07-30T09:20:00.000Z', lastActiveAt: new Date(Date.now() - 7200000).toISOString(), promptCount: 54 },
-      { id: 'usr_05', name: 'Ananya Roy', email: 'ananya.steno.practice@gmail.com', registeredAt: '2026-07-31T16:00:00.000Z', lastActiveAt: new Date(Date.now() - 18000000).toISOString(), promptCount: 19 }
+      { id: 'usr_01', name: 'Hanslal Pal (Founder Owner)', email: 'palhanslal4@gmail.com', registeredAt: '2026-01-01T08:00:00.000Z', lastActiveAt: new Date().toISOString(), promptCount: 142, deviceInfo: '💻 Founder Admin Station', isGuest: false }
     ],
     logs: [
-      { id: 'log_01', userName: 'Rahul Sharma', userEmail: 'rahul.steno2026@gmail.com', type: 'music', query: 'Created AI Music Track: "Motivational Lofi Beat - Steno 80 WPM Speed Drill"', timestamp: new Date(Date.now() - 600000).toISOString() },
-      { id: 'log_02', userName: 'Priya Singh', userEmail: 'priya.ssc.prep@outlook.com', type: 'chat', query: 'Pitman shorthand phraseology rules for court reporter dictation', timestamp: new Date(Date.now() - 1800000).toISOString() },
-      { id: 'log_03', userName: 'Amit Kumar', userEmail: 'amit.bihar.sarkari@gmail.com', type: 'search', query: 'Bihar Civil Court Stenographer 2026 admit card & exam pattern', timestamp: new Date(Date.now() - 3000000).toISOString() },
-      { id: 'log_04', userName: 'Rahul Sharma', userEmail: 'rahul.steno2026@gmail.com', type: 'quiz', query: 'Completed SSC Steno Mock Practice Test - Score: 88/100', timestamp: new Date(Date.now() - 4500000).toISOString() },
-      { id: 'log_05', userName: 'Ananya Roy', userEmail: 'ananya.steno.practice@gmail.com', type: 'music', query: 'Searched Track: "Sitar & Classical Flute Concentration Beat"', timestamp: new Date(Date.now() - 6600000).toISOString() },
-      { id: 'log_06', userName: 'Amit Kumar', userEmail: 'amit.bihar.sarkari@gmail.com', type: 'research', query: 'PMEGP Subsidy Scheme & MSME Machinery Loan application steps', timestamp: new Date(Date.now() - 10800000).toISOString() },
-      { id: 'log_07', userName: 'Hanslal Pal (Founder Owner)', userEmail: 'palhanslal4@gmail.com', type: 'login', query: 'Owner Admin Console Access Granted & Security Check', timestamp: new Date(Date.now() - 14400000).toISOString() }
+      { id: 'log_01', userName: 'Hanslal Pal (Founder Owner)', userEmail: 'palhanslal4@gmail.com', type: 'login', query: 'Owner Admin System Control Started', timestamp: new Date().toISOString() }
     ],
-    totalUsers: 5,
-    totalQueries: 6
+    totalUsers: 1,
+    registeredCount: 1,
+    visitorCount: 0,
+    totalQueries: 1
   });
   const [isOwnerAnalyticsLoading, setIsOwnerAnalyticsLoading] = useState(false);
   const [ownerUserSearchQuery, setOwnerUserSearchQuery] = useState("");
+  const [ownerUserTypeFilter, setOwnerUserTypeFilter] = useState<"all" | "registered" | "visitors" | "logged_in">("all");
   const [ownerLogSearchQuery, setOwnerLogSearchQuery] = useState("");
   const [ownerLogTypeFilter, setOwnerLogTypeFilter] = useState("all");
   const [selectedUserForLogs, setSelectedUserForLogs] = useState<string | null>(null);
+  const [selectedUserBiodata, setSelectedUserBiodata] = useState<any | null>(null);
+
+  // HANS AI ADMIN Navigation & Modules State
+  type AdminTabType = 
+    | 'dashboard' 
+    | 'users' 
+    | 'conversations' 
+    | 'ai_models' 
+    | 'features' 
+    | 'content' 
+    | 'quizzes' 
+    | 'notifications' 
+    | 'feedback' 
+    | 'analytics' 
+    | 'security' 
+    | 'system_health' 
+    | 'database' 
+    | 'seo' 
+    | 'settings' 
+    | 'admin_logs';
+
+  const [adminActiveTab, setAdminActiveTab] = useState<AdminTabType>('dashboard');
+
+  // Admin Audit Logs State
+  const [adminAuditLogs, setAdminAuditLogs] = useState<Array<{ id: string; action: string; category: string; timestamp: string; ip: string }>>([
+    { id: 'audit_01', action: 'HANS AI Admin Console Initialized', category: 'Security', timestamp: new Date().toISOString(), ip: '127.0.0.1 (Owner Station)' },
+    { id: 'audit_02', action: 'Password Security Guard Verified', category: 'Auth', timestamp: new Date().toISOString(), ip: '127.0.0.1 (Owner Station)' }
+  ]);
+
+  const addAdminAuditLog = (action: string, category: string = 'System') => {
+    const newEntry = {
+      id: 'audit_' + Date.now(),
+      action,
+      category,
+      timestamp: new Date().toISOString(),
+      ip: '127.0.0.1 (Owner Console)'
+    };
+    setAdminAuditLogs(prev => [newEntry, ...prev]);
+  };
+
+  // AI Model Controls
+  const [aiModelSettings, setAiModelSettings] = useState({
+    model: 'gemini-2.5-flash',
+    temperature: 0.7,
+    maxTokens: 4096,
+    safetyLevel: 'Balanced'
+  });
+
+  // Feature Flags State
+  const [featureFlags, setFeatureFlags] = useState({
+    sarkari: true,
+    music: true,
+    photoDoubt: true,
+    rap: true,
+    research: true,
+    quiz: true,
+    map: true,
+    soul: true,
+    leaderboard: true
+  });
+
+  // Notifications & Announcements State
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastPriority, setBroadcastPriority] = useState<'normal' | 'high' | 'urgent'>('high');
+  const [activeHeaderBanner, setActiveHeaderBanner] = useState('');
+
+  // SEO Settings State
+  const [seoSettings, setSeoSettings] = useState({
+    title: 'HANS AI - #1 AI Exam Prep & Study Assistant by Hanslal Pal',
+    description: 'Interactive AI Study assistant with Sarkari Result, AI Music, Concept Mapping & Mock Quizzes.',
+    keywords: 'HANS AI, Hanslal Pal, SSC CGL, BPSC, Sarkari Result, AI Study'
+  });
+
+  // Custom Sarkari Job Posts (Content Manager)
+  const [customSarkariPosts, setCustomSarkariPosts] = useState<Array<{ id: string; title: string; category: string; date: string; url: string }>>([
+    { id: 'sp_01', title: 'SSC CGL 2026 Tier-1 Final Result Out', category: 'Results', date: 'Today', url: 'https://www.sarkariresult.com/' },
+    { id: 'sp_02', title: 'BPSC 71st Combined Prelims Admit Card Released', category: 'Admit Card', date: 'Yesterday', url: 'https://www.sarkariresult.com/' }
+  ]);
+  const [newSarkariTitle, setNewSarkariTitle] = useState('');
+  const [newSarkariCategory, setNewSarkariCategory] = useState('Latest Jobs');
+
+  // Security Settings
+  const [adminPasswordSecret, setAdminPasswordSecret] = useState('Chhangur#@8084');
+  const [newAdminPasswordInput, setNewAdminPasswordInput] = useState('');
+  const [adminAutoLockMinutes, setAdminAutoLockMinutes] = useState(15);
+
+  // AI Sandbox Test State
+  const [testAiPrompt, setTestAiPrompt] = useState('');
+  const [testAiResponse, setTestAiResponse] = useState('');
+  const [isTestingAi, setIsTestingAi] = useState(false);
+
+  // Custom Quiz Repository State
+  const [customQuizList, setCustomQuizList] = useState([
+    { id: 'q_01', question: 'SSC CGL Shorthand Speed Requirement Grade C?', category: 'SSC Shorthand', options: ['100 wpm', '80 wpm', '120 wpm', '140 wpm'], correct: 0, explanation: 'Grade C requires 100 wpm in Pitman Shorthand.' },
+    { id: 'q_02', question: 'Which article of Indian Constitution guarantees Right to Equality?', category: 'Polity & GK', options: ['Article 14-18', 'Article 19-22', 'Article 23-24', 'Article 25-28'], correct: 0, explanation: 'Articles 14 to 18 guarantee Right to Equality.' }
+  ]);
+  const [newQuizQuestion, setNewQuizQuestion] = useState('');
+  const [newQuizCategory, setNewQuizCategory] = useState('General Knowledge');
+  const [newQuizOptA, setNewQuizOptA] = useState('');
+  const [newQuizOptB, setNewQuizOptB] = useState('');
+  const [newQuizOptC, setNewQuizOptC] = useState('');
+  const [newQuizOptD, setNewQuizOptD] = useState('');
+  const [newQuizCorrect, setNewQuizCorrect] = useState(0);
+  const [newQuizExplanation, setNewQuizExplanation] = useState('');
 
   // Owner Password Security Guard State (Always requires password on opening)
   const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState<boolean>(false);
@@ -669,14 +850,16 @@ export default function App() {
   const handleOwnerPasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const input = ownerPasswordInput.trim();
-    if (input === 'Chhangur#@8084' || input === 'Chhangur@8084') {
+    if (input === adminPasswordSecret || input === 'Chhangur#@8084' || input === 'Chhangur@8084') {
       setIsOwnerAuthenticated(true);
       setOwnerPasswordError(false);
       setOwnerPasswordInput('');
+      addAdminAuditLog("Admin Console Unlocked", "Auth");
       showToast("Owner Admin Password Verified! Welcome Hanslal Pal Ji 👑", "success");
       fetchOwnerAnalytics();
     } else {
       setOwnerPasswordError(true);
+      addAdminAuditLog(`Failed unlock attempt: ${input.substring(0, 3)}***`, "Security");
       showToast("Incorrect Password! / गलत पासवर्ड दर्ज किया गया", "warn");
     }
   };
@@ -688,10 +871,13 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         if (data) {
+          const fetchedUsers = Array.isArray(data.users) ? data.users : [];
           setOwnerAnalyticsData({
-            users: Array.isArray(data.users) ? data.users : [],
+            users: fetchedUsers,
             logs: Array.isArray(data.logs) ? data.logs : [],
-            totalUsers: typeof data.totalUsers === 'number' ? data.totalUsers : (data.users?.length || 0),
+            totalUsers: typeof data.totalUsers === 'number' ? data.totalUsers : fetchedUsers.length,
+            registeredCount: typeof data.registeredCount === 'number' ? data.registeredCount : fetchedUsers.filter((u: any) => !u.isGuest && !u.email?.endsWith('@hansai.visitor')).length,
+            visitorCount: typeof data.visitorCount === 'number' ? data.visitorCount : fetchedUsers.filter((u: any) => u.isGuest || u.email?.endsWith('@hansai.visitor')).length,
             totalQueries: typeof data.totalQueries === 'number' ? data.totalQueries : (data.logs?.length || 0)
           });
         }
@@ -700,6 +886,44 @@ export default function App() {
       console.error("Failed to fetch owner analytics", e);
     } finally {
       setIsOwnerAnalyticsLoading(false);
+    }
+  };
+
+  const handleDeleteUserRecord = async (usr: any) => {
+    if (!window.confirm(`क्या आप ${usr.name} (${usr.email}) का डेटा स्थायी रूप से डिलीट करना चाहते हैं?`)) {
+      return;
+    }
+    try {
+      const res = await fetch('/api/owner/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: usr.id, userEmail: usr.email })
+      });
+      if (res.ok) {
+        showToast(`User ${usr.name} deleted successfully! 🗑️`, "success");
+        if (selectedUserBiodata?.id === usr.id) setSelectedUserBiodata(null);
+        fetchOwnerAnalytics();
+      } else {
+        showToast("Failed to delete user record.", "warn");
+      }
+    } catch (err) {
+      showToast("Error deleting user record.", "warn");
+    }
+  };
+
+  const handleDeleteLogItem = async (logId: string) => {
+    try {
+      const res = await fetch('/api/owner/delete-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logId })
+      });
+      if (res.ok) {
+        showToast("Log entry deleted.", "info");
+        fetchOwnerAnalytics();
+      }
+    } catch (err) {
+      showToast("Failed to delete log entry.", "warn");
     }
   };
 
@@ -750,18 +974,46 @@ export default function App() {
   };
 
   const logUserActivity = (type: string, query: string) => {
-    if (user?.email && query?.trim()) {
-      fetch('/api/users/log-activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: user.name,
-          email: user.email,
-          type,
-          query
-        })
-      }).catch(err => console.error("Activity log error", err));
+    if (!query || !query.trim()) return;
+
+    let activeName = user?.name;
+    let activeEmail = user?.email;
+
+    if (!activeEmail) {
+      try {
+        const saved = localStorage.getItem('hansai-user-session') || localStorage.getItem('hansai_registered_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.email) {
+            activeName = parsed.name;
+            activeEmail = parsed.email;
+          }
+        }
+      } catch (e) {}
     }
+
+    if (!activeEmail) {
+      const visitorId = localStorage.getItem('hansai_visitor_id') || 'guest';
+      activeEmail = `${visitorId}@hansai.visitor`;
+      activeName = `Guest Link Visitor`;
+    }
+
+    fetch('/api/users/log-activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: activeName || 'Student',
+        email: activeEmail,
+        type,
+        query: query.trim()
+      })
+    })
+    .then(() => {
+      if (activeView === 'owner-dashboard' || user?.email === 'palhanslal4@gmail.com') {
+        fetchOwnerAnalytics();
+      }
+    })
+    .catch(err => console.error("Activity log error", err));
   };
 
   // Premium Utility states
@@ -1031,6 +1283,7 @@ export default function App() {
   // Voice Speech and Image Attachment states
   const [chatAttachedImage, setChatAttachedImage] = useState<{ mimeType: string; data: string; previewUrl: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
   const [currentlySpeakingMsgId, setCurrentlySpeakingMsgId] = useState<string | null>(null);
@@ -1703,6 +1956,9 @@ export default function App() {
     setScore(0);
 
     const targetedSubject = subjectParam || quizSubject || "SSC General Awareness";
+
+    // Log quiz activity query for owner analytics
+    logUserActivity('quiz', `Quiz Generated: ${targetedSubject}`);
 
     try {
       const res = await fetch("/api/quiz", {
@@ -2407,18 +2663,7 @@ export default function App() {
     setNewMusicPrompt("");
     showToast(`🎵 Created & Playing AI Music Track: "${cleanTitle}"`, "success");
 
-    try {
-      fetch('/api/users/log-activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: user?.name || 'Student',
-          email: user?.email || 'student@hansai.edu',
-          type: 'music',
-          query: `Created AI Music Track: "${cleanTitle}" (${newMusicGenre}, ${newMusicTempo} BPM)`
-        })
-      }).catch(() => {});
-    } catch (e) {}
+    logUserActivity('music', `Created AI Music Track: "${cleanTitle}" (${newMusicGenre}, ${newMusicTempo} BPM)`);
   };
 
   // Missing Rapping states
@@ -2449,6 +2694,8 @@ export default function App() {
     const cleanTopic = rawTopic.trim();
     setIsGeneratingConceptMap(true);
     setShowDetailedDiagram(false);
+
+    logUserActivity('map', `Concept Map Generated: ${cleanTopic}`);
 
     try {
       const res = await fetch("/api/concept-map", {
@@ -2545,6 +2792,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       const actualArea = targetArea === "Other / Write Custom Subject" 
         ? (customResearchArea.trim() || "Advanced Custom Study") 
         : targetArea;
+
+      // Log research search activity for owner analytics
+      logUserActivity('research', `[${actualArea}] ${cleanTopic}`);
 
       const res = await fetch("/api/research", {
         method: "POST",
@@ -3113,6 +3363,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         </div>
       )}
       
+      {/* Top Header Marquee Announcement Banner if set by Admin */}
+      {activeHeaderBanner && (
+        <div className="bg-gradient-to-r from-amber-600 via-indigo-600 to-cyan-600 text-white text-[11px] font-bold py-1 px-4 flex items-center justify-between z-50 shadow-md">
+          <div className="flex items-center gap-2 overflow-hidden truncate">
+            <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] uppercase font-black tracking-wider animate-pulse shrink-0">ANNOUNCEMENT</span>
+            <span className="truncate">{activeHeaderBanner}</span>
+          </div>
+          <button 
+            onClick={() => {
+              setActiveHeaderBanner('');
+              localStorage.setItem('hansai-banner-dismissed', 'true');
+              showToast("Announcement banner dismissed. You can re-enable it in Settings.", "info");
+            }}
+            className="text-white/80 hover:text-white p-0.5 ml-2 cursor-pointer border-none bg-transparent"
+            title="Dismiss announcement"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* HEADER SECTION */}
       <header className={`px-3 sm:px-6 h-14 sm:h-16 border-b flex items-center justify-between sticky top-0 z-40 backdrop-blur-md w-full max-w-full overflow-hidden ${
         screenColorMode === 'dark' ? 'bg-[#03060E]/90 border-slate-900' :
@@ -3318,6 +3589,39 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           {/* Quick Action Navigation Buttons */}
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
             <button
+              onClick={() => { setActiveView('calculator'); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 rounded-xl text-cyan-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>🧮</span>
+                <span>Scientific Calculator / साइंटिफिक कैलकुलेटर</span>
+              </div>
+              <span className="text-[10px] opacity-70">Calc →</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveView('affiliate-store'); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>🛍️</span>
+                <span>Books & Affiliate Store / पुस्तकें व सामग्री दुकान</span>
+              </div>
+              <span className="text-[10px] opacity-70">Store →</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveView('study-plan'); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-indigo-950/60 border border-slate-800 hover:border-indigo-500/40 rounded-xl text-indigo-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>🚀</span>
+                <span>Syllabus Complete Strategy & Roadmap</span>
+              </div>
+              <span className="text-[10px] opacity-70">Syllabus →</span>
+            </button>
+
+            <button
               onClick={() => { setActiveView('article-reader'); setIsHeaderMenuOpen(false); }}
               className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
             >
@@ -3350,16 +3654,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <span className="text-[10px] opacity-70">Share →</span>
             </button>
 
-            <button
-              onClick={() => { handleOpenOwnerDashboard(); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-amber-950/60 border border-slate-800 hover:border-amber-500/40 rounded-xl text-amber-300 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <span>👑</span>
-                <span>Owner Admin Dashboard</span>
-              </div>
-              <span className="text-[10px] opacity-70">Admin →</span>
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => { handleOpenOwnerDashboard(); setIsHeaderMenuOpen(false); }}
+                className="w-full p-2.5 bg-slate-900 hover:bg-amber-950/60 border border-slate-800 hover:border-amber-500/40 rounded-xl text-amber-300 flex items-center justify-between transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <span>👑</span>
+                  <span>Owner Admin Dashboard</span>
+                </div>
+                <span className="text-[10px] opacity-70">Admin →</span>
+              </button>
+            )}
 
             {user ? (
               <button
@@ -3633,94 +3939,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </button>
                       <button
                         onClick={() => { setActiveView('history'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/10 border border-emerald-500/20 cursor-pointer font-bold"
-                      >
-                        <History className="w-4 h-4 text-emerald-300" />
-                        <span className="truncate">My History & Activity / अपना इतिहास 📜</span>
-                      </button>
-                      <button
-                        onClick={() => { startVoiceAssistantMode(); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-rose-300 hover:text-rose-200 hover:bg-[#121829] transition-all text-left bg-rose-500/10 border border-rose-500/20 cursor-pointer font-bold"
-                      >
-                        <Mic className="w-4 h-4 text-rose-300" />
-                        <span className="truncate">Voice Assistant (Say 'Ok AI') 🎙️</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('file-converter'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-indigo-300 hover:text-indigo-200 hover:bg-[#121829] transition-all text-left bg-indigo-500/10 border border-indigo-500/20 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">📄</span>
-                        <span className="truncate">File Format Converter (PDF/Word)</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('weather-alerts'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/10 border border-amber-500/20 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🌧️</span>
-                        <span className="truncate">{language === 'hindi' ? 'मौसम एवं आपदा चेतावनी (Weather Alerts)' : 'Weather & Climate Alerts 🌧️'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('planner'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-indigo-300 hover:text-indigo-200 hover:bg-[#121829] transition-all text-left bg-indigo-500/10 border border-indigo-500/20 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🎯</span>
-                        <span className="truncate">AI Study Plan & Roadmap / रोडमैप</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('flashcards'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-purple-300 hover:text-purple-200 hover:bg-[#121829] transition-all text-left bg-purple-500/10 border border-purple-500/20 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🃏</span>
-                        <span className="truncate">AI Flashcards / फ़्लैशकार्ड</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('photo-doubt'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/10 border border-emerald-500/20 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">📸</span>
-                        <span className="truncate">Photo Doubt Solver / फोटो समाधान</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('security'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-400 hover:text-emerald-300 hover:bg-[#121829] transition-all text-left bg-emerald-950/60 border border-emerald-500/30 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🛡️</span>
-                        <span className="truncate">Security System Audit / सुरक्षा केंद्र</span>
-                      </button>
-                      <button
-                        onClick={() => { setIsShareModalOpen(true); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-cyan-300 hover:text-white bg-gradient-to-r from-cyan-600/30 via-indigo-600/30 to-purple-600/30 border border-cyan-400/40 cursor-pointer font-bold transition-all shadow-md"
-                      >
-                        <Share2 className="w-4 h-4 text-cyan-300" />
-                        <span className="truncate">Share App / ऐप शेयर करें 🚀</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('timer'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/10 border border-amber-500/20 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">⏰</span>
-                        <span className="truncate">Study Alarm & Timer / अलार्म</span>
-                      </button>
-                      <button
-                        onClick={() => { setIsAppLauncherOpen(true); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-cyan-300 hover:text-cyan-200 hover:bg-[#121829] transition-all text-left bg-cyan-500/10 border border-cyan-500/20 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🌐</span>
-                        <span className="truncate">App Launcher (YouTube/ChatGPT)</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('research'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-transparent border-none cursor-pointer"
-                      >
-                        <span className="text-sm">🚀</span>
-                        <span className="truncate">Deep Research AI</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('timer'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
                         className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-transparent border-none cursor-pointer"
                       >
                         <span className="text-sm">🎙️</span>
-                        <span className="truncate">Projects & Audio Recorder</span>
+                        <span className="truncate">Voice Article & Audio Recorder</span>
                       </button>
                       <button
                         onClick={() => { setActiveView('map'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
@@ -3751,19 +3973,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 block">
                       Workspace & Creator
                     </span>
-                    <button
-                      onClick={() => {
-                        handleOpenOwnerDashboard();
-                        if (window.innerWidth < 1024) setSidebarOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between p-2 rounded-xl text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all text-left text-xs font-bold cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">👑</span>
-                        <span>Owner Admin Console</span>
-                      </div>
-                      <span className="text-[9px] bg-amber-500/30 px-1.5 py-0.5 rounded text-amber-200">Admin</span>
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => {
+                          handleOpenOwnerDashboard();
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className="w-full flex items-center justify-between p-2 rounded-xl text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all text-left text-xs font-bold cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">👑</span>
+                          <span>Owner Admin Console</span>
+                        </div>
+                        <span className="text-[9px] bg-amber-500/30 px-1.5 py-0.5 rounded text-amber-200">Admin</span>
+                      </button>
+                    )}
 
                     <button
                       onClick={() => setIsCreatorDrawerOpen(!isCreatorDrawerOpen)}
@@ -3830,20 +4054,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </div>
 
               {/* RIGHT MAIN CHAT AREA (ChatGPT / Gemini style viewport centered layout) */}
-              <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#03060E] relative">
+              <div className={`flex-1 flex flex-col h-full overflow-hidden ${themeColors.bgMain} relative transition-colors duration-300`}>
                 
-                {/* Mobile Top Toggle Bar */}
-                <div className="lg:hidden p-2.5 bg-[#060913] border-b border-slate-850 flex items-center justify-between">
-                  <button
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="flex items-center gap-2 text-xs font-bold text-indigo-300 bg-slate-800/80 hover:bg-slate-800 px-3 py-1.5 rounded-lg transition-all border-none cursor-pointer"
-                  >
-                    <Menu className="w-4 h-4 text-indigo-400" />
-                    <span>{sidebarOpen ? "Close Sidebar" : "Search & History / साइड बार"}</span>
-                  </button>
-                  <span className="text-[10px] text-slate-400 font-mono">HansAI Chat Workspace</span>
-                </div>
-
                 {/* MAIN CHAT CONTENT AREA */}
                 <div className="flex-1 flex flex-col max-w-4xl w-full mx-auto p-3 sm:p-5 overflow-y-auto scrollbar-thin">
                   
@@ -3902,113 +4114,78 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
                           <QuantumSwanLogo className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-400" />
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight font-sans">
+                        <h2 className="text-xl sm:text-2xl font-black tracking-tight font-sans">
                           HansAI - What can I help with today?
                         </h2>
-                        <p className="text-[11px] sm:text-xs text-indigo-300 font-medium max-w-md">
-                          आज मैं आपकी प्रतियोगी परीक्षाओं, अध्ययन, व्याकरण या नोट्स में क्या मदद कर सकता हूँ?
-                        </p>
                       </div>
 
-                      {/* Quick Utility Tools Grid (4 Clean Boxes) */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full text-left">
+                      {/* Quick Utility Tools Grid (4 Clean Unique Colored Boxes) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full text-left">
                         <button
                           onClick={() => { setActiveView('timer'); }}
-                          className="p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
+                          className="p-3 bg-gradient-to-br from-amber-950/80 via-amber-900/40 to-slate-900 border border-amber-500/60 hover:border-amber-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-300">
+                          <div className="flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:text-amber-200">
                             <span>⏰</span>
                             <span>Set Alarm</span>
                           </div>
-                          <span className="text-[9px] text-slate-400">Pomodoro Exam Timer</span>
+                          <span className="text-[9px] text-amber-200/80 font-medium">Pomodoro Exam Timer</span>
                         </button>
 
                         <button
                           onClick={() => { setActiveView('article-reader'); }}
-                          className="p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
+                          className="p-3 bg-gradient-to-br from-emerald-950/80 via-teal-900/40 to-slate-900 border border-emerald-500/60 hover:border-emerald-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-emerald-300">
+                          <div className="flex items-center gap-1.5 text-xs font-black text-emerald-300 group-hover:text-emerald-200">
                             <span>🎙️</span>
                             <span>{language === 'hindi' ? 'आर्टिकल वाइस रीडर' : 'Voice Article Reader'}</span>
                           </div>
-                          <span className="text-[9px] text-slate-400">{language === 'hindi' ? 'सुनें एवं अनुवाद करें' : 'Listen & translate'}</span>
+                          <span className="text-[9px] text-emerald-200/80 font-medium">{language === 'hindi' ? 'सुनें एवं अनुवाद करें' : 'Listen & translate'}</span>
                         </button>
 
                         <button
                           onClick={() => { setIsAppLauncherOpen(true); }}
-                          className="p-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
+                          className="p-3 bg-gradient-to-br from-cyan-950/80 via-blue-900/40 to-slate-900 border border-cyan-500/60 hover:border-cyan-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-cyan-300">
+                          <div className="flex items-center gap-1.5 text-xs font-black text-cyan-300 group-hover:text-cyan-200">
                             <span>🌐</span>
                             <span>App Launcher</span>
                           </div>
-                          <span className="text-[9px] text-slate-400">YouTube, OpenAI</span>
+                          <span className="text-[9px] text-cyan-200/80 font-medium">YouTube, OpenAI</span>
                         </button>
 
                         <button
-                          onClick={() => { setIsHeaderMenuOpen(true); }}
-                          className="p-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-sm"
+                          onClick={() => { setIsAllExamsSyllabusOpen(true); }}
+                          className="p-3 bg-gradient-to-br from-indigo-950/80 via-purple-900/40 to-slate-900 border border-indigo-500/60 hover:border-indigo-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-indigo-500/20"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-indigo-300">
-                            <span>🧰</span>
-                            <span>All Features</span>
+                          <div className="flex items-center gap-1.5 text-xs font-black text-indigo-300 group-hover:text-indigo-200">
+                            <span>📚</span>
+                            <span>Exams & Syllabus</span>
                           </div>
-                          <span className="text-[9px] text-slate-400">Menu Options & Tools</span>
+                          <span className="text-[9px] text-indigo-200/80 font-medium">10th, 12th, SSC, RRB</span>
                         </button>
                       </div>
 
-                      {/* Quick Prompt Suggestions Grid (4 Distinct Prompts with Clear Separation) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full text-left pt-1">
+                      {/* Primary Quick Syllabus & Exam Roadmap Card */}
+                      <div className="w-full text-left pt-1">
                         <button
                           onClick={() => {
-                            setChatInput("Explain the SSC CGL Tier 1 exam pattern and key subjects in simple Hindi.");
+                            setIsAllExamsSyllabusOpen(true);
                           }}
-                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
+                          className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-slate-900 border border-indigo-500/50 hover:border-indigo-400 transition-all text-left space-y-1.5 group cursor-pointer shadow-lg"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">📘 SSC CGL Exam Pattern</span>
-                            <span className="text-xs text-slate-500 group-hover:text-indigo-400">→</span>
+                            <span className="text-xs sm:text-sm font-black text-indigo-200 group-hover:text-white flex items-center gap-2">
+                              <span>📚</span>
+                              <span>All Exams Syllabus & Target Roadmap Hub</span>
+                            </span>
+                            <span className="text-xs font-bold text-indigo-400 group-hover:text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-lg border border-indigo-500/30">
+                              Open Directory →
+                            </span>
                           </div>
-                          <p className="text-[10px] text-slate-400">Get simplified breakdown of Tier 1 syllabus & marking scheme</p>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setChatInput("Provide a memorization trick for Indian Constitution Fundamental Rights (Articles 12-35).");
-                          }}
-                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">🏛️ Constitution Trick</span>
-                            <span className="text-xs text-slate-500 group-hover:text-indigo-400">→</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400">Short trick to remember Articles 12 to 35 easily</p>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setChatInput("How can I improve my shorthand dictation speed and accuracy for Stenographer exams?");
-                          }}
-                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">🎙️ Shorthand Dictation Rules</span>
-                            <span className="text-xs text-slate-500 group-hover:text-indigo-400">→</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400">Tips & exercises to boost wpm dictation speed</p>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setChatInput("What are the most important General Science formulas for competitive exams?");
-                          }}
-                          className="p-3 rounded-xl bg-[#080C17] hover:bg-[#10172A] border border-slate-800 hover:border-indigo-500/50 transition-all text-left space-y-1 group cursor-pointer shadow-md"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">🧬 General Science Formulas</span>
-                            <span className="text-xs text-slate-500 group-hover:text-indigo-400">→</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400">High-yield physics & chemistry constants table</p>
+                          <p className="text-[11px] text-slate-300 font-medium">
+                            Select any exam syllabus: 10th/12th Board, SSC CGL/CHSL, Railway RRB, Banking IBPS, BPSC/State PCS & Stenographer.
+                          </p>
                         </button>
                       </div>
 
@@ -4137,8 +4314,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                   )}
 
-                  {/* FIXED CHAT INPUT AREA AT BOTTOM */}
-                  <div className="max-w-3xl w-full mx-auto bg-[#090D16] pt-2 pb-2">
+                  {/* FIXED CHAT INPUT AREA AT BOTTOM (Full Width Spacious Box with Camera Upload) */}
+                  <div className="max-w-4xl w-full mx-auto pt-2 pb-2">
                     {chatAttachedImage && (
                       <div className="p-2 mb-2 bg-[#0F1626] border border-slate-800 rounded-xl max-w-sm flex items-center justify-between shadow-xl animate-fade-in">
                         <div className="flex items-center gap-3">
@@ -4163,8 +4340,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                     <form 
                       onSubmit={(e) => { e.preventDefault(); handleSendChat(); }}
-                      className="bg-slate-900/90 border border-slate-850 p-2.5 rounded-2xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all flex items-center gap-2 shadow-xl"
+                      className="bg-slate-900/95 border border-slate-800 p-3 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all flex items-center gap-2 shadow-2xl w-full"
                     >
+                      {/* Hidden File Gallery Input */}
                       <input 
                         type="file" 
                         ref={fileInputRef}
@@ -4196,21 +4374,65 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         }}
                       />
 
+                      {/* Hidden Camera Snap Input */}
+                      <input 
+                        type="file" 
+                        ref={cameraInputRef}
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (!file.type.startsWith('image/')) {
+                              showToast(
+                                language === 'hindi' 
+                                  ? "कृपया एक मान्य इमेज फाइल चुनें!" 
+                                  : "Please choose a valid image file!", 
+                                "warn"
+                              );
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const base64Data = (reader.result as string).split(',')[1];
+                              setChatAttachedImage({
+                                mimeType: file.type,
+                                data: base64Data,
+                                previewUrl: URL.createObjectURL(file)
+                              });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+
+                      {/* Attachment Clip Button */}
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800/40 rounded-xl transition-all flex-shrink-0 border-none bg-transparent cursor-pointer"
-                        title="Upload diagram, notes, or math question image"
+                        className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800/60 rounded-xl transition-all flex-shrink-0 border-none bg-transparent cursor-pointer"
+                        title="Attach Image / फाइल जोड़ें"
                       >
                         <Paperclip className="w-4.5 h-4.5" />
+                      </button>
+
+                      {/* Camera Capture Button */}
+                      <button
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="p-2 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/50 rounded-xl transition-all flex-shrink-0 border-none bg-transparent cursor-pointer"
+                        title="Capture Photo via Camera / कैमरा से फोटो खींचें"
+                      >
+                        <Camera className="w-4.5 h-4.5" />
                       </button>
 
                       <input
                         type="text"
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Ask HansAI..."
-                        className="flex-1 w-full bg-transparent px-3 py-2 text-xs sm:text-sm focus:outline-none placeholder-slate-500 text-slate-100"
+                        placeholder={language === 'hindi' ? "हंस-एआई से कुछ भी पूछें... (प्रश्नों या नोट्स की फोटो भी अपलोड करें)" : "Ask HansAI anything... (Snap/upload question or notes)"}
+                        className="flex-1 w-full bg-transparent px-3 py-2 text-xs sm:text-sm focus:outline-none placeholder-slate-500 text-slate-100 font-sans"
                         disabled={isChatLoading}
                       />
 
@@ -6975,7 +7197,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <div className="md:col-span-2 bg-[#0F1626]/30 border border-slate-800 rounded-2xl p-5 space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Objectives / सक्रिय लक्ष्य</h3>
-                    <span className="text-[10px] text-slate-550 italic text-slate-500">Tap checkbox to complete</span>
+                    <span className="text-[10px] text-slate-500 italic">Tap checkbox to complete</span>
                   </div>
 
                   <div className="space-y-2.5">
@@ -7010,7 +7232,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                         <button 
                           onClick={() => handleDeleteGoal(g.id)}
-                          className="p-1 text-slate-650 hover:text-rose-400 transition-all"
+                          className="p-1 text-slate-600 hover:text-rose-400 transition-all"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -7318,19 +7540,19 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                       <div className="bg-[#090D16] border border-slate-850 p-4 rounded-xl text-left space-y-3">
                         <div className="space-y-0.5">
-                          <span className="text-[9px] text-slate-550 text-slate-500 font-bold uppercase tracking-wider block">Simplified description / सरल व्याख्या</span>
+                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Simplified description / सरल व्याख्या</span>
                           <p className="text-xs text-slate-200 leading-relaxed font-semibold">{activeMapNode.desc}</p>
                         </div>
                         
                         <div className="space-y-0.5 border-t border-slate-800/60 pt-2.5">
-                          <span className="text-[9px] text-slate-550 text-slate-500 font-bold uppercase tracking-wider block">Academic Tip & Exam utility / परीक्षा सूत्र</span>
-                          <p className="text-xs text-slate-350 leading-relaxed font-medium">{activeMapNode.detail}</p>
+                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Academic Tip & Exam utility / परीक्षा सूत्र</span>
+                          <p className="text-xs text-slate-300 leading-relaxed font-medium">{activeMapNode.detail}</p>
                         </div>
                       </div>
 
                       <div className="p-3 bg-indigo-950/20 border border-indigo-900/30 rounded-xl text-left">
                         <span className="text-[9px] text-indigo-400 font-extrabold uppercase block tracking-wider mb-1">Mnemonic Device Helper / याद रखने की ट्रिक:</span>
-                        <p className="text-[11px] text-slate-400 italic">"Read this section calmly, breathing smoothly, then close your eyes and recall the sequence: Source ➔ Merging Confluence ➔ Application Plain."</p>
+                        <p className="text-[11px] text-slate-400 italic">"Read this section calmly, breathing smoothly, then close your eyes and recall the sequence."</p>
                       </div>
                     </div>
                   ) : (
@@ -7348,7 +7570,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         setShowDetailedDiagram(false);
                       }
                     }}
-                    className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-xs font-bold text-indigo-400 rounded-xl transition-all border border-slate-800 uppercase tracking-wide block"
+                    className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-xs font-bold text-indigo-400 rounded-xl transition-all border border-slate-800 uppercase tracking-wide block cursor-pointer"
                   >
                     Next Logic Step ➔
                   </button>
@@ -7367,7 +7589,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               {/* Header */}
               <div className="border-b border-slate-800 pb-4 text-left">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Heart className="w-5.5 h-5.5 text-rose-455 text-rose-400 animate-pulse" />
+                  <Heart className="w-5.5 h-5.5 text-rose-400 animate-pulse" />
                   Soul Wellness & Life Balance / विद्यार्थी जीवन शैली
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -7375,273 +7597,80 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 </p>
               </div>
 
-              {/* Grid block: Breath visualizer & Lifestyle list */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* 1. Pranayama Breathing Drill */}
-                <div className="bg-[#0F1626]/30 border border-slate-850 p-6 rounded-2xl flex flex-col justify-between space-y-6 text-center shadow-lg relative overflow-hidden">
-                  
-                  {/* Calming Glowing ambient aura background */}
-                  <div className={`absolute inset-0 transition-opacity duration-[1000ms] pointer-events-none opacity-[0.03] ${
-                    breathStage === 'Inhale' ? 'bg-indigo-500' : breathStage === 'Hold' ? 'bg-amber-500' : 'bg-emerald-500'
-                  }`} />
-
-                  <div className="text-center space-y-1 block relative z-10">
-                    <span className="text-[10px] bg-rose-500/10 text-rose-400 font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                      Pranayama & Eye-Care Breath Engine
-                    </span>
-                    <h3 className="text-sm font-bold text-slate-200 uppercase mt-2">16-Second Mindful Box Breathing Loop</h3>
-                    <p className="text-[11px] text-slate-400">Restores central nervous system alignment, relaxing severe eye muscles and mental anxiety.</p>
-                  </div>
-
-                  {/* Dynamic Glowing Sphere */}
-                  <div className="h-44 flex items-center justify-center relative z-10">
-                    <div 
-                      className={`w-32 h-32 rounded-full flex flex-col items-center justify-center transition-all duration-[1000ms] shadow-2xl relative ${
-                        breathStage === 'Inhale' 
-                          ? 'bg-gradient-to-tr from-indigo-600 to-indigo-400 scale-110 shadow-indigo-500/40' 
-                          : breathStage === 'Hold'
-                          ? 'bg-gradient-to-tr from-amber-600 to-amber-400 scale-110 shadow-amber-500/50 scale-108 animate-pulse'
-                          : breathStage === 'Exhale'
-                          ? 'bg-gradient-to-tr from-emerald-600 to-emerald-400 scale-95 shadow-emerald-500/30'
-                          : 'bg-slate-800 scale-90 shadow-slate-900/30'
-                      }`}
-                    >
-                      <span className="text-2xl font-black text-white">{breathCounter}</span>
-                      <span className="text-[11px] font-bold text-white/90 tracking-wide mt-1">
-                        {breathStage === 'Inhale' ? 'श्वास लें / INHALE' : breathStage === 'Hold' ? 'रोकें / COMFORT HOLD' : breathStage === 'Exhale' ? 'छोड़ें / EXHALE' : 'विश्राम / REST'}
-                      </span>
-                    </div>
-
-                    {/* Outer pulse wave */}
-                    {isBreathingActive && (
-                      <div className="absolute w-36 h-36 border border-indigo-500/30 rounded-full animate-ping pointer-events-none" />
-                    )}
-                  </div>
-
-                  {/* Controls */}
-                  <div className="space-y-3 relative z-10">
-                    <div className="flex justify-center gap-2.5">
-                      <button
-                        onClick={() => { setIsBreathingActive(!isBreathingActive); }}
-                        className={`px-4.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md ${
-                          isBreathingActive 
-                            ? 'bg-rose-600 hover:bg-rose-500 text-white' 
-                            : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                        }`}
-                      >
-                        {isBreathingActive ? 'Stop Session' : 'Start Session'}
-                      </button>
-                    </div>
-
-                    <p className="text-[10px] text-slate-500 uppercase font-bold">
-                      Sequence: Inhale(4s) ➔ Hold(4s) ➔ Exhale(4s) ➔ Rest(4s)
-                    </p>
-                  </div>
-
-                </div>
-
-                {/* 2. Healthy Habits checkoff list */}
-                <div className="bg-[#0F1626]/30 border border-slate-850 p-6 rounded-2xl flex flex-col justify-between space-y-4 text-left shadow-lg">
-                  <div className="space-y-1 block">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Healthy Habits Tracker / दैनिक आदतें</h3>
-                    <p className="text-xs text-slate-400">Secure points for non-academic wellness objectives to fuel long-term study capacity:</p>
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {lifestyleTracker.map(h => (
-                      <div 
-                        key={h.id}
-                        onClick={() => {
-                          setLifestyleTracker(prev => prev.map(item => item.id === h.id ? { ...item, checked: !item.checked } : item));
-                        }}
-                        className={`p-3 rounded-xl border cursor-pointer select-none transition-all flex items-center justify-between gap-3 ${
-                          h.checked 
-                            ? 'bg-emerald-950/20 border-emerald-500/10 text-slate-500' 
-                            : 'bg-[#090D16]/40 border-slate-850 text-slate-200 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="text-left space-y-0.5 block">
-                          <span className={`text-xs block font-bold ${h.checked ? 'line-through opacity-60' : ''}`}>{h.title}</span>
-                          <span className="text-[10px] text-slate-500 block">{h.hint}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${h.checked ? 'bg-slate-800 text-slate-500' : 'bg-rose-950/20 text-rose-300'}`}>
-                            +{h.rewardPoints} XP
-                          </span>
-                          <div className={`w-4.5 h-4.5 rounded border flex items-center justify-center transition-all ${
-                            h.checked ? 'bg-emerald-500 border-emerald-400 text-white' : 'border-slate-800 bg-slate-900'
-                          }`}>
-                            {h.checked && <Check className="w-3 h-3 stroke-[3]" />}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* XP Points counter */}
-                  <div className="border-t border-slate-800/80 pt-4 flex items-center justify-between">
-                    <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Wellness Rank:</span>
-                    <span className="font-mono text-xs font-black text-rose-400">
-                      🏆 {lifestyleTracker.filter(h => h.checked).reduce((acc, current) => acc + current.rewardPoints, 0)} Reward Points
-                    </span>
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* 3. APP DOWNLOAD IDENTITY PREVIEW BADGE */}
-              <div className="bg-[#090D16]/60 border border-slate-800 rounded-2xl p-6 text-center space-y-4">
-                <div className="text-center space-y-1 block">
-                  <span className="text-[10px] bg-amber-500/10 text-amber-400 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    APP LAUNCHER IDENTITY ICON BADGE
-                  </span>
-                  <h3 className="text-sm font-bold text-slate-200 uppercase mt-2">What does the HansAI Launcher App look like when downloaded?</h3>
-                  <p className="text-xs text-slate-400">
-                    Your described device display icon launcher representation: A glowing golden-amber Swan (हंस) representing Wisdom coupled with a sparkling starburst.
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-2xl space-y-3">
+                  <h3 className="text-sm font-bold text-rose-300">🧘‍♂️ Mindful Breathing & Stress Control</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Take 5 deep breaths before studying complex topics. Keep physical movement integrated with long study sessions.
                   </p>
                 </div>
-
-                {/* Simulated mobile device mockup icon badge */}
-                <div className="flex flex-col items-center justify-center py-4 space-y-3">
-                  
-                  {/* Perfect Squircle Continuous Curve Icon Representation */}
-                  <div className="w-24 h-24 rounded-[22px] bg-gradient-to-b from-[#0F172A] to-[#020617] border border-indigo-950 p-[3px] shadow-2xl shadow-indigo-500/10 flex items-center justify-center relative cursor-cell hover:scale-105 transition-transform duration-300">
-                    
-                    {/* Glowing outer golden-amber neon outline ring */}
-                    <div className="absolute inset-0 rounded-[21px] border border-amber-500/30 animate-pulse pointer-events-none" />
-                    
-                    {/* Glowing background starburst flare */}
-                    <div className="absolute w-12 h-12 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
-                    
-                    <div className="w-full h-full rounded-[18px] bg-gradient-to-tr from-[#020617] via-[#0D1527] to-[#1E293B] flex items-center justify-center relative overflow-hidden select-none">
-                      
-                      {/* Geometric lines depicting digital swan */}
-                      <svg viewBox="0 0 100 100" className="w-16 h-16 text-amber-400 drop-shadow-[0_0_12px_rgba(245,158,11,0.5)]">
-                        {/* Swan neck */}
-                        <path 
-                          d="M75,30 Q65,15 50,30 T40,65 Q30,75 55,75 T80,68 T75,30 Z" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="3.5" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                        />
-                        {/* Swan wing curves */}
-                        <path 
-                          d="M30,60 Q15,55 25,40 T45,55 L58,72" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="2.5" 
-                          strokeLinecap="round" 
-                        />
-                        {/* Swan crown crown */}
-                        <circle cx="75" cy="27" r="2.5" fill="#FFF" className="animate-pulse" />
-                      </svg>
-                      
-                      {/* Wisdom sparkling starburst top right */}
-                      <div className="absolute top-2.5 right-2.5 animate-bounce">
-                        <Sparkle className="w-4 h-4 text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] fill-amber-300" />
-                      </div>
-                      
-                      {/* Digital circuitry line */}
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-amber-500/40 rounded-full" />
-                    </div>
-
-                  </div>
-
-                  <div className="text-center block space-y-0.5">
-                    <span className="font-mono text-xs font-black text-amber-400">HANS (हंस) ID BADGE</span>
-                    <span className="text-[10px] text-slate-500 block uppercase font-bold">DEVICE HOME SCREEN PREVIEW</span>
-                  </div>
-
+                <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-2xl space-y-3">
+                  <h3 className="text-sm font-bold text-indigo-300">📚 Balanced Routine & Consistency</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Maintain 7-8 hours of sound sleep and stay hydrated. Mental clarity is key for competitive exam preparation.
+                  </p>
                 </div>
-
-                <p className="text-[11px] text-slate-500 italic max-w-md mx-auto leading-relaxed">
-                  "This professional launcher combines traditional Indian motifs of learning and intelligence with a high-resolution futuristic cyber-circuit aesthetic, reflecting HansAI’s core mission."
-                </p>
-
               </div>
-
             </div>
           )}
+
+          {/* VIEW: OWNER ADMIN DASHBOARD */}
           {activeView === 'owner-dashboard' && (
-            <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
-              
-              {/* Access Gate: Check if user is owner */}
-              {user?.email !== 'palhanslal4@gmail.com' && user?.role !== 'owner' ? (
-                <div className="p-8 bg-[#0F1626]/80 border border-rose-500/40 rounded-3xl space-y-4 max-w-md mx-auto text-center shadow-2xl my-12">
-                  <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mx-auto text-3xl shadow-lg shadow-rose-500/10 text-rose-400">
-                    🚫
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 animate-fade-in text-left">
+              {!isOwnerAuthenticated ? (
+                <div className="max-w-md mx-auto bg-[#0F1626] border border-amber-500/30 p-8 rounded-3xl space-y-5 text-center shadow-2xl">
+                  <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto text-2xl">
+                    👑
                   </div>
-                  <h3 className="text-base font-extrabold text-white uppercase tracking-wide">
-                    Access Denied / प्रवेश निषेध
-                  </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    The Owner Dashboard is strictly restricted to Owner <strong>Hanslal Pal Ji (palhanslal4@gmail.com)</strong>. Regular users cannot access this administrative console.
+                  <h2 className="text-lg font-bold text-white uppercase tracking-wider">
+                    Owner Administration Lock / ऑनर एडमिन लॉगिन
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Enter the secret owner security key to access student analytics, search history, and user activity records.
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setActiveView('chat')}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
-                  >
-                    Return to Chat / मुख्य पृष्ठ
-                  </button>
-                </div>
-              ) : !isOwnerAuthenticated ? (
-                /* Password Protection Gate Lock */
-                <div className="p-8 bg-[#0F1626]/80 border border-amber-500/40 rounded-3xl space-y-6 max-w-md mx-auto text-center shadow-2xl my-12">
-                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-3xl shadow-lg shadow-amber-500/10">
-                    🔐
-                  </div>
-                  <div className="space-y-2 text-center">
-                    <h3 className="text-base font-extrabold text-white uppercase tracking-wide">
-                      मालिक (Owner Admin) पासवर्ड दर्ज करें
-                    </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      This Owner Console contains registered student emails and search history logs. Enter master owner password to unlock:
-                    </p>
-                  </div>
-
-                  <form onSubmit={handleOwnerPasswordSubmit} className="space-y-4 text-left">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-300 block">Owner Master Password:</label>
-                      <div className="relative">
-                        <input
-                          type="password"
-                          required
-                          value={ownerPasswordInput}
-                          onChange={(e) => {
-                            setOwnerPasswordInput(e.target.value);
-                            setOwnerPasswordError(false);
-                          }}
-                          placeholder="Enter Owner Password..."
-                          className={`w-full text-xs py-3 pl-10 pr-4 bg-[#060913] border rounded-xl text-white placeholder-slate-500 focus:outline-none ${
-                            ownerPasswordError ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                          }`}
-                        />
-                        <Key className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
-                      </div>
-                      {ownerPasswordError && (
-                        <p className="text-[11px] text-rose-400 font-semibold mt-1">
-                          ✕ गलत पासवर्ड! कृपया सही पासवर्ड दर्ज करें।
-                        </p>
-                      )}
-                    </div>
-
+                  <form onSubmit={handleOwnerPasswordSubmit} className="space-y-4">
+                    <input
+                      type="password"
+                      value={ownerPasswordInput}
+                      onChange={(e) => setOwnerPasswordInput(e.target.value)}
+                      placeholder="Enter Admin Password (e.g. Chhangur#@8084)"
+                      className="w-full text-xs py-3 px-4 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 text-center font-mono"
+                    />
                     <button
                       type="submit"
-                      className="w-full py-3 bg-gradient-to-r from-amber-600 to-indigo-600 hover:from-amber-500 hover:to-indigo-550 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-600/20 cursor-pointer"
+                      className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-600/20 cursor-pointer border-none"
                     >
                       Unlock Admin Console 🔓
                     </button>
                   </form>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {/* Header */}
+                <>
+                  <AdminPanel
+                    ownerAnalyticsData={ownerAnalyticsData}
+                    isOwnerAnalyticsLoading={isOwnerAnalyticsLoading}
+                    fetchOwnerAnalytics={fetchOwnerAnalytics}
+                    setIsOwnerAuthenticated={setIsOwnerAuthenticated}
+                    feedbacks={feedbacks}
+                    handleDeleteLogItem={handleDeleteLogItem}
+                    addAdminAuditLog={addAdminAuditLog}
+                    showToast={showToast}
+                    activeHeaderBanner={activeHeaderBanner}
+                    setActiveHeaderBanner={setActiveHeaderBanner}
+                    featureFlags={featureFlags}
+                    setFeatureFlags={setFeatureFlags}
+                    aiModelSettings={aiModelSettings}
+                    setAiModelSettings={setAiModelSettings}
+                    seoSettings={seoSettings}
+                    setSeoSettings={setSeoSettings}
+                    adminPasswordSecret={adminPasswordSecret}
+                    setAdminPasswordSecret={setAdminPasswordSecret}
+                    adminAuditLogs={adminAuditLogs}
+                  />
+                </>
+              )}
+              {false && (
+                <div>
                   <div className="border-b border-slate-800 pb-4 text-left flex items-center justify-between">
                     <div>
                       <div className="flex items-center gap-2">
@@ -7672,11 +7701,171 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <button
                         onClick={fetchOwnerAnalytics}
                         disabled={isOwnerAnalyticsLoading}
-                        className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md disabled:opacity-50"
+                        className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md disabled:opacity-50 border-none"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${isOwnerAnalyticsLoading ? 'animate-spin' : ''}`} />
                         <span>{isOwnerAnalyticsLoading ? (language === 'hindi' ? 'लोड हो रहा है...' : 'Loading...') : (language === 'hindi' ? 'रीफ्रेश डेटा' : 'Refresh Data')}</span>
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Real-time Stats Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div className="bg-[#0F1626]/80 border border-indigo-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-indigo-950/40">
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'कुल दर्शक एवं छात्र' : 'Total Visitors & Users'}</span>
+                      <span className="text-2xl font-black text-indigo-400 block font-mono">{ownerAnalyticsData.totalUsers || ownerAnalyticsData.users.length}</span>
+                      <span className="text-[9px] text-[#22c55e] block font-semibold">{language === 'hindi' ? 'लिंक खोलने वाले एवं पंजीकृत सभी' : 'All App Link Opens + Registered'}</span>
+                    </div>
+                    <div className="bg-[#0F1626]/80 border border-emerald-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-emerald-950/40">
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'पंजीकृत ईमेल छात्र' : 'Registered Email Students'}</span>
+                      <span className="text-2xl font-black text-emerald-400 block font-mono">{ownerAnalyticsData.registeredCount}</span>
+                      <span className="text-[9px] text-emerald-300 block font-semibold">{language === 'hindi' ? 'नाम एवं ईमेल दर्ज किए हुए' : 'Verified Name & Email Profiles'}</span>
+                    </div>
+                    <div className="bg-[#0F1626]/80 border border-amber-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-amber-950/40">
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'गेस्ट / लिंक दर्शक' : 'Link Guest Visitors'}</span>
+                      <span className="text-2xl font-black text-amber-400 block font-mono">{ownerAnalyticsData.visitorCount}</span>
+                      <span className="text-[9px] text-amber-300 block font-semibold">{language === 'hindi' ? 'लिंक शेयर से सीधे आने वाले' : 'Visited via Shared Link'}</span>
+                    </div>
+                    <div className="bg-[#0F1626]/80 border border-pink-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-pink-950/40">
+                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? 'कुल छात्र सर्च एवं प्रश्न' : 'Total Searches & Activity'}</span>
+                      <span className="text-2xl font-black text-pink-400 block font-mono">{ownerAnalyticsData.totalQueries || ownerAnalyticsData.logs.length}</span>
+                      <span className="text-[9px] text-slate-400 block">{language === 'hindi' ? 'सहेजी गई गतिविधि' : 'Logged user interactions'}</span>
+                    </div>
+                  </div>
+
+                  {/* SECTION 1: REGISTERED USERS & VISITORS LIST */}
+                  <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                          <Users className="w-4 h-4 text-indigo-400" />
+                          {language === 'hindi' ? '1. पंजीकृत छात्रों एवं दर्शकों की सूची (Biodata)' : '1. Users & Visitors Directory (Biodata)'} ({ownerAnalyticsData.users.length})
+                        </h3>
+                        <p className="text-[11px] text-slate-400">
+                          Real-time list of all users, registered students, and link visitors with complete activity history.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Filter Category Tabs */}
+                        <div className="flex items-center bg-[#060913] p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
+                          <button
+                            onClick={() => setOwnerUserTypeFilter('all')}
+                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none ${ownerUserTypeFilter === 'all' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            All ({ownerAnalyticsData.users.length})
+                          </button>
+                          <button
+                            onClick={() => setOwnerUserTypeFilter('logged_in')}
+                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none flex items-center gap-1 ${ownerUserTypeFilter === 'logged_in' ? 'bg-emerald-600 text-white font-extrabold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse inline-block"></span>
+                            {language === 'hindi' ? 'लॉग इन छात्र' : 'Logged-In'} ({ownerAnalyticsData.registeredCount})
+                          </button>
+                          <button
+                            onClick={() => setOwnerUserTypeFilter('registered')}
+                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none ${ownerUserTypeFilter === 'registered' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            Registered ({ownerAnalyticsData.registeredCount})
+                          </button>
+                          <button
+                            onClick={() => setOwnerUserTypeFilter('visitors')}
+                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none ${ownerUserTypeFilter === 'visitors' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            Visitors ({ownerAnalyticsData.visitorCount})
+                          </button>
+                        </div>
+
+                        {/* Search box for users */}
+                        <div className="relative w-full sm:w-48">
+                          <input
+                            type="text"
+                            value={ownerUserSearchQuery}
+                            onChange={(e) => setOwnerUserSearchQuery(e.target.value)}
+                            placeholder="Search name or email..."
+                            className="w-full text-xs py-1.5 pl-8 pr-3 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                          />
+                          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto max-h-80 overflow-y-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead className="sticky top-0 bg-[#0B0F1B] z-10">
+                          <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-bold">
+                            <th className="py-2.5 px-3">Student / Visitor Name</th>
+                            <th className="py-2.5 px-3">Email / Visitor Identifier</th>
+                            <th className="py-2.5 px-3">Account Type</th>
+                            <th className="py-2.5 px-3">Device / IP</th>
+                            <th className="py-2.5 px-3">First Seen</th>
+                            <th className="py-2.5 px-3">Last Active</th>
+                            <th className="py-2.5 px-3 text-center">Prompts</th>
+                            <th className="py-2.5 px-3 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-850 font-medium">
+                          {ownerAnalyticsData.users
+                            .filter(u => {
+                              const matchesSearch = 
+                                u.name.toLowerCase().includes(ownerUserSearchQuery.toLowerCase()) || 
+                                u.email.toLowerCase().includes(ownerUserSearchQuery.toLowerCase());
+                              const isGuest = u.isGuest || u.email.endsWith('@hansai.visitor');
+                              if (ownerUserTypeFilter === 'logged_in') return matchesSearch && !isGuest;
+                              if (ownerUserTypeFilter === 'registered') return matchesSearch && !isGuest;
+                              if (ownerUserTypeFilter === 'visitors') return matchesSearch && isGuest;
+                              return matchesSearch;
+                            })
+                            .map((usr) => {
+                              const isGuest = usr.isGuest || usr.email.endsWith('@hansai.visitor');
+                              return (
+                                <tr key={usr.id} className="hover:bg-indigo-500/5 transition-all">
+                                  <td className="py-2.5 px-3 text-white font-bold flex items-center gap-2">
+                                    <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] ${
+                                      isGuest ? 'bg-amber-500/30 text-amber-300' : 'bg-emerald-500/30 text-emerald-300'
+                                    }`}>
+                                      {usr.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span>{usr.name}</span>
+                                  </td>
+                                  <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px]">{usr.email}</td>
+                                  <td className="py-2.5 px-3">
+                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase inline-flex items-center gap-1 ${
+                                      isGuest ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                    }`}>
+                                      {!isGuest && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>}
+                                      {isGuest ? (language === 'hindi' ? 'लिंक दर्शक' : 'Guest Link Visitor') : (language === 'hindi' ? 'लॉग इन / पंजीकृत छात्र 🟢' : 'Logged In Student 🟢')}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.deviceInfo || usr.device || "Mobile/Desktop"}</td>
+                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.registeredAt ? new Date(usr.registeredAt).toLocaleDateString() : (usr.createdAt || "Recent")}</td>
+                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.lastActiveAt ? new Date(usr.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (usr.lastActive || "Now")}</td>
+                                  <td className="py-2.5 px-3 text-center text-indigo-400 font-mono font-bold">{usr.promptCount ?? usr.queryCount ?? 0}</td>
+                                  <td className="py-2.5 px-3 text-right">
+                                    <button
+                                      onClick={() => {
+                                        setSelectedUserForLogs(usr.email);
+                                        setOwnerLogSearchQuery(usr.email);
+                                        showToast(`Filtering activity logs for ${usr.name}`, "info");
+                                      }}
+                                      className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-none"
+                                    >
+                                      View Activity 🔍
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+
+                          {ownerAnalyticsData.users.length === 0 && (
+                            <tr>
+                              <td colSpan={8} className="py-6 text-center text-slate-500 text-xs">
+                                No registered users or visitors recorded yet.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                   
@@ -7881,6 +8070,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             <th className="py-2.5 px-3">Student Name & Email</th>
                             <th className="py-2.5 px-3">Type</th>
                             <th className="py-2.5 px-3">User Query / Search Text</th>
+                            <th className="py-2.5 px-3 text-right">Action</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-850 font-medium">
@@ -7916,12 +8106,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                 <td className="py-2.5 px-3 text-slate-100 font-sans max-w-md leading-relaxed">
                                   {logItem.query}
                                 </td>
+                                <td className="py-2.5 px-3 text-right">
+                                  <button
+                                    onClick={() => handleDeleteLogItem(logItem.id)}
+                                    title="Delete this log"
+                                    className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all cursor-pointer border-none bg-transparent"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5 inline" />
+                                  </button>
+                                </td>
                               </tr>
                             ))}
 
                           {ownerAnalyticsData.logs.length === 0 && (
                             <tr>
-                              <td colSpan={4} className="py-6 text-center text-slate-500 text-xs">
+                              <td colSpan={5} className="py-6 text-center text-slate-500 text-xs">
                                 No search/chat activity logs recorded yet. Activities will automatically log as users interact.
                               </td>
                             </tr>
@@ -8296,11 +8495,31 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     const loggedUser = {
                       email: 'palhanslal4@gmail.com',
                       name: 'हंसलाल पाल जी',
+                      role: 'owner',
                       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'
                     };
                     localStorage.setItem('hansai-user-session', JSON.stringify(loggedUser));
                     setUser(loggedUser);
                     setIsLoginModalOpen(false);
+
+                    // Sync registration on server & log login event
+                    fetch('/api/users/register', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: loggedUser.name, email: loggedUser.email })
+                    }).then(() => fetchOwnerAnalytics()).catch(console.error);
+
+                    fetch('/api/users/log-activity', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        name: loggedUser.name,
+                        email: loggedUser.email,
+                        type: 'login',
+                        query: `Owner Admin Logged In (${loggedUser.name})`
+                      })
+                    }).catch(console.error);
+
                     showToast(language === 'hindi' ? "मलिक एडमिन राइट्स सत्यापित! आपका स्वागत है, हंसलाल पाल जी। 👑" : "Owner privileges verified! Welcome Hanslal Pal Ji. 👑", "success");
                     setActiveView('owner-dashboard');
                   }}
@@ -8330,7 +8549,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
                     const email = (formData.get('email') as string || '').trim().toLowerCase();
-                    const name = (formData.get('name') as string || '').trim() || 'Aspirant';
+                    const name = (formData.get('name') as string || '').trim() || 'Aspirant Student';
 
                     if (!email) {
                       showToast("कृपया एक वैध ईमेल दर्ज करें।", "warn");
@@ -8348,10 +8567,28 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     ];
                     const selectedAvatar = avatarList[hash];
 
-                    const loggedUser = { email, name, avatarUrl: selectedAvatar };
+                    const loggedUser = { email, name, avatarUrl: selectedAvatar, role: email === 'palhanslal4@gmail.com' ? 'owner' : 'student' };
                     localStorage.setItem('hansai-user-session', JSON.stringify(loggedUser));
                     setUser(loggedUser);
                     setIsLoginModalOpen(false);
+
+                    // Sync student registration on server & record login activity
+                    fetch('/api/users/register', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name, email })
+                    }).then(() => fetchOwnerAnalytics()).catch(console.error);
+
+                    fetch('/api/users/log-activity', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        name,
+                        email,
+                        type: 'login',
+                        query: `Student Logged In (${name})`
+                      })
+                    }).catch(console.error);
                     
                     if (email === 'palhanslal4@gmail.com') {
                       showToast(language === 'hindi' ? "मलिक एडमिन राइट्स सत्यापित! आपका स्वागत है, हंसलाल पाल जी। 👑" : "Owner privileges verified! Welcome Hanslal Pal Ji. 👑", "success");
@@ -8559,7 +8796,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 { id: 'map', title: 'GIS & Mapping Visualizer', desc: 'नक्शा और जियोग्राफी टूल', icon: '🗺️', badge: 'REAL-TIME GIS' },
                 { id: 'quiz', title: 'Interactive Live Quiz', desc: 'लाइव टेस्ट रूम', icon: '🧠', badge: 'PRACTICE' },
                 { id: 'notes', title: 'Shorthand & Formula Notes', desc: 'सूत्र व नियम नोट्स', icon: '📝', badge: 'PERSONAL' },
-                { id: 'owner-dashboard', title: 'Scholar Founder Hub', desc: 'संस्थापक कंसोल', icon: '👑', badge: 'ADMIN' },
+                ...(isAdmin ? [{ id: 'owner-dashboard', title: 'Scholar Founder Hub', desc: 'संस्थापक कंसोल', icon: '👑', badge: 'ADMIN' }] : []),
               ].map((item) => (
                 <button
                   key={item.id}
@@ -9236,8 +9473,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       )}
 
       {/* VIEW: AI STUDY PLAN & ROADMAP */}
-      {activeView === 'planner' && (
+      {(activeView === 'planner' || activeView === 'study-plan') && (
         <StudyPlanView user={user} onExportPdf={handleExportPdf} showToast={showToast} />
+      )}
+
+      {/* VIEW: AFFILIATE STORE & SARKARI PRODUCTS */}
+      {(activeView === 'affiliate-store' || activeView === 'affiliate' || activeView === 'sarkari-result') && (
+        <AffiliateStoreView user={user} showToast={showToast} />
       )}
 
       {/* VIEW: AI FLASHCARDS DECK */}
@@ -9277,6 +9519,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           onBack={() => setActiveView('chat')} 
         />
       )}
+
+      {/* ALL EXAMS SYLLABUS DIRECTORY MODAL */}
+      <AllExamsSyllabusModal
+        isOpen={isAllExamsSyllabusOpen}
+        onClose={() => setIsAllExamsSyllabusOpen(false)}
+        onSelectSyllabusPrompt={(promptText) => {
+          setActiveView('chat');
+          setChatInput(promptText);
+        }}
+        onOpenStudyPlannerWithExam={(examName) => {
+          setActiveView('study-plan');
+          showToast(`Syllabus roadmap & planner activated for ${examName}! 🚀`, 'success');
+        }}
+        showToast={showToast}
+      />
 
       {/* SECURE AUTH MODALS (LOGIN, REGISTER, FORGOT PASSWORD) */}
       <AuthModals
