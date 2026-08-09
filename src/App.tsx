@@ -95,6 +95,7 @@ import { FileConverterView } from './components/FileConverterView';
 import { WeatherAlertView } from './components/WeatherAlertView';
 import { AffiliateStoreView } from './components/AffiliateStoreView';
 import { AllExamsSyllabusModal } from './components/AllExamsSyllabusModal';
+import { GlobalBookReader } from './components/GlobalBookReader';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -356,7 +357,7 @@ const STATUS_THEMES = [
 
 export default function App() {
   // Navigation & View state
-  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'flashcards' | 'photo-doubt' | 'security'>('chat');
+  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'flashcards' | 'photo-doubt' | 'security' | 'book-reader'>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
   const [isCreatorDrawerOpen, setIsCreatorDrawerOpen] = useState(false);
@@ -611,6 +612,69 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // AUTOMATIC 3-HOUR SESSION LOGOUT & NOTIFICATION SYSTEM
+  useEffect(() => {
+    if (!user) return;
+
+    let sessionStart = parseInt(localStorage.getItem('hansai-session-timestamp') || '0', 10);
+    if (!sessionStart || isNaN(sessionStart)) {
+      sessionStart = Date.now();
+      localStorage.setItem('hansai-session-timestamp', sessionStart.toString());
+    }
+
+    const THREE_HOURS_MS = 3 * 60 * 60 * 1000; // 3 hours = 10,800,000 ms
+    const WARNING_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes warning
+    let warningShown = false;
+
+    const checkAutoLogout = () => {
+      const elapsed = Date.now() - sessionStart;
+      const remaining = THREE_HOURS_MS - elapsed;
+
+      if (remaining <= 0) {
+        // 3 Hours Limit Reached -> Trigger Auto Logout
+        localStorage.removeItem('hansai-user-session');
+        localStorage.removeItem('hansai-session-timestamp');
+        setUser(null);
+        setIsHeaderMenuOpen(false);
+        setActiveView('chat');
+
+        // Show toast notification
+        showToast(
+          language === 'hindi'
+            ? "⏱️ 3 घंटे की सत्र सीमा समाप्त! आपका अकाउंट ऑटोमैटिक लॉगआउट कर दिया गया है।"
+            : "⏱️ 3 Hours Session Limit Reached! You have been automatically logged out for security and study discipline.",
+          "warn"
+        );
+
+        // Append assistant chat notification message
+        setChatMessages(prev => [
+          ...prev,
+          {
+            id: `sys-logout-${Date.now()}`,
+            role: 'assistant',
+            content: language === 'hindi'
+              ? "⚠️ **स्वचालित लॉगआउट सूचना (3 Hours Auto Logout Notification)**\n\nआपकी 3 घंटे की निरंतर अध्ययन सत्र सीमा पूरी हो चुकी है। सुरक्षा एवं अध्ययन अनुशासन बनाए रखने के लिए आपका अकाउंट ऑटोमैटिक लॉगआउट किया गया है।\n\nपुनः अभ्यास जारी रखने के लिए कृपया **Login / Register** करें।"
+              : "⚠️ **Automatic Logout Notification (3 Hours Limit Reached)**\n\nYour 3-hour continuous study session limit has expired. To maintain security and learning discipline, your session has been automatically logged out.\n\nPlease click **Login / Register** to start a new session.",
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ]);
+      } else if (remaining <= WARNING_THRESHOLD_MS && !warningShown) {
+        warningShown = true;
+        const remMins = Math.ceil(remaining / (60 * 1000));
+        showToast(
+          language === 'hindi'
+            ? `⏱️ ध्यान दें! आपका सत्र ${remMins} मिनट में (3 घंटे पूरे होने पर) ऑटोमैटिक लॉगआउट हो जाएगा।`
+            : `⏱️ Notice! Your session will auto-logout in ${remMins} minutes (3 hours limit).`,
+          "info"
+        );
+      }
+    };
+
+    checkAutoLogout();
+    const interval = setInterval(checkAutoLogout, 15000);
+    return () => clearInterval(interval);
+  }, [user, language]);
 
   // Browser Back Button & Popstate History Management (Prevents exiting app when back button pressed)
   useEffect(() => {
@@ -3304,6 +3368,78 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
     showToast(`Loaded: ${chatSession.title}`, "success");
   };
 
+  // Helper to generate dynamic, subject-specific answers for instant local AI responses
+  const generateSubjectKnowledgeReply = (userQuery: string, lang: string = 'hindi'): string => {
+    const query = (userQuery || "").toLowerCase();
+
+    if (query.includes('geography') || query.includes('भूगोल')) {
+      return `### 🌍 भूगोल (Geography) - संपूर्ण परिचय व अध्ययन समाधान\n\n` +
+        `**भूगोल (Geography)** वह विस्तृत विज्ञान है जिसके अंतर्गत पृथ्वी के धरातल, उसके भौतिक स्वरूपों, जलवायु, प्राकृतिक संसाधनों, नदियाँ एवं महाद्वीपों का अध्ययन किया जाता है।\n\n` +
+        `#### 📌 मुख्य शाखाएं (Core Branches):\n` +
+        `1. **भौतिक भूगोल (Physical Geography):**\n` +
+        `   - **भू-आकृति विज्ञान (Geomorphology):** पर्वत (जैसे हिमालय), पठार, मैदान, एवं नदियाँ।\n` +
+        `   - **जलवायु विज्ञान (Climatology):** भारतीय मानसून, चक्रवात, वायुदाब पेटियाँ, एवं वर्षा।\n` +
+        `   - **समुद्र विज्ञान (Oceanography):** महासागरीय धाराएँ (गल्फ स्ट्रीम, ला नीना) व ज्वार-भाटा।\n` +
+        `   - **सौरमंडल (Solar System):** पृथ्वी की गतियाँ, अक्षांश (Latitude) व देशांतर (Longitude)।\n\n` +
+        `2. **भारत का भूगोल (Indian Geography) [परीक्षाओं हेतु महत्वपूर्ण]:**\n` +
+        `   - **भौतिक विभाजन:** उत्तरी हिमालय पर्वतमाला, प्रायद्वीपीय पठार, तटीय मैदान व द्वीप समूह।\n` +
+        `   - **प्रमुख नदियाँ:** गंगा, सिंधु, ब्रह्मपुत्र, गोदावरी, नर्मदा, ताप्ती, कृष्णा, कावेरी।\n` +
+        `   - **मिट्टी व फसलें:** जलोढ़, काली (रेगुर), लाल मिट्टी तथा रबी, खरीफ एवं जायद फसलें।\n\n` +
+        `💡 **याद रखने की शार्ट ट्रिक:**\n` +
+        `- **कर्क रेखा (23½° N)** भारत के 8 राज्यों से गुजरती है: *(मित्र पर गमछा झार -> मिजोरम, त्रिपुरा, प. बंगाल, राजस्थान, गुजरात, म.प्र., छत्तीसगढ़, झारखंड)*।\n\n` +
+        `👉 आप **Auto Chapter Quiz** सेक्शन में जाकर **"Geography"** पर तुरंत 5 प्रश्नों का लाइव टेस्ट भी दे सकते हैं!`;
+    }
+
+    if (query.includes('history') || query.includes('इतिहास')) {
+      return `### 📜 इतिहास (History) - संपूर्ण कालक्रम व परीक्षा विश्लेषण\n\n` +
+        `इतिहास को मुख्य रूप से तीन भागों में वर्गीकृत किया गया है:\n\n` +
+        `1. **प्राचीन भारत (Ancient India):** सिंधु घाटी सभ्यता, वैदिक काल, बौद्ध व जैन धर्म, मौर्य साम्राज्य (अशोक) व गुप्त काल।\n` +
+        `2. **मध्यकालीन भारत (Medieval India):** दिल्ली सल्तनत, मुगल साम्राज्य (अकबर से औरंगजेब), एवं भक्ति आंदोलन।\n` +
+        `3. **आधुनिक भारत (Modern India):** 1857 की क्रांति, भारतीय राष्ट्रीय कांग्रेस (1885), गांधीवादी युग (1915-1947) एवं स्वतंत्रता आंदोलन।\n\n` +
+        `👉 **अभ्यास:** तुरंत **Modern History** पर क्विज हल करें!`;
+    }
+
+    if (query.includes('polity') || query.includes('संविधान') || query.includes('राजव्यवस्था')) {
+      return `### 🏛️ भारतीय संविधान व राजव्यवस्था (Indian Polity)\n\n` +
+        `भारतीय संविधान 26 नवंबर 1949 को अंगीकृत हुआ तथा 26 जनवरी 1950 को पूर्णतः लागू हुआ।\n\n` +
+        `#### 📌 महत्वपूर्ण अंश:\n` +
+        `- **भाग 3 (अनुच्छेद 12-35):** 6 मौलिक अधिकार (Fundamental Rights)।\n` +
+        `- **भाग 4 (अनुच्छेद 36-51):** नीति निर्देशक तत्व (DPSP)।\n` +
+        `- **अनुच्छेद 32:** संवैधानिक उपचारों का अधिकार ('संविधान की आत्मा')।\n` +
+        `- **अनुच्छेद 52-61:** भारत के राष्ट्रपति व महाभियोग प्रक्रिया।\n\n` +
+        `👉 **अभ्यास:** ऐप के **Quiz** सेक्शन में **Indian Polity** चुनें!`;
+    }
+
+    if (query.includes('science') || query.includes('विज्ञान') || query.includes('physics') || query.includes('chemistry') || query.includes('biology') || query.includes('भौतिक') || query.includes('रसायन') || query.includes('जीव')) {
+      return `### 🔬 सामान्य विज्ञान (General Science)\n\n` +
+        `1. **भौतिकी (Physics):** गति के नियम (F=ma), प्रकाश का अपवर्तन/परावर्तन, गुरुत्वाकर्षण, कार्य व ऊर्जा।\n` +
+        `2. **रसायन (Chemistry):** आवर्त सारणी (Periodic Table), अम्ल व क्षार (pH मान), परमाणु संरचना।\n` +
+        `3. **जीव विज्ञान (Biology):** कोशिका (Powerhouse = Mitochondria), मानव पाचन व परिसंचरण तंत्र, विटामिन व बीमारियाँ।\n\n` +
+        `👉 विस्तृत जानकारी के लिए टॉपिक का सटीक नाम टाइप करें!`;
+    }
+
+    if (query.includes('math') || query.includes('गणित') || query.includes('reasoning') || query.includes('रीजनिंग')) {
+      return `### 📐 गणित एवं रीजनिंग (Maths & Reasoning)\n\n` +
+        `1. **अंकगणित:** प्रतिशत (Percentage), लाभ-हानि, औसत, SI/CI, समय व कार्य।\n` +
+        `2. **एडवांस मैथ्स:** बीजगणित (Algebra), ज्यामिति (Geometry), त्रिकोणमिति।\n` +
+        `3. **रीजनिंग:** कोडिंग-डिकोडिंग, सादृश्यता, दिशा ज्ञान, ब्लड रिलेशंस।\n\n` +
+        `👉 आप अपना सवाल सीधे लिखकर पूछ सकते हैं!`;
+    }
+
+    if (query.includes('bihar') || query.includes('gk') || query.includes('ssc') || query.includes('upsc') || query.includes('cgl') || query.includes('chsl') || query.includes('board')) {
+      return `### 🎯 प्रतियोगी परीक्षा तैयारी (Exam Strategy)\n\n` +
+        `**"${userQuery}"** हेतु HansAI अध्ययन रणनीति:\n\n` +
+        `1. **सिलेबस व PYQ:** विगत 5 वर्षों के प्रश्नों का गहन विश्लेषण करें।\n` +
+        `2. **दैनिक शेड्यूल:** GK/General Awareness, गणित, रीजनिंग व भाषा का संतुलित समय बांटें।\n` +
+        `3. **मॉक टेस्ट:** साप्ताहिक टेस्ट हल करें व कमजोर टॉपिक्स को तुरंत सुधारें।\n\n` +
+        `👉 **Auto Chapter Quiz** में जाकर तुरंत मॉक प्रैक्टिस करें!`;
+    }
+
+    return lang === 'hindi'
+      ? `### 📚 हंस-एआई (HansAI) - विषय मार्गदर्शन\n\nआपकी जिज्ञासा **"${userQuery.slice(0, 70)}"** के संबंध में संक्षिप्त अध्ययन बिंदु:\n\n1. **मुख्य अवधारणा (Core Concept):** प्रतियोगी एवं बोर्ड परीक्षाओं (SSC, UPSC, Railway, State Exams) में इस विषय की स्पष्ट समझ अति आवश्यक है।\n2. **रिवीजन रणनीति:** महत्वपूर्ण सूत्रों, तिथियों व परिभाषाओं के संक्षिप्त नोट्स बनाकर पुनरावृत्ति करें।\n3. **लाइव टेस्ट:** आप ऐप के **Auto Chapter Quiz** सेक्शन में जाकर तुरंत 5 प्रश्नों का अभ्यास कर सकते हैं!`
+      : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${userQuery.slice(0, 70)}"**:\n\n1. **Key Concept:** Clear understanding of this topic is essential for competitive & board exams.\n2. **Revision Strategy:** Create concise notes of key formulas, facts, and definitions.\n3. **Interactive Test:** Navigate to the **Auto Chapter Quiz** tab to solve custom MCQs on this topic!`;
+  };
+
   // Clear current chat messages (New Chat)
   const startNewChat = () => {
     setChatMessages([]);
@@ -3382,10 +3518,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
     }
 
     try {
-      const history = [...chatMessages, userMsg].map(m => ({
+      const history = [...chatMessages, userMsg].slice(-10).map(m => ({
         role: m.role,
         content: m.content
       }));
+
+      const currentUserEmail = user?.email || "visitor.student@hansai.app";
+      const currentUserName = user?.name || "Visitor Aspirant";
 
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -3394,8 +3533,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           messages: history,
           model: selectedModel,
           image: imagePayload,
-          userName: user?.name,
-          userEmail: user?.email
+          userName: currentUserName,
+          userEmail: currentUserEmail
         })
       });
 
@@ -3424,34 +3563,30 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       const isCreatorQuery = query.includes('creator') || query.includes('founder') || query.includes('who made') || query.includes('who built') || query.includes('who created') || query.includes('hanslal') || query.includes('pal ji') || query.includes('पाल जी') || query.includes('निर्माता') || query.includes('maker');
       const isNotUnderstanding = query.includes('understand') || query.includes('समझ नहीं') || query.includes('नहीं समझा') || query.includes('फिर से') || query.includes('easy') || query.includes('सरल');
 
-      if (isCapabilityQuery) {
-        customReply = `✨ **HansAI (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
-          `1. 🎓 **SSC CGL & Exam Prep**: SSC CGL, Stenographer, State/UPSC गाइडेंस, इंग्लिश ग्रामर रूल्स और GK ट्रिक्स।\n` +
-          `2. ✍️ **Pitman Shorthand & Dictation**: Shorthand स्ट्रोक रेफरेंस, डिक्टेशन टाइमर और स्पीड प्रैक्टिस।\n` +
-          `3. 🚀 **Deep Research AI**: विषय पर गहरा अध्ययन, टाइमलाइन और याद करने की ट्रिक्स।\n` +
-          `4. 🧠 **Interactive Live Quizzes**: तुरंत 5 सवालों का क्विज टेस्ट, स्कोर और व्याख्या।\n` +
-          `5. 🎙️ **Projects & Voice Recorder**: लेक्चर्स/नोट्स की वॉइस रिकॉर्डिंग और प्रोजेक्ट्स।\n` +
-          `6. 📖 **Study Notes & Folders**: नोट्स सहेजना, खोजना और स्मार्ट फोल्डर्स।\n` +
-          `7. 🗺️ **GIS & Map Visualizer**: इंटरएक्टिव भूगोल मानचित्र और मैपिंग।\n` +
-          `8. ☕ **Daily Motivation & Status**: सुबह की कविताएं और मोटिवेशन।\n` +
-          `9. 📶 **Offline Availability**: बिना इंटरनेट के भी सभी सेव किए गए नोट्स व टूल्स काम करते हैं!`;
-      } else if (isCreatorQuery) {
-        customReply = `HansAI को विज़नरी हंसलाल पाल जी के उत्कृष्ट मार्गदर्शन में तैयार किया गया है। उनका विज़न आसान हिंदी और अंग्रेजी के समन्वय से युवाओं और बुद्धिजीवियों को आत्मनिर्भर, अनुशासित और ज्ञान-सम्पन्न बनाना है।`;
-      } else if (isGreeting) {
-        if (language === 'hindi') {
-          customReply = `नमस्ते! मैं आपका एआई साथी (HansAI) हूँ। आज मैं आपकी पढ़ाई, व्याकरण या परीक्षा की तैयारी में किस प्रकार सहायता कर सकता हूँ?`;
-        } else {
-          customReply = `Hello! I am your AI Companion (HansAI). How can I assist you with your lessons, grammar concepts, or competitive exam preparation today?`;
-        }
-      } else if (isNotUnderstanding) {
-        customReply = `### 💡 आसान रूप (Simplified Explanation):\n\n\`\`\`\n  [मूल सिद्धांत / Core Concept]\n         │\n         ├──➤ [नियम / Rule/Formula]\n         │      └──➤ अनुप्रयोग (Application in Practice Exams)\n         └──➤ [स्मरण ट्रिक / Memorization Hack]\n\`\`\``;
+    if (isCapabilityQuery) {
+      customReply = `✨ **HansAI (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
+        `1. 🎓 **SSC, Board & Competitive Exams**: SSC CGL/CHSL, Railway, State PCS/UPSC, भूगोल, इतिहास, संविधान, विज्ञान, गणित, रीजनिंग व अंग्रेजी।\n` +
+        `2. ✍️ **Shorthand & Dictation Tools**: Shorthand स्ट्रोक रेफरेंस, डिक्टेशन टाइमर और स्पीड प्रैक्टिस।\n` +
+        `3. 🚀 **Deep Research AI**: विषय पर गहरा अध्ययन, टाइमलाइन और याद करने की ट्रिक्स।\n` +
+        `4. 🧠 **Interactive Live Quizzes**: तुरंत 5 सवालों का क्विज टेस्ट, स्कोर और व्याख्या।\n` +
+        `5. 🎙️ **Projects & Voice Recorder**: लेक्चर्स/नोट्स की वॉइस रिकॉर्डिंग और प्रोजेक्ट्स।\n` +
+        `6. 📖 **Study Notes & Folders**: नोट्स सहेजना, खोजना और स्मार्ट फोल्डर्स।\n` +
+        `7. 🗺️ **GIS & Map Visualizer**: इंटरएक्टिव भूगोल मानचित्र और मैपिंग।\n` +
+        `8. ☕ **Daily Motivation & Status**: सुबह की कविताएं और मोटिवेशन।\n` +
+        `9. 📶 **Offline Availability**: बिना इंटरनेट के भी सभी सेव किए गए नोट्स व टूल्स काम करते हैं!`;
+    } else if (isCreatorQuery) {
+      customReply = `HansAI को विज़नरी हंसलाल पाल जी के उत्कृष्ट मार्गदर्शन में तैयार किया गया है। उनका विज़न आसान हिंदी और अंग्रेजी के समन्वय से युवाओं और बुद्धिजीवियों को आत्मनिर्भर, अनुशासित और ज्ञान-सम्पन्न बनाना है।`;
+    } else if (isGreeting) {
+      if (language === 'hindi') {
+        customReply = `नमस्ते! मैं आपका एआई साथी (HansAI) हूँ। आज मैं आपकी पढ़ाई, भूगोल, इतिहास, विज्ञान या किसी भी परीक्षा की तैयारी में किस प्रकार सहायता कर सकता हूँ?`;
       } else {
-        if (language === 'hindi') {
-          customReply = `### 📚 हंस-एआई (HansAI) - अध्ययन सहायता एवं समाधान\n\nआपकी जिज्ञासा **"${messageContent.slice(0, 60)}${messageContent.length > 60 ? '...' : ''}"** के संदर्भ में त्वरित मार्गदर्शन:\n\n1. **मुख्य अवधारणा (Core Concept):** प्रतियोगी परीक्षाओं (SSC CGL, Stenographer, State/UPSC) एवं अध्याय वार मूल्यांकन में इस विषय की समझ एवं निरंतर अभ्यास अत्यंत महत्वपूर्ण है।\n2. **तैयारी रणनीति:** महत्वपूर्ण सूत्रों, नियमों एवं परिभाषाओं का शॉर्ट नोट्स बनाकर रिवीजन करें।\n3. **स्कोरकार्ड टेस्ट:** आप **Auto Chapter Quiz** सेक्शन में जाकर इस विषय पर तुरंत MCQs हल कर अपना **A1 Report Card & Certificate** भी डाउनलोड कर सकते हैं!`;
-        } else {
-          customReply = `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${messageContent.slice(0, 60)}${messageContent.length > 60 ? '...' : ''}"**:\n\n1. **Key Concept:** Mastering the core principles and consistent daily practice is vital for top academic performance.\n2. **Exam Strategy:** Revisit core formulas, grammar/steno rules, and practice chapter-wise MCQs regularly.\n3. **Interactive Test:** Navigate to the **Auto Chapter Quiz** tab to solve custom MCQs on this topic and download your official **A1 Scorecard**!`;
-        }
+        customReply = `Hello! I am your AI Companion (HansAI). How can I assist you with Geography, History, Science, Maths, or competitive exam preparation today?`;
       }
+    } else if (isNotUnderstanding) {
+      customReply = `### 💡 आसान रूप (Simplified Explanation):\n\n\`\`\`\n  [मूल सिद्धांत / Core Concept]\n         │\n         ├──➤ [नियम / Formula/Rule]\n         │      └──➤ अनुप्रयोग (Exam Questions Application)\n         └──➤ [स्मरण ट्रिक / Memorization Hack]\n\`\`\``;
+    } else {
+      customReply = generateSubjectKnowledgeReply(messageContent, language);
+    }
 
       setChatMessages(prev => [...prev, {
         id: `reply-${Date.now()}`,
@@ -8664,13 +8799,20 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           )}
 
-
+          {/* VIEW: DIGITAL BOOK READER & LIBRARY */}
+          {activeView === 'book-reader' && (
+            <GlobalBookReader
+              showToast={showToast}
+              language={language}
+              onBackToChat={() => setActiveView('chat')}
+            />
+          )}
 
         </div>
 
         {/* BOTTOM MINIMAL FOOTER BAR */}
         <footer className="py-4 text-center text-[10px] text-slate-600 uppercase tracking-wider border-t border-slate-800/60 bg-[#090D16]/85">
-          <span>Digital Teacher Ecosystem • Built for Indian Aspirants & Shorthand Learners</span>
+          <span>Digital Teacher Ecosystem • Built for All Indian Aspirants & Competitive Exams</span>
         </footer>
 
       {/* SETTINGS MODAL DIALOG */}
@@ -9154,6 +9296,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="px-2 text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Primary Core Workspace</div>
               {[
                 { id: 'chat', title: 'AI Study Chat Workspace', desc: 'Concept explainer & studies', icon: '💬', badge: 'ACTIVECORE' },
+                { id: 'book-reader', title: 'Global Digital Library & Book Reader', desc: 'कोई भी बुक खोजें व पढ़ें (Highlight & Voice)', icon: '📚', badge: 'BOOKS' },
+                { id: 'sarkari-result', title: 'Sarkari Result & Job Portal', desc: 'सरकारी नौकरी व रिजल्ट अपडेट', icon: '📄', badge: 'SARKARI' },
                 { id: 'research', title: 'Deep Research AI', desc: 'डीप रिसर्च मोड', icon: '🚀', badge: 'LIVE WEB' },
                 { id: 'timer', title: 'My Projects & Audio Recorder', desc: 'मेरे प्रोजेक्ट्स एवं रिकॉर्डर', icon: '🎙️', badge: 'PROJECTS' },
                 { id: 'map', title: 'GIS & Mapping Visualizer', desc: 'नक्शा और जियोग्राफी टूल', icon: '🗺️', badge: 'REAL-TIME GIS' },

@@ -222,7 +222,7 @@ function sanitizeInput(text: string): string {
   return sanitized;
 }
 
-const HANSAI_SYSTEM_INSTRUCTION = `You are HansAI, a smart, friendly, and highly disciplined AI Companion designed specially for school/college students, businessmen, researchers, and competitive exam aspirants.
+const HANSAI_SYSTEM_INSTRUCTION = `You are HansAI, a smart, friendly, fast, and highly disciplined AI Companion designed specially for school/college students, businessmen, researchers, and competitive exam aspirants (SSC, UPSC, Railway, State PCS, Banking, Board Exams).
 
 TERMINOLOGY RULES (CRITICAL):
 - NEVER refer to yourself as "Mentor", "AI Mentor", "मेंटर", or "AI Core".
@@ -236,8 +236,8 @@ No bulky card designs or banners are needed in chat replies. No geographical dat
 
 WHEN USER ASKS WHAT YOU CAN DO / WHAT HELP YOU CAN PROVIDE ("kya kya kar sakte ho" / "what can you do" / "kya help kar sakte ho" / "help"):
 Respond in warm, clear, structured Hindi/Hinglish with visual emojis, explaining:
-1. 🎓 **SSC CGL & Exam Prep**: SSC CGL, Stenographer, State/UPSC exams guidance, English grammar rules, and GS tricks.
-2. ✍️ **Pitman Shorthand & Dictation**: Shorthand stroke guides, dictation audio timer, and speed exercises.
+1. 🎓 **Competitive Exams & Subjects**: SSC CGL/CHSL, Railway, State PCS/UPSC, Board Exams, Geography, History, Polity, Science, Math, Reasoning & English.
+2. ✍️ **Shorthand & Dictation**: Shorthand stroke guides, dictation audio timer, and speed exercises.
 3. 🚀 **Deep Research AI**: Multi-dimensional study guides, historical timelines, mnemonics, and practice questions on any topic.
 4. 🧠 **Interactive Live Quizzes**: Instant 5-question test with explanations and score tracking.
 5. 🎙️ **Projects & Voice Recorder**: Record lectures or study notes, store audio recordings, and manage project notes.
@@ -247,8 +247,8 @@ Respond in warm, clear, structured Hindi/Hinglish with visual emojis, explaining
 9. 📶 **Offline Availability**: Saved chats, study notes, shorthand guides, quizzes, and calculators work offline anytime without internet!
 
 MISSION & CORE CAPABILITIES:
-1. Study Help & General Awareness: Explain subjects (Maths, Science, History, Geography, Polity, Hindi, English) in a simple, step-by-step manner. Help with General Awareness and General Knowledge topics.
-2. Competitive Exam & Syllabus Prep: Help with core grammar rules, general awareness questions, syllabus breakdowns, and high-yield concepts.
+1. Subject Deep Dive & General Knowledge: Provide comprehensive, detailed, step-by-step explanations for Geography, History, Polity, Science (Physics/Chemistry/Biology), Maths, Reasoning, and General Awareness.
+2. Competitive Exam & Syllabus Prep: Help with core concepts, formulas, grammar rules, general awareness questions, syllabus breakdowns, and high-yield concepts.
 3. Syllabus Deep Research: Assist students and researchers with rigorous topic analyses, historical chronology, memorization tricks (mnemonics), and custom practice worksheets.
 4. Creative & Motivational Hub: Ready to deliver kaddak (strong, high-energy) motivational raps, custom poetry, or songs focused on hard work, dedication, and achieving big goals in Hindi/Hinglish.
 5. Practical Academic Guidance: Help with structured revisions, mock tests, and subject clarity.
@@ -257,6 +257,102 @@ LANGUAGE & TONE:
 - Do NOT output mixed language text like "नमस्ते/Hello" or "Welcome! (नमस्ते)".
 - Keep the language 100% clean English when working with English users, and 100% clean Hindi when working with Hindi users.
 - Be extremely encouraging, humble, companion-like yet friendly and energetic ("kaddak"). Always conclude with positive motivation!`;
+
+// Smart Server-Side Knowledge Generator for Fast Fallback
+function generateSubjectKnowledgeReply(userQuery: string, language: string = "hindi"): string {
+  const query = (userQuery || "").toLowerCase();
+
+  if (query.includes('geography') || query.includes('भूगोल')) {
+    return `### 🌍 भूगोल (Geography) - संपूर्ण परिचय व परीक्षा मार्गदर्शन\n\n` +
+      `**भूगोल (Geography)** वह विज्ञान है जिसके अंतर्गत पृथ्वी के धरातल, उसके भौतिक स्वरूपों, प्राकृतिक साधनों, जलवायु, तथा मानव जीवन के अंतर्संबंधों का अध्ययन किया जाता है।\n\n` +
+      `#### 📌 मुख्य शाखाएं (Core Divisions):\n` +
+      `1. **भौतिक भूगोल (Physical Geography):**\n` +
+      `   - **भू-आकृति विज्ञान (Geomorphology):** पर्वत, पठार, मैदान, और नदियाँ (e.g. हिमालय, गंगा-ब्रह्मपुत्र का मैदान)।\n` +
+      `   - **जलवायु विज्ञान (Climatology):** मानसून प्रणाली, चक्रवात, वायुदाब पेटियाँ, एवं वर्षा।\n` +
+      `   - **समुद्र विज्ञान (Oceanography):** महासागरीय धाराएँ (जैसे गल्फ स्ट्रीम, ला नीना/अल नीनो) एवं ज्वार-भाटा।\n` +
+      `   - **सौरमंडल (Solar System):** पृथ्वी की गतियाँ (परिक्रमण व परिभ्रमण), अक्षांश (Latitude) व देशांतर (Longitude)।\n\n` +
+      `2. **भारत का भूगोल (Indian Geography) [SSC / UPSC / State Exams हेतु महत्वपूर्ण]:**\n` +
+      `   - **भौतिक विभाजन:** उत्तरी पर्वतमाला, प्रायद्वीपीय पठार, थार मरुस्थल, तटीय मैदान व द्वीप समूह (अंडमान व लक्षद्वीप)।\n` +
+      `   - **नदी प्रणाली:** हिमालयी नदियाँ (सिंधु, गंगा, ब्रह्मपुत्र) एवं प्रायद्वीपीय नदियाँ (गोदावरी, कृष्णा, कावेरी, नर्मदा, ताप्ती)।\n` +
+      `   - **मिट्टी व कृषि:** जलोढ़, काली (रेगुर), लाल व लेटेराइट मिट्टी तथा रबी, खरीफ व जायद फसलें।\n\n` +
+      `💡 **स्मरण ट्रिक (Mnemonic):**\n` +
+      `- **कर्क रेखा (Tropic of Cancer - 23½° N)** भारत के 8 राज्यों से गुजरती है: *(मित्र पर गमछा झार -> मिजोरम, त्रिपुरा, पश्चिम बंगाल, राजस्थान, गुजरात, मध्य प्रदेश, छत्तीसगढ़, झारखंड)*।\n\n` +
+      `👉 **अगला कदम:** आप **Auto Chapter Quiz** में जाकर **"Indian Geography"** पर तुरंत 5 MCQs हल कर सकते हैं!`;
+  }
+
+  if (query.includes('history') || query.includes('इतिहास')) {
+    return `### 📜 इतिहास (History) - संपूर्ण कालक्रम व परीक्षा विश्लेषण\n\n` +
+      `इतिहास को अध्ययन की सुगमता के लिए तीन प्रमुख भागों में बाँटा गया है:\n\n` +
+      `1. **प्राचीन भारत (Ancient India):**\n` +
+      `   - सिंधु घाटी सभ्यता (Harappan Civilisation), वैदिक काल, बौद्ध व जैन धर्म, मौर्य साम्राज्य (चंद्रगुप्त व अशोक) और गुप्त वंश (स्वर्ण युग)।\n\n` +
+      `2. **मध्यकालीन भारत (Medieval India):**\n` +
+      `   - दिल्ली सल्तनत (गुलाम, खिलजी, तुगलक, सैयद, लोदी), मुगल साम्राज्य (बाबर से औरंगजेब), एवं भक्ति व सूफी आंदोलन।\n\n` +
+      `3. **आधुनिक भारत (Modern India) [SSC / UPSC हाई-स्कोरिंग]:**\n` +
+      `   - यूरोपीय कंपनियों का आगमन, 1857 का महान विद्रोह, भारतीय राष्ट्रीय कांग्रेस (1885), गांधीवादी युग (1915-1947), एवं भारत की स्वतंत्रता (15 अगस्त 1947)।\n\n` +
+      `💡 **क्विक रिवीजन ट्रिक:**\n` +
+      `- गांधीजी के प्रमुख आंदोलन क्रम: *चंपारण (1917) -> अहमदाबाद मिल (1918) -> खेड़ा (1918) -> असहयोग (1920) -> सविनय अवज्ञा (1930) -> भारत छोड़ो (1942)*।\n\n` +
+      `👉 **अगला कदम:** अपनी तैयारी को परखने के लिए क्विज़ सेक्शन में **"Modern History"** का चयन करें!`;
+  }
+
+  if (query.includes('polity') || query.includes('संविधान') || query.includes('राजव्यवस्था')) {
+    return `### 🏛️ भारतीय संविधान व राजव्यवस्था (Indian Polity)\n\n` +
+      `भारतीय संविधान विश्व का सबसे बड़ा लिखित संविधान है, जिसे 26 नवंबर 1949 को अंगीकृत किया गया तथा 26 जनवरी 1950 को लागू किया गया।\n\n` +
+      `#### 📌 महत्वपूर्ण अनुच्छेद व भाग:\n` +
+      `- **भाग 1 (अनुच्छेद 1-4):** संघ और उसका राज्य क्षेत्र\n` +
+      `- **भाग 2 (अनुच्छेद 5-11):** नागरिकता\n` +
+      `- **भाग 3 (अनुच्छेद 12-35):** मौलिक अधिकार (Fundamental Rights - 6 मौलिक अधिकार)\n` +
+      `- **भाग 4 (अनुच्छेद 36-51):** राज्य के नीति निर्देशक तत्व (DPSP)\n` +
+      `- **अनुच्छेद 52-61:** राष्ट्रपति एवं उनका महाभियोग\n` +
+      `- **अनुच्छेद 75 & 76:** प्रधानमंत्री एवं भारत का महान्यायवादी (Attorney General)\n` +
+      `- **अनुच्छेद 32:** संवैधानिक उपचारों का अधिकार (डॉ. बी.आर. आंबेडकर द्वारा 'संविधान की आत्मा')।\n\n` +
+      `👉 **अभ्यास:** तुरंत **Indian Polity** पर क्विज हल करें और अपना A1 स्कोरकार्ड प्राप्त करें!`;
+  }
+
+  if (query.includes('science') || query.includes('विज्ञान') || query.includes('physics') || query.includes('chemistry') || query.includes('biology') || query.includes('भौतिक') || query.includes('रसायन') || query.includes('जीव विज्ञान')) {
+    return `### 🔬 सामान्य विज्ञान (General Science) - मुख्य बिंदु\n\n` +
+      `सामान्य विज्ञान प्रतियोगी परीक्षाओं (SSC, Railway, State Exams) का एक महत्वपूर्ण हिस्सा है:\n\n` +
+      `1. **भौतिक विज्ञान (Physics):**\n` +
+      `   - **न्यूटन के नियम:** प्रथम (जड़त्व का नियम), द्वितीय (F=ma), तृतीय (क्रिया-प्रतिक्रिया)।\n` +
+      `   - **प्रकाश (Optics):** अवतल/उत्तल दर्पण, अपवर्तन, पूर्ण आंतरिक परावर्तन (Optic Fibre, मरुस्थल में मरीचिका)।\n\n` +
+      `2. **रसायन विज्ञान (Chemistry):**\n` +
+      `   - **आवर्त सारणी (Periodic Table):** 118 तत्व (Mendeleev & Moseley Modern Periodic Law)।\n` +
+      `   - **अम्ल व क्षार (Acids & Bases):** pH मान (रक्त = 7.4, शुद्ध जल = 7.0, नींबू = 2.2)।\n\n` +
+      `3. **जीव विज्ञान (Biology):**\n` +
+      `   - **कोशिका (Cell):** जीवन की मूलभूत इकाई। 'Powerhouse' = माइटोकॉन्ड्रिया, 'Suicide Bag' = लाइसोसोम।\n` +
+      `   - **मानव शरीर प्रणाली:** पाचन, श्वसन, तंत्रिका व रक्त परिसंचरण तंत्र (A, B, AB, O रक्त समूह)।\n\n` +
+      `👉 **अध्ययन टिप:** किसी भी विशेष टॉपिक पर और विस्तार से जानने के लिए सीधा नाम टाइप करें!`;
+  }
+
+  if (query.includes('math') || query.includes('गणित') || query.includes('reasoning') || query.includes('रीजनिंग')) {
+    return `### 📐 गणित एवं रीजनिंग (Maths & Reasoning) - मास्टर स्ट्रैटेजी\n\n` +
+      `1. **अंकगणित (Arithmetic):**\n` +
+      `   - प्रतिशत (Percentage), लाभ व हानि (Profit & Loss), औसत (Average), साधारण व चक्रवृद्धि ब्याज (SI & CI), समय और कार्य (Time & Work)।\n\n` +
+      `2. **अग्रिम गणित (Advanced Maths):**\n` +
+      `   - बीजगणित (Algebra), ज्यामिति (Geometry), त्रिकोणमिति (Trigonometry), क्षेत्रमिति (Mensuration 2D/3D)।\n\n` +
+      `3. **रीजनिंग (Logical Reasoning):**\n` +
+      `   - कोडिंग-डिकोडिंग, सादृश्यता (Analogy), रक्त संबंध (Blood Relations), कथन व निष्कर्ष (Syllogism), दिशा ज्ञान (Direction Sense)।\n\n` +
+      `💡 **शॉर्टकट सूत्र:**\n` +
+      `- लगातार n प्राकृतिक संख्याओं का योग = \`n(n + 1) / 2\`\n` +
+      `- CI और SI का 2 वर्ष का अंतर = \`P * (R/100)²\`\n\n` +
+      `👉 आप अपना विशिष्ट प्रश्न लिखकर भी उत्तर पा सकते हैं!`;
+  }
+
+  if (query.includes('bihar') || query.includes('gk') || query.includes('ssc') || query.includes('upsc') || query.includes('cgl') || query.includes('chsl') || query.includes('board') || query.includes('class')) {
+    return `### 🎯 प्रतियोगी परीक्षा मार्गदर्शन (Competitive Exam Prep)\n\n` +
+      `**"${userQuery}"** हेतु HansAI की विशेष तैयारी रणनीति:\n\n` +
+      `1. **पाठ्यक्रम (Syllabus) विश्लेषण:** सबसे पहले आधिकारिक सिलेबस और पिछले 5 वर्षों के प्रश्न पत्रों (PYQs) का अध्ययन करें।\n` +
+      `2. **विषयवार समय प्रबंधन:**\n` +
+      `   - **जनरल अवेयरनेस / GK:** इतिहास, भूगोल, संविधान, व समसामयिकी (Current Affairs) का नियमित रिवीजन।\n` +
+      `   - **गणित व रीजनिंग:** प्रतिदिन प्रश्नों का गति व सटीकता के साथ अभ्यास।\n` +
+      `   - **भाषा (हिंदी/अंग्रेजी):** व्याकरण नियम, शब्दावली व अभ्यास।\n` +
+      `3. **मॉक टेस्ट व सेल्फ-इवैल्यूएशन:** प्रत्येक सप्ताह कम से कम 2 फुल-लेंथॉक टेस्ट हल करें।\n\n` +
+      `👉 आप हमारे **Auto Chapter Quiz** फीचर में जाकर तुरंत टॉपिक-वाइज प्रैक्टिस कर सकते हैं!`;
+  }
+
+  return language === 'hindi'
+    ? `### 📚 हंस-एआई (HansAI) - विषय अध्ययन एवं समाधान\n\nआपकी जिज्ञासा **"${userQuery.slice(0, 70)}"** के संबंध में मुख्य अध्ययन बिंदु:\n\n1. **मूल अवधारणा (Core Concept):** इस विषय की अवधारणात्मक स्पष्टता प्रतियोगी परीक्षाओं (SSC CGL, Railway, State/UPSC, Board Exams) में सफलता के लिए अनिवार्य है।\n2. **महत्वपूर्ण बिंदु:** महत्वपूर्ण परिभाषाओं, सिद्धांतों, सूत्रों व तिथियों के संक्षिप्त नोट्स बनाएं और नियमित रिवीजन करें।\n3. **स्व-मूल्यांकन (Self Assessment):** आप ऐप के **Auto Chapter Quiz** सेक्शन में जाकर इस विषय पर तुरंत MCQs हल करके अपना **A1 Report Card** प्राप्त कर सकते हैं!\n\n*(यदि आप इस विषय पर और विस्तृत जानकारी चाहते हैं, तो कृपया विषय का विशिष्ट प्रश्न या अध्याय टाइप करें।)*`
+    : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${userQuery.slice(0, 70)}"**:\n\n1. **Key Concept:** Developing clear conceptual mastery in this domain is essential for all competitive and board examinations.\n2. **Study Strategy:** Make concise revision notes of core principles, formulas, definitions, and key facts.\n3. **Interactive Test:** You can also go to the **Auto Chapter Quiz** section to attempt 5 MCQs on this topic and download your official **A1 Scorecard**!\n\n*(Feel free to ask any specific question from this topic!)*`;
+}
 
 // Cloud-Based AI Orchestration Memory Store for Over-The-Air (OTA) Updates
 let otaConfig = {
@@ -838,8 +934,12 @@ app.post("/api/owner/clear-logs", (req, res) => {
 
 // 1. Chat Proxy (with E2EE + Tone Adaptive Processing)
 app.post("/api/chat", async (req, res) => {
+  let messages: any[] = [];
+  let isEncrypted = false;
   try {
-    let { messages, model, image, advancedResearch, isEncrypted, userName, userEmail } = req.body;
+    let { messages: reqMessages, model, image, advancedResearch, isEncrypted: reqIsEncrypted, userName, userEmail } = req.body;
+    messages = reqMessages;
+    isEncrypted = reqIsEncrypted;
     
     // Decrypt if client requested strict E2EE transmission
     if (isEncrypted && typeof messages === 'string') {
@@ -949,7 +1049,7 @@ app.post("/api/chat", async (req, res) => {
       config.tools = [{ googleSearch: {} }];
     }
 
-    const response = await generateContentWithFallback(ai, model || "gemini-3.5-flash", {
+    const response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
       contents: formattedContents,
       config: config
     });
@@ -964,10 +1064,15 @@ app.post("/api/chat", async (req, res) => {
     }
   } catch (err: any) {
     console.error("Gemini API Error in /api/chat:", err);
-    res.status(500).json({ 
-      error: err.message || "Something went wrong on the server.",
-      isKeyMissing: !process.env.GEMINI_API_KEY
-    });
+    // Serve smart local subject fallback so user always gets a fast, meaningful response
+    const lastUserMsg = (messages && messages.length > 0) ? messages[messages.length - 1]?.content : "";
+    const smartFallbackReply = generateSubjectKnowledgeReply(lastUserMsg || "study guidance", "hindi");
+    
+    if (isEncrypted) {
+      res.json({ reply: encryptData(smartFallbackReply), isEncrypted: true, fallback: true });
+    } else {
+      res.json({ reply: smartFallbackReply, fallback: true });
+    }
   }
 });
 
