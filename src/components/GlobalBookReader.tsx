@@ -1,5 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Search, BookOpen, Volume2, VolumeX, Highlighter, Languages, Sparkles, Play, Pause, Bookmark, ChevronRight, CheckCircle2, ArrowLeft, RotateCcw, Share2, Copy } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Search, BookOpen, Volume2, VolumeX, Highlighter, Languages, Sparkles, Play,
+  Pause, Bookmark, ChevronRight, CheckCircle2, ArrowLeft, RotateCcw, Share2,
+  Copy, Plus, Trash2, Edit3, Eye, FileText, Check, AlertCircle, BarChart2,
+  Brain, FilePlus, Layers, List, Maximize2, Minimize2, Settings, Zap, X,
+  HelpCircle, RefreshCw, BookMarked, Sliders, ChevronDown
+} from 'lucide-react';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Set PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 interface GlobalBookReaderProps {
   showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warn') => void;
@@ -7,24 +17,70 @@ interface GlobalBookReaderProps {
   onBackToChat?: () => void;
 }
 
-interface Chapter {
+export interface Chapter {
   id: string;
   title: string;
   content: string;
-  highlights: string[];
+  pageStart?: number;
+  pageEnd?: number;
+  highlights?: string[];
 }
 
-interface Book {
+export interface HighlightItem {
+  id: string;
+  text: string;
+  chapterId: string;
+  pageNumber: number;
+  category: 'important' | 'definition' | 'question' | 'revision';
+  timestamp: string;
+}
+
+export interface BookmarkItem {
+  id: string;
+  chapterId: string;
+  pageNumber: number;
+  title: string;
+  note?: string;
+  timestamp: string;
+}
+
+export interface NoteItem {
+  id: string;
+  title: string;
+  content: string;
+  chapterId: string;
+  pageNumber: number;
+  timestamp: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  pageRef?: string;
+}
+
+export interface Book {
   id: string;
   title: string;
   author: string;
   category: string;
   coverColor: string;
   description: string;
+  totalPages: number;
+  currentPage: number;
+  lastOpenedChapterIndex: number;
   chapters: Chapter[];
+  highlights: HighlightItem[];
+  bookmarks: BookmarkItem[];
+  notes: NoteItem[];
+  quizHistory: { date: string; score: number; total: number }[];
+  isCustomUploaded?: boolean;
 }
 
-// Pre-loaded Featured Library across multi-disciplinary subjects & books
+// Pre-loaded NCERT & Standard Textbooks
 const FEATURED_BOOKS: Book[] = [
   {
     id: 'ncert-polity',
@@ -33,10 +89,19 @@ const FEATURED_BOOKS: Book[] = [
     category: 'Civics & Law',
     coverColor: 'from-amber-600 to-red-700',
     description: 'Complete breakdown of Indian Constitutional Assembly, Fundamental Rights, Preamble, Parliament & Judiciary.',
+    totalPages: 384,
+    currentPage: 12,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
     chapters: [
       {
         id: 'polity-ch1',
         title: 'Chapter 1: Preamble & Preamble Objectives (प्रस्तावना)',
+        pageStart: 1,
+        pageEnd: 15,
         content: `WE, THE PEOPLE OF INDIA, having solemnly resolved to constitute India into a SOVEREIGN SOCIALIST SECULAR DEMOCRATIC REPUBLIC and to secure to all its citizens:
 JUSTICE, social, economic and political;
 LIBERTY of thought, expression, belief, faith and worship;
@@ -54,6 +119,8 @@ Key Notes & Exam Highlights:
       {
         id: 'polity-ch2',
         title: 'Chapter 2: Fundamental Rights (मौलिक अधिकार - Art. 12-35)',
+        pageStart: 16,
+        pageEnd: 45,
         content: `Fundamental Rights are enshrined in Part III of the Constitution from Articles 12 to 35. They guarantee civil liberties to all citizens and act as a limitation on executive and legislative actions.
 
 6 Categories of Fundamental Rights:
@@ -74,10 +141,19 @@ Key Notes & Exam Highlights:
     category: 'Geography & Earth Sciences',
     coverColor: 'from-blue-600 to-indigo-800',
     description: 'Earth crust dynamics, plate tectonics, solar system, atmosphere, ocean currents, and Indian physical divisions.',
+    totalPages: 290,
+    currentPage: 1,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
     chapters: [
       {
         id: 'geo-ch1',
         title: 'Chapter 1: The Solar System & Earth Motion (सौरमंडल व पृथ्वी की गतियाँ)',
+        pageStart: 1,
+        pageEnd: 20,
         content: `The Earth is the third planet from the Sun and the only astronomical object known to harbor life.
 
 1. Earth Rotational Motion (परिभ्रमण): Earth rotates on its tilted axis (23.5°) from West to East in 23 hours 56 minutes and 4 seconds. Rotation causes Day and Night.
@@ -98,10 +174,19 @@ Mnemonics & Memory Hacks:
     category: 'Science & Technology',
     coverColor: 'from-emerald-600 to-teal-800',
     description: 'Fundamental concepts of Physics, Chemistry, Biology, Optics, Thermodynamics, Cell Biology and Genetics.',
+    totalPages: 240,
+    currentPage: 1,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
     chapters: [
       {
         id: 'sci-ch1',
         title: 'Chapter 1: Newton Laws of Motion & Energy (न्यूटन के नियम व ऊर्जा)',
+        pageStart: 1,
+        pageEnd: 18,
         content: `Physics is the natural science that studies matter, its fundamental constituents, its motion and behavior through space and time, and the related entities of energy and force.
 
 Newton's Three Laws of Motion:
@@ -125,10 +210,19 @@ Work, Energy & Power Formulas:
     category: 'History',
     coverColor: 'from-amber-700 to-yellow-900',
     description: 'Chronological events from the arrival of European traders to Revolt of 1857, Indian National Congress, and Independence 1947.',
+    totalPages: 310,
+    currentPage: 1,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
     chapters: [
       {
         id: 'hist-ch1',
         title: 'Chapter 1: The Great Revolt of 1857 (1857 का प्रथम स्वतंत्रता संग्राम)',
+        pageStart: 1,
+        pageEnd: 22,
         content: `The Indian Rebellion of 1857 was a major uprising against the British East India Company rule, often termed the First War of Indian Independence.
 
 Causes of 1857 Revolt:
@@ -154,10 +248,19 @@ Outcome & Significance:
     category: 'Technology & Coding',
     coverColor: 'from-purple-600 to-indigo-900',
     description: 'Python, JavaScript, Data Structures, Web Development, Cloud Computing, and Artificial Intelligence fundamentals.',
+    totalPages: 180,
+    currentPage: 1,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
     chapters: [
       {
         id: 'cs-ch1',
         title: 'Chapter 1: Introduction to Programming & Algorithms',
+        pageStart: 1,
+        pageEnd: 25,
         content: `Programming is the process of creating a set of instructions that tell a computer how to perform a task.
 
 Core Concepts of Software Engineering:
@@ -188,53 +291,150 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
   language,
   onBackToChat
 }) => {
+  // Books Library & Storage
+  const [books, setBooks] = useState<Book[]>(() => {
+    try {
+      const saved = localStorage.getItem('hansai-my-books-library');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error("Error reading saved books", e);
+    }
+    return FEATURED_BOOKS;
+  });
+
+  // Save books to localStorage on change
+  useEffect(() => {
+    try {
+      localStorage.setItem('hansai-my-books-library', JSON.stringify(books));
+    } catch (e) {
+      console.error("Failed to store books locally", e);
+    }
+  }, [books]);
+
+  // Selected state
+  const [selectedBook, setSelectedBook] = useState<Book | null>(() => books[0] || FEATURED_BOOKS[0]);
+  const [selectedChapterIndex, setSelectedChapterIndex] = useState<number>(() => selectedBook?.lastOpenedChapterIndex || 0);
+
+  // Active View Tabs inside Book Study Mode: 'library' | 'reader' | 'ai-assistant' | 'recall' | 'quiz' | 'revision' | 'notes' | 'analytics'
+  const [activeTab, setActiveTab] = useState<'library' | 'reader' | 'ai-assistant' | 'recall' | 'quiz' | 'revision' | 'notes' | 'analytics'>('reader');
+
+  // Search & Filter state for Library
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBook, setSelectedBook] = useState<Book | null>(FEATURED_BOOKS[0]);
-  const [selectedChapterIndex, setSelectedChapterIndex] = useState<number>(0);
-  const [isGeneratingCustomBook, setIsGeneratingCustomBook] = useState(false);
-  
-  // Reading Customization Options
+  const [filterCategory, setFilterCategory] = useState<'all' | 'in-progress' | 'completed'>('all');
+  const [sortBy, setSortBy] = useState<'recent' | 'name' | 'progress'>('recent');
+
+  // Reader Preferences
   const [readerTheme, setReaderTheme] = useState<'dark' | 'cream' | 'white'>('dark');
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
-  const [targetLanguage, setTargetLanguage] = useState<'original' | 'hindi' | 'english' | 'sanskrit' | 'hinglish'>('original');
-  const [translatedText, setTranslatedText] = useState<string | null>(null);
-  const [isTranslating, setIsTranslating] = useState(false);
+  const [fontFamily, setFontFamily] = useState<'sans' | 'serif' | 'mono'>('sans');
+  const [lineSpacing, setLineSpacing] = useState<'normal' | 'relaxed' | 'loose'>('relaxed');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Text-to-Speech State
+  // Reader Drawers / Overlays
+  const [isTocOpen, setIsTocOpen] = useState(false);
+  const [isSearchInsideOpen, setIsSearchInsideOpen] = useState(false);
+  const [insideSearchQuery, setInsideSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{ chapterIdx: number; title: string; excerpt: string }[]>([]);
+
+  // Text-To-Speech
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [speechRate, setSpeechRate] = useState<number>(1.0);
 
-  // Custom User Highlighting
-  const [userHighlights, setUserHighlights] = useState<string[]>([]);
-  const [activeBookmark, setActiveBookmark] = useState<boolean>(false);
+  // Text Selection Popup & Highlight
+  const [selectedText, setSelectedText] = useState('');
+  const [selectionPosition, setSelectionPosition] = useState<{ x: number; y: number } | null>(null);
 
+  // File Upload State
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // AI Assistant State
+  const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'assistant'; content: string; sourceRef?: string }[]>([
+    {
+      role: 'assistant',
+      content: 'नमस्ते! मैं आपका HansAI Book Study Assistant हूँ। अपनी चुनी हुई किताब से कोई भी सवाल पूछें, या दिए गए Study Tools का उपयोग करें।'
+    }
+  ]);
+  const [aiInput, setAiInput] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiExplanationMode, setAiExplanationMode] = useState<'simple' | 'normal' | 'detailed'>('simple');
+  const [aiSummaryType, setAiSummaryType] = useState<'3-line' | 'short' | 'detailed'>('short');
+
+  // Active Recall State
+  const [recallQuestion, setRecallQuestion] = useState<string | null>(null);
+  const [recallUserAnswer, setRecallUserAnswer] = useState('');
+  const [recallFeedback, setRecallFeedback] = useState<string | null>(null);
+  const [isRecallLoading, setIsRecallLoading] = useState(false);
+
+  // Quiz State
+  const [quizNumQuestions, setQuizNumQuestions] = useState<5 | 10 | 20>(5);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [currentQuizIdx, setCurrentQuizIdx] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [quizAnswers, setQuizAnswers] = useState<number[]>([]);
+  const [isQuizCompleted, setIsQuizCompleted] = useState(false);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
+
+  // Smart Revision Sheet
+  const [revisionSheet, setRevisionSheet] = useState<string | null>(null);
+  const [isGeneratingRevision, setIsGeneratingRevision] = useState(false);
+
+  // New Note Modal / Input
+  const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const [isAddNoteModalOpen, setIsAddNoteModalOpen] = useState(false);
+
+  // Active Chapter helper
   const activeChapter = selectedBook?.chapters[selectedChapterIndex] || null;
 
-  // Handle Search or Custom AI Book Generator
-  const handleSearchBook = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
+  // Sync reading position when chapter changes
+  const handleSelectChapter = (index: number) => {
+    if (!selectedBook) return;
+    setSelectedChapterIndex(index);
+    setTranslatedText(null);
+    if (isPlayingAudio) window.speechSynthesis.cancel();
+    setIsPlayingAudio(false);
 
-    const queryLower = searchQuery.trim().toLowerCase();
-    
-    // Check if query matches any existing book
-    const existingMatch = FEATURED_BOOKS.find(b => 
-      b.title.toLowerCase().includes(queryLower) || 
-      b.category.toLowerCase().includes(queryLower) ||
-      b.author.toLowerCase().includes(queryLower)
-    );
+    // Calculate progress
+    const totalCh = selectedBook.chapters.length || 1;
+    const progress = Math.round(((index + 1) / totalCh) * 100);
 
-    if (existingMatch) {
-      setSelectedBook(existingMatch);
-      setSelectedChapterIndex(0);
+    // Update book in state & local storage
+    const updatedBooks = books.map(b => {
+      if (b.id === selectedBook.id) {
+        return {
+          ...b,
+          lastOpenedChapterIndex: index,
+          currentPage: (b.chapters[index]?.pageStart || index + 1)
+        };
+      }
+      return b;
+    });
+
+    setBooks(updatedBooks);
+    setSelectedBook(prev => prev ? { ...prev, lastOpenedChapterIndex: index, currentPage: (prev.chapters[index]?.pageStart || index + 1) } : null);
+  };
+
+  // Translation State for Active Chapter
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [targetLanguage, setTargetLanguage] = useState<'original' | 'hindi' | 'english' | 'sanskrit' | 'hinglish'>('original');
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Translate active chapter using backend chat route
+  const handleTranslateChapter = async (lang: 'original' | 'hindi' | 'english' | 'sanskrit' | 'hinglish') => {
+    setTargetLanguage(lang);
+    if (lang === 'original') {
       setTranslatedText(null);
-      showToast(`Book Found: ${existingMatch.title}`, "success");
+      showToast("Restored original language.", "info");
       return;
     }
 
-    // Generate Custom Digital Book on Demand via AI API
-    setIsGeneratingCustomBook(true);
-    showToast(`Searching global digital library for "${searchQuery}"...`, "info");
+    if (!activeChapter) return;
+    setIsTranslating(true);
+    showToast(`Translating into ${lang.toUpperCase()}...`, "info");
 
     try {
       const res = await fetch('/api/chat', {
@@ -244,54 +444,271 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
           messages: [
             {
               role: 'user',
-              content: `You are the Global Digital Library Engine. Generate a comprehensive, multi-chapter textbook summary & study guide for the book or topic: "${searchQuery}".
-Format your response as structured chapters with headings, formulas/key principles, bullet points, historical background, and clear exam takeaways in clean Hindi and English.`
+              content: `Translate the following book content into ${lang} language accurately with clear headings and bullet points:\n\n${activeChapter.content}`
             }
           ]
         })
       });
 
       const data = await res.json();
-      const generatedContent = data.reply || data.text || "Book chapter generated successfully.";
-
-      const customBookObj: Book = {
-        id: `custom-book-${Date.now()}`,
-        title: searchQuery.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-        author: 'Global Knowledge Network & HansAI Library',
-        category: 'Digital Library Special',
-        coverColor: 'from-purple-600 to-pink-700',
-        description: `Complete digital textbook and study guide generated for: ${searchQuery}`,
-        chapters: [
-          {
-            id: 'ch-1-custom',
-            title: `Chapter 1: Introduction & Core Concepts of ${searchQuery}`,
-            content: generatedContent,
-            highlights: ['Core Concepts', 'Key Principles', 'Summary Notes']
-          },
-          {
-            id: 'ch-2-custom',
-            title: `Chapter 2: Advanced Analysis & Applications`,
-            content: `Deep dive into ${searchQuery}:
-1. Historical & Theoretical Foundations: Understanding how ${searchQuery} evolved over time and its core influence on modern study and practical applications.
-2. Practical Examples & Solved Scenarios: Real-world case studies, formulas, and step-by-step illustrations.
-3. Summary & High-Yield Points for Quick Revision: Make sure to memorize fundamental definitions, equations, dates, and core theorems for academic excellence.`,
-            highlights: ['Advanced Analysis', 'Real-world case studies']
-          }
-        ]
-      };
-
-      setSelectedBook(customBookObj);
-      setSelectedChapterIndex(0);
-      setTranslatedText(null);
-      showToast(`Digital Book Ready: ${customBookObj.title} 📚`, "success");
+      if (data.reply) {
+        setTranslatedText(data.reply);
+        showToast(`Chapter translated into ${lang.toUpperCase()}! 🌐`, "success");
+      } else {
+        showToast("Translation failed. Try again.", "error");
+      }
     } catch (err) {
-      showToast("Error retrieving digital book. Loaded fallback chapter.", "warn");
+      showToast("Translation error.", "error");
     } finally {
-      setIsGeneratingCustomBook(false);
+      setIsTranslating(false);
     }
   };
 
-  // Text-To-Speech (Read Aloud)
+  // Text Selection Event Listener for Floating Menu
+  const handleMouseUp = () => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim().length > 3) {
+      const text = selection.toString().trim();
+      setSelectedText(text);
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelectionPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 10
+      });
+    } else {
+      setSelectedText('');
+      setSelectionPosition(null);
+    }
+  };
+
+  // Handle PDF/EPUB/TXT File Upload
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    showToast(`Processing & Extracting "${file.name}"... 📖`, "info");
+
+    try {
+      let extractedChapters: Chapter[] = [];
+      const fileNameClean = file.name.replace(/\.[^/.]+$/, "");
+
+      if (file.name.endsWith('.pdf')) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+
+        let fullText = '';
+        let chapterList: Chapter[] = [];
+        let currentChapterContent = '';
+        let currentChapterTitle = 'Chapter 1: Initial Reading';
+        let pageStart = 1;
+
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          
+          fullText += `\n--- Page ${pageNum} ---\n` + pageText;
+
+          // Check if page looks like a new chapter heading
+          if (pageText.match(/chapter|भाग|अध्याय|unit|section|lesson/i) && currentChapterContent.length > 200) {
+            chapterList.push({
+              id: `ch-${chapterList.length + 1}`,
+              title: currentChapterTitle,
+              content: currentChapterContent,
+              pageStart,
+              pageEnd: pageNum - 1
+            });
+            currentChapterTitle = `Chapter ${chapterList.length + 1}: ${pageText.slice(0, 40)}...`;
+            currentChapterContent = pageText;
+            pageStart = pageNum;
+          } else {
+            currentChapterContent += `\n${pageText}`;
+          }
+        }
+
+        if (currentChapterContent) {
+          chapterList.push({
+            id: `ch-${chapterList.length + 1}`,
+            title: currentChapterTitle,
+            content: currentChapterContent,
+            pageStart,
+            pageEnd: totalPages
+          });
+        }
+
+        extractedChapters = chapterList.length > 0 ? chapterList : [
+          {
+            id: 'ch-1',
+            title: 'Complete Document Content',
+            content: fullText,
+            pageStart: 1,
+            pageEnd: totalPages
+          }
+        ];
+
+      } else {
+        // Text / EPUB / Markdown file
+        const text = await file.text();
+        const paragraphs = text.split(/\n\s*\n/);
+        
+        extractedChapters = [
+          {
+            id: 'ch-1',
+            title: `${fileNameClean} - Section 1`,
+            content: text.slice(0, 5000),
+            pageStart: 1,
+            pageEnd: 10
+          }
+        ];
+
+        if (text.length > 5000) {
+          extractedChapters.push({
+            id: 'ch-2',
+            title: `${fileNameClean} - Section 2`,
+            content: text.slice(5000, 10000),
+            pageStart: 11,
+            pageEnd: 20
+          });
+        }
+      }
+
+      const newBookObj: Book = {
+        id: `user-book-${Date.now()}`,
+        title: fileNameClean,
+        author: 'Uploaded Document',
+        category: 'My Study Files',
+        coverColor: 'from-emerald-600 to-teal-800',
+        description: `Custom textbook processed locally for offline & AI study.`,
+        totalPages: extractedChapters.length * 15,
+        currentPage: 1,
+        lastOpenedChapterIndex: 0,
+        chapters: extractedChapters,
+        highlights: [],
+        bookmarks: [],
+        notes: [],
+        quizHistory: [],
+        isCustomUploaded: true
+      };
+
+      setBooks(prev => [newBookObj, ...prev]);
+      setSelectedBook(newBookObj);
+      setSelectedChapterIndex(0);
+      setActiveTab('reader');
+      showToast(`Successfully uploaded "${fileNameClean}"! Ready for AI Study. 📚`, "success");
+
+    } catch (err) {
+      console.error(err);
+      showToast("Error extracting book content. Please try another PDF or TXT file.", "error");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Search inside current book
+  const handleSearchInsideBook = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!insideSearchQuery.trim() || !selectedBook) return;
+
+    const queryLower = insideSearchQuery.trim().toLowerCase();
+    const results: { chapterIdx: number; title: string; excerpt: string }[] = [];
+
+    selectedBook.chapters.forEach((ch, idx) => {
+      if (ch.content.toLowerCase().includes(queryLower)) {
+        const matchIdx = ch.content.toLowerCase().indexOf(queryLower);
+        const start = Math.max(0, matchIdx - 40);
+        const end = Math.min(ch.content.length, matchIdx + 80);
+        const excerpt = "..." + ch.content.slice(start, end) + "...";
+        results.push({
+          chapterIdx: idx,
+          title: ch.title,
+          excerpt
+        });
+      }
+    });
+
+    setSearchResults(results);
+    if (results.length === 0) {
+      showToast(`No matches found for "${insideSearchQuery}".`, "warn");
+    }
+  };
+
+  // Add Bookmark
+  const handleToggleBookmark = () => {
+    if (!selectedBook || !activeChapter) return;
+
+    const existingIdx = selectedBook.bookmarks.findIndex(bm => bm.chapterId === activeChapter.id);
+    let updatedBookmarks: BookmarkItem[] = [];
+
+    if (existingIdx >= 0) {
+      updatedBookmarks = selectedBook.bookmarks.filter(bm => bm.chapterId !== activeChapter.id);
+      showToast("Bookmark removed.", "info");
+    } else {
+      const newBookmark: BookmarkItem = {
+        id: `bm-${Date.now()}`,
+        chapterId: activeChapter.id,
+        pageNumber: activeChapter.pageStart || selectedChapterIndex + 1,
+        title: activeChapter.title,
+        timestamp: new Date().toLocaleDateString()
+      };
+      updatedBookmarks = [newBookmark, ...selectedBook.bookmarks];
+      showToast("Page bookmarked! 🔖", "success");
+    }
+
+    const updatedBooks = books.map(b => b.id === selectedBook.id ? { ...b, bookmarks: updatedBookmarks } : b);
+    setBooks(updatedBooks);
+    setSelectedBook(prev => prev ? { ...prev, bookmarks: updatedBookmarks } : null);
+  };
+
+  // Add Highlight
+  const handleAddHighlight = (category: 'important' | 'definition' | 'question' | 'revision') => {
+    if (!selectedBook || !activeChapter || !selectedText) return;
+
+    const newHighlight: HighlightItem = {
+      id: `hl-${Date.now()}`,
+      text: selectedText,
+      chapterId: activeChapter.id,
+      pageNumber: activeChapter.pageStart || selectedChapterIndex + 1,
+      category,
+      timestamp: new Date().toLocaleDateString()
+    };
+
+    const updatedHighlights = [newHighlight, ...selectedBook.highlights];
+    const updatedBooks = books.map(b => b.id === selectedBook.id ? { ...b, highlights: updatedHighlights } : b);
+    setBooks(updatedBooks);
+    setSelectedBook(prev => prev ? { ...prev, highlights: updatedHighlights } : null);
+    setSelectedText('');
+    setSelectionPosition(null);
+    showToast(`Saved highlight under ${category.toUpperCase()}! ✨`, "success");
+  };
+
+  // Add Note
+  const handleSaveNote = () => {
+    if (!selectedBook || !activeChapter || !newNoteContent.trim()) return;
+
+    const newNote: NoteItem = {
+      id: `note-${Date.now()}`,
+      title: newNoteTitle.trim() || `Notes on ${activeChapter.title.slice(0, 25)}...`,
+      content: newNoteContent,
+      chapterId: activeChapter.id,
+      pageNumber: activeChapter.pageStart || selectedChapterIndex + 1,
+      timestamp: new Date().toLocaleDateString()
+    };
+
+    const updatedNotes = [newNote, ...selectedBook.notes];
+    const updatedBooks = books.map(b => b.id === selectedBook.id ? { ...b, notes: updatedNotes } : b);
+    setBooks(updatedBooks);
+    setSelectedBook(prev => prev ? { ...prev, notes: updatedNotes } : null);
+    setNewNoteTitle('');
+    setNewNoteContent('');
+    setIsAddNoteModalOpen(false);
+    showToast("Personal Study Note Saved! 📝", "success");
+  };
+
+  // Text-To-Speech
   const togglePlaySpeech = () => {
     if (!('speechSynthesis' in window)) {
       showToast("Speech synthesis not supported on this browser.", "warn");
@@ -308,36 +725,32 @@ Format your response as structured chapters with headings, formulas/key principl
     const textToRead = translatedText || activeChapter?.content || "";
     if (!textToRead) return;
 
-    window.speechSynthesis.cancel(); // clear previous
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(textToRead);
     utterance.rate = speechRate;
     utterance.lang = language === 'hindi' ? 'hi-IN' : 'en-US';
 
-    utterance.onend = () => {
-      setIsPlayingAudio(false);
-    };
-
-    utterance.onerror = () => {
-      setIsPlayingAudio(false);
-    };
+    utterance.onend = () => setIsPlayingAudio(false);
+    utterance.onerror = () => setIsPlayingAudio(false);
 
     window.speechSynthesis.speak(utterance);
     setIsPlayingAudio(true);
     showToast(`Reading Aloud at ${speechRate}x speed... 🔊`, "success");
   };
 
-  // Language Translator for Active Chapter
-  const handleTranslateChapter = async (lang: 'original' | 'hindi' | 'english' | 'sanskrit' | 'hinglish') => {
-    setTargetLanguage(lang);
-    if (lang === 'original') {
-      setTranslatedText(null);
-      showToast("Restored original textbook language.", "info");
-      return;
+  // AI Chat Assistant Handler
+  const handleAskBookAi = async (customPrompt?: string) => {
+    const promptToUse = customPrompt || aiInput.trim();
+    if (!promptToUse || !selectedBook || !activeChapter) return;
+
+    if (!customPrompt) {
+      setAiMessages(prev => [...prev, { role: 'user', content: promptToUse }]);
+      setAiInput('');
+    } else {
+      setAiMessages(prev => [...prev, { role: 'user', content: customPrompt }]);
     }
 
-    if (!activeChapter) return;
-    setIsTranslating(true);
-    showToast(`Translating chapter into ${lang.toUpperCase()}...`, "info");
+    setIsAiLoading(true);
 
     try {
       const res = await fetch('/api/chat', {
@@ -347,170 +760,733 @@ Format your response as structured chapters with headings, formulas/key principl
           messages: [
             {
               role: 'user',
-              content: `Translate the following textbook chapter text accurately into ${lang} language while keeping formatting, bullet points, and key headings clear:\n\n${activeChapter.content}`
+              content: `Context from Book: "${selectedBook.title}", Chapter: "${activeChapter.title}"\n\nContent Excerpt:\n${activeChapter.content.slice(0, 3000)}\n\nQuestion/Task: ${promptToUse}\n\nProvide a clear, easy-to-understand response for a student in simple language with bullet points and page/chapter references where relevant.`
             }
           ]
         })
       });
 
       const data = await res.json();
-      if (data.reply) {
-        setTranslatedText(data.reply);
-        showToast(`Chapter translated into ${lang.toUpperCase()}! 🌐`, "success");
+      const reply = data.reply || data.text || "AI study response generated.";
+
+      setAiMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: reply,
+          sourceRef: `📖 ${selectedBook.title} — ${activeChapter.title}`
+        }
+      ]);
+    } catch (err) {
+      showToast("AI Assistant error. Check connection.", "error");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  // AI Quick Actions (Explain, Summarize, Key Points)
+  const handleQuickAiAction = (action: 'explain' | 'summarize' | 'keypoints') => {
+    if (!activeChapter) return;
+    setActiveTab('ai-assistant');
+
+    let prompt = '';
+    if (action === 'explain') {
+      prompt = `Explain this chapter (${activeChapter.title}) in very simple ${language === 'hindi' ? 'Hindi' : 'English'} for a student. Break down tricky concepts with real-world examples.`;
+    } else if (action === 'summarize') {
+      prompt = `Generate a ${aiSummaryType} summary of this chapter (${activeChapter.title}) focusing on core takeaways and exam points.`;
+    } else {
+      prompt = `Extract top 5-7 High-Yield Key Exam Points from this chapter (${activeChapter.title}) as bullet points with formulas or dates if any.`;
+    }
+
+    handleAskBookAi(prompt);
+  };
+
+  // Generate Active Recall Question
+  const handleGenerateActiveRecall = async () => {
+    if (!activeChapter) return;
+
+    setIsRecallLoading(true);
+    setRecallFeedback(null);
+    setRecallUserAnswer('');
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: `Based on this textbook chapter: "${activeChapter.title}"\n\nContent:\n${activeChapter.content.slice(0, 2000)}\n\nGenerate ONE challenging conceptual Active Recall question to test student memory and understanding. Ask the question directly without giving away the answer.`
+            }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      setRecallQuestion(data.reply || "What is the primary significance of the concepts discussed in this chapter?");
+    } catch (err) {
+      showToast("Failed to generate recall question.", "error");
+    } finally {
+      setIsRecallLoading(false);
+    }
+  };
+
+  // Submit Active Recall Answer for Evaluation
+  const handleSubmitRecallAnswer = async () => {
+    if (!recallQuestion || !recallUserAnswer.trim() || !activeChapter) return;
+
+    setIsRecallLoading(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: `Chapter Content:\n${activeChapter.content.slice(0, 2000)}\n\nActive Recall Question:\n${recallQuestion}\n\nStudent Answer:\n${recallUserAnswer}\n\nEvaluate the student answer. State clearly if it is Correct, Partially Correct, or Incorrect. Provide a short breakdown and constructive advice on what to review.`
+            }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      setRecallFeedback(data.reply || "Evaluation completed.");
+    } catch (err) {
+      showToast("Evaluation failed.", "error");
+    } finally {
+      setIsRecallLoading(false);
+    }
+  };
+
+  // Generate Quiz
+  const handleGenerateQuiz = async () => {
+    if (!activeChapter) return;
+
+    setIsGeneratingQuiz(true);
+    setIsQuizCompleted(false);
+    setCurrentQuizIdx(0);
+    setQuizAnswers([]);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: `Generate ${quizNumQuestions} Multiple Choice Questions (MCQ) for the textbook chapter: "${activeChapter.title}".
+Chapter Excerpt:
+${activeChapter.content.slice(0, 3000)}
+
+Return ONLY valid JSON array with format:
+[
+  {
+    "id": "q1",
+    "question": "Question text...",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correctAnswer": 0,
+    "explanation": "Why Option A is correct...",
+    "pageRef": "Chapter 1"
+  }
+]`
+            }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      const rawText = data.reply || "";
+      const jsonStart = rawText.indexOf('[');
+      const jsonEnd = rawText.lastIndexOf(']');
+
+      if (jsonStart >= 0 && jsonEnd > jsonStart) {
+        const jsonStr = rawText.slice(jsonStart, jsonEnd + 1);
+        const parsed = JSON.parse(jsonStr);
+        setQuizQuestions(parsed);
+        showToast(`Generated ${parsed.length} Quiz Questions! 🎯`, "success");
+      } else {
+        // Fallback quiz if AI JSON parsing fails
+        setQuizQuestions([
+          {
+            id: 'fallback-1',
+            question: `What is the core theme of ${activeChapter.title}?`,
+            options: ['Fundamental Principles', 'Historical Background', 'Legal Provisions', 'All of the above'],
+            correctAnswer: 3,
+            explanation: 'The chapter covers fundamental principles, historical context, and provisions.',
+            pageRef: activeChapter.title
+          }
+        ]);
       }
     } catch (err) {
-      showToast("Translation failed. Check internet connection.", "error");
+      showToast("Quiz generation error. Loaded practice quiz.", "warn");
     } finally {
-      setIsTranslating(false);
+      setIsGeneratingQuiz(false);
     }
   };
 
-  // Text selection highlight helper
-  const handleHighlightSelection = () => {
-    const selection = window.getSelection();
-    if (selection && selection.toString().trim().length > 0) {
-      const text = selection.toString().trim();
-      setUserHighlights(prev => [...new Set([...prev, text])]);
-      showToast(`Highlighted: "${text.slice(0, 30)}..." ✨`, "success");
+  // Submit Option in Quiz
+  const handleSelectQuizOption = (optionIdx: number) => {
+    setSelectedOption(optionIdx);
+  };
+
+  const handleNextQuizQuestion = () => {
+    if (selectedOption === null) return;
+    const newAnswers = [...quizAnswers, selectedOption];
+    setQuizAnswers(newAnswers);
+    setSelectedOption(null);
+
+    if (currentQuizIdx < quizQuestions.length - 1) {
+      setCurrentQuizIdx(prev => prev + 1);
     } else {
-      showToast("Select text on screen with cursor to highlight!", "info");
+      setIsQuizCompleted(true);
+      // Save to history
+      const correctCount = newAnswers.reduce((acc, ans, i) => ans === quizQuestions[i]?.correctAnswer ? acc + 1 : acc, 0);
+      if (selectedBook) {
+        const updatedHistory = [...(selectedBook.quizHistory || []), { date: new Date().toLocaleDateString(), score: correctCount, total: quizQuestions.length }];
+        const updatedBooks = books.map(b => b.id === selectedBook.id ? { ...b, quizHistory: updatedHistory } : b);
+        setBooks(updatedBooks);
+      }
     }
   };
+
+  // Generate Smart Revision Sheet
+  const handleGenerateSmartRevision = async () => {
+    if (!activeChapter) return;
+
+    setIsGeneratingRevision(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: `Create a "Smart Revision Sheet" for chapter: "${activeChapter.title}".
+Excerpt:
+${activeChapter.content.slice(0, 3000)}
+
+Structure the response into:
+1. 🎯 30-Second Chapter Core Concept
+2. ⚡ High-Yield Key Formulas / Dates / Terms
+3. ⚠️ Common Exam Traps & Pitfalls to Avoid
+4. 🧠 Quick Memory Mnemonics & Tricks`
+            }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      setRevisionSheet(data.reply || "Revision sheet generated.");
+      showToast("Smart Revision Sheet Ready! 🧠", "success");
+    } catch (err) {
+      showToast("Failed to generate revision sheet.", "error");
+    } finally {
+      setIsGeneratingRevision(false);
+    }
+  };
+
+  // Filtered & Sorted books for Library
+  const filteredBooks = books.filter(b => {
+    const matchesSearch = b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          b.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          b.author.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    if (filterCategory === 'in-progress') return b.currentPage > 1 && b.currentPage < b.totalPages;
+    if (filterCategory === 'completed') return b.currentPage >= b.totalPages;
+    return true;
+  }).sort((a, b) => {
+    if (sortBy === 'name') return a.title.localeCompare(b.title);
+    if (sortBy === 'progress') {
+      const progA = (a.currentPage / a.totalPages);
+      const progB = (b.currentPage / b.totalPages);
+      return progB - progA;
+    }
+    return 0; // default recent order
+  });
+
+  // Calculate Bookmark & Note indicators
+  const isCurrentPageBookmarked = selectedBook?.bookmarks.some(bm => bm.chapterId === activeChapter?.id) || false;
 
   return (
-    <div className="max-w-6xl mx-auto px-2 sm:px-4 py-6 space-y-6 animate-fade-in text-left">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 space-y-6 animate-fade-in text-left min-h-screen text-slate-100 font-sans select-text" onMouseUp={handleMouseUp}>
       
-      {/* HEADER TITLE & NAVIGATION BAR */}
-      <div className="bg-[#0A0E1A]/90 border border-indigo-500/30 p-4 sm:p-6 rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-black rounded-full uppercase tracking-wider flex items-center gap-1">
-              <span>📚</span> GLOBAL DIGITAL LIBRARY & BOOK READER
-            </span>
-            <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 text-[10px] font-mono rounded-md">
-              Read • Listen • Highlight • Translate
-            </span>
+      {/* 1. TOP HEADER & NAVIGATION BAR */}
+      <div className="bg-[#0A0E1A]/95 border border-indigo-500/30 p-4 sm:p-5 rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shrink-0">
+            <BookOpen className="w-6 h-6" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white mt-1.5 flex items-center gap-2">
-            <span>डिजिटल पुस्तकालय व संपूर्ण बुक रीडर</span>
-          </h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-            Search, study & read ANY textbook, NCERT book, literature, or competitive exam guide. Features built-in Read Aloud (Voice), Multi-Language Translation, and Concept Highlighting!
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black rounded-full uppercase tracking-wider">
+                📚 HANSAI BOOK STUDY MODE
+              </span>
+              <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-mono rounded-md flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                AI Tutor Active
+              </span>
+            </div>
+            <h1 className="text-lg sm:text-xl font-black text-white mt-0.5">
+              डिजिटल बुक स्टडी एवं पर्सनल लाइब्रेरी
+            </h1>
+          </div>
         </div>
 
-        {onBackToChat && (
+        {/* TOP TAB CONTROLS */}
+        <div className="flex flex-wrap items-center gap-1.5 bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto">
           <button
-            onClick={onBackToChat}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            onClick={() => setActiveTab('library')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'library' ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
+            }`}
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Assistant</span>
+            <BookMarked className="w-4 h-4" />
+            <span>My Books ({books.length})</span>
           </button>
-        )}
+
+          <button
+            onClick={() => setActiveTab('reader')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'reader' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
+            }`}
+          >
+            <Eye className="w-4 h-4" />
+            <span>Book Reader</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('ai-assistant')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'ai-assistant' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-black' : 'text-slate-400 hover:bg-slate-800'
+            }`}
+          >
+            <Brain className="w-4 h-4 text-amber-400" />
+            <span>AI Assistant</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('recall')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'recall' ? 'bg-emerald-600 text-white font-black' : 'text-slate-400 hover:bg-slate-800'
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            <span>Active Recall</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('quiz')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'quiz' ? 'bg-purple-600 text-white font-black' : 'text-slate-400 hover:bg-slate-800'
+            }`}
+          >
+            <HelpCircle className="w-4 h-4" />
+            <span>Auto Quiz</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('revision')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'revision' ? 'bg-pink-600 text-white font-black' : 'text-slate-400 hover:bg-slate-800'
+            }`}
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Smart Revision</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('notes')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'notes' ? 'bg-slate-800 text-amber-300 font-black' : 'text-slate-400 hover:bg-slate-800'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Notes & Highlights</span>
+          </button>
+
+          {onBackToChat && (
+            <button
+              onClick={onBackToChat}
+              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ml-auto"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Exit</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* BOOK SEARCH BAR */}
-      <form onSubmit={handleSearchBook} className="relative">
-        <div className="relative flex items-center">
-          <Search className="absolute left-4 w-5 h-5 text-indigo-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search ANY book title, author, or subject (e.g. NCERT Science, Laxmikanth Polity, Spectrum History, Physics, Python Coding, Novels...)"
-            className="w-full pl-12 pr-32 py-3.5 bg-[#0F172A] border-2 border-indigo-500/40 rounded-2xl text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400 shadow-xl transition-all"
-          />
+      {/* FLOATING TEXT SELECTION ACTION POPUP */}
+      {selectionPosition && selectedText && (
+        <div
+          style={{ top: `${selectionPosition.y - 50}px`, left: `${selectionPosition.x - 140}px` }}
+          className="fixed z-50 bg-[#0D121F] border-2 border-amber-500/80 rounded-2xl shadow-2xl p-1.5 flex items-center gap-1 text-xs animate-fade-in backdrop-blur-xl"
+        >
           <button
-            type="submit"
-            disabled={isGeneratingCustomBook}
-            className="absolute right-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-amber-600 hover:from-indigo-500 hover:to-amber-500 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+            onClick={() => handleAskBookAi(`Explain this text in detail: "${selectedText}"`)}
+            className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center gap-1 text-[11px] cursor-pointer"
           >
-            {isGeneratingCustomBook ? (
-              <>
-                <Sparkles className="w-4 h-4 animate-spin" />
-                <span>Searching Library...</span>
-              </>
-            ) : (
-              <>
-                <BookOpen className="w-4 h-4" />
-                <span>Search & Read Book</span>
-              </>
-            )}
+            <Brain className="w-3 h-3" />
+            <span>Ask AI</span>
+          </button>
+
+          <button
+            onClick={() => handleAddHighlight('important')}
+            className="px-2 py-1 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 rounded-xl font-bold text-[11px] cursor-pointer"
+          >
+            🟡 Highlight
+          </button>
+
+          <button
+            onClick={() => {
+              setNewNoteTitle(`Note on: "${selectedText.slice(0, 20)}..."`);
+              setNewNoteContent(`"${selectedText}"`);
+              setIsAddNoteModalOpen(true);
+            }}
+            className="px-2 py-1 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-xl font-bold text-[11px] cursor-pointer"
+          >
+            📌 Note
+          </button>
+
+          <button
+            onClick={() => setSelectedText('')}
+            className="p-1 text-slate-400 hover:text-white cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
-      </form>
+      )}
 
-      {/* CURATED POPULAR BOOKS GRID */}
-      <div className="space-y-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block">
-          📖 Popular Digital Library Textbooks:
-        </span>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-          {FEATURED_BOOKS.map((book) => {
-            const isSelected = selectedBook?.id === book.id;
-            return (
-              <button
-                key={book.id}
-                onClick={() => {
-                  setSelectedBook(book);
-                  setSelectedChapterIndex(0);
-                  setTranslatedText(null);
-                  showToast(`Opened: ${book.title}`, "info");
-                }}
-                className={`p-3 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
-                  isSelected 
-                    ? 'border-amber-400 bg-slate-900 shadow-lg shadow-amber-500/10 ring-2 ring-amber-400/30' 
-                    : 'border-slate-800 bg-[#0A0E1A]/80 hover:bg-slate-900 hover:border-indigo-500/50'
-                }`}
-              >
-                <div className={`w-full h-12 rounded-xl bg-gradient-to-tr ${book.coverColor} p-2 flex items-center justify-between shadow-inner`}>
-                  <BookOpen className="w-5 h-5 text-white/90" />
-                  <span className="text-[9px] font-black uppercase text-white/80 bg-black/30 px-1.5 py-0.5 rounded">
-                    {book.category.split(' ')[0]}
-                  </span>
-                </div>
-                <div className="mt-2 space-y-1">
-                  <h3 className="text-xs font-bold text-slate-100 line-clamp-2 group-hover:text-amber-300 transition-colors">
-                    {book.title}
-                  </h3>
-                  <p className="text-[10px] text-slate-400 truncate">{book.author}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* MAIN BOOK READER DISPLAY CANVAS */}
-      {selectedBook && activeChapter && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* ==================== TAB 1: MY BOOKS LIBRARY ==================== */}
+      {activeTab === 'library' && (
+        <div className="space-y-6 animate-fade-in">
           
-          {/* LEFT SIDEBAR: CHAPTER INDEX & BOOK DETAILS */}
-          <div className="lg:col-span-1 bg-[#0A0E1A] border border-slate-800 p-4 rounded-3xl space-y-4 h-fit">
-            <div className="space-y-1 border-b border-slate-800 pb-3">
-              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400">Selected Book</span>
-              <h2 className="text-sm font-extrabold text-white leading-tight">{selectedBook.title}</h2>
-              <p className="text-[11px] text-slate-400">{selectedBook.author}</p>
+          {/* CONTINUE READING HERO BANNER */}
+          {selectedBook && (
+            <div className="bg-gradient-to-r from-indigo-950/80 via-[#0A0E1A] to-slate-900 border-2 border-amber-500/40 p-5 sm:p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+              <div className="space-y-2 z-10">
+                <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-black rounded-full uppercase tracking-wider inline-flex items-center gap-1">
+                  📖 Continue Reading
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-white">{selectedBook.title}</h2>
+                <p className="text-xs text-slate-300">{selectedBook.author} • {selectedBook.category}</p>
+                
+                {/* Progress bar */}
+                <div className="w-full max-w-md space-y-1 pt-1">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <span>Chapter {selectedChapterIndex + 1} of {selectedBook.chapters.length}</span>
+                    <span className="text-amber-400 font-bold">{Math.round(((selectedChapterIndex + 1) / selectedBook.chapters.length) * 100)}% Complete</span>
+                  </div>
+                  <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-500 to-indigo-500 transition-all"
+                      style={{ width: `${((selectedChapterIndex + 1) / selectedBook.chapters.length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 z-10 w-full md:w-auto">
+                <button
+                  onClick={() => setActiveTab('reader')}
+                  className="w-full md:w-auto px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Play className="w-4 h-4 fill-current" />
+                  <span>Continue Reading →</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* SEARCH, SORT & UPLOAD TOOLBAR */}
+          <div className="bg-[#0F172A] border border-slate-800 p-4 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            {/* Search Input */}
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3.5 top-3 w-4 h-4 text-indigo-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search titles, authors, subjects..."
+                className="w-full pl-10 pr-4 py-2 bg-[#050811] border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              />
             </div>
 
-            {/* Chapter Index List */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Chapters Index:</span>
-              <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
+            {/* Filter & Sort Controls */}
+            <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+              <select
+                value={filterCategory}
+                onChange={(e: any) => setFilterCategory(e.target.value)}
+                className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
+              >
+                <option value="all">All Books</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(e: any) => setSortBy(e.target.value)}
+                className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
+              >
+                <option value="recent">Sort by Recent</option>
+                <option value="name">Sort by Title</option>
+                <option value="progress">Sort by Progress</option>
+              </select>
+
+              {/* Upload Book Button */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".pdf,.txt,.epub,.md"
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+              >
+                {isUploading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                <span>+ Upload Book (PDF/TXT)</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* BOOKS GRID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredBooks.map((book) => {
+              const isSelected = selectedBook?.id === book.id;
+              const progressPct = Math.round(((book.lastOpenedChapterIndex + 1) / (book.chapters.length || 1)) * 100);
+
+              return (
+                <div
+                  key={book.id}
+                  className={`p-4 rounded-3xl border text-left flex flex-col justify-between transition-all relative overflow-hidden group ${
+                    isSelected
+                      ? 'bg-[#0F172A] border-amber-400 shadow-xl ring-2 ring-amber-400/30'
+                      : 'bg-[#0A0E1A]/90 border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900/90'
+                  }`}
+                >
+                  {/* Book Cover Top Banner */}
+                  <div className={`w-full h-24 rounded-2xl bg-gradient-to-tr ${book.coverColor} p-3 flex flex-col justify-between shadow-inner relative`}>
+                    <div className="flex items-center justify-between">
+                      <BookOpen className="w-6 h-6 text-white/90" />
+                      <span className="text-[9px] font-black uppercase text-white/90 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                        {book.category.split(' ')[0]}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-white/80">{book.chapters.length} Chapters</span>
+                  </div>
+
+                  {/* Book Info */}
+                  <div className="mt-3 space-y-1.5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white line-clamp-2 group-hover:text-amber-300 transition-colors">
+                        {book.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-0.5">{book.author}</p>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="pt-2 space-y-1 border-t border-slate-800/80">
+                      <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                        <span>Progress</span>
+                        <span className="font-bold text-amber-400">{progressPct}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-amber-400" style={{ width: `${progressPct}%` }}></div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="pt-2 flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedBook(book);
+                          setSelectedChapterIndex(book.lastOpenedChapterIndex || 0);
+                          setActiveTab('reader');
+                          showToast(`Opened: ${book.title}`, "info");
+                        }}
+                        className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl transition-all cursor-pointer text-center"
+                      >
+                        Read Book 📖
+                      </button>
+
+                      {book.isCustomUploaded && (
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete "${book.title}" from library?`)) {
+                              setBooks(prev => prev.filter(b => b.id !== book.id));
+                              showToast("Book deleted.", "info");
+                            }
+                          }}
+                          className="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-slate-700 rounded-xl transition-all cursor-pointer"
+                          title="Delete book"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      )}
+
+      {/* ==================== TAB 2: ADVANCED BOOK READER ==================== */}
+      {activeTab === 'reader' && selectedBook && activeChapter && (
+        <div className="space-y-4 animate-fade-in">
+          
+          {/* READER TOP CONTROL TOOLBAR */}
+          <div className="bg-[#0F172A] border border-slate-800 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
+            
+            {/* Book & Chapter Selector */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsTocOpen(!isTocOpen)}
+                className="px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-indigo-500 text-slate-200 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer"
+              >
+                <List className="w-4 h-4 text-indigo-400" />
+                <span className="hidden sm:inline">Table of Contents</span>
+              </button>
+
+              <span className="text-slate-600">|</span>
+
+              <span className="font-extrabold text-white line-clamp-1 max-w-[200px] sm:max-w-xs">
+                {activeChapter.title}
+              </span>
+            </div>
+
+            {/* Read Aloud & Speed */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={togglePlaySpeech}
+                className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  isPlayingAudio
+                    ? 'bg-amber-500 text-slate-950 animate-pulse'
+                    : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                }`}
+              >
+                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                <span>{isPlayingAudio ? 'Pause' : 'Listen (सुनें)'}</span>
+              </button>
+
+              <select
+                value={speechRate}
+                onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                className="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2 py-1 focus:outline-none"
+              >
+                <option value={0.8}>0.8x</option>
+                <option value={1.0}>1.0x</option>
+                <option value={1.25}>1.25x</option>
+                <option value={1.5}>1.5x</option>
+              </select>
+            </div>
+
+            {/* Multi-language Translator */}
+            <div className="flex items-center gap-1.5">
+              <Languages className="w-4 h-4 text-emerald-400 shrink-0" />
+              {(['original', 'hindi', 'english', 'sanskrit', 'hinglish'] as const).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => handleTranslateChapter(lang)}
+                  disabled={isTranslating}
+                  className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase cursor-pointer ${
+                    targetLanguage === lang ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+
+            {/* Customization Options (Theme & Font Size) */}
+            <div className="flex items-center gap-2">
+              {/* Bookmark Toggle */}
+              <button
+                onClick={handleToggleBookmark}
+                className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                  isCurrentPageBookmarked
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                }`}
+                title="Bookmark chapter"
+              >
+                <Bookmark className="w-4 h-4 fill-current" />
+              </button>
+
+              {/* Reader Theme Switcher */}
+              <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5">
+                <button
+                  onClick={() => setReaderTheme('dark')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'dark' ? 'bg-slate-800 text-white' : 'text-slate-400'}`}
+                >
+                  Dark
+                </button>
+                <button
+                  onClick={() => setReaderTheme('cream')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'cream' ? 'bg-amber-200 text-slate-950' : 'text-slate-400'}`}
+                >
+                  Warm
+                </button>
+                <button
+                  onClick={() => setReaderTheme('white')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'white' ? 'bg-white text-slate-950' : 'text-slate-400'}`}
+                >
+                  White
+                </button>
+              </div>
+
+              {/* Font Size Selector */}
+              <select
+                value={fontSize}
+                onChange={(e: any) => setFontSize(e.target.value)}
+                className="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2 py-1 focus:outline-none"
+              >
+                <option value="sm">Small Text</option>
+                <option value="md">Normal Text</option>
+                <option value="lg">Large Text</option>
+                <option value="xl">XL Text</option>
+              </select>
+            </div>
+
+          </div>
+
+          {/* TABLE OF CONTENTS DRAWER OVERLAY */}
+          {isTocOpen && (
+            <div className="bg-[#0A0E1A] border-2 border-indigo-500/40 p-4 rounded-3xl space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span className="text-xs font-black uppercase text-amber-400">📖 Table of Contents Index</span>
+                <button onClick={() => setIsTocOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-60 overflow-y-auto">
                 {selectedBook.chapters.map((ch, idx) => (
                   <button
                     key={ch.id}
                     onClick={() => {
-                      setSelectedChapterIndex(idx);
-                      setTranslatedText(null);
-                      if (isPlayingAudio) window.speechSynthesis.cancel();
-                      setIsPlayingAudio(false);
+                      handleSelectChapter(idx);
+                      setIsTocOpen(false);
                     }}
-                    className={`w-full text-left p-2.5 rounded-xl border text-xs font-medium flex items-center justify-between transition-all cursor-pointer ${
+                    className={`p-2.5 rounded-xl border text-xs text-left font-bold transition-all cursor-pointer flex items-center justify-between ${
                       selectedChapterIndex === idx
-                        ? 'bg-indigo-600/30 text-amber-300 border-indigo-500 font-bold'
-                        : 'bg-slate-900/60 text-slate-300 border-slate-800/80 hover:bg-slate-800'
+                        ? 'bg-indigo-600/30 text-amber-300 border-indigo-500'
+                        : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
                     }`}
                   >
                     <span className="line-clamp-1">{ch.title}</span>
@@ -519,216 +1495,577 @@ Format your response as structured chapters with headings, formulas/key principl
                 ))}
               </div>
             </div>
+          )}
 
-            {/* Bookmark & Highlight Counters */}
-            <div className="pt-2 border-t border-slate-800 text-xs space-y-2">
-              <button
-                onClick={() => {
-                  setActiveBookmark(!activeBookmark);
-                  showToast(activeBookmark ? "Bookmark removed" : "Chapter bookmarked! 🔖", "success");
-                }}
-                className={`w-full p-2 rounded-xl border text-left font-bold flex items-center justify-between cursor-pointer transition-all ${
-                  activeBookmark ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Bookmark className="w-4 h-4" />
-                  <span>{activeBookmark ? 'Bookmarked Chapter' : 'Bookmark Chapter'}</span>
+          {/* READER CANVAS DISPLAY */}
+          <div
+            className={`p-6 sm:p-10 rounded-3xl border transition-all space-y-6 shadow-2xl relative min-h-[500px] ${
+              readerTheme === 'dark'
+                ? 'bg-[#0B0F1A] border-slate-800 text-slate-100'
+                : readerTheme === 'cream'
+                ? 'bg-[#FDF6E3] border-amber-300/80 text-[#2B2B2B]'
+                : 'bg-white border-slate-300 text-slate-900'
+            }`}
+          >
+            {/* Chapter Header */}
+            <div className="border-b pb-4 space-y-1" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider text-amber-500">
+                  {selectedBook.title}
+                </span>
+                <span className="text-xs font-mono font-bold opacity-60">
+                  Chapter {selectedChapterIndex + 1} of {selectedBook.chapters.length}
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black leading-tight">
+                {activeChapter.title}
+              </h2>
+            </div>
+
+            {/* Chapter Text Body */}
+            <div
+              className={`prose max-w-none whitespace-pre-wrap leading-relaxed ${
+                fontFamily === 'serif' ? 'font-serif' : fontFamily === 'mono' ? 'font-mono' : 'font-sans'
+              } ${
+                fontSize === 'sm' ? 'text-xs' : fontSize === 'lg' ? 'text-base' : fontSize === 'xl' ? 'text-lg' : 'text-sm'
+              }`}
+            >
+              {isTranslating ? (
+                <div className="py-16 text-center space-y-3">
+                  <Sparkles className="w-8 h-8 text-emerald-400 animate-spin mx-auto" />
+                  <p className="text-sm font-bold">Translating book chapter into selected language...</p>
                 </div>
-                <span>🔖</span>
+              ) : (
+                translatedText || activeChapter.content
+              )}
+            </div>
+
+            {/* Chapter Footer Navigation */}
+            <div className="flex items-center justify-between pt-6 border-t" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+              <button
+                disabled={selectedChapterIndex === 0}
+                onClick={() => handleSelectChapter(selectedChapterIndex - 1)}
+                className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                ← Previous Chapter
               </button>
 
-              {userHighlights.length > 0 && (
-                <div className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
-                  <span className="text-[10px] font-bold text-amber-400">Your Highlights ({userHighlights.length}):</span>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {userHighlights.map((hl, i) => (
-                      <p key={i} className="text-[10px] text-slate-300 bg-amber-400/10 p-1.5 rounded border border-amber-400/20">
-                        "{hl}"
-                      </p>
-                    ))}
-                  </div>
+              {/* Study Action Quick Launch */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleQuickAiAction('explain')}
+                  className="px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl font-bold text-xs hover:bg-amber-500/30 cursor-pointer"
+                >
+                  💡 Explain Chapter
+                </button>
+                <button
+                  onClick={() => handleQuickAiAction('keypoints')}
+                  className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-xl font-bold text-xs hover:bg-indigo-500/30 cursor-pointer"
+                >
+                  🔑 Key Points
+                </button>
+              </div>
+
+              <button
+                disabled={selectedChapterIndex === selectedBook.chapters.length - 1}
+                onClick={() => handleSelectChapter(selectedChapterIndex + 1)}
+                className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Next Chapter →
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* ==================== TAB 3: AI STUDY ASSISTANT ==================== */}
+      {activeTab === 'ai-assistant' && selectedBook && activeChapter && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+          
+          {/* LEFT: QUICK AI TOOLS PANEL */}
+          <div className="lg:col-span-1 bg-[#0A0E1A] border border-slate-800 p-5 rounded-3xl space-y-4 h-fit">
+            <div className="space-y-1 border-b border-slate-800 pb-3">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">Context Source</span>
+              <h3 className="text-sm font-extrabold text-white">{selectedBook.title}</h3>
+              <p className="text-xs text-indigo-300 font-mono">{activeChapter.title}</p>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">1-Click Study Actions:</span>
+              
+              <button
+                onClick={() => handleQuickAiAction('explain')}
+                className="w-full p-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between"
+              >
+                <div>
+                  <div className="text-xs font-black text-amber-300">💡 Explain Simply (सरल व्याख्या)</div>
+                  <div className="text-[10px] text-slate-400">Tricky concepts in easy language</div>
                 </div>
-              )}
+                <ChevronRight className="w-4 h-4 text-slate-500" />
+              </button>
+
+              <button
+                onClick={() => handleQuickAiAction('summarize')}
+                className="w-full p-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-indigo-500/50 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between"
+              >
+                <div>
+                  <div className="text-xs font-black text-indigo-300">📝 Chapter Summary (अध्याय सारांश)</div>
+                  <div className="text-[10px] text-slate-400">Core takeaways & exam highlights</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-500" />
+              </button>
+
+              <button
+                onClick={() => handleQuickAiAction('keypoints')}
+                className="w-full p-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between"
+              >
+                <div>
+                  <div className="text-xs font-black text-emerald-300">🔑 High-Yield Key Points</div>
+                  <div className="text-[10px] text-slate-400">Important formulas, dates & facts</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-500" />
+              </button>
             </div>
           </div>
 
-          {/* RIGHT CANVAS: ACTIVE CHAPTER CONTENT & READER TOOLBAR */}
-          <div className="lg:col-span-3 space-y-4">
+          {/* RIGHT: AI CHAT WINDOW */}
+          <div className="lg:col-span-2 bg-[#0A0E1A] border border-slate-800 rounded-3xl p-5 flex flex-col justify-between min-h-[500px]">
             
-            {/* READER CONTROLS TOOLBAR */}
-            <div className="bg-[#0F172A] border border-slate-800 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
-              
-              {/* 1. READ ALOUD (VOICE) CONTROLS */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={togglePlaySpeech}
-                  className={`px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    isPlayingAudio 
-                      ? 'bg-amber-500 text-slate-950 animate-pulse' 
-                      : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+            {/* Messages Thread */}
+            <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2">
+              {aiMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`p-4 rounded-2xl border text-xs space-y-2 ${
+                    msg.role === 'user'
+                      ? 'bg-indigo-600/20 border-indigo-500/40 text-slate-100 ml-auto max-w-xl'
+                      : 'bg-slate-900/90 border-slate-800 text-slate-200'
                   }`}
                 >
-                  {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  <span>{isPlayingAudio ? 'Pause Voice' : 'Read Aloud (सुनें)'}</span>
-                </button>
+                  <div className="flex items-center justify-between text-[10px] font-bold opacity-70">
+                    <span>{msg.role === 'user' ? '👤 Student' : '🤖 HansAI Study Assistant'}</span>
+                    {msg.sourceRef && <span className="text-amber-400 font-mono">{msg.sourceRef}</span>}
+                  </div>
+                  <div className="prose prose-invert max-w-none text-xs whitespace-pre-wrap leading-relaxed">
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
 
-                <select
-                  value={speechRate}
-                  onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                  className="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-2 py-1 focus:outline-none"
+              {isAiLoading && (
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-xs flex items-center gap-2 text-amber-400 font-bold animate-pulse">
+                  <Sparkles className="w-4 h-4 animate-spin" />
+                  <span>Analyzing book content and generating explanation...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Input Form */}
+            <div className="pt-4 border-t border-slate-800 mt-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleAskBookAi();
+                }}
+                className="relative flex items-center"
+              >
+                <input
+                  type="text"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  placeholder={`Ask HansAI anything about "${activeChapter.title.slice(0, 30)}..."`}
+                  className="w-full pl-4 pr-24 py-3 bg-[#050811] border border-slate-800 rounded-2xl text-xs text-white focus:outline-none focus:border-amber-500"
+                />
+                <button
+                  type="submit"
+                  disabled={isAiLoading || !aiInput.trim()}
+                  className="absolute right-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-slate-950 font-black text-xs rounded-xl transition-all cursor-pointer disabled:opacity-40"
                 >
-                  <option value={0.8}>0.8x Speed</option>
-                  <option value={1.0}>1.0x Speed (Normal)</option>
-                  <option value={1.25}>1.25x Speed</option>
-                  <option value={1.5}>1.5x Speed</option>
-                </select>
+                  Ask AI 🚀
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* ==================== TAB 4: ACTIVE RECALL SYSTEM ==================== */}
+      {activeTab === 'recall' && activeChapter && (
+        <div className="max-w-3xl mx-auto bg-[#0A0E1A] border-2 border-emerald-500/40 p-6 sm:p-8 rounded-3xl space-y-6 animate-fade-in">
+          <div className="border-b border-slate-800 pb-4 space-y-1">
+            <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black rounded-full uppercase">
+              🧠 ACTIVE RECALL MEMORY TEST
+            </span>
+            <h2 className="text-xl font-black text-white">Active Recall & Self-Testing Engine</h2>
+            <p className="text-xs text-slate-400">
+              Test your conceptual understanding without looking at the textbook. HansAI will evaluate your answer.
+            </p>
+          </div>
+
+          {!recallQuestion ? (
+            <div className="py-12 text-center space-y-4">
+              <Zap className="w-12 h-12 text-emerald-400 mx-auto" />
+              <div>
+                <h3 className="text-base font-bold text-white">Ready for Active Recall on {activeChapter.title}?</h3>
+                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                  Click below to generate a tailored challenge question from your current reading section.
+                </p>
+              </div>
+              <button
+                onClick={handleGenerateActiveRecall}
+                disabled={isRecallLoading}
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-2xl shadow-xl transition-all cursor-pointer flex items-center gap-2 mx-auto"
+              >
+                {isRecallLoading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                <span>Generate Active Recall Question</span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              
+              {/* Question Banner */}
+              <div className="p-5 bg-slate-900 border border-emerald-500/30 rounded-2xl space-y-2">
+                <span className="text-[10px] font-black uppercase text-emerald-400">Recall Challenge Question:</span>
+                <p className="text-sm font-extrabold text-white leading-relaxed">{recallQuestion}</p>
               </div>
 
-              {/* 2. MULTI-LANGUAGE TRANSLATOR */}
-              <div className="flex items-center gap-2">
-                <Languages className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="text-[11px] text-slate-400 font-bold hidden sm:inline">Translate:</span>
-                <div className="flex items-center gap-1">
-                  {(['original', 'hindi', 'english', 'sanskrit', 'hinglish'] as const).map((lang) => (
+              {/* Student Answer Area */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-300">Your Answer (अपनी समझ के अनुसार उत्तर लिखें):</label>
+                <textarea
+                  value={recallUserAnswer}
+                  onChange={(e) => setRecallUserAnswer(e.target.value)}
+                  rows={4}
+                  placeholder="Explain what you remember in your own words..."
+                  className="w-full p-4 bg-[#050811] border border-slate-800 rounded-2xl text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              {/* Submit & Next Controls */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={handleGenerateActiveRecall}
+                  className="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Skip / Next Question ↺
+                </button>
+
+                <button
+                  onClick={handleSubmitRecallAnswer}
+                  disabled={isRecallLoading || !recallUserAnswer.trim()}
+                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer disabled:opacity-40 flex items-center gap-2"
+                >
+                  {isRecallLoading ? <Sparkles className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  <span>Evaluate My Answer</span>
+                </button>
+              </div>
+
+              {/* Evaluation Feedback */}
+              {recallFeedback && (
+                <div className="p-5 bg-slate-900/90 border border-amber-500/40 rounded-2xl space-y-2 animate-fade-in">
+                  <span className="text-xs font-black uppercase text-amber-400 flex items-center gap-1">
+                    <Brain className="w-4 h-4" />
+                    HansAI Evaluation & Feedback:
+                  </span>
+                  <div className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
+                    {recallFeedback}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* ==================== TAB 5: AUTOMATIC QUIZ GENERATOR ==================== */}
+      {activeTab === 'quiz' && activeChapter && (
+        <div className="max-w-3xl mx-auto bg-[#0A0E1A] border-2 border-purple-500/40 p-6 sm:p-8 rounded-3xl space-y-6 animate-fade-in">
+          <div className="border-b border-slate-800 pb-4 flex items-center justify-between">
+            <div>
+              <span className="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-black rounded-full uppercase">
+                🎯 AUTOMATIC QUIZ GENERATOR
+              </span>
+              <h2 className="text-xl font-black text-white mt-1">Quiz on {activeChapter.title}</h2>
+            </div>
+
+            {/* Questions selector */}
+            <div className="flex items-center gap-1 bg-slate-900 p-1 border border-slate-800 rounded-xl">
+              {([5, 10, 20] as const).map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setQuizNumQuestions(num)}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg cursor-pointer ${
+                    quizNumQuestions === num ? 'bg-purple-600 text-white' : 'text-slate-400'
+                  }`}
+                >
+                  {num} Qs
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {quizQuestions.length === 0 ? (
+            <div className="py-12 text-center space-y-4">
+              <HelpCircle className="w-12 h-12 text-purple-400 mx-auto" />
+              <div>
+                <h3 className="text-base font-bold text-white">Generate Chapter Quiz</h3>
+                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                  Test your knowledge with AI-generated Multiple Choice Questions based on this chapter.
+                </p>
+              </div>
+              <button
+                onClick={handleGenerateQuiz}
+                disabled={isGeneratingQuiz}
+                className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-2xl shadow-xl transition-all cursor-pointer flex items-center gap-2 mx-auto"
+              >
+                {isGeneratingQuiz ? <Sparkles className="w-4 h-4 animate-spin" /> : <HelpCircle className="w-4 h-4" />}
+                <span>Start {quizNumQuestions} Question Quiz</span>
+              </button>
+            </div>
+          ) : !isQuizCompleted ? (
+            <div className="space-y-6">
+              
+              {/* Question Header */}
+              <div className="flex items-center justify-between text-xs font-mono text-slate-400">
+                <span>Question {currentQuizIdx + 1} of {quizQuestions.length}</span>
+                <span className="text-purple-400 font-bold">{Math.round(((currentQuizIdx + 1) / quizQuestions.length) * 100)}%</span>
+              </div>
+
+              {/* Active Question */}
+              <div className="p-5 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
+                <p className="text-sm font-extrabold text-white leading-relaxed">
+                  {quizQuestions[currentQuizIdx]?.question}
+                </p>
+
+                {/* Options List */}
+                <div className="space-y-2">
+                  {quizQuestions[currentQuizIdx]?.options.map((opt, optIdx) => (
                     <button
-                      key={lang}
-                      onClick={() => handleTranslateChapter(lang)}
-                      disabled={isTranslating}
-                      className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer ${
-                        targetLanguage === lang 
-                          ? 'bg-emerald-500 text-slate-950 font-black' 
-                          : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                      key={optIdx}
+                      onClick={() => handleSelectQuizOption(optIdx)}
+                      className={`w-full p-3 rounded-xl border text-xs text-left font-bold transition-all cursor-pointer flex items-center gap-3 ${
+                        selectedOption === optIdx
+                          ? 'bg-purple-600/30 text-amber-300 border-purple-500'
+                          : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
                       }`}
                     >
-                      {lang}
+                      <span className="w-6 h-6 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] font-mono shrink-0">
+                        {String.fromCharCode(65 + optIdx)}
+                      </span>
+                      <span>{opt}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* 3. FONT SIZE & THEME SELECTOR */}
-              <div className="flex items-center gap-2">
+              <div className="flex justify-end">
                 <button
-                  onClick={handleHighlightSelection}
-                  className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl hover:bg-amber-500/30 font-bold flex items-center gap-1 cursor-pointer"
-                  title="Highlight selected text"
+                  onClick={handleNextQuizQuestion}
+                  disabled={selectedOption === null}
+                  className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer disabled:opacity-40"
                 >
-                  <Highlighter className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Highlight Text</span>
+                  {currentQuizIdx === quizQuestions.length - 1 ? 'Finish Quiz →' : 'Next Question →'}
                 </button>
-
-                <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5">
-                  <button
-                    onClick={() => setReaderTheme('dark')}
-                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'dark' ? 'bg-slate-800 text-white' : 'text-slate-400'}`}
-                  >
-                    Dark
-                  </button>
-                  <button
-                    onClick={() => setReaderTheme('cream')}
-                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'cream' ? 'bg-amber-200 text-slate-950' : 'text-slate-400'}`}
-                  >
-                    Warm
-                  </button>
-                  <button
-                    onClick={() => setReaderTheme('white')}
-                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'white' ? 'bg-white text-slate-950' : 'text-slate-400'}`}
-                  >
-                    White
-                  </button>
-                </div>
               </div>
 
             </div>
+          ) : (
+            /* Quiz Completed Score Breakdown */
+            <div className="py-8 text-center space-y-6 animate-fade-in">
+              <div className="w-20 h-20 rounded-full bg-purple-600/20 border-2 border-purple-500 flex items-center justify-center text-3xl mx-auto">
+                🏆
+              </div>
 
-            {/* ACTIVE TEXTBOOK CHAPTER CANVAS */}
-            <div
-              className={`p-6 sm:p-8 rounded-3xl border transition-all space-y-6 shadow-2xl relative ${
-                readerTheme === 'dark'
-                  ? 'bg-[#0B0F1A] border-slate-800 text-slate-100'
-                  : readerTheme === 'cream'
-                  ? 'bg-[#FDF6E3] border-amber-300/80 text-[#2B2B2B]'
-                  : 'bg-white border-slate-300 text-slate-900'
-              }`}
+              <div>
+                <h3 className="text-2xl font-black text-white">Quiz Completed!</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  You scored <span className="text-amber-400 font-bold">{quizAnswers.reduce((acc, ans, i) => ans === quizQuestions[i]?.correctAnswer ? acc + 1 : acc, 0)}</span> out of <span className="text-white font-bold">{quizQuestions.length}</span>
+                </p>
+              </div>
+
+              <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl max-w-md mx-auto space-y-2 text-left">
+                <span className="text-xs font-bold uppercase text-purple-400">Performance Summary:</span>
+                <p className="text-xs text-slate-300">
+                  {quizAnswers.reduce((acc, ans, i) => ans === quizQuestions[i]?.correctAnswer ? acc + 1 : acc, 0) / quizQuestions.length >= 0.7
+                    ? "Great job! You have a solid grasp of this chapter's key concepts."
+                    : "Review recommended: Try reading the chapter highlights again before re-testing."}
+                </p>
+              </div>
+
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={handleGenerateQuiz}
+                  className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Retake Quiz ↺
+                </button>
+                <button
+                  onClick={() => setActiveTab('revision')}
+                  className="px-5 py-2.5 bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Smart Revision Sheet →
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* ==================== TAB 6: SMART REVISION SHEET ==================== */}
+      {activeTab === 'revision' && activeChapter && (
+        <div className="max-w-4xl mx-auto bg-[#0A0E1A] border-2 border-pink-500/40 p-6 sm:p-8 rounded-3xl space-y-6 animate-fade-in">
+          <div className="border-b border-slate-800 pb-4 flex items-center justify-between">
+            <div>
+              <span className="px-2.5 py-1 bg-pink-500/20 text-pink-300 border border-pink-500/30 text-[10px] font-black rounded-full uppercase">
+                🧠 SMART REVISION SHEET
+              </span>
+              <h2 className="text-xl font-black text-white mt-1">Revision Guide: {activeChapter.title}</h2>
+            </div>
+
+            <button
+              onClick={handleGenerateSmartRevision}
+              disabled={isGeneratingRevision}
+              className="px-4 py-2 bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
             >
-              {/* Chapter Header */}
-              <div className="border-b pb-4 space-y-1" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-                <span className="text-xs font-black uppercase tracking-wider text-amber-500">
-                  {selectedBook.title} • {activeChapter.title.split(':')[0]}
-                </span>
-                <h2 className="text-xl sm:text-2xl font-black leading-tight">
-                  {activeChapter.title}
-                </h2>
-              </div>
+              {isGeneratingRevision ? <Sparkles className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              <span>Generate Fresh Revision</span>
+            </button>
+          </div>
 
-              {/* Chapter Content Body */}
-              <div
-                className={`prose max-w-none whitespace-pre-wrap leading-relaxed font-sans ${
-                  fontSize === 'sm' ? 'text-xs' : fontSize === 'lg' ? 'text-base' : fontSize === 'xl' ? 'text-lg' : 'text-sm'
-                }`}
+          {!revisionSheet ? (
+            <div className="py-12 text-center space-y-4">
+              <RefreshCw className="w-12 h-12 text-pink-400 mx-auto" />
+              <div>
+                <h3 className="text-base font-bold text-white">Generate 1-Click Revision Sheet</h3>
+                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                  Automatically extracts core concepts, exam traps, and memory formulas from this chapter for quick revision.
+                </p>
+              </div>
+              <button
+                onClick={handleGenerateSmartRevision}
+                disabled={isGeneratingRevision}
+                className="px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white font-extrabold text-xs rounded-2xl shadow-xl cursor-pointer flex items-center gap-2 mx-auto"
               >
-                {isTranslating ? (
-                  <div className="py-12 text-center space-y-3">
-                    <Sparkles className="w-8 h-8 text-emerald-400 animate-spin mx-auto" />
-                    <p className="text-sm font-bold">Translating textbook content into selected language...</p>
-                  </div>
-                ) : (
-                  translatedText || activeChapter.content
-                )}
-              </div>
+                {isGeneratingRevision ? <Sparkles className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                <span>Generate Revision Sheet</span>
+              </button>
+            </div>
+          ) : (
+            <div className="p-6 bg-slate-900/90 border border-slate-800 rounded-3xl prose prose-invert max-w-none text-xs leading-relaxed whitespace-pre-wrap">
+              {revisionSheet}
+            </div>
+          )}
 
-              {/* Pre-highlighted Exam Key Concepts */}
-              {activeChapter.highlights && activeChapter.highlights.length > 0 && (
-                <div className="pt-4 border-t" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-                  <span className="text-xs font-black uppercase text-amber-500 block mb-2">
-                    💡 Exam High-Yield Concepts in this Chapter:
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {activeChapter.highlights.map((hl, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2.5 py-1 bg-amber-400/20 text-amber-600 border border-amber-400/30 text-xs font-bold rounded-lg"
-                      >
-                        ⚡ {hl}
-                      </span>
-                    ))}
-                  </div>
+        </div>
+      )}
+
+      {/* ==================== TAB 7: NOTES & HIGHLIGHTS ==================== */}
+      {activeTab === 'notes' && selectedBook && (
+        <div className="space-y-6 animate-fade-in">
+          
+          <div className="flex items-center justify-between bg-[#0F172A] p-4 rounded-3xl border border-slate-800">
+            <div>
+              <h2 className="text-base font-bold text-white">Notes & Highlights for {selectedBook.title}</h2>
+              <p className="text-xs text-slate-400">{selectedBook.notes.length} Personal Notes • {selectedBook.highlights.length} Saved Highlights</p>
+            </div>
+
+            <button
+              onClick={() => setIsAddNoteModalOpen(true)}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Add Personal Note</span>
+            </button>
+          </div>
+
+          {/* Notes Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Personal Notes List */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold uppercase text-amber-400 block">📝 Personal Study Notes:</span>
+              {selectedBook.notes.length === 0 ? (
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-2xl text-center text-xs text-slate-500">
+                  No personal notes added yet. Click "+ Add Personal Note" or select text while reading!
                 </div>
+              ) : (
+                selectedBook.notes.map((note) => (
+                  <div key={note.id} className="p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-1">
+                    <div className="flex items-center justify-between text-xs font-bold text-white">
+                      <span>{note.title}</span>
+                      <span className="text-[10px] text-slate-500">{note.timestamp}</span>
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">{note.content}</p>
+                  </div>
+                ))
               )}
+            </div>
 
-              {/* Footer Chapter Nav Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-                <button
-                  disabled={selectedChapterIndex === 0}
-                  onClick={() => {
-                    setSelectedChapterIndex(prev => Math.max(0, prev - 1));
-                    setTranslatedText(null);
-                  }}
-                  className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
-                >
-                  ← Previous Chapter
-                </button>
-
-                <span className="text-xs font-mono font-bold text-slate-400">
-                  Chapter {selectedChapterIndex + 1} of {selectedBook.chapters.length}
-                </span>
-
-                <button
-                  disabled={selectedChapterIndex === selectedBook.chapters.length - 1}
-                  onClick={() => {
-                    setSelectedChapterIndex(prev => Math.min(selectedBook.chapters.length - 1, prev + 1));
-                    setTranslatedText(null);
-                  }}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
-                >
-                  Next Chapter →
-                </button>
-              </div>
-
+            {/* Saved Highlights List */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold uppercase text-indigo-400 block">🟡 Saved Textbook Highlights:</span>
+              {selectedBook.highlights.length === 0 ? (
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-2xl text-center text-xs text-slate-500">
+                  No text highlighted yet. Select text while reading to highlight!
+                </div>
+              ) : (
+                selectedBook.highlights.map((hl) => (
+                  <div key={hl.id} className="p-3 bg-slate-900 border border-amber-500/20 rounded-2xl space-y-1">
+                    <span className="text-[9px] font-black uppercase text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                      {hl.category}
+                    </span>
+                    <p className="text-xs text-slate-200 italic">"{hl.text}"</p>
+                  </div>
+                ))
+              )}
             </div>
 
           </div>
+
+          {/* Add Note Modal */}
+          {isAddNoteModalOpen && (
+            <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-[#0D121F] border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative text-left">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h3 className="text-base font-bold text-white">Add Personal Study Note</h3>
+                  <button onClick={() => setIsAddNoteModalOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={newNoteTitle}
+                    onChange={(e) => setNewNoteTitle(e.target.value)}
+                    placeholder="Note Title (e.g. Fundamental Rights Article 21 key case)"
+                    className="w-full text-xs p-3 bg-[#050811] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-amber-500"
+                  />
+                  <textarea
+                    value={newNoteContent}
+                    onChange={(e) => setNewNoteContent(e.target.value)}
+                    rows={4}
+                    placeholder="Write your note, summary, or exam reminder..."
+                    className="w-full text-xs p-3 bg-[#050811] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSaveNote}
+                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer transition-all"
+                >
+                  Save Note 📝
+                </button>
+              </div>
+            </div>
+          )}
 
         </div>
       )}
