@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { speakText, stopAllSpeech } from './utils/speechUtils';
 import { 
   Sprout, 
   TrendingUp, 
@@ -259,7 +260,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     loginTitle: "Registrarse con Google",
     logoutBtn: "Cerrar sesión",
     welcomeGreeting: "¡Hola! Soy HansAI, tu compañero de IA. ¿Cómo puedo ayudarte a aprender, escribir o investigar hoy?",
-    creatorAnswerText: "HansAI ha sido desarrollado bajo la dirección estratégica y visión del Fundador Hanslal Pal."
+    creatorAnswerText: "HansAI ha sido diseñado para empoderar a estudiantes, investigadores y profesionales."
   },
   french: {
     appTitle: "HansAI",
@@ -281,7 +282,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     loginTitle: "Se connecter avec Google",
     logoutBtn: "Se déconnecter",
     welcomeGreeting: "Bonjour! Je suis HansAI, votre compagnon IA. Comment puis-je vous aider à apprendre, à écrire ou à faire des recherches aujourd'hui?",
-    creatorAnswerText: "HansAI a été développé sous la direction stratégique et la vision du Fundador Hanslal Pal."
+    creatorAnswerText: "HansAI a été conçu pour autonomiser les étudiants, les chercheurs et les professionnels."
   },
   german: {
     appTitle: "HansAI",
@@ -303,7 +304,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     loginTitle: "Mit Google anmelden",
     logoutBtn: "Abmelden",
     welcomeGreeting: "Hallo! Ich bin HansAI, Ihr KI-Begleiter. Wie kann ich Ihnen heute beim Lernen, Schreiben oder Recherchieren helfen?",
-    creatorAnswerText: "HansAI wurde unter der strategischen Leitung und Vision des Gründers Hanslal Pal entwickelt."
+    creatorAnswerText: "HansAI wurde entwickelt, um Studenten, Forschern und Fachleuten zu helfen."
   }
 };
 
@@ -869,9 +870,9 @@ export default function App() {
 
   // SEO Settings State
   const [seoSettings, setSeoSettings] = useState({
-    title: 'HANS AI - #1 AI Exam Prep & Study Assistant by Hanslal Pal',
+    title: 'HANS AI - #1 AI Exam Prep & Study Assistant',
     description: 'Interactive AI Study assistant with Sarkari Result, AI Music, Concept Mapping & Mock Quizzes.',
-    keywords: 'HANS AI, Hanslal Pal, SSC CGL, BPSC, Sarkari Result, AI Study'
+    keywords: 'HANS AI, SSC CGL, BPSC, Sarkari Result, AI Study'
   });
 
   // Custom Sarkari Job Posts (Content Manager)
@@ -1403,73 +1404,23 @@ export default function App() {
     }
   };
 
-  // 3. Text to Speech voice readout (Synthesizer) with Full Hindi & English Support
+  // 3. Text to Speech voice readout (Synthesizer) with Universal High-Clarity Hindi & English Engine
   const handleToggleSpeech = (msgId: string, text: string) => {
     if (currentlySpeakingMsgId === msgId) {
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      stopAllSpeech();
       setCurrentlySpeakingMsgId(null);
       return;
     }
 
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel(); // Stop any ongoing speech
-
-    const cleanText = text
-      .replace(/[\#\*\_\\`]/g, "") // Strip Markdown symbols
-      .replace(/https?:\/\/\S+/g, '') // Strip link URLs
-      .trim();
-
-    if (!cleanText) return;
-
-    // Detect if text contains Hindi Devanagari characters
-    const containsHindi = /[\u0900-\u097F]/.test(cleanText);
-
-    // Split text into readable sentence chunks (so Chrome doesn't cut off long responses)
-    const chunks = cleanText.split(/(?<=[.!?\n।])\s+/).filter(c => c.trim().length > 0);
-    const textChunks = chunks.length > 0 ? chunks : [cleanText];
-
-    let currentChunkIdx = 0;
+    stopAllSpeech();
     setCurrentlySpeakingMsgId(msgId);
 
-    const speakChunk = () => {
-      if (currentChunkIdx >= textChunks.length) {
-        setCurrentlySpeakingMsgId(null);
-        return;
-      }
-
-      const chunk = textChunks[currentChunkIdx].trim();
-      const isChunkHindi = containsHindi || /[\u0900-\u097F]/.test(chunk);
-
-      const utterance = new SpeechSynthesisUtterance(chunk);
-      utterance.lang = isChunkHindi ? 'hi-IN' : 'en-US';
-      utterance.rate = 1.0;
-
-      const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        if (isChunkHindi) {
-          const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.lang.includes('HI') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('hi-in'));
-          if (hindiVoice) utterance.voice = hindiVoice;
-        } else {
-          const englishVoice = voices.find(v => (v.lang.startsWith('en-IN') || v.lang.startsWith('en')) && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))) || voices.find(v => v.lang.startsWith('en'));
-          if (englishVoice) utterance.voice = englishVoice;
-        }
-      }
-
-      utterance.onend = () => {
-        currentChunkIdx++;
-        speakChunk();
-      };
-
-      utterance.onerror = (e) => {
-        console.warn("Speech synthesis chunk error:", e);
-        currentChunkIdx++;
-        speakChunk();
-      };
-
-      window.speechSynthesis.speak(utterance);
-    };
-
-    speakChunk();
+    speakText(text, {
+      rate: 1.0,
+      onStart: () => setCurrentlySpeakingMsgId(msgId),
+      onEnd: () => setCurrentlySpeakingMsgId(null),
+      onError: () => setCurrentlySpeakingMsgId(null)
+    });
   };
 
   // 3.5 Hands-Free Voice Assistant Logic ("Ok AI" / "Ok Open AI")
@@ -1479,9 +1430,7 @@ export default function App() {
     if (voiceAssistantRecRef.current) {
       try { voiceAssistantRecRef.current.stop(); } catch (e) {}
     }
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopAllSpeech();
     setIsVoiceAssistantActive(false);
     setIsVoiceAssistantListening(false);
     setIsVoiceAssistantSpeaking(false);
@@ -1489,58 +1438,32 @@ export default function App() {
   };
 
   const speakVoiceAssistantReply = (replyText: string) => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    stopAllSpeech();
 
-    const cleanText = replyText
-      .replace(/[\#\*\_\\`]/g, "")
-      .replace(/https?:\/\/\S+/g, "")
-      .trim();
+    isVoiceAssistantSpeakingRef.current = true;
+    setIsVoiceAssistantSpeaking(true);
+    setVoiceAssistantStatus("🔊 Speaking AI Response...");
 
-    const containsHindi = /[\u0900-\u097F]/.test(cleanText);
-    const spokenChunk = cleanText.length > 500 ? cleanText.substring(0, 500) + "..." : cleanText;
-
-    const utterance = new SpeechSynthesisUtterance(spokenChunk);
-    utterance.lang = containsHindi ? 'hi-IN' : 'en-US';
-    utterance.rate = 1.0;
-
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      if (containsHindi) {
-        const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.lang.includes('HI') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('hi-in'));
-        if (hindiVoice) utterance.voice = hindiVoice;
-      } else {
-        const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))) || voices.find(v => v.lang.startsWith('en'));
-        if (englishVoice) utterance.voice = englishVoice;
+    speakText(replyText, {
+      rate: 1.0,
+      onEnd: () => {
+        isVoiceAssistantSpeakingRef.current = false;
+        setIsVoiceAssistantSpeaking(false);
+        setVoiceAssistantStatus("🟢 Active - Listening for 'Ok AI' / 'Ok Open AI'...");
+        if (isVoiceAssistantActiveRef.current) {
+          setTimeout(() => {
+            if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
+              try { voiceAssistantRecRef.current?.start(); } catch (e) {}
+            }
+          }, 500);
+        }
+      },
+      onError: () => {
+        isVoiceAssistantSpeakingRef.current = false;
+        setIsVoiceAssistantSpeaking(false);
+        setVoiceAssistantStatus("🟢 Active - Listening for 'Ok AI' / 'Ok Open AI'...");
       }
-    }
-
-    utterance.onstart = () => {
-      isVoiceAssistantSpeakingRef.current = true;
-      setIsVoiceAssistantSpeaking(true);
-      setVoiceAssistantStatus("🔊 Speaking AI Response...");
-    };
-
-    utterance.onend = () => {
-      isVoiceAssistantSpeakingRef.current = false;
-      setIsVoiceAssistantSpeaking(false);
-      setVoiceAssistantStatus("🟢 Active - Listening for 'Ok AI' / 'Ok Open AI'...");
-      if (isVoiceAssistantActiveRef.current) {
-        setTimeout(() => {
-          if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
-            try { voiceAssistantRecRef.current?.start(); } catch (e) {}
-          }
-        }, 500);
-      }
-    };
-
-    utterance.onerror = () => {
-      isVoiceAssistantSpeakingRef.current = false;
-      setIsVoiceAssistantSpeaking(false);
-      setVoiceAssistantStatus("🟢 Active - Listening for 'Ok AI' / 'Ok Open AI'...");
-    };
-
-    window.speechSynthesis.speak(utterance);
+    });
   };
 
   const handleVoiceAssistantQuery = async (queryText: string) => {
@@ -1946,7 +1869,7 @@ export default function App() {
   // Quiz Generator & A1 Report Card state
   const [quizSubject, setQuizSubject] = useState('Chapter 1: Real Numbers & Algebra');
   const [quizLevel, setQuizLevel] = useState('Class 10th / Competitive');
-  const [studentName, setStudentName] = useState('Hanslal Pal');
+  const [studentName, setStudentName] = useState('Aspirant Student');
   const [studentRoll, setStudentRoll] = useState('HS-2026-8809');
   const [positiveMarkVal, setPositiveMarkVal] = useState(2.0);
   const [negativeMarkVal, setNegativeMarkVal] = useState(0.5);
@@ -2076,7 +1999,7 @@ export default function App() {
         </div>
       </div>
       <div class="footer">
-        <div>Verified By: HansAI Educational Platform (Hanslal Pal Vision)</div>
+        <div>Verified By: HansAI Educational Platform</div>
         <div>Certificate Ref: #HS-A1-${Date.now().toString().slice(-6)}</div>
       </div>
     </div>
@@ -3611,7 +3534,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         `8. ☕ **Daily Motivation & Status**: सुबह की कविताएं और मोटिवेशन।\n` +
         `9. 📶 **Offline Availability**: बिना इंटरनेट के भी सभी सेव किए गए नोट्स व टूल्स काम करते हैं!`;
     } else if (isCreatorQuery) {
-      customReply = `HansAI को विज़नरी हंसलाल पाल जी के उत्कृष्ट मार्गदर्शन में तैयार किया गया है। उनका विज़न आसान हिंदी और अंग्रेजी के समन्वय से युवाओं और बुद्धिजीवियों को आत्मनिर्भर, अनुशासित और ज्ञान-सम्पन्न बनाना है।`;
+      customReply = `HansAI के creator और founder Hanslal हैं। HansAI को Hanslal ने एक student-focused AI platform के रूप में बनाया और विकसित किया है।`;
     } else if (isGreeting) {
       if (language === 'hindi') {
         customReply = `नमस्ते! मैं आपका एआई साथी (HansAI) हूँ। आज मैं आपकी पढ़ाई, भूगोल, इतिहास, विज्ञान या किसी भी परीक्षा की तैयारी में किस प्रकार सहायता कर सकता हूँ?`;
@@ -4634,11 +4557,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             </div>
                           )}
 
-                          {msg.role === 'assistant' && containsCreatorKeywords(msg.content) && (
-                            <div className="pl-12 w-full max-w-2xl mt-2 animate-fade-in">
-                              <AboutCreator />
-                            </div>
-                          )}
+                          
                         </div>
                       ))}
 
@@ -4887,7 +4806,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                               type="text"
                               value={studentName}
                               onChange={(e) => setStudentName(e.target.value)}
-                              placeholder="Hanslal Pal"
+                              placeholder="Student Name"
                               className="w-full text-xs py-2 px-3 bg-slate-900 border border-slate-800 rounded-lg text-white font-semibold focus:ring-1 focus:ring-amber-500 focus:outline-none"
                             />
                           </div>
@@ -5188,7 +5107,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-left text-xs">
                           <div>
                             <span className="text-[10px] text-slate-400 uppercase font-bold block">Student Name</span>
-                            <span className="text-sm font-extrabold text-white truncate block">{studentName || 'Hanslal Pal'}</span>
+                            <span className="text-sm font-extrabold text-white truncate block">{studentName || 'Aspirant Student'}</span>
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-400 uppercase font-bold block">Roll / Reg No</span>
@@ -5648,7 +5567,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                     <div className="text-left sm:text-right font-mono text-[9px] text-slate-500 space-y-0.5">
                       <span>Evaluated: {new Date().toLocaleDateString('hi-IN')}</span>
-                      <span className="block italic text-indigo-400 font-sans font-bold">Created under guidance of Hanslal Pal</span>
+                      <span className="block italic text-indigo-400 font-sans font-bold">HansAI Educational Platform</span>
                       <span className="block text-emerald-400 font-sans font-extrabold tracking-wider">● VERIFIED SCHOLARSHIP</span>
                     </div>
                   </div>
@@ -5804,7 +5723,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <label className="block text-[10px] text-slate-400 mb-1">Your Real Name</label>
                       <input 
                         type="text" 
-                        placeholder="e.g. Hanslal Pal"
+                        placeholder="e.g. Rahul Sharma"
                         value={regScoreName}
                         onChange={(e) => setRegScoreName(e.target.value)}
                         className="w-full bg-slate-950 border border-slate-850 rounded-xl p-2outline-none px-3 py-2 text-slate-200 outline-none focus:border-amber-500"

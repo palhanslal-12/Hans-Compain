@@ -148,9 +148,9 @@ function getGenAI() {
 
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
-  // Use robust standard Gemini models for fallback
-  const requested = primaryModel === "gemini-3.5-flash" ? "gemini-2.5-flash" : (primaryModel || "gemini-2.5-flash");
-  const fallbackSequence = [requested, "gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash"];
+  // Use robust standard Gemini models (gemini-3.6-flash, gemini-flash-latest) for fallback
+  const requested = (primaryModel && !primaryModel.includes("2.5") && !primaryModel.includes("1.5") && !primaryModel.includes("3.5")) ? primaryModel : "gemini-3.6-flash";
+  const fallbackSequence = [requested, "gemini-3.6-flash", "gemini-flash-latest", "gemini-3.1-pro-preview"];
   const uniqueModels = Array.from(new Set(fallbackSequence.filter(Boolean)));
 
   let lastError: any = null;
@@ -230,8 +230,12 @@ TERMINOLOGY RULES (CRITICAL):
 
 PRIVACY & CREATOR IDENTITY RULES (CRITICAL):
 - NEVER ask the user if they are the creator or owner. Under absolutely no circumstances ask the user if they are Hanslal Pal or Kendo.
-- If asked about who made you, who yours creator or owner is, or how you were built, reply using a clean, 2-line professional paragraph only:
-"HansAI को विज़नरी हंसलाल पाल जी के उत्कृष्ट मार्गदर्शन में तैयार किया गया है। उनका विज़न आसान हिंदी और अंग्रेजी के समन्वय से युवाओं और बुद्धिजीवियों को आत्मनिर्भर, अनुशासित और ज्ञान-सम्पन्न बनाना है।"
+- IDENTITY & CREATOR / FOUNDER RULE:
+  If asked who created, founded, or owns HansAI (e.g. "HansAI का founder कौन है?", "HansAI किसने बनाया?", "who created HansAI?", "who is the founder/creator/owner of HansAI?"):
+  Respond clearly: "HansAI के creator और founder Hanslal हैं। HansAI को Hanslal ने एक student-focused AI platform के रूप में बनाया और विकसित किया है।"
+  Do not invent another founder, company, person, or organization.
+  If asked about legal ownership, registered company details, or investors, say: "HansAI के creator/founder Hanslal हैं। Legal ownership या registered business details के बारे में वही जानकारी मान्य है जो HansAI की official information में दी गई हो।"
+  Do not claim HansAI is owned by Google, OpenAI, or any AI model provider. The AI model/API provider is a technology provider, not the owner/creator of HansAI.
 No bulky card designs or banners are needed in chat replies. No geographical data or personal biographies should ever be emitted.
 
 WHEN USER ASKS WHAT YOU CAN DO / WHAT HELP YOU CAN PROVIDE ("kya kya kar sakte ho" / "what can you do" / "kya help kar sakte ho" / "help"):
@@ -241,12 +245,7 @@ Respond in warm, clear, structured Hindi/Hinglish with visual emojis, explaining
 3. 🚀 **Deep Research AI**: Multi-dimensional study guides, historical timelines, mnemonics, and practice questions on any topic.
 4. 🧠 **Interactive Live Quizzes**: Instant 5-question test with explanations and score tracking.
 5. 🎙️ **Projects & Voice Recorder**: Record lectures or study notes, store audio recordings, and manage project notes.
-6. 📖 **Study Notes & Folders**: Save, search, and organize study notes into structured folders.
-7. 🗺️ **GIS & Map Visualizer**: Interactive geography maps and spatial study visualizers.
-8. ☕ **Daily Motivation & WhatsApp Status**: Morning poems, tea/breakfast quotes, and status card designer.
-9. 📶 **Offline Availability**: Saved chats, study notes, shorthand guides, quizzes, and calculators work offline anytime without internet!
-
-MISSION & CORE CAPABILITIES:
+6. 📖 **Study Notes & Folders**: Save, search, and organize sMISSION & CORE CAPABILITIES:
 1. Subject Deep Dive & General Knowledge: Provide comprehensive, detailed, step-by-step explanations for Geography, History, Polity, Science (Physics/Chemistry/Biology), Maths, Reasoning, and General Awareness.
 2. Competitive Exam & Syllabus Prep: Help with core concepts, formulas, grammar rules, general awareness questions, syllabus breakdowns, and high-yield concepts.
 3. Syllabus Deep Research: Assist students and researchers with rigorous topic analyses, historical chronology, memorization tricks (mnemonics), and custom practice worksheets.
@@ -262,96 +261,26 @@ LANGUAGE & TONE:
 function generateSubjectKnowledgeReply(userQuery: string, language: string = "hindi"): string {
   const query = (userQuery || "").toLowerCase();
 
-  if (query.includes('geography') || query.includes('भूगोल')) {
-    return `### 🌍 भूगोल (Geography) - संपूर्ण परिचय व परीक्षा मार्गदर्शन\n\n` +
-      `**भूगोल (Geography)** वह विज्ञान है जिसके अंतर्गत पृथ्वी के धरातल, उसके भौतिक स्वरूपों, प्राकृतिक साधनों, जलवायु, तथा मानव जीवन के अंतर्संबंधों का अध्ययन किया जाता है।\n\n` +
-      `#### 📌 मुख्य शाखाएं (Core Divisions):\n` +
-      `1. **भौतिक भूगोल (Physical Geography):**\n` +
-      `   - **भू-आकृति विज्ञान (Geomorphology):** पर्वत, पठार, मैदान, और नदियाँ (e.g. हिमालय, गंगा-ब्रह्मपुत्र का मैदान)।\n` +
-      `   - **जलवायु विज्ञान (Climatology):** मानसून प्रणाली, चक्रवात, वायुदाब पेटियाँ, एवं वर्षा।\n` +
-      `   - **समुद्र विज्ञान (Oceanography):** महासागरीय धाराएँ (जैसे गल्फ स्ट्रीम, ला नीना/अल नीनो) एवं ज्वार-भाटा।\n` +
-      `   - **सौरमंडल (Solar System):** पृथ्वी की गतियाँ (परिक्रमण व परिभ्रमण), अक्षांश (Latitude) व देशांतर (Longitude)।\n\n` +
-      `2. **भारत का भूगोल (Indian Geography) [SSC / UPSC / State Exams हेतु महत्वपूर्ण]:**\n` +
-      `   - **भौतिक विभाजन:** उत्तरी पर्वतमाला, प्रायद्वीपीय पठार, थार मरुस्थल, तटीय मैदान व द्वीप समूह (अंडमान व लक्षद्वीप)।\n` +
-      `   - **नदी प्रणाली:** हिमालयी नदियाँ (सिंधु, गंगा, ब्रह्मपुत्र) एवं प्रायद्वीपीय नदियाँ (गोदावरी, कृष्णा, कावेरी, नर्मदा, ताप्ती)।\n` +
-      `   - **मिट्टी व कृषि:** जलोढ़, काली (रेगुर), लाल व लेटेराइट मिट्टी तथा रबी, खरीफ व जायद फसलें।\n\n` +
-      `💡 **स्मरण ट्रिक (Mnemonic):**\n` +
-      `- **कर्क रेखा (Tropic of Cancer - 23½° N)** भारत के 8 राज्यों से गुजरती है: *(मित्र पर गमछा झार -> मिजोरम, त्रिपुरा, पश्चिम बंगाल, राजस्थान, गुजरात, मध्य प्रदेश, छत्तीसगढ़, झारखंड)*।\n\n` +
-      `👉 **अगला कदम:** आप **Auto Chapter Quiz** में जाकर **"Indian Geography"** पर तुरंत 5 MCQs हल कर सकते हैं!`;
+  if (query.includes("geography") || query.includes("भूगोल")) {
+    return "### 🌍 भूगोल (Geography) - संपूर्ण परिचय व परीक्षा मार्गदर्शन\n\n**भूगोल (Geography)** वह विज्ञान है जिसके अंतर्गत पृथ्वी के धरातल, उसके भौतिक स्वरूपों, प्राकृतिक साधनों, जलवायु, तथा मानव जीवन के अंतर्संबंधों का अध्ययन किया जाता है।";
   }
 
-  if (query.includes('history') || query.includes('इतिहास')) {
-    return `### 📜 इतिहास (History) - संपूर्ण कालक्रम व परीक्षा विश्लेषण\n\n` +
-      `इतिहास को अध्ययन की सुगमता के लिए तीन प्रमुख भागों में बाँटा गया है:\n\n` +
-      `1. **प्राचीन भारत (Ancient India):**\n` +
-      `   - सिंधु घाटी सभ्यता (Harappan Civilisation), वैदिक काल, बौद्ध व जैन धर्म, मौर्य साम्राज्य (चंद्रगुप्त व अशोक) और गुप्त वंश (स्वर्ण युग)।\n\n` +
-      `2. **मध्यकालीन भारत (Medieval India):**\n` +
-      `   - दिल्ली सल्तनत (गुलाम, खिलजी, तुगलक, सैयद, लोदी), मुगल साम्राज्य (बाबर से औरंगजेब), एवं भक्ति व सूफी आंदोलन।\n\n` +
-      `3. **आधुनिक भारत (Modern India) [SSC / UPSC हाई-स्कोरिंग]:**\n` +
-      `   - यूरोपीय कंपनियों का आगमन, 1857 का महान विद्रोह, भारतीय राष्ट्रीय कांग्रेस (1885), गांधीवादी युग (1915-1947), एवं भारत की स्वतंत्रता (15 अगस्त 1947)।\n\n` +
-      `💡 **क्विक रिवीजन ट्रिक:**\n` +
-      `- गांधीजी के प्रमुख आंदोलन क्रम: *चंपारण (1917) -> अहमदाबाद मिल (1918) -> खेड़ा (1918) -> असहयोग (1920) -> सविनय अवज्ञा (1930) -> भारत छोड़ो (1942)*।\n\n` +
-      `👉 **अगला कदम:** अपनी तैयारी को परखने के लिए क्विज़ सेक्शन में **"Modern History"** का चयन करें!`;
+  if (query.includes("history") || query.includes("इतिहास")) {
+    return "### 📜 इतिहास (History) - संपूर्ण कालक्रम व परीक्षा विश्लेषण\n\nइतिहास को अध्ययन की सुगमता के लिए तीन प्रमुख भागों में बाँटा गया है: प्राचीन, मध्यकालीन, एवं आधुनिक भारत।";
   }
 
-  if (query.includes('polity') || query.includes('संविधान') || query.includes('राजव्यवस्था')) {
-    return `### 🏛️ भारतीय संविधान व राजव्यवस्था (Indian Polity)\n\n` +
-      `भारतीय संविधान विश्व का सबसे बड़ा लिखित संविधान है, जिसे 26 नवंबर 1949 को अंगीकृत किया गया तथा 26 जनवरी 1950 को लागू किया गया।\n\n` +
-      `#### 📌 महत्वपूर्ण अनुच्छेद व भाग:\n` +
-      `- **भाग 1 (अनुच्छेद 1-4):** संघ और उसका राज्य क्षेत्र\n` +
-      `- **भाग 2 (अनुच्छेद 5-11):** नागरिकता\n` +
-      `- **भाग 3 (अनुच्छेद 12-35):** मौलिक अधिकार (Fundamental Rights - 6 मौलिक अधिकार)\n` +
-      `- **भाग 4 (अनुच्छेद 36-51):** राज्य के नीति निर्देशक तत्व (DPSP)\n` +
-      `- **अनुच्छेद 52-61:** राष्ट्रपति एवं उनका महाभियोग\n` +
-      `- **अनुच्छेद 75 & 76:** प्रधानमंत्री एवं भारत का महान्यायवादी (Attorney General)\n` +
-      `- **अनुच्छेद 32:** संवैधानिक उपचारों का अधिकार (डॉ. बी.आर. आंबेडकर द्वारा 'संविधान की आत्मा')।\n\n` +
-      `👉 **अभ्यास:** तुरंत **Indian Polity** पर क्विज हल करें और अपना A1 स्कोरकार्ड प्राप्त करें!`;
+  if (query.includes("polity") || query.includes("संविधान")) {
+    return "### ⚖️ भारतीय संविधान व राजव्यवस्था (Indian Polity)\n\nभारतीय संविधान विश्व का सबसे बड़ा लिखित संविधान है।";
   }
 
-  if (query.includes('science') || query.includes('विज्ञान') || query.includes('physics') || query.includes('chemistry') || query.includes('biology') || query.includes('भौतिक') || query.includes('रसायन') || query.includes('जीव विज्ञान')) {
-    return `### 🔬 सामान्य विज्ञान (General Science) - मुख्य बिंदु\n\n` +
-      `सामान्य विज्ञान प्रतियोगी परीक्षाओं (SSC, Railway, State Exams) का एक महत्वपूर्ण हिस्सा है:\n\n` +
-      `1. **भौतिक विज्ञान (Physics):**\n` +
-      `   - **न्यूटन के नियम:** प्रथम (जड़त्व का नियम), द्वितीय (F=ma), तृतीय (क्रिया-प्रतिक्रिया)।\n` +
-      `   - **प्रकाश (Optics):** अवतल/उत्तल दर्पण, अपवर्तन, पूर्ण आंतरिक परावर्तन (Optic Fibre, मरुस्थल में मरीचिका)।\n\n` +
-      `2. **रसायन विज्ञान (Chemistry):**\n` +
-      `   - **आवर्त सारणी (Periodic Table):** 118 तत्व (Mendeleev & Moseley Modern Periodic Law)।\n` +
-      `   - **अम्ल व क्षार (Acids & Bases):** pH मान (रक्त = 7.4, शुद्ध जल = 7.0, नींबू = 2.2)।\n\n` +
-      `3. **जीव विज्ञान (Biology):**\n` +
-      `   - **कोशिका (Cell):** जीवन की मूलभूत इकाई। 'Powerhouse' = माइटोकॉन्ड्रिया, 'Suicide Bag' = लाइसोसोम।\n` +
-      `   - **मानव शरीर प्रणाली:** पाचन, श्वसन, तंत्रिका व रक्त परिसंचरण तंत्र (A, B, AB, O रक्त समूह)।\n\n` +
-      `👉 **अध्ययन टिप:** किसी भी विशेष टॉपिक पर और विस्तार से जानने के लिए सीधा नाम टाइप करें!`;
+  if (query.includes("science") || query.includes("विज्ञान")) {
+    return "### 🔬 सामान्य विज्ञान (General Science) - मुख्य बिंदु\n\nभौतिक, रसायन एवं जीव विज्ञान की मुख्य अवधारणाएँ।";
   }
 
-  if (query.includes('math') || query.includes('गणित') || query.includes('reasoning') || query.includes('रीजनिंग')) {
-    return `### 📐 गणित एवं रीजनिंग (Maths & Reasoning) - मास्टर स्ट्रैटेजी\n\n` +
-      `1. **अंकगणित (Arithmetic):**\n` +
-      `   - प्रतिशत (Percentage), लाभ व हानि (Profit & Loss), औसत (Average), साधारण व चक्रवृद्धि ब्याज (SI & CI), समय और कार्य (Time & Work)।\n\n` +
-      `2. **अग्रिम गणित (Advanced Maths):**\n` +
-      `   - बीजगणित (Algebra), ज्यामिति (Geometry), त्रिकोणमिति (Trigonometry), क्षेत्रमिति (Mensuration 2D/3D)।\n\n` +
-      `3. **रीजनिंग (Logical Reasoning):**\n` +
-      `   - कोडिंग-डिकोडिंग, सादृश्यता (Analogy), रक्त संबंध (Blood Relations), कथन व निष्कर्ष (Syllogism), दिशा ज्ञान (Direction Sense)।\n\n` +
-      `💡 **शॉर्टकट सूत्र:**\n` +
-      `- लगातार n प्राकृतिक संख्याओं का योग = \`n(n + 1) / 2\`\n` +
-      `- CI और SI का 2 वर्ष का अंतर = \`P * (R/100)²\`\n\n` +
-      `👉 आप अपना विशिष्ट प्रश्न लिखकर भी उत्तर पा सकते हैं!`;
-  }
-
-  if (query.includes('bihar') || query.includes('gk') || query.includes('ssc') || query.includes('upsc') || query.includes('cgl') || query.includes('chsl') || query.includes('board') || query.includes('class')) {
-    return `### 🎯 प्रतियोगी परीक्षा मार्गदर्शन (Competitive Exam Prep)\n\n` +
-      `**"${userQuery}"** हेतु HansAI की विशेष तैयारी रणनीति:\n\n` +
-      `1. **पाठ्यक्रम (Syllabus) विश्लेषण:** सबसे पहले आधिकारिक सिलेबस और पिछले 5 वर्षों के प्रश्न पत्रों (PYQs) का अध्ययन करें।\n` +
-      `2. **विषयवार समय प्रबंधन:**\n` +
-      `   - **जनरल अवेयरनेस / GK:** इतिहास, भूगोल, संविधान, व समसामयिकी (Current Affairs) का नियमित रिवीजन।\n` +
-      `   - **गणित व रीजनिंग:** प्रतिदिन प्रश्नों का गति व सटीकता के साथ अभ्यास।\n` +
-      `   - **भाषा (हिंदी/अंग्रेजी):** व्याकरण नियम, शब्दावली व अभ्यास।\n` +
-      `3. **मॉक टेस्ट व सेल्फ-इवैल्यूएशन:** प्रत्येक सप्ताह कम से कम 2 फुल-लेंथॉक टेस्ट हल करें।\n\n` +
-      `👉 आप हमारे **Auto Chapter Quiz** फीचर में जाकर तुरंत टॉपिक-वाइज प्रैक्टिस कर सकते हैं!`;
-  }
-
-  return language === 'hindi'
-    ? `### 📚 हंस-एआई (HansAI) - विषय अध्ययन एवं समाधान\n\nआपकी जिज्ञासा **"${userQuery.slice(0, 70)}"** के संबंध में मुख्य अध्ययन बिंदु:\n\n1. **मूल अवधारणा (Core Concept):** इस विषय की अवधारणात्मक स्पष्टता प्रतियोगी परीक्षाओं (SSC CGL, Railway, State/UPSC, Board Exams) में सफलता के लिए अनिवार्य है।\n2. **महत्वपूर्ण बिंदु:** महत्वपूर्ण परिभाषाओं, सिद्धांतों, सूत्रों व तिथियों के संक्षिप्त नोट्स बनाएं और नियमित रिवीजन करें।\n3. **स्व-मूल्यांकन (Self Assessment):** आप ऐप के **Auto Chapter Quiz** सेक्शन में जाकर इस विषय पर तुरंत MCQs हल करके अपना **A1 Report Card** प्राप्त कर सकते हैं!\n\n*(यदि आप इस विषय पर और विस्तृत जानकारी चाहते हैं, तो कृपया विषय का विशिष्ट प्रश्न या अध्याय टाइप करें।)*`
-    : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${userQuery.slice(0, 70)}"**:\n\n1. **Key Concept:** Developing clear conceptual mastery in this domain is essential for all competitive and board examinations.\n2. **Study Strategy:** Make concise revision notes of core principles, formulas, definitions, and key facts.\n3. **Interactive Test:** You can also go to the **Auto Chapter Quiz** section to attempt 5 MCQs on this topic and download your official **A1 Scorecard**!\n\n*(Feel free to ask any specific question from this topic!)*`;
+  const snippet = (userQuery || "").slice(0, 70);
+  return language === "hindi"
+    ? `### 📚 हंस-एआई (HansAI) - विषय अध्ययन एवं समाधान\n\nआपकी जिज्ञासा **"${snippet}"** के संबंध में मुख्य अध्ययन बिंदु।\n\n1. **मूल अवधारणा:** प्रतियोगी परीक्षाओं के लिए स्पष्टता अनिवार्य है。\n2. **अभ्यास:** आप ऐप के **Auto Chapter Quiz** में अभ्यास कर सकते हैं!`
+    : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${snippet}"**:\n\n1. **Key Concept:** Clear conceptual mastery is essential.\n2. **Practice:** Attempt MCQs in the Auto Chapter Quiz section!`;
 }
 
 // Cloud-Based AI Orchestration Memory Store for Over-The-Air (OTA) Updates
@@ -1034,14 +963,16 @@ app.post("/api/chat", async (req, res) => {
     }
 
     // Strict Founder Query interception for privacy
-    const founderTerms = ["creator", "founder", "who created", "who made", "who built", "hanslal", "pal", "निर्माता"];
+    const founderTerms = ["creator", "founder", "who created", "who made", "who built", "owner", "मालिक", "निर्माता", "किसने बनाया", "फाउंडर"];
     const containsFounderQuery = founderTerms.some(term => lastUserMessage.toLowerCase().includes(term));
     if (containsFounderQuery) {
-      customizedInstruction += "\n\nPRIVACY RULE DETECTED: Respond ONLY with the strict single professional line: 'HansAI has been developed under the strategic guidance and vision of Founder Hanslal Pal.' Under absolutely no circumstances display personal backgrounds, birthplace data, or timelines.";
+      customizedInstruction += "\n\nFOUNDER IDENTITY RULE: If asked who created, founded, or owns HansAI, respond clearly in Hindi/English: 'HansAI के creator और founder Hanslal हैं। HansAI को Hanslal ने एक student-focused AI platform के रूप में बनाया और विकसित किया है।' If asked about legal ownership or registered details, state: 'HansAI के creator/founder Hanslal हैं। Legal ownership या registered business details के बारे में वही जानकारी मान्य है जो HansAI की official information में दी गई हो।' Do not claim model providers like Google or OpenAI are owners.";
     }
 
     // Mandatory Respectful Tone & Personalized Name Instruction
     customizedInstruction += "\n\nCRITICAL RESPECT & DIGNITY RULE: You MUST speak with extreme respect, politeness, warmth, and dignity at all times (e.g. use 'जी', 'आप', 'आपका हार्दिक स्वागत है'). Never use informal slang or disrespectful words.";
+
+    customizedInstruction += "\n\nCREATIVE POETRY & LITERATURE FEEDBACK RULE: When a user shares their original poem, lines, or creative thoughts (जैसे कविता, दोहा, शायरी या सुविचार), HansAI MUST respond with high appreciation, deep respect, and structured constructive feedback. Highlight the core emotion ('भाव बहुत सुंदर है'), mention the best theme/analogy ('सबसे अच्छी बात: ...'), and offer a refined, highly lyrical and polished version (or dohe/kavita style) while retaining the original sentiment.";
 
     if (userName && String(userName).trim() && String(userName).trim() !== "Visitor Aspirant" && String(userName).trim() !== "Student" && String(userName).trim() !== "Guest Link Visitor") {
       customizedInstruction += `\n\nUSER NAME ADDRESSING RULE: The student's name is "${String(userName).trim()}". Kindly address them respectfully by name (e.g., "${String(userName).trim()} जी") when starting your response or explaining concepts on any topic.`;
@@ -1116,7 +1047,7 @@ app.post("/api/quiz", async (req, res) => {
             required: ["question", "options", "answerIndex", "explanation"]
           }
         },
-        systemInstruction: "You are HansAI created by Hanslal Pal. Generate accurate, engaging, educational, curriculum-aligned questions for Indian students."
+        systemInstruction: "You are HansAI. Generate accurate, engaging, educational, curriculum-aligned questions for Indian students."
       }
     });
 
@@ -1200,7 +1131,7 @@ app.post("/api/research", async (req, res) => {
           },
           required: ["topicName", "subjectArea", "summary", "analyticalPoints", "historicalTimeline", "crucialMnemonics", "practiceQuestions"]
         },
-        systemInstruction: "You are the ultimate study research tool HansAI created by Hanslal Pal. Output factual, high-retention, extremely accurate research guides to clear competitive exams."
+        systemInstruction: "You are the ultimate study research tool HansAI. Output factual, high-retention, extremely accurate research guides to clear competitive exams."
       }
     });
 
@@ -1255,7 +1186,7 @@ app.post("/api/status-generate", async (req, res) => {
     const { category } = req.body;
     const ai = getGenAI();
     const prompt = `Generate a beautiful, inspiring, and highly motivating daily status or morning poem/quote to be shared on WhatsApp Status.
-    The theme should be starting the day with focus, dedication to studies, and self-discipline under the guidance of Hanslal Pal.
+    The theme should be starting the day with focus, dedication to studies, and self-discipline with focus and self-discipline.
     If category is 'poem', write a short, fresh 4-line inspirational Hindi morning poem (प्रभात कविता) with beautiful rhyming, incorporating morning elements, a tea/coffee breakfast emoji, and a positive competitive spirit for exams like SSC and Shorthand.
     If category is 'motivation', write a powerful 2-line motivational quote in Hindi/Hinglish.
     Ensure it is totally new, creative, elegant, and ready to share as a morning status! Do not repeat old generic quotes.`;
@@ -1321,7 +1252,7 @@ Generate exactly 5 nodes:
             required: ["id", "label", "desc", "detail", "x", "y"]
           }
         },
-        systemInstruction: "You are HansAI created under the vision of Hanslal Pal. Output factual, topic-specific step-by-step concept flowcharts for students."
+        systemInstruction: "You are HansAI. Output factual, topic-specific step-by-step concept flowcharts for students."
       }
     });
 
@@ -1470,7 +1401,7 @@ app.post("/api/study-plan", async (req, res) => {
           },
           required: ["goalName", "totalDays", "dailySchedule", "weeklyPhases", "examTips"]
         },
-        systemInstruction: "You are HansAI created by Hanslal Pal. Generate disciplined, practical, high-yield exam study plans for students."
+        systemInstruction: "You are HansAI. Generate disciplined, practical, high-yield exam study plans for students."
       }
     });
 
@@ -1514,7 +1445,7 @@ app.post("/api/flashcards", async (req, res) => {
             required: ["id", "front", "back", "category"]
           }
         },
-        systemInstruction: "You are HansAI created by Hanslal Pal. Generate memorable, high-retention flashcards for exams."
+        systemInstruction: "You are HansAI. Generate memorable, high-retention flashcards for exams."
       }
     });
 
@@ -1581,7 +1512,7 @@ app.post("/api/ocr-solve", async (req, res) => {
           },
           required: ["extractedText", "solution", "practiceMcqs"]
         },
-        systemInstruction: "You are HansAI created by Hanslal Pal. Solve doubts from photos accurately and clearly for students."
+        systemInstruction: "You are HansAI. Solve doubts from photos accurately and clearly for students."
       }
     });
 
@@ -1636,7 +1567,7 @@ app.post("/api/audio-transcribe", async (req, res) => {
           },
           required: ["transcript", "summary", "subjectTag"]
         },
-        systemInstruction: "You are HansAI created by Hanslal Pal. Transcribe audio accurately and summarize lectures for students."
+        systemInstruction: "You are HansAI. Transcribe audio accurately and summarize lectures for students."
       }
     });
 

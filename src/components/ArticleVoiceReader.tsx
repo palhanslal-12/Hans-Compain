@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { speakText, stopAllSpeech } from '../utils/speechUtils';
 import { 
   Play, Pause, Square, Languages, Link as LinkIcon, 
   FileText, Copy, Check, Sparkles, RefreshCw, Sliders, 
@@ -196,10 +197,8 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
     }
   };
 
-  // Robust Sequential Speech Player for Hindi & English
+  // Robust Sequential Speech Player for Hindi & English with Universal Audio Fallback
   const playSentenceAtIndex = (index: number, sentenceList: string[]) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    
     if (index >= sentenceList.length) {
       setIsPlaying(false);
       setIsPaused(false);
@@ -214,88 +213,33 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
       return;
     }
 
-    // Clean text for speech
     const speechText = rawText.replace(/[।!?\n]/g, ' ').trim();
     if (!speechText) {
       playSentenceAtIndex(index + 1, sentenceList);
       return;
     }
 
-    window.speechSynthesis.cancel();
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-    }
+    stopAllSpeech();
 
-    const utterance = new SpeechSynthesisUtterance(speechText);
-    activeUtteranceRef.current = utterance;
-    utterance.rate = playbackRate;
-    utterance.pitch = voicePitch;
+    setIsPlaying(true);
+    setIsPaused(false);
+    setCurrentSentenceIdx(index);
 
-    // Detect if this sentence is in Hindi or if Speech Language is set to Hindi
-    const isTextHindi = containsHindiScript(speechText) || speechLang === 'hi';
-
-    if (isTextHindi) {
-      utterance.lang = 'hi-IN';
-      
-      // Look specifically for a Hindi voice in available system voices
-      const hindiVoice = voices.find(v => v.lang.toLowerCase().startsWith('hi') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('google हिन्दी'));
-      
-      if (hindiVoice) {
-        utterance.voice = hindiVoice;
-      } else if (selectedVoice && selectedVoice.lang.toLowerCase().startsWith('hi')) {
-        utterance.voice = selectedVoice;
-      } else {
-        // CRITICAL FIX: If no explicit Hindi voice object exists, set voice to null!
-        // Do NOT assign an English voice object to a hi-IN utterance or Chrome will remain silent!
-        utterance.voice = null;
+    speakText(speechText, {
+      rate: playbackRate,
+      pitch: voicePitch,
+      onEnd: () => {
+        playSentenceAtIndex(index + 1, sentenceList);
+      },
+      onError: () => {
+        playSentenceAtIndex(index + 1, sentenceList);
       }
-    } else {
-      utterance.lang = 'en-US';
-      const engVoice = voices.find(v => v.lang.toLowerCase().startsWith('en'));
-      if (selectedVoice && selectedVoice.lang.toLowerCase().startsWith('en')) {
-        utterance.voice = selectedVoice;
-      } else if (engVoice) {
-        utterance.voice = engVoice;
-      } else {
-        utterance.voice = null;
-      }
-    }
-
-    utterance.onstart = () => {
-      setIsPlaying(true);
-      setIsPaused(false);
-      setCurrentSentenceIdx(index);
-    };
-
-    utterance.onend = () => {
-      playSentenceAtIndex(index + 1, sentenceList);
-    };
-
-    utterance.onerror = (e) => {
-      console.warn("Speech Synthesis Utterance Error:", e);
-      // Skip failed sentence and continue seamlessly
-      playSentenceAtIndex(index + 1, sentenceList);
-    };
-
-    // Ensure engine is active and speak
-    window.speechSynthesis.speak(utterance);
+    });
   };
 
   const startSpeech = (startFromIdx?: number) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      showToast(isHindi ? "ब्राउज़र में वाइस स्पीच उपलब्ध नहीं है" : "Speech synthesis not supported", "error");
-      return;
-    }
-
     if (sentences.length === 0) {
       showToast(isHindi ? "पढ़ने के लिए कोई सामग्री उपलब्ध नहीं है" : "No content available to speak", "info");
-      return;
-    }
-
-    if (isPaused) {
-      window.speechSynthesis.resume();
-      setIsPaused(false);
-      setIsPlaying(true);
       return;
     }
 
@@ -304,20 +248,16 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
   };
 
   const pauseSpeech = () => {
-    if ('speechSynthesis' in window && isPlaying) {
-      window.speechSynthesis.pause();
-      setIsPaused(true);
-      setIsPlaying(false);
-    }
+    stopAllSpeech();
+    setIsPaused(true);
+    setIsPlaying(false);
   };
 
   const stopSpeech = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setIsPlaying(false);
-      setIsPaused(false);
-      setCurrentSentenceIdx(-1);
-    }
+    stopAllSpeech();
+    setIsPlaying(false);
+    setIsPaused(false);
+    setCurrentSentenceIdx(-1);
   };
 
   const handleCopy = () => {

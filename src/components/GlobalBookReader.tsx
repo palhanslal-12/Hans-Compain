@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { speakText, stopAllSpeech } from '../utils/speechUtils';
 import {
   Search, BookOpen, Volume2, VolumeX, Highlighter, Languages, Sparkles, Play,
   Pause, Bookmark, ChevronRight, CheckCircle2, ArrowLeft, RotateCcw, Share2,
@@ -708,15 +709,10 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
     showToast("Personal Study Note Saved! 📝", "success");
   };
 
-  // Text-To-Speech with full Hindi Devanagari & Chunking Support
+  // Text-To-Speech with full Hindi Devanagari & Universal Fallback Support
   const togglePlaySpeech = () => {
-    if (!('speechSynthesis' in window)) {
-      showToast("Speech synthesis not supported on this browser.", "warn");
-      return;
-    }
-
     if (isPlayingAudio) {
-      window.speechSynthesis.cancel();
+      stopAllSpeech();
       setIsPlayingAudio(false);
       showToast("Audio paused.", "info");
       return;
@@ -728,64 +724,15 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
       return;
     }
 
-    window.speechSynthesis.cancel();
-
-    // Clean text of markdown and URLs
-    const cleanText = rawText
-      .replace(/[\#\*\_\\`]/g, "")
-      .replace(/https?:\/\/\S+/g, "")
-      .trim();
-
-    // Check if text is in Hindi Devanagari script
-    const containsHindi = /[\u0900-\u097F]/.test(cleanText) || language === 'hindi';
-
-    // Split long book text into sentence chunks (by period, purna viram । or newlines)
-    const chunks = cleanText.split(/(?<=[.!?\n।])\s+/).filter(c => c.trim().length > 0);
-    const textChunks = chunks.length > 0 ? chunks : [cleanText];
-
-    let currentIdx = 0;
+    stopAllSpeech();
     setIsPlayingAudio(true);
     showToast(`Reading Hindi/English Aloud (${speechRate}x)... 🔊`, "success");
 
-    const playChunk = () => {
-      if (currentIdx >= textChunks.length) {
-        setIsPlayingAudio(false);
-        return;
-      }
-
-      const chunk = textChunks[currentIdx].trim();
-      const isChunkHindi = containsHindi || /[\u0900-\u097F]/.test(chunk);
-
-      const utterance = new SpeechSynthesisUtterance(chunk);
-      utterance.rate = speechRate;
-      utterance.lang = isChunkHindi ? 'hi-IN' : 'en-US';
-
-      const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        if (isChunkHindi) {
-          const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.lang.includes('HI') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('hi-in'));
-          if (hindiVoice) utterance.voice = hindiVoice;
-        } else {
-          const englishVoice = voices.find(v => (v.lang.startsWith('en-IN') || v.lang.startsWith('en')) && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))) || voices.find(v => v.lang.startsWith('en'));
-          if (englishVoice) utterance.voice = englishVoice;
-        }
-      }
-
-      utterance.onend = () => {
-        currentIdx++;
-        playChunk();
-      };
-
-      utterance.onerror = (err) => {
-        console.warn("Book speech synthesis error:", err);
-        currentIdx++;
-        playChunk();
-      };
-
-      window.speechSynthesis.speak(utterance);
-    };
-
-    playChunk();
+    speakText(rawText, {
+      rate: speechRate,
+      onEnd: () => setIsPlayingAudio(false),
+      onError: () => setIsPlayingAudio(false)
+    });
   };
 
   // AI Chat Assistant Handler
