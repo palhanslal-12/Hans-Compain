@@ -1040,6 +1040,13 @@ app.post("/api/chat", async (req, res) => {
       customizedInstruction += "\n\nPRIVACY RULE DETECTED: Respond ONLY with the strict single professional line: 'HansAI has been developed under the strategic guidance and vision of Founder Hanslal Pal.' Under absolutely no circumstances display personal backgrounds, birthplace data, or timelines.";
     }
 
+    // Mandatory Respectful Tone & Personalized Name Instruction
+    customizedInstruction += "\n\nCRITICAL RESPECT & DIGNITY RULE: You MUST speak with extreme respect, politeness, warmth, and dignity at all times (e.g. use 'जी', 'आप', 'आपका हार्दिक स्वागत है'). Never use informal slang or disrespectful words.";
+
+    if (userName && String(userName).trim() && String(userName).trim() !== "Visitor Aspirant" && String(userName).trim() !== "Student" && String(userName).trim() !== "Guest Link Visitor") {
+      customizedInstruction += `\n\nUSER NAME ADDRESSING RULE: The student's name is "${String(userName).trim()}". Kindly address them respectfully by name (e.g., "${String(userName).trim()} जी") when starting your response or explaining concepts on any topic.`;
+    }
+
     const config: any = {
       systemInstruction: customizedInstruction,
       temperature: 0.7,

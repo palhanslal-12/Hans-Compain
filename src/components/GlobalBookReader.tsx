@@ -708,7 +708,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
     showToast("Personal Study Note Saved! 📝", "success");
   };
 
-  // Text-To-Speech
+  // Text-To-Speech with full Hindi Devanagari & Chunking Support
   const togglePlaySpeech = () => {
     if (!('speechSynthesis' in window)) {
       showToast("Speech synthesis not supported on this browser.", "warn");
@@ -722,20 +722,70 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
       return;
     }
 
-    const textToRead = translatedText || activeChapter?.content || "";
-    if (!textToRead) return;
+    const rawText = translatedText || activeChapter?.content || "";
+    if (!rawText.trim()) {
+      showToast("No text content available to read.", "warn");
+      return;
+    }
 
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(textToRead);
-    utterance.rate = speechRate;
-    utterance.lang = language === 'hindi' ? 'hi-IN' : 'en-US';
 
-    utterance.onend = () => setIsPlayingAudio(false);
-    utterance.onerror = () => setIsPlayingAudio(false);
+    // Clean text of markdown and URLs
+    const cleanText = rawText
+      .replace(/[\#\*\_\\`]/g, "")
+      .replace(/https?:\/\/\S+/g, "")
+      .trim();
 
-    window.speechSynthesis.speak(utterance);
+    // Check if text is in Hindi Devanagari script
+    const containsHindi = /[\u0900-\u097F]/.test(cleanText) || language === 'hindi';
+
+    // Split long book text into sentence chunks (by period, purna viram । or newlines)
+    const chunks = cleanText.split(/(?<=[.!?\n।])\s+/).filter(c => c.trim().length > 0);
+    const textChunks = chunks.length > 0 ? chunks : [cleanText];
+
+    let currentIdx = 0;
     setIsPlayingAudio(true);
-    showToast(`Reading Aloud at ${speechRate}x speed... 🔊`, "success");
+    showToast(`Reading Hindi/English Aloud (${speechRate}x)... 🔊`, "success");
+
+    const playChunk = () => {
+      if (currentIdx >= textChunks.length) {
+        setIsPlayingAudio(false);
+        return;
+      }
+
+      const chunk = textChunks[currentIdx].trim();
+      const isChunkHindi = containsHindi || /[\u0900-\u097F]/.test(chunk);
+
+      const utterance = new SpeechSynthesisUtterance(chunk);
+      utterance.rate = speechRate;
+      utterance.lang = isChunkHindi ? 'hi-IN' : 'en-US';
+
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        if (isChunkHindi) {
+          const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.lang.includes('HI') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('hi-in'));
+          if (hindiVoice) utterance.voice = hindiVoice;
+        } else {
+          const englishVoice = voices.find(v => (v.lang.startsWith('en-IN') || v.lang.startsWith('en')) && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))) || voices.find(v => v.lang.startsWith('en'));
+          if (englishVoice) utterance.voice = englishVoice;
+        }
+      }
+
+      utterance.onend = () => {
+        currentIdx++;
+        playChunk();
+      };
+
+      utterance.onerror = (err) => {
+        console.warn("Book speech synthesis error:", err);
+        currentIdx++;
+        playChunk();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    playChunk();
   };
 
   // AI Chat Assistant Handler

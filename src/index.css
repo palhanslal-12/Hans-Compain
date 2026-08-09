@@ -5,7 +5,12 @@ body, div, header, aside, footer, p, span, button, input {
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease;
 }
 
-/* Force Default / Midnight override to Premium Single-Theme High-Contrast Palette */
+/* Force Default / Midnight override to Premium Single-Theme High-Contrast Palette & Prevent Touch Zooming */
+html, body {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   background-color: #000000 !important;
   color: #FFFFFF !important;

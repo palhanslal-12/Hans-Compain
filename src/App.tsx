@@ -876,8 +876,12 @@ export default function App() {
 
   // Custom Sarkari Job Posts (Content Manager)
   const [customSarkariPosts, setCustomSarkariPosts] = useState<Array<{ id: string; title: string; category: string; date: string; url: string }>>([
-    { id: 'sp_01', title: 'SSC CGL 2026 Tier-1 Final Result Out', category: 'Results', date: 'Today', url: 'https://www.sarkariresult.com/' },
-    { id: 'sp_02', title: 'BPSC 71st Combined Prelims Admit Card Released', category: 'Admit Card', date: 'Yesterday', url: 'https://www.sarkariresult.com/' }
+    { id: 'sp_01', title: 'SSC CGL Tier-1 Final Result & Marks Released 2026', category: 'Results', date: 'Today / आज', url: 'https://www.sarkariresult.com/' },
+    { id: 'sp_02', title: 'BPSC 71st Combined Prelims Admit Card Download Direct Link', category: 'Admit Card', date: 'Today / आज', url: 'https://www.sarkariresult.com/' },
+    { id: 'sp_03', title: 'Railway RRB NTPC Graduate / Non-Graduate 11,558 Posts Online Form', category: 'Latest Jobs', date: 'New / नया', url: 'https://www.sarkariresult.com/' },
+    { id: 'sp_04', title: 'UP Police Constable Final Answer Key & PET Exam Schedule', category: 'Answer Key', date: 'New / नया', url: 'https://www.sarkariresult.com/' },
+    { id: 'sp_05', title: 'Bihar TRE 4.0 Teacher Recruitment 1 Lakh+ Vacancy Notification', category: 'Latest Jobs', date: 'Latest / नवीनतम', url: 'https://www.sarkariresult.com/' },
+    { id: 'sp_06', title: 'UPSC Civil Services CSE Prelims 2026 Online Application Form', category: 'Latest Jobs', date: 'Live / लाइव', url: 'https://www.sarkariresult.com/' }
   ]);
   const [newSarkariTitle, setNewSarkariTitle] = useState('');
   const [newSarkariCategory, setNewSarkariCategory] = useState('Latest Jobs');
@@ -1233,6 +1237,7 @@ export default function App() {
   });
 
   // DIALOGS & OVERLAY FEEDBACK/LOGIN toggles
+  const [fullImageModalUrl, setFullImageModalUrl] = useState<string | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isSharePosterOpen, setIsSharePosterOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -1398,44 +1403,73 @@ export default function App() {
     }
   };
 
-  // 3. Text to Speech voice readout (Synthesizer)
+  // 3. Text to Speech voice readout (Synthesizer) with Full Hindi & English Support
   const handleToggleSpeech = (msgId: string, text: string) => {
     if (currentlySpeakingMsgId === msgId) {
-      window.speechSynthesis.cancel();
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       setCurrentlySpeakingMsgId(null);
       return;
     }
 
-    window.speechSynthesis.cancel(); // Stop other elements speaking if working
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel(); // Stop any ongoing speech
 
     const cleanText = text
       .replace(/[\#\*\_\\`]/g, "") // Strip Markdown symbols
-      .replace(/https?:\/\/\s+/g, '') // Strip link URLs
+      .replace(/https?:\/\/\S+/g, '') // Strip link URLs
       .trim();
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    const voices = window.speechSynthesis.getVoices();
+    if (!cleanText) return;
+
+    // Detect if text contains Hindi Devanagari characters
     const containsHindi = /[\u0900-\u097F]/.test(cleanText);
 
-    if (containsHindi) {
-      // Prioritize Hindi pronunciation voice
-      const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi')) || voices.find(v => v.lang.startsWith('en'));
-      if (hindiVoice) utterance.voice = hindiVoice;
-    } else {
-      // Default to crisp educational English voice
-      const englishVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google')) || voices.find(v => v.lang.startsWith('en'));
-      if (englishVoice) utterance.voice = englishVoice;
-    }
+    // Split text into readable sentence chunks (so Chrome doesn't cut off long responses)
+    const chunks = cleanText.split(/(?<=[.!?\n।])\s+/).filter(c => c.trim().length > 0);
+    const textChunks = chunks.length > 0 ? chunks : [cleanText];
 
-    utterance.onend = () => {
-      setCurrentlySpeakingMsgId(null);
-    };
-    utterance.onerror = () => {
-      setCurrentlySpeakingMsgId(null);
-    };
-
+    let currentChunkIdx = 0;
     setCurrentlySpeakingMsgId(msgId);
-    window.speechSynthesis.speak(utterance);
+
+    const speakChunk = () => {
+      if (currentChunkIdx >= textChunks.length) {
+        setCurrentlySpeakingMsgId(null);
+        return;
+      }
+
+      const chunk = textChunks[currentChunkIdx].trim();
+      const isChunkHindi = containsHindi || /[\u0900-\u097F]/.test(chunk);
+
+      const utterance = new SpeechSynthesisUtterance(chunk);
+      utterance.lang = isChunkHindi ? 'hi-IN' : 'en-US';
+      utterance.rate = 1.0;
+
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        if (isChunkHindi) {
+          const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.lang.includes('HI') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('hi-in'));
+          if (hindiVoice) utterance.voice = hindiVoice;
+        } else {
+          const englishVoice = voices.find(v => (v.lang.startsWith('en-IN') || v.lang.startsWith('en')) && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))) || voices.find(v => v.lang.startsWith('en'));
+          if (englishVoice) utterance.voice = englishVoice;
+        }
+      }
+
+      utterance.onend = () => {
+        currentChunkIdx++;
+        speakChunk();
+      };
+
+      utterance.onerror = (e) => {
+        console.warn("Speech synthesis chunk error:", e);
+        currentChunkIdx++;
+        speakChunk();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakChunk();
   };
 
   // 3.5 Hands-Free Voice Assistant Logic ("Ok AI" / "Ok Open AI")
@@ -1463,21 +1497,23 @@ export default function App() {
       .replace(/https?:\/\/\S+/g, "")
       .trim();
 
+    const containsHindi = /[\u0900-\u097F]/.test(cleanText);
     const spokenChunk = cleanText.length > 500 ? cleanText.substring(0, 500) + "..." : cleanText;
 
     const utterance = new SpeechSynthesisUtterance(spokenChunk);
-    const voices = window.speechSynthesis.getVoices();
-    const containsHindi = /[\u0900-\u097F]/.test(cleanText);
-
-    if (containsHindi) {
-      const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi')) || voices.find(v => v.lang.startsWith('en'));
-      if (hindiVoice) utterance.voice = hindiVoice;
-    } else {
-      const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))) || voices.find(v => v.lang.startsWith('en'));
-      if (englishVoice) utterance.voice = englishVoice;
-    }
-
+    utterance.lang = containsHindi ? 'hi-IN' : 'en-US';
     utterance.rate = 1.0;
+
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      if (containsHindi) {
+        const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.lang.includes('HI') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('hi-in'));
+        if (hindiVoice) utterance.voice = hindiVoice;
+      } else {
+        const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))) || voices.find(v => v.lang.startsWith('en'));
+        if (englishVoice) utterance.voice = englishVoice;
+      }
+    }
 
     utterance.onstart = () => {
       isVoiceAssistantSpeakingRef.current = true;
@@ -4521,8 +4557,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             {/* Speech Body - Frameless & Unboxed for Assistant */}
                             <div className="flex flex-col flex-1 min-w-0">
                               {msg.imagePreviewUrl && (
-                                <div className="mb-2 max-w-xs overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40 shadow-md">
+                                <div 
+                                  onClick={() => setFullImageModalUrl(msg.imagePreviewUrl!)}
+                                  className="mb-2 max-w-xs overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40 shadow-md cursor-pointer hover:opacity-90 transition-opacity relative group"
+                                  title="Click to view full image / फोटो देखें"
+                                >
                                   <img src={msg.imagePreviewUrl} alt="User contribution" className="max-h-48 object-contain rounded-xl" referrerPolicy="no-referrer" />
+                                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[11px] font-extrabold text-white transition-opacity gap-1">
+                                    👁️ View Full Image / फोटो देखें
+                                  </div>
                                 </div>
                               )}
 
@@ -4620,12 +4663,22 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     {chatAttachedImage && (
                       <div className="p-2 mb-2 bg-[#0F1626] border border-slate-800 rounded-xl max-w-sm flex items-center justify-between shadow-xl animate-fade-in">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg border border-slate-800 overflow-hidden bg-slate-950 flex-shrink-0">
+                          <div 
+                            onClick={() => setFullImageModalUrl(chatAttachedImage.previewUrl)}
+                            className="w-10 h-10 rounded-lg border border-slate-800 overflow-hidden bg-slate-950 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                            title="Click to view image / फोटो देखें"
+                          >
                             <img src={chatAttachedImage.previewUrl} alt="Pre-selection preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                           </div>
                           <div>
                             <span className="text-xs font-bold text-white block">Image Attached</span>
-                            <span className="text-[9px] text-indigo-400 font-semibold uppercase">{chatAttachedImage.mimeType.split('/')[1]} - Ready to Analyze</span>
+                            <button
+                              type="button"
+                              onClick={() => setFullImageModalUrl(chatAttachedImage.previewUrl)}
+                              className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase underline bg-transparent border-none p-0 cursor-pointer"
+                            >
+                              👁️ View Photo / फोटो देखें
+                            </button>
                           </div>
                         </div>
                         <button
@@ -10317,6 +10370,51 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 🖼️ FULL SCREEN IMAGE VIEWER LIGHTBOX MODAL */}
+      {fullImageModalUrl && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-fade-in"
+          onClick={() => setFullImageModalUrl(null)}
+        >
+          <div 
+            className="relative max-w-4xl w-full max-h-[92vh] bg-[#0A0E1A] border border-slate-700 rounded-3xl p-4 shadow-2xl flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-full flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <span className="text-xs font-bold text-white flex items-center gap-2">
+                <span>🖼️</span>
+                <span>Uploaded Image Viewer / फोटो दृश्य</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <a 
+                  href={fullImageModalUrl} 
+                  download="uploaded_photo.png" 
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold no-underline transition-all flex items-center gap-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ⬇️ Save / डाउनलोड
+                </a>
+                <button 
+                  onClick={() => setFullImageModalUrl(null)}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-all border-none cursor-pointer"
+                >
+                  ✕ Close
+                </button>
+              </div>
+            </div>
+            <div className="overflow-auto max-h-[75vh] flex items-center justify-center w-full p-2">
+              <img 
+                src={fullImageModalUrl} 
+                alt="Full screen uploaded view" 
+                className="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-xl border border-slate-800"
+                referrerPolicy="no-referrer"
+              />
+            </div>
           </div>
         </div>
       )}
