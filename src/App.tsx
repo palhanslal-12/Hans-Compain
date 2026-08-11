@@ -539,6 +539,10 @@ export default function App() {
   const themeColors = getThemeClasses();
 
   // AUTHENTICATED USER STATE & Mandatory Registration Gate
+  const [guestPromptCount, setGuestPromptCount] = useState<number>(() => {
+    const saved = localStorage.getItem('hansai_guest_prompt_count');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [user, setUser] = useState<{ email: string; name: string; role?: string; avatarUrl?: string } | null>(() => {
     const saved = localStorage.getItem('hansai-user-session');
     if (saved) {
@@ -614,9 +618,10 @@ export default function App() {
     };
   }, []);
 
-  // AUTOMATIC 3-HOUR SESSION LOGOUT & NOTIFICATION SYSTEM
+  // AUTOMATIC 3-HOUR SESSION LOGOUT & NOTIFICATION SYSTEM FOR REGULAR USERS ONLY
   useEffect(() => {
-    if (!user) return;
+    // Owner Hanslal Pal and unauthenticated users are exempted from auto-logout
+    if (!user || user.role === 'owner' || user.email === 'palhanslal4@gmail.com') return;
 
     let sessionStart = parseInt(localStorage.getItem('hansai-session-timestamp') || '0', 10);
     if (!sessionStart || isNaN(sessionStart)) {
@@ -1063,8 +1068,11 @@ export default function App() {
 
     if (!activeEmail) {
       const visitorId = localStorage.getItem('hansai_visitor_id') || 'guest';
+      const userAgent = navigator.userAgent || '';
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
+      const devStr = isMobile ? '📱 Guest Mobile' : '💻 Guest Desktop';
       activeEmail = `${visitorId}@hansai.visitor`;
-      activeName = `Guest Link Visitor`;
+      activeName = `${devStr} (${visitorId.slice(-6)})`;
     }
 
     fetch('/api/users/log-activity', {
@@ -1776,36 +1784,184 @@ export default function App() {
     }
   };
 
-  // 5. Intelligent Key terms highlighters (Shorthand, Bihar context, PMEGP MSME)
+  // 5. Intelligent Key terms highlighters & Clean Markdown/LaTeX Symbol Sanitizer
   const renderMessageWithHighlights = (content: string | undefined | null) => {
     if (!content) return "";
-    const str = typeof content === 'string' ? content : String(content);
-    if (!isHighlightingEnabled) {
-      return str;
-    }
+    let str = typeof content === 'string' ? content : String(content);
+
+    // Clean up raw LaTeX arrow & math symbol clutter
+    str = str
+      .replaceAll('$\\rightarrow$', '→')
+      .replaceAll('\\rightarrow', '→')
+      .replaceAll('$\\leftarrow$', '←')
+      .replaceAll('\\leftarrow', '←')
+      .replaceAll('$\\Rightarrow$', '⇒')
+      .replaceAll('\\Rightarrow', '⇒')
+      .replaceAll('$\\Leftrightarrow$', '⇔')
+      .replaceAll('\\Leftrightarrow', '⇔')
+      .replace(/\$\s*→\s*\$/g, '→')
+      .replace(/\$\s*([a-zA-Z0-9\s]+)\s*\$/g, '$1');
 
     const highlightRegex = /(shorthand|steno|stenographer|dictation|consonants|vowels|Pitman|PMEGP|Mudra|subsidy|subsidies|yield percentage|processed goods|machinery|net profit|revenue|हंसलाल पाल|हंसलाल पाल जी)/ig;
 
-    const parts = str.split(highlightRegex);
-    if (parts.length === 1) return str;
+    const highlightInlineText = (text: string) => {
+      if (!isHighlightingEnabled || !text) return text;
+      const parts = text.split(highlightRegex);
+      if (parts.length === 1) return text;
 
-    return (
-      <>
-        {parts.map((p, idx) => {
-          if (p.match(highlightRegex)) {
+      return parts.map((p, idx) => {
+        if (p.match(highlightRegex)) {
+          return (
+            <mark 
+              key={idx} 
+              className="bg-amber-500/20 text-amber-300 font-bold px-1 py-0.5 rounded border border-amber-500/25 transition-all select-all inline-block hover:scale-[1.01]"
+            >
+              {p}
+            </mark>
+          );
+        }
+        return p;
+      });
+    };
+
+    const formatInline = (text: string) => {
+      if (!text) return "";
+      // Handle **bold** text
+      const boldParts = text.split(/(\*\*[^*]+\*\*)/g);
+      return boldParts.map((part, bIdx) => {
+        if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+          const innerText = part.slice(2, -2);
+          return (
+            <strong key={bIdx} className="font-bold text-amber-200/95">
+              {highlightInlineText(innerText)}
+            </strong>
+          );
+        }
+        // Handle *italic* text
+        const italicParts = part.split(/(\*[^*]+\*)/g);
+        return italicParts.map((iPart, iIdx) => {
+          if (iPart.startsWith('*') && iPart.endsWith('*') && iPart.length > 2) {
+            const innerText = iPart.slice(1, -1);
             return (
-              <mark 
-                key={idx} 
-                className="bg-amber-500/20 text-amber-300 font-bold px-1 py-0.5 rounded border border-amber-500/25 transition-all select-all inline-block hover:scale-[1.01]"
-              >
-                {p}
-              </mark>
+              <em key={iIdx} className="italic text-slate-200">
+                {highlightInlineText(innerText)}
+              </em>
             );
           }
-          return p;
-        })}
-      </>
-    );
+          return highlightInlineText(iPart);
+        });
+      });
+    };
+
+    const lines = str.split('\n');
+    const renderedElements: React.ReactNode[] = [];
+    let inQuoteBlock = false;
+    let quoteBuffer: string[] = [];
+
+    const flushQuoteBuffer = (key: string) => {
+      if (quoteBuffer.length === 0) return;
+      renderedElements.push(
+        <blockquote 
+          key={key} 
+          className="my-2.5 border-l-4 border-amber-500/80 bg-amber-950/20 py-2 px-3.5 rounded-r-xl text-amber-100/95 font-medium shadow-inner"
+        >
+          {quoteBuffer.map((qLine, qIdx) => (
+            <div key={qIdx} className="leading-relaxed">
+              {formatInline(qLine)}
+            </div>
+          ))}
+        </blockquote>
+      );
+      quoteBuffer = [];
+      inQuoteBlock = false;
+    };
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+
+      // Horizontal dividers (---, ***, ___)
+      if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
+        if (inQuoteBlock) flushQuoteBuffer(`q-${index}`);
+        renderedElements.push(
+          <hr key={`hr-${index}`} className="my-3 border-t border-slate-700/60" />
+        );
+        return;
+      }
+
+      // Blockquotes (> )
+      if (trimmed.startsWith('> ')) {
+        inQuoteBlock = true;
+        quoteBuffer.push(trimmed.slice(2));
+        return;
+      } else if (inQuoteBlock) {
+        flushQuoteBuffer(`q-${index}`);
+      }
+
+      // Headings (###, ##, #)
+      if (trimmed.startsWith('### ')) {
+        renderedElements.push(
+          <h3 key={`h3-${index}`} className="font-extrabold text-indigo-300 text-sm sm:text-base mt-3 mb-1.5 flex items-center gap-1.5">
+            {formatInline(trimmed.slice(4))}
+          </h3>
+        );
+        return;
+      }
+      if (trimmed.startsWith('## ')) {
+        renderedElements.push(
+          <h2 key={`h2-${index}`} className="font-black text-indigo-200 text-base sm:text-lg mt-3.5 mb-2 flex items-center gap-1.5">
+            {formatInline(trimmed.slice(3))}
+          </h2>
+        );
+        return;
+      }
+      if (trimmed.startsWith('# ')) {
+        renderedElements.push(
+          <h1 key={`h1-${index}`} className="font-black text-white text-lg sm:text-xl mt-4 mb-2">
+            {formatInline(trimmed.slice(2))}
+          </h1>
+        );
+        return;
+      }
+
+      // Bullet points (* , - , • )
+      let isBullet = false;
+      let bulletText = trimmed;
+      if (trimmed.startsWith('* ') || trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+        isBullet = true;
+        bulletText = trimmed.slice(2);
+      }
+
+      if (isBullet) {
+        renderedElements.push(
+          <div key={`bullet-${index}`} className="flex items-start gap-2 my-1 pl-1 text-slate-100">
+            <span className="text-amber-400 font-extrabold text-sm leading-none mt-1 select-none">•</span>
+            <div className="flex-1 leading-relaxed">
+              {formatInline(bulletText)}
+            </div>
+          </div>
+        );
+        return;
+      }
+
+      // Empty line
+      if (!trimmed) {
+        renderedElements.push(<div key={`empty-${index}`} className="h-1.5" />);
+        return;
+      }
+
+      // Normal text line
+      renderedElements.push(
+        <div key={`p-${index}`} className="leading-relaxed my-0.5">
+          {formatInline(line)}
+        </div>
+      );
+    });
+
+    if (inQuoteBlock) {
+      flushQuoteBuffer(`q-end`);
+    }
+
+    return <div className="space-y-0.5">{renderedElements}</div>;
   };
 
   // Chat state
@@ -3407,6 +3563,22 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
   // Trigger Chatbot API Request
   const handleSendChat = async (textToSend?: string) => {
+    // Guest Limit Check (Gemini / ChatGPT style)
+    if (!user) {
+      if (guestPromptCount >= 2) {
+        showToast(
+          language === 'hindi'
+            ? "असीमित AI सर्च और चैट जारी रखने के लिए कृपया Google या Facebook से लॉगिन/रजिस्टर करें! 🔐"
+            : "Please Sign In with Google or Facebook to continue unlimited AI search! 🔐",
+          "info"
+        );
+        setIsAuthRegisterOpen(true);
+        return;
+      }
+      const newCount = guestPromptCount + 1;
+      setGuestPromptCount(newCount);
+      localStorage.setItem('hansai_guest_prompt_count', newCount.toString());
+    }
     const messageContent = textToSend || chatInput;
     if (!messageContent.trim() && !chatAttachedImage) return;
 
@@ -4072,13 +4244,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           
           {/* VIEW: CHAT BOT (CHATGPT & GEMINI STYLE WITH SIDEBAR & NON-SCROLLABLE HOME) */}
           {activeView === 'chat' && (
-            !user ? (
-              <AuthGateView
-                setUser={setUser}
-                showToast={showToast}
-                onOpenForgot={() => setIsAuthForgotOpen(true)}
-              />
-            ) : (
             <div className="h-[calc(100vh-4rem)] flex overflow-hidden w-full relative">
               
               {/* LEFT SIDEBAR (ChatGPT / Gemini style side search & history bar) */}
@@ -4573,6 +4738,49 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                         </div>
                       )}
+
+                      {!user && chatMessages.length > 0 && (
+                        <div className="my-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-950/80 via-slate-900 to-cyan-950/80 border border-indigo-500/40 text-center space-y-3 shadow-2xl animate-fade-in max-w-2xl mx-auto">
+                          <div className="flex items-center justify-center gap-2 text-indigo-300 font-extrabold text-xs uppercase tracking-wider">
+                            <Sparkles className="w-4 h-4 text-amber-400" />
+                            <span>Save Chat History & Unlock Unlimited AI Queries</span>
+                          </div>
+                          <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                            {language === 'hindi'
+                              ? 'क्या आपको यह AI जवाब पसंद आया? अपनी पढ़ाई की चैट हिस्ट्री सुरक्षित रखने और असीमित AI प्रश्नों के लिए Google या Facebook से लॉगिन करें!'
+                              : 'Enjoying HansAI? Create a free student account or sign in with Google / Facebook to save your chat history and unlock unlimited AI queries!'}
+                          </p>
+                          <div className="flex items-center justify-center gap-2.5 flex-wrap pt-1">
+                            <button
+                              type="button"
+                              onClick={() => setIsAuthRegisterOpen(true)}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs rounded-xl flex items-center gap-2 shadow-lg hover:shadow-red-500/20 transition-all cursor-pointer border-none"
+                            >
+                              <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                              </svg>
+                              <span>Sign in with Google 🌐</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setIsAuthRegisterOpen(true)}
+                              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs rounded-xl flex items-center gap-2 shadow-lg hover:shadow-blue-500/20 transition-all cursor-pointer border-none"
+                            >
+                              <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                              </svg>
+                              <span>Facebook Sign In 🔷</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setIsAuthLoginOpen(true)}
+                              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-indigo-300 font-bold text-xs rounded-xl transition-all cursor-pointer border border-slate-700"
+                            >
+                              Register / Login 🔑
+                            </button>
+                          </div>
+                        </div>
+                      )}
                       <div ref={chatBottomRef} />
                     </div>
                   )}
@@ -4611,6 +4819,57 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
                     )}
 
+                    {!user && (
+                      <div className="mb-2.5 p-3 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/40 flex flex-wrap items-center justify-between gap-2.5 shadow-2xl animate-fade-in backdrop-blur-md">
+                        <div className="flex items-center gap-2.5">
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                          </span>
+                          <div>
+                            <span className="font-extrabold bg-gradient-to-r from-amber-200 via-indigo-200 to-cyan-200 bg-clip-text text-transparent text-xs sm:text-sm tracking-wide block">
+                              {language === 'hindi'
+                                ? `🌐 गेस्ट AI सर्च मोड • मुफ़्त ट्रॉयल उपयोग: ${guestPromptCount}/2`
+                                : `🌐 Guest AI Search Mode • Free Trial: ${guestPromptCount}/2`}
+                            </span>
+                            <span className="text-[10px] text-slate-400 block font-medium">
+                              {language === 'hindi'
+                                ? 'सर्च के बाद असीमित उत्तर एवं इतिहास सहेजने के लिए लॉगिन/साइन-अप करें'
+                                : 'Sign in below to unlock unlimited queries & save history'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setIsAuthRegisterOpen(true)}
+                            className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs rounded-xl flex items-center gap-1.5 transition-all cursor-pointer border-none shadow-md shadow-red-950/40 active:scale-95"
+                          >
+                            <svg className="w-3.5 h-3.5 fill-white" viewBox="0 0 24 24">
+                              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            </svg>
+                            <span>Google 🌐</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsAuthRegisterOpen(true)}
+                            className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl flex items-center gap-1.5 transition-all cursor-pointer border-none shadow-md shadow-blue-950/40 hidden sm:flex active:scale-95"
+                          >
+                            <svg className="w-3.5 h-3.5 fill-white" viewBox="0 0 24 24">
+                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            <span>Facebook 🔷</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsAuthLoginOpen(true)}
+                            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white font-bold text-xs rounded-xl transition-all cursor-pointer border border-indigo-500/30 active:scale-95"
+                          >
+                            Login 🔑
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <form 
                       onSubmit={(e) => { e.preventDefault(); handleSendChat(); }}
                       className="bg-slate-900/95 border border-slate-800 p-3 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all flex items-center gap-2 shadow-2xl w-full"
@@ -4748,7 +5007,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
 
           </div>
-        )
       )}
 
           {/* VIEW: ACADEMIC QUIZ GENERATOR (MODERN FRESH INTERFACE) */}
