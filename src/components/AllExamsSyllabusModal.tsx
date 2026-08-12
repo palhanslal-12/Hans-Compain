@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Search, Sparkles, CheckCircle2, ArrowRight, Layers, FileText, Target, HelpCircle, X, Download, Copy, Share2 } from 'lucide-react';
+import { BookOpen, Search, Sparkles, CheckCircle2, ArrowRight, Layers, FileText, Target, HelpCircle, X, Download, Copy, Share2, Image } from 'lucide-react';
 
 export interface ExamSyllabusItem {
   id: string;
@@ -426,6 +426,278 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
     showToast(`Syllabus for ${activeExam.name} copied to clipboard! 📋`, 'success');
   };
 
+  const handleDownloadPDF = () => {
+    if (!activeExam) return;
+    try {
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8"/>
+          <title>${activeExam.name} - Official Syllabus (HansAI)</title>
+          <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 25px; color: #0f172a; background: #ffffff; line-height: 1.5; }
+            .header { text-align: center; border-bottom: 3px solid #0284c7; padding-bottom: 12px; margin-bottom: 18px; }
+            .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+            .title { font-size: 22px; font-weight: 800; color: #0f172a; margin: 8px 0 4px 0; }
+            .meta { font-size: 13px; color: #475569; font-weight: 600; }
+            .grid-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; margin-bottom: 18px; }
+            .section-title { font-size: 15px; font-weight: bold; color: #0369a1; border-left: 4px solid #0284c7; padding-left: 8px; margin: 18px 0 10px 0; uppercase: true; }
+            .stage-chip { display: inline-block; background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 6px; font-size: 12px; margin-right: 6px; margin-bottom: 6px; font-weight: 600; }
+            .subject-card { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+            .subject-head { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; color: #0284c7; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px; }
+            .topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; color: #334155; }
+            .topic-item { position: relative; padding-left: 12px; }
+            .topic-item::before { content: "•"; color: #0284c7; position: absolute; left: 0; font-weight: bold; }
+            .strategy-box { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px; font-size: 12px; color: #065f46; }
+            .footer { text-align: center; margin-top: 25px; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+            @media print {
+              body { padding: 10px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <span class="badge">HansAI Academic Companion • Official Exam Syllabus Directory</span>
+            <div class="title">${activeExam.name}</div>
+            <div class="meta">Category: ${activeExam.category.toUpperCase()} | Level: ${activeExam.level}</div>
+          </div>
+
+          <div class="grid-meta">
+            <div><strong>Exam Pattern:</strong> ${activeExam.durationMarks}</div>
+            <div><strong>Negative Marking:</strong> ${activeExam.negativeMarking}</div>
+          </div>
+
+          <div class="section-title">Exam Stages & Selection Rounds</div>
+          <div>
+            ${activeExam.stages.map(s => `<span class="stage-chip">✓ ${s}</span>`).join('')}
+          </div>
+
+          <div class="section-title">Subject-Wise Topics Breakdown</div>
+          ${activeExam.subjects.map(sub => `
+            <div class="subject-card">
+              <div class="subject-head">
+                <span>${sub.name}</span>
+                <span>${sub.marks}</span>
+              </div>
+              <div class="topic-grid">
+                ${sub.topics.map(t => `<div class="topic-item">${t}</div>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+
+          <div class="section-title">3-Phase Fast Completion Strategy</div>
+          <div class="strategy-box">
+            ${activeExam.howToCompleteStrategy.map(st => `<p style="margin: 4px 0;">🎯 ${st}</p>`).join('')}
+          </div>
+
+          <div class="footer">
+            Downloaded from HansAI Companion • Educational Platform (${new Date().toLocaleDateString()})
+          </div>
+
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 300);
+            };
+          </script>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Download file link
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${activeExam.name.replace(/[^a-zA-Z0-9]/g, '_')}_Syllabus_HansAI.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Open print popup window for Save As PDF
+      const printWin = window.open(blobUrl, '_blank');
+      if (printWin) {
+        showToast(`PDF Printable window opened! Use 'Save as PDF' to download. 📄`, 'success');
+      } else {
+        showToast(`Syllabus PDF file downloaded successfully! 📄`, 'success');
+      }
+    } catch (err) {
+      console.error('PDF download error:', err);
+      showToast('Error generating PDF. Text copied to clipboard instead.', 'warn');
+    }
+  };
+
+  const handleDownloadImage = () => {
+    if (!activeExam) return;
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const width = 1000;
+      let totalCardHeight = 420;
+      activeExam.subjects.forEach(sub => {
+        totalCardHeight += 70 + Math.ceil(sub.topics.length / 2) * 28;
+      });
+      totalCardHeight += activeExam.howToCompleteStrategy.length * 36;
+
+      canvas.width = width;
+      canvas.height = Math.max(750, totalCardHeight);
+
+      // Background
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGrad.addColorStop(0, '#0F172A');
+      bgGrad.addColorStop(0.5, '#0A0E1A');
+      bgGrad.addColorStop(1, '#020617');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Border glow
+      ctx.strokeStyle = '#0284C7';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+
+      // Header Banner
+      ctx.fillStyle = '#1E293B';
+      ctx.fillRect(35, 35, canvas.width - 70, 125);
+
+      // Category Pill
+      ctx.fillStyle = '#0284C7';
+      ctx.beginPath();
+      if ('roundRect' in ctx) {
+        (ctx as any).roundRect(50, 48, 200, 24, 6);
+      } else {
+        ctx.rect(50, 48, 200, 24);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(`CATEGORY: ${activeExam.category.toUpperCase()}`, 62, 64);
+
+      // Title
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.fillText(activeExam.name, 50, 105);
+
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '13px sans-serif';
+      ctx.fillText(`Level: ${activeExam.level}  |  Pattern: ${activeExam.durationMarks}`, 50, 135);
+
+      let curY = 190;
+
+      // Selection Stages
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('SELECTION STAGES & EXAM ROUNDS:', 45, curY);
+      curY += 25;
+
+      activeExam.stages.forEach(stage => {
+        ctx.fillStyle = '#22C55E';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText('✓ ', 50, curY);
+        ctx.fillStyle = '#E2E8F0';
+        ctx.font = '13px sans-serif';
+        ctx.fillText(stage, 70, curY);
+        curY += 24;
+      });
+
+      curY += 15;
+
+      // Subjects
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('SUBJECT-WISE DETAILED SYLLABUS:', 45, curY);
+      curY += 25;
+
+      activeExam.subjects.forEach(sub => {
+        const subHeight = 45 + Math.ceil(sub.topics.length / 2) * 26;
+
+        ctx.fillStyle = '#1E293B';
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        if ('roundRect' in ctx) {
+          (ctx as any).roundRect(45, curY, canvas.width - 90, subHeight, 8);
+        } else {
+          ctx.rect(45, curY, canvas.width - 90, subHeight);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#F59E0B';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText(sub.name, 60, curY + 28);
+
+        ctx.fillStyle = '#22C55E';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(sub.marks, canvas.width - 200, curY + 28);
+
+        let tY = curY + 54;
+        ctx.fillStyle = '#CBD5E1';
+        ctx.font = '12px sans-serif';
+
+        sub.topics.forEach((top, tIdx) => {
+          const col = tIdx % 2;
+          const xPos = col === 0 ? 65 : 500;
+          if (col === 0 && tIdx > 0) tY += 24;
+          ctx.fillText(`• ${top}`, xPos, tY);
+        });
+
+        curY += subHeight + 15;
+      });
+
+      curY += 10;
+
+      // Strategy Box
+      const stratBoxHeight = 40 + activeExam.howToCompleteStrategy.length * 28;
+      ctx.fillStyle = '#064E3B';
+      ctx.strokeStyle = '#10B981';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if ('roundRect' in ctx) {
+        (ctx as any).roundRect(45, curY, canvas.width - 90, stratBoxHeight, 8);
+      } else {
+        ctx.rect(45, curY, canvas.width - 90, stratBoxHeight);
+      }
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#34D399';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText('FAST SYLLABUS COMPLETION STRATEGY:', 60, curY + 28);
+
+      let sY = curY + 54;
+      ctx.fillStyle = '#E2E8F0';
+      ctx.font = '12px sans-serif';
+      activeExam.howToCompleteStrategy.forEach(st => {
+        ctx.fillText(`🎯 ${st}`, 65, sY);
+        sY += 26;
+      });
+
+      // Footer
+      ctx.fillStyle = '#64748B';
+      ctx.font = '11px sans-serif';
+      ctx.fillText(`HansAI Academic Companion • Syllabus Directory (${new Date().toLocaleDateString()})`, 45, canvas.height - 25);
+
+      // Download
+      const link = document.createElement('a');
+      link.download = `${activeExam.name.replace(/[^a-zA-Z0-9]/g, '_')}_Syllabus_HansAI.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast(`Syllabus image for ${activeExam.name} downloaded successfully! 🖼️`, 'success');
+    } catch (err) {
+      console.error('Image download error:', err);
+      showToast('Error exporting syllabus image.', 'warn');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="bg-[#0A0E1A] border border-slate-800 rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in text-slate-100">
@@ -535,7 +807,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
                       {activeExam.category.toUpperCase()} • {activeExam.level}
                     </span>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                       <button
                         onClick={handleCopySyllabus}
                         className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg transition-all flex items-center gap-1 border-none cursor-pointer"
@@ -543,6 +815,24 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
                       >
                         <Copy className="w-3.5 h-3.5" />
                         <span>Copy</span>
+                      </button>
+
+                      <button
+                        onClick={handleDownloadPDF}
+                        className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1 border-none cursor-pointer shadow-sm"
+                        title="Download Syllabus as PDF / Print"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>PDF Download</span>
+                      </button>
+
+                      <button
+                        onClick={handleDownloadImage}
+                        className="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1 border-none cursor-pointer shadow-sm"
+                        title="Download Syllabus as Image (PNG)"
+                      >
+                        <Image className="w-3.5 h-3.5" />
+                        <span>Image Download</span>
                       </button>
 
                       <button

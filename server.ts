@@ -1278,6 +1278,144 @@ Generate exactly 5 nodes:
   }
 });
 
+// 3.9. Universal AI Book Generator Endpoint (Supports All Genres: Literature, Fiction, Novels, Biographies, Science, History, Self-Help, etc.)
+app.post("/api/book/generate", async (req, res) => {
+  try {
+    const { bookTitle, author } = req.body;
+    if (!bookTitle || !String(bookTitle).trim()) {
+      return res.status(400).json({ error: "Book title parameter is required." });
+    }
+
+    const ai = getGenAI();
+    const cleanTitle = String(bookTitle).trim();
+    const cleanAuthor = author ? String(author).trim() : "";
+
+    const prompt = `Generate a rich, multi-chapter educational book entry for "${cleanTitle}"${cleanAuthor ? ` by ${cleanAuthor}` : ""}.
+This can be ANY book genre (Classic Literature, Fiction, Novel, Biography, History, Philosophy, Science, Self-Help, Technology, or Exam Study Guide).
+
+Generate a valid JSON object matching this structure:
+{
+  "id": "ai-book-${Date.now()}",
+  "title": "${cleanTitle}",
+  "author": "${cleanAuthor || "Renowned Author / Curated Edition"}",
+  "category": "Literature & General Books",
+  "coverColor": "from-indigo-600 to-purple-800",
+  "description": "Engaging 2-3 sentence overview of this book's theme, main story or core principles.",
+  "totalPages": 280,
+  "currentPage": 1,
+  "lastOpenedChapterIndex": 0,
+  "highlights": [],
+  "bookmarks": [],
+  "notes": [],
+  "quizHistory": [],
+  "chapters": [
+    {
+      "id": "ch1",
+      "title": "Chapter 1: Core Theme & Beginning (प्रारंभ व मुख्य पृष्ठभूमि)",
+      "pageStart": 1,
+      "pageEnd": 25,
+      "content": "Rich 4-5 paragraph breakdown of Chapter 1 of ${cleanTitle} in a mix of Hindi & English. Explain main themes, key storylines or central ideas clearly.",
+      "highlights": ["Key takeaway quote 1", "Key takeaway quote 2"]
+    },
+    {
+      "id": "ch2",
+      "title": "Chapter 2: Key Developments & Core Analysis (मुख्य विकास व विश्लेषण)",
+      "pageStart": 26,
+      "pageEnd": 60,
+      "content": "Rich 4-5 paragraph breakdown of Chapter 2 of ${cleanTitle} in Hindi & English, covering major turning points, arguments, or storylines.",
+      "highlights": ["Important insight 1", "Important insight 2"]
+    },
+    {
+      "id": "ch3",
+      "title": "Chapter 3: Deep Insights & Conclusions (गहन अंतर्दृष्टि व निष्कर्ष)",
+      "pageStart": 61,
+      "pageEnd": 95,
+      "content": "Rich 4-5 paragraph synthesis of Chapter 3 and conclusions of ${cleanTitle} with practical takeaways and summary points.",
+      "highlights": ["Final message quote 1", "Key summary point 2"]
+    }
+  ]
+}`;
+
+    const response = await generateContentWithFallback(ai, "gemini-3.5-flash", {
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            id: { type: Type.STRING },
+            title: { type: Type.STRING },
+            author: { type: Type.STRING },
+            category: { type: Type.STRING },
+            coverColor: { type: Type.STRING },
+            description: { type: Type.STRING },
+            totalPages: { type: Type.INTEGER },
+            currentPage: { type: Type.INTEGER },
+            lastOpenedChapterIndex: { type: Type.INTEGER },
+            highlights: { type: Type.ARRAY, items: { type: Type.STRING } },
+            bookmarks: { type: Type.ARRAY, items: { type: Type.STRING } },
+            notes: { type: Type.ARRAY, items: { type: Type.STRING } },
+            quizHistory: { type: Type.ARRAY, items: { type: Type.STRING } },
+            chapters: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  id: { type: Type.STRING },
+                  title: { type: Type.STRING },
+                  pageStart: { type: Type.INTEGER },
+                  pageEnd: { type: Type.INTEGER },
+                  content: { type: Type.STRING },
+                  highlights: { type: Type.ARRAY, items: { type: Type.STRING } }
+                },
+                required: ["id", "title", "content"]
+              }
+            }
+          },
+          required: ["id", "title", "author", "category", "description", "chapters"]
+        },
+        systemInstruction: "You are HansAI Book Engine. Generate authentic, accurate multi-chapter book breakdowns for ANY requested book title or novel in Hindi & English."
+      }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("Failed to generate book response");
+    const bookData = JSON.parse(text);
+    res.json({ book: bookData });
+  } catch (err: any) {
+    console.error("Gemini API Error in /api/book/generate:", err);
+    // Fallback book if API has transient error
+    const fallbackTitle = String(req.body.bookTitle || "General Book").trim();
+    res.json({
+      book: {
+        id: `ai-book-fallback-${Date.now()}`,
+        title: fallbackTitle,
+        author: req.body.author || "Classic Literature / General Edition",
+        category: "General Literature",
+        coverColor: "from-blue-600 to-indigo-800",
+        description: `Complete overview and study guide for "${fallbackTitle}".`,
+        totalPages: 210,
+        currentPage: 1,
+        lastOpenedChapterIndex: 0,
+        highlights: [],
+        bookmarks: [],
+        notes: [],
+        quizHistory: [],
+        chapters: [
+          {
+            id: 'fallback-ch1',
+            title: `Chapter 1: Overview of ${fallbackTitle}`,
+            pageStart: 1,
+            pageEnd: 20,
+            content: `Welcome to "${fallbackTitle}". This book covers essential themes, main concepts, and key principles. Explore the themes, characters, or core principles presented in this edition.`,
+            highlights: [`Key theme of ${fallbackTitle}`]
+          }
+        ]
+      }
+    });
+  }
+});
+
 // 4. Neutral Global Press News Feed Proxy
 app.post("/api/news", async (req, res) => {
   try {

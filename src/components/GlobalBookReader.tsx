@@ -284,6 +284,104 @@ print("Factorial of 5 is:", calculate_factorial(5)) # Output: 120`,
         highlights: ['Big-O Notation', 'O(log n): Binary Search', 'Functions & Methods']
       }
     ]
+  },
+  {
+    id: 'wings-of-fire',
+    title: 'Wings of Fire: Autobiography (अग्नि की उड़ान)',
+    author: 'Dr. A.P.J. Abdul Kalam & Arun Tiwari',
+    category: 'Autobiography & Inspiration',
+    coverColor: 'from-amber-600 to-amber-900',
+    description: 'An inspirational journey of Dr. APJ Abdul Kalam from Rameswaram to becoming India’s Missile Man and 11th President.',
+    totalPages: 220,
+    currentPage: 1,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
+    chapters: [
+      {
+        id: 'kalam-ch1',
+        title: 'Chapter 1: Orientation & Early Life in Rameswaram (प्रारंभिक जीवन)',
+        pageStart: 1,
+        pageEnd: 30,
+        content: `I was born into a middle-class Tamil family in the island town of Rameswaram in the erstwhile Madras State. My father, Jainulabdeen, had neither much formal education nor much wealth; despite these disadvantages, he possessed great innate wisdom and a true generosity of spirit.
+        
+My mother, Ashiamma, was an ideal helpmate to him. I was one of many children—a short boy with rather undistinguished looks, born to tall and handsome parents. We lived in our ancestral house, which was built in the middle of the 19th century.
+
+Key Insights & Inspirations:
+1. Hard Work & Faith: My father taught me that adverse situations always present opportunities for introspection.
+2. The Power of Knowledge: Books were my early treasures, and learning fueled my ambition to serve India in science and technology.`,
+        highlights: ['Adverse situations always present opportunities for introspection', 'Learning fueled my ambition']
+      }
+    ]
+  },
+  {
+    id: 'godan-premchand',
+    title: 'Godan (गोदान - मुंशी प्रेमचंद का महान उपन्यास)',
+    author: 'Munshi Premchand (मुंशी प्रेमचंद)',
+    category: 'Classic Hindi Literature & Novel',
+    coverColor: 'from-rose-700 to-red-950',
+    description: 'The epic story of Hori, Dhania, and rural Indian agrarian life, showcasing resilience, morality, and social realism.',
+    totalPages: 340,
+    currentPage: 1,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
+    chapters: [
+      {
+        id: 'godan-ch1',
+        title: 'अध्याय 1: होरी की अभिलाषा व गाय की लालसा',
+        pageStart: 1,
+        pageEnd: 25,
+        content: `होरी महतो ने दोनों बैलों को सानी-पानी देकर अपनी स्त्री धनिया से कहा—"अपनी लठिया दे दे, ज़रा भोला की ओर हो आऊँ।"
+धनिया ने लठिया ला कर हाथ में दे दी और बोली—"तो आज खेत पर न जाओगे?"
+
+होरी के मन में एक गाय पाने की अगाध लालसा थी। गाय ग्रामीण जीवन में केवल धन नहीं, बल्कि प्रतिष्ठा और धर्म का प्रतीक थी। होरी के जीवन का सबसे बड़ा सपना अपने द्वार पर एक सुंदर गाय बाँधना था।
+
+मुख्य पात्र व सामाजिक संदर्भ:
+1. होरी: एक सीधा, धर्मपरायण और स्वाभिमानी किसान जो हर विपत्ति में भी अपनी मर्यादा नहीं खोता।
+2. धनिया: होरी की पत्नी जो यथार्थवादी, साहसी और अन्याय के विरुद्ध आवाज़ उठाने वाली नारी है।
+3. भोला: पास के गाँव का ग्वाला जिससे होरी गाय उधार मांगता है।`,
+        highlights: ['होरी के मन में गाय पाने की अगाध लालसा', 'धनिया यथार्थवादी और साहसी नारी है']
+      }
+    ]
+  },
+  {
+    id: 'atomic-habits',
+    title: 'Atomic Habits (आदतों की ताकत)',
+    author: 'James Clear',
+    category: 'Self-Help & Productivity',
+    coverColor: 'from-cyan-600 to-blue-900',
+    description: 'An easy and proven framework for building good habits and breaking bad ones using 1% daily compounding improvements.',
+    totalPages: 270,
+    currentPage: 1,
+    lastOpenedChapterIndex: 0,
+    highlights: [],
+    bookmarks: [],
+    notes: [],
+    quizHistory: [],
+    chapters: [
+      {
+        id: 'habits-ch1',
+        title: 'Chapter 1: The Surprising Power of Atomic Habits (1% प्रतिदिन सुधार)',
+        pageStart: 1,
+        pageEnd: 22,
+        content: `Small habits don't add up; they compound. If you can get 1 percent better each day for one year, you'll end up thirty-seven times better by the time you're done. Conversely, if you get 1 percent worse each day for one year, you'll decline nearly down to zero.
+
+The 4 Laws of Behavior Change:
+1. Make it Obvious (स्पष्ट बनाएं)
+2. Make it Attractive (आकर्षक बनाएं)
+3. Make it Easy (सरल बनाएं)
+4. Make it Satisfying (संतोषजनक बनाएं)
+
+System Over Goals:
+You do not rise to the level of your goals. You fall to the level of your systems. Focus on building habits that support your true identity.`,
+        highlights: ['1 percent better each day', 'You fall to the level of your systems', '4 Laws of Behavior Change']
+      }
+    ]
   }
 ];
 
@@ -350,7 +448,47 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
 
   // File Upload State
   const [isUploading, setIsUploading] = useState(false);
+  const [isGeneratingAiBook, setIsGeneratingAiBook] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Universal AI Book Generator for searching ANY book across all genres (fiction, novels, non-fiction, literature, philosophy)
+  const handleGenerateBookWithAI = async (queryText?: string) => {
+    const titleToSearch = (queryText || searchQuery || "").trim();
+    if (!titleToSearch) {
+      showToast("Please enter a book title or author name to search/generate.", "warn");
+      return;
+    }
+
+    setIsGeneratingAiBook(true);
+    showToast(`Searching & generating book: "${titleToSearch}"...`, "info");
+
+    try {
+      const res = await fetch('/api/book/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookTitle: titleToSearch })
+      });
+
+      if (!res.ok) throw new Error("Failed to search book");
+
+      const data = await res.json();
+      if (data.book) {
+        setBooks(prev => {
+          const exists = prev.some(b => b.id === data.book.id || b.title.toLowerCase() === data.book.title.toLowerCase());
+          if (exists) return prev;
+          return [data.book, ...prev];
+        });
+        setSelectedBook(data.book);
+        setSelectedChapterIndex(0);
+        setActiveTab('reader');
+        showToast(`📖 Loaded Book: "${data.book.title}"! Enjoy reading!`, "success");
+      }
+    } catch (err: any) {
+      showToast("Error searching book. Generating standard edition...", "error");
+    } finally {
+      setIsGeneratingAiBook(false);
+    }
+  };
 
   // AI Assistant State
   const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'assistant'; content: string; sourceRef?: string }[]>([
@@ -1339,6 +1477,41 @@ Structure the response into:
                 </div>
               );
             })}
+
+            {/* UNIVERSAL AI BOOK GENERATOR CARD (FOR SEARCHING ANY NOVEL, FICTION, CLASSIC, OR NON-FICTION BOOK) */}
+            {searchQuery.trim() !== '' && (
+              <div className="col-span-full p-6 bg-gradient-to-r from-indigo-950/90 via-[#0D1527] to-purple-950/90 border-2 border-indigo-500/50 rounded-3xl text-left space-y-3 shadow-2xl my-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
+                  <span className="text-[11px] font-black text-amber-400 uppercase tracking-wider">Universal AI Book Finder (संसार की कोई भी पुस्तक खोजें व पढ़ें)</span>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    "{searchQuery}" पुस्तक खोज रहे हैं?
+                  </h3>
+                  <p className="text-xs text-slate-300 max-w-xl">
+                    HansAI AI Book Engine हिंदी या अंग्रेजी की किसी भी उपन्यास, कहानी, जीवनी, विज्ञान या साहित्य पुस्तक "{searchQuery}" के सभी अध्याय, सारांश व मुख्य बिंदु तुरंत तैयार कर देगा।
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleGenerateBookWithAI(searchQuery)}
+                  disabled={isGeneratingAiBook}
+                  className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isGeneratingAiBook ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                      <span>Generating Book & Chapters...</span>
+                    </>
+                  ) : (
+                    <>
+                      <BookOpen className="w-4 h-4" />
+                      <span>📖 Generate & Read "{searchQuery}" Now</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
 
         </div>

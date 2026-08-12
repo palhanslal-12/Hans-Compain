@@ -1,0 +1,119 @@
+<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="50%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#22C55E" />
+    </linearGradient>
+    <linearGradient id="hGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="40%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#1E40AF" />
+    </linearGradient>
+    <linearGradient id="bookGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="50%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E3A8A" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ADE80" />
+      <stop offset="100%" stop-color="#16A34A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Arc Frame -->
+  <path
+    d="M 42 138 C 18 122 18 62 55 28 C 95 -6 160 18 168 70 C 173 100 152 135 125 145"
+    fill="none"
+    stroke="url(#circleGrad)"
+    stroke-width="5"
+    stroke-linecap="round"
+  />
+
+  <!-- Green Leaf Accent on Right -->
+  <g transform="translate(148, 102) rotate(-20)">
+    <path d="M 0 0 C 15 -18 32 -10 28 8 C 12 18 0 10 0 0 Z" fill="url(#leafGrad)" />
+    <path d="M 0 0 C 20 -5 28 8 28 8" fill="none" stroke="#15803D" stroke-width="1.2" />
+  </g>
+  <g transform="translate(140, 115) rotate(-55)">
+    <path d="M 0 0 C 12 -14 26 -8 22 6 C 10 14 0 8 0 0 Z" fill="url(#leafGrad)" />
+  </g>
+
+  <!-- Open Book Base -->
+  <g id="book-base">
+    <path
+      d="M 38 138 Q 70 128 100 145 Q 100 135 70 120 Q 38 128 38 138 Z"
+      fill="url(#bookGrad)"
+    />
+    <path
+      d="M 35 142 Q 70 130 100 148 L 100 145 Q 70 128 38 138 Q 35 142 35 142 Z"
+      fill="#0284C7"
+    />
+    <path
+      d="M 162 138 Q 130 128 100 145 Q 100 135 130 120 Q 162 128 162 138 Z"
+      fill="url(#bookGrad)"
+    />
+    <path
+      d="M 165 142 Q 130 130 100 148 L 100 145 Q 130 128 162 138 Q 165 142 165 142 Z"
+      fill="#0284C7"
+    />
+    <path d="M 100 120 L 100 148" stroke="#0F172A" stroke-width="2.5" />
+  </g>
+
+  <!-- Center 'H' Shape with Speech Bubble inside bottom counter -->
+  <g id="letter-h" fill="url(#hGrad)">
+    <rect x="71" y="60" width="18" height="66" rx="9" />
+    <rect x="111" y="60" width="18" height="66" rx="9" />
+    <rect x="71" y="80" width="58" height="18" rx="4" />
+    
+    <path
+      d="M 85 96 C 85 90 115 90 115 96 C 115 110 108 118 100 118 C 96 118 92 122 90 124 C 91 120 88 117 85 114 Z"
+      fill="#FFFFFF"
+    />
+    <circle cx="93" cy="103" r="1.8" fill="#0284C7" />
+    <circle cx="100" cy="103" r="1.8" fill="#0284C7" />
+    <circle cx="107" cy="103" r="1.8" fill="#0284C7" />
+  </g>
+
+  <!-- Graduation Cap at Top -->
+  <g id="graduation-cap">
+    <polygon points="100,32 142,48 100,64 58,48" fill="url(#capGrad)" stroke="#38BDF8" stroke-width="1" />
+    <path d="M 78 55 L 78 63 C 78 69 122 69 122 63 L 122 55 Z" fill="#0F172A" />
+    <path d="M 130 50 Q 134 62 132 75" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" />
+    <polygon points="130,73 134,73 135,84 129,84" fill="#38BDF8" />
+  </g>
+
+  <!-- Text Label -->
+  <g transform="translate(0, 160)">
+    <text
+      x="100"
+      y="20"
+      text-anchor="middle"
+      fill="#38BDF8"
+      font-size="22"
+      font-weight="900"
+      font-family="system-ui, sans-serif"
+      letter-spacing="4"
+    >
+      HANS
+    </text>
+    <text
+      x="100"
+      y="35"
+      text-anchor="middle"
+      fill="#60A5FA"
+      font-size="11"
+      font-weight="800"
+      font-family="system-ui, sans-serif"
+      letter-spacing="4"
+    >
+      COMPANION
+    </text>
+    <path d="M 60 41 Q 100 46 140 41" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" />
+  </g>
+</svg>

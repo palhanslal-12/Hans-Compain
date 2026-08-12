@@ -308,44 +308,120 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
   }
 };
 
-const QuantumSwanLogo = ({ className = "w-10 h-10" }: { className?: string }) => (
-  <svg viewBox="0 0 100 100" className={`${className} animate-vibrant-swan`} id="quantum-swan-ai-logo">
-    {/* Swan neck and body vector */}
-    <path 
-      d="M25,75 Q45,75 50,55 Q55,35 48,25 Q42,15 50,15 Q58,15 62,25 Q66,35 60,45 Q55,52 65,58 Q75,64 78,75 Z" 
-      fill="none" 
-      stroke="url(#swanGrad)" 
-      strokeWidth="3.5" 
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    {/* Neural nodes connected to the swan */}
-    <circle cx="50" cy="15" r="4" fill="#818CF8" /> {/* Head node */}
-    <circle cx="48" cy="25" r="3" fill="#6366F1" />
-    <circle cx="50" cy="55" r="3" fill="#6366F1" />
-    <circle cx="65" cy="58" r="3" fill="#A5B4FC" />
-    <circle cx="78" cy="75" r="4" fill="#818CF8" /> {/* Tail node */}
-    <circle cx="25" cy="75" r="4" fill="#818CF8" /> {/* Front edge node */}
+const QuantumSwanLogo = ({ 
+  className = "w-10 h-10", 
+  showLightBg = true,
+  containerClassName = ""
+}: { 
+  className?: string; 
+  showLightBg?: boolean;
+  containerClassName?: string;
+}) => {
+  const svgLogo = (
+    <svg viewBox="0 0 200 200" className={className} xmlns="http://www.w3.org/2000/svg" id="hans-app-official-logo">
+      <defs>
+        <linearGradient id="hansCircleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0284C7" />
+          <stop offset="50%" stopColor="#2563EB" />
+          <stop offset="100%" stopColor="#22C55E" />
+        </linearGradient>
+        <linearGradient id="hansHGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#38BDF8" />
+          <stop offset="40%" stopColor="#0284C7" />
+          <stop offset="100%" stopColor="#1E40AF" />
+        </linearGradient>
+        <linearGradient id="hansBookGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#38BDF8" />
+          <stop offset="50%" stopColor="#0284C7" />
+          <stop offset="100%" stopColor="#1D4ED8" />
+        </linearGradient>
+        <linearGradient id="hansCapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1E293B" />
+          <stop offset="50%" stopColor="#0F172A" />
+          <stop offset="100%" stopColor="#1E3A8A" />
+        </linearGradient>
+        <linearGradient id="hansLeafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4ADE80" />
+          <stop offset="100%" stopColor="#16A34A" />
+        </linearGradient>
+      </defs>
 
-    {/* Connecting neural lanes */}
-    <line x1="50" y1="15" x2="48" y2="25" stroke="#4F46E5" strokeWidth="1.2" strokeDasharray="2,2" />
-    <line x1="48" y1="25" x2="50" y2="55" stroke="#4F46E5" strokeWidth="1.2" />
-    <line x1="50" y1="55" x2="65" y2="58" stroke="#4F46E5" strokeWidth="1.2" />
-    <line x1="65" y1="58" x2="78" y2="75" stroke="#4F46E5" strokeWidth="1.2" strokeDasharray="1,2" />
-    
-    {/* Decorative Swan Wing Lines */}
-    <path d="M48,55 Q60,50 68,60 Q75,70 78,75" fill="none" stroke="#A5B4FC" strokeWidth="2" opacity="0.8" />
-    <path d="M52,58 Q62,55 66,66" fill="none" stroke="#818CF8" strokeWidth="1.5" opacity="0.6" />
+      {/* Outer Arc Frame */}
+      <path
+        d="M 42 138 C 18 122 18 62 55 28 C 95 -6 160 18 168 70 C 173 100 152 135 125 145"
+        fill="none"
+        stroke="url(#hansCircleGrad)"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
 
-    <defs>
-      <linearGradient id="swanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#818CF8" />
-        <stop offset="50%" stopColor="#6366F1" />
-        <stop offset="100%" stopColor="#EC4899" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
+      {/* Green Leaf Accent on Right */}
+      <g transform="translate(148, 102) rotate(-20)">
+        <path d="M 0 0 C 15 -18 32 -10 28 8 C 12 18 0 10 0 0 Z" fill="url(#hansLeafGrad)" />
+        <path d="M 0 0 C 20 -5 28 8 28 8" fill="none" stroke="#15803D" strokeWidth="1.2" />
+      </g>
+      <g transform="translate(140, 115) rotate(-55)">
+        <path d="M 0 0 C 12 -14 26 -8 22 6 C 10 14 0 8 0 0 Z" fill="url(#hansLeafGrad)" />
+      </g>
+
+      {/* Open Book Base */}
+      <g id="book-base">
+        <path
+          d="M 38 138 Q 70 128 100 145 Q 100 135 70 120 Q 38 128 38 138 Z"
+          fill="url(#hansBookGrad)"
+        />
+        <path
+          d="M 35 142 Q 70 130 100 148 L 100 145 Q 70 128 38 138 Q 35 142 35 142 Z"
+          fill="#0284C7"
+        />
+        <path
+          d="M 162 138 Q 130 128 100 145 Q 100 135 130 120 Q 162 128 162 138 Z"
+          fill="url(#hansBookGrad)"
+        />
+        <path
+          d="M 165 142 Q 130 130 100 148 L 100 145 Q 130 128 162 138 Q 165 142 165 142 Z"
+          fill="#0284C7"
+        />
+        <path d="M 100 120 L 100 148" stroke="#0F172A" strokeWidth="2.5" />
+      </g>
+
+      {/* Center 'H' Shape with Speech Bubble inside bottom counter */}
+      <g id="letter-h" fill="url(#hansHGrad)">
+        <rect x="71" y="60" width="18" height="66" rx="9" />
+        <rect x="111" y="60" width="18" height="66" rx="9" />
+        <rect x="71" y="80" width="58" height="18" rx="4" />
+        
+        <path
+          d="M 85 96 C 85 90 115 90 115 96 C 115 110 108 118 100 118 C 96 118 92 122 90 124 C 91 120 88 117 85 114 Z"
+          fill="#FFFFFF"
+        />
+        <circle cx="93" cy="103" r="1.8" fill="#0284C7" />
+        <circle cx="100" cy="103" r="1.8" fill="#0284C7" />
+        <circle cx="107" cy="103" r="1.8" fill="#0284C7" />
+      </g>
+
+      {/* Graduation Cap at Top */}
+      <g id="graduation-cap">
+        <polygon points="100,32 142,48 100,64 58,48" fill="url(#hansCapGrad)" stroke="#38BDF8" strokeWidth="1" />
+        <path d="M 78 55 L 78 63 C 78 69 122 69 122 63 L 122 55 Z" fill="#0F172A" />
+        <path d="M 130 50 Q 134 62 132 75" fill="none" stroke="#38BDF8" strokeWidth="2" strokeLinecap="round" />
+        <polygon points="130,73 134,73 135,84 129,84" fill="#38BDF8" />
+      </g>
+    </svg>
+  );
+
+  if (!showLightBg) return svgLogo;
+
+  return (
+    <div className={`relative inline-flex items-center justify-center p-1.5 sm:p-2.5 rounded-2xl bg-gradient-to-br from-white via-slate-50 to-sky-100 shadow-[0_0_25px_rgba(56,189,248,0.45)] border border-white/90 transition-all duration-300 hover:scale-105 shrink-0 ${containerClassName}`}>
+      {/* Soft Animated Light Pulse Aura */}
+      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-sky-400/40 via-indigo-400/30 to-emerald-400/40 blur-md animate-pulse pointer-events-none" />
+      <div className="relative z-10 flex items-center justify-center">
+        {svgLogo}
+      </div>
+    </div>
+  );
+};
 
 const STATUS_THEMES = [
   { id: 'sunset', name: 'Sunset Glow', css: 'from-amber-500 via-orange-600 to-rose-600 text-white shadow-orange-500/15' },
@@ -1074,6 +1150,24 @@ export default function App() {
       activeEmail = `${visitorId}@hansai.visitor`;
       activeName = `${devStr} (${visitorId.slice(-6)})`;
     }
+
+    // Instantly append to local activity logs for automatic history
+    const typeLabel = type === 'quiz' ? 'quiz' : type === 'timer' ? 'timer' : 'note';
+    const newLog = {
+      id: `act-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      type: typeLabel as 'quiz' | 'timer' | 'note',
+      title: `[${type.toUpperCase()}] ${query.trim()}`,
+      subtitle: `Recorded on HansAI AI Platform`,
+      timestamp: new Date().toISOString()
+    };
+
+    setActivityLogs(prev => {
+      const updated = [newLog, ...prev];
+      try {
+        localStorage.setItem('hansai-history', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
 
     fetch('/api/users/log-activity', {
       method: 'POST',
@@ -1966,8 +2060,26 @@ export default function App() {
 
   // Chat state
   const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState<Message[]>([]);
+  const [chatMessages, setChatMessages] = useState<Message[]>(() => {
+    try {
+      const saved = localStorage.getItem('hansai-chat-messages');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
   const [isChatLoading, setIsChatLoading] = useState(false);
+
+  // Auto-save chat messages to localStorage continuously
+  useEffect(() => {
+    if (chatMessages && chatMessages.length > 0) {
+      try {
+        localStorage.setItem('hansai-chat-messages', JSON.stringify(chatMessages));
+      } catch (e) {}
+    }
+  }, [chatMessages]);
   
   // Custom-curated dynamic study segments (SSC, BPSC, UPSC, and Stenography)
   const [examSegments, setExamSegments] = useState<Array<{ id: string; title: string; emoji: string; samples: string[] }>>([
@@ -2023,7 +2135,7 @@ export default function App() {
   const [isAddingSegment, setIsAddingSegment] = useState<boolean>(false);
   
   // Quiz Generator & A1 Report Card state
-  const [quizSubject, setQuizSubject] = useState('Chapter 1: Real Numbers & Algebra');
+  const [quizSubject, setQuizSubject] = useState('');
   const [quizLevel, setQuizLevel] = useState('Class 10th / Competitive');
   const [studentName, setStudentName] = useState('Aspirant Student');
   const [studentRoll, setStudentRoll] = useState('HS-2026-8809');
@@ -2608,6 +2720,15 @@ export default function App() {
     ];
   });
 
+  // Auto-save activity logs to localStorage continuously
+  useEffect(() => {
+    if (activityLogs) {
+      try {
+        localStorage.setItem('hansai-history', JSON.stringify(activityLogs));
+      } catch (e) {}
+    }
+  }, [activityLogs]);
+
   // ======= DAILY GOAL TRACKER, LIFE BALANCE & CONCEPT MAP STATES =======
   const [timerSubTab, setTimerSubTab] = useState<'clock' | 'projects'>('clock');
   const [triggerConfetti, setTriggerConfetti] = useState(false);
@@ -2725,12 +2846,143 @@ export default function App() {
     });
   };
 
-  // Concept Map Explainer states
+  // Concept Map Explainer & Geographic Visualization states
   const [conceptMapTopic, setConceptMapTopic] = useState('');
   const [mapNodes, setMapNodes] = useState<{ id: string; label: string; desc: string; detail: string; x: number; y: number }[]>([]);
   const [activeMapNode, setActiveMapNode] = useState<any | null>(null);
   const [showDetailedDiagram, setShowDetailedDiagram] = useState(false);
   const [isGeneratingConceptMap, setIsGeneratingConceptMap] = useState(false);
+  const [mapTab, setMapTab] = useState<'flowchart' | 'geo'>('flowchart');
+  const [selectedGeoRegion, setSelectedGeoRegion] = useState<any | null>(null);
+
+  const geoLandmarks = [
+    {
+      id: "himalayas",
+      name: "Himalayan Mountain Belt & High Altitude Passes (हिमालय पर्वतमाला व प्रमुख दर्रे)",
+      x: 48, y: 18,
+      icon: "🏔️",
+      category: "Physical & Strategic Geography",
+      elevation: "8,848m (Mt. Everest Peak)",
+      rivers: "Indus, Ganga, Brahmaputra Origins",
+      history: "Young Fold Mountains created by Indo-Australian and Eurasian tectonic plate collision. Serves as India's Northern Climate & Security Shield.",
+      keyFeatures: [
+        "Zoji La Pass: Connects Srinagar with Leh",
+        "Nathu La Pass: Connects Sikkim with Tibet (Ancient Silk Route)",
+        "Shipki La Pass: Entry point of Sutlej River into India (Himachal Pradesh)",
+        "Rohtang Pass: Connects Kullu Valley with Lahaul and Spiti"
+      ],
+      pyqs: [
+        "Which pass connects Srinagar to Leh? → Zoji La Pass",
+        "Highest peak located inside undisputed Indian territory? → Kangchenjunga / K2",
+        "Origin region of the Great River Indus? → Mansarovar Lake near Mt. Kailash"
+      ]
+    },
+    {
+      id: "ganga-basin",
+      name: "Indo-Gangetic Fertile Plain (सिंधु-गंगा का मैदानी भाग)",
+      x: 52, y: 38,
+      icon: "🌾",
+      category: "Agrarian Heartland & Alluvial Soil Belt",
+      elevation: "Khadar (New Alluvium) & Bhangar (Old Alluvium)",
+      rivers: "Ganga, Yamuna, Ghaghara, Son, Kosi, Gandak",
+      history: "Nourished the rise of Ancient Empires (Mauryan, Magadha, Gupta, Mughal). World's most fertile agrarian plain supporting staple crops.",
+      keyFeatures: [
+        "Sunderbans Delta: World's largest mangrove delta formed by Ganga & Brahmaputra",
+        "Doab Regions: Fertile land between two converging rivers (e.g., Ganga-Yamuna Doab)",
+        "Kosi River: Known as 'Sorrow of Bihar' due to frequent course shifts",
+        "Yamuna River: Largest tributary of Ganga meeting at Prayagraj Triveni Sangam"
+      ],
+      pyqs: [
+        "New alluvial soil deposited by annual floods is called? → Khadar Soil",
+        "Where does Ganga enter the Northern Plains? → Haridwar, Uttarakhand",
+        "The confluence of Alaknanda and Bhagirathi is known as? → Devprayag"
+      ]
+    },
+    {
+      id: "thar-desert",
+      name: "Thar Desert & Aravalli Mountain System (थार मरुस्थल व अरावली)",
+      x: 28, y: 40,
+      icon: "🏜️",
+      category: "Arid Ecosystem & Ancient Geology",
+      elevation: "Oldest Fold Mountain Range in the World",
+      rivers: "Luni River (Inland Drainage System)",
+      history: "The Aravalli range acts as a barrier preventing desertification towards Eastern India. Rich in zinc, copper, marble, and solar energy.",
+      keyFeatures: [
+        "Guru Shikhar Peak: Highest peak of Aravalli (1,722 m near Mount Abu)",
+        "Luni River: Originates in Pushkar Valley, loses itself in Rann of Kutch",
+        "Sambhar Salt Lake: India's largest inland saltwater lake",
+        "Thar Desert: World's most densely populated desert region"
+      ],
+      pyqs: [
+        "Which is the oldest fold mountain range in India? → Aravalli Range",
+        "Only major inland draining river in Rajasthan? → Luni River",
+        "Highest peak of the Aravalli range? → Guru Shikhar (Mount Abu)"
+      ]
+    },
+    {
+      id: "deccan-plateau",
+      name: "Deccan Trap & Peninsular Plateau (दक्कन का पठार)",
+      x: 45, y: 65,
+      icon: "🌋",
+      category: "Volcanic Basalt Formation & Black Soil",
+      elevation: "Regur (Black Cotton Soil) Belt",
+      rivers: "Godavari, Krishna, Cauvery, Narmada, Tapti",
+      history: "Formed by volcanic fissure eruption lava flows during the Cretaceous period. Ideal for cotton, sugarcane, and oilseed cultivation.",
+      keyFeatures: [
+        "Godavari River: Longest river of Peninsular India, known as 'Dakshin Ganga'",
+        "Narmada & Tapti: Rift valley rivers flowing westward into Arabian Sea",
+        "Black Soil: High moisture retention capacity, ideal for cotton farming",
+        "Chota Nagpur Plateau: Mineral Storehouse of India (Iron ore, Coal, Mica)"
+      ],
+      pyqs: [
+        "Which soil is also known as Regur Soil? → Black Cotton Soil",
+        "Which major peninsular rivers flow into rift valleys? → Narmada & Tapti",
+        "Longest peninsular river in India? → Godavari River"
+      ]
+    },
+    {
+      id: "western-ghats",
+      name: "Western Ghats / Sahyadri Range (पश्चिमी घाट / सह्याद्रि)",
+      x: 32, y: 72,
+      icon: "🌿",
+      category: "UNESCO World Biodiversity Hotspot",
+      elevation: "Anamudi Peak (2,695m - Highest in Peninsular India)",
+      rivers: "Origin of Godavari, Krishna, Cauvery, Sharavati",
+      history: "Continuous mountain barrier creating orographic monsoon rain on the Konkan & Malabar coasts. Houses rich spice, coffee, and tea plantations.",
+      keyFeatures: [
+        "Anamudi Peak: Highest peak in South India (Anaimalai Hills)",
+        "Palakkad Gap (Palghat): Major pass connecting Kerala with Tamil Nadu",
+        "Jog Falls: Highest plunge waterfall on Sharavati river in Karnataka",
+        "Silent Valley National Park: Famous biodiversity reserve in Palakkad"
+      ],
+      pyqs: [
+        "Highest peak in South India? → Anamudi (2,695 m)",
+        "Which gap connects Palakkad (Kerala) to Coimbatore (Tamil Nadu)? → Palghat Gap",
+        "The rainfall caused by Western Ghats is? → Orographic Precipitation"
+      ]
+    },
+    {
+      id: "indus-valley",
+      name: "Indus Valley Civilisation Sites (सिंधु घाटी सभ्यता - हड़प्पा व लोथल)",
+      x: 22, y: 32,
+      icon: "🏺",
+      category: "Archaeological & Bronze Age History",
+      elevation: "Harappa, Mohenjo-daro, Lothal, Kalibangan, Dholavira",
+      rivers: "Indus, Ravi, Ghaggar-Hakra, Bhogava",
+      history: "Famous for grid system city planning, underground drainage, burnt clay bricks, dockyards, and seals made of steatite.",
+      keyFeatures: [
+        "Lothal (Gujarat): Ancient tidal dockyard on Bhogava river",
+        "Mohenjo-daro: 'Mound of the Dead', Great Bath and Dancing Girl bronze statue",
+        "Kalibangan (Rajasthan): Evidence of ploughed fields and fire altars",
+        "Dholavira (Gujarat): Famous for sophisticated water reservoir harvesting"
+      ],
+      pyqs: [
+        "Where was the ancient Indus Valley dockyard located? → Lothal, Gujarat",
+        "Which metal was completely unknown to Indus Valley citizens? → Iron",
+        "Indus site with unique 3-part city fortification? → Dholavira"
+      ]
+    }
+  ];
 
   // Missing Research & Syllabus states
   const [researchTopic, setResearchTopic] = useState("");
@@ -3753,7 +4005,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           <div className="relative z-10 max-w-sm w-full space-y-4 flex flex-col items-center px-4">
             {/* Quantum Swan Logo Glowing Center Shape */}
             <div className="relative group cursor-pointer flex items-center justify-center py-2">
-              <QuantumSwanLogo className="w-24 h-24 sm:w-28 sm:h-28 text-cyan-300 drop-shadow-[0_0_40px_rgba(0,229,255,0.95)] filter saturate-150 animate-vibrant-swan" />
+              <QuantumSwanLogo className="w-28 h-28 sm:w-36 sm:h-36 drop-shadow-2xl" showLightBg={true} />
             </div>
 
             {/* Brand Title & Tagline */}
@@ -3833,11 +4085,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <Menu className="w-5 h-5 text-indigo-400" />
           </button>
           
-          <div className="flex items-center gap-1.5 sm:gap-2 font-sans cursor-pointer" onClick={() => setActiveView('chat')}>
-            {/* Quantum Swan AI Logo */}
-            <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0">
-              <QuantumSwanLogo className="w-6 h-6 sm:w-7 sm:h-7" />
-            </div>
+          <div className="flex items-center gap-2 font-sans cursor-pointer" onClick={() => setActiveView('chat')}>
+            {/* HansAI Official Logo */}
+            <QuantumSwanLogo className="w-7 h-7 sm:w-8 sm:h-8" showLightBg={true} />
             <div>
               <h1 className="text-xs sm:text-sm font-extrabold tracking-wide text-white leading-tight">HansAI</h1>
               <span className="text-[7px] sm:text-[8px] font-black uppercase text-[#00E5FF] tracking-widest leading-none block">QUANTUM LAB</span>
@@ -4254,8 +4504,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Top Sidebar Controls */}
                 <div className="p-3.5 space-y-3 border-b border-slate-850/80">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-indigo-300 uppercase tracking-widest flex items-center gap-1.5">
-                      <QuantumSwanLogo className="w-4.5 h-4.5" />
+                    <span className="text-xs font-black text-indigo-300 uppercase tracking-widest flex items-center gap-2">
+                      <QuantumSwanLogo className="w-5 h-5" showLightBg={true} />
                       HansAI Sidebar
                     </span>
                     <button
@@ -4464,7 +4714,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Bottom Sidebar Footer */}
                 <div className="p-3 border-t border-slate-850/80 bg-[#04070F] flex items-center justify-between text-xs text-slate-400">
                   <div className="flex items-center gap-2">
-                    <QuantumSwanLogo className="w-5 h-5" />
+                    <QuantumSwanLogo className="w-5 h-5" showLightBg={true} />
                     <span className="font-extrabold text-white text-[11px]">HansAI Core</span>
                   </div>
                   {chatMessages.length > 0 && (
@@ -4536,11 +4786,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     <div className="my-auto py-2 px-2 space-y-3 flex flex-col items-center w-full max-w-5xl mx-auto text-center animate-fade-in">
                       
                       {/* Logo and Greeting - Compact & Focused */}
-                      <div className="flex flex-col items-center space-y-1">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
-                          <QuantumSwanLogo className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-400" />
-                        </div>
-                        <h2 className="text-lg sm:text-xl font-black tracking-tight font-sans text-white">
+                      <div className="flex flex-col items-center space-y-2 mb-2">
+                        <QuantumSwanLogo className="w-14 h-14 sm:w-16 sm:h-16" showLightBg={true} />
+                        <h2 className="text-xl sm:text-2xl font-black tracking-tight font-sans text-white">
                           HansAI - What can I help with today?
                         </h2>
                       </div>
@@ -8065,246 +8313,412 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           )}
 
-          {/* VIEW: CONCEPT FLOWCHART MAP */}
+          {/* VIEW: CONCEPT FLOWCHART & GEOGRAPHIC MAP */}
           {activeView === 'map' && (
-            <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
+            <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
               
               {/* Header */}
-              <div className="border-b border-slate-800 pb-4 text-left">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Network className="w-5.5 h-5.5 text-amber-500 animate-pulse" />
-                  Concept Flowchart Explainer / संकल्पना मैप
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Type any study topic to explore it sequentially. Connecting paths and diagrams assist in deep memorization.
-                </p>
-              </div>
-
-              {/* Topic Generator Control */}
-              <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
-                <form 
-                  onSubmit={(e) => { e.preventDefault(); handleGenerateConceptMap(); }}
-                  className="flex flex-col sm:flex-row gap-3"
-                >
-                  <input
-                    type="text"
-                    value={conceptMapTopic}
-                    onChange={(e) => setConceptMapTopic(e.target.value)}
-                    placeholder="कोई भी विषय या प्रश्न टाइप करें (जैसे: Newton's Laws, Photosynthesis, SSC CGL Strategy, Akbar History...)"
-                    className="flex-1 text-xs px-4 py-3 bg-[#090D16] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-sans font-semibold"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isGeneratingConceptMap || !conceptMapTopic.trim()}
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-                  >
-                    {isGeneratingConceptMap ? (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        <span>Generating Map...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Search className="w-3.5 h-3.5" />
-                        <span>Visualize Topic</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-              </div>
-
-              {/* Graphical Flowchart Map Stage or Empty State */}
-              {mapNodes.length === 0 ? (
-                <div className="p-12 bg-[#090D16] border border-slate-850 rounded-2xl text-center space-y-4 max-w-xl mx-auto my-6 shadow-inner">
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center mx-auto text-3xl shadow-lg text-indigo-400">
-                    🗺️
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-base font-bold text-white">
-                      कोई भी विषय टाइप करें और मैपिंग देखें
-                    </h3>
-                    <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-                      Type any question, subject, or exam topic above. HansAI will analyze the topic live and create a step-by-step visual flowchart for instant retention.
-                    </p>
-                  </div>
+              <div className="border-b border-slate-800 pb-4 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Network className="w-5.5 h-5.5 text-amber-500 animate-pulse" />
+                    Concept & Geographic Deep Map / संकल्पना व नक्शा
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Visualize study topics sequentially or explore deep physical geography, mountain ranges, river basins & historical sites.
+                  </p>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
-                  {/* Visual Canvas Block */}
-                  <div className="md:col-span-2 space-y-4">
-                    
-                    <div className="relative w-full h-[360px] bg-[#090D16] border border-slate-850 rounded-2xl overflow-hidden shadow-inner p-4">
-                      {/* Background Tech Net Grid Lines */}
-                      <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.6)_1px,transparent_1px)] bg-[size:20px_20px] opacity-25" />
-                      
-                      {/* Connecting SVG Path Lines */}
-                      <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                        {mapNodes.map((node, idx) => {
-                          if (idx === 0) return null;
-                          const prev = mapNodes[idx - 1];
-                          return (
-                            <g key={`connection-${idx}`}>
-                              <line
-                                x1={`${prev.x}%`}
-                                y1={`${prev.y}%`}
-                                x2={`${node.x}%`}
-                                y2={`${node.y}%`}
-                                stroke="rgba(99,102,241,0.3)"
-                                strokeWidth="2.5"
-                                strokeDasharray="5 5"
-                              />
-                              {/* Directional arrow dot */}
-                              <circle
-                                cx={`${(prev.x + node.x) / 2}%`}
-                                cy={`${(prev.y + node.y) / 2}%`}
-                                r="3.5"
-                                fill="#6366F1"
-                                className="animate-ping"
-                              />
-                            </g>
-                          );
-                        })}
-                      </svg>
 
-                      {/* Flowchart Nodes */}
-                      {mapNodes.map((node, idx) => {
-                        const isActive = activeMapNode?.id === node.id;
-                        return (
-                          <button
-                            key={node.id}
-                            onClick={() => { setActiveMapNode(node); setShowDetailedDiagram(false); }}
-                            className={`absolute px-3 py-2 rounded-xl border text-[11px] font-bold transition-all shadow-xl text-center -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 hover:scale-105 ${
-                              isActive
-                                ? 'bg-amber-600 border-amber-400 text-white ring-4 ring-amber-500/20'
-                                : 'bg-[#121A2A] border-slate-800 text-slate-350 hover:border-slate-700'
-                            }`}
-                            style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                          >
-                            <span className="w-4 h-4 rounded-full bg-slate-900 border border-slate-800 text-[10px] flex items-center justify-center font-bold text-slate-400">
-                              {idx + 1}
-                            </span>
-                            <span className="truncate max-w-[120px] sm:max-w-none">{node.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                {/* Map Mode Subtab Switcher */}
+                <div className="flex items-center gap-1.5 bg-[#090D16] p-1.5 rounded-2xl border border-slate-800 shrink-0">
+                  <button
+                    onClick={() => setMapTab('flowchart')}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      mapTab === 'flowchart'
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <span>🧠 Concept Flowchart</span>
+                  </button>
+                  <button
+                    onClick={() => { setMapTab('geo'); if (!selectedGeoRegion) setSelectedGeoRegion(geoLandmarks[0]); }}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      mapTab === 'geo'
+                        ? 'bg-amber-600 text-white shadow-lg'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <span>🗺️ Geographic Landmarks</span>
+                  </button>
+                </div>
+              </div>
 
-                    {/* Clarification prompt if candidate says "I don't understand" */}
-                    <div className="bg-[#121A2A] border border-dashed border-indigo-950/66 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-                      <div>
-                        <h4 className="text-xs font-bold text-indigo-300">समझ नहीं आया? / Confused about the topic flow?</h4>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Let’s represent the concept via a high-yield visual SVG diagram mapping connections perfectly.</p>
-                      </div>
+              {/* MODE 1: CONCEPT FLOWCHART */}
+              {mapTab === 'flowchart' && (
+                <div className="space-y-6">
+                  {/* Topic Generator Control */}
+                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
+                    <form 
+                      onSubmit={(e) => { e.preventDefault(); handleGenerateConceptMap(); }}
+                      className="flex flex-col sm:flex-row gap-3"
+                    >
+                      <input
+                        type="text"
+                        value={conceptMapTopic}
+                        onChange={(e) => setConceptMapTopic(e.target.value)}
+                        placeholder="कोई भी विषय या प्रश्न टाइप करें (जैसे: Newton's Laws, Photosynthesis, SSC CGL Strategy, Akbar History...)"
+                        className="flex-1 text-xs px-4 py-3 bg-[#090D16] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-sans font-semibold"
+                      />
                       <button
-                        onClick={() => setShowDetailedDiagram(true)}
-                        className="px-4 py-2 bg-indigo-900/30 hover:bg-indigo-900/50 text-indigo-300 text-xs font-black rounded-lg border border-indigo-500/30 uppercase tracking-wide transition-all"
+                        type="submit"
+                        disabled={isGeneratingConceptMap || !conceptMapTopic.trim()}
+                        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                       >
-                        💡 Explain with Diagram
+                        {isGeneratingConceptMap ? (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            <span>Generating Map...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Search className="w-3.5 h-3.5" />
+                            <span>Visualize Topic</span>
+                          </>
+                        )}
                       </button>
-                    </div>
-
+                    </form>
                   </div>
 
-                {/* Node Educational Detail sidebar panel */}
-                <div className="bg-[#0F1626]/30 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
-                  {showDetailedDiagram ? (
-                    <div className="space-y-4 animate-fade-in">
-                      <div className="text-left">
-                        <span className="text-[9px] bg-indigo-500/10 text-indigo-400 font-black px-2 py-0.5 rounded uppercase">VISUAL ENGRAVING DIAGRAM</span>
-                        <h4 className="text-sm font-black text-white mt-1.5 uppercase">Logic Chart / आरेख नक़्शा</h4>
-                        <p className="text-[11px] text-slate-400 mt-1">This SVG sketch illustrates the concept visually, rendering explicit confluences and rules step-by-step.</p>
+                  {/* Graphical Flowchart Map Stage or Empty State */}
+                  {mapNodes.length === 0 ? (
+                    <div className="p-12 bg-[#090D16] border border-slate-850 rounded-2xl text-center space-y-4 max-w-xl mx-auto my-6 shadow-inner">
+                      <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center mx-auto text-3xl shadow-lg text-indigo-400">
+                        🧠
                       </div>
-
-                      <svg viewBox="0 0 220 260" className="w-full bg-[#090D16] border border-indigo-900/30 rounded-xl p-3 shadow-lg">
-                        {mapNodes.map((node, nIdx) => {
-                          const yPos = 20 + nIdx * 45;
-                          const colors = ["#818CF8", "#34D399", "#FBBF24", "#F472B6", "#A78BFA"];
-                          const currentColor = colors[nIdx % colors.length];
-                          return (
-                            <g key={`svg-node-${nIdx}`}>
-                              {nIdx < mapNodes.length - 1 && (
-                                <line
-                                  x1="110"
-                                  y1={yPos + 24}
-                                  x2="110"
-                                  y2={yPos + 45}
-                                  stroke="#475569"
-                                  strokeWidth="1.5"
-                                  strokeDasharray="2 2"
-                                />
-                              )}
-                              <rect
-                                x="15"
-                                y={yPos}
-                                width="190"
-                                height="28"
-                                rx="6"
-                                fill="#0F172A"
-                                stroke={currentColor}
-                                strokeWidth="1.2"
-                              />
-                              <text
-                                x="110"
-                                y={yPos + 17}
-                                fill="#FFFFFF"
-                                fontSize="7"
-                                fontWeight="bold"
-                                textAnchor="middle"
-                              >
-                                {node.label.length > 32 ? node.label.substring(0, 32) + '...' : node.label}
-                              </text>
-                            </g>
-                          );
-                        })}
-                      </svg>
-                    </div>
-                  ) : activeMapNode ? (
-                    <div className="space-y-4 animate-fade-in">
-                      <div className="text-left">
-                        <span className="text-[10px] bg-indigo-500/10 text-indigo-400 font-bold px-2 py-0.5 rounded uppercase">Active Node Overview</span>
-                        <h4 className="text-base font-black text-white mt-1.5">{activeMapNode.label}</h4>
-                      </div>
-
-                      <div className="bg-[#090D16] border border-slate-850 p-4 rounded-xl text-left space-y-3">
-                        <div className="space-y-0.5">
-                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Simplified description / सरल व्याख्या</span>
-                          <p className="text-xs text-slate-200 leading-relaxed font-semibold">{activeMapNode.desc}</p>
-                        </div>
-                        
-                        <div className="space-y-0.5 border-t border-slate-800/60 pt-2.5">
-                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Academic Tip & Exam utility / परीक्षा सूत्र</span>
-                          <p className="text-xs text-slate-300 leading-relaxed font-medium">{activeMapNode.detail}</p>
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-indigo-950/20 border border-indigo-900/30 rounded-xl text-left">
-                        <span className="text-[9px] text-indigo-400 font-extrabold uppercase block tracking-wider mb-1">Mnemonic Device Helper / याद रखने की ट्रिक:</span>
-                        <p className="text-[11px] text-slate-400 italic">"Read this section calmly, breathing smoothly, then close your eyes and recall the sequence."</p>
+                      <div className="space-y-2">
+                        <h3 className="text-base font-bold text-white">
+                          कोई भी विषय टाइप करें और मैपिंग देखें
+                        </h3>
+                        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                          Type any question, subject, or exam topic above. HansAI will analyze the topic live and create a step-by-step visual flowchart for instant retention.
+                        </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center text-slate-500 text-xs py-10">
-                      <span>अवधारणा नक्शा लोड करने के लिए किसी एक नोड पर क्लिक करें!</span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      
+                      {/* Visual Canvas Block */}
+                      <div className="md:col-span-2 space-y-4">
+                        
+                        <div className="relative w-full h-[360px] bg-[#090D16] border border-slate-850 rounded-2xl overflow-hidden shadow-inner p-4">
+                          {/* Background Tech Net Grid Lines */}
+                          <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.6)_1px,transparent_1px)] bg-[size:20px_20px] opacity-25" />
+                          
+                          {/* Connecting SVG Path Lines */}
+                          <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                            {mapNodes.map((node, idx) => {
+                              if (idx === 0) return null;
+                              const prev = mapNodes[idx - 1];
+                              return (
+                                <g key={`connection-${idx}`}>
+                                  <line
+                                    x1={`${prev.x}%`}
+                                    y1={`${prev.y}%`}
+                                    x2={`${node.x}%`}
+                                    y2={`${node.y}%`}
+                                    stroke="rgba(99,102,241,0.3)"
+                                    strokeWidth="2.5"
+                                    strokeDasharray="5 5"
+                                  />
+                                  <circle
+                                    cx={`${(prev.x + node.x) / 2}%`}
+                                    cy={`${(prev.y + node.y) / 2}%`}
+                                    r="3.5"
+                                    fill="#6366F1"
+                                    className="animate-ping"
+                                  />
+                                </g>
+                              );
+                            })}
+                          </svg>
+
+                          {/* Flowchart Nodes */}
+                          {mapNodes.map((node, idx) => {
+                            const isActive = activeMapNode?.id === node.id;
+                            return (
+                              <button
+                                key={node.id}
+                                onClick={() => { setActiveMapNode(node); setShowDetailedDiagram(false); }}
+                                className={`absolute px-3 py-2 rounded-xl border text-[11px] font-bold transition-all shadow-xl text-center -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 hover:scale-105 ${
+                                  isActive
+                                    ? 'bg-amber-600 border-amber-400 text-white ring-4 ring-amber-500/20'
+                                    : 'bg-[#121A2A] border-slate-800 text-slate-350 hover:border-slate-700'
+                                }`}
+                                style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                              >
+                                <span className="w-4 h-4 rounded-full bg-slate-900 border border-slate-800 text-[10px] flex items-center justify-center font-bold text-slate-400">
+                                  {idx + 1}
+                                </span>
+                                <span className="truncate max-w-[120px] sm:max-w-none">{node.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Clarification prompt */}
+                        <div className="bg-[#121A2A] border border-dashed border-indigo-950/66 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                          <div>
+                            <h4 className="text-xs font-bold text-indigo-300">समझ नहीं आया? / Confused about the topic flow?</h4>
+                            <p className="text-[10px] text-slate-400 mt-0.5">Let’s represent the concept via a high-yield visual SVG diagram mapping connections perfectly.</p>
+                          </div>
+                          <button
+                            onClick={() => setShowDetailedDiagram(true)}
+                            className="px-4 py-2 bg-indigo-900/30 hover:bg-indigo-900/50 text-indigo-300 text-xs font-black rounded-lg border border-indigo-500/30 uppercase tracking-wide transition-all cursor-pointer"
+                          >
+                            💡 Explain with Diagram
+                          </button>
+                        </div>
+
+                      </div>
+
+                      {/* Node Educational Detail sidebar panel */}
+                      <div className="bg-[#0F1626]/30 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                        {showDetailedDiagram ? (
+                          <div className="space-y-4 animate-fade-in">
+                            <div className="text-left">
+                              <span className="text-[9px] bg-indigo-500/10 text-indigo-400 font-black px-2 py-0.5 rounded uppercase">VISUAL ENGRAVING DIAGRAM</span>
+                              <h4 className="text-sm font-black text-white mt-1.5 uppercase">Logic Chart / आरेख नक़्शा</h4>
+                              <p className="text-[11px] text-slate-400 mt-1">This SVG sketch illustrates the concept visually, rendering explicit confluences and rules step-by-step.</p>
+                            </div>
+
+                            <svg viewBox="0 0 220 260" className="w-full bg-[#090D16] border border-indigo-900/30 rounded-xl p-3 shadow-lg">
+                              {mapNodes.map((node, nIdx) => {
+                                const yPos = 20 + nIdx * 45;
+                                const colors = ["#818CF8", "#34D399", "#FBBF24", "#F472B6", "#A78BFA"];
+                                const currentColor = colors[nIdx % colors.length];
+                                return (
+                                  <g key={`svg-node-${nIdx}`}>
+                                    {nIdx < mapNodes.length - 1 && (
+                                      <line
+                                        x1="110"
+                                        y1={yPos + 24}
+                                        x2="110"
+                                        y2={yPos + 45}
+                                        stroke="#475569"
+                                        strokeWidth="1.5"
+                                        strokeDasharray="2 2"
+                                      />
+                                    )}
+                                    <rect
+                                      x="15"
+                                      y={yPos}
+                                      width="190"
+                                      height="28"
+                                      rx="6"
+                                      fill="#0F172A"
+                                      stroke={currentColor}
+                                      strokeWidth="1.2"
+                                    />
+                                    <text
+                                      x="110"
+                                      y={yPos + 17}
+                                      fill="#FFFFFF"
+                                      fontSize="7"
+                                      fontWeight="bold"
+                                      textAnchor="middle"
+                                    >
+                                      {node.label.length > 32 ? node.label.substring(0, 32) + '...' : node.label}
+                                    </text>
+                                  </g>
+                                );
+                              })}
+                            </svg>
+                          </div>
+                        ) : activeMapNode ? (
+                          <div className="space-y-4 animate-fade-in">
+                            <div className="text-left">
+                              <span className="text-[10px] bg-indigo-500/10 text-indigo-400 font-bold px-2 py-0.5 rounded uppercase">Active Node Overview</span>
+                              <h4 className="text-base font-black text-white mt-1.5">{activeMapNode.label}</h4>
+                            </div>
+
+                            <div className="bg-[#090D16] border border-slate-850 p-4 rounded-xl text-left space-y-3">
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Simplified description / सरल व्याख्या</span>
+                                <p className="text-xs text-slate-200 leading-relaxed font-semibold">{activeMapNode.desc}</p>
+                              </div>
+                              
+                              <div className="space-y-0.5 border-t border-slate-800/60 pt-2.5">
+                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Academic Tip & Exam utility / परीक्षा सूत्र</span>
+                                <p className="text-xs text-slate-300 leading-relaxed font-medium">{activeMapNode.detail}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-slate-500 text-xs py-10">
+                            <span>अवधारणा नक्शा लोड करने के लिए किसी एक नोड पर क्लिक करें!</span>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            if (activeMapNode) {
+                              const idx = mapNodes.findIndex(n => n.id === activeMapNode.id);
+                              const nextIdx = (idx + 1) % mapNodes.length;
+                              setActiveMapNode(mapNodes[nextIdx]);
+                              setShowDetailedDiagram(false);
+                            }
+                          }}
+                          className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-xs font-bold text-indigo-400 rounded-xl transition-all border border-slate-800 uppercase tracking-wide block cursor-pointer"
+                        >
+                          Next Logic Step ➔
+                        </button>
+                      </div>
+
                     </div>
                   )}
-
-                  <button
-                    onClick={() => {
-                      if (activeMapNode) {
-                        const idx = mapNodes.findIndex(n => n.id === activeMapNode.id);
-                        const nextIdx = (idx + 1) % mapNodes.length;
-                        setActiveMapNode(mapNodes[nextIdx]);
-                        setShowDetailedDiagram(false);
-                      }
-                    }}
-                    className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-xs font-bold text-indigo-400 rounded-xl transition-all border border-slate-800 uppercase tracking-wide block cursor-pointer"
-                  >
-                    Next Logic Step ➔
-                  </button>
                 </div>
+              )}
 
-              </div>
+              {/* MODE 2: INTERACTIVE GEOGRAPHIC LANDMARKS MAP */}
+              {mapTab === 'geo' && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    {/* Interactive Visual Map Canvas */}
+                    <div className="lg:col-span-2 bg-[#090D16] border border-slate-800 rounded-3xl p-5 relative min-h-[420px] flex flex-col justify-between shadow-2xl overflow-hidden">
+                      {/* Grid Background */}
+                      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
+
+                      {/* Top Canvas Watermark */}
+                      <div className="relative z-10 flex items-center justify-between border-b border-slate-800/80 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">🗺️</span>
+                          <span className="text-xs font-black text-white uppercase tracking-wider">India Physical & Historical Topography Map</span>
+                        </div>
+                        <span className="text-[10px] text-amber-400 bg-amber-400/10 border border-amber-400/20 font-mono px-2 py-0.5 rounded-full">
+                          Click Hotspots below
+                        </span>
+                      </div>
+
+                      {/* Map Outline SVG Background */}
+                      <div className="relative w-full h-[320px] my-4 border border-slate-850 rounded-2xl bg-[#060A12] overflow-hidden flex items-center justify-center">
+                        <svg viewBox="0 0 100 100" className="w-full h-full opacity-20 text-indigo-500 fill-current">
+                          <path d="M 40,10 Q 55,5 70,12 T 80,30 T 65,50 T 70,70 T 50,95 T 30,80 T 35,55 T 20,35 Z" />
+                        </svg>
+
+                        {/* Geographic Pins */}
+                        {geoLandmarks.map((loc) => {
+                          const isSelected = selectedGeoRegion?.id === loc.id;
+                          return (
+                            <button
+                              key={loc.id}
+                              onClick={() => setSelectedGeoRegion(loc)}
+                              className={`absolute p-2.5 rounded-2xl border text-xs font-extrabold transition-all shadow-2xl flex items-center gap-2 -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 z-20 ${
+                                isSelected
+                                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-300 ring-4 ring-amber-400/30 scale-105'
+                                  : 'bg-[#0F172A]/90 text-slate-200 border-indigo-500/40 hover:border-indigo-400 hover:bg-slate-800'
+                              }`}
+                              style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
+                            >
+                              <span className="text-sm">{loc.icon}</span>
+                              <span className="hidden sm:inline text-[11px] font-black">{loc.name.split('(')[0]}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Landmark Hotspot Quick Buttons */}
+                      <div className="relative z-10 flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+                        {geoLandmarks.map((loc) => (
+                          <button
+                            key={`btn-${loc.id}`}
+                            onClick={() => setSelectedGeoRegion(loc)}
+                            className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
+                              selectedGeoRegion?.id === loc.id
+                                ? 'bg-amber-500 text-slate-950 border-amber-400 font-extrabold'
+                                : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                            }`}
+                          >
+                            {loc.icon} {loc.name.split('(')[0]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Landmark Inspection Detail Panel */}
+                    <div className="bg-[#0D1322] border border-slate-800 rounded-3xl p-5 space-y-4 flex flex-col justify-between text-left shadow-xl">
+                      {selectedGeoRegion ? (
+                        <div className="space-y-4 animate-fade-in">
+                          <div>
+                            <span className="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+                              {selectedGeoRegion.category}
+                            </span>
+                            <h3 className="text-base font-extrabold text-white mt-2 flex items-center gap-2">
+                              <span>{selectedGeoRegion.icon}</span>
+                              <span>{selectedGeoRegion.name}</span>
+                            </h3>
+                          </div>
+
+                          <div className="bg-[#060A12] border border-slate-800 p-3.5 rounded-2xl space-y-2 text-xs">
+                            <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                              <span className="text-slate-400">Elevation/Feature:</span>
+                              <span className="font-bold text-slate-200">{selectedGeoRegion.elevation}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                              <span className="text-slate-400">Rivers / Tributaries:</span>
+                              <span className="font-bold text-indigo-400">{selectedGeoRegion.rivers}</span>
+                            </div>
+                            <p className="text-slate-300 pt-1 leading-relaxed">{selectedGeoRegion.history}</p>
+                          </div>
+
+                          {/* Key Exam Features */}
+                          <div className="space-y-1.5">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Exam Facts (मुख्य बिंदु):</span>
+                            <ul className="space-y-1 text-xs text-slate-200">
+                              {selectedGeoRegion.keyFeatures.map((kf: string, i: number) => (
+                                <li key={i} className="flex items-start gap-1.5 bg-slate-900/60 p-2 rounded-xl border border-slate-850">
+                                  <span className="text-amber-400 font-bold">•</span>
+                                  <span>{kf}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* PYQs */}
+                          <div className="space-y-1.5">
+                            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Previous Year Questions (PYQs):</span>
+                            <div className="space-y-1 text-[11px] text-slate-300">
+                              {selectedGeoRegion.pyqs.map((pq: string, i: number) => (
+                                <div key={i} className="p-2 bg-indigo-950/20 border border-indigo-900/40 rounded-xl">
+                                  <span>{pq}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Ask AI Companion Button */}
+                          <button
+                            onClick={() => {
+                              const prompt = `Please explain the geography, rivers, passes, and historical significance of ${selectedGeoRegion.name} in detail with memory tricks for competitive exams.`;
+                              setChatInput(prompt);
+                              setActiveView('chat');
+                              logUserActivity('chat', prompt);
+                            }}
+                            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <span>💬 Ask HansAI Companion for Deeper Analysis</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-center py-12 text-slate-500 text-xs">
+                          <p>नक्शे पर किसी भी स्थान या पर्वतमाला पर क्लिक करें।</p>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
               )}
 
             </div>
