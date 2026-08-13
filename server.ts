@@ -228,6 +228,16 @@ TERMINOLOGY RULES (CRITICAL):
 - NEVER refer to yourself as "Mentor", "AI Mentor", "मेंटर", or "AI Core".
 - Universally refer to yourself as "Your AI Companion" (in English) and "आपका एआई साथी" (in Hindi).
 
+DETAILED EXPLANATION & HIGH QUALITY MANDATE (CRITICAL):
+- ALWAYS provide complete, thorough, deeply detailed, and step-by-step explanations (विस्तृत, सरल और पूर्ण व्याख्या).
+- NEVER give brief, 1-2 line, incomplete, or lazy replies when asked a question, topic, formula, rule, or concept.
+- Organize your explanation clearly into structured sections:
+  1. 📌 Overview & Definition (परिभाषा एवं परिचय)
+  2. 💡 Detailed Step-by-Step Explanation (विस्तृत चरणबद्ध व्याख्या)
+  3. 📊 Examples / Key Formulas / Important Facts (उदाहरण, सूत्र, एवं मुख्य बिंदु)
+  4. 🎯 Exam Focus & Memorization Tricks (परीक्षा हेतु महत्वपूर्ण तथ्य व शॉर्टकट ट्रिक्स)
+- Use clear bullet points, numbered steps, bold headings, and clean formatting so the answer is deeply informative, easy to learn, and thoroughly satisfying.
+
 CLEAN FORMATTING & SYMBOL RULES (CRITICAL):
 - NEVER output raw LaTeX syntax like dollar-rightarrow, slash-rightarrow, or LaTeX math code for simple arrows and general text.
 - ALWAYS use clean Unicode arrows (e.g. "→", "⇒", "👈", "👉") or plain clean words.
@@ -251,7 +261,9 @@ Respond in warm, clear, structured Hindi/Hinglish with visual emojis, explaining
 3. 🚀 **Deep Research AI**: Multi-dimensional study guides, historical timelines, mnemonics, and practice questions on any topic.
 4. 🧠 **Interactive Live Quizzes**: Instant 5-question test with explanations and score tracking.
 5. 🎙️ **Projects & Voice Recorder**: Record lectures or study notes, store audio recordings, and manage project notes.
-6. 📖 **Study Notes & Folders**: Save, search, and organize sMISSION & CORE CAPABILITIES:
+6. 📖 **Study Notes & Folders**: Save, search, and organize study notes.
+
+MISSION & CORE CAPABILITIES:
 1. Subject Deep Dive & General Knowledge: Provide comprehensive, detailed, step-by-step explanations for Geography, History, Polity, Science (Physics/Chemistry/Biology), Maths, Reasoning, and General Awareness.
 2. Competitive Exam & Syllabus Prep: Help with core concepts, formulas, grammar rules, general awareness questions, syllabus breakdowns, and high-yield concepts.
 3. Syllabus Deep Research: Assist students and researchers with rigorous topic analyses, historical chronology, memorization tricks (mnemonics), and custom practice worksheets.
@@ -268,25 +280,59 @@ function generateSubjectKnowledgeReply(userQuery: string, language: string = "hi
   const query = (userQuery || "").toLowerCase();
 
   if (query.includes("geography") || query.includes("भूगोल")) {
-    return "### 🌍 भूगोल (Geography) - संपूर्ण परिचय व परीक्षा मार्गदर्शन\n\n**भूगोल (Geography)** वह विज्ञान है जिसके अंतर्गत पृथ्वी के धरातल, उसके भौतिक स्वरूपों, प्राकृतिक साधनों, जलवायु, तथा मानव जीवन के अंतर्संबंधों का अध्ययन किया जाता है।";
+    return `### 🌍 भूगोल (Geography) - संपूर्ण विस्तृत अध्ययन व परीक्षा मार्गदर्शन\n\n` +
+      `**भूगोल (Geography)** वह विस्तृत विज्ञान है जिसके अंतर्गत पृथ्वी के धरातल, भौतिक स्वरूपों, प्राकृतिक संसाधनों, जलवायु, नदियाँ एवं महाद्वीपों का गहराई से अध्ययन किया जाता है।\n\n` +
+      `#### 📌 1. मुख्य शाखाएं (Core Branches):\n` +
+      `- **भौतिक भूगोल (Physical Geography):** भू-आकृति विज्ञान (पर्वत, पठार, नदियाँ), जलवायु विज्ञान (मानसून, चक्रवात), समुद्र विज्ञान (धाराएं व ज्वार-भाटा) तथा सौरमंडल (अक्षांश व देशांतर)।\n` +
+      `- **मानव भूगोल (Human Geography):** जनसंख्या, कृषि, उद्योग, परिवहन एवं प्राकृतिक संसाधन।\n\n` +
+      `#### 📌 2. भारत का भूगोल (Indian Geography):\n` +
+      `- **भौतिक विभाजन:** उत्तरी हिमालय पर्वतमाला, विशाल मैदान, प्रायद्वीपीय पठार, तटीय मैदान व द्वीप समूह।\n` +
+      `- **नदी तंत्र:** हिमालयी नदियाँ (सिंधु, गंगा, ब्रह्मपुत्र) तथा प्रायद्वीपीय नदियाँ (गोदावरी, नर्मदा, ताप्ती, कृष्णा)।\n` +
+      `- **कर्क रेखा ट्रिक:** भारत के 8 राज्यों से गुजरती है - *(मित्र पर गमछा झार)*।\n\n` +
+      `👉 **अभ्यास:** ऐप के **Auto Chapter Quiz** में जाकर प्रश्नों का अभ्यास करें!`;
   }
 
   if (query.includes("history") || query.includes("इतिहास")) {
-    return "### 📜 इतिहास (History) - संपूर्ण कालक्रम व परीक्षा विश्लेषण\n\nइतिहास को अध्ययन की सुगमता के लिए तीन प्रमुख भागों में बाँटा गया है: प्राचीन, मध्यकालीन, एवं आधुनिक भारत।";
+    return `### 📜 इतिहास (History) - संपूर्ण कालक्रम व विस्तृत विश्लेषण\n\n` +
+      `इतिहास को अध्ययन की सुगमता एवं प्रतियोगी परीक्षाओं के दृष्टिकोण से तीन प्रमुख भागों में बाँटा गया है:\n\n` +
+      `1. **प्राचीन भारत (Ancient India):** सिंधु घाटी सभ्यता (2500-1750 BC), वैदिक काल, बौद्ध व जैन धर्म, मौर्य साम्राज्य (अशोक) व गुप्त साम्राज्य (स्वर्ण युग)।\n` +
+      `2. **मध्यकालीन भारत (Medieval India):** अरब आक्रमण, दिल्ली सल्तनत (इल्तुतमिश, अलाउद्दीन खिलजी), मुगल साम्राज्य (अकबर से औरंगजेब) एवं भक्ति आंदोलन।\n` +
+      `3. **आधुनिक भारत (Modern India):** यूरोपीय कंपनियों का आगमन, 1857 का प्रथम स्वतंत्रता संग्राम, 1885 में कांग्रेस की स्थापना, तथा गांधीवादी युग (1915-1947)।\n\n` +
+      `👉 **विशेष सलाह:** विगत 5 वर्षों के प्रश्नों को हल करने हेतु ऐप के **Quiz** सेक्शन का उपयोग करें।`;
   }
 
   if (query.includes("polity") || query.includes("संविधान")) {
-    return "### ⚖️ भारतीय संविधान व राजव्यवस्था (Indian Polity)\n\nभारतीय संविधान विश्व का सबसे बड़ा लिखित संविधान है।";
+    return `### ⚖️ भारतीय संविधान व राजव्यवस्था (Indian Polity)\n\n` +
+      `भारतीय संविधान विश्व का सबसे बड़ा लिखित संविधान है जो 26 जनवरी 1950 को पूर्णतः लागू हुआ।\n\n` +
+      `#### 📌 मुख्य अनुच्छेद व भाग:\n` +
+      `- **भाग 3 (अनुच्छेद 12-35):** 6 मौलिक अधिकार (Fundamental Rights)।\n` +
+      `- **भाग 4 (अनुच्छेद 36-51):** राज्य के नीति निर्देशक तत्व (DPSP)।\n` +
+      `- **अनुच्छेद 32:** संवैधानिक उपचारों का अधिकार (संविधान की आत्मा)।\n` +
+      `- **अनुच्छेद 52-61:** राष्ट्रपति पद एवं महाभियोग प्रक्रिया।\n\n` +
+      `👉 आप अपना विशिष्ट प्रश्न लिखकर विस्तृत उत्तर प्राप्त कर सकते हैं!`;
   }
 
   if (query.includes("science") || query.includes("विज्ञान")) {
-    return "### 🔬 सामान्य विज्ञान (General Science) - मुख्य बिंदु\n\nभौतिक, रसायन एवं जीव विज्ञान की मुख्य अवधारणाएँ।";
+    return `### 🔬 सामान्य विज्ञान (General Science) - संपूर्ण विस्तृत बिंदु\n\n` +
+      `1. **भौतिकी (Physics):** न्यूटन के गति नियम, कार्य ऊर्जा व शक्ति, प्रकाश का अपवर्तन/परावर्तन, ध्वनि व विद्युत।\n` +
+      `2. **रसायन विज्ञान (Chemistry):** आवर्त सारणी, धातु व अधातु, अम्ल, क्षार व लवण (pH मान), रसायनिक अभिक्रियाएं।\n` +
+      `3. **जीव विज्ञान (Biology):** कोशिका संरचना (Mitochondria), मानव पाचन व रक्त परिसंचरण तंत्र, विटामिन व रोग।\n\n` +
+      `👉 आप किसी भी विशिष्ट टॉपिक का नाम लिखकर उसका पूरा स्टेप-बाय-स्टेप विवरण प्राप्त कर सकते हैं!`;
   }
 
   const snippet = (userQuery || "").slice(0, 70);
   return language === "hindi"
-    ? `### 📚 हंस-एआई (HansAI) - विषय अध्ययन एवं समाधान\n\nआपकी जिज्ञासा **"${snippet}"** के संबंध में मुख्य अध्ययन बिंदु।\n\n1. **मूल अवधारणा:** प्रतियोगी परीक्षाओं के लिए स्पष्टता अनिवार्य है。\n2. **अभ्यास:** आप ऐप के **Auto Chapter Quiz** में अभ्यास कर सकते हैं!`
-    : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${snippet}"**:\n\n1. **Key Concept:** Clear conceptual mastery is essential.\n2. **Practice:** Attempt MCQs in the Auto Chapter Quiz section!`;
+    ? `### 📚 हंस-एआई (HansAI) - विस्तृत अध्ययन एवं संपूर्ण समाधान\n\n` +
+      `आपकी जिज्ञासा **"${snippet}"** के संबंध में विस्तृत अध्ययन मार्गदर्शन:\n\n` +
+      `1. **अवधारणा की स्पष्टता (Conceptual Clarity):** प्रतियोगी परीक्षाओं (SSC, Board, State PCS) के लिए इस विषय की मूल अवधारणाओं एवं तथ्यों को समझना अनिवार्य है।\n` +
+      `2. **चरणबद्ध अध्ययन (Step-by-Step Approach):** सबसे पहले मुख्य परिभाषाएं, फिर उदाहरण तथा अंत में परीक्षा में पूछे जाने वाले प्रश्नों का अभ्यास करें।\n` +
+      `3. **रिवीजन व शॉर्टकट:** मुख्य बिन्दुओं के संक्षिप्त नोट्स बनाकर नियमित रिवीजन करें।\n\n` +
+      `👉 आप इस टॉपिक के संबंध में कोई भी विशेष प्रश्न पूछ सकते हैं, मैं आपको पूरा विस्तृत उत्तर प्रदान करूँगा!`
+    : `### 📚 HansAI - Comprehensive Academic Explanation & Guidance\n\n` +
+      `Regarding your query **"${snippet}"**:\n\n` +
+      `1. **Core Concept:** Deep understanding of fundamental principles is essential for top performance.\n` +
+      `2. **Step-by-Step Breakdown:** Learn definitions, key rules/formulas, real-world examples, and exam applications.\n` +
+      `3. **Interactive Practice:** You can also attempt custom practice MCQs in the Auto Chapter Quiz tab!`;
 }
 
 // Cloud-Based AI Orchestration Memory Store for Over-The-Air (OTA) Updates
@@ -965,7 +1011,7 @@ app.post("/api/chat", async (req, res) => {
     } else if (emotion === "anxious") {
       customizedInstruction += "\n\nCRITICAL EMOTION OVERRIDE (ANXIOUS/DISTRESSED STATE): The user is anxious about preparation, exams, or failures. Immediately pivot to an extremely empathetic, comforting, supportive companion. Empower their self-esteem and build structural, positive actionable pathways for success.";
     } else {
-      customizedInstruction += "\n\nCRITICAL EMOTION OVERRIDE (NORMAL/PROFESSIONAL STATE): Deliver crisp, hyper-focused, elite, and direct outputs. Zero boilerplate fillers or repeated flattery.";
+      customizedInstruction += "\n\nCRITICAL DETAIL & EXPLANATION RULE: Always deliver rich, thorough, comprehensive, and beautifully explained responses. Break down complex concepts step-by-step with clear subheadings, bullet points, real-life examples, formulas, and key facts. Do NOT give brief or cut-short summaries unless the user explicitly requests a short 1-line answer.";
     }
 
     // Strict Founder Query interception for privacy
@@ -1023,13 +1069,19 @@ app.post("/api/chat", async (req, res) => {
 // 2. Dynamic Study Quiz Generator
 app.post("/api/quiz", async (req, res) => {
   try {
-    const { subject, level, model } = req.body;
+    const { subject, level, model, lang, language } = req.body;
     if (!subject) {
       return res.status(400).json({ error: "Subject parameter is required." });
     }
 
+    const quizLang = (lang || language || "hindi") === "english" ? "english" : "hindi";
     const ai = getGenAI();
-    const prompt = `Generate a high-quality educational quiz on "${subject}" for ${level || "general"} level/class. Please generate exactly 5 interesting multiple choice questions. The options, questions, and explanations should be friendly, clear, in modern Hindi/Hinglish (mix of simple Hindi and English term definitions), and explain the correct answer step-by-step.`;
+
+    const langInstruction = quizLang === "english"
+      ? "All questions, options, and explanations MUST be strictly in 100% clean, standard ENGLISH. Do NOT include any Hindi or Hinglish words."
+      : "All questions, options, and explanations MUST be strictly in 100% clean, standard HINDI. Do NOT include English translation slashes or dual language text.";
+
+    const prompt = `Generate a high-quality educational quiz on "${subject}" for ${level || "general"} level/class. Please generate exactly 5 interesting multiple choice questions. ${langInstruction} Explain the correct answer step-by-step.`;
 
     const response = await generateContentWithFallback(ai, model || "gemini-3.5-flash", {
       contents: prompt,
@@ -1041,19 +1093,19 @@ app.post("/api/quiz", async (req, res) => {
           items: {
             type: Type.OBJECT,
             properties: {
-              question: { type: Type.STRING, description: "The quiz question text in Hindi/Hinglish" },
+              question: { type: Type.STRING, description: `The quiz question text strictly in ${quizLang}` },
               options: {
                 type: Type.ARRAY,
                 items: { type: Type.STRING },
-                description: "Exactly 4 options"
+                description: `Exactly 4 options strictly in ${quizLang}`
               },
               answerIndex: { type: Type.INTEGER, description: "0-based index of the correct option (0 to 3)" },
-              explanation: { type: Type.STRING, description: "Detailed step-by-step Hindi explanation of why this answer is correct and and how to study this" }
+              explanation: { type: Type.STRING, description: `Detailed step-by-step explanation strictly in ${quizLang}` }
             },
             required: ["question", "options", "answerIndex", "explanation"]
           }
         },
-        systemInstruction: "You are HansAI. Generate accurate, engaging, educational, curriculum-aligned questions for Indian students."
+        systemInstruction: `You are HansAI. Generate accurate, engaging, educational questions strictly in ${quizLang}. Never mix Hindi and English with slashes.`
       }
     });
 
@@ -1070,6 +1122,48 @@ app.post("/api/quiz", async (req, res) => {
       error: err.message || "Failed to generate dynamic quiz.",
       isKeyMissing: !process.env.GEMINI_API_KEY
     });
+  }
+});
+
+// 2.5 Universal Audio TTS Route (Proxy for Google TTS Audio Streams with 100% Hindi Devanagari Support)
+app.get("/api/tts", async (req, res) => {
+  try {
+    const text = (req.query.text as string) || "";
+    const lang = (req.query.lang as string) || "hi";
+    
+    if (!text.trim()) {
+      return res.status(400).send("Text parameter is required");
+    }
+
+    // Clean markdown and unwanted symbols
+    const cleanText = text
+      .replace(/[\#\*\_\\`]/g, '')
+      .replace(/https?:\/\/\S+/g, '')
+      .trim()
+      .slice(0, 200);
+
+    const encodedText = encodeURIComponent(cleanText);
+    const targetLang = lang.startsWith("hi") ? "hi" : "en";
+    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodedText}`;
+
+    const fetchRes = await fetch(ttsUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Referer": "https://translate.google.com/"
+      }
+    });
+
+    if (!fetchRes.ok) {
+      return res.status(500).send("TTS audio synthesis failed");
+    }
+
+    const arrayBuffer = await fetchRes.arrayBuffer();
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.send(Buffer.from(arrayBuffer));
+  } catch (err: any) {
+    console.error("Server /api/tts Error:", err);
+    res.status(500).send("Internal server error in TTS endpoint");
   }
 });
 

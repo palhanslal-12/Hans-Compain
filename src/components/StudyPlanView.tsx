@@ -5,9 +5,11 @@ interface StudyPlanProps {
   user: { name: string; email: string } | null;
   onExportPdf: (title: string, elementId: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
+  language?: 'english' | 'hindi';
 }
 
-export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, showToast }) => {
+export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, showToast, language = 'hindi' }) => {
+  const isHindi = language === 'hindi';
   const [goal, setGoal] = useState("SSC CGL / Stenographer 2026");
   const [days, setDays] = useState(30);
   const [weakAreas, setWeakAreas] = useState("Maths Speed, Error Spotting in English, Shorthand Strokes");
@@ -53,7 +55,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
               <span>HansAI Smart Academic Engine</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              AI Study Plan & Roadmap Generator / अध्ययन रोडमैप
+              {isHindi ? "AI अध्ययन योजना एवं रोडमैप" : "AI Study Plan & Roadmap Generator"}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1">
               Get a customized day-by-day preparation schedule tailored to your target exam, available hours, and weak areas.
@@ -70,7 +72,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
           {/* Quick Target Exam Selector Chips */}
           <div className="space-y-1.5">
             <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
-              Select Exam Category / परीक्षा चुनें (10th, 12th, SSC, Railway, UPSC)
+              {isHindi ? "परीक्षा श्रेणी चुनें (10th, 12th, SSC, Railway, UPSC):" : "Select Exam Category (10th, 12th, SSC, Railway, UPSC):"}
             </span>
             <div className="flex flex-wrap gap-1.5">
               {[
@@ -106,7 +108,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Target className="w-3.5 h-3.5 text-indigo-400" />
-                Target Exam / परीक्षा लक्ष्य
+                {isHindi ? "लक्ष्य परीक्षा:" : "Target Exam:"}
               </label>
               <input
                 type="text"
@@ -121,7 +123,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                Timeline (Days) / समयावधि (दिन)
+                {isHindi ? "समयावधि (दिन):" : "Timeline (Days):"}
               </label>
               <select
                 value={days}
@@ -139,7 +141,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-                Weak Areas & Focus Subjects / कमजोर विषय
+                {isHindi ? "कमजोर विषय व क्षेत्र:" : "Weak Areas & Focus Subjects:"}
               </label>
               <input
                 type="text"
@@ -154,7 +156,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-emerald-400" />
-                Daily Available Hours / दैनिक समय (घंटे)
+                {isHindi ? "दैनिक अध्ययन समय (घंटे):" : "Daily Available Hours:"}
               </label>
               <select
                 value={dailyHours}
@@ -177,12 +179,12 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
             {isGenerating ? (
               <>
                 <Sparkles className="w-4 h-4 animate-spin text-amber-300" />
-                <span>Crafting Personalized AI Study Schedule...</span>
+                <span>{isHindi ? "स्मार्ट अध्ययन योजना बन रही है..." : "Crafting Personalized AI Study Schedule..."}</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>Generate Smart Study Roadmap / रोडमैप बनाएं</span>
+                <span>{isHindi ? "स्मार्ट रोडमैप बनाएं" : "Generate Smart Study Roadmap"}</span>
               </>
             )}
           </button>

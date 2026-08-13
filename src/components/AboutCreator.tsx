@@ -18,7 +18,7 @@ export default function AboutCreator() {
 
         <div className="space-y-0.5 text-center">
           <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-widest block">
-            FOUNDER / संस्थापक
+            FOUNDER & CREATOR
           </span>
           <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight flex items-center justify-center gap-1.5 notranslate" translate="no">
             <span>हंसलाल पाल (Hanslal Pal) जी</span>

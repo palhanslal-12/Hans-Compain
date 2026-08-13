@@ -11,9 +11,11 @@ interface Flashcard {
 interface FlashcardsViewProps {
   onExportPdf: (title: string, elementId: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
+  language?: 'english' | 'hindi';
 }
 
-export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ onExportPdf, showToast }) => {
+export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ onExportPdf, showToast, language = 'hindi' }) => {
+  const isHindi = language === 'hindi';
   const [topic, setTopic] = useState("SSC Indian Polity & History");
   const [cards, setCards] = useState<Flashcard[]>([
     { id: "fc-1", front: "When was the Quit India Movement launched?", back: "August 8, 1942 under Mahatma Gandhi's leadership with the slogan 'Do or Die'.", category: "History" },
@@ -79,7 +81,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ onExportPdf, sho
               <span>Active Memory Booster</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              AI Academic Flashcards / फ़्लैशकार्ड
+              {isHindi ? "AI अकादमिक फ़्लैशकार्ड्स" : "AI Academic Flashcards"}
             </h1>
             <p className="text-xs text-slate-300 mt-1">
               Master core concepts, dates, formulas and shorthand rules through spaced repetition.
@@ -131,7 +133,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ onExportPdf, sho
               className="min-h-[220px] sm:min-h-[260px] bg-gradient-to-b from-[#0A0E1A] to-[#060913] border-2 border-purple-500/30 hover:border-purple-500/60 rounded-2xl p-6 sm:p-8 flex flex-col justify-between items-center text-center cursor-pointer transition-all shadow-2xl relative group select-none"
             >
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                {isFlipped ? "Answer / स्पष्टीकरण" : "Question / प्रश्न"}
+                {isFlipped ? (isHindi ? "स्पष्टीकरण" : "Answer") : (isHindi ? "प्रश्न" : "Question")}
               </div>
 
               <div className="my-auto py-4">

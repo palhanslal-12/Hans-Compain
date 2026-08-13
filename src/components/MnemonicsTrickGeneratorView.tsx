@@ -1,0 +1,399 @@
+import React, { useState } from 'react';
+import { 
+  Sparkles, Brain, BookOpen, Volume2, VolumeX, Copy, Check, Search, 
+  Flame, Award, Zap, RefreshCw, Bookmark, Share2, HelpCircle, FileText
+} from 'lucide-react';
+import { speakText, stopAllSpeech } from '../utils/speechUtils';
+
+export interface MnemonicItem {
+  id: string;
+  topic: string;
+  subject: 'Polity' | 'History' | 'Science' | 'Geography' | 'Maths' | 'General';
+  title: string;
+  acronymOrCode: string;
+  storyTrickHindi: string;
+  explanation: string;
+  examUsage: string;
+  tags: string[];
+}
+
+const PRESET_MNEMONICS: MnemonicItem[] = [
+  {
+    id: 'polity-schedules',
+    topic: 'Indian Constitution: 12 Schedules',
+    subject: 'Polity',
+    title: 'संविधान की 12 अनुसूचियाँ (12 Schedules of Constitution)',
+    acronymOrCode: 'TEARS OF OLD PM',
+    storyTrickHindi: 'ट्रिक: "TEARS OF OLD PM"\nT - Territories (1st)\nE - Emoluments/Salaries (2nd)\nA - Affirmations/Oaths (3rd)\nR - Rajya Sabha Seats (4th)\nS - Scheduled Areas (5th)\nO - Other Tribal Areas (6th)\nF - Federal List/3 Lists (7th)\nO - Official Languages (8th)\nL - Land Reforms (9th)\nD - Defection Law (10th)\nP - Panchayats (11th)\nM - Municipalities (12th)',
+    explanation: 'इस 14-अक्षर के कोड (TEARS OF OLD PM) से संविधान की सभी 12 अनुसूचियाँ क्रम से याद रहती हैं। 9वीं से 12वीं अनुसूची संशोधनों द्वारा जोड़ी गई थीं।',
+    examUsage: 'SSC CGL, UPSC Prelims & Railway exams: 10th Schedule (Anti-defection) and 11th/12th Schedule amendments are repeatedly asked.',
+    tags: ['Polity', 'Constitution', 'Schedules', 'SSC', 'UPSC']
+  },
+  {
+    id: 'history-mughals',
+    topic: 'Mughal Dynasty Chronology (मुगल शासक क्रम)',
+    subject: 'History',
+    title: 'मुगल सम्राटों का कालानुक्रम (Mughal Emperors Sequence)',
+    acronymOrCode: 'B-H-A-J-S-A (भाजसा)',
+    storyTrickHindi: 'ट्रिक: "BHAJSA" (भाजसा)\nB - Babur (बाबर - 1526)\nH - Humayun (हुमायूँ - 1530)\nA - Akbar (अकबर - 1556)\nJ - Jahangir (जहाँगीर - 1605)\nS - Shah Jahan (शाहजहाँ - 1627)\nA - Aurangzeb (औरंगज़ेब - 1658)',
+    explanation: 'जैसे राजनीतिक पार्टी का नाम BHAJPA होता है, वैसे ही इतिहास के प्रमुख 6 मुगल शासकों का क्रम "BHAJSA" से याद रखें।',
+    examUsage: 'History PYQs: Battles fought by Babur, Akbar\'s Mansabdari system, and Shah Jahan\'s architecture period.',
+    tags: ['History', 'Mughals', 'Chronology', 'Medieval History']
+  },
+  {
+    id: 'history-delhi-sultanate',
+    topic: 'Delhi Sultanate 5 Dynasties (दिल्ली सल्तनत वंश)',
+    subject: 'History',
+    title: 'दिल्ली सल्तनत के 5 राजवंशों का क्रम',
+    acronymOrCode: 'गुड़ खा तू सैय्यद लोदी (Gool Khile To Saiyad Lodi)',
+    storyTrickHindi: 'कविता ट्रिक: "गुड़ खा ले तो सांस लोदी"\n1. गुलाम वंश (Slave/Mamluk - 1206)\n2. खिलजी वंश (Khilji - 1290)\n3. तुगलक वंश (Tughlaq - 1320)\n4. सैय्यद वंश (Sayyid - 1414)\n5. लोदी वंश (Lodi - 1451)',
+    explanation: 'गुड़ (गुलाम), खा (खिलजी), तू (तुगलक), सैय्यद (सैय्यद), लोदी (लोदी)। सबसे लंबा शासन तुगलक वंश और सबसे छोटा खिलजी वंश का था।',
+    examUsage: 'SSC CGL / RRB NTPC: First and last dynasties of Delhi Sultanate and founders of each dynasty.',
+    tags: ['History', 'Delhi Sultanate', 'Chronology']
+  },
+  {
+    id: 'science-reactivity',
+    topic: 'Reactivity Series of Metals (धातुओं की सक्रियता श्रेणी)',
+    subject: 'Science',
+    title: 'धातुओं की क्रियाशीलता श्रेणी (Metal Reactivity)',
+    acronymOrCode: 'Please Stop Calling Me A Careless Zebra Instead Try Learning How Copper Saves Gold',
+    storyTrickHindi: 'ट्रिक: "केदार नाथ का माली आलू जरा फीके पकाता है"\nK - Kedar (Potassium K)\nNa - Nath (Sodium Na)\nCa - Ka (Calcium Ca)\nMg - Mali (Magnesium Mg)\nAl - Aalu (Aluminium Al)\nZn - Zara (Zinc Zn)\nFe - Pheeke (Iron Fe)\nPb - Pakata (Lead Pb)\nH - Hai (Hydrogen H)\nCu - Court (Copper Cu)\nHg - Hai (Mercury Hg)\nAg - Aapka (Silver Ag)\nAu - Aur (Gold Au)',
+    explanation: 'इस ट्रिक "केदारनाथ का माली आलू जरा फीके पकाता है" से टॉप से बॉटम तक पूरी मेटल रिएक्टीविटी सीरीज़ याद हो जाती है। सबसे अधिक सक्रिय पोटैशियम (K) है।',
+    examUsage: 'Class 10 Board, NEET, Railway Group D: Displacement reaction questions & rusting prevention.',
+    tags: ['Science', 'Chemistry', 'Reactivity Series']
+  },
+  {
+    id: 'geography-ganga',
+    topic: 'Ganga River Right Bank Tributaries',
+    subject: 'Geography',
+    title: 'गंगा की दाहिनी तट की सहायक नदियाँ (Right Bank Tributaries)',
+    acronymOrCode: 'Y-S-K (यमुना, सोन, कर्मनाशा)',
+    storyTrickHindi: 'ट्रिक: "यमुना जी के साथ सोन का संगम"\n1. यमुना (Yamuna - सबसे बड़ी सहायक নদী)\n2. सोन (Son - अमरकंटक से निकलती है)\n3. पुनपुन (Punpun)\n4. कर्मनाशा (Karmanasa)',
+    explanation: 'गंगा नदी की दक्षिण/दाहिनी ओर से मिलने वाली मुख्य नदियाँ यमुना और सोन हैं। सोन नदी पटना के पास गंगा में मिलती है।',
+    examUsage: 'UPSC & State PCS: Rivers originating from Amarkantak plateau & right vs left bank tributaries.',
+    tags: ['Geography', 'Rivers', 'Ganga System']
+  },
+  {
+    id: 'polity-writs',
+    topic: 'Article 32: 5 Types of Writs (5 प्रकार की रिट)',
+    subject: 'Polity',
+    title: 'अनुच्छेद 32 के तहत 5 संवैधानिक रिट',
+    acronymOrCode: 'H-M-P-C-Q (Habeas Corpus, Mandamus, Prohibition, Certiorari, Quo-Warranto)',
+    storyTrickHindi: 'हिंदी ट्रिक: "हमे प्रो-सर्टिफिकेट क्यों मिला?"\nह (Habeas Corpus - बंदी प्रत्यक्षीकरण: शरीर प्रस्तुत करो)\nमे (Mandamus - परमादेश: हम आदेश देते हैं)\nप्रो (Prohibition - प्रतिषेध: रोक लगाओ)\nसर्टि (Certiorari - उत्प्रेषण: पूर्णतया सूचित करो)\nक्यों (Quo-Warranto - अधिकार-पृच्छा: आपका क्या अधिकार है?)',
+    explanation: 'इस ट्रिक से 5 संवैधानिक रिट्स के नाम और उनका अर्थ आसानी से याद रहता है। डॉ. आंबेडकर ने अनुच्छेद 32 को संविधान की आत्मा कहा था।',
+    examUsage: 'UPSC & SSC CGL: Match the following writs with their literal Latin meanings.',
+    tags: ['Polity', 'Writs', 'Article 32']
+  }
+];
+
+interface MnemonicsTrickGeneratorViewProps {
+  showToast: (msg: string, type: 'success' | 'error' | 'info' | 'warn') => void;
+  language: 'hindi' | 'english';
+}
+
+export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewProps> = ({ showToast, language }) => {
+  const [mnemonicList, setMnemonicList] = useState<MnemonicItem[]>(PRESET_MNEMONICS);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('All');
+  const [activeMnemonic, setActiveMnemonic] = useState<MnemonicItem>(PRESET_MNEMONICS[0]);
+  
+  const [customTopicInput, setCustomTopicInput] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+
+  // Generate Custom Mnemonic with AI
+  const handleGenerateCustomMnemonic = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const query = customTopicInput.trim();
+    if (!query) return;
+
+    setIsGenerating(true);
+    showToast(
+      language === 'hindi'
+        ? `✨ "${query}" के लिए जादुई ट्रिक व कहानी तैयार हो रही है...`
+        : `✨ Creating AI mnemonic trick for "${query}"...`,
+      'info'
+    );
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Create a super memorable Hindi & English mnemonic/trick, acronym, rhyme story, explanation and exam usage for topic: "${query}". Format response in clear structured sections.`,
+          systemInstruction: `You are HansAI Memory Trick Architect. Generate clever, funny, and 100% memorable mnemonics in Hindi and English for student exam preparation.`
+        })
+      });
+
+      let aiText = '';
+      if (res.ok) {
+        const data = await res.json();
+        aiText = data.reply || '';
+      }
+
+      const newItem: MnemonicItem = {
+        id: `custom-mnemonic-${Date.now()}`,
+        topic: query,
+        subject: 'General',
+        title: `AI Memory Trick: ${query}`,
+        acronymOrCode: `MAGIC CODE: ${query.toUpperCase().slice(0, 6)}`,
+        storyTrickHindi: aiText || `ट्रिक: "${query}" को याद रखने का आसान तरीका।\n• बिंदु 1: क्रम से याद रखें\n• बिंदु 2: मजेदार कहानी से जोड़ें।`,
+        explanation: `AI द्वारा निर्मित विस्तृत विश्लेषण: ${query} के मुख्य अवधारणाओं को आसानी से याद रखने हेतु।`,
+        examUsage: `Exam Point: Frequently tested in SSC, Railway & Competitive exams regarding ${query}.`,
+        tags: ['Custom AI', 'Memory Trick', query]
+      };
+
+      setMnemonicList(prev => [newItem, ...prev]);
+      setActiveMnemonic(newItem);
+      setCustomTopicInput('');
+      showToast(
+        language === 'hindi' ? `🎉 "${query}" की जादुई ट्रिक बन कर तैयार है!` : `🎉 Mnemonic created for "${query}"!`,
+        'success'
+      );
+    } catch (err) {
+      showToast('Could not generate mnemonic, try another topic.', 'error');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleCopyText = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    showToast(language === 'hindi' ? '📋 ट्रिक कॉपी हो गई!' : '📋 Trick copied to clipboard!', 'success');
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleSpeech = (id: string, text: string) => {
+    if (speakingId === id) {
+      stopAllSpeech();
+      setSpeakingId(null);
+    } else {
+      stopAllSpeech();
+      setSpeakingId(id);
+      speakText(text, { rate: 0.95 });
+    }
+  };
+
+  const filteredMnemonics = mnemonicList.filter(item => {
+    const matchesSubject = selectedSubjectFilter === 'All' || item.subject === selectedSubjectFilter;
+    const matchesSearch = searchQuery === '' || 
+      item.topic.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.acronymOrCode.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSubject && matchesSearch;
+  });
+
+  return (
+    <div className="w-full max-w-7xl mx-auto p-3 sm:p-6 text-slate-100 space-y-6 animate-fade-in text-left">
+      
+      {/* HEADER BANNER */}
+      <div className="bg-gradient-to-r from-amber-950/90 via-purple-950/80 to-slate-900 border-2 border-amber-500/40 p-5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-xl shadow-amber-500/10 shrink-0">
+            <Brain className="w-8 h-8 animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-500/30">
+                10X MEMORY POWER
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight mt-1">
+              {language === 'hindi' ? '🧠 AI स्मार्ट निमोनिक्स व याद रखने की जादुई ट्रिक्स' : '🧠 AI Smart Mnemonics & Memory Trick Generator'}
+            </h1>
+            <p className="text-xs text-slate-300 mt-0.5">
+              {language === 'hindi'
+                ? 'कठिन तारीखें, अनुच्छेद, मुगल काल, नदियाँ व फॉर्मूले 10 सेकेंड में याद रखें — मजेदार कविताओं, एक्क्रोनिक कोड व कहानियों के साथ!'
+                : 'Instantly master tough formulas, historical dates, constitutional articles & science series with AI rhymes & acronyms!'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* SEARCH OR GENERATE CUSTOM MNEMONIC */}
+      <form onSubmit={handleGenerateCustomMnemonic} className="relative w-full">
+        <div className="bg-slate-900 border-2 border-amber-500/50 focus-within:border-amber-400 rounded-2xl p-2 flex items-center gap-2 shadow-2xl">
+          <Sparkles className="w-5 h-5 text-amber-400 ml-3 shrink-0 animate-bounce" />
+          <input
+            type="text"
+            value={customTopicInput}
+            onChange={(e) => setCustomTopicInput(e.target.value)}
+            placeholder={
+              language === 'hindi'
+                ? "किसी भी कठिन टॉपिक की ट्रिक बनाएं (जैसे: Fundamental Rights, Periodic Table, Oceans, Akbar Battles, Trigonometry)..."
+                : "Type any tough topic to create instant memory trick (e.g. Fundamental Rights, Periodic Table, Rivers)..."
+            }
+            className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none px-2 py-1 font-semibold"
+            disabled={isGenerating}
+          />
+          <button
+            type="submit"
+            disabled={isGenerating || !customTopicInput.trim()}
+            className="px-5 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-xl text-xs transition-all border-none cursor-pointer flex items-center gap-2 shrink-0 active:scale-95 disabled:opacity-40 shadow-lg"
+          >
+            {isGenerating ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Creating Trick...</span>
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4" />
+                <span>{language === 'hindi' ? 'जादुई ट्रिक बनाएं' : 'Generate AI Trick'}</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* CATEGORY SUBJECT FILTERS */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {['All', 'Polity', 'History', 'Science', 'Geography', 'General'].map(subject => (
+          <button
+            key={subject}
+            onClick={() => setSelectedSubjectFilter(subject)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
+              selectedSubjectFilter === subject
+                ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-lg scale-105'
+                : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+            }`}
+          >
+            {subject === 'All' ? '🌐 All Subjects' : subject}
+          </button>
+        ))}
+      </div>
+
+      {/* MAIN CONTENT GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        {/* LEFT: LIST OF MNEMONICS (5 COLS) */}
+        <div className="lg:col-span-5 space-y-3 max-h-[640px] overflow-y-auto pr-1 scrollbar-thin">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-black uppercase text-amber-400 tracking-wider">
+              {language === 'hindi' ? '📚 उपलब्ध मेमोरी ट्रिक्स लाइब्रेरी' : '📚 Memory Tricks Library'}
+            </span>
+            <span className="text-[10px] text-slate-400 font-bold">
+              {filteredMnemonics.length} Tricks
+            </span>
+          </div>
+
+          {filteredMnemonics.map(item => {
+            const isSelected = activeMnemonic.id === item.id;
+            return (
+              <div
+                key={item.id}
+                onClick={() => setActiveMnemonic(item)}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 text-left active:scale-98 ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-amber-950/80 to-purple-950/80 border-amber-400 text-white shadow-xl ring-2 ring-amber-400/30'
+                    : 'bg-slate-900/90 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-850'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase border border-amber-500/30">
+                    {item.subject}
+                  </span>
+                  <span className="text-[10px] font-mono text-amber-400 font-bold">{item.acronymOrCode}</span>
+                </div>
+
+                <h3 className="text-xs sm:text-sm font-black text-white leading-snug">
+                  {item.title}
+                </h3>
+
+                <p className="text-[11px] text-slate-300 line-clamp-2 font-medium">
+                  {item.storyTrickHindi}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* RIGHT: ACTIVE MNEMONIC DETAILED BOARD (7 COLS) */}
+        <div className="lg:col-span-7 bg-[#090D16] border-2 border-amber-500/40 rounded-3xl p-6 shadow-2xl space-y-5 text-left">
+          
+          {/* HEADER */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase border border-amber-500/30">
+                  {activeMnemonic.subject}
+                </span>
+                <span className="text-xs font-black text-slate-400">{activeMnemonic.topic}</span>
+              </div>
+              <h2 className="text-lg font-black text-white mt-1">
+                {activeMnemonic.title}
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => handleSpeech(activeMnemonic.id, `${activeMnemonic.title}. ${activeMnemonic.storyTrickHindi}. ${activeMnemonic.explanation}`)}
+                className="p-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                title="Speak Trick"
+              >
+                {speakingId === activeMnemonic.id ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
+                <span>{speakingId === activeMnemonic.id ? 'Stop' : 'Hear Voice 🎙️'}</span>
+              </button>
+
+              <button
+                onClick={() => handleCopyText(activeMnemonic.id, `${activeMnemonic.title}\n${activeMnemonic.storyTrickHindi}\n${activeMnemonic.explanation}`)}
+                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+              >
+                {copiedId === activeMnemonic.id ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedId === activeMnemonic.id ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* MNEMONIC ACRONYM BANNER */}
+          <div className="p-4 bg-gradient-to-r from-amber-500/20 via-purple-500/20 to-indigo-500/20 border-2 border-amber-400/50 rounded-2xl text-center space-y-1 shadow-inner">
+            <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest block">
+              ⚡ KEYWORD & ACRONYM CODE
+            </span>
+            <span className="text-lg sm:text-xl font-black text-amber-300 font-mono tracking-wider">
+              {activeMnemonic.acronymOrCode}
+            </span>
+          </div>
+
+          {/* STORY / RHYME TRICK (हिंदी जादुई कहानी) */}
+          <div className="bg-[#060A12] border border-slate-800 p-4.5 rounded-2xl space-y-2">
+            <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider block flex items-center gap-1">
+              <span>🎭</span>
+              <span>{language === 'hindi' ? 'हिंदी जादुई ट्रिक व राइम (Mnemonics Story):' : 'Rhyme & Story Mnemonic:'}</span>
+            </span>
+            <p className="text-xs sm:text-sm text-slate-100 font-semibold leading-relaxed whitespace-pre-line">
+              {activeMnemonic.storyTrickHindi}
+            </p>
+          </div>
+
+          {/* EXPLANATION */}
+          <div className="bg-[#060A12] border border-slate-800 p-4.5 rounded-2xl space-y-2">
+            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider block flex items-center gap-1">
+              <span>📖</span>
+              <span>{language === 'hindi' ? 'संपूर्ण व्याख्या व समझ (Concept Explanation):' : 'Concept Explanation:'}</span>
+            </span>
+            <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed">
+              {activeMnemonic.explanation}
+            </p>
+          </div>
+
+          {/* EXAM PYQ APPLICATION */}
+          <div className="p-4 bg-amber-950/40 border border-amber-500/30 rounded-2xl space-y-1.5">
+            <span className="text-[10px] font-black text-amber-300 uppercase tracking-wider flex items-center gap-1">
+              <Flame className="w-3.5 h-3.5 text-amber-400" />
+              <span>{language === 'hindi' ? '🎯 प्रतियोगी परीक्षा प्रश्न (Exam Application):' : '🎯 Competitive Exam Application:'}</span>
+            </span>
+            <p className="text-xs text-amber-100 font-semibold leading-relaxed">
+              {activeMnemonic.examUsage}
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+};

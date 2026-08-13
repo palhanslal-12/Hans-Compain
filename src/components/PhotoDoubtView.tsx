@@ -69,7 +69,7 @@ export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, sho
               <span>Smart Vision Doubt Solver</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              Photo Doubt Solver & OCR MCQ Generator / फोटो समाधान
+              Photo Doubt Solver & OCR MCQ Generator
             </h1>
             <p className="text-xs text-slate-300 mt-1">
               Upload any question photo from textbooks or mock papers to get an instant AI solution and similar practice MCQs.
@@ -84,7 +84,7 @@ export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, sho
             {/* Image Upload Area */}
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-2">
-                Upload Question Image / प्रश्न का फोटो अपलोड करें
+                Upload Question Image
               </label>
               <div className="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-2xl p-4 text-center bg-[#03060E] relative cursor-pointer transition-all">
                 <input

@@ -97,6 +97,11 @@ import { WeatherAlertView } from './components/WeatherAlertView';
 import { AffiliateStoreView } from './components/AffiliateStoreView';
 import { AllExamsSyllabusModal } from './components/AllExamsSyllabusModal';
 import { GlobalBookReader } from './components/GlobalBookReader';
+import { NotesOcrView } from './components/NotesOcrView';
+import { NeuralMemoryMapView } from './components/NeuralMemoryMapView';
+import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
+import { MnemonicsTrickGeneratorView } from './components/MnemonicsTrickGeneratorView';
+import { ScienceFormulaLabView } from './components/ScienceFormulaLabView';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -309,7 +314,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
 };
 
 const QuantumSwanLogo = ({ 
-  className = "w-10 h-10", 
+  className = "w-12 h-12 sm:w-14 sm:h-14", 
   showLightBg = true,
   containerClassName = ""
 }: { 
@@ -413,9 +418,9 @@ const QuantumSwanLogo = ({
   if (!showLightBg) return svgLogo;
 
   return (
-    <div className={`relative inline-flex items-center justify-center p-1.5 sm:p-2.5 rounded-2xl bg-gradient-to-br from-white via-slate-50 to-sky-100 shadow-[0_0_25px_rgba(56,189,248,0.45)] border border-white/90 transition-all duration-300 hover:scale-105 shrink-0 ${containerClassName}`}>
+    <div className={`relative inline-flex items-center justify-center p-2.5 sm:p-3.5 rounded-3xl bg-gradient-to-br from-white via-sky-50 to-indigo-100 shadow-[0_0_35px_rgba(56,189,248,0.6)] border-2 border-white/90 transition-all duration-300 hover:scale-105 shrink-0 ${containerClassName}`}>
       {/* Soft Animated Light Pulse Aura */}
-      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-sky-400/40 via-indigo-400/30 to-emerald-400/40 blur-md animate-pulse pointer-events-none" />
+      <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-sky-400/50 via-cyan-300/40 to-emerald-400/50 blur-lg animate-pulse pointer-events-none" />
       <div className="relative z-10 flex items-center justify-center">
         {svgLogo}
       </div>
@@ -434,7 +439,7 @@ const STATUS_THEMES = [
 
 export default function App() {
   // Navigation & View state
-  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'flashcards' | 'photo-doubt' | 'security' | 'book-reader'>('chat');
+  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'flashcards' | 'photo-doubt' | 'security' | 'book-reader' | 'notes-ocr' | 'neural-map' | 'time-travel' | 'mnemonics' | 'science-lab'>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
   const [isCreatorDrawerOpen, setIsCreatorDrawerOpen] = useState(false);
@@ -450,6 +455,8 @@ export default function App() {
   const voiceAssistantRecRef = useRef<any>(null);
   const isVoiceAssistantActiveRef = useRef<boolean>(false);
   const isVoiceAssistantSpeakingRef = useRef<boolean>(false);
+  const voiceAssistantSilenceTimerRef = useRef<any>(null);
+  const voiceAssistantLastTranscriptRef = useRef<string>("");
 
   // History View Filter & Search State
   const [historyFilterCategory, setHistoryFilterCategory] = useState<'all' | 'chat' | 'session' | 'quiz' | 'timer' | 'note'>('all');
@@ -510,9 +517,17 @@ export default function App() {
     return (localStorage.getItem('hansai-language') as 'english' | 'hindi') || 'hindi';
   });
 
+  const [quizLanguage, setQuizLanguage] = useState<'english' | 'hindi'>(() => {
+    return (localStorage.getItem('hansai-quiz-language') as 'english' | 'hindi') || 'hindi';
+  });
+
   useEffect(() => {
     localStorage.setItem('hansai-language', language);
   }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem('hansai-quiz-language', quizLanguage);
+  }, [quizLanguage]);
 
   // Translate helper
   const t = (key: string): string => {
@@ -651,7 +666,7 @@ export default function App() {
   const [isUserRegisterModalOpen, setIsUserRegisterModalOpen] = useState(false);
 
   // ANIMATED SPLASH SCREEN STATE
-  const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const [showSplashScreen, setShowSplashScreen] = useState(false);
   const [splashProgress, setSplashProgress] = useState(10);
   const [splashStatus, setSplashStatus] = useState("HansAI Neural Engine Init...");
 
@@ -1525,17 +1540,23 @@ export default function App() {
     });
   };
 
-  // 3.5 Hands-Free Voice Assistant Logic ("Ok AI" / "Ok Open AI")
+  // 3.5 Hands-Free Voice Assistant Engine
   const stopVoiceAssistantMode = () => {
     isVoiceAssistantActiveRef.current = false;
     isVoiceAssistantSpeakingRef.current = false;
+    if (voiceAssistantSilenceTimerRef.current) {
+      clearTimeout(voiceAssistantSilenceTimerRef.current);
+      voiceAssistantSilenceTimerRef.current = null;
+    }
     if (voiceAssistantRecRef.current) {
-      try { voiceAssistantRecRef.current.stop(); } catch (e) {}
+      try { voiceAssistantRecRef.current.abort(); } catch (e) {}
+      voiceAssistantRecRef.current = null;
     }
     stopAllSpeech();
     setIsVoiceAssistantActive(false);
     setIsVoiceAssistantListening(false);
     setIsVoiceAssistantSpeaking(false);
+    setVoiceAssistantTranscript("");
     setVoiceAssistantStatus("Voice Assistant Deactivated");
   };
 
@@ -1551,25 +1572,40 @@ export default function App() {
       onEnd: () => {
         isVoiceAssistantSpeakingRef.current = false;
         setIsVoiceAssistantSpeaking(false);
-        setVoiceAssistantStatus("🟢 Active - Listening for 'Ok AI' / 'Ok Open AI'...");
+        setVoiceAssistantStatus(
+          language === 'hindi' 
+            ? "🟢 एक्टिव - बोलिए (आपकी आवाज़ सुनी जा रही है...)" 
+            : "🟢 Active - Listening for your voice..."
+        );
         if (isVoiceAssistantActiveRef.current) {
           setTimeout(() => {
             if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
-              try { voiceAssistantRecRef.current?.start(); } catch (e) {}
+              startListeningCycle();
             }
-          }, 500);
+          }, 400);
         }
       },
       onError: () => {
         isVoiceAssistantSpeakingRef.current = false;
         setIsVoiceAssistantSpeaking(false);
-        setVoiceAssistantStatus("🟢 Active - Listening for 'Ok AI' / 'Ok Open AI'...");
+        setVoiceAssistantStatus(
+          language === 'hindi' 
+            ? "🟢 एक्टिव - बोलिए (आपकी आवाज़ सुनी जा रही है...)" 
+            : "🟢 Active - Listening for your voice..."
+        );
+        if (isVoiceAssistantActiveRef.current) {
+          setTimeout(() => {
+            if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
+              startListeningCycle();
+            }
+          }, 400);
+        }
       }
     });
   };
 
   const handleVoiceAssistantQuery = async (queryText: string) => {
-    if (!queryText.trim()) return;
+    if (!queryText || !queryText.trim()) return;
 
     let cleanQuery = queryText
       .replace(/^(ok|okay|hey|hello|ओपेन|ओके|ओक|ओपन)?\s*(open\s*ai|ai|hansai|ओपेन\s*एआई|ओके\s*एआई|ओक\s*एआई|ओपन\s*एआई)\b/i, "")
@@ -1577,10 +1613,122 @@ export default function App() {
 
     if (!cleanQuery) cleanQuery = queryText;
 
-    setVoiceAssistantStatus(`🤔 Processing: "${cleanQuery}"`);
-    showToast(`🎙️ Voice Query: "${cleanQuery}"`, "info");
+    setVoiceAssistantStatus(`🤔 Thinking: "${cleanQuery}"`);
+    showToast(`🎙️ Hands-Free Query: "${cleanQuery}"`, "info");
 
     await handleSendChat(cleanQuery);
+  };
+
+  const startListeningCycle = () => {
+    if (!isVoiceAssistantActiveRef.current || isVoiceAssistantSpeakingRef.current) return;
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    if (voiceAssistantRecRef.current) {
+      try { voiceAssistantRecRef.current.abort(); } catch (e) {}
+      voiceAssistantRecRef.current = null;
+    }
+
+    try {
+      const rec = new SpeechRecognition();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = language === 'hindi' ? 'hi-IN' : 'en-US';
+
+      rec.onstart = () => {
+        setIsVoiceAssistantListening(true);
+        setVoiceAssistantStatus(
+          language === 'hindi'
+            ? "🟢 एक्टिव - बोलिए (बोलने के बाद 1 सेकंड रुकें)"
+            : "🟢 Active - Speak now (AI responds 1s after you pause)"
+        );
+      };
+
+      rec.onresult = (event: any) => {
+        let currentText = "";
+        let isFinalDetected = false;
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const trans = event.results[i][0]?.transcript || "";
+          currentText += trans;
+          if (event.results[i].isFinal) {
+            isFinalDetected = true;
+          }
+        }
+
+        const trimmed = currentText.trim();
+        if (!trimmed) return;
+
+        voiceAssistantLastTranscriptRef.current = trimmed;
+        setVoiceAssistantTranscript(trimmed);
+        setVoiceAssistantStatus(`🎙️ Hearing: "${trimmed}"`);
+
+        if (voiceAssistantSilenceTimerRef.current) {
+          clearTimeout(voiceAssistantSilenceTimerRef.current);
+          voiceAssistantSilenceTimerRef.current = null;
+        }
+
+        const triggerQuery = () => {
+          const speechToSend = voiceAssistantLastTranscriptRef.current;
+          if (!speechToSend || speechToSend.trim().length < 2) return;
+          
+          voiceAssistantLastTranscriptRef.current = "";
+          setVoiceAssistantTranscript("");
+          
+          if (voiceAssistantRecRef.current) {
+            try { voiceAssistantRecRef.current.stop(); } catch (e) {}
+          }
+          handleVoiceAssistantQuery(speechToSend);
+        };
+
+        if (isFinalDetected) {
+          triggerQuery();
+        } else {
+          voiceAssistantSilenceTimerRef.current = setTimeout(() => {
+            if (voiceAssistantLastTranscriptRef.current.trim().length >= 2) {
+              triggerQuery();
+            }
+          }, 1100);
+        }
+      };
+
+      rec.onerror = (err: any) => {
+        const errType = err?.error;
+        if (errType === 'no-speech' || errType === 'aborted') {
+          return;
+        }
+        if (errType === 'not-allowed' || errType === 'service-not-allowed') {
+          isVoiceAssistantActiveRef.current = false;
+          setIsVoiceAssistantActive(false);
+          setIsVoiceAssistantListening(false);
+          setVoiceAssistantStatus("⚠️ Microphone Permission Denied.");
+          showToast("⚠️ Microphone access denied. Please allow mic permissions in browser settings.", "warn");
+          return;
+        }
+      };
+
+      rec.onend = () => {
+        setIsVoiceAssistantListening(false);
+        if (voiceAssistantSilenceTimerRef.current) {
+          clearTimeout(voiceAssistantSilenceTimerRef.current);
+          voiceAssistantSilenceTimerRef.current = null;
+        }
+
+        if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
+          setTimeout(() => {
+            if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
+              startListeningCycle();
+            }
+          }, 350);
+        }
+      };
+
+      voiceAssistantRecRef.current = rec;
+      rec.start();
+    } catch (e) {
+      console.warn("Speech recognition cycle initialization failed:", e);
+    }
   };
 
   const startVoiceAssistantMode = () => {
@@ -1588,8 +1736,8 @@ export default function App() {
     if (!SpeechRecognition) {
       showToast(
         language === 'hindi' 
-          ? "इस ब्राउज़र में वॉयस अस्सिस्टेंट समर्थित नहीं है। कृपया Chrome का उपयोग करें।" 
-          : "Voice Recognition is not supported in this browser. Please use Chrome.", 
+          ? "इस ब्राउज़र में वॉयस अस्सिस्टेंट समर्थित नहीं है। कृपया Chrome या Edge का उपयोग करें।" 
+          : "Voice Recognition is not supported in this browser. Please use Chrome or Edge.", 
         "warn"
       );
       return;
@@ -1600,93 +1748,17 @@ export default function App() {
       return;
     }
 
+    // Warmup audio player
     try {
-      const rec = new SpeechRecognition();
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.lang = 'hi-IN';
+      const silentAudio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=");
+      silentAudio.play().catch(() => {});
+    } catch (e) {}
 
-      rec.onstart = () => {
-        isVoiceAssistantActiveRef.current = true;
-        setIsVoiceAssistantActive(true);
-        setIsVoiceAssistantListening(true);
-        setVoiceAssistantStatus("🟢 Active - Say 'Ok AI' / 'Ok Open AI' or speak your question!");
-        showToast("🎙️ Hands-Free Voice Assistant Active! Say 'Ok AI' or speak your question.", "success");
-      };
+    isVoiceAssistantActiveRef.current = true;
+    setIsVoiceAssistantActive(true);
+    showToast("🎙️ Hands-Free Voice Assistant Active! Speak your question.", "success");
 
-      rec.onresult = (event: any) => {
-        const resultIndex = event.resultIndex;
-        const transcript = event.results[resultIndex][0].transcript;
-        const isFinal = event.results[resultIndex].isFinal;
-        setVoiceAssistantTranscript(transcript);
-
-        const lowerTrans = transcript.toLowerCase();
-        const hasWakeWord = lowerTrans.includes("ok ai") || 
-                             lowerTrans.includes("ok open ai") || 
-                             lowerTrans.includes("okay ai") || 
-                             lowerTrans.includes("hey ai") || 
-                             lowerTrans.includes("hello ai") || 
-                             lowerTrans.includes("ओपन एआई") || 
-                             lowerTrans.includes("ओके एआई") || 
-                             lowerTrans.includes("ओपेन एआई") || 
-                             lowerTrans.includes("ओक एआई") || 
-                             lowerTrans.includes("hansai") ||
-                             lowerTrans.includes("open ai");
-
-        if (isFinal) {
-          if (hasWakeWord || transcript.trim().length > 3) {
-            try { rec.stop(); } catch (e) {}
-            handleVoiceAssistantQuery(transcript);
-          }
-        }
-      };
-
-      rec.onerror = (err: any) => {
-        const errType = err?.error;
-        if (errType === 'no-speech' || errType === 'aborted') {
-          // Expected harmless speech recognition events during pause/stop
-          return;
-        }
-        if (errType === 'not-allowed' || errType === 'service-not-allowed') {
-          isVoiceAssistantActiveRef.current = false;
-          setIsVoiceAssistantActive(false);
-          setIsVoiceAssistantListening(false);
-          setVoiceAssistantStatus("⚠️ Mic Permission Denied. Tap to grant browser microphone access.");
-          showToast("⚠️ Microphone access is blocked by browser/iframe. Please grant mic permissions.", "warn");
-          return;
-        }
-        if (errType === 'audio-capture') {
-          isVoiceAssistantActiveRef.current = false;
-          setIsVoiceAssistantActive(false);
-          setIsVoiceAssistantListening(false);
-          setVoiceAssistantStatus("⚠️ Microphone Hardware Not Found.");
-          showToast("⚠️ No microphone hardware detected on this device.", "warn");
-          return;
-        }
-
-        console.warn("Voice Assistant Speech Recognition event:", errType || err);
-        setIsVoiceAssistantListening(false);
-        setVoiceAssistantStatus("⚠️ Voice Input Paused. Tap to resume.");
-      };
-
-      rec.onend = () => {
-        setIsVoiceAssistantListening(false);
-        if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
-          setTimeout(() => {
-            if (isVoiceAssistantActiveRef.current && !isVoiceAssistantSpeakingRef.current) {
-              try { rec.start(); } catch (e) {}
-            }
-          }, 500);
-        }
-      };
-
-      voiceAssistantRecRef.current = rec;
-      rec.start();
-    } catch (err) {
-      console.warn("Failed to initialize speech recognition: ", err);
-      isVoiceAssistantActiveRef.current = false;
-      setIsVoiceAssistantActive(false);
-    }
+    startListeningCycle();
   };
 
   // 4. Voice Input vocal dictation
@@ -2395,10 +2467,11 @@ export default function App() {
     logUserActivity('quiz', `Quiz Generated: ${targetedSubject}`);
 
     try {
+      const activeLang = quizLanguage || language || 'hindi';
       const res = await fetch("/api/quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject: targetedSubject, level: quizLevel })
+        body: JSON.stringify({ subject: targetedSubject, level: quizLevel, lang: activeLang })
       });
       if (!res.ok) throw new Error("Academic Node busy.");
       const data = await res.json();
@@ -2409,8 +2482,32 @@ export default function App() {
       }
     } catch (err: any) {
       console.error("Quiz generation error:", err);
-      // Fallback MCQs which match typical SSC / general awareness questions
-      const fallbackList: QuizQuestion[] = [
+      const activeLang = quizLanguage || language || 'hindi';
+      // Fallback MCQs matching selected language
+      const fallbackList: QuizQuestion[] = activeLang === 'hindi' ? [
+        {
+          question: `"${targetedSubject}" अभ्यास प्रश्न: इस विषय की बेहतर तैयारी के लिए सबसे महत्वपूर्ण क्या है?`,
+          options: [
+            "नियमित अभ्यास क्विज़ देना और उत्तरों की व्याख्या पढ़ना",
+            "केवल उत्तरों को रटना",
+            "कठिन विषयों को छोड़ देना",
+            "अविश्वसनीय स्रोतों से अभ्यास करना"
+          ],
+          answerIndex: 0,
+          explanation: "नियमित टेस्ट हल करना और सही व्याख्या समझना परीक्षा में सर्वाधिक अंक दिलाने का सर्वोत्तम तरीका है।"
+        },
+        {
+          question: `HansAI डिजिटल गाइड: बहुविकल्पीय (MCQ) प्रश्नों में उच्च अंक प्राप्त करने का मुख्य तरीका क्या है?`,
+          options: [
+            "केवल तुक्का लगाना",
+            "प्रश्न को ध्यान से पढ़ना, गलत विकल्पों को हटाना और मूल अवधारणा पर ध्यान देना",
+            "महीने में केवल एक बार अभ्यास करना",
+            "प्रश्नों की समीक्षा न करना"
+          ],
+          answerIndex: 1,
+          explanation: "सटीक गति और विकल्पों के सही विलोपन (elimination) से परीक्षा में सबसे अधिक अंक प्राप्त होते हैं।"
+        }
+      ] : [
         {
           question: `Practice MCQ Study Question on "${targetedSubject}": Which of the following plays a most vital role in preparation of this subject?`,
           options: [
@@ -2423,7 +2520,7 @@ export default function App() {
           explanation: "Consistent topic mock quizzes, identifying errors under high-discipline routines, and reading peer explanations are scientifically proven to maximize score accuracy."
         },
         {
-          question: `Syllabus Check: What is the primary recommendation by the Digital Companion HansAI to score high in MCQs?`,
+          question: `Syllabus Check: What is the primary recommendation by HansAI to score high in MCQs?`,
           options: [
             "Overthink every possibility leaving no room for quick solving rhythm",
             "Read carefully, eliminate obvious distractors, and focus on verified core concepts",
@@ -2435,7 +2532,7 @@ export default function App() {
         }
       ];
       setQuizzes(fallbackList);
-      setQuizError("Offline mock database pre-loaded! Active syllabus review test active. 📚");
+      setQuizError(activeLang === 'hindi' ? "ऑफलाइन मॉक प्रश्न लोड किए गए हैं! 📚" : "Offline mock database loaded! Active syllabus review test ready. 📚");
     } finally {
       setIsGeneratingQuiz(false);
     }
@@ -3933,7 +4030,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         timestamp: new Date()
       }]);
 
-      if (isVoiceAssistantActive && data.reply) {
+      if ((isVoiceAssistantActive || isVoiceAssistantActiveRef.current) && data.reply) {
         speakVoiceAssistantReply(data.reply);
       }
     } catch (err: any) {
@@ -3979,7 +4076,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       }]);
       showToast("HansAI Local Response Activated ✅", "success");
 
-      if (isVoiceAssistantActive && customReply) {
+      if ((isVoiceAssistantActive || isVoiceAssistantActiveRef.current) && customReply) {
         speakVoiceAssistantReply(customReply);
       }
     } finally {
@@ -4085,7 +4182,20 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <Menu className="w-5 h-5 text-indigo-400" />
           </button>
           
-          <div className="flex items-center gap-2 font-sans cursor-pointer" onClick={() => setActiveView('chat')}>
+          {/* Back Arrow Button (Only when in sub-views) */}
+          {activeView !== 'chat' && (
+            <button
+              onClick={() => {
+                setActiveView('chat');
+              }}
+              className="p-2 bg-sky-500/20 hover:bg-sky-500/35 border border-sky-400/40 text-sky-200 hover:text-white rounded-xl text-xs font-extrabold flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
+              title="Return to Workspace"
+            >
+              <ArrowLeft className="w-4 h-4 text-sky-300" />
+            </button>
+          )}
+
+          <div className="flex items-center gap-2 font-sans cursor-pointer" onClick={() => { setActiveView('chat'); startNewChat(); }}>
             {/* HansAI Official Logo */}
             <QuantumSwanLogo className="w-7 h-7 sm:w-8 sm:h-8" showLightBg={true} />
             <div>
@@ -4272,12 +4382,34 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           {/* Quick Action Navigation Buttons */}
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
             <button
+              onClick={() => { setActiveView('neural-map'); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/50 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>🧠</span>
+                <span>{language === 'hindi' ? 'AI न्यूरल मेमोरी मैप' : 'AI Neural Memory Map'}</span>
+              </div>
+              <span className="text-[10px] opacity-70">Open →</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveView('time-travel'); setIsHeaderMenuOpen(false); }}
+              className="w-full p-2.5 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-500/50 rounded-xl text-amber-300 flex items-center justify-between transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>⏳</span>
+                <span>{language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}</span>
+              </div>
+              <span className="text-[10px] opacity-70">Open →</span>
+            </button>
+
+            <button
               onClick={() => { setActiveView('calculator'); setIsHeaderMenuOpen(false); }}
               className="w-full p-2.5 bg-slate-900 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 rounded-xl text-cyan-300 flex items-center justify-between transition-all"
             >
               <div className="flex items-center gap-2">
                 <span>🧮</span>
-                <span>Scientific Calculator / साइंटिफिक कैलकुलेटर</span>
+                <span>{language === 'hindi' ? 'साइंटिफिक कैलकुलेटर' : 'Scientific Calculator'}</span>
               </div>
               <span className="text-[10px] opacity-70">Calc →</span>
             </button>
@@ -4288,7 +4420,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             >
               <div className="flex items-center gap-2">
                 <span>🛍️</span>
-                <span>Books & Affiliate Store / पुस्तकें व सामग्री दुकान</span>
+                <span>{language === 'hindi' ? 'पुस्तकें व अध्ययन सामग्री' : 'Books & Study Store'}</span>
               </div>
               <span className="text-[10px] opacity-70">Store →</span>
             </button>
@@ -4321,7 +4453,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             >
               <div className="flex items-center gap-2">
                 <History className="w-4 h-4 text-emerald-300" />
-                <span>My Activity & History / इतिहास</span>
+                <span>{language === 'hindi' ? 'गतिविधि एवं इतिहास' : 'My Activity & History'}</span>
               </div>
               <span className="text-[10px] opacity-70">Open →</span>
             </button>
@@ -4332,7 +4464,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             >
               <div className="flex items-center gap-2">
                 <Share2 className="w-4 h-4 text-cyan-300" />
-                <span>Share App / शेयर करें</span>
+                <span>{language === 'hindi' ? 'ऐप शेयर करें' : 'Share App'}</span>
               </div>
               <span className="text-[10px] opacity-70">Share →</span>
             </button>
@@ -4394,7 +4526,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           <div className="bg-[#1e1b4b] border-b border-[#00E5FF]/30 px-4 py-2 text-center text-xs font-semibold text-[#00E5FF] flex items-center justify-center gap-2">
             <span>📶</span>
             <span>
-              <strong>Offline Mode Active / ऑफ-लाइन मोड:</strong> You can view saved chats, notes, Pitman shorthand tools, quizzes, and calculators offline anytime!
+              <strong>{language === 'hindi' ? 'ऑफ-लाइन मोड सक्रिय:' : 'Offline Mode Active:'}</strong> {language === 'hindi' ? 'आप सहेजे गए चैट, नोट्स, स्टेनो टूल्स, क्विज़ और कैलकुलेटर ऑफ-लाइन देख सकते हैं!' : 'You can view saved chats, notes, shorthand tools, quizzes, and calculators offline anytime!'}
             </span>
           </div>
         )}
@@ -4415,34 +4547,34 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   👋
                 </div>
                 <h3 className="text-lg font-extrabold text-white">
-                  Welcome to HansAI / स्वागतम!
+                  {language === 'hindi' ? 'HansAI में आपका स्वागत है!' : 'Welcome to HansAI'}
                 </h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  कृपया प्रयोग शुरू करने से पहले अपना <strong>नाम (Name)</strong> और <strong>ईमेल (Email)</strong> दर्ज करें:
+                  {language === 'hindi' ? 'कृपया प्रयोग शुरू करने से पहले अपना नाम और ईमेल दर्ज करें:' : 'Please enter your Name and Email to start:'}
                 </p>
               </div>
 
               <form onSubmit={handleUserRegistrationSubmit} className="space-y-4 text-xs font-semibold">
                 <div className="space-y-1.5">
-                  <label className="text-slate-300 block">आपका पूरा नाम / Full Name:</label>
+                  <label className="text-slate-300 block">{language === 'hindi' ? 'आपका पूरा नाम:' : 'Full Name:'}</label>
                   <input
                     type="text"
                     required
                     value={registerFormName}
                     onChange={(e) => setRegisterFormName(e.target.value)}
-                    placeholder="उदा. आपका नाम / Enter Your Name"
+                    placeholder={language === 'hindi' ? "उदा. आपका नाम" : "Enter Your Name"}
                     className="w-full px-3.5 py-2.5 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-slate-300 block">आपका ईमेल आईडी / Email Address:</label>
+                  <label className="text-slate-300 block">{language === 'hindi' ? 'आपका ईमेल आईडी:' : 'Email Address:'}</label>
                   <input
                     type="email"
                     required
                     value={registerFormEmail}
                     onChange={(e) => setRegisterFormEmail(e.target.value)}
-                    placeholder="उदा. yourname@gmail.com"
+                    placeholder="e.g. yourname@gmail.com"
                     className="w-full px-3.5 py-2.5 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono"
                   />
                 </div>
@@ -4456,7 +4588,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   disabled={isRegisteringUser}
                   className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-550 hover:to-indigo-650 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-indigo-600/20 cursor-pointer disabled:opacity-50"
                 >
-                  {isRegisteringUser ? "रजिस्टर हो रहा है..." : "सुरक्षित प्रवेश करें / Continue to HansAI"}
+                  {isRegisteringUser 
+                    ? (language === 'hindi' ? "रजिस्टर हो रहा है..." : "Registering...") 
+                    : (language === 'hindi' ? "सुरक्षित प्रवेश करें" : "Continue to HansAI")}
                 </button>
               </form>
             </div>
@@ -4526,7 +4660,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   >
                     <div className="flex items-center gap-2">
                       <Plus className="w-4 h-4" />
-                      <span>New Chat / नया चैट</span>
+                      <span>{language === 'hindi' ? "नया चैट" : "New Chat"}</span>
                     </div>
                     <span className="text-[9px] bg-indigo-900/80 px-1.5 py-0.5 rounded text-indigo-200 font-mono">Fresh</span>
                   </button>
@@ -4537,7 +4671,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       type="text"
                       value={sidebarSearchQuery}
                       onChange={(e) => setSidebarSearchQuery(e.target.value)}
-                      placeholder="Search chats, topics... / खोजें..."
+                      placeholder={language === 'hindi' ? "चैट्स एवं विषय खोजें..." : "Search chats, topics..."}
                       className="w-full text-xs py-2 pl-8 pr-3 bg-[#0B0F1B] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                     />
                     <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
@@ -4558,7 +4692,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {/* Saved Chat History / Recent Chats */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
-                      <span>Recent Chats / हाल के चैट</span>
+                      <span>{language === 'hindi' ? "हाल के चैट" : "Recent Chats"}</span>
                       <span className="text-[9px] bg-slate-800 px-1.5 py-0.2 rounded text-slate-400">{savedChats.length}</span>
                     </div>
 
@@ -4603,15 +4737,36 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {/* Quick Tools & Modes */}
                   <div className="space-y-1.5 pt-2 border-t border-slate-850">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 block">
-                      Specialized AI Hub / ऐप्स
+                      {language === 'hindi' ? "विशेषज्ञ AI टूल्स" : "Specialized AI Hub"}
                     </span>
                     <div className="space-y-1 text-xs font-semibold">
+                      <button
+                        onClick={() => { setActiveView('neural-map'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/15 border border-emerald-500/30 cursor-pointer font-bold"
+                      >
+                        <span className="text-sm">🧠</span>
+                        <span className="truncate">{language === 'hindi' ? 'AI न्यूरल मेमोरी मैप' : 'AI Neural Memory Map'}</span>
+                      </button>
+                      <button
+                        onClick={() => { setActiveView('time-travel'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/15 border border-amber-500/30 cursor-pointer font-bold"
+                      >
+                        <span className="text-sm">⏳</span>
+                        <span className="truncate">{language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}</span>
+                      </button>
                       <button
                         onClick={() => { setActiveView('article-reader'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
                         className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/10 border border-amber-500/20 cursor-pointer font-bold"
                       >
                         <Headphones className="w-4 h-4 text-amber-300" />
                         <span className="truncate">{language === 'hindi' ? 'आर्टिकल वाइस रीडर 🎙️' : 'Article Voice Reader 🎙️'}</span>
+                      </button>
+                      <button
+                        onClick={() => { setActiveView('notes-ocr'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/10 border border-emerald-500/20 cursor-pointer font-bold"
+                      >
+                        <Camera className="w-4 h-4 text-emerald-300" />
+                        <span className="truncate">{language === 'hindi' ? 'हस्तलिखित नोट्स फोटो स्कैनर 📷' : 'Handwritten Notes Scanner 📷'}</span>
                       </button>
                       <button
                         onClick={() => { setActiveView('history'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
@@ -4793,6 +4948,91 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </h2>
                       </div>
 
+                      {/* FEATURE HIGHLIGHT HERO CARDS: NEURAL MAP, TIME-TRAVEL, MNEMONICS & SCIENCE LAB */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full text-left my-1">
+                        <button
+                          onClick={() => setActiveView('mnemonics')}
+                          className="p-4 bg-gradient-to-r from-amber-950/90 via-yellow-950/70 to-slate-900 border-2 border-amber-500/60 hover:border-amber-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-xl hover:shadow-amber-500/20 active:scale-98"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">💡</span>
+                              <span className="text-xs sm:text-sm font-black text-amber-300 group-hover:text-white uppercase tracking-wide">
+                                {language === 'hindi' ? 'AI स्मार्ट निमोनिक्स (Memory Tricks)' : 'AI Smart Mnemonics & Tricks'}
+                              </span>
+                              <span className="px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-200 text-[9px] font-black">10X MEMORY</span>
+                            </div>
+                            <p className="text-[11px] text-slate-300 font-medium">
+                              {language === 'hindi'
+                                ? 'कठिन तारीखें, नदियाँ, अनुच्छेद व फॉर्मूले याद रखने की जादुई ट्रिक्स व मजेदार कविताएं'
+                                : 'Master formulas, dates, constitutional articles & science series with AI rhymes & acronyms'}
+                            </p>
+                          </div>
+                          <span className="px-3 py-1.5 bg-amber-600 group-hover:bg-amber-500 text-white rounded-xl text-xs font-bold shrink-0 ml-2 shadow-md">
+                            {language === 'hindi' ? 'खोलें →' : 'Open →'}
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('science-lab')}
+                          className="p-4 bg-gradient-to-r from-cyan-950/90 via-blue-950/70 to-slate-900 border-2 border-cyan-500/60 hover:border-cyan-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-xl hover:shadow-cyan-500/20 active:scale-98"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">🔬</span>
+                              <span className="text-xs sm:text-sm font-black text-cyan-300 group-hover:text-white uppercase tracking-wide">
+                                {language === 'hindi' ? 'फॉर्मूला व साइंस लैब (Interactive Lab)' : 'Formula & Science Playground'}
+                              </span>
+                              <span className="px-1.5 py-0.5 rounded bg-cyan-500/30 text-cyan-200 text-[9px] font-black">INTERACTIVE</span>
+                            </div>
+                            <p className="text-[11px] text-slate-300 font-medium">
+                              {language === 'hindi'
+                                ? 'सर्किट, लेंस ऑप्टिक्स, पेंडुलम, त्रिकोणमिति व अर्थशास्त्र फॉर्मूलों का लाइव विजुअल सिमुलेशन'
+                                : 'Live visual physics, optics, trigonometry & finance simulations with interactive sliders'}
+                            </p>
+                          </div>
+                          <span className="px-3 py-1.5 bg-cyan-600 group-hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shrink-0 ml-2 shadow-md">
+                            {language === 'hindi' ? 'खोलें →' : 'Open →'}
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('neural-map')}
+                          className="p-3.5 bg-gradient-to-r from-emerald-950/90 via-teal-950/70 to-slate-900 border border-emerald-500/40 hover:border-emerald-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-md active:scale-98"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">🧠</span>
+                              <span className="text-xs font-black text-emerald-300 group-hover:text-white uppercase">
+                                {language === 'hindi' ? 'AI न्यूरल मेमोरी मैप' : 'AI Neural Memory Map'}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-300">
+                              {language === 'hindi' ? 'माइंड-मैप, विजुअल नोड्स व PYQ' : 'Visual Mind Maps & PYQ Highlights'}
+                            </p>
+                          </div>
+                          <span className="text-[10px] font-bold text-emerald-400">Open →</span>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('time-travel')}
+                          className="p-3.5 bg-gradient-to-r from-purple-950/90 via-indigo-950/70 to-slate-900 border border-purple-500/40 hover:border-purple-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-md active:scale-98"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">⏳</span>
+                              <span className="text-xs font-black text-purple-300 group-hover:text-white uppercase">
+                                {language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-300">
+                              {language === 'hindi' ? 'भगत सिंह, आंबेडकर, गांधीजी से बातचीत' : 'Converse with Bhagat Singh, Ambedkar, Gandhi'}
+                            </p>
+                          </div>
+                          <span className="text-[10px] font-bold text-purple-400">Open →</span>
+                        </button>
+                      </div>
+
                       {/* Quick Utility Tools Grid (4 Clean Unique Colored Boxes) */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full text-left">
                         <button
@@ -4867,6 +5107,31 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   ) : (
                     /* ACTIVE CHAT MESSAGES THREAD */
                     <div className="flex-1 space-y-6 w-full max-w-5xl mx-auto mb-3 overflow-y-auto pr-1">
+                      {/* Sticky Top Bar to return to Home Page */}
+                      <div className="sticky top-0 z-20 bg-[#060913]/95 backdrop-blur-md py-2 px-3 mb-2 rounded-xl border border-sky-500/40 flex items-center justify-between shadow-lg">
+                        <button
+                          onClick={() => {
+                            setActiveView('chat');
+                            startNewChat();
+                          }}
+                          className="p-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-md active:scale-95 border-none flex items-center justify-center"
+                          title="Return to main chat"
+                        >
+                          <ArrowLeft className="w-4 h-4 text-white" />
+                        </button>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={startNewChat}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-700/80 shadow-sm"
+                            title="Start New Chat"
+                          >
+                            <Plus className="w-3.5 h-3.5 text-sky-400" />
+                            <span>New Chat</span>
+                          </button>
+                        </div>
+                      </div>
+
                       {chatMessages.map((msg) => (
                         <div 
                           key={msg.id}
@@ -8315,17 +8580,19 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
           {/* VIEW: CONCEPT FLOWCHART & GEOGRAPHIC MAP */}
           {activeView === 'map' && (
-            <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
+            <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 animate-fade-in text-left">
               
               {/* Header */}
               <div className="border-b border-slate-800 pb-4 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
                     <Network className="w-5.5 h-5.5 text-amber-500 animate-pulse" />
-                    Concept & Geographic Deep Map / संकल्पना व नक्शा
+                    GIS Concept & Geographic Visualizer / जीआईएस मैपिंग व संकल्पना
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
-                    Visualize study topics sequentially or explore deep physical geography, mountain ranges, river basins & historical sites.
+                    {language === 'hindi' 
+                      ? 'मैप पर किसी भी बिंदु पर क्लिक करें — ठीक नीचे उस बिंदु की संपूर्ण विस्तृत व्याख्या, परीक्षा तथ्य व शॉर्टकट ट्रिक्स देखें!'
+                      : 'Click any point on the map — see its full live explanation, key exam points & memory tricks directly below!'}
                   </p>
                 </div>
 
@@ -8339,7 +8606,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    <span>🧠 Concept Flowchart</span>
+                    <span>🧠 Concept Flowchart Map</span>
                   </button>
                   <button
                     onClick={() => { setMapTab('geo'); if (!selectedGeoRegion) setSelectedGeoRegion(geoLandmarks[0]); }}
@@ -8349,7 +8616,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    <span>🗺️ Geographic Landmarks</span>
+                    <span>🗺️ Geographic GIS Topography</span>
                   </button>
                 </div>
               </div>
@@ -8358,7 +8625,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               {mapTab === 'flowchart' && (
                 <div className="space-y-6">
                   {/* Topic Generator Control */}
-                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
+                  <div className="bg-[#0F1626]/40 border border-slate-800 p-4 rounded-2xl space-y-3">
                     <form 
                       onSubmit={(e) => { e.preventDefault(); handleGenerateConceptMap(); }}
                       className="flex flex-col sm:flex-row gap-3"
@@ -8367,23 +8634,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         type="text"
                         value={conceptMapTopic}
                         onChange={(e) => setConceptMapTopic(e.target.value)}
-                        placeholder="कोई भी विषय या प्रश्न टाइप करें (जैसे: Newton's Laws, Photosynthesis, SSC CGL Strategy, Akbar History...)"
+                        placeholder={
+                          language === 'hindi'
+                            ? "कोई भी विषय, प्रश्न या स्थान टाइप करें (जैसे: Newton's Laws, Photosynthesis, 1857 Revolt Places, Ganga River System, Budget)..."
+                            : "Type any topic or region (e.g. Newton's Laws, Photosynthesis, Ganga River System, 1857 Revolt)..."
+                        }
                         className="flex-1 text-xs px-4 py-3 bg-[#090D16] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-sans font-semibold"
                       />
                       <button
                         type="submit"
                         disabled={isGeneratingConceptMap || !conceptMapTopic.trim()}
-                        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0"
                       >
                         {isGeneratingConceptMap ? (
                           <>
                             <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            <span>Generating Map...</span>
+                            <span>Creating GIS Map...</span>
                           </>
                         ) : (
                           <>
                             <Search className="w-3.5 h-3.5" />
-                            <span>Visualize Topic</span>
+                            <span>{language === 'hindi' ? 'मैपिंग व बिंदु बनाएं' : 'Visualize & Map GIS Points'}</span>
                           </>
                         )}
                       </button>
@@ -8394,26 +8665,42 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {mapNodes.length === 0 ? (
                     <div className="p-12 bg-[#090D16] border border-slate-850 rounded-2xl text-center space-y-4 max-w-xl mx-auto my-6 shadow-inner">
                       <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center mx-auto text-3xl shadow-lg text-indigo-400">
-                        🧠
+                        🗺️
                       </div>
                       <div className="space-y-2">
                         <h3 className="text-base font-bold text-white">
-                          कोई भी विषय टाइप करें और मैपिंग देखें
+                          {language === 'hindi' ? 'कोई भी विषय या टॉपिक सर्च करें और लाइव मैप देखें' : 'Search Any Topic to Generate Live GIS Flowchart'}
                         </h3>
                         <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-                          Type any question, subject, or exam topic above. HansAI will analyze the topic live and create a step-by-step visual flowchart for instant retention.
+                          {language === 'hindi'
+                            ? 'ऊपर विषय टाइप करें। AI आपके टॉपिक के सभी बिंदुओं को नक्शे पर जोड़ेगा और ठीक नीचे हर बिंदु की संपूर्ण व्याख्या दिखाएगा।'
+                            : 'HansAI will build visual nodes across the map canvas and explain every point in detail right below!'}
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-6">
                       
-                      {/* Visual Canvas Block */}
-                      <div className="md:col-span-2 space-y-4">
+                      {/* FULL-WIDTH VISUAL MAP CANVAS */}
+                      <div className="bg-[#090D16] border border-slate-800 rounded-3xl p-5 shadow-2xl relative overflow-hidden">
                         
-                        <div className="relative w-full h-[360px] bg-[#090D16] border border-slate-850 rounded-2xl overflow-hidden shadow-inner p-4">
-                          {/* Background Tech Net Grid Lines */}
-                          <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.6)_1px,transparent_1px)] bg-[size:20px_20px] opacity-25" />
+                        {/* Map Header Info */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800/80 pb-3 gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">📍</span>
+                            <span className="text-xs font-black text-white uppercase tracking-wider">
+                              {language === 'hindi' ? 'जीआईएस मैप कैनवास (GIS Concept Net Canvas)' : 'GIS Interactive Map Canvas'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 font-mono px-2.5 py-0.5 rounded-full font-bold">
+                            {language === 'hindi' ? '👉 नक्शे पर किसी बिंदु को चुनें — व्याख्या ठीक नीचे दिखेगी' : '👉 Click any point to view explanation directly below'}
+                          </span>
+                        </div>
+
+                        {/* Interactive Visual Map Field */}
+                        <div className="relative w-full h-[320px] sm:h-[380px] my-4 border border-slate-850 rounded-2xl bg-[#060A12] overflow-hidden p-4 shadow-inner">
+                          {/* Tech Grid Lines */}
+                          <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.6)_1px,transparent_1px)] bg-[size:24px_24px] opacity-30" />
                           
                           {/* Connecting SVG Path Lines */}
                           <svg className="absolute inset-0 w-full h-full pointer-events-none">
@@ -8427,15 +8714,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                     y1={`${prev.y}%`}
                                     x2={`${node.x}%`}
                                     y2={`${node.y}%`}
-                                    stroke="rgba(99,102,241,0.3)"
-                                    strokeWidth="2.5"
-                                    strokeDasharray="5 5"
+                                    stroke="rgba(245, 158, 11, 0.4)"
+                                    strokeWidth="3"
+                                    strokeDasharray="6 6"
                                   />
                                   <circle
                                     cx={`${(prev.x + node.x) / 2}%`}
                                     cy={`${(prev.y + node.y) / 2}%`}
-                                    r="3.5"
-                                    fill="#6366F1"
+                                    r="4"
+                                    fill="#F59E0B"
                                     className="animate-ping"
                                   />
                                 </g>
@@ -8443,137 +8730,149 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             })}
                           </svg>
 
-                          {/* Flowchart Nodes */}
+                          {/* Flowchart Nodes (Map Points) */}
                           {mapNodes.map((node, idx) => {
                             const isActive = activeMapNode?.id === node.id;
                             return (
                               <button
                                 key={node.id}
                                 onClick={() => { setActiveMapNode(node); setShowDetailedDiagram(false); }}
-                                className={`absolute px-3 py-2 rounded-xl border text-[11px] font-bold transition-all shadow-xl text-center -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 hover:scale-105 ${
+                                className={`absolute px-3.5 py-2 rounded-2xl border text-xs font-black transition-all shadow-2xl -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 cursor-pointer hover:scale-110 z-20 ${
                                   isActive
-                                    ? 'bg-amber-600 border-amber-400 text-white ring-4 ring-amber-500/20'
-                                    : 'bg-[#121A2A] border-slate-800 text-slate-350 hover:border-slate-700'
+                                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border-amber-300 ring-4 ring-amber-400/40 scale-110'
+                                    : 'bg-[#0F172A]/90 text-slate-200 border-indigo-500/40 hover:border-amber-400 hover:bg-slate-800'
                                 }`}
                                 style={{ left: `${node.x}%`, top: `${node.y}%` }}
                               >
-                                <span className="w-4 h-4 rounded-full bg-slate-900 border border-slate-800 text-[10px] flex items-center justify-center font-bold text-slate-400">
+                                <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
+                                  isActive ? 'bg-slate-950 text-amber-300' : 'bg-indigo-900 text-indigo-200'
+                                }`}>
                                   {idx + 1}
                                 </span>
-                                <span className="truncate max-w-[120px] sm:max-w-none">{node.label}</span>
+                                <span className="truncate max-w-[140px] sm:max-w-none">{node.label}</span>
                               </button>
                             );
                           })}
                         </div>
 
-                        {/* Clarification prompt */}
-                        <div className="bg-[#121A2A] border border-dashed border-indigo-950/66 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-                          <div>
-                            <h4 className="text-xs font-bold text-indigo-300">समझ नहीं आया? / Confused about the topic flow?</h4>
-                            <p className="text-[10px] text-slate-400 mt-0.5">Let’s represent the concept via a high-yield visual SVG diagram mapping connections perfectly.</p>
+                        {/* SEQUENCE STEPPER BAR AT BOTTOM OF CANVAS */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            {language === 'hindi' ? 'मैप बिंदु क्रम (Select Map Point):' : 'All Map Points Sequence:'}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {mapNodes.map((node, idx) => {
+                              const isActive = activeMapNode?.id === node.id;
+                              return (
+                                <button
+                                  key={`step-btn-${node.id}`}
+                                  onClick={() => { setActiveMapNode(node); setShowDetailedDiagram(false); }}
+                                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                                    isActive
+                                      ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md font-extrabold'
+                                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+                                  }`}
+                                >
+                                  Point {idx + 1}: {node.label.length > 18 ? node.label.substring(0, 18) + '...' : node.label}
+                                </button>
+                              );
+                            })}
                           </div>
-                          <button
-                            onClick={() => setShowDetailedDiagram(true)}
-                            className="px-4 py-2 bg-indigo-900/30 hover:bg-indigo-900/50 text-indigo-300 text-xs font-black rounded-lg border border-indigo-500/30 uppercase tracking-wide transition-all cursor-pointer"
-                          >
-                            💡 Explain with Diagram
-                          </button>
                         </div>
 
                       </div>
 
-                      {/* Node Educational Detail sidebar panel */}
-                      <div className="bg-[#0F1626]/30 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
-                        {showDetailedDiagram ? (
-                          <div className="space-y-4 animate-fade-in">
-                            <div className="text-left">
-                              <span className="text-[9px] bg-indigo-500/10 text-indigo-400 font-black px-2 py-0.5 rounded uppercase">VISUAL ENGRAVING DIAGRAM</span>
-                              <h4 className="text-sm font-black text-white mt-1.5 uppercase">Logic Chart / आरेख नक़्शा</h4>
-                              <p className="text-[11px] text-slate-400 mt-1">This SVG sketch illustrates the concept visually, rendering explicit confluences and rules step-by-step.</p>
-                            </div>
-
-                            <svg viewBox="0 0 220 260" className="w-full bg-[#090D16] border border-indigo-900/30 rounded-xl p-3 shadow-lg">
-                              {mapNodes.map((node, nIdx) => {
-                                const yPos = 20 + nIdx * 45;
-                                const colors = ["#818CF8", "#34D399", "#FBBF24", "#F472B6", "#A78BFA"];
-                                const currentColor = colors[nIdx % colors.length];
-                                return (
-                                  <g key={`svg-node-${nIdx}`}>
-                                    {nIdx < mapNodes.length - 1 && (
-                                      <line
-                                        x1="110"
-                                        y1={yPos + 24}
-                                        x2="110"
-                                        y2={yPos + 45}
-                                        stroke="#475569"
-                                        strokeWidth="1.5"
-                                        strokeDasharray="2 2"
-                                      />
-                                    )}
-                                    <rect
-                                      x="15"
-                                      y={yPos}
-                                      width="190"
-                                      height="28"
-                                      rx="6"
-                                      fill="#0F172A"
-                                      stroke={currentColor}
-                                      strokeWidth="1.2"
-                                    />
-                                    <text
-                                      x="110"
-                                      y={yPos + 17}
-                                      fill="#FFFFFF"
-                                      fontSize="7"
-                                      fontWeight="bold"
-                                      textAnchor="middle"
-                                    >
-                                      {node.label.length > 32 ? node.label.substring(0, 32) + '...' : node.label}
-                                    </text>
-                                  </g>
-                                );
-                              })}
-                            </svg>
-                          </div>
-                        ) : activeMapNode ? (
-                          <div className="space-y-4 animate-fade-in">
-                            <div className="text-left">
-                              <span className="text-[10px] bg-indigo-500/10 text-indigo-400 font-bold px-2 py-0.5 rounded uppercase">Active Node Overview</span>
-                              <h4 className="text-base font-black text-white mt-1.5">{activeMapNode.label}</h4>
-                            </div>
-
-                            <div className="bg-[#090D16] border border-slate-850 p-4 rounded-xl text-left space-y-3">
-                              <div className="space-y-0.5">
-                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Simplified description / सरल व्याख्या</span>
-                                <p className="text-xs text-slate-200 leading-relaxed font-semibold">{activeMapNode.desc}</p>
+                      {/* DEDICATED BOTTOM EXPLANATION PANEL (नक्शे के ठीक नीचे विस्तृत बिंदु-वार व्याख्या) */}
+                      {activeMapNode && (
+                        <div className="bg-gradient-to-br from-[#0B1222] via-[#090D16] to-[#0A0E1A] border-2 border-amber-500/40 rounded-3xl p-6 space-y-5 shadow-2xl animate-fade-in text-left">
+                          
+                          {/* PANEL HEADER */}
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-amber-500/20 pb-4 gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-black text-sm shrink-0">
+                                #{mapNodes.findIndex(n => n.id === activeMapNode.id) + 1}
                               </div>
-                              
-                              <div className="space-y-0.5 border-t border-slate-800/60 pt-2.5">
-                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Academic Tip & Exam utility / परीक्षा सूत्र</span>
-                                <p className="text-xs text-slate-300 leading-relaxed font-medium">{activeMapNode.detail}</p>
+                              <div>
+                                <span className="text-[10px] font-extrabold uppercase text-amber-400 tracking-wider bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                                  {language === 'hindi' ? 'चयनित बिंदु की लाइव व्याख्या (Live Point Detail)' : 'Selected Point Live Explanation'}
+                                </span>
+                                <h3 className="text-lg font-black text-white mt-1 flex items-center gap-2">
+                                  <span>📌</span>
+                                  <span>{activeMapNode.label}</span>
+                                </h3>
                               </div>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="text-center text-slate-500 text-xs py-10">
-                            <span>अवधारणा नक्शा लोड करने के लिए किसी एक नोड पर क्लिक करें!</span>
-                          </div>
-                        )}
 
-                        <button
-                          onClick={() => {
-                            if (activeMapNode) {
-                              const idx = mapNodes.findIndex(n => n.id === activeMapNode.id);
-                              const nextIdx = (idx + 1) % mapNodes.length;
-                              setActiveMapNode(mapNodes[nextIdx]);
-                              setShowDetailedDiagram(false);
-                            }
-                          }}
-                          className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-xs font-bold text-indigo-400 rounded-xl transition-all border border-slate-800 uppercase tracking-wide block cursor-pointer"
-                        >
-                          Next Logic Step ➔
-                        </button>
-                      </div>
+                            {/* Action controls */}
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => speakText(`${activeMapNode.label}. ${activeMapNode.desc}. ${activeMapNode.detail}`)}
+                                className="px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <span>🎙️</span>
+                                <span>{language === 'hindi' ? 'व्याख्या सुनें' : 'Read Voice'}</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  const idx = mapNodes.findIndex(n => n.id === activeMapNode.id);
+                                  const nextIdx = (idx + 1) % mapNodes.length;
+                                  setActiveMapNode(mapNodes[nextIdx]);
+                                }}
+                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black transition-all shadow-md flex items-center gap-1 cursor-pointer"
+                              >
+                                <span>{language === 'hindi' ? 'अगला बिंदु ➔' : 'Next Point ➔'}</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* CONTENT BREAKDOWN GRID (2 COLS) */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            
+                            {/* LEFT: SIMPLIFIED CONCEPT EXPLANATION */}
+                            <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-2">
+                              <span className="text-[10px] font-black uppercase text-indigo-400 tracking-wider block">
+                                📖 {language === 'hindi' ? 'सरल शब्दों में संपूर्ण व्याख्या (Detailed Explanation):' : 'Simplified Concept Breakdown:'}
+                              </span>
+                              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-semibold">
+                                {activeMapNode.desc}
+                              </p>
+                            </div>
+
+                            {/* RIGHT: EXAM UTILITY & MEMORY TRICK */}
+                            <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-2">
+                              <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider block">
+                                💡 {language === 'hindi' ? 'परीक्षा मुख्य तथ्य व सूत्र (Key Exam Facts):' : 'Academic & Exam Utility:'}
+                              </span>
+                              <p className="text-xs sm:text-sm text-amber-100 leading-relaxed font-medium">
+                                {activeMapNode.detail}
+                              </p>
+                            </div>
+
+                          </div>
+
+                          {/* ASK HANS AI ABOUT THIS POINT */}
+                          <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <p className="text-xs text-slate-400 font-medium">
+                              {language === 'hindi'
+                                ? 'क्या इस बिंदु से जुड़ा कोई प्रश्न है? HansAI AI साथी से पूछें!'
+                                : 'Have questions about this point? Ask HansAI Companion for instant clarification.'}
+                            </p>
+                            <button
+                              onClick={() => {
+                                const prompt = `Explain the map point "${activeMapNode.label}" in detail with examples and exam PYQs.`;
+                                setChatInput(prompt);
+                                setActiveView('chat');
+                                logUserActivity('chat', prompt);
+                              }}
+                              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all border-none cursor-pointer shrink-0"
+                            >
+                              💬 Ask AI Companion About This Point
+                            </button>
+                          </div>
+
+                        </div>
+                      )}
 
                     </div>
                   )}
@@ -8583,141 +8882,163 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               {/* MODE 2: INTERACTIVE GEOGRAPHIC LANDMARKS MAP */}
               {mapTab === 'geo' && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    {/* Interactive Visual Map Canvas */}
-                    <div className="lg:col-span-2 bg-[#090D16] border border-slate-800 rounded-3xl p-5 relative min-h-[420px] flex flex-col justify-between shadow-2xl overflow-hidden">
-                      {/* Grid Background */}
-                      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
+                  
+                  {/* GEOGRAPHIC MAP CANVAS */}
+                  <div className="bg-[#090D16] border border-slate-800 rounded-3xl p-5 relative min-h-[380px] flex flex-col justify-between shadow-2xl overflow-hidden">
+                    {/* Grid Background */}
+                    <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
 
-                      {/* Top Canvas Watermark */}
-                      <div className="relative z-10 flex items-center justify-between border-b border-slate-800/80 pb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-base">🗺️</span>
-                          <span className="text-xs font-black text-white uppercase tracking-wider">India Physical & Historical Topography Map</span>
-                        </div>
-                        <span className="text-[10px] text-amber-400 bg-amber-400/10 border border-amber-400/20 font-mono px-2 py-0.5 rounded-full">
-                          Click Hotspots below
+                    {/* Top Canvas Watermark */}
+                    <div className="relative z-10 flex items-center justify-between border-b border-slate-800/80 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">🗺️</span>
+                        <span className="text-xs font-black text-white uppercase tracking-wider">
+                          {language === 'hindi' ? 'भारत भौगोलिक व ऐतिहासिक जीआईएस नक्शा' : 'India Physical & Historical Topography GIS Map'}
                         </span>
                       </div>
-
-                      {/* Map Outline SVG Background */}
-                      <div className="relative w-full h-[320px] my-4 border border-slate-850 rounded-2xl bg-[#060A12] overflow-hidden flex items-center justify-center">
-                        <svg viewBox="0 0 100 100" className="w-full h-full opacity-20 text-indigo-500 fill-current">
-                          <path d="M 40,10 Q 55,5 70,12 T 80,30 T 65,50 T 70,70 T 50,95 T 30,80 T 35,55 T 20,35 Z" />
-                        </svg>
-
-                        {/* Geographic Pins */}
-                        {geoLandmarks.map((loc) => {
-                          const isSelected = selectedGeoRegion?.id === loc.id;
-                          return (
-                            <button
-                              key={loc.id}
-                              onClick={() => setSelectedGeoRegion(loc)}
-                              className={`absolute p-2.5 rounded-2xl border text-xs font-extrabold transition-all shadow-2xl flex items-center gap-2 -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 z-20 ${
-                                isSelected
-                                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-300 ring-4 ring-amber-400/30 scale-105'
-                                  : 'bg-[#0F172A]/90 text-slate-200 border-indigo-500/40 hover:border-indigo-400 hover:bg-slate-800'
-                              }`}
-                              style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
-                            >
-                              <span className="text-sm">{loc.icon}</span>
-                              <span className="hidden sm:inline text-[11px] font-black">{loc.name.split('(')[0]}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Landmark Hotspot Quick Buttons */}
-                      <div className="relative z-10 flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
-                        {geoLandmarks.map((loc) => (
-                          <button
-                            key={`btn-${loc.id}`}
-                            onClick={() => setSelectedGeoRegion(loc)}
-                            className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
-                              selectedGeoRegion?.id === loc.id
-                                ? 'bg-amber-500 text-slate-950 border-amber-400 font-extrabold'
-                                : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
-                            }`}
-                          >
-                            {loc.icon} {loc.name.split('(')[0]}
-                          </button>
-                        ))}
-                      </div>
+                      <span className="text-[10px] text-amber-400 bg-amber-400/10 border border-amber-400/20 font-mono px-2.5 py-0.5 rounded-full font-bold">
+                        {language === 'hindi' ? '👉 नक्शे के किसी स्थान पर क्लिक करें — व्याख्या ठीक नीचे दिखेगी' : 'Click hotspot on map — explanation directly below'}
+                      </span>
                     </div>
 
-                    {/* Landmark Inspection Detail Panel */}
-                    <div className="bg-[#0D1322] border border-slate-800 rounded-3xl p-5 space-y-4 flex flex-col justify-between text-left shadow-xl">
-                      {selectedGeoRegion ? (
-                        <div className="space-y-4 animate-fade-in">
-                          <div>
-                            <span className="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
-                              {selectedGeoRegion.category}
-                            </span>
-                            <h3 className="text-base font-extrabold text-white mt-2 flex items-center gap-2">
-                              <span>{selectedGeoRegion.icon}</span>
-                              <span>{selectedGeoRegion.name}</span>
-                            </h3>
-                          </div>
+                    {/* Map Outline SVG Background */}
+                    <div className="relative w-full h-[320px] my-4 border border-slate-850 rounded-2xl bg-[#060A12] overflow-hidden flex items-center justify-center shadow-inner">
+                      <svg viewBox="0 0 100 100" className="w-full h-full opacity-20 text-indigo-500 fill-current">
+                        <path d="M 40,10 Q 55,5 70,12 T 80,30 T 65,50 T 70,70 T 50,95 T 30,80 T 35,55 T 20,35 Z" />
+                      </svg>
 
-                          <div className="bg-[#060A12] border border-slate-800 p-3.5 rounded-2xl space-y-2 text-xs">
-                            <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                              <span className="text-slate-400">Elevation/Feature:</span>
-                              <span className="font-bold text-slate-200">{selectedGeoRegion.elevation}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                              <span className="text-slate-400">Rivers / Tributaries:</span>
-                              <span className="font-bold text-indigo-400">{selectedGeoRegion.rivers}</span>
-                            </div>
-                            <p className="text-slate-300 pt-1 leading-relaxed">{selectedGeoRegion.history}</p>
-                          </div>
+                      {/* Geographic Pins */}
+                      {geoLandmarks.map((loc) => {
+                        const isSelected = selectedGeoRegion?.id === loc.id;
+                        return (
+                          <button
+                            key={loc.id}
+                            onClick={() => setSelectedGeoRegion(loc)}
+                            className={`absolute p-2.5 rounded-2xl border text-xs font-extrabold transition-all shadow-2xl flex items-center gap-2 -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 z-20 ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-300 ring-4 ring-amber-400/30 scale-110'
+                                : 'bg-[#0F172A]/90 text-slate-200 border-indigo-500/40 hover:border-indigo-400 hover:bg-slate-800'
+                            }`}
+                            style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
+                          >
+                            <span className="text-sm">{loc.icon}</span>
+                            <span className="hidden sm:inline text-[11px] font-black">{loc.name.split('(')[0]}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
 
-                          {/* Key Exam Features */}
-                          <div className="space-y-1.5">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Exam Facts (मुख्य बिंदु):</span>
-                            <ul className="space-y-1 text-xs text-slate-200">
-                              {selectedGeoRegion.keyFeatures.map((kf: string, i: number) => (
-                                <li key={i} className="flex items-start gap-1.5 bg-slate-900/60 p-2 rounded-xl border border-slate-850">
-                                  <span className="text-amber-400 font-bold">•</span>
-                                  <span>{kf}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                    {/* Landmark Hotspot Quick Buttons Bar */}
+                    <div className="relative z-10 flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        {language === 'hindi' ? 'स्थान चुनें:' : 'Select Hotspot:'}
+                      </span>
+                      {geoLandmarks.map((loc) => (
+                        <button
+                          key={`btn-${loc.id}`}
+                          onClick={() => setSelectedGeoRegion(loc)}
+                          className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
+                            selectedGeoRegion?.id === loc.id
+                              ? 'bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md'
+                              : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                          }`}
+                        >
+                          {loc.icon} {loc.name.split('(')[0]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                          {/* PYQs */}
-                          <div className="space-y-1.5">
-                            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Previous Year Questions (PYQs):</span>
-                            <div className="space-y-1 text-[11px] text-slate-300">
+                  {/* DEDICATED BOTTOM EXPLANATION PANEL FOR GIS GEOGRAPHIC LOCATION */}
+                  {selectedGeoRegion && (
+                    <div className="bg-gradient-to-br from-[#0B1222] via-[#090D16] to-[#0A0E1A] border-2 border-amber-500/40 rounded-3xl p-6 space-y-5 shadow-2xl animate-fade-in text-left">
+                      
+                      {/* HEADER */}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-amber-500/20 pb-3 gap-3">
+                        <div>
+                          <span className="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
+                            {selectedGeoRegion.category}
+                          </span>
+                          <h3 className="text-lg font-extrabold text-white mt-1 flex items-center gap-2">
+                            <span>{selectedGeoRegion.icon}</span>
+                            <span>{selectedGeoRegion.name}</span>
+                          </h3>
+                        </div>
+
+                        <button
+                          onClick={() => speakText(`${selectedGeoRegion.name}. ${selectedGeoRegion.history}. Elevation: ${selectedGeoRegion.elevation}. Rivers: ${selectedGeoRegion.rivers}`)}
+                          className="px-3.5 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                        >
+                          <span>🎙️</span>
+                          <span>{language === 'hindi' ? 'स्थान विवरण सुनें' : 'Read Voice'}</span>
+                        </button>
+                      </div>
+
+                      {/* CONTENT GRID */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        {/* LEFT: PHYSICAL GEOGRAPHY & HISTORY */}
+                        <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+                          <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                            <span className="text-slate-400">Elevation/Feature:</span>
+                            <span className="font-bold text-slate-200">{selectedGeoRegion.elevation}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                            <span className="text-slate-400">Rivers / Tributaries:</span>
+                            <span className="font-bold text-indigo-400">{selectedGeoRegion.rivers}</span>
+                          </div>
+                          <p className="text-slate-300 pt-1 leading-relaxed">{selectedGeoRegion.history}</p>
+                        </div>
+
+                        {/* RIGHT: KEY EXAM FACTS & PYQS */}
+                        <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-3">
+                          <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Key Exam Facts (मुख्य परीक्षा बिंदु):</span>
+                          <ul className="space-y-1.5 text-xs text-slate-200">
+                            {selectedGeoRegion.keyFeatures.map((kf: string, i: number) => (
+                              <li key={i} className="flex items-start gap-1.5 bg-slate-900/60 p-2 rounded-xl border border-slate-850">
+                                <span className="text-amber-400 font-bold">•</span>
+                                <span>{kf}</span>
+                              </li>
+                            ))}
+                          </ul>
+
+                          {selectedGeoRegion.pyqs && selectedGeoRegion.pyqs.length > 0 && (
+                            <div className="pt-2 border-t border-slate-800 space-y-1">
+                              <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">PYQ Questions:</span>
                               {selectedGeoRegion.pyqs.map((pq: string, i: number) => (
-                                <div key={i} className="p-2 bg-indigo-950/20 border border-indigo-900/40 rounded-xl">
-                                  <span>{pq}</span>
+                                <div key={i} className="p-2 bg-indigo-950/30 border border-indigo-900/40 rounded-xl text-[11px] text-indigo-200 font-medium">
+                                  {pq}
                                 </div>
                               ))}
                             </div>
-                          </div>
+                          )}
+                        </div>
 
-                          {/* Ask AI Companion Button */}
-                          <button
-                            onClick={() => {
-                              const prompt = `Please explain the geography, rivers, passes, and historical significance of ${selectedGeoRegion.name} in detail with memory tricks for competitive exams.`;
-                              setChatInput(prompt);
-                              setActiveView('chat');
-                              logUserActivity('chat', prompt);
-                            }}
-                            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                          >
-                            <span>💬 Ask HansAI Companion for Deeper Analysis</span>
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="text-center py-12 text-slate-500 text-xs">
-                          <p>नक्शे पर किसी भी स्थान या पर्वतमाला पर क्लिक करें।</p>
-                        </div>
-                      )}
+                      </div>
+
+                      {/* ASK AI COMPANION */}
+                      <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <p className="text-xs text-slate-400 font-medium">
+                          {language === 'hindi'
+                            ? `क्या ${selectedGeoRegion.name.split('(')[0]} के बारे में और जानना चाहते हैं?`
+                            : `Want to ask more about ${selectedGeoRegion.name.split('(')[0]}?`}
+                        </p>
+                        <button
+                          onClick={() => {
+                            const prompt = `Please explain the geography, rivers, passes, and historical significance of ${selectedGeoRegion.name} in detail with memory tricks for competitive exams.`;
+                            setChatInput(prompt);
+                            setActiveView('chat');
+                            logUserActivity('chat', prompt);
+                          }}
+                          className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all border-none cursor-pointer"
+                        >
+                          💬 Ask HansAI Companion for Deeper Analysis
+                        </button>
+                      </div>
+
                     </div>
+                  )}
 
-                  </div>
                 </div>
               )}
 
@@ -10625,7 +10946,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
       {/* VIEW: AI STUDY PLAN & ROADMAP */}
       {(activeView === 'planner' || activeView === 'study-plan') && (
-        <StudyPlanView user={user} onExportPdf={handleExportPdf} showToast={showToast} />
+        <StudyPlanView user={user} onExportPdf={handleExportPdf} showToast={showToast} language={language} />
       )}
 
       {/* VIEW: AFFILIATE STORE & SARKARI PRODUCTS */}
@@ -10635,12 +10956,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
       {/* VIEW: AI FLASHCARDS DECK */}
       {activeView === 'flashcards' && (
-        <FlashcardsView onExportPdf={handleExportPdf} showToast={showToast} />
+        <FlashcardsView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
       )}
 
       {/* VIEW: PHOTO DOUBT SOLVER & OCR */}
       {activeView === 'photo-doubt' && (
         <PhotoDoubtView onExportPdf={handleExportPdf} showToast={showToast} />
+      )}
+
+      {/* VIEW: HANDWRITTEN NOTES OCR & QUIZ SCANNER */}
+      {(activeView === 'notes-ocr' || activeView === 'photo-ocr') && (
+        <NotesOcrView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
       )}
 
       {/* VIEW: ARTICLE VOICE READER & TRANSLATOR */}
@@ -10668,6 +10994,38 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           showToast={showToast} 
           language={language} 
           onBack={() => setActiveView('chat')} 
+        />
+      )}
+
+      {/* VIEW: AI NEURAL KNOWLEDGE SYNAPSE & RETENTION MAP */}
+      {activeView === 'neural-map' && (
+        <NeuralMemoryMapView 
+          showToast={showToast} 
+          language={language} 
+        />
+      )}
+
+      {/* VIEW: AI HISTORICAL & CONSTITUTIONAL TIME-TRAVEL SIMULATOR */}
+      {activeView === 'time-travel' && (
+        <TimeTravelSimulatorView 
+          showToast={showToast} 
+          language={language} 
+        />
+      )}
+
+      {/* VIEW: AI SMART MNEMONICS & MEMORY TRICK GENERATOR */}
+      {activeView === 'mnemonics' && (
+        <MnemonicsTrickGeneratorView 
+          showToast={showToast} 
+          language={language} 
+        />
+      )}
+
+      {/* VIEW: INTERACTIVE SCIENCE & FORMULA PLAYGROUND LAB */}
+      {activeView === 'science-lab' && (
+        <ScienceFormulaLabView 
+          showToast={showToast} 
+          language={language} 
         />
       )}
 

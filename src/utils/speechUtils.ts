@@ -32,6 +32,23 @@ export const isHindiText = (text: string): boolean => {
   return /[\u0900-\u097F]/.test(text);
 };
 
+export const cleanTextForSpeech = (rawText: string): string => {
+  if (!rawText) return '';
+  return rawText
+    // Remove code blocks
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`([^`]+)`/g, '$1')
+    // Remove Markdown headers, bold, italic, links, blockquotes
+    .replace(/#+\s*/g, '')
+    .replace(/[*_~`#>-]/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/https?:\/\/\S+/g, '')
+    // Remove emojis and non-standard symbols
+    .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 export const stopAllSpeech = () => {
   if (typeof window !== 'undefined') {
     if ('speechSynthesis' in window) {
@@ -50,17 +67,14 @@ export const stopAllSpeech = () => {
 };
 
 /**
- * Robust Speech Player
- * Tries browser SpeechSynthesis first; if missing Hindi voice or error occurs,
- * seamlessly falls back to Google TTS Audio stream for 100% Hindi Devanagari clarity!
+ * Universal Speech Engine
+ * For Hindi text: Uses server-side /api/tts endpoint for 100% crystal-clear Hindi spoken audio.
+ * For English text: Uses WebSpeech API with fallback to /api/tts endpoint.
  */
 export const speakText = (text: string, options: SpeechOptions = {}) => {
   stopAllSpeech();
 
-  const cleanText = text
-    .replace(/[\#\*\_\\`]/g, '')
-    .replace(/https?:\/\/\S+/g, '')
-    .trim();
+  const cleanText = cleanTextForSpeech(text);
 
   if (!cleanText) {
     if (options.onEnd) options.onEnd();
@@ -69,19 +83,19 @@ export const speakText = (text: string, options: SpeechOptions = {}) => {
 
   const isHindi = isHindiText(cleanText);
 
-  // Split into chunks by sentence boundaries to prevent cut-offs
+  // Split into manageable chunks by sentence punctuation boundaries
   const rawChunks = cleanText.split(/(?<=[.!?\n।])\s+/).filter(c => c.trim().length > 0);
   
-  // Re-pack chunks so none exceed 180 characters (for URL safety and speech stability)
+  // Re-pack chunks so none exceed 150 characters for stable audio streaming
   const chunks: string[] = [];
   for (const rawChunk of rawChunks) {
-    if (rawChunk.length <= 180) {
+    if (rawChunk.length <= 150) {
       chunks.push(rawChunk);
     } else {
       const words = rawChunk.split(' ');
       let temp = '';
       for (const w of words) {
-        if ((temp + ' ' + w).length > 180) {
+        if ((temp + ' ' + w).length > 150) {
           if (temp.trim()) chunks.push(temp.trim());
           temp = w;
         } else {
@@ -92,17 +106,66 @@ export const speakText = (text: string, options: SpeechOptions = {}) => {
     }
   }
 
-  if (chunks.length === 0) chunks.push(cleanText.substring(0, 180));
+  if (chunks.length === 0) chunks.push(cleanText.substring(0, 150));
 
   let currentChunkIdx = 0;
   if (options.onStart) options.onStart();
 
-  // Web Speech API execution
+  // Audio TTS player using server-side /api/tts endpoint
+  const playAudioTTS = () => {
+    const playNextChunk = () => {
+      if (currentChunkIdx >= chunks.length) {
+        if (options.onEnd) options.onEnd();
+        return;
+      }
+
+      const chunk = chunks[currentChunkIdx];
+      const chunkIsHindi = isHindiText(chunk) || isHindi;
+      const langCode = chunkIsHindi ? 'hi' : 'en';
+
+      const audioUrl = `/api/tts?text=${encodeURIComponent(chunk)}&lang=${langCode}`;
+
+      const audio = new Audio(audioUrl);
+      currentAudioPlayer = audio;
+      audio.playbackRate = options.rate || 1.0;
+
+      audio.onended = () => {
+        currentChunkIdx++;
+        playNextChunk();
+      };
+
+      audio.onerror = (err) => {
+        console.warn("Server Audio TTS playback error, advancing chunk:", err);
+        currentChunkIdx++;
+        if (currentChunkIdx < chunks.length) {
+          playNextChunk();
+        } else {
+          if (options.onEnd) options.onEnd();
+        }
+      };
+
+      audio.play().catch(e => {
+        console.warn("Audio play error:", e);
+        currentChunkIdx++;
+        if (currentChunkIdx < chunks.length) {
+          playNextChunk();
+        } else {
+          if (options.onEnd) options.onEnd();
+        }
+      });
+    };
+
+    playNextChunk();
+  };
+
+  // Web Speech API for English
   const tryWebSpeech = () => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      fallbackToAudioTTS();
+      playAudioTTS();
       return;
     }
+
+    const voices = cachedVoices.length > 0 ? cachedVoices : window.speechSynthesis.getVoices();
 
     const speakWebChunk = () => {
       if (currentChunkIdx >= chunks.length) {
@@ -111,33 +174,15 @@ export const speakText = (text: string, options: SpeechOptions = {}) => {
       }
 
       const chunk = chunks[currentChunkIdx];
-      const isChunkHindi = isHindiText(chunk) || isHindi;
-
-      try {
-        window.speechSynthesis.cancel();
-      } catch (e) {}
-
       const utterance = new SpeechSynthesisUtterance(chunk);
       utterance.rate = options.rate || 1.0;
       utterance.pitch = options.pitch || 1.0;
-      utterance.lang = isChunkHindi ? 'hi-IN' : 'en-US';
+      utterance.lang = 'en-US';
 
-      // Find best matching voice
-      const voices = cachedVoices.length > 0 ? cachedVoices : window.speechSynthesis.getVoices();
-      let bestVoice: SpeechSynthesisVoice | undefined;
-
-      if (isChunkHindi) {
-        bestVoice = voices.find(v => 
-          v.lang.toLowerCase().includes('hi') || 
-          v.name.toLowerCase().includes('hindi') || 
-          v.name.toLowerCase().includes('हिन्दी')
-        );
-      } else {
-        bestVoice = voices.find(v => 
-          v.lang.toLowerCase().startsWith('en') && 
-          (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))
-        ) || voices.find(v => v.lang.toLowerCase().startsWith('en'));
-      }
+      const bestVoice = voices.find(v => 
+        v.lang.toLowerCase().startsWith('en') && 
+        (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))
+      ) || voices.find(v => v.lang.toLowerCase().startsWith('en'));
 
       if (bestVoice) {
         utterance.voice = bestVoice;
@@ -153,76 +198,26 @@ export const speakText = (text: string, options: SpeechOptions = {}) => {
       };
 
       utterance.onerror = (e) => {
-        console.warn("WebSpeech synthesis chunk error, falling back to Audio TTS:", e);
+        console.warn("WebSpeech synthesis error, switching to Audio TTS:", e);
         if (hasEnded) return;
         hasEnded = true;
-        fallbackToAudioTTS();
+        playAudioTTS();
       };
 
       try {
         window.speechSynthesis.speak(utterance);
       } catch (e) {
-        fallbackToAudioTTS();
+        playAudioTTS();
       }
     };
 
     speakWebChunk();
   };
 
-  // Fallback Audio TTS player using online audio stream
-  const fallbackToAudioTTS = () => {
-    const playAudioChunk = () => {
-      if (currentChunkIdx >= chunks.length) {
-        if (options.onEnd) options.onEnd();
-        return;
-      }
-
-      const chunk = chunks[currentChunkIdx];
-      const chunkIsHindi = isHindiText(chunk) || isHindi;
-      const langCode = chunkIsHindi ? 'hi' : 'en';
-
-      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(chunk)}`;
-
-      const audio = new Audio(audioUrl);
-      currentAudioPlayer = audio;
-      audio.playbackRate = options.rate || 1.0;
-
-      audio.onended = () => {
-        currentChunkIdx++;
-        playAudioChunk();
-      };
-
-      audio.onerror = (err) => {
-        console.warn("Audio TTS fallback error:", err);
-        currentChunkIdx++;
-        if (currentChunkIdx < chunks.length) {
-          playAudioChunk();
-        } else {
-          if (options.onEnd) options.onEnd();
-        }
-      };
-
-      audio.play().catch(e => {
-        console.warn("Audio play error:", e);
-        currentChunkIdx++;
-        if (currentChunkIdx < chunks.length) {
-          playAudioChunk();
-        } else {
-          if (options.onEnd) options.onEnd();
-        }
-      });
-    };
-
-    playAudioChunk();
-  };
-
-  // Check if native Hindi voice exists in voices array
-  const voices = cachedVoices.length > 0 ? cachedVoices : (typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis.getVoices() : []);
-  const hasHindiVoice = voices.some(v => v.lang.toLowerCase().includes('hi') || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('हिन्दी'));
-
-  if (isHindi && !hasHindiVoice) {
-    // If browser/device has no native Hindi voice installed, directly use Audio TTS for 100% Hindi Devanagari voice audio!
-    fallbackToAudioTTS();
+  // For Hindi text, ALWAYS use the reliable server-side Audio TTS engine.
+  // For English text, try native WebSpeech with Audio TTS fallback.
+  if (isHindi) {
+    playAudioTTS();
   } else {
     tryWebSpeech();
   }

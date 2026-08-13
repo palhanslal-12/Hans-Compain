@@ -570,7 +570,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
       if ('roundRect' in ctx) {
         (ctx as any).roundRect(50, 48, 200, 24, 6);
       } else {
-        ctx.rect(50, 48, 200, 24);
+        (ctx as any).rect(50, 48, 200, 24);
       }
       ctx.fill();
 
@@ -623,7 +623,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
         if ('roundRect' in ctx) {
           (ctx as any).roundRect(45, curY, canvas.width - 90, subHeight, 8);
         } else {
-          ctx.rect(45, curY, canvas.width - 90, subHeight);
+          (ctx as any).rect(45, curY, canvas.width - 90, subHeight);
         }
         ctx.fill();
         ctx.stroke();
@@ -661,7 +661,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
       if ('roundRect' in ctx) {
         (ctx as any).roundRect(45, curY, canvas.width - 90, stratBoxHeight, 8);
       } else {
-        ctx.rect(45, curY, canvas.width - 90, stratBoxHeight);
+        (ctx as any).rect(45, curY, canvas.width - 90, stratBoxHeight);
       }
       ctx.fill();
       ctx.stroke();
