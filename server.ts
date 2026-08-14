@@ -1066,44 +1066,22 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-// 2. Dynamic Study Quiz Generator with Advanced Hard Levels, Custom Count & Remediation
+// 2. Dynamic Study Quiz Generator
 app.post("/api/quiz", async (req, res) => {
   try {
-    const { subject, level, count, difficulty, model, lang, language } = req.body;
+    const { subject, level, model, lang, language } = req.body;
     if (!subject) {
       return res.status(400).json({ error: "Subject parameter is required." });
     }
 
-    const questionCount = Math.min(20, Math.max(3, parseInt(count) || 5));
-    const quizDifficulty = (difficulty || "standard").toLowerCase(); // "standard" | "moderate" | "hard" | "extreme"
     const quizLang = (lang || language || "hindi") === "english" ? "english" : "hindi";
     const ai = getGenAI();
 
     const langInstruction = quizLang === "english"
-      ? "All questions, options, hints, and explanations MUST be strictly in 100% clean, standard ENGLISH. Do NOT include any Hindi or Hinglish words."
-      : "All questions, options, hints, and explanations MUST be strictly in 100% clean, standard HINDI. Do NOT include English translation slashes or dual language text.";
+      ? "All questions, options, and explanations MUST be strictly in 100% clean, standard ENGLISH. Do NOT include any Hindi or Hinglish words."
+      : "All questions, options, and explanations MUST be strictly in 100% clean, standard HINDI. Do NOT include English translation slashes or dual language text.";
 
-    let difficultyInstruction = "";
-    if (quizDifficulty === "hard" || quizDifficulty === "advanced") {
-      difficultyInstruction = "DIFFICULTY LEVEL: HARD / ADVANCED (SSC CGL Tier 2 / UPSC Prelims / Tough Competition Level). Generate deeply conceptual, multi-layered questions, tricky options, calculation-based or assertion-reason problems that test true in-depth understanding.";
-    } else if (quizDifficulty === "extreme" || quizDifficulty === "master") {
-      difficultyInstruction = "DIFFICULTY LEVEL: EXTREME / MASTER LEVEL (Highest Exam Rigor). Generate challenging questions with subtle traps in distractors, application-oriented analytical problems, multi-statement questions (1, 2 only / 1, 2, 3), and complex conceptual scenarios.";
-    } else if (quizDifficulty === "moderate") {
-      difficultyInstruction = "DIFFICULTY LEVEL: MODERATE (Medium Competition Level). Good mix of theoretical clarity, direct formulas, and applied questions.";
-    } else {
-      difficultyInstruction = "DIFFICULTY LEVEL: STANDARD PRACTICE. Core textbook concepts, clear options, and essential knowledge.";
-    }
-
-    const prompt = `Generate a high-yield educational practice quiz on "${subject}" for ${level || "Competitive Exam / Class Assessment"}.
-Please generate exactly ${questionCount} multiple choice questions.
-${difficultyInstruction}
-${langInstruction}
-For each question, provide:
-1. Clear question statement
-2. Exactly 4 plausible options
-3. The 0-based index of the correct option
-4. A helpful subtle hint that can assist a student without giving away the direct answer
-5. A comprehensive step-by-step explanation with the core concept and memorization trick.`;
+    const prompt = `Generate a high-quality educational quiz on "${subject}" for ${level || "general"} level/class. Please generate exactly 5 interesting multiple choice questions. ${langInstruction} Explain the correct answer step-by-step.`;
 
     const response = await generateContentWithFallback(ai, model || "gemini-3.5-flash", {
       contents: prompt,
@@ -1111,7 +1089,7 @@ For each question, provide:
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
-          description: "A list of high-yield educational quiz questions",
+          description: "A list of quiz questions",
           items: {
             type: Type.OBJECT,
             properties: {
@@ -1122,13 +1100,12 @@ For each question, provide:
                 description: `Exactly 4 options strictly in ${quizLang}`
               },
               answerIndex: { type: Type.INTEGER, description: "0-based index of the correct option (0 to 3)" },
-              hint: { type: Type.STRING, description: `A smart conceptual hint strictly in ${quizLang}` },
-              explanation: { type: Type.STRING, description: `Detailed step-by-step explanation with key facts strictly in ${quizLang}` }
+              explanation: { type: Type.STRING, description: `Detailed step-by-step explanation strictly in ${quizLang}` }
             },
             required: ["question", "options", "answerIndex", "explanation"]
           }
         },
-        systemInstruction: `You are HansAI Companion. Generate academically rigorous, verified, error-free multiple choice questions strictly in ${quizLang}. ${difficultyInstruction}`
+        systemInstruction: `You are HansAI. Generate accurate, engaging, educational questions strictly in ${quizLang}. Never mix Hindi and English with slashes.`
       }
     });
 
@@ -1138,50 +1115,13 @@ For each question, provide:
     }
 
     const quizData = JSON.parse(text);
-    res.json({ quiz: quizData, difficulty: quizDifficulty, count: quizData.length });
+    res.json({ quiz: quizData });
   } catch (err: any) {
     console.error("Gemini API Error in /api/quiz:", err);
     res.status(500).json({ 
       error: err.message || "Failed to generate dynamic quiz.",
       isKeyMissing: !process.env.GEMINI_API_KEY
     });
-  }
-});
-
-// 2.1 AI Mistake Remediation & Deep Doubts Clarifier
-app.post("/api/quiz/explain-mistake", async (req, res) => {
-  try {
-    const { question, options, selectedOption, correctOption, subject, lang } = req.body;
-    if (!question) {
-      return res.status(400).json({ error: "Question details required." });
-    }
-
-    const ai = getGenAI();
-    const quizLang = (lang || "hindi") === "english" ? "english" : "hindi";
-
-    const prompt = `A student made an error on this academic question:
-Subject/Chapter: ${subject || "General Study"}
-Question: ${question}
-Options: ${JSON.stringify(options)}
-Student's Chosen Option (Wrong): ${selectedOption}
-Correct Option: ${correctOption}
-
-Please provide an encouraging, crystal-clear pedagogical explanation strictly in ${quizLang}:
-1. 💡 **Why the student's answer was incorrect** (Identify the common conceptual misconception or trap)
-2. 🎯 **Why the correct answer is right** (Clear, step-by-step logical proof)
-3. 🧠 **Exam Memory Hack / Shortcut Mnemonic** (How to never make this mistake again in exams)`;
-
-    const response = await generateContentWithFallback(ai, "gemini-3.5-flash", {
-      contents: prompt,
-      config: {
-        systemInstruction: `You are HansAI, an empathetic and brilliant AI study companion. Explain mistakes with warmth, clarity, and exam-winning mnemonics in ${quizLang}.`
-      }
-    });
-
-    res.json({ remediation: response.text || "Concept explanation ready." });
-  } catch (err: any) {
-    console.error("Error in /api/quiz/explain-mistake:", err);
-    res.status(500).json({ error: "Failed to generate mistake remediation." });
   }
 });
 
@@ -1887,7 +1827,20 @@ app.get('/robots.txt', (req, res) => {
   res.type('text/plain').send(`User-agent: *
 Allow: /
 
-Sitemap: https://hans-compain.onrender.com/sitemap.xml`);
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Mobile
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://hans-compain.onrender.com/sitemap.xml
+`);
 });
 
 app.get('/sitemap.xml', (req, res) => {
@@ -1895,7 +1848,7 @@ app.get('/sitemap.xml', (req, res) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://hans-compain.onrender.com/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
