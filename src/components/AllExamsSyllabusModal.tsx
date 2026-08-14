@@ -4,7 +4,7 @@ import { BookOpen, Search, Sparkles, CheckCircle2, ArrowRight, Layers, FileText,
 export interface ExamSyllabusItem {
   id: string;
   name: string;
-  category: 'ssc' | 'railway' | 'banking' | 'board' | 'state' | 'upsc' | 'teaching' | 'shorthand';
+  category: 'ssc' | 'railway' | 'banking' | 'board' | 'state' | 'upsc' | 'teaching' | 'shorthand' | 'medical' | 'engineering' | 'law-commerce' | 'defence';
   level: string; // e.g. "Graduate / 12th / 10th"
   stages: string[];
   durationMarks: string;
@@ -383,6 +383,379 @@ export const EXAM_SYLLABUS_DATA: ExamSyllabusItem[] = [
       'Always transcribe the steno outlines on computer within allotted time.',
       'Revise daily 50 grammalogues and special phrase outlines.'
     ]
+  },
+
+  // 7. MEDICAL & HEALTH SCIENCES EXAMS
+  {
+    id: 'neet-ug',
+    name: 'NEET UG (MBBS, BDS, BAMS, BHMS, Veterinary)',
+    category: 'medical',
+    level: '12th Pass (Physics, Chemistry, Biology - PCB)',
+    stages: ['Single National Pen-Paper / OMR Test (720 Marks)', 'State & All India Medical Counseling (MCC)'],
+    durationMarks: '180 Questions (from 200) / 720 Marks (3 Hours 20 Mins)',
+    negativeMarking: '+4 for correct, -1 for wrong answer',
+    subjects: [
+      {
+        name: 'Biology (Botany & Zoology)',
+        marks: '360 Marks (90 Qs)',
+        topics: [
+          'Diversity in Living World & Biological Classification',
+          'Structural Organisation in Animals and Plants & Morphology',
+          'Cell Structure, Biomolecules & Cell Cycle/Cell Division',
+          'Plant Physiology (Photosynthesis, Respiration, Plant Growth)',
+          'Human Physiology (Breathing, Body Fluids, Neural & Endocrine Systems)',
+          'Reproduction in Organisms, Genetics & Molecular Basis of Inheritance',
+          'Evolution, Human Health & Diseases, Biotechnology & Ecology'
+        ]
+      },
+      {
+        name: 'Physics',
+        marks: '180 Marks (45 Qs)',
+        topics: [
+          'Kinematics, Laws of Motion, Work, Energy & Power',
+          'Rotational Motion, Gravitation & Properties of Solids/Fluids',
+          'Thermodynamics & Kinetic Theory of Gases',
+          'Oscillations & Waves, Electrostatics & Current Electricity',
+          'Magnetic Effects of Current, EMI & Alternating Current (AC)',
+          'Optics (Ray & Wave Optics), Dual Nature of Matter, Atoms & Nuclei, Semiconductor Electronics'
+        ]
+      },
+      {
+        name: 'Chemistry (Physical, Organic, Inorganic)',
+        marks: '180 Marks (45 Qs)',
+        topics: [
+          'Physical Chemistry: Mole Concept, Atomic Structure, Thermodynamics, Equilibrium, Solutions, Electrochemistry & Kinetics',
+          'Inorganic Chemistry: Periodic Table, Chemical Bonding, Coordination Compounds, p-Block, d- and f-Block Elements',
+          'Organic Chemistry: IUPAC, Hydrocarbons, Haloalkanes, Alcohols/Phenols, Aldehydes/Ketones, Amines & Biomolecules'
+        ]
+      }
+    ],
+    howToCompleteStrategy: [
+      'Master NCERT Biology line-by-line: 85+ out of 90 questions come directly from NCERT diagrams and text.',
+      'Physics: Solve 50 numericals daily and create a single-sheet formula chart for Mechanics and Electrodynamics.',
+      'Chemistry: Memorize Organic name reactions with mechanisms and Inorganic periodic trends.',
+      'Give weekly full-length timed mock tests (2:00 PM to 5:20 PM) to synchronize real exam biological clock.'
+    ]
+  },
+  {
+    id: 'aiims-nursing-cho',
+    name: 'AIIMS B.Sc / M.Sc Nursing, Staff Nurse & Community Health Officer (CHO)',
+    category: 'medical',
+    level: 'GNM / B.Sc Nursing / Post Basic Nursing',
+    stages: ['Computer Based Written Test (CBT)', 'Document Verification & Skill Test'],
+    durationMarks: '100 - 150 Qs / 100 - 150 Marks (90 - 120 Mins)',
+    negativeMarking: '0.25 to 0.33 Marks per wrong answer',
+    subjects: [
+      {
+        name: 'Anatomy, Physiology & Microbiology',
+        marks: '30 Marks',
+        topics: ['Cardiovascular, Nervous & Respiratory Systems', 'Musculoskeletal & Endocrine Anatomy', 'Bacterial, Viral Infections & Hospital Sterilization Techniques']
+      },
+      {
+        name: 'Fundamentals of Nursing & Pharmacology',
+        marks: '40 Marks',
+        topics: ['Patient Vital Signs, CPR, IV Infusion & Medication Administration', 'Emergency Triage & Wound Dressing', 'Drug Dosages, Antibiotics, Cardiac & Emergency Medications', 'Hospital Infection Control Protocols']
+      },
+      {
+        name: 'Medical-Surgical Nursing, OBG & Community Health',
+        marks: '40 Marks',
+        topics: ['Antenatal, Intrapartum & Postnatal Care', 'Pediatric Nursing & Immunization Schedule (UIP)', 'Epidemiology, Non-Communicable Diseases (NCDs) & National Health Missions (NHM)']
+      },
+      {
+        name: 'General Aptitude, English & Basic Reasoning',
+        marks: '15 Marks',
+        topics: ['Basic English Grammar', 'General Reasoning & Medical Current Affairs']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Focus intensely on Fundamentals of Nursing, Pharmacology drug calculation formulas, and OBG stages of labor.',
+      'Revise National Immunization Schedule (NIS) and Bio-Medical Waste (BMW) color code guidelines.',
+      'Solve previous NORCET & State CHO question banks.'
+    ]
+  },
+  {
+    id: 'pharmacist-gpat',
+    name: 'Pharmacist Recruitment & GPAT (Graduate Pharmacy Aptitude Test)',
+    category: 'medical',
+    level: 'D.Pharm / B.Pharm Degree',
+    stages: ['Computer Based Test (CBT)', 'Interview / Document Verification'],
+    durationMarks: '125 Questions / 500 Marks (180 Mins) for GPAT | 100 Qs for Govt Pharmacist',
+    negativeMarking: '1 Mark deduction per incorrect answer',
+    subjects: [
+      {
+        name: 'Pharmaceutics & Biopharmaceutics',
+        marks: '35% Weightage',
+        topics: ['Tablets, Capsules, Liquid Orals & Parenterals', 'Sustained & Controlled Drug Delivery Systems', 'Pharmacokinetics, Bioavailability & Bioequivalence (BA/BE)', 'Packaging Materials & Quality Control']
+      },
+      {
+        name: 'Pharmacology & Toxicology',
+        marks: '30% Weightage',
+        topics: ['Autonomic Nervous System (ANS) & CNS Drugs', 'Cardiovascular, Renal & Endocrine Pharmacology', 'Chemotherapy of Cancer & Antibiotics Mechanism of Action', 'Adverse Drug Reactions (ADRs) & Drug Interactions']
+      },
+      {
+        name: 'Pharmacognosy & Phytochemistry',
+        marks: '15% Weightage',
+        topics: ['Alkaloids, Glycosides, Tannins, Volatile Oils', 'Medicinal Plants, Extraction Methods & Standardisation']
+      },
+      {
+        name: 'Pharmaceutical Jurisprudence & Hospital Pharmacy',
+        marks: '20% Weightage',
+        topics: ['Drugs and Cosmetics Act 1940 & Rules 1945', 'Pharmacy Act 1948, NDPS Act & Schedule H/X rules', 'Hospital Formulary & Inventory Management']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Create classification mnemonics for Pharmacology drug families (e.g. beta-blockers, ACE inhibitors).',
+      'Memorize schedules under Drugs and Cosmetics Act (Schedule M, H, X, Y).',
+      'Practice standard formulation calculations and pharmaceutical analysis numericals.'
+    ]
+  },
+  {
+    id: 'dmlt-lab-tech',
+    name: 'Medical Lab Technician (DMLT / BMLT / Pathology Staff)',
+    category: 'medical',
+    level: 'Diploma / Degree in Medical Laboratory Technology',
+    stages: ['Written Objective Examination', 'Practical Laboratory Verification'],
+    durationMarks: '100 Questions / 100 Marks (90 Mins)',
+    negativeMarking: '0.25 Marks per wrong answer',
+    subjects: [
+      {
+        name: 'Clinical Hematology & Blood Banking',
+        marks: '35 Marks',
+        topics: ['Complete Blood Count (CBC), ESR, Bleeding/Clotting Time', 'Hemoglobin Estimation, Blood Grouping & Cross-matching', 'Blood Transfusion Reactions & Donor Screening']
+      },
+      {
+        name: 'Clinical Biochemistry',
+        marks: '30 Marks',
+        topics: ['Blood Glucose (Fasting/PP/HbA1c), Liver Function Tests (LFT)', 'Kidney Function Tests (KFT - Urea/Creatinine), Lipid Profile', 'Electrolytes (Na+, K+, Cl-) & Automated Analyzers']
+      },
+      {
+        name: 'Microbiology & Histopathology',
+        marks: '35 Marks',
+        topics: ['Gram Staining, AFB Staining (Z-N Stain) for Tuberculosis', 'Culture Media, Autoclaving & Sterilization Methods', 'Tissue Processing, Microtome Sectioning & H&E Staining']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Memorize normal reference ranges for all clinical biochemistry and hematology parameters.',
+      'Revise staining procedures step-by-step with chemical reagents.',
+      'Master quality control protocols (Levey-Jennings charts & Westgard rules).'
+    ]
+  },
+
+  // 8. TEACHING & EDUCATION POSTS
+  {
+    id: 'ctet-paper-1-2',
+    name: 'CTET (Central Teacher Eligibility Test) Paper 1 & 2',
+    category: 'teaching',
+    level: 'D.El.Ed / B.Ed / Graduation',
+    stages: ['Paper 1 (Class 1 to 5 - Primary Stage)', 'Paper 2 (Class 6 to 8 - Elementary Stage)'],
+    durationMarks: '150 Questions / 150 Marks (150 Mins per Paper)',
+    negativeMarking: 'No Negative Marking (Qualifying min 60% / 90 Marks)',
+    subjects: [
+      {
+        name: 'Child Development & Pedagogy (CDP)',
+        marks: '30 Marks',
+        topics: ['Piaget, Vygotsky & Kohlberg Theories', 'Concept of Inclusive Education & Children with Special Needs', 'Learning & Motivation, Assessment for Learning vs of Learning', 'Constructivist Classroom Teaching-Learning Process']
+      },
+      {
+        name: 'Language 1 & Language 2 (Hindi / English / Sanskrit)',
+        marks: '60 Marks (30 + 30)',
+        topics: ['Unseen Prose & Poem Comprehension Passages', 'Pedagogy of Language Development (Grammar, Listening, Speaking, Reading, Writing - LSRW)', 'Language Acquisition vs Learning (Noam Chomsky LAD)']
+      },
+      {
+        name: 'Mathematics & Science / Social Studies (SST)',
+        marks: '60 Marks',
+        topics: ['Paper 1: Numbers, Geometry, Measurement, Weight, Money & Maths Pedagogy', 'Paper 2 (Maths & Science): Number System, Algebra, Geometry, Food, Materials & Science Pedagogy', 'Paper 2 (Social Studies): History, Geography, Social & Political Life (Polity) & SST Pedagogy']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Focus 80% effort on Pedagogy concepts: Child-centered education, active learning, positive reinforcement.',
+      'Read NCERT Books of Class 3-8 thoroughly for EVS, Maths, Science and Social Studies.',
+      'Solve last 5 years CTET official papers to understand question phrasing patterns.'
+    ]
+  },
+  {
+    id: 'ugc-net-jrf',
+    name: 'UGC NET & JRF (Assistant Professor & Junior Research Fellowship)',
+    category: 'teaching',
+    level: 'Post Graduation (Master Degree min 55%)',
+    stages: ['Computer Based Test (Single Session 3 Hours Paper 1 + Paper 2)'],
+    durationMarks: 'Paper 1 (50 Qs / 100 Marks) + Paper 2 (100 Qs / 200 Marks) = 300 Marks',
+    negativeMarking: 'No Negative Marking (+2 for correct answer)',
+    subjects: [
+      {
+        name: 'Paper 1: Teaching & Research Aptitude (General Paper)',
+        marks: '100 Marks (50 Qs)',
+        topics: [
+          'Teaching Aptitude: Methods of Teaching, Learner Characteristics & Evaluation Systems',
+          'Research Aptitude: Types of Research, Methods, Thesis Writing & Research Ethics',
+          'Comprehension & Communication (Effective Classroom Communication & Barriers)',
+          'Mathematical Reasoning & Aptitude, Logical Reasoning (Indian Logic - Pramanas)',
+          'Data Interpretation (DI Tables/Graphs), ICT in Education, People, Development & Environment',
+          'Higher Education System: Governance, Polity & Administration'
+        ]
+      },
+      {
+        name: 'Paper 2: Subject Domain Specialization',
+        marks: '200 Marks (100 Qs)',
+        topics: ['In-depth Core Master-Level Syllabus in chosen Subject (History, Political Science, Commerce, Economics, Hindi, English, Sociology, Management, Computer Science, etc.)']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Target 75+ Marks in Paper 1 through daily practice of Data Interpretation and Indian Logic.',
+      'Revise standard university textbooks for Paper 2 core concepts.',
+      'Solve at least 20 full-length mock tests with negative marking awareness.'
+    ]
+  },
+
+  // 9. ENGINEERING & TECHNICAL EXAMS
+  {
+    id: 'jee-main-adv',
+    name: 'JEE Main & JEE Advanced (IIT, NIT, IIIT Engineering Entrance)',
+    category: 'engineering',
+    level: '12th Pass / Appearing (PCM - Physics, Chemistry, Maths)',
+    stages: ['JEE Main (Session 1 & Session 2 CBT)', 'JEE Advanced (For Top 2.5 Lakh qualifiers)', 'JoSAA / CSAB Counseling'],
+    durationMarks: 'JEE Main: 75 Qs / 300 Marks (180 Mins) | JEE Adv: 2 Papers (360 Mins)',
+    negativeMarking: '+4 for correct, -1 for wrong (both MCQs & Numerical section in JEE)',
+    subjects: [
+      {
+        name: 'Mathematics',
+        marks: '100 Marks (25 Qs)',
+        topics: ['Calculus (Limits, Continuity, Derivatives, Definite Integrals, Differential Equations)', 'Algebra (Complex Numbers, Quadratic, Matrices & Determinants, Permutations & Combinations)', 'Coordinate Geometry (Straight Lines, Circles, Parabola, Ellipse, Hyperbola)', 'Vectors & 3D Geometry, Trigonometry & Probability']
+      },
+      {
+        name: 'Physics',
+        marks: '100 Marks (25 Qs)',
+        topics: ['Mechanics (Kinematics, Newton Laws, Conservation of Momentum, Rigid Body Dynamics)', 'Electrostatics, Magnetism, Electromagnetic Induction & Wave Optics', 'Thermodynamics & Heat Transfer, Fluid Mechanics, Modern Physics & Semiconductors']
+      },
+      {
+        name: 'Chemistry',
+        marks: '100 Marks (25 Qs)',
+        topics: ['Physical Chemistry (Chemical Kinetics, Thermodynamics, Ionic Equilibrium, Electrochemistry)', 'Organic Chemistry (Reaction Mechanisms, Electrophilic/Nucleophilic Additions, Polymers)', 'Inorganic Chemistry (Coordination Chemistry, Periodic Table Trends, Metallurgy & Extraction)']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Clear fundamentals from HC Verma (Physics), MS Chouhan / OP Tandon (Chemistry), and Cengage / RD Sharma (Maths).',
+      'Solve all JEE Main previous 10 years papers chapter-wise.',
+      'Maintain an error notebook to review failed questions every Sunday.'
+    ]
+  },
+  {
+    id: 'gate-exam',
+    name: 'GATE (Graduate Aptitude Test in Engineering & PSU Recruitment)',
+    category: 'engineering',
+    level: 'B.Tech / B.E. / B.Sc (Research) / Master Degree',
+    stages: ['Single 3-Hour Computer Based Test (CBT) with Virtual Calculator'],
+    durationMarks: '65 Questions / 100 Marks (180 Mins)',
+    negativeMarking: '1/3rd for 1-mark MCQs, 2/3rd for 2-mark MCQs (No negative for MSQ / NAT)',
+    subjects: [
+      {
+        name: 'General Aptitude & Engineering Mathematics',
+        marks: '28 Marks (15 GA + 13 Engg Maths)',
+        topics: ['Verbal Ability & Quantitative Aptitude', 'Linear Algebra (Eigenvalues/Vectors), Calculus, Differential Equations, Complex Variables & Probability']
+      },
+      {
+        name: 'Core Technical Branch Syllabus (CS / ME / CE / EE / EC / IN)',
+        marks: '72 Marks (Core Engineering)',
+        topics: ['Branch-specific foundational subjects and advanced design analysis modules']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Secure full 28 marks in General Aptitude and Engineering Mathematics.',
+      'Practice extensively on virtual calculator to build speed and avoid input errors.',
+      'Solve 25+ years GATE Previous Year Questions (PYQs).'
+    ]
+  },
+
+  // 10. LAW & COMMERCE EXAMS
+  {
+    id: 'clat-judiciary',
+    name: 'CLAT (Common Law Admission Test) & State Judiciary (PCS-J)',
+    category: 'law-commerce',
+    level: '12th Pass (for CLAT UG) / LL.B. Degree (for PCS-J)',
+    stages: ['CLAT CBT / Pen-Paper (120 Marks)', 'Judiciary: Prelims (Objective) -> Mains (Subjective Law Papers) -> Interview'],
+    durationMarks: '120 Questions / 120 Marks (120 Mins)',
+    negativeMarking: '0.25 Marks per incorrect response',
+    subjects: [
+      {
+        name: 'Legal Reasoning & Constitutional Law',
+        marks: '35 - 40 Marks',
+        topics: ['Indian Constitution (Fundamental Rights, DPSP, Writs, Judiciary Powers)', 'Law of Torts, Law of Contracts, Indian Penal Code (IPC / Bharatiya Nyaya Sanhita BNS)', 'Legal Maxims, Landmark Supreme Court Judgments & Legal Current Affairs']
+      },
+      {
+        name: 'Current Affairs, GK & English Reading Comprehension',
+        marks: '50 Marks',
+        topics: ['National & International Legal Developments, Bilateral Treaties, Editorials', 'Grammar, Critical Reading & Inference-based Passages']
+      },
+      {
+        name: 'Logical Reasoning & Quantitative Techniques',
+        marks: '30 Marks',
+        topics: ['Syllogisms, Analogies, Deductive-Inductive Logic, Data Interpretation Passages']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Read The Hindu / Indian Express editorials daily to increase reading speed above 300 words per minute.',
+      'Practice passage-based legal reasoning questions daily.',
+      'Review landmark constitutional bench judgments from 2020-2026.'
+    ]
+  },
+  {
+    id: 'ca-foundation-inter',
+    name: 'CA Foundation & Intermediate (ICAI Chartered Accountancy)',
+    category: 'law-commerce',
+    level: '12th Pass (Foundation) / Graduate (Direct Entry Inter)',
+    stages: ['CA Foundation (4 Papers - 400 Marks)', 'CA Intermediate (6 Papers in 2 Groups - 600 Marks)', 'Articleship & CA Final'],
+    durationMarks: '100 Marks per Paper (3 Hours per Paper)',
+    negativeMarking: '0.25 Marks in Objective Sections (Maths/Stats/Economics)',
+    subjects: [
+      {
+        name: 'Accounting & Financial Reporting',
+        marks: '100 Marks',
+        topics: ['Accounting Standards (AS & Ind AS), Partnership Accounts, Company Final Accounts', 'Cash Flow Statements, Depreciation, Consignment & Rectification of Errors']
+      },
+      {
+        name: 'Corporate & Other Laws',
+        marks: '100 Marks',
+        topics: ['Companies Act 2013 (Incorporation, Share Capital, Management & Administration)', 'Indian Contract Act, Negotiable Instruments Act & Interpretation of Statutes']
+      },
+      {
+        name: 'Taxation & Cost and Management Accounting',
+        marks: '100 Marks',
+        topics: ['Income Tax Act 1961 (5 Heads of Income, Deductions, TDS/TCS)', 'Goods and Services Tax (GST Framework & Input Tax Credit - ITC)', 'Cost Sheet, Standard Costing, Marginal Costing & Budgetary Control']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Solve ICAI Study Material questions, Revision Test Papers (RTP), and Mock Test Papers (MTP).',
+      'Make summary charts for Sections, Accounting Standards, and Tax Rates.',
+      'Practice writing answers in professional legal format with correct section citations.'
+    ]
+  },
+
+  // 11. DEFENCE SERVICES EXAMS
+  {
+    id: 'nda-cds',
+    name: 'NDA & CDS (National Defence Academy & Combined Defence Services - UPSC)',
+    category: 'defence',
+    level: '12th Pass (for NDA) / Graduate Degree (for CDS)',
+    stages: ['UPSC Written Examination (Objective)', 'SSB Interview (5-Day Psychological & Physical Screening)', 'Medical Board'],
+    durationMarks: 'NDA: 900 Marks (Maths 300 + GAT 600) | CDS: 300 Marks (3 Papers)',
+    negativeMarking: '0.33 Marks deduction per incorrect answer',
+    subjects: [
+      {
+        name: 'Mathematics (NDA / CDS OTA Exempted)',
+        marks: '300 Marks (120 Qs in NDA) / 100 Marks (CDS)',
+        topics: ['Trigonometry, Matrices & Determinants, Calculus (Differentiation & Integration)', 'Coordinate Geometry, Probability, Statistics & Vector Algebra']
+      },
+      {
+        name: 'General Ability Test (GAT) - English & General Knowledge',
+        marks: '600 Marks (NDA) / 200 Marks (CDS)',
+        topics: ['English: Spotting Errors, Synonyms/Antonyms, Ordering of Words, Cloze Passage', 'Physics & Chemistry: Mechanics, Heat, Electricity, Basic Reactions & Compounds', 'General Science: Cells, Human Physiology, Diseases & Vitamins', 'History, Geography, Indian Polity, Current Defence Affairs & Global Geopolitics']
+      }
+    ],
+    howToCompleteStrategy: [
+      'Score minimum 40% in Mathematics paper to ensure qualification of GAT paper.',
+      'Read national and defence current affairs (military exercises, missiles, naval ships).',
+      'Start physical fitness training (running, pushups) and communication skills for 5-day SSB interview.'
+    ]
   }
 ];
 
@@ -739,11 +1112,16 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {[
               { id: 'all', label: 'All Exams' },
+              { id: 'medical', label: '🩺 Medical (NEET/Nursing)' },
+              { id: 'teaching', label: '🎓 Teaching (CTET/NET)' },
+              { id: 'engineering', label: '⚙️ Engineering (JEE/GATE)' },
               { id: 'ssc', label: '🏛️ SSC' },
               { id: 'railway', label: '🚆 Railway' },
               { id: 'board', label: '🏫 10th & 12th Board' },
               { id: 'banking', label: '🏦 Banking' },
               { id: 'state', label: '🗺️ State PCS & Police' },
+              { id: 'law-commerce', label: '⚖️ Law & CA/Commerce' },
+              { id: 'defence', label: '🎖️ Defence (NDA/CDS)' },
               { id: 'shorthand', label: '🎙️ Shorthand Steno' }
             ].map(cat => (
               <button

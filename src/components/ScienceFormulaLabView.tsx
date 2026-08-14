@@ -11,7 +11,7 @@ interface ScienceFormulaLabViewProps {
 }
 
 export const ScienceFormulaLabView: React.FC<ScienceFormulaLabViewProps> = ({ showToast, language }) => {
-  const [activeTab, setActiveTab] = useState<'circuits' | 'optics' | 'pendulum' | 'trig' | 'finance' | 'custom-solver'>('circuits');
+  const [activeTab, setActiveTab] = useState<'circuits' | 'medical-cardio' | 'optics' | 'pendulum' | 'trig' | 'finance' | 'custom-solver'>('circuits');
 
   // Lab 1: Ohm's Law States
   const [voltage, setVoltage] = useState<number>(12); // V
@@ -19,6 +19,16 @@ export const ScienceFormulaLabView: React.FC<ScienceFormulaLabViewProps> = ({ sh
   
   const current = (voltage / resistance).toFixed(2); // I = V / R
   const power = (voltage * (voltage / resistance)).toFixed(2); // P = V * I
+
+  // Lab Medical: Physiology & Cardiac Hemodynamics
+  const [heartRate, setHeartRate] = useState<number>(72); // BPM
+  const [strokeVolume, setStrokeVolume] = useState<number>(70); // mL/beat
+  const [systolicBP, setSystolicBP] = useState<number>(120); // mmHg
+  const [diastolicBP, setDiastolicBP] = useState<number>(80); // mmHg
+
+  const cardiacOutput = ((heartRate * strokeVolume) / 1000).toFixed(2); // L/min (Normal: 4.5 - 6.0 L/min)
+  const meanArterialPressure = (diastolicBP + (systolicBP - diastolicBP) / 3).toFixed(1); // MAP = DBP + 1/3(PP)
+  const pulsePressure = systolicBP - diastolicBP;
 
   // Lab 2: Optics Lens States
   const [focalLength, setFocalLength] = useState<number>(20); // f in cm
@@ -124,6 +134,7 @@ export const ScienceFormulaLabView: React.FC<ScienceFormulaLabViewProps> = ({ sh
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {[
           { id: 'circuits', label: '⚡ Electric Circuit (Ohm\'s Law)', icon: '⚡' },
+          { id: 'medical-cardio', label: '🩺 Medical: Cardiac & BP Lab', icon: '🩺' },
           { id: 'optics', label: '🔭 Lens & Mirror Optics', icon: '🔭' },
           { id: 'pendulum', label: '🕰️ Simple Pendulum', icon: '🕰️' },
           { id: 'trig', label: '📐 Trigonometry & Unit Circle', icon: '📐' },
@@ -242,6 +253,183 @@ export const ScienceFormulaLabView: React.FC<ScienceFormulaLabViewProps> = ({ sh
             <div className="flex justify-between items-center text-xs font-bold text-slate-300 px-2">
               <span>इलेक्ट्रॉन प्रवाह की गति धारा (I = {current}A) पर निर्भर करती है।</span>
             </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* LAB VIEW: MEDICAL & CARDIOVASCULAR PHYSIOLOGY */}
+      {activeTab === 'medical-cardio' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          {/* SLIDERS & CONTROLS (5 COLS) */}
+          <div className="lg:col-span-5 bg-[#090D16] border border-rose-950/40 p-6 rounded-3xl space-y-6 shadow-xl">
+            <div className="border-b border-rose-900/30 pb-3">
+              <span className="text-[10px] font-black uppercase text-rose-400 tracking-wider">Cardiac Physiology: CO = HR × SV | MAP = DBP + 1/3(PP)</span>
+              <h2 className="text-base font-extrabold text-white mt-1">हृदय गति, रक्तचाप व कार्डियक आउटपुट सिम्युलेटर</h2>
+            </div>
+
+            {/* Heart Rate Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-slate-300">Heart Rate (HR):</span>
+                <span className="text-rose-400 font-mono text-sm">{heartRate} BPM</span>
+              </div>
+              <input
+                type="range"
+                min="40"
+                max="180"
+                step="2"
+                value={heartRate}
+                onChange={(e) => setHeartRate(Number(e.target.value))}
+                className="w-full accent-rose-500 cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-slate-400">
+                <span>Bradycardia (&lt;60)</span>
+                <span>Normal (60-100)</span>
+                <span>Tachycardia (&gt;100)</span>
+              </div>
+            </div>
+
+            {/* Stroke Volume Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-slate-300">Stroke Volume (SV):</span>
+                <span className="text-pink-400 font-mono text-sm">{strokeVolume} mL/beat</span>
+              </div>
+              <input
+                type="range"
+                min="30"
+                max="140"
+                step="2"
+                value={strokeVolume}
+                onChange={(e) => setStrokeVolume(Number(e.target.value))}
+                className="w-full accent-pink-400 cursor-pointer"
+              />
+            </div>
+
+            {/* Blood Pressure (Systolic / Diastolic) */}
+            <div className="space-y-3 pt-1">
+              <span className="text-xs font-bold text-slate-300 block">Arterial Blood Pressure (BP):</span>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px] font-bold text-slate-400">
+                    <span>Systolic (SBP)</span>
+                    <span className="text-amber-400 font-mono">{systolicBP} mmHg</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="90"
+                    max="190"
+                    step="2"
+                    value={systolicBP}
+                    onChange={(e) => setSystolicBP(Number(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px] font-bold text-slate-400">
+                    <span>Diastolic (DBP)</span>
+                    <span className="text-cyan-400 font-mono">{diastolicBP} mmHg</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="50"
+                    max="120"
+                    step="2"
+                    value={diastolicBP}
+                    onChange={(e) => setDiastolicBP(Number(e.target.value))}
+                    className="w-full accent-cyan-400 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* PHYSIOLOGY CLINICAL RESULTS */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="bg-rose-950/30 border border-rose-900/40 p-3 rounded-2xl text-center space-y-1">
+                <span className="text-[10px] font-bold text-rose-300 block">Cardiac Output (CO)</span>
+                <span className="text-lg font-black text-rose-400 font-mono">{cardiacOutput} L/min</span>
+                <span className="text-[9px] text-slate-400 block font-medium">Normal: 4.5-6.0 L/min</span>
+              </div>
+              <div className="bg-cyan-950/30 border border-cyan-900/40 p-3 rounded-2xl text-center space-y-1">
+                <span className="text-[10px] font-bold text-cyan-300 block">Mean Arterial (MAP)</span>
+                <span className="text-lg font-black text-cyan-400 font-mono">{meanArterialPressure} mmHg</span>
+                <span className="text-[9px] text-slate-400 block font-medium">Perfusion Pressure</span>
+              </div>
+            </div>
+
+            {/* Pulse Pressure & Clinical Status */}
+            <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center justify-between text-xs">
+              <span className="text-slate-300 font-bold">Pulse Pressure (SBP - DBP):</span>
+              <span className="font-mono font-black text-emerald-400">{pulsePressure} mmHg</span>
+            </div>
+
+          </div>
+
+          {/* VISUAL PHYSIOLOGY CANVAS (7 COLS) */}
+          <div className="lg:col-span-7 bg-[#090D16] border border-rose-950/40 p-6 rounded-3xl space-y-4 shadow-xl">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <span className="text-xs font-black text-rose-400 uppercase tracking-wider">Real-Time ECG & Cardiac Cycle</span>
+              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black border uppercase ${
+                heartRate > 100 
+                  ? 'bg-red-500/20 text-red-400 border-red-500/40 animate-pulse'
+                  : heartRate < 60
+                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                  : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+              }`}>
+                {heartRate > 100 ? '⚠️ Tachycardia' : heartRate < 60 ? '⚠️ Bradycardia' : '✅ Normal Sinus Rhythm'}
+              </span>
+            </div>
+
+            {/* Interactive SVG Heart & ECG Monitor */}
+            <svg viewBox="0 0 500 240" className="w-full h-56 bg-[#03060E] rounded-2xl border border-slate-800">
+              {/* ECG Grid Lines */}
+              <defs>
+                <pattern id="ecgGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1E293B" strokeWidth="0.8" />
+                </pattern>
+              </defs>
+              <rect width="500" height="240" fill="url(#ecgGrid)" />
+
+              {/* Heart Pulse Icon */}
+              <g transform="translate(70, 110)">
+                <path
+                  d="M 0 -20 C -20 -40, -40 -10, 0 30 C 40 -10, 20 -40, 0 -20"
+                  fill="#F43F5E"
+                  opacity="0.85"
+                  transform="scale(1.2)"
+                  className="transition-transform duration-300"
+                />
+                <text x="0" y="45" fill="#FDA4AF" fontSize="10" fontWeight="bold" textAnchor="middle">
+                  {heartRate} BPM
+                </text>
+              </g>
+
+              {/* Dynamic ECG Waveform */}
+              <path
+                d="M 140 120 L 170 120 L 180 110 L 190 120 L 205 120 L 215 70 L 225 150 L 235 120 L 255 120 L 270 100 L 285 120 L 310 120 L 320 110 L 330 120 L 345 120 L 355 70 L 365 150 L 375 120 L 395 120 L 410 100 L 425 120 L 480 120"
+                fill="none"
+                stroke="#10B981"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* Annotations */}
+              <text x="180" y="95" fill="#38BDF8" fontSize="9" fontWeight="bold">P Wave</text>
+              <text x="215" y="55" fill="#F43F5E" fontSize="10" fontWeight="bold">QRS Complex</text>
+              <text x="270" y="85" fill="#FBBF24" fontSize="9" fontWeight="bold">T Wave</text>
+            </svg>
+
+            <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-1 text-xs text-slate-300">
+              <span className="font-bold text-rose-400 block">NEET & Medical Exam Concept:</span>
+              <p className="text-[11px] leading-relaxed text-slate-300 font-medium">
+                • <strong>Cardiac Output</strong> = Heart Rate × Stroke Volume ({heartRate} × {strokeVolume} mL = {cardiacOutput} L/min).<br/>
+                • <strong>Mean Arterial Pressure (MAP)</strong> = Diastolic BP + 1/3 (Pulse Pressure) = {diastolicBP} + 1/3({pulsePressure}) = {meanArterialPressure} mmHg.
+              </p>
+            </div>
+
           </div>
 
         </div>

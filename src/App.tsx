@@ -78,9 +78,12 @@ import {
   Radio,
   FileCode,
   Terminal,
-  LayoutDashboard
+  LayoutDashboard,
+  CheckCircle2,
+  Lightbulb,
+  AlertTriangle
 } from 'lucide-react';
-import { Message, QuizQuestion, BusinessCalculation, BusinessResult } from './types';
+import { Message, QuizQuestion, SavedQuizRecord, MistakeNotebookItem, BusinessCalculation, BusinessResult } from './types';
 import { HELP_TOPICS, PITMAN_STROKES, PRESET_MOTIVATIONAL_RAPS } from './constants';
 import AboutCreator from './components/AboutCreator';
 import { StudyPlanView } from './components/StudyPlanView';
@@ -102,6 +105,10 @@ import { NeuralMemoryMapView } from './components/NeuralMemoryMapView';
 import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
 import { MnemonicsTrickGeneratorView } from './components/MnemonicsTrickGeneratorView';
 import { ScienceFormulaLabView } from './components/ScienceFormulaLabView';
+import { StartupIntroSplash } from './components/StartupIntroSplash';
+import { HansCompainLogo } from './components/HansCompainLogo';
+import { QuizMistakeRemediationModal } from './components/QuizMistakeRemediationModal';
+import { QuizMistakeNotebookView } from './components/QuizMistakeNotebookView';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -143,7 +150,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     loginTitle: "Sign In with Google",
     loginDesc: "Select an official Google account to activate premium review and admin features.",
     ownerBypass: "Owner Admin Access:",
-    ownerBypassDesc: "To sign in as Hanslal Pal, use palhanslal4@gmail.com. Other inputs simulate pristine Google user profiles.",
+    ownerBypassDesc: "Enter the master password to access administrative controls.",
     yourNameLabel: "Your Name",
     emailLabel: "Email Address",
     googleSignInBtn: "Sign In with Google",
@@ -155,20 +162,20 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     ratingAccuracy: "Concept Accuracy",
     ratingSpeed: "System Speed & Latency",
     ratingExperience: "Interface Experience",
-    reviewTextPlaceholder: "Write your honest feedback on HansAI's speed, utility, or content...",
+    reviewTextPlaceholder: "Write your honest feedback on Hans Compain's speed, utility, or content...",
     aboutCreatorTitle: "About the Creator",
     logoutBtn: "Log Out",
-    welcomeGreeting: "Hello! I am HansAI, your AI Companion. How can I help you learn, write, or research today?",
+    welcomeGreeting: "Hello! I am Hans Compain, your AI Companion. How can I help you learn, write, or research today?",
     micListening: "Listening... speak now",
     micTooltip: "Use Voice Dictation (Speech-to-Text)",
     speakerTooltip: "Read aloud latest assistant output",
-    creatorAnswerText: "HansAI has been designed to empower students, researchers, and professionals.",
+    creatorAnswerText: "Hans Compain has been designed to empower students, researchers, and professionals.",
     noAccountHeader: "Verify your Account",
-    selectAccountHeader: "Google Account Chooser",
-    useAnotherAccount: "Use another account / Custom Google Account",
+    selectAccountHeader: "Account Chooser",
+    useAnotherAccount: "Use another account / Enter Details",
     activeSearch: "Deep Web Searching...",
     ownerDashboard: "Owner Admin Dashboard",
-    noAdminWarning: "Access Denied. Only palhanslal4@gmail.com can access the admin board.",
+    noAdminWarning: "Access Denied. Secret Master verification required for admin access.",
     backToHome: "Return to Workspace",
     totalReviews: "All Saved Reviews",
     carouselAccuracy: "Accuracy",
@@ -533,6 +540,11 @@ export default function App() {
   const t = (key: string): string => {
     return translations[language][key] || key;
   };
+
+  // Hans Compain Intro Splash Animation & Feature Walkthrough
+  const [showStartupIntro, setShowStartupIntro] = useState<boolean>(() => {
+    return !sessionStorage.getItem('hanscompain_intro_seen');
+  });
 
   // Appearance & Personalization Settings state
   const [theme, setTheme] = useState<'midnight' | 'charcoal' | 'light'>(() => {
@@ -2206,13 +2218,37 @@ export default function App() {
   const [newSegmentEmoji, setNewSegmentEmoji] = useState<string>("🚀");
   const [isAddingSegment, setIsAddingSegment] = useState<boolean>(false);
   
-  // Quiz Generator & A1 Report Card state
+  // Quiz Generator, Difficulty Scaling, Smart Timer & A1 Report Card state
   const [quizSubject, setQuizSubject] = useState('');
   const [quizLevel, setQuizLevel] = useState('Class 10th / Competitive');
+  const [quizDifficulty, setQuizDifficulty] = useState<'standard' | 'moderate' | 'hard' | 'extreme'>('standard');
+  const [quizQuestionCount, setQuizQuestionCount] = useState<number>(5);
   const [studentName, setStudentName] = useState('Aspirant Student');
   const [studentRoll, setStudentRoll] = useState('HS-2026-8809');
   const [positiveMarkVal, setPositiveMarkVal] = useState(2.0);
   const [negativeMarkVal, setNegativeMarkVal] = useState(0.5);
+  
+  // Timer settings & Active timer states
+  const [quizTimerMode, setQuizTimerMode] = useState<'auto' | 'custom_question' | 'custom_total' | 'none'>('auto');
+  const [quizCustomQuestionSeconds, setQuizCustomQuestionSeconds] = useState<number>(30);
+  const [quizCustomTotalMinutes, setQuizCustomTotalMinutes] = useState<number>(5);
+  const [quizTimeRemaining, setQuizTimeRemaining] = useState<number>(150);
+  const [quizTotalTimeLimit, setQuizTotalTimeLimit] = useState<number>(150);
+  const [quizTimeSpentSeconds, setQuizTimeSpentSeconds] = useState<number>(0);
+  const [isQuizTimerActive, setIsQuizTimerActive] = useState<boolean>(false);
+  const [quizTimerSoundEnabled, setQuizTimerSoundEnabled] = useState<boolean>(true);
+
+  // Wrong answer handling, Retries & Hints
+  const [isRetryingQuestion, setIsRetryingQuestion] = useState<boolean>(false);
+  const [showQuestionHint, setShowQuestionHint] = useState<boolean>(false);
+  const [activeMistakeModal, setActiveMistakeModal] = useState<{ question: QuizQuestion; selectedOptionIdx: number } | null>(null);
+
+  // Mistake Revision Notebook state
+  const [mistakeNotebook, setMistakeNotebook] = useState<MistakeNotebookItem[]>(() => {
+    const saved = localStorage.getItem('hansai-mistake-notebook');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [userQuizAnswers, setUserQuizAnswers] = useState<Record<number, number>>({});
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [quizzes, setQuizzes] = useState<QuizQuestion[]>([]);
@@ -2221,6 +2257,12 @@ export default function App() {
   const [isQuizSubmitted, setIsQuizSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [quizError, setQuizError] = useState<string | null>(null);
+  const [quizAutoSaveNotice, setQuizAutoSaveNotice] = useState<string | null>(null);
+  const [savedQuizSearch, setSavedQuizSearch] = useState('');
+  const [reviewingSavedQuiz, setReviewingSavedQuiz] = useState<SavedQuizRecord | null>(null);
+  const [hasActiveQuizDraft, setHasActiveQuizDraft] = useState<boolean>(() => {
+    return !!localStorage.getItem('hansai-active-quiz-draft');
+  });
 
   const handleDownloadA1Card = () => {
     const totalQ = quizzes.length;
@@ -2359,9 +2401,9 @@ export default function App() {
     showToast("A1 Size Report Card Downloaded Successfully! 📜", "success");
   };
 
-  // Interactive Quiz Tabs: 'syllabus' | 'saved'
-  const [activeQuizTab, setActiveQuizTab] = useState<'syllabus' | 'saved'>('syllabus');
-  const [savedQuizzes, setSavedQuizzes] = useState<{ id: string; subject: string; level: string; date: string; score: number; total: number; quizzes: QuizQuestion[] }[]>(() => {
+  // Interactive Quiz Tabs: 'syllabus' | 'saved' | 'mistakes'
+  const [activeQuizTab, setActiveQuizTab] = useState<'syllabus' | 'saved' | 'mistakes'>('syllabus');
+  const [savedQuizzes, setSavedQuizzes] = useState<SavedQuizRecord[]>(() => {
     const saved = localStorage.getItem('hansai-saved-quizzes');
     return saved ? JSON.parse(saved) : [];
   });
@@ -2452,31 +2494,207 @@ export default function App() {
     showToast(`${crop} optimal pricing and volume presets loaded! 🌾`, "success");
   };
 
-  const handleGenerateQuiz = async (subjectParam?: string) => {
+  const saveActiveQuizDraft = (
+    currentQList: QuizQuestion[],
+    currIdx: number,
+    answers: Record<number, number>,
+    currScore: number,
+    isSubmitted: boolean,
+    subj: string,
+    lvl: string
+  ) => {
+    if (!currentQList || currentQList.length === 0) return;
+    try {
+      const draftData = {
+        quizzes: currentQList,
+        currentQuizIdx: currIdx,
+        userQuizAnswers: answers,
+        score: currScore,
+        isQuizSubmitted: isSubmitted,
+        quizSubject: subj,
+        quizLevel: lvl,
+        studentName,
+        studentRoll,
+        positiveMarkVal,
+        negativeMarkVal,
+        lastSaved: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      };
+      localStorage.setItem('hansai-active-quiz-draft', JSON.stringify(draftData));
+      setHasActiveQuizDraft(true);
+      setQuizAutoSaveNotice(`Auto-Saved at ${new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' })}`);
+    } catch (err) {
+      console.warn("Quiz draft auto-save error:", err);
+    }
+  };
+
+  const resumeActiveQuizDraft = () => {
+    try {
+      const savedDraft = localStorage.getItem('hansai-active-quiz-draft');
+      if (savedDraft) {
+        const data = JSON.parse(savedDraft);
+        if (data.quizzes && data.quizzes.length > 0) {
+          setQuizzes(data.quizzes);
+          setCurrentQuizIdx(data.currentQuizIdx || 0);
+          setUserQuizAnswers(data.userQuizAnswers || {});
+          setScore(data.score || 0);
+          setIsQuizSubmitted(!!data.isQuizSubmitted);
+          if (data.quizSubject) setQuizSubject(data.quizSubject);
+          if (data.quizLevel) setQuizLevel(data.quizLevel);
+          if (data.studentName) setStudentName(data.studentName);
+          if (data.studentRoll) setStudentRoll(data.studentRoll);
+          if (data.positiveMarkVal) setPositiveMarkVal(data.positiveMarkVal);
+          if (data.negativeMarkVal) setNegativeMarkVal(data.negativeMarkVal);
+          setSelectedOptionIdx(null);
+          showToast("Resumed your in-progress quiz session! 📝⚡", "success");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to restore quiz draft:", err);
+    }
+  };
+
+  const discardActiveQuizDraft = () => {
+    localStorage.removeItem('hansai-active-quiz-draft');
+    setHasActiveQuizDraft(false);
+    showToast("Unfinished quiz draft cleared.", "info");
+  };
+
+  // Audio feedback for countdown timer
+  const playTimerAlertSound = (freq = 800, duration = 0.15) => {
+    try {
+      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtxClass) return;
+      const audioCtx = new AudioCtxClass();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {
+      // Audio context might be restricted before interaction
+    }
+  };
+
+  // Helper to compute initial seconds for smart automatic timer or manual options
+  const calculateInitialTimerSeconds = (count: number, difficulty: string, mode: 'auto' | 'custom_question' | 'custom_total' | 'none') => {
+    if (mode === 'none') return 0;
+    if (mode === 'custom_question') return quizCustomQuestionSeconds;
+    if (mode === 'custom_total') return quizCustomTotalMinutes * 60;
+    
+    // Auto mode: dynamic per-question time according to difficulty
+    let perQSec = 30; // standard
+    if (difficulty === 'moderate') perQSec = 45;
+    else if (difficulty === 'hard') perQSec = 60;
+    else if (difficulty === 'extreme') perQSec = 90;
+    return count * perQSec;
+  };
+
+  const formatTimerDisplay = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Timer useEffect countdown loop
+  useEffect(() => {
+    if (quizzes.length === 0 || currentQuizIdx >= quizzes.length || !isQuizTimerActive || quizTimerMode === 'none') {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setQuizTimeSpentSeconds(prev => prev + 1);
+
+      setQuizTimeRemaining(prev => {
+        if (prev <= 1) {
+          // Time's up!
+          if (quizTimerSoundEnabled) {
+            playTimerAlertSound(420, 0.4);
+          }
+
+          if (quizTimerMode === 'custom_question') {
+            // Auto lock current answer for this question
+            if (!isQuizSubmitted) {
+              const currentQ = quizzes[currentQuizIdx];
+              const updatedAnswers = { ...userQuizAnswers, [currentQuizIdx]: selectedOptionIdx ?? -1 };
+              setUserQuizAnswers(updatedAnswers);
+              setIsQuizSubmitted(true);
+              showToast("समय समाप्त! (Time's up for this question)", "info");
+            }
+            return 0;
+          } else {
+            // Total quiz time ended! Finish test
+            advanceQuiz();
+            showToast("कुल समय समाप्त! (Total Quiz Time Finished)", "info");
+            return 0;
+          }
+        }
+
+        // Warning chime at 10 seconds remaining
+        if (prev === 11 && quizTimerSoundEnabled) {
+          playTimerAlertSound(880, 0.15);
+        }
+
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [quizzes.length, currentQuizIdx, isQuizTimerActive, quizTimerMode, isQuizSubmitted, quizTimerSoundEnabled, userQuizAnswers, selectedOptionIdx]);
+
+  const handleGenerateQuiz = async (
+    subjectParam?: string,
+    difficultyParam?: 'standard' | 'moderate' | 'hard' | 'extreme',
+    countParam?: number
+  ) => {
+    const targetDifficulty = difficultyParam || quizDifficulty || 'standard';
+    const targetCount = countParam || quizQuestionCount || 5;
+    const targetedSubject = subjectParam || quizSubject || "Chapter 1: Real Numbers & Algebra";
+
+    setQuizDifficulty(targetDifficulty);
+    setQuizQuestionCount(targetCount);
     setIsGeneratingQuiz(true);
     setQuizError(null);
     setCurrentQuizIdx(0);
     setSelectedOptionIdx(null);
     setIsQuizSubmitted(false);
+    setIsRetryingQuestion(false);
+    setShowQuestionHint(false);
     setUserQuizAnswers({});
     setScore(0);
+    setQuizTimeSpentSeconds(0);
 
-    const targetedSubject = subjectParam || quizSubject || "Chapter 1: Real Numbers & Algebra";
+    // Compute timer initial values
+    const initSec = calculateInitialTimerSeconds(targetCount, targetDifficulty, quizTimerMode);
+    setQuizTimeRemaining(initSec);
+    setQuizTotalTimeLimit(initSec);
+    setIsQuizTimerActive(quizTimerMode !== 'none');
 
     // Log quiz activity query for owner analytics
-    logUserActivity('quiz', `Quiz Generated: ${targetedSubject}`);
+    logUserActivity('quiz', `Quiz Generated: ${targetedSubject} [Level: ${targetDifficulty}, Count: ${targetCount}]`);
 
     try {
       const activeLang = quizLanguage || language || 'hindi';
       const res = await fetch("/api/quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject: targetedSubject, level: quizLevel, lang: activeLang })
+        body: JSON.stringify({ 
+          subject: targetedSubject, 
+          level: quizLevel, 
+          difficulty: targetDifficulty,
+          count: targetCount,
+          lang: activeLang 
+        })
       });
       if (!res.ok) throw new Error("Academic Node busy.");
       const data = await res.json();
       if (data.quiz && data.quiz.length > 0) {
         setQuizzes(data.quiz);
+        saveActiveQuizDraft(data.quiz, 0, {}, 0, false, targetedSubject, quizLevel);
       } else {
         throw new Error("No quiz list returned.");
       }
@@ -2486,107 +2704,168 @@ export default function App() {
       // Fallback MCQs matching selected language
       const fallbackList: QuizQuestion[] = activeLang === 'hindi' ? [
         {
-          question: `"${targetedSubject}" अभ्यास प्रश्न: इस विषय की बेहतर तैयारी के लिए सबसे महत्वपूर्ण क्या है?`,
+          question: `"${targetedSubject}" अभ्यास प्रश्न (${targetDifficulty.toUpperCase()}): इस विषय की बेहतर तैयारी के लिए सबसे महत्वपूर्ण रणनीति क्या है?`,
           options: [
-            "नियमित अभ्यास क्विज़ देना और उत्तरों की व्याख्या पढ़ना",
-            "केवल उत्तरों को रटना",
-            "कठिन विषयों को छोड़ देना",
-            "अविश्वसनीय स्रोतों से अभ्यास करना"
+            "नियमित अभ्यास क्विज़ देना, गलतियों का विश्लेषण करना और उत्तरों की व्याख्या पढ़ना",
+            "केवल उत्तरों को रटना बिना अवधारणा समझे",
+            "कठिन विषयों को परीक्षा के लिए छोड़ देना",
+            "अविश्वसनीय स्रोतों से बिना समय सीमा अभ्यास करना"
           ],
           answerIndex: 0,
-          explanation: "नियमित टेस्ट हल करना और सही व्याख्या समझना परीक्षा में सर्वाधिक अंक दिलाने का सर्वोत्तम तरीका है।"
+          explanation: "नियमित टेस्ट हल करना, कमजोर बिंदुओं को पहचानना और सही व्याख्या समझना परीक्षा में सर्वाधिक अंक दिलाने का सर्वोत्तम तरीका है।",
+          hint: "सक्रिय पुनरीक्षण (active recall) और त्रुटि सुधार पर ध्यान केंद्रित करें।",
+          difficulty: targetDifficulty
         },
         {
-          question: `HansAI डिजिटल गाइड: बहुविकल्पीय (MCQ) प्रश्नों में उच्च अंक प्राप्त करने का मुख्य तरीका क्या है?`,
+          question: `Hans Compain डिजिटल गाइड: बहुविकल्पीय (MCQ) प्रश्नों में 100% सटीकता प्राप्त करने का मुख्य तरीका क्या है?`,
           options: [
-            "केवल तुक्का लगाना",
-            "प्रश्न को ध्यान से पढ़ना, गलत विकल्पों को हटाना और मूल अवधारणा पर ध्यान देना",
+            "केवल तुक्का लगाना और जल्दी में टिक करना",
+            "प्रश्न को ध्यान से पढ़ना, भ्रामक विकल्पों को हटाना और मूल अवधारणा पर ध्यान देना",
             "महीने में केवल एक बार अभ्यास करना",
-            "प्रश्नों की समीक्षा न करना"
+            "प्रश्नों की समीक्षा कभी न करना"
           ],
           answerIndex: 1,
-          explanation: "सटीक गति और विकल्पों के सही विलोपन (elimination) से परीक्षा में सबसे अधिक अंक प्राप्त होते हैं।"
+          explanation: "सटीक गति और विकल्पों के सही विलोपन (elimination) से परीक्षा में सबसे अधिक अंक प्राप्त होते हैं।",
+          hint: "गलत विकल्पों को एक-एक करके खारिज (eliminate) करने का प्रयास करें।",
+          difficulty: targetDifficulty
         }
       ] : [
         {
-          question: `Practice MCQ Study Question on "${targetedSubject}": Which of the following plays a most vital role in preparation of this subject?`,
+          question: `"${targetedSubject}" Practice Question (${targetDifficulty.toUpperCase()}): What is the most effective strategy for mastering this chapter?`,
           options: [
-            "Frequent mock test assessments and reviewing error explanations",
-            "Mugging up definitions with zero conceptual base matching",
-            "Leaving specific segments completely for secondary attempt rounds",
-            "Practicing with complex non-verified external sources"
+            "Regular mock quizzes, mistake analysis, and conceptual remediation",
+            "Rote memorization without understanding underlying logic",
+            "Skipping difficult sub-topics completely",
+            "Practicing without time constraints or answer reviews"
           ],
           answerIndex: 0,
-          explanation: "Consistent topic mock quizzes, identifying errors under high-discipline routines, and reading peer explanations are scientifically proven to maximize score accuracy."
+          explanation: "Active recall, timely practice, and analyzing weak areas are empirically proven to deliver top scores.",
+          hint: "Focus on conceptual clarity and rigorous error remediation.",
+          difficulty: targetDifficulty
         },
         {
-          question: `Syllabus Check: What is the primary recommendation by HansAI to score high in MCQs?`,
+          question: `Hans Compain Academic Guide: How can candidates maximize accuracy in tricky multi-option questions?`,
           options: [
-            "Overthink every possibility leaving no room for quick solving rhythm",
-            "Read carefully, eliminate obvious distractors, and focus on verified core concepts",
-            "Rely entirely on luck-guesses with zero review history tracking",
-            "Solve quizzes only once a month with no performance metrics logged"
+            "Blind guessing within the first 5 seconds",
+            "Careful question reading, eliminating contradictory choices, and verifying key terms",
+            "Attempting questions only once a month",
+            "Ignoring answer explanations"
           ],
           answerIndex: 1,
-          explanation: "High precision speed combined with clear option elimination tactics yields the highest average scores in all competitive tests."
+          explanation: "Systematic option elimination and careful analysis of trap distractors ensure 100% accuracy.",
+          hint: "Eliminate extreme or non-pertinent statements first.",
+          difficulty: targetDifficulty
         }
       ];
       setQuizzes(fallbackList);
+      saveActiveQuizDraft(fallbackList, 0, {}, 0, false, targetedSubject, quizLevel);
       setQuizError(activeLang === 'hindi' ? "ऑफलाइन मॉक प्रश्न लोड किए गए हैं! 📚" : "Offline mock database loaded! Active syllabus review test ready. 📚");
     } finally {
       setIsGeneratingQuiz(false);
     }
   };
 
-  const handleGenerateMorningPoem = async () => {
-    setIsGeneratingPoem(true);
-    // Cycle/Randomize theme to keep it colorful and dynamic!
-    const randomTheme = Math.floor(Math.random() * STATUS_THEMES.length);
-    setStatusThemeIdx(randomTheme);
-    try {
-      const res = await fetch("/api/status-generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category: "poem" })
-      });
-      if (!res.ok) throw new Error("Poem node busy");
-      const data = await res.json();
-      if (data.text) {
-        setMorningPoem(data.text);
-        showToast("Fresh morning poem generated! ☀️☕", "success");
+  // Mistake Notebook Management Helpers
+  const handleSaveMistakeToNotebook = (
+    itemOrQuestion: MistakeNotebookItem | QuizQuestion,
+    selectedOptionIndex: number = -1,
+    remedialExplanation?: string
+  ) => {
+    let newItem: MistakeNotebookItem;
+    if ('userAnswerIndex' in itemOrQuestion && 'timestamp' in itemOrQuestion) {
+      newItem = itemOrQuestion as MistakeNotebookItem;
+    } else {
+      const q = itemOrQuestion as QuizQuestion;
+      newItem = {
+        id: `mistake-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        subject: quizSubject || 'General Assessment',
+        difficulty: q.difficulty || quizDifficulty,
+        timestamp: new Date().toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        question: q.question,
+        options: q.options,
+        correctAnswerIndex: q.answerIndex,
+        userAnswerIndex: selectedOptionIndex >= 0 ? selectedOptionIndex : 0,
+        explanation: q.explanation,
+        hint: q.hint,
+        remedialExplanation: remedialExplanation || q.explanation,
+        attemptsCount: 1,
+        mastered: false
+      };
+    }
+
+    setMistakeNotebook(prev => {
+      if (prev.some(m => m.question === newItem.question)) {
+        showToast("यह प्रश्न पहले से ही गलती रजिस्टर में मौजूद है! 📓", "info");
+        return prev;
       }
-    } catch (err) {
-      console.error(err);
-      showToast("Could not generate a fresh poem. Loaded a lovely fallback! ☕", "info");
-      setMorningPoem("चाय के घूंट के साथ नया संकल्प उठाएं,\nशॉर्टहैंड और SSC परीक्षा में विजय पाएं।\nमेहनत ही है जीवन का सच्चा गहना,\nआज फिर से निरंतर अभ्यास करते रहना! ☕🥞");
-    } finally {
-      setIsGeneratingPoem(false);
+      const updated = [newItem, ...prev];
+      localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+      showToast("गलती रजिस्टर (Mistake Notebook) में सुरक्षित! 📓", "success");
+      return updated;
+    });
+  };
+
+  const handleDeleteMistake = (id: string) => {
+    const updated = mistakeNotebook.filter(m => m.id !== id);
+    setMistakeNotebook(updated);
+    localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+    showToast("Mistake record removed.", "info");
+  };
+
+  const handleClearAllMistakes = () => {
+    if (confirm("क्या आप सभी गलत प्रश्न रजिस्टर से हटाना चाहते हैं? (Clear all mistake records?)")) {
+      setMistakeNotebook([]);
+      localStorage.removeItem('hansai-mistake-notebook');
+      showToast("Mistake notebook cleared.", "info");
     }
   };
 
-  const handleGenerateAIDailyChallenge = async () => {
-    setIsDailyChallengeLoading(true);
-    setDailyChallengeOption(null);
-    setIsDailyChallengeSubmitted(false);
-    try {
-      const res = await fetch("/api/quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject: "SSC High-Yield General Awareness and English Dictation Rules", level: "High-Yield Daily Challenge" })
-      });
-      if (!res.ok) throw new Error("Challenge node busy");
-      const data = await res.json();
-      if (data.quiz && data.quiz.length > 0) {
-        setCustomDailyChallenge(data.quiz[0]);
-        showToast("New high-yield daily challenge loaded! 🏆", "success");
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("Loaded high-yield challenge from standard repository! 📚", "info");
-      setCustomDailyChallenge(null);
-    } finally {
-      setIsDailyChallengeLoading(false);
-    }
+  const handleToggleMasteredMistake = (id: string) => {
+    const updated = mistakeNotebook.map(m => m.id === id ? { ...m, mastered: !m.mastered } : m);
+    setMistakeNotebook(updated);
+    localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+    showToast("Status updated.", "success");
+  };
+
+  const handleStartRetestFromMistakes = (questions: QuizQuestion[], testSubject: string) => {
+    setQuizzes(questions);
+    setQuizSubject(testSubject);
+    setQuizLevel("Mistake Correction Retest");
+    setQuizDifficulty('hard');
+    setQuizQuestionCount(questions.length);
+    setCurrentQuizIdx(0);
+    setSelectedOptionIdx(null);
+    setIsQuizSubmitted(false);
+    setIsRetryingQuestion(false);
+    setShowQuestionHint(false);
+    setUserQuizAnswers({});
+    setScore(0);
+    setQuizTimeSpentSeconds(0);
+    
+    const initTimerSec = calculateInitialTimerSeconds(questions.length, 'hard', quizTimerMode);
+    setQuizTimeRemaining(initTimerSec);
+    setQuizTotalTimeLimit(initTimerSec);
+    setIsQuizTimerActive(quizTimerMode !== 'none');
+    
+    setActiveQuizTab('syllabus');
+    showToast(`🎯 Launching ${questions.length} Mistakes Targeted Retest!`, "success");
+  };
+
+  // 1-Click Level Up: Switch to Harder/Extreme Question on same chapter
+  const handleLevelUpQuiz = (levelToSet?: 'moderate' | 'hard' | 'extreme') => {
+    const nextDiff = levelToSet || (quizDifficulty === 'standard' ? 'hard' : quizDifficulty === 'moderate' ? 'hard' : 'extreme');
+    setQuizDifficulty(nextDiff);
+    handleGenerateQuiz(quizSubject, nextDiff, quizQuestionCount);
+    showToast(`⚡ Level Up Activated: Generating ${nextDiff.toUpperCase()} Level Questions for ${quizSubject || 'current chapter'}!`, "success");
+  };
+
+  // Retry current question with hint unlocked
+  const handleRetryCurrentQuestion = () => {
+    setIsQuizSubmitted(false);
+    setShowQuestionHint(true);
+    setIsRetryingQuestion(true);
+    setSelectedOptionIdx(null);
+    showToast("💡 संकेत अनलॉक हुआ! पुनः प्रयास करें (Hint Unlocked - Select your answer again!)", "info");
   };
 
   const selectQuizOption = (optionIndex: number) => {
@@ -2598,16 +2877,54 @@ export default function App() {
   const submitQuizAnswer = () => {
     if (selectedOptionIdx === null) return;
     const currentQ = quizzes[currentQuizIdx];
-    setUserQuizAnswers(prev => ({ ...prev, [currentQuizIdx]: selectedOptionIdx }));
-    if (selectedOptionIdx === currentQ.answerIndex) {
-      setScore(prev => prev + 1);
+    const updatedAnswers = { ...userQuizAnswers, [currentQuizIdx]: selectedOptionIdx };
+    setUserQuizAnswers(updatedAnswers);
+    let newScore = score;
+    const isCorrect = selectedOptionIdx === currentQ.answerIndex;
+
+    if (isCorrect) {
+      if (!isRetryingQuestion) {
+        newScore = score + 1;
+        setScore(newScore);
+      }
     }
     setIsQuizSubmitted(true);
+    saveActiveQuizDraft(quizzes, currentQuizIdx, updatedAnswers, newScore, true, quizSubject, quizLevel);
+
+    // If answer is incorrect and not in notebook, offer quick auto-capture or prompt
+    if (!isCorrect) {
+      const mistakeItem: MistakeNotebookItem = {
+        id: `mistake-${Date.now()}-${currentQuizIdx}`,
+        subject: quizSubject || "General Assessment",
+        chapter: quizSubject || "Current Chapter",
+        difficulty: currentQ.difficulty || quizDifficulty,
+        question: currentQ.question,
+        options: currentQ.options,
+        userAnswerIndex: selectedOptionIdx,
+        correctAnswerIndex: currentQ.answerIndex,
+        userAnswerText: currentQ.options[selectedOptionIdx] || "None",
+        correctAnswerText: currentQ.options[currentQ.answerIndex] || "None",
+        explanation: currentQ.explanation || "No explanation provided.",
+        hint: currentQ.hint || "Review key conceptual fundamentals.",
+        timestamp: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }),
+        date: new Date().toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        mastered: false,
+        attemptCount: 1
+      };
+      // Auto-save to notebook seamlessly
+      setMistakeNotebook(prev => {
+        if (prev.some(m => m.question === mistakeItem.question)) return prev;
+        const updated = [mistakeItem, ...prev];
+        localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+        return updated;
+      });
+    }
   };
 
   const advanceQuiz = () => {
     const isLastQ = currentQuizIdx === quizzes.length - 1;
     if (isLastQ) {
+      setIsQuizTimerActive(false);
       let correctQ = 0;
       let wrongQ = 0;
       const finalAnswers = { ...userQuizAnswers };
@@ -2616,7 +2933,7 @@ export default function App() {
       }
       quizzes.forEach((q, idx) => {
         const uAns = finalAnswers[idx];
-        if (uAns !== undefined && uAns !== null) {
+        if (uAns !== undefined && uAns !== null && uAns >= 0) {
           if (uAns === q.answerIndex) correctQ++;
           else wrongQ++;
         }
@@ -2626,21 +2943,59 @@ export default function App() {
       const netScoreVal = Math.max(0, posMarks - negMarks);
       const maxScoreVal = quizzes.length * positiveMarkVal;
       const pct = maxScoreVal > 0 ? Math.round((netScoreVal / maxScoreVal) * 100) : 0;
+      const gradeStr = pct >= 85 ? 'DISTINCTION (A+)' : pct >= 60 ? 'PASSED (A)' : pct >= 40 ? 'PASSED (B)' : 'NEEDS REVISION';
 
       const scoreStr = `Net: ${netScoreVal.toFixed(1)}/${maxScoreVal.toFixed(1)} (${pct}%) [+${posMarks.toFixed(1)}, -${negMarks.toFixed(1)}]`;
       const logItem = {
         id: `hist-quiz-${Date.now()}`,
         type: 'quiz' as const,
-        title: `${quizSubject} Assessment Finished`,
-        subtitle: `Student: ${studentName} | Roll: ${studentRoll}`,
+        title: `${quizSubject || 'Academic Quiz'} Assessment Finished`,
+        subtitle: `Student: ${studentName} | Roll: ${studentRoll} | Level: ${quizDifficulty.toUpperCase()}`,
         score: scoreStr,
         timestamp: new Date().toISOString()
       };
       setActivityLogs(prev => [logItem, ...prev]);
+
+      // AUTO-SAVE COMPLETE QUIZ RECORD IN REPOSITORY & LOCALSTORAGE
+      const autoSavedRecord: SavedQuizRecord = {
+        id: "quiz-" + Date.now(),
+        subject: quizSubject || "SSC & Academic Chapter Assessment",
+        level: `${quizLevel} (${quizDifficulty.toUpperCase()})`,
+        date: new Date().toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        timestamp: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }),
+        score: correctQ,
+        total: quizzes.length,
+        studentName: studentName || 'Aspirant Student',
+        studentRoll: studentRoll || 'HS-2026-8809',
+        positiveMarks: parseFloat(posMarks.toFixed(1)),
+        negativeMarks: parseFloat(negMarks.toFixed(1)),
+        netScore: parseFloat(netScoreVal.toFixed(1)),
+        maxScore: parseFloat(maxScoreVal.toFixed(1)),
+        percentage: pct,
+        grade: gradeStr,
+        userAnswers: finalAnswers,
+        quizzes: quizzes
+      };
+
+      const updated = [autoSavedRecord, ...savedQuizzes.filter(q => q.id !== autoSavedRecord.id)];
+      setSavedQuizzes(updated);
+      localStorage.setItem('hansai-saved-quizzes', JSON.stringify(updated));
+      localStorage.removeItem('hansai-active-quiz-draft');
+      setHasActiveQuizDraft(false);
+      setQuizAutoSaveNotice(`Auto-Saved to Records at ${autoSavedRecord.timestamp} ✅`);
+      showToast("Quize Auto-Saved in Records! ✅ (क्विज़ स्वतः सुरक्षित हो गया)", "success");
+    } else {
+      saveActiveQuizDraft(quizzes, currentQuizIdx + 1, userQuizAnswers, score, false, quizSubject, quizLevel);
+      // Reset question-specific timer if in per-question mode
+      if (quizTimerMode === 'custom_question') {
+        setQuizTimeRemaining(quizCustomQuestionSeconds);
+      }
     }
     setCurrentQuizIdx(prev => prev + 1);
     setSelectedOptionIdx(null);
     setIsQuizSubmitted(false);
+    setIsRetryingQuestion(false);
+    setShowQuestionHint(false);
   };
 
   const restartQuizFlow = () => {
@@ -2648,26 +3003,58 @@ export default function App() {
     setCurrentQuizIdx(0);
     setSelectedOptionIdx(null);
     setIsQuizSubmitted(false);
+    setIsRetryingQuestion(false);
+    setShowQuestionHint(false);
     setUserQuizAnswers({});
     setScore(0);
     setQuizError(null);
+    setQuizAutoSaveNotice(null);
+    setIsQuizTimerActive(false);
+    localStorage.removeItem('hansai-active-quiz-draft');
+    setHasActiveQuizDraft(false);
   };
 
   const handleSaveCurrentQuiz = () => {
     if (quizzes.length === 0) return;
-    const newSaved = {
+    let correctQ = 0;
+    let wrongQ = 0;
+    quizzes.forEach((q, idx) => {
+      const uAns = userQuizAnswers[idx];
+      if (uAns !== undefined && uAns !== null) {
+        if (uAns === q.answerIndex) correctQ++;
+        else wrongQ++;
+      }
+    });
+    const posMarks = correctQ * positiveMarkVal;
+    const negMarks = wrongQ * negativeMarkVal;
+    const netScoreVal = Math.max(0, posMarks - negMarks);
+    const maxScoreVal = quizzes.length * positiveMarkVal;
+    const pct = maxScoreVal > 0 ? Math.round((netScoreVal / maxScoreVal) * 100) : 0;
+    const gradeStr = pct >= 85 ? 'DISTINCTION (A+)' : pct >= 60 ? 'PASSED (A)' : pct >= 40 ? 'PASSED (B)' : 'NEEDS REVISION';
+
+    const newSaved: SavedQuizRecord = {
       id: "quiz-" + Date.now(),
       subject: quizSubject || "SSC General Awareness",
       level: quizLevel || "Practice Level",
-      date: new Date().toLocaleDateString('hi-IN'),
-      score: score,
+      date: new Date().toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      timestamp: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }),
+      score: correctQ,
       total: quizzes.length,
+      studentName: studentName || 'Aspirant Student',
+      studentRoll: studentRoll || 'HS-2026-8809',
+      positiveMarks: parseFloat(posMarks.toFixed(1)),
+      negativeMarks: parseFloat(negMarks.toFixed(1)),
+      netScore: parseFloat(netScoreVal.toFixed(1)),
+      maxScore: parseFloat(maxScoreVal.toFixed(1)),
+      percentage: pct,
+      grade: gradeStr,
+      userAnswers: userQuizAnswers,
       quizzes: quizzes
     };
-    const updated = [newSaved, ...savedQuizzes];
+    const updated = [newSaved, ...savedQuizzes.filter(q => q.id !== newSaved.id)];
     setSavedQuizzes(updated);
     localStorage.setItem('hansai-saved-quizzes', JSON.stringify(updated));
-    showToast("Quiz record saved to your Repository! 💾", "success");
+    showToast("Quiz record re-saved and confirmed in Repository! 💾✅", "success");
   };
 
   const handleToggleSyllabusTracker = (id: string, field: 'done' | 'notes' | 'quiz') => {
@@ -4144,6 +4531,23 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           </div>
         </div>
       )}
+
+      {/* Hans Compain Startup Intro Animation & Feature Showcase */}
+      {showStartupIntro && (
+        <StartupIntroSplash
+          onComplete={() => {
+            sessionStorage.setItem('hanscompain_intro_seen', 'true');
+            setShowStartupIntro(false);
+          }}
+          onExploreFeature={(featureId) => {
+            sessionStorage.setItem('hanscompain_intro_seen', 'true');
+            setShowStartupIntro(false);
+            if (featureId === 'chat' || featureId === 'quiz' || featureId === 'shorthand' || featureId === 'study-plan' || featureId === 'flashcards' || featureId === 'music-studio' || featureId === 'weather-alerts' || featureId === 'store' || featureId === 'security-hub') {
+              setActiveView(featureId as any);
+            }
+          }}
+        />
+      )}
       
       {/* Top Header Marquee Announcement Banner if set by Admin */}
       {activeHeaderBanner && (
@@ -4195,13 +4599,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </button>
           )}
 
-          <div className="flex items-center gap-2 font-sans cursor-pointer" onClick={() => { setActiveView('chat'); startNewChat(); }}>
-            {/* HansAI Official Logo */}
-            <QuantumSwanLogo className="w-7 h-7 sm:w-8 sm:h-8" showLightBg={true} />
-            <div>
-              <h1 className="text-xs sm:text-sm font-extrabold tracking-wide text-white leading-tight">HansAI</h1>
-              <span className="text-[7px] sm:text-[8px] font-black uppercase text-[#00E5FF] tracking-widest leading-none block">QUANTUM LAB</span>
-            </div>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => { setActiveView('chat'); startNewChat(); }}>
+            {/* Hans Compain Clean Vector Branding */}
+            <HansCompainLogo size="sm" showSubtitle={true} />
           </div>
         </div>
 
@@ -4638,10 +5038,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Top Sidebar Controls */}
                 <div className="p-3.5 space-y-3 border-b border-slate-850/80">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-indigo-300 uppercase tracking-widest flex items-center gap-2">
-                      <QuantumSwanLogo className="w-5 h-5" showLightBg={true} />
-                      HansAI Sidebar
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <HansCompainLogo size="xs" showSubtitle={false} />
+                    </div>
                     <button
                       onClick={() => setSidebarOpen(false)}
                       className="lg:hidden p-1 text-slate-400 hover:text-white"
@@ -4649,6 +5048,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <X className="w-4 h-4" />
                     </button>
                   </div>
+
+                  {/* Intro & Feature Carousel Replay Trigger */}
+                  <button
+                    onClick={() => {
+                      setShowStartupIntro(true);
+                      if (window.innerWidth < 1024) setSidebarOpen(false);
+                    }}
+                    className="w-full py-2 px-3 bg-gradient-to-r from-purple-950/60 to-indigo-950/60 hover:from-purple-900/80 hover:to-indigo-900/80 border border-purple-500/30 rounded-xl text-purple-200 text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                      <span>{language === 'hindi' ? "हंस कंप्लेन फीचर्स एनिमेटेड टूर ✨" : "Hans Compain Features Tour ✨"}</span>
+                    </div>
+                    <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">Overview</span>
+                  </button>
 
                   {/* New Chat Button */}
                   <button
@@ -4936,170 +5350,166 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                   )}
                   
-                  {/* NEW CHAT WELCOME STATE (Clean Full Display Layout) */}
+                  {/* NEW CHAT WELCOME STATE (Clean A4 / Single-Screen No-Scroll Viewport Layout) */}
                   {chatMessages.length === 0 ? (
-                    <div className="my-auto py-2 px-2 space-y-3 flex flex-col items-center w-full max-w-5xl mx-auto text-center animate-fade-in">
+                    <div className="my-auto py-1 px-1 flex flex-col items-center justify-center w-full max-w-5xl mx-auto text-center animate-fade-in select-none">
                       
-                      {/* Logo and Greeting - Compact & Focused */}
-                      <div className="flex flex-col items-center space-y-2 mb-2">
-                        <QuantumSwanLogo className="w-14 h-14 sm:w-16 sm:h-16" showLightBg={true} />
-                        <h2 className="text-xl sm:text-2xl font-black tracking-tight font-sans text-white">
+                      {/* Logo and Greeting - Sleek & Ultra-Compact */}
+                      <div className="flex flex-col items-center space-y-1 mb-2">
+                        <QuantumSwanLogo className="w-11 h-11 sm:w-12 sm:h-12" showLightBg={true} />
+                        <h2 className="text-lg sm:text-xl font-black tracking-tight font-sans text-white">
                           HansAI - What can I help with today?
                         </h2>
+                        <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+                          {language === 'hindi' 
+                            ? 'ऑल-इन-वन AI शिक्षा, सरकारी परीक्षा तैयारी एवं लाइव साइंस-मेमोरी लैब' 
+                            : 'All-in-one AI education, exam prep & interactive science-memory lab'}
+                        </p>
                       </div>
 
-                      {/* FEATURE HIGHLIGHT HERO CARDS: NEURAL MAP, TIME-TRAVEL, MNEMONICS & SCIENCE LAB */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full text-left my-1">
+                      {/* ROW 1: 4 AI ADVANCED POWER TOOLS */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full text-left mb-2">
                         <button
                           onClick={() => setActiveView('mnemonics')}
-                          className="p-4 bg-gradient-to-r from-amber-950/90 via-yellow-950/70 to-slate-900 border-2 border-amber-500/60 hover:border-amber-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-xl hover:shadow-amber-500/20 active:scale-98"
+                          className="p-2.5 sm:p-3 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
                         >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">💡</span>
-                              <span className="text-xs sm:text-sm font-black text-amber-300 group-hover:text-white uppercase tracking-wide">
-                                {language === 'hindi' ? 'AI स्मार्ट निमोनिक्स (Memory Tricks)' : 'AI Smart Mnemonics & Tricks'}
-                              </span>
-                              <span className="px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-200 text-[9px] font-black">10X MEMORY</span>
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-base">💡</span>
+                            <span className="px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-200 text-[8px] font-black uppercase">10X Memory</span>
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-amber-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'AI निमोनिक्स ट्रिक्स' : 'AI Smart Mnemonics'}
                             </div>
-                            <p className="text-[11px] text-slate-300 font-medium">
-                              {language === 'hindi'
-                                ? 'कठिन तारीखें, नदियाँ, अनुच्छेद व फॉर्मूले याद रखने की जादुई ट्रिक्स व मजेदार कविताएं'
-                                : 'Master formulas, dates, constitutional articles & science series with AI rhymes & acronyms'}
+                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'तारीखें, फॉर्मूले व अनुसूचियों की कविताएं' : 'Formulas, dates & GK rhymes'}
                             </p>
                           </div>
-                          <span className="px-3 py-1.5 bg-amber-600 group-hover:bg-amber-500 text-white rounded-xl text-xs font-bold shrink-0 ml-2 shadow-md">
-                            {language === 'hindi' ? 'खोलें →' : 'Open →'}
-                          </span>
                         </button>
 
                         <button
                           onClick={() => setActiveView('science-lab')}
-                          className="p-4 bg-gradient-to-r from-cyan-950/90 via-blue-950/70 to-slate-900 border-2 border-cyan-500/60 hover:border-cyan-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-xl hover:shadow-cyan-500/20 active:scale-98"
+                          className="p-2.5 sm:p-3 bg-gradient-to-br from-cyan-950/80 via-blue-950/50 to-slate-900 border border-cyan-500/50 hover:border-cyan-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20 active:scale-98"
                         >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">🔬</span>
-                              <span className="text-xs sm:text-sm font-black text-cyan-300 group-hover:text-white uppercase tracking-wide">
-                                {language === 'hindi' ? 'फॉर्मूला व साइंस लैब (Interactive Lab)' : 'Formula & Science Playground'}
-                              </span>
-                              <span className="px-1.5 py-0.5 rounded bg-cyan-500/30 text-cyan-200 text-[9px] font-black">INTERACTIVE</span>
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-base">🔬</span>
+                            <span className="px-1.5 py-0.5 rounded bg-cyan-500/30 text-cyan-200 text-[8px] font-black uppercase">Interactive</span>
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-cyan-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'फॉर्मूला व साइंस लैब' : 'Science Formula Lab'}
                             </div>
-                            <p className="text-[11px] text-slate-300 font-medium">
-                              {language === 'hindi'
-                                ? 'सर्किट, लेंस ऑप्टिक्स, पेंडुलम, त्रिकोणमिति व अर्थशास्त्र फॉर्मूलों का लाइव विजुअल सिमुलेशन'
-                                : 'Live visual physics, optics, trigonometry & finance simulations with interactive sliders'}
+                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'सर्किट, लेंस व पेंडुलम लाइव सिमुलेटर' : 'Circuit, Optics & Physics sim'}
                             </p>
                           </div>
-                          <span className="px-3 py-1.5 bg-cyan-600 group-hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shrink-0 ml-2 shadow-md">
-                            {language === 'hindi' ? 'खोलें →' : 'Open →'}
-                          </span>
                         </button>
 
                         <button
                           onClick={() => setActiveView('neural-map')}
-                          className="p-3.5 bg-gradient-to-r from-emerald-950/90 via-teal-950/70 to-slate-900 border border-emerald-500/40 hover:border-emerald-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-md active:scale-98"
+                          className="p-2.5 sm:p-3 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border border-emerald-500/50 hover:border-emerald-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
                         >
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-base">🧠</span>
-                              <span className="text-xs font-black text-emerald-300 group-hover:text-white uppercase">
-                                {language === 'hindi' ? 'AI न्यूरल मेमोरी मैप' : 'AI Neural Memory Map'}
-                              </span>
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-base">🧠</span>
+                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-200 text-[8px] font-black uppercase">Mind-Map</span>
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-emerald-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'AI न्यूरल मैप' : 'AI Neural Map'}
                             </div>
-                            <p className="text-[10px] text-slate-300">
-                              {language === 'hindi' ? 'माइंड-मैप, विजुअल नोड्स व PYQ' : 'Visual Mind Maps & PYQ Highlights'}
+                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'विजुअल नोड्स व PYQ हाइलाइट्स' : 'Visual nodes & PYQ highlights'}
                             </p>
                           </div>
-                          <span className="text-[10px] font-bold text-emerald-400">Open →</span>
                         </button>
 
                         <button
                           onClick={() => setActiveView('time-travel')}
-                          className="p-3.5 bg-gradient-to-r from-purple-950/90 via-indigo-950/70 to-slate-900 border border-purple-500/40 hover:border-purple-400 rounded-2xl flex items-center justify-between group cursor-pointer transition-all shadow-md active:scale-98"
+                          className="p-2.5 sm:p-3 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
                         >
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-base">⏳</span>
-                              <span className="text-xs font-black text-purple-300 group-hover:text-white uppercase">
-                                {language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}
-                              </span>
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-base">⏳</span>
+                            <span className="px-1.5 py-0.5 rounded bg-purple-500/30 text-purple-200 text-[8px] font-black uppercase">History</span>
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-purple-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'काल-यात्रा सिमुलेटर' : 'Time-Travel Simulator'}
                             </div>
-                            <p className="text-[10px] text-slate-300">
-                              {language === 'hindi' ? 'भगत सिंह, आंबेडकर, गांधीजी से बातचीत' : 'Converse with Bhagat Singh, Ambedkar, Gandhi'}
+                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'भगत सिंह, गांधी, आंबेडकर से बातचीत' : 'Converse with historical figures'}
                             </p>
                           </div>
-                          <span className="text-[10px] font-bold text-purple-400">Open →</span>
                         </button>
                       </div>
 
-                      {/* Quick Utility Tools Grid (4 Clean Unique Colored Boxes) */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full text-left">
+                      {/* ROW 2: 4 ESSENTIAL STUDY & PREP TOOLS */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full text-left">
                         <button
-                          onClick={() => { setActiveView('quiz'); }}
-                          className="p-3 bg-gradient-to-br from-purple-950/80 via-indigo-900/40 to-slate-900 border border-purple-500/60 hover:border-purple-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20"
+                          onClick={() => setActiveView('quiz')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-black text-purple-300 group-hover:text-purple-200">
-                            <span>🧠</span>
-                            <span>{language === 'hindi' ? 'अध्याय आधारित क्विज' : 'Auto Chapter Quiz'}</span>
+                          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
+                            🎯
                           </div>
-                          <span className="text-[9px] text-purple-200/80 font-medium">{language === 'hindi' ? 'क्विज टेस्ट एवं A1 कार्ड' : 'Solving & A1 Scorecard'}</span>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
+                              {language === 'hindi' ? 'ऑटो क्विज टेस्ट' : 'Chapter Quiz'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'PYQ व स्कोरकार्ड' : 'PYQ & Scorecard'}
+                            </div>
+                          </div>
                         </button>
 
                         <button
-                          onClick={() => { setActiveView('article-reader'); }}
-                          className="p-3 bg-gradient-to-br from-emerald-950/80 via-teal-900/40 to-slate-900 border border-emerald-500/60 hover:border-emerald-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20"
+                          onClick={() => setActiveView('book-reader')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-black text-emerald-300 group-hover:text-emerald-200">
-                            <span>🎙️</span>
-                            <span>{language === 'hindi' ? 'आर्टिकल वाइस रीडर' : 'Voice Article Reader'}</span>
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-base">
+                            🎙️
                           </div>
-                          <span className="text-[9px] text-emerald-200/80 font-medium">{language === 'hindi' ? 'सुनें एवं अनुवाद करें' : 'Listen & translate'}</span>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-emerald-300 truncate">
+                              {language === 'hindi' ? 'वॉइस रीडर' : 'Voice Reader'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'सुनें व समझें' : 'Listen & Learn'}
+                            </div>
+                          </div>
                         </button>
 
                         <button
-                          onClick={() => { setIsAppLauncherOpen(true); }}
-                          className="p-3 bg-gradient-to-br from-cyan-950/80 via-blue-900/40 to-slate-900 border border-cyan-500/60 hover:border-cyan-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20"
+                          onClick={() => setIsAppLauncherOpen(true)}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-cyan-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-black text-cyan-300 group-hover:text-cyan-200">
-                            <span>🌐</span>
-                            <span>App Launcher</span>
+                          <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shrink-0 text-base">
+                            🌐
                           </div>
-                          <span className="text-[9px] text-cyan-200/80 font-medium">YouTube, OpenAI</span>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 truncate">
+                              App Launcher
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              YouTube, Wikipedia
+                            </div>
+                          </div>
                         </button>
 
                         <button
-                          onClick={() => { setIsAllExamsSyllabusOpen(true); }}
-                          className="p-3 bg-gradient-to-br from-indigo-950/80 via-purple-900/40 to-slate-900 border border-indigo-500/60 hover:border-indigo-400 rounded-2xl flex flex-col items-start gap-1 group cursor-pointer transition-all shadow-md hover:shadow-indigo-500/20"
+                          onClick={() => setIsAllExamsSyllabusOpen(true)}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
-                          <div className="flex items-center gap-1.5 text-xs font-black text-indigo-300 group-hover:text-indigo-200">
-                            <span>📚</span>
-                            <span>Exams & Syllabus</span>
+                          <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-base">
+                            📚
                           </div>
-                          <span className="text-[9px] text-indigo-200/80 font-medium">10th, 12th, SSC, RRB</span>
-                        </button>
-                      </div>
-
-                      {/* Primary Quick Syllabus & Exam Roadmap Card */}
-                      <div className="w-full text-left pt-0.5">
-                        <button
-                          onClick={() => {
-                            setIsAllExamsSyllabusOpen(true);
-                          }}
-                          className="w-full p-3 rounded-2xl bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-slate-900 border border-indigo-500/50 hover:border-indigo-400 transition-all text-left space-y-1 group cursor-pointer shadow-lg"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs sm:text-sm font-black text-indigo-200 group-hover:text-white flex items-center gap-2">
-                              <span>📚</span>
-                              <span>All Exams Syllabus & Target Roadmap Hub</span>
-                            </span>
-                            <span className="text-xs font-bold text-indigo-400 group-hover:text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-lg border border-indigo-500/30">
-                              Open Directory →
-                            </span>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-purple-300 truncate">
+                              {language === 'hindi' ? 'परीक्षा सिलेबस' : 'Exams Syllabus'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              10th, 12th, SSC, RRB
+                            </div>
                           </div>
-                          <p className="text-[11px] text-slate-300 font-medium">
-                            Select any exam syllabus: 10th/12th Board, SSC CGL/CHSL, Railway RRB, Banking IBPS, BPSC/State PCS & Stenographer.
-                          </p>
                         </button>
                       </div>
 
@@ -5525,15 +5935,68 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           {/* VIEW: ACADEMIC QUIZ GENERATOR (MODERN FRESH INTERFACE) */}
           {activeView === 'quiz' && (
             <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-              <div className="border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Award className="w-5.5 h-5.5 text-amber-500" />
-                  Syllabus Intelligence Practice Quiz
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Draft 5 intelligent Educational Multiple-Choice Questions dynamically mapped to any standard subject.
-                </p>
+              <div className="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Award className="w-5.5 h-5.5 text-amber-500" />
+                    <h2 className="text-xl font-bold text-white">
+                      Syllabus Intelligence Practice Quiz
+                    </h2>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Draft 5 intelligent Educational Multiple-Choice Questions dynamically mapped to any standard subject.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-[11px] text-emerald-400 font-bold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    ⚡ Auto-Save Active (स्वतः सुरक्षित)
+                  </div>
+                </div>
               </div>
+
+              {quizAutoSaveNotice && (
+                <div className="px-3.5 py-2 bg-emerald-950/40 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 flex items-center justify-between animate-fade-in">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>{quizAutoSaveNotice}</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 font-mono">Progress Preserved</span>
+                </div>
+              )}
+
+              {/* In-Progress Quiz Draft Resume Banner */}
+              {hasActiveQuizDraft && quizzes.length === 0 && (
+                <div className="p-4 bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-slate-900 border border-indigo-500/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-indigo-950/50 animate-fade-in">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Sparkle className="w-4 h-4 text-amber-400 animate-spin" />
+                      <h4 className="text-xs sm:text-sm font-bold text-white">
+                        अधूरा टेस्ट ड्राफ्ट उपलब्ध है! (In-Progress Quiz Draft Found)
+                      </h4>
+                    </div>
+                    <p className="text-[11px] text-indigo-200">
+                      आपका पिछला अनफिनिश्ड क्विज़ सेशन सुरक्षित है। आप वहीं से जारी रख सकते हैं।
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={resumeActiveQuizDraft}
+                      className="flex-1 sm:flex-none px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-300" />
+                      Resume Test (जारी रखें)
+                    </button>
+                    <button
+                      onClick={discardActiveQuizDraft}
+                      className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 font-semibold rounded-xl text-xs transition-all cursor-pointer"
+                      title="Discard unfinished quiz draft"
+                    >
+                      Dismiss (रद्द करें)
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {quizzes.length === 0 ? (
                 <div className="space-y-6">
@@ -5541,28 +6004,51 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   <div className="flex border-b border-slate-800">
                     <button
                       onClick={() => setActiveQuizTab('syllabus')}
-                      className={`flex-1 py-3 text-center font-bold text-xs sm:text-sm tracking-wide border-b-2 transition-all ${
+                      className={`flex-1 py-3 text-center font-bold text-xs sm:text-sm tracking-wide border-b-2 transition-all flex items-center justify-center gap-2 cursor-pointer ${
                         activeQuizTab === 'syllabus'
                           ? 'border-indigo-500 text-indigo-400'
                           : 'border-transparent text-slate-400 hover:text-slate-200'
                       }`}
                     >
-                      📖 Syllabus Live Quiz (ऑनलाइन सिलेबस लाइव टेस्ट)
+                      <span>📖 Syllabus Live Quiz (सिलेबस लाइव टेस्ट)</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveQuizTab('mistakes')}
+                      className={`flex-1 py-3 text-center font-bold text-xs sm:text-sm tracking-wide border-b-2 transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                        activeQuizTab === 'mistakes'
+                          ? 'border-rose-500 text-rose-400'
+                          : 'border-transparent text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <span>📓 Mistake Notebook (गलती रजिस्टर)</span>
+                      {mistakeNotebook.length > 0 && (
+                        <span className="text-[10px] bg-rose-500/20 text-rose-300 font-extrabold px-2 py-0.5 rounded-full">
+                          {mistakeNotebook.length}
+                        </span>
+                      )}
                     </button>
                     <button
                       onClick={() => setActiveQuizTab('saved')}
-                      className={`flex-1 py-3 text-center font-bold text-xs sm:text-sm tracking-wide border-b-2 transition-all ${
+                      className={`flex-1 py-3 text-center font-bold text-xs sm:text-sm tracking-wide border-b-2 transition-all flex items-center justify-center gap-2 cursor-pointer ${
                         activeQuizTab === 'saved'
                           ? 'border-indigo-500 text-indigo-400'
                           : 'border-transparent text-slate-400 hover:text-slate-200'
                       }`}
                     >
-                      💾 Saved Quiz Records (सुरक्षित टेस्ट रिकॉर्ड्स)
+                      <span>💾 Auto-Saved Quizzes ({savedQuizzes.length})</span>
                     </button>
                   </div>
 
-                  {activeQuizTab === 'syllabus' ? (
-                    <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4 text-left">
+                  {activeQuizTab === 'mistakes' ? (
+                    <QuizMistakeNotebookView
+                      mistakes={mistakeNotebook}
+                      onRetest={(questions, title) => handleStartRetestFromMistakes(questions, title)}
+                      onDelete={handleDeleteMistake}
+                      onClearAll={handleClearAllMistakes}
+                      onToggleMastered={handleToggleMasteredMistake}
+                    />
+                  ) : activeQuizTab === 'syllabus' ? (
+                    <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-5 text-left">
                       
                       {/* Student A1 Report Card Meta */}
                       <div className="p-3.5 bg-[#090D16] border border-amber-500/30 rounded-xl space-y-3">
@@ -5637,10 +6123,164 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             type="text"
                             value={quizLevel}
                             onChange={(e) => setQuizLevel(e.target.value)}
-                            placeholder="जैसे: Class 10th Board, SSC CGL, BPSC Prelims..."
+                            placeholder="जैसे: Class 10th Board, SSC CGL, BPSC Prelims, UPSC..."
                             className="w-full text-xs py-2.5 px-3.5 bg-[#090D16] border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white font-medium"
                           />
                         </div>
+                      </div>
+
+                      {/* Question Difficulty Selector */}
+                      <div className="space-y-2 p-3.5 bg-[#090D16] border border-slate-800 rounded-xl">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                            <Zap className="w-3.5 h-3.5 text-amber-400" />
+                            <span>प्रश्नों का स्तर (Question Difficulty Level):</span>
+                          </label>
+                          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                            quizDifficulty === 'extreme' ? 'bg-purple-950 text-purple-300 border border-purple-500/40' :
+                            quizDifficulty === 'hard' ? 'bg-rose-950 text-rose-300 border border-rose-500/40' :
+                            quizDifficulty === 'moderate' ? 'bg-amber-950 text-amber-300 border border-amber-500/40' :
+                            'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                          }`}>
+                            {quizDifficulty.toUpperCase()} LEVEL
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                          {[
+                            { id: 'standard', title: '🟢 Standard', desc: 'मूल अवधारणा अभ्यास' },
+                            { id: 'moderate', title: '🟡 Moderate', desc: 'अवधारणा अनुप्रयोग स्तर' },
+                            { id: 'hard', title: '🔴 Hard (Advance)', desc: 'SSC CGL / UPSC स्तर' },
+                            { id: 'extreme', title: '🟣 Extreme Master', desc: 'Multi-Statement व Tricky' },
+                          ].map((d) => (
+                            <button
+                              key={d.id}
+                              type="button"
+                              onClick={() => setQuizDifficulty(d.id as any)}
+                              className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                                quizDifficulty === d.id
+                                  ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-sm'
+                                  : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                              }`}
+                            >
+                              <span className="block text-xs font-bold truncate">{d.title}</span>
+                              <span className="block text-[10px] text-slate-500 truncate mt-0.5">{d.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Question Count Selector */}
+                      <div className="space-y-2 p-3.5 bg-[#090D16] border border-slate-800 rounded-xl">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                            <span>प्रश्नों की संख्या (Number of Questions):</span>
+                          </label>
+                          <span className="text-[10px] font-bold text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                            {quizQuestionCount} Questions
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 pt-1">
+                          {[5, 10, 15, 20].map((count) => (
+                            <button
+                              key={count}
+                              type="button"
+                              onClick={() => setQuizQuestionCount(count)}
+                              className={`py-2 rounded-xl text-center border font-bold text-xs transition-all cursor-pointer ${
+                                quizQuestionCount === count
+                                  ? 'bg-cyan-600/20 border-cyan-500 text-cyan-300'
+                                  : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                              }`}
+                            >
+                              {count} प्रश्न
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Timer Limit Settings */}
+                      <div className="space-y-2.5 p-3.5 bg-[#090D16] border border-slate-800 rounded-xl">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-amber-400" />
+                            <span>समय सीमा सेटिंग्स (Timer Settings):</span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setQuizTimerSoundEnabled(prev => !prev)}
+                            className="text-[10px] text-slate-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-lg"
+                          >
+                            <span>{quizTimerSoundEnabled ? '🔔 Sound ON' : '🔕 Sound OFF'}</span>
+                          </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {[
+                            { id: 'auto', title: '⚙️ Auto Smart Timer', desc: 'स्तर के अनुसार स्वतः' },
+                            { id: 'custom_question', title: '⚡ Per Question', desc: 'प्रति प्रश्न समय' },
+                            { id: 'custom_total', title: '⏱️ Total Quiz', desc: 'कुल परीक्षा समय' },
+                            { id: 'none', title: '🕊️ No Timer', desc: 'बिना समय सीमा' },
+                          ].map((tm) => (
+                            <button
+                              key={tm.id}
+                              type="button"
+                              onClick={() => setQuizTimerMode(tm.id as any)}
+                              className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                                quizTimerMode === tm.id
+                                  ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-sm'
+                                  : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                              }`}
+                            >
+                              <span className="block text-xs font-bold truncate">{tm.title}</span>
+                              <span className="block text-[10px] text-slate-500 truncate mt-0.5">{tm.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Sub-settings for Timer */}
+                        {quizTimerMode === 'custom_question' && (
+                          <div className="pt-2 border-t border-slate-850 flex items-center justify-between gap-3 text-xs">
+                            <span className="text-slate-400">प्रति प्रश्न सेकंड चुनें:</span>
+                            <div className="flex gap-1.5">
+                              {[15, 30, 45, 60, 90].map((sec) => (
+                                <button
+                                  key={sec}
+                                  type="button"
+                                  onClick={() => setQuizCustomQuestionSeconds(sec)}
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-bold border cursor-pointer ${
+                                    quizCustomQuestionSeconds === sec
+                                      ? 'bg-amber-500 text-slate-950 border-amber-400'
+                                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+                                  }`}
+                                >
+                                  {sec}s
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {quizTimerMode === 'custom_total' && (
+                          <div className="pt-2 border-t border-slate-850 flex items-center justify-between gap-3 text-xs">
+                            <span className="text-slate-400">कुल टेस्ट का समय चुनें:</span>
+                            <div className="flex gap-1.5">
+                              {[2, 5, 10, 15, 20].map((mins) => (
+                                <button
+                                  key={mins}
+                                  type="button"
+                                  onClick={() => setQuizCustomTotalMinutes(mins)}
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-bold border cursor-pointer ${
+                                    quizCustomTotalMinutes === mins
+                                      ? 'bg-amber-500 text-slate-950 border-amber-400'
+                                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
+                                  }`}
+                                >
+                                  {mins} min
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Quick Chapter Preset Buttons */}
@@ -5648,38 +6288,38 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Quick Chapter Presets (त्वरित अध्याय चुनाव)</span>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           <button 
-                            onClick={() => { const sub = "Chapter 1: Real Numbers & Polynomials"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
-                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                            onClick={() => { const sub = "Chapter 1: Real Numbers & Polynomials"; setQuizSubject(sub); handleGenerateQuiz(sub, quizDifficulty, quizQuestionCount); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate cursor-pointer"
                           >
                             📐 Ch 1: Real Numbers
                           </button>
                           <button 
-                            onClick={() => { const sub = "Chapter 3: Laws of Motion & Physics"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
-                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                            onClick={() => { const sub = "Chapter 3: Laws of Motion & Physics"; setQuizSubject(sub); handleGenerateQuiz(sub, quizDifficulty, quizQuestionCount); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate cursor-pointer"
                           >
                             🧪 Ch 3: Laws of Motion
                           </button>
                           <button 
-                            onClick={() => { const sub = "Chapter 5: Constitution Articles & Rights"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
-                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                            onClick={() => { const sub = "Chapter 5: Constitution Articles & Rights"; setQuizSubject(sub); handleGenerateQuiz(sub, quizDifficulty, quizQuestionCount); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate cursor-pointer"
                           >
                             🏛️ Ch 5: Fundamental Rights
                           </button>
                           <button 
-                            onClick={() => { const sub = "Chapter 2: Trigonometry & Geometry"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
-                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                            onClick={() => { const sub = "Chapter 2: Trigonometry & Geometry"; setQuizSubject(sub); handleGenerateQuiz(sub, quizDifficulty, quizQuestionCount); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate cursor-pointer"
                           >
                             📐 Ch 2: Trigonometry
                           </button>
                           <button 
-                            onClick={() => { const sub = "Chapter 4: Modern Indian History 1857-1947"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
-                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                            onClick={() => { const sub = "Chapter 4: Modern Indian History 1857-1947"; setQuizSubject(sub); handleGenerateQuiz(sub, quizDifficulty, quizQuestionCount); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate cursor-pointer"
                           >
                             🚩 Ch 4: Freedom Movement
                           </button>
                           <button 
-                            onClick={() => { const sub = "Chapter 1: English Preposition Rules"; setQuizSubject(sub); handleGenerateQuiz(sub); }}
-                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate"
+                            onClick={() => { const sub = "Chapter 1: English Preposition Rules"; setQuizSubject(sub); handleGenerateQuiz(sub, quizDifficulty, quizQuestionCount); }}
+                            className="p-2 text-left text-[11px] text-slate-300 hover:text-white bg-[#090D16] hover:bg-slate-800 border border-slate-800 rounded-xl truncate cursor-pointer"
                           >
                             📖 Ch 1: English Prepositions
                           </button>
@@ -5694,78 +6334,184 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       )}
 
                       <button
-                        onClick={() => handleGenerateQuiz()}
+                        onClick={() => handleGenerateQuiz(quizSubject, quizDifficulty, quizQuestionCount)}
                         disabled={isGeneratingQuiz || !quizSubject}
                         className="w-full py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white rounded-xl text-xs font-bold uppercase transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-45"
                       >
                         {isGeneratingQuiz ? (
                           <>
                             <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                            Generating Chapter MCQs & Complete Solving...
+                            <span>Generating {quizQuestionCount} {quizDifficulty.toUpperCase()} Level MCQs...</span>
                           </>
                         ) : (
                           <>
                             <Zap className="w-4 h-4 text-amber-400" />
-                            Start Chapter Quiz & Generate A1 Card
+                            <span>Start {quizDifficulty.toUpperCase()} Quiz ({quizQuestionCount} Questions) & Auto-Save</span>
                           </>
                         )}
                       </button>
                     </div>
                   ) : (
                     <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4 text-left">
-                      <div className="flex items-center justify-between border-b border-slate-850 pb-2.5">
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-200">सुरक्षित टेस्ट्स की सूची (Saved Quizzes List)</h4>
-                        <span className="text-[10px] bg-indigo-500/10 text-indigo-400 font-extrabold px-2 py-0.5 rounded-full">{savedQuizzes.length} Saved</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-850 pb-3">
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-2">
+                            <span>सुरक्षित टेस्ट्स की सूची (Auto-Saved Quiz Records)</span>
+                            <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-extrabold px-2 py-0.5 rounded-full">
+                              {savedQuizzes.length} Saved
+                            </span>
+                          </h4>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            सभी हल किए गए क्विज़ स्वतः स्थानीय मेमोरी में सुरक्षित रहते हैं।
+                          </p>
+                        </div>
+                        {savedQuizzes.length > 0 && (
+                          <button
+                            onClick={() => {
+                              if (confirm("क्या आप सभी सुरक्षित क्विज़ रिकॉर्ड हटाना चाहते हैं? (Clear all saved records?)")) {
+                                setSavedQuizzes([]);
+                                localStorage.removeItem('hansai-saved-quizzes');
+                                showToast("All saved quiz records cleared.", "info");
+                              }
+                            }}
+                            className="text-[10px] text-rose-400 hover:text-rose-300 bg-rose-950/30 hover:bg-rose-950/50 border border-rose-800/40 px-2.5 py-1 rounded-lg transition-all self-start sm:self-auto cursor-pointer"
+                          >
+                            🗑️ Clear All (सभी हटाएं)
+                          </button>
+                        )}
                       </div>
 
+                      {/* Search Bar for Saved Quizzes */}
+                      {savedQuizzes.length > 0 && (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={savedQuizSearch}
+                            onChange={(e) => setSavedQuizSearch(e.target.value)}
+                            placeholder="सब्जेक्ट, छात्र नाम या ग्रेड से खोजें (Search saved quizzes by subject, student, grade...)"
+                            className="w-full text-xs py-2 pl-3 pr-8 bg-[#090D16] border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                          />
+                          {savedQuizSearch && (
+                            <button
+                              onClick={() => setSavedQuizSearch('')}
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      )}
+
                       {savedQuizzes.length === 0 ? (
-                        <div className="text-center py-8 space-y-2 text-slate-550 text-xs">
-                          <p>कोई सुरक्षित टेस्ट रिकॉर्ड नहीं मिला।</p>
-                          <p className="text-[10px] text-slate-500">Syllabus Section में जाकर लाइव टेस्ट हल करें और 'Save Quiz' पर क्लिक करें।</p>
+                        <div className="text-center py-10 space-y-3 text-slate-400 text-xs">
+                          <div className="w-12 h-12 rounded-2xl bg-indigo-950/50 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto text-xl">
+                            📝
+                          </div>
+                          <p className="font-semibold text-slate-300">कोई सुरक्षित टेस्ट रिकॉर्ड नहीं मिला।</p>
+                          <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+                            लाइव क्विज़ हल करते ही आपका टेस्ट, स्कोर और उत्तर व्याख्याएं यहां स्वतः सुरक्षित (Auto-Save) हो जाएंगी।
+                          </p>
                         </div>
                       ) : (
-                        <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                          {savedQuizzes.map((item) => (
-                            <div key={item.id} className="p-4 rounded-xl bg-[#090D16] border border-slate-850 hover:border-slate-800 duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                              <div className="space-y-1">
-                                <h5 className="font-bold text-slate-200">{item.subject}</h5>
-                                <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-500">
-                                  <span>Level: {item.level}</span>
-                                  <span>Date: {item.date}</span>
-                                  <span className="text-emerald-450 font-semibold text-emerald-400">Score: {item.score}/{item.total}</span>
+                        <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+                          {savedQuizzes
+                            .filter(item => {
+                              if (!savedQuizSearch.trim()) return true;
+                              const term = savedQuizSearch.toLowerCase();
+                              return (
+                                item.subject?.toLowerCase().includes(term) ||
+                                item.level?.toLowerCase().includes(term) ||
+                                item.studentName?.toLowerCase().includes(term) ||
+                                item.studentRoll?.toLowerCase().includes(term) ||
+                                item.grade?.toLowerCase().includes(term) ||
+                                item.date?.toLowerCase().includes(term)
+                              );
+                            })
+                            .map((item) => (
+                              <div key={item.id} className="p-4 rounded-2xl bg-[#090D16] border border-slate-800 hover:border-indigo-500/40 transition-all flex flex-col gap-3 text-xs">
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="font-bold text-slate-100 text-sm">{item.subject}</h5>
+                                      <span className="text-[10px] bg-indigo-950 border border-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full font-semibold">
+                                        {item.level || 'Standard'}
+                                      </span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-400">
+                                      <span>👤 {item.studentName || 'Student'}</span>
+                                      <span>🆔 {item.studentRoll || 'HS-Roll'}</span>
+                                      <span>📅 {item.date} {item.timestamp ? `(${item.timestamp})` : ''}</span>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                                    <div className="text-right">
+                                      <span className="text-xs font-black text-emerald-400 block">
+                                        Score: {item.score}/{item.total}
+                                      </span>
+                                      {item.percentage !== undefined && (
+                                        <span className="text-[10px] text-amber-400 font-bold">
+                                          {item.percentage}% ({item.grade || 'PASSED'})
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-850">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] text-emerald-400 font-mono">
+                                      +{(item.positiveMarks ?? (item.score * positiveMarkVal)).toFixed(1)} Marks
+                                    </span>
+                                    <span className="text-[10px] text-slate-600">•</span>
+                                    <span className="text-[10px] text-rose-400 font-mono">
+                                      -{(item.negativeMarks ?? 0).toFixed(1)} Neg
+                                    </span>
+                                    <span className="text-[10px] text-slate-600">•</span>
+                                    <span className="text-[10px] text-amber-300 font-mono font-bold">
+                                      Net: {(item.netScore ?? (item.score * positiveMarkVal)).toFixed(1)}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => setReviewingSavedQuiz(item)}
+                                      className="px-2.5 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 font-bold rounded-lg transition-all text-[11px] flex items-center gap-1 cursor-pointer"
+                                    >
+                                      🔍 Review Answers
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setQuizSubject(item.subject);
+                                        setQuizLevel(item.level);
+                                        setQuizzes(item.quizzes);
+                                        setCurrentQuizIdx(0);
+                                        setSelectedOptionIdx(null);
+                                        setIsQuizSubmitted(false);
+                                        setUserQuizAnswers(item.userAnswers || {});
+                                        setScore(item.score);
+                                        showToast("Reloaded saved quiz record! 🔄", "success");
+                                      }}
+                                      className="px-2.5 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 font-bold rounded-lg transition-all text-[11px] flex items-center gap-1 cursor-pointer"
+                                    >
+                                      🔄 Replay
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const updated = savedQuizzes.filter(q => q.id !== item.id);
+                                        setSavedQuizzes(updated);
+                                        localStorage.setItem('hansai-saved-quizzes', JSON.stringify(updated));
+                                        showToast("Saved quiz record deleted.", "info");
+                                      }}
+                                      className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-450 hover:text-rose-300 rounded-lg cursor-pointer"
+                                      title="Delete saved quiz"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => {
-                                    setQuizSubject(item.subject);
-                                    setQuizLevel(item.level);
-                                    setQuizzes(item.quizzes);
-                                    setCurrentQuizIdx(0);
-                                    setSelectedOptionIdx(null);
-                                    setIsQuizSubmitted(false);
-                                    setScore(item.score);
-                                    showToast("Reloaded saved quiz record! 🔄", "success");
-                                  }}
-                                  className="px-3 py-1.5 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/25 text-indigo-450 font-bold rounded-lg transition-all text-indigo-300"
-                                >
-                                  Replay Test
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    const updated = savedQuizzes.filter(q => q.id !== item.id);
-                                    setSavedQuizzes(updated);
-                                    localStorage.setItem('hansai-saved-quizzes', JSON.stringify(updated));
-                                    showToast("Saved quiz record deleted.", "info");
-                                  }}
-                                  className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-450 rounded-lg"
-                                  title="Delete saved quiz"
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                            ))}
                         </div>
                       )}
                     </div>
@@ -5775,36 +6521,114 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
                   {currentQuizIdx < quizzes.length ? (
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800 pb-2">
-                        <span>QUESTION {currentQuizIdx + 1} OF {quizzes.length}</span>
-                        <span className="font-bold text-amber-400">Score: {score}</span>
+                      {/* Active Quiz Header & Timer HUD */}
+                      <div className="flex flex-wrap justify-between items-center text-xs text-slate-400 border-b border-slate-800 pb-3 gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-200">
+                            QUESTION {currentQuizIdx + 1} OF {quizzes.length}
+                          </span>
+                          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                            quizDifficulty === 'extreme' ? 'bg-purple-950 text-purple-300 border border-purple-500/40' :
+                            quizDifficulty === 'hard' ? 'bg-rose-950 text-rose-300 border border-rose-500/40' :
+                            quizDifficulty === 'moderate' ? 'bg-amber-950 text-amber-300 border border-amber-500/40' :
+                            'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                          }`}>
+                            {quizDifficulty}
+                          </span>
+                          <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Auto-Saved
+                          </span>
+                        </div>
+
+                        {/* Live Timer HUD & Controls */}
+                        <div className="flex items-center gap-2.5">
+                          {quizTimerMode !== 'none' && (
+                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-mono font-bold text-xs transition-all ${
+                              quizTimeRemaining <= 10
+                                ? 'bg-rose-950/80 border-rose-500 text-rose-300 animate-pulse shadow-md shadow-rose-900/50'
+                                : quizTimeRemaining <= 30
+                                ? 'bg-amber-950/60 border-amber-500/60 text-amber-300'
+                                : 'bg-slate-900 border-slate-700 text-cyan-300'
+                            }`}>
+                              <Clock className={`w-3.5 h-3.5 ${quizTimeRemaining <= 10 ? 'text-rose-400 animate-spin' : 'text-cyan-400'}`} />
+                              <span>{formatTimerDisplay(quizTimeRemaining)}</span>
+                              <button
+                                type="button"
+                                onClick={() => setIsQuizTimerActive(prev => !prev)}
+                                className="ml-1 text-[10px] text-slate-400 hover:text-white cursor-pointer"
+                                title={isQuizTimerActive ? 'Pause Timer' : 'Resume Timer'}
+                              >
+                                {isQuizTimerActive ? '⏸️' : '▶️'}
+                              </button>
+                            </div>
+                          )}
+
+                          <span className="font-bold text-amber-400 bg-amber-950/40 border border-amber-500/30 px-2.5 py-1 rounded-lg">
+                            Score: {score}
+                          </span>
+
+                          <button
+                            onClick={restartQuizFlow}
+                            className="text-[11px] text-slate-400 hover:text-rose-300 transition-colors cursor-pointer bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg"
+                            title="Exit Quiz"
+                          >
+                            ✕ Exit
+                          </button>
+                        </div>
                       </div>
 
                       {/* Progress bar */}
                       <div className="w-full bg-[#090D16] rounded-full h-1.5">
                         <div 
-                          className="bg-indigo-500 h-1.5 rounded-full transition-all duration-300"
+                          className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-1.5 rounded-full transition-all duration-300"
                           style={{ width: `${((currentQuizIdx + 1) / quizzes.length) * 100}%` }}
                         ></div>
                       </div>
 
-                      <div className="p-4 bg-[#090D16] border border-slate-850 rounded-xl">
-                        <p className="text-sm font-semibold text-white leading-relaxed">
+                      {/* Question Text */}
+                      <div className="p-4 bg-[#090D16] border border-slate-850 rounded-xl space-y-2">
+                        <div className="flex items-center justify-between text-[11px] text-slate-400">
+                          <span className="font-mono">अध्याय प्रश्न #{currentQuizIdx + 1}</span>
+                          {quizzes[currentQuizIdx].hint && !showQuestionHint && (
+                            <button
+                              type="button"
+                              onClick={() => setShowQuestionHint(true)}
+                              className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer bg-amber-950/30 border border-amber-500/30 px-2 py-0.5 rounded-md"
+                            >
+                              <Lightbulb className="w-3 h-3 text-amber-400" />
+                              <span>संकेत देखें (Show Hint)</span>
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-sm sm:text-base font-semibold text-white leading-relaxed">
                           {quizzes[currentQuizIdx].question}
                         </p>
                       </div>
 
+                      {/* Question Hint Box */}
+                      {showQuestionHint && quizzes[currentQuizIdx].hint && (
+                        <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-xl text-xs text-amber-300 flex items-start gap-2 animate-fade-in">
+                          <Lightbulb className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-400" />
+                          <div>
+                            <span className="font-bold block">💡 प्रश्न संकेत (Hint):</span>
+                            <span>{quizzes[currentQuizIdx].hint}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Options Grid */}
                       <div className="grid grid-cols-1 gap-2">
                         {quizzes[currentQuizIdx].options.map((opt, oIdx) => {
-                          let cardStyle = "bg-[#090D16] hover:bg-slate-800/40 border-slate-800";
+                          let cardStyle = "bg-[#090D16] hover:bg-slate-800/60 border-slate-800 text-slate-200";
                           if (selectedOptionIdx === oIdx) {
-                            cardStyle = "bg-indigo-600/15 border-indigo-500 text-indigo-300";
+                            cardStyle = "bg-indigo-600/20 border-indigo-500 text-indigo-200 font-semibold";
                           }
                           if (isQuizSubmitted) {
                             if (oIdx === quizzes[currentQuizIdx].answerIndex) {
                               cardStyle = "bg-emerald-600/25 border-emerald-500 text-emerald-300 font-bold";
                             } else if (selectedOptionIdx === oIdx) {
-                              cardStyle = "bg-rose-600/25 border-rose-500 text-rose-300";
+                              cardStyle = "bg-rose-600/25 border-rose-500 text-rose-300 line-through";
                             } else {
                               cardStyle = "opacity-40 bg-[#090D16] border-slate-900 text-slate-500";
                             }
@@ -5815,40 +6639,94 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                               key={oIdx}
                               onClick={() => selectQuizOption(oIdx)}
                               disabled={isQuizSubmitted}
-                              className={`w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm transition-all flex justify-between items-center ${cardStyle}`}
+                              className={`w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm transition-all flex justify-between items-center cursor-pointer disabled:cursor-default ${cardStyle}`}
                             >
                               <span>{opt}</span>
                               {isQuizSubmitted && oIdx === quizzes[currentQuizIdx].answerIndex && (
-                                <Check className="w-4 h-4 text-emerald-400" />
+                                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 ml-2" />
+                              )}
+                              {isQuizSubmitted && selectedOptionIdx === oIdx && oIdx !== quizzes[currentQuizIdx].answerIndex && (
+                                <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 ml-2" />
                               )}
                             </button>
                           );
                         })}
                       </div>
 
+                      {/* Post-Submission Feedback & Remediation Engine */}
                       {isQuizSubmitted ? (
-                        <div className="p-4 bg-indigo-950/20 border border-indigo-500/15 rounded-xl space-y-2.5 text-xs">
-                          <h4 className="font-bold text-amber-400 flex items-center gap-1.5">
-                            <Sparkle className="w-3.5 h-3.5 text-amber-500 animate-spin" />
-                            Companion's Explanation / पाठ व्याख्या:
-                          </h4>
-                          <p className="text-slate-350 leading-relaxed whitespace-pre-wrap">
-                            {quizzes[currentQuizIdx].explanation}
-                          </p>
+                        <div className="space-y-3">
+                          {selectedOptionIdx === quizzes[currentQuizIdx].answerIndex ? (
+                            <div className="p-4 bg-emerald-950/30 border border-emerald-500/30 rounded-xl space-y-2 text-xs text-emerald-300">
+                              <div className="flex items-center gap-1.5 font-bold text-emerald-400 text-sm">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                <span>शाबाश! सही उत्तर (Correct Answer! +{positiveMarkVal} Marks)</span>
+                              </div>
+                              <p className="text-slate-300 leading-relaxed whitespace-pre-wrap text-xs">
+                                {quizzes[currentQuizIdx].explanation}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="p-4 bg-rose-950/30 border border-rose-500/40 rounded-xl space-y-3 text-xs text-rose-300">
+                              <div className="flex items-center gap-1.5 font-bold text-rose-400 text-sm">
+                                <AlertTriangle className="w-4 h-4 text-rose-400" />
+                                <span>गलत उत्तर (-{negativeMarkVal} Marks) • घबराएं नहीं, नीचे सुधारें!</span>
+                              </div>
+                              <p className="text-slate-300 leading-relaxed whitespace-pre-wrap text-xs">
+                                {quizzes[currentQuizIdx].explanation}
+                              </p>
+
+                              {/* Interactive Remediation Actions Bar */}
+                              <div className="pt-2 border-t border-rose-900/50 flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={handleRetryCurrentQuestion}
+                                  className="px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold rounded-lg transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                                  <span>दूसरा मौका लें (Try Again with Hint)</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveMistakeModal({
+                                      question: quizzes[currentQuizIdx],
+                                      selectedOptionIdx: selectedOptionIdx !== null ? selectedOptionIdx : -1,
+                                    });
+                                  }}
+                                  className="px-3 py-2 bg-indigo-600/30 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-300 font-bold rounded-lg transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                                  <span>AI से समझें गलती क्यों हुई (Why Was This Wrong?)</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveMistakeToNotebook(quizzes[currentQuizIdx], selectedOptionIdx !== null ? selectedOptionIdx : -1)}
+                                  className="px-3 py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 font-bold rounded-lg transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <BookOpen className="w-3.5 h-3.5 text-purple-400" />
+                                  <span>गलती रजिस्टर में जोड़ें (Save to Book)</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
                           <button
                             onClick={advanceQuiz}
-                            className="mt-2 w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold uppercase tracking-wider text-[10px]"
+                            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-indigo-600/20 cursor-pointer"
                           >
-                            {currentQuizIdx === quizzes.length - 1 ? 'See Report Card' : 'Advance Question'}
+                            {currentQuizIdx === quizzes.length - 1 ? '🏁 See Final A1 Report Card (रिजल्ट देखें)' : '➡️ Advance to Next Question (अगला प्रश्न)'}
                           </button>
                         </div>
                       ) : (
                         <button
                           onClick={submitQuizAnswer}
                           disabled={selectedOptionIdx === null}
-                          className="w-full py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-40"
+                          className="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl text-xs font-bold uppercase transition-all disabled:opacity-40 shadow-md shadow-orange-600/20 cursor-pointer"
                         >
-                          Lock Answer
+                          Lock Answer & Verify (उत्तर दर्ज करें)
                         </button>
                       )}
                     </div>
@@ -5890,7 +6768,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-400 uppercase font-bold block">Target Level</span>
-                            <span className="text-sm font-extrabold text-cyan-300 truncate block">{quizLevel}</span>
+                            <span className="text-sm font-extrabold text-cyan-300 truncate block">{quizLevel} ({quizDifficulty.toUpperCase()})</span>
                           </div>
                         </div>
 
@@ -5973,29 +6851,70 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <div className="relative z-10 flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-800 pt-3">
                           <div className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <span>Verified HansAI Academic Portal</span>
+                            <span>Verified HansAI Academic Portal • Auto-Saved</span>
                           </div>
                           <span>A1 Ref: #HS-${Date.now().toString().slice(-6)}</span>
                         </div>
                       </div>
 
+                      {/* Auto-Save Confirmation Notice */}
+                      <div className="p-3.5 bg-emerald-950/40 border border-emerald-500/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs text-emerald-300 animate-fade-in">
+                        <div className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                          <span className="font-semibold">
+                            ✅ Quize Auto-Saved to Records (क्विज़ स्वतः सुरक्षित हो गया है)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 self-stretch sm:self-auto">
+                          {mistakeNotebook.length > 0 && (
+                            <button
+                              onClick={() => {
+                                restartQuizFlow();
+                                setActiveQuizTab('mistakes');
+                              }}
+                              className="text-[11px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer text-center"
+                            >
+                              📓 Mistake Notebook ({mistakeNotebook.length})
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              restartQuizFlow();
+                              setActiveQuizTab('saved');
+                            }}
+                            className="text-[11px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-lg font-bold transition-all cursor-pointer text-center"
+                          >
+                            View Saved Quizzes (रिकॉर्ड्स देखें) 📂
+                          </button>
+                        </div>
+                      </div>
+
                       {/* Action Buttons Row */}
                       <div className="flex flex-wrap gap-3 justify-center pt-2">
+                        {/* 1-Click Level Up */}
+                        <button
+                          onClick={() => handleLevelUpQuiz()}
+                          className="py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs uppercase rounded-xl transition-all shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 cursor-pointer border-none"
+                        >
+                          <Zap className="w-4 h-4 text-amber-400" />
+                          <span>⚡ Level Up: Generate Harder Questions (और कठिन प्रश्न)</span>
+                        </button>
+
                         <button
                           onClick={handleDownloadA1Card}
-                          className="flex-1 min-w-[200px] py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer border-none"
+                          className="flex-1 min-w-[180px] py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer border-none"
                         >
                           <Download className="w-4 h-4 text-slate-950" />
-                          Download A1 Report Card (डाउनलोड कार्ड)
+                          <span>Download A1 Card</span>
                         </button>
                         <button
                           onClick={() => window.print()}
                           className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs uppercase rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
                         >
-                          🖨️ Print / Save PDF
+                          🖨️ Print PDF
                         </button>
                         <button
-                          onClick={() => handleGenerateQuiz(quizSubject)}
+                          onClick={() => handleGenerateQuiz(quizSubject, quizDifficulty, quizQuestionCount)}
                           className="py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer border-none"
                         >
                           🔄 Retake Test
@@ -6009,6 +6928,167 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* MISTAKE DIAGNOSIS & REMEDIATION MODAL */}
+              {activeMistakeModal && (
+                <QuizMistakeRemediationModal
+                  isOpen={!!activeMistakeModal}
+                  onClose={() => setActiveMistakeModal(null)}
+                  question={activeMistakeModal.question}
+                  selectedOptionIndex={activeMistakeModal.selectedOptionIdx}
+                  onSaveToNotebook={(item) => handleSaveMistakeToNotebook(item)}
+                />
+              )}
+
+              {/* SAVED QUIZ DETAILED ANSWER REVIEW MODAL */}
+              {reviewingSavedQuiz && (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                  <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in">
+                    {/* Modal Header */}
+                    <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base sm:text-lg font-bold text-white">
+                            {reviewingSavedQuiz.subject}
+                          </span>
+                          <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-bold px-2 py-0.5 rounded-full">
+                            {reviewingSavedQuiz.level || 'Standard'}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-3 text-[11px] text-slate-400">
+                          <span>👤 {reviewingSavedQuiz.studentName || 'Student'}</span>
+                          <span>🆔 {reviewingSavedQuiz.studentRoll || 'HS-Roll'}</span>
+                          <span>📅 {reviewingSavedQuiz.date}</span>
+                          <span className="text-emerald-400 font-bold">
+                            Score: {reviewingSavedQuiz.score}/{reviewingSavedQuiz.total} ({reviewingSavedQuiz.percentage || Math.round((reviewingSavedQuiz.score/reviewingSavedQuiz.total)*100)}%)
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setReviewingSavedQuiz(null)}
+                        className="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-800/60 hover:bg-slate-800 transition-all cursor-pointer text-xs"
+                      >
+                        ✕ Close
+                      </button>
+                    </div>
+
+                    {/* Modal Questions Body */}
+                    <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 text-left">
+                      {reviewingSavedQuiz.quizzes.map((q, qIdx) => {
+                        const studentAnswer = reviewingSavedQuiz.userAnswers ? reviewingSavedQuiz.userAnswers[qIdx] : undefined;
+                        const isCorrect = studentAnswer === q.answerIndex;
+                        const isAnswered = studentAnswer !== undefined && studentAnswer !== null;
+
+                        return (
+                          <div
+                            key={qIdx}
+                            className={`p-4 rounded-2xl border ${
+                              isCorrect 
+                                ? 'bg-emerald-950/20 border-emerald-500/30' 
+                                : isAnswered 
+                                ? 'bg-rose-950/20 border-rose-500/30' 
+                                : 'bg-[#090D16] border-slate-800'
+                            } space-y-3 text-xs`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="font-bold text-slate-200 leading-relaxed text-sm">
+                                {qIdx + 1}. {q.question}
+                              </span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                                isCorrect 
+                                  ? 'bg-emerald-500/20 text-emerald-300' 
+                                  : isAnswered 
+                                  ? 'bg-rose-500/20 text-rose-300' 
+                                  : 'bg-slate-800 text-slate-400'
+                              }`}>
+                                {isCorrect ? '✅ Correct (+Mark)' : isAnswered ? '❌ Incorrect (-Neg)' : '⚪ Unattempted'}
+                              </span>
+                            </div>
+
+                            {/* Options List */}
+                            <div className="space-y-1.5">
+                              {q.options.map((opt, oIdx) => {
+                                const isThisCorrect = oIdx === q.answerIndex;
+                                const isSelectedByStudent = studentAnswer === oIdx;
+
+                                let optClass = "bg-slate-900/60 border-slate-800 text-slate-400";
+                                if (isThisCorrect) {
+                                  optClass = "bg-emerald-950/60 border-emerald-500/60 text-emerald-200 font-semibold";
+                                } else if (isSelectedByStudent && !isThisCorrect) {
+                                  optClass = "bg-rose-950/60 border-rose-500/60 text-rose-200 line-through";
+                                }
+
+                                return (
+                                  <div
+                                    key={oIdx}
+                                    className={`p-2.5 rounded-xl border text-[11px] flex items-center justify-between ${optClass}`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-mono text-slate-500 font-bold">{String.fromCharCode(65 + oIdx)}.</span>
+                                      <span>{opt}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                      {isSelectedByStudent && (
+                                        <span className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-bold">
+                                          Your Choice
+                                        </span>
+                                      )}
+                                      {isThisCorrect && (
+                                        <span className="text-[9px] bg-emerald-500 text-slate-950 px-1.5 py-0.5 rounded font-black">
+                                          CORRECT
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Explanation */}
+                            {q.explanation && (
+                              <div className="p-3 bg-indigo-950/30 border border-indigo-500/20 rounded-xl space-y-1">
+                                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                                  💡 Companion Explanation / व्याख्या:
+                                </span>
+                                <p className="text-slate-300 text-[11px] leading-relaxed">
+                                  {q.explanation}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+                      <button
+                        onClick={() => {
+                          setQuizSubject(reviewingSavedQuiz.subject);
+                          setQuizLevel(reviewingSavedQuiz.level);
+                          setQuizzes(reviewingSavedQuiz.quizzes);
+                          setCurrentQuizIdx(0);
+                          setSelectedOptionIdx(null);
+                          setIsQuizSubmitted(false);
+                          setUserQuizAnswers(reviewingSavedQuiz.userAnswers || {});
+                          setScore(reviewingSavedQuiz.score);
+                          setReviewingSavedQuiz(null);
+                          showToast("Loaded saved quiz to replay! 🔄", "success");
+                        }}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
+                      >
+                        🔄 Replay this Test (पुनः हल करें)
+                      </button>
+                      <button
+                        onClick={() => setReviewingSavedQuiz(null)}
+                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl transition-all cursor-pointer"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -9096,7 +10176,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       type="password"
                       value={ownerPasswordInput}
                       onChange={(e) => setOwnerPasswordInput(e.target.value)}
-                      placeholder="Enter Admin Password (e.g. Chhangur#@8084)"
+                      placeholder="Enter Admin Master Password"
                       className="w-full text-xs py-3 px-4 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 text-center font-mono"
                     />
                     <button
@@ -9144,8 +10224,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
                       <p className="text-xs text-slate-400 mt-1">
                         {language === 'hindi' 
-                          ? 'सुरक्षित पासवर्ड-संरक्षित ऑनर एडमिनिस्ट्रेशन कंसोल (palhanslal4@gmail.com)' 
-                          : 'Secure password-protected owner administration console (palhanslal4@gmail.com)'}
+                          ? 'सुरक्षित पासवर्ड-संरक्षित ऑनर एडमिनिस्ट्रेशन कंसोल' 
+                          : 'Secure password-protected owner administration console'}
                       </p>
                     </div>
 
@@ -9954,64 +11034,34 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {t('loginDesc')}
               </p>
 
-              {/* Presets List */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-bold text-[#818CF8] uppercase tracking-wider">{t('selectAccountHeader')}</span>
-                
-                {/* 1. Hanslal Pal Owner Admin */}
+              {/* Sign In Options */}
+              <div className="space-y-3">
                 <button
                   type="button"
                   onClick={() => {
-                    const loggedUser = {
-                      email: 'palhanslal4@gmail.com',
-                      name: 'हंसलाल पाल जी',
-                      role: 'owner',
-                      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'
-                    };
-                    localStorage.setItem('hansai-user-session', JSON.stringify(loggedUser));
-                    setUser(loggedUser);
                     setIsLoginModalOpen(false);
-
-                    // Sync registration on server & log login event
-                    fetch('/api/users/register', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ name: loggedUser.name, email: loggedUser.email })
-                    }).then(() => fetchOwnerAnalytics()).catch(console.error);
-
-                    fetch('/api/users/log-activity', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        name: loggedUser.name,
-                        email: loggedUser.email,
-                        type: 'login',
-                        query: `Owner Admin Logged In (${loggedUser.name})`
-                      })
-                    }).catch(console.error);
-
-                    showToast(language === 'hindi' ? "मलिक एडमिन राइट्स सत्यापित! आपका स्वागत है, हंसलाल पाल जी। 👑" : "Owner privileges verified! Welcome Hanslal Pal Ji. 👑", "success");
-                    setActiveView('owner-dashboard');
+                    setIsAuthLoginOpen(true);
                   }}
-                  className="w-full p-3 bg-indigo-950/40 hover:bg-indigo-950/80 border border-indigo-900/40 hover:border-indigo-500 rounded-xl flex items-center gap-3 text-left transition-all group"
+                  className="w-full py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer border-none"
                 >
-                  <img 
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" 
-                    alt="Hanslal Pal Profile"
-                    className="w-8 h-8 rounded-full border border-indigo-500 shadow-md group-hover:scale-105 transition-transform"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="flex-1">
-                    <span className="font-bold text-slate-100 block">हंसलाल पाल जी (Owner)</span>
-                    <span className="text-[10px] text-slate-400 font-mono block">palhanslal4@gmail.com</span>
-                  </div>
-                  <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-bold uppercase">Owner Admin</span>
+                  <Lock className="w-4 h-4" />
+                  <span>Student Sign In (Password / OTP) 🔐</span>
                 </button>
 
-                {/* No additional presets */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLoginModalOpen(false);
+                    setIsAuthRegisterOpen(true);
+                  }}
+                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <User className="w-4 h-4 text-emerald-400" />
+                  <span>New User? Create Account 🚀</span>
+                </button>
               </div>
 
-              {/* Custom Google Sign-In Form Bypass */}
+              {/* Direct Quick Login Form */}
               <div className="border-t border-slate-800 pt-3 space-y-3">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">{t('useAnotherAccount')}</span>
                 <form 
@@ -10019,14 +11069,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
                     const email = (formData.get('email') as string || '').trim().toLowerCase();
-                    const name = (formData.get('name') as string || '').trim() || 'Aspirant Student';
+                    const name = (formData.get('name') as string || '').trim() || 'Scholar Student';
 
-                    if (!email) {
+                    if (!email || !email.includes('@')) {
                       showToast("कृपया एक वैध ईमेल दर्ज करें।", "warn");
                       return;
                     }
 
-                    // Assign a beautiful deterministic Google avatar from Unsplash
                     const hash = email.length % 5;
                     const avatarList = [
                       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100",
@@ -10037,7 +11086,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     ];
                     const selectedAvatar = avatarList[hash];
 
-                    const loggedUser = { email, name, avatarUrl: selectedAvatar, role: email === 'palhanslal4@gmail.com' ? 'owner' : 'student' };
+                    const loggedUser = { email, name, avatarUrl: selectedAvatar, role: 'student' };
                     localStorage.setItem('hansai-user-session', JSON.stringify(loggedUser));
                     setUser(loggedUser);
                     setIsLoginModalOpen(false);
@@ -10060,12 +11109,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       })
                     }).catch(console.error);
                     
-                    if (email === 'palhanslal4@gmail.com') {
-                      showToast(language === 'hindi' ? "मलिक एडमिन राइट्स सत्यापित! आपका स्वागत है, हंसलाल पाल जी। 👑" : "Owner privileges verified! Welcome Hanslal Pal Ji. 👑", "success");
-                      setActiveView('owner-dashboard');
-                    } else {
-                      showToast(`Google Sign In successfully authenticated as ${name}! 🚀`, "success");
-                    }
+                    showToast(`Successfully authenticated as ${name}! 🚀`, "success");
                   }}
                   className="space-y-3"
                 >

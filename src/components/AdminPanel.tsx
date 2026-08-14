@@ -108,14 +108,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-black text-white uppercase tracking-wider">
-                HANS AI ADMIN
+                HANS COMPAIN ADMIN
               </h1>
               <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold rounded-full">
                 OWNER CONSOLE
               </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Hanslal Pal Ji • palhanslal4@gmail.com • System Status: <span className="text-emerald-400 font-bold">100% Operational 🟢</span>
+              Hanslal Pal Ji (Founder Owner) • Master Security Active • System Status: <span className="text-emerald-400 font-bold">100% Operational 🟢</span>
             </p>
           </div>
         </div>
@@ -779,7 +779,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   type="password"
                   value={newAdminPasswordInput}
                   onChange={(e) => setNewAdminPasswordInput(e.target.value)}
-                  placeholder="Enter New Key (e.g. Chhangur#@8084)"
+                  placeholder="Enter New Master Admin Password"
                   className="w-full text-xs py-2 px-3 bg-[#0F1626] border border-slate-800 rounded-xl text-white font-mono focus:outline-none focus:border-amber-500"
                 />
                 <button

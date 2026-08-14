@@ -95,7 +95,7 @@ interface Props {
 }
 
 export const AffiliateStoreView: React.FC<Props> = ({ user, showToast }) => {
-  const isAdmin = user?.role === 'owner' || user?.email === 'palhanslal4@gmail.com';
+  const isAdmin = user?.role === 'owner';
 
   const [products, setProducts] = useState<AffiliateProduct[]>(() => {
     const saved = localStorage.getItem('hansai-affiliate-products');

@@ -4,6 +4,7 @@
 let currentAudioPlayer: HTMLAudioElement | null = null;
 
 export interface SpeechOptions {
+  lang?: string;
   rate?: number;
   pitch?: number;
   onStart?: () => void;
@@ -71,7 +72,8 @@ export const stopAllSpeech = () => {
  * For Hindi text: Uses server-side /api/tts endpoint for 100% crystal-clear Hindi spoken audio.
  * For English text: Uses WebSpeech API with fallback to /api/tts endpoint.
  */
-export const speakText = (text: string, options: SpeechOptions = {}) => {
+export const speakText = (text: string, rawOptions: SpeechOptions | string = {}) => {
+  const options: SpeechOptions = typeof rawOptions === 'string' ? { lang: rawOptions } : rawOptions;
   stopAllSpeech();
 
   const cleanText = cleanTextForSpeech(text);

@@ -8,7 +8,7 @@ import { speakText, stopAllSpeech } from '../utils/speechUtils';
 export interface MnemonicItem {
   id: string;
   topic: string;
-  subject: 'Polity' | 'History' | 'Science' | 'Geography' | 'Maths' | 'General';
+  subject: 'Polity' | 'History' | 'Science' | 'Geography' | 'Maths' | 'Medical' | 'Teaching' | 'General';
   title: string;
   acronymOrCode: string;
   storyTrickHindi: string;
@@ -18,6 +18,61 @@ export interface MnemonicItem {
 }
 
 const PRESET_MNEMONICS: MnemonicItem[] = [
+  {
+    id: 'medical-cranial-nerves',
+    topic: '12 Cranial Nerves in Human Body (12 कपाल तंत्रिकाएं)',
+    subject: 'Medical',
+    title: '12 कपाल तंत्रिकाओं का क्रम (12 Cranial Nerves)',
+    acronymOrCode: 'OOOTTAFVGVAH (Oh Oh Oh To Touch And Feel Very Good Velvet AH)',
+    storyTrickHindi: 'ट्रिक: "OOOTTAFVGVAH"\nI - Olfactory (घ्राण - सूंघना)\nII - Optic (दृष्टि - देखना)\nIII - Oculomotor (नेत्र गति)\nIV - Trochlear (ट्रॉक्लियर)\nV - Trigeminal (ट्राइजेमिनल - चेहरा संवेदना)\nVI - Abducens (एब्ड्यूसेंस)\nVII - Facial (चेहरा भाव व स्वाद)\nVIII - Vestibulocochlear (सुनना व संतुलन)\nIX - Glossopharyngeal (जीभ व निगलना)\nX - Vagus (वेगस - हृदय व आंत)\nXI - Accessory (गर्दन व कंधा)\nXII - Hypoglossal (जीभ गति)',
+    explanation: 'क्रेनियल नर्व्स का यह क्रम (I से XII) न्यूरो-एनाटॉमी का सबसे महत्वपूर्ण हिस्सा है। 10वीं नर्व "Vagus" सबसे लंबी नर्व है जो हृदय, फेफड़े और पाचन तंत्र को नियंत्रित करती है।',
+    examUsage: 'NEET UG, MBBS First Prof Anatomy, AIIMS Nursing & CHO: Trigeminal & Vagus nerve functions.',
+    tags: ['Medical', 'Anatomy', 'Cranial Nerves', 'NEET', 'Nursing', 'MBBS']
+  },
+  {
+    id: 'medical-essential-amino-acids',
+    topic: '9 Essential Amino Acids (आवश्यक अमीनो अम्ल)',
+    subject: 'Medical',
+    title: 'आवश्यक अमीनो अम्ल (Essential Amino Acids)',
+    acronymOrCode: 'PVT TIM HALL (प्राइवेट टिम हॉल)',
+    storyTrickHindi: 'ट्रिक: "PVT TIM HALL"\nP - Phenylalanine (फेनिलएलनिन)\nV - Valine (वेलिन)\nT - Threonine (थ्रिओनिन)\nT - Tryptophan (ट्रिप्टोफैन)\nI - Isoleucine (आइसोल्यूसीन)\nM - Methionine (मेथियोनीन)\nH - Histidine (हिस्टिडीन - बच्चों में आवश्यक)\nA - Arginine (आर्जिनिन - सेमी-एसेंशियल)\nL - Leucine (ल्यूसीन)\nL - Lysine (लाइसिन)',
+    explanation: 'ये 9 अमीनो अम्ल हमारा शरीर खुद नहीं बना सकता, इन्हें भोजन के माध्यम से लेना अनिवार्य होता है। "PVT TIM HALL" ट्रिक से इन्हें 5 सेकंड में याद रखें।',
+    examUsage: 'NEET Biology, Biochemistry & GPAT: Essential vs Non-essential amino acids categorization.',
+    tags: ['Medical', 'Biochemistry', 'NEET', 'Pharma', 'Nutrition']
+  },
+  {
+    id: 'medical-antibiotics-ribosome',
+    topic: 'Protein Synthesis Inhibitor Antibiotics (30S vs 50S)',
+    subject: 'Medical',
+    title: 'एंटीबायोटिक्स प्रोटीन संश्लेषण अवरोधक (30S vs 50S)',
+    acronymOrCode: 'Buy AT 30, CELL at 50',
+    storyTrickHindi: 'ट्रिक: "Buy AT 30, CELL at 50"\n• 30S Subunit Inhibitors (AT 30):\n  A - Aminoglycosides (Streptomycin, Gentamicin)\n  T - Tetracyclines (Doxycycline)\n\n• 50S Subunit Inhibitors (CELL 50):\n  C - Chloramphenicol\n  E - Erythromycin (Macrolides / Azithromycin)\n  L - Linezolid\n  L - Clindamycin',
+    explanation: 'बैक्टीरिया के 70S राइबोसोम के दो सबयूनिट होते हैं: 30S और 50S। "Buy AT 30, CELL at 50" से याद रहता है कि कौन सी एंटीबायोटिक किस सबयूनिट को ब्लॉक करती है।',
+    examUsage: 'NEET PG, GPAT Pharmacist, Nursing & Microbiology exams.',
+    tags: ['Medical', 'Pharmacology', 'Antibiotics', 'GPAT', 'Nursing']
+  },
+  {
+    id: 'teaching-piaget-stages',
+    topic: 'Jean Piaget 4 Cognitive Development Stages (पियाजे के 4 चरण)',
+    subject: 'Teaching',
+    title: 'जीन पियाजे के संज्ञानात्मक विकास के 4 चरण',
+    acronymOrCode: 'SPCF (Some People Can Fly / सं-पू-मू-औ)',
+    storyTrickHindi: 'ट्रिक: "SPCF" (संवेदी -> पूर्व -> मूर्त -> औपचारिक)\n1. S (Sensorimotor / संवेदी-गामक): 0 से 2 वर्ष (Object Permanence - वस्तु स्थायित्व)\n2. P (Pre-operational / पूर्व-संक्रियात्मक): 2 से 7 वर्ष (Egocentrism, Animism, Centration)\n3. C (Concrete Operational / मूर्त-संक्रियात्मक): 7 से 11 वर्ष (Conservation, Classification, Reversibility)\n4. F (Formal Operational / औपचारिक-अमूर्त): 11+ वर्ष (Hypothetico-Deductive Logic, Abstract Thinking)',
+    explanation: 'जीन पियाजे का संज्ञानात्मक विकास सिद्धांत शिक्षक भर्ती (CTET/TET) का सबसे प्रमुख विषय है। SPCF क्रम से उम्र और विशेषताएं याद रहती हैं।',
+    examUsage: 'CTET Paper 1 & 2, UP TET, KVS, B.Ed: Object permanence and conservation stage questions.',
+    tags: ['Teaching', 'Pedagogy', 'CDP', 'CTET', 'Piaget']
+  },
+  {
+    id: 'science-taxonomy',
+    topic: 'Biological Classification Hierarchy (वर्गीकरण पदानुक्रम)',
+    subject: 'Science',
+    title: 'जीव विज्ञान वर्गीकरण पदानुक्रम (Taxonomy Hierarchy)',
+    acronymOrCode: 'KPCOFGS (Keep Ponds Clean Or Fish Get Sick)',
+    storyTrickHindi: 'ट्रिक: "KPCOFGS" (जगत -> संघ -> वर्ग -> गण -> कुल -> वंश -> जाति)\nK - Kingdom (जगत)\nP - Phylum / Division (संघ / प्रभाग)\nC - Class (वर्ग)\nO - Order (गण)\nF - Family (कुल)\nG - Genus (वंश)\nS - Species (जाति - सबसे छोटी मूल इकाई)',
+    explanation: 'कार्ल लिनियस द्वारा दिए गए वर्गीकरण का सर्वोच्च स्तर Kingdom और सबसे बुनियादी स्तर Species है।',
+    examUsage: 'NEET Biology, 11th Board, State TGT/PGT Biology.',
+    tags: ['Science', 'Medical', 'Biology', 'NEET', 'Taxonomy']
+  },
   {
     id: 'polity-schedules',
     topic: 'Indian Constitution: 12 Schedules',
@@ -250,7 +305,7 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
 
       {/* CATEGORY SUBJECT FILTERS */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {['All', 'Polity', 'History', 'Science', 'Geography', 'General'].map(subject => (
+        {['All', 'Medical', 'Science', 'Teaching', 'Polity', 'History', 'Geography', 'General'].map(subject => (
           <button
             key={subject}
             onClick={() => setSelectedSubjectFilter(subject)}
@@ -260,7 +315,7 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
                 : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
             }`}
           >
-            {subject === 'All' ? '🌐 All Subjects' : subject}
+            {subject === 'All' ? '🌐 All Subjects' : subject === 'Medical' ? '🩺 Medical & NEET' : subject === 'Teaching' ? '🎓 Teaching & CDP' : subject}
           </button>
         ))}
       </div>
