@@ -62,9 +62,14 @@ import {
   ZoomOut,
   Search,
   MessageSquare,
+  MessageCircle,
   ArrowLeft,
   Headphones,
   Shield,
+  ShieldCheck,
+  LifeBuoy,
+  ExternalLink,
+  PhoneCall,
   Database,
   Bell,
   BarChart2,
@@ -109,6 +114,12 @@ import { StartupIntroSplash } from './components/StartupIntroSplash';
 import { HansCompainLogo } from './components/HansCompainLogo';
 import { QuizMistakeRemediationModal } from './components/QuizMistakeRemediationModal';
 import { QuizMistakeNotebookView } from './components/QuizMistakeNotebookView';
+import { DedicatedStenoMasterStudio } from './components/DedicatedStenoMasterStudio';
+import { PublicLaunchHubView } from './components/PublicLaunchHubView';
+import { AiPublicRulesModal } from './components/AiPublicRulesModal';
+import { HansAiHelpGuideModal } from './components/HansAiHelpGuideModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { generateStudyNotesPdf } from './utils/pdfGenerator';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -446,7 +457,7 @@ const STATUS_THEMES = [
 
 export default function App() {
   // Navigation & View state
-  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'flashcards' | 'photo-doubt' | 'security' | 'book-reader' | 'notes-ocr' | 'neural-map' | 'time-travel' | 'mnemonics' | 'science-lab'>('chat');
+  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'study-plan' | 'flashcards' | 'photo-doubt' | 'security' | 'book-reader' | 'notes-ocr' | 'photo-ocr' | 'neural-map' | 'time-travel' | 'mnemonics' | 'science-lab' | 'steno' | 'launch-hub' | 'article-reader' | 'file-converter' | 'weather-alerts' | 'affiliate-store' | 'affiliate' | 'mistake-notebook'>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
   const [isCreatorDrawerOpen, setIsCreatorDrawerOpen] = useState(false);
@@ -474,43 +485,48 @@ export default function App() {
   const [isAuthLoginOpen, setIsAuthLoginOpen] = useState(false);
   const [isAuthForgotOpen, setIsAuthForgotOpen] = useState(false);
 
-  // Helper for Export PDF
-  const handleExportPdf = (title: string, elementId: string) => {
-    const el = document.getElementById(elementId);
-    if (!el) {
+  // Helper for Export PDF using real jsPDF file generator
+  const handleExportPdf = (title: string, elementId?: string, rawText?: string) => {
+    let content = rawText || '';
+    if (!content && elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        content = el.innerText || el.textContent || '';
+      }
+    }
+    if (!content) {
+      content = `HansAI Study Notes & Academic Solutions for ${title}`;
+    }
+
+    const success = generateStudyNotesPdf({
+      title: title || 'HansAI Study Notes',
+      content: content,
+      author: user?.name || user?.email || 'HansAI Student',
+      language: language
+    });
+
+    if (success) {
+      showToast(language === 'hindi' ? "📄 PDF फाइल सफलतापूर्वक डाउनलोड हो गई! 📥" : "📄 PDF downloaded successfully! 📥", "success");
+    } else {
+      showToast("PDF generation failed, fallback to print", "info");
       window.print();
-      return;
     }
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert("Please allow popups to export PDF");
-      return;
+  };
+
+  // 1-Click Message to PDF Downloader
+  const handleDownloadMessagePdf = (msg: Message) => {
+    const success = generateStudyNotesPdf({
+      title: `HansAI Study Notes - ${new Date().toLocaleDateString()}`,
+      topic: msg.content.slice(0, 45).replace(/[#*`]/g, '').trim(),
+      content: msg.content,
+      author: user?.name || user?.email || 'HansAI Student',
+      language: language
+    });
+    if (success) {
+      showToast(language === 'hindi' ? "📥 नोट्स की PDF फाइल डाउनलोड हो गई!" : "📥 Study notes PDF downloaded!", "success");
+    } else {
+      showToast("Failed to download PDF", "warn");
     }
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>${title}</title>
-          <style>
-            body { font-family: sans-serif; padding: 20px; color: #1e293b; line-height: 1.6; }
-            h1, h2, h3 { color: #312e81; }
-            .bg-\\[\\#03060E\\], .bg-\\[\\#0A0E1A\\] { background: #f8fafc !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; padding: 12px; margin-bottom: 12px; border-radius: 8px; }
-            .text-white, .text-slate-200, .text-slate-300 { color: #0f172a !important; }
-            .text-indigo-400, .text-purple-400, .text-emerald-400 { color: #4338ca !important; font-weight: bold; }
-            button { display: none !important; }
-          </style>
-        </head>
-        <body>
-          <h2>HansAI Document Export: ${title}</h2>
-          ${el.innerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 500);
   };
 
   // Exit intent & Play Store Style Rating States
@@ -765,7 +781,7 @@ export default function App() {
             content: language === 'hindi'
               ? "⚠️ **स्वचालित लॉगआउट सूचना (3 Hours Auto Logout Notification)**\n\nआपकी 3 घंटे की निरंतर अध्ययन सत्र सीमा पूरी हो चुकी है। सुरक्षा एवं अध्ययन अनुशासन बनाए रखने के लिए आपका अकाउंट ऑटोमैटिक लॉगआउट किया गया है।\n\nपुनः अभ्यास जारी रखने के लिए कृपया **Login / Register** करें।"
               : "⚠️ **Automatic Logout Notification (3 Hours Limit Reached)**\n\nYour 3-hour continuous study session limit has expired. To maintain security and learning discipline, your session has been automatically logged out.\n\nPlease click **Login / Register** to start a new session.",
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            timestamp: new Date()
           }
         ]);
       } else if (remaining <= WARNING_THRESHOLD_MS && !warningShown) {
@@ -1032,7 +1048,7 @@ export default function App() {
       setOwnerPasswordError(false);
       setOwnerPasswordInput('');
       addAdminAuditLog("Admin Console Unlocked", "Auth");
-      showToast("Owner Admin Password Verified! Welcome Hanslal Pal Ji 👑", "success");
+      showToast("Owner Admin Password Verified! Welcome Hanslal Pal Ji 🛡️", "success");
       fetchOwnerAnalytics();
     } else {
       setOwnerPasswordError(true);
@@ -1251,9 +1267,42 @@ export default function App() {
     localStorage.setItem('hansai-saved-chats', JSON.stringify(savedChats));
   }, [savedChats]);
 
+  // ChatGPT-style active chat session tracking and inline editing states
+  const [currentChatSessionId, setCurrentChatSessionId] = useState<string | null>(null);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingChatTitle, setEditingChatTitle] = useState<string>('');
+  const [isAiRulesModalOpen, setIsAiRulesModalOpen] = useState<boolean>(false);
+  const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
+  const [isClearAllChatsModalOpen, setIsClearAllChatsModalOpen] = useState<boolean>(false);
+
   const deleteSavedChat = (id: string) => {
     setSavedChats(prev => prev.filter(c => c.id !== id));
-    showToast('Chat session deleted', 'info');
+    if (currentChatSessionId === id) {
+      setCurrentChatSessionId(null);
+      setChatMessages([]);
+    }
+    showToast('Chat session deleted 🗑️', 'info');
+  };
+
+  const handleRenameChat = (id: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    setSavedChats(prev => prev.map(c => c.id === id ? { ...c, title: newTitle.trim() } : c));
+    setEditingChatId(null);
+    setEditingChatTitle('');
+    showToast('Chat title updated ✏️', 'success');
+  };
+
+  const handlePinChat = (id: string) => {
+    setSavedChats(prev => prev.map(c => c.id === id ? { ...c, isPinned: !c.isPinned } : c));
+    showToast('Chat pin status updated 📌', 'info');
+  };
+
+  const handleClearAllChats = () => {
+    setSavedChats([]);
+    setCurrentChatSessionId(null);
+    setChatMessages([]);
+    setIsClearAllChatsModalOpen(false);
+    showToast('All chat history cleared 🧹', 'info');
   };
 
   const filteredSavedChats = (Array.isArray(savedChats) ? savedChats : []).filter(s => 
@@ -1261,6 +1310,39 @@ export default function App() {
     (s.title && s.title.toLowerCase().includes(sidebarSearchQuery.toLowerCase())) ||
     (s.messages && Array.isArray(s.messages) && s.messages.some((m: any) => m && m.content && String(m.content).toLowerCase().includes(sidebarSearchQuery.toLowerCase()))))
   );
+
+  // Group chats by date (Today, Yesterday, Previous 7 Days, Older) like ChatGPT
+  const groupChatsByDate = (chats: any[]) => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const yesterdayStart = todayStart - 24 * 60 * 60 * 1000;
+    const last7DaysStart = todayStart - 7 * 24 * 60 * 60 * 1000;
+
+    const pinned: any[] = [];
+    const today: any[] = [];
+    const yesterday: any[] = [];
+    const last7Days: any[] = [];
+    const older: any[] = [];
+
+    chats.forEach(chat => {
+      if (chat.isPinned) {
+        pinned.push(chat);
+        return;
+      }
+      const chatTime = chat.timestamp ? new Date(chat.timestamp).getTime() : 0;
+      if (chatTime >= todayStart) {
+        today.push(chat);
+      } else if (chatTime >= yesterdayStart) {
+        yesterday.push(chat);
+      } else if (chatTime >= last7DaysStart) {
+        last7Days.push(chat);
+      } else {
+        older.push(chat);
+      }
+    });
+
+    return { pinned, today, yesterday, last7Days, older };
+  };
 
   // Audio Recorder States
   const [isRecording, setIsRecording] = useState(false);
@@ -1389,9 +1471,10 @@ export default function App() {
   // APP-LEVEL NOTIFICATION TOAST ARRAY
   const [toasts, setToasts] = useState<Array<{ id: string; msg: string; type: 'info' | 'success' | 'warn' }>>([]);
 
-  const showToast = (msg: string, type: 'info' | 'success' | 'warn' = 'success') => {
+  const showToast = (msg: string, type: 'info' | 'success' | 'warn' | 'error' = 'success') => {
     const id = `toast-${Date.now()}`;
-    setToasts(prev => [...prev, { id, msg, type }]);
+    const normalizedType: 'info' | 'success' | 'warn' = type === 'error' ? 'warn' : type;
+    setToasts(prev => [...prev, { id, msg, type: normalizedType }]);
     
     // Play synthesis beep audio chime natively without requiring external files
     try {
@@ -3176,7 +3259,7 @@ export default function App() {
   const [customAlarmSeconds, setCustomAlarmSeconds] = useState<string>("");
 
   // 3. Activity Log & Savings state
-  const [activityLogs, setActivityLogs] = useState<Array<{ id: string; type: 'timer' | 'quiz' | 'note'; title: string; subtitle: string; score?: string; timestamp: string }>>(() => {
+  const [activityLogs, setActivityLogs] = useState<Array<{ id: string; type: 'timer' | 'quiz' | 'note' | 'chat'; title: string; subtitle: string; score?: string; timestamp: string }>>(() => {
     const saved = localStorage.getItem('hansai-history');
     if (saved) {
       try {
@@ -4212,16 +4295,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
     showToast("Chat saved successfully to History! 💾", "success");
   };
 
-  // Load a saved chat
-  const loadSavedChat = (chatSession: any) => {
-    setChatMessages(chatSession.messages);
-    setActiveView('chat');
-    showToast(`Loaded: ${chatSession.title}`, "success");
-  };
-
   // Helper to generate dynamic, subject-specific answers for instant local AI responses
   const generateSubjectKnowledgeReply = (userQuery: string, lang: string = 'hindi'): string => {
     const query = (userQuery || "").toLowerCase();
+
+    if (query.includes('pdf') || query.includes('पीडीएफ')) {
+      const topicName = userQuery.replace(/pdf|पीडीएफ|banao|chahiye|download|bnao|generate|karo/gi, '').trim() || 'संपूर्ण सामान्य अध्ययन (General Studies Notes)';
+      return `### 📄 HansAI - आपके अध्ययन हेतु विशेष PDF नोट्स\n\n` +
+        `**विषय:** "${topicName}"\n\n` +
+        `#### 📌 मुख्य बिंदु व परीक्षा सारांश:\n` +
+        `1. **अवधारणा की स्पष्टता:** इस अध्याय के सभी महत्वपूर्ण सूत्र, सिद्धांत एवं तिथियां शामिल हैं।\n` +
+        `2. **विगत वर्षों के प्रश्न (PYQ):** प्रतियोगी परीक्षाओं (SSC, Railway, State PCS, UPSC) में बार-बार पूछे जाने वाले बिंदु।\n` +
+        `3. **स्मरण ट्रिक (Memory Trick):** कठिन तथ्यों को याद रखने के लिए विशेष सूत्र व निमोनिक्स।\n` +
+        `4. **अभ्यास व स्व-मूल्यांकन:** अध्याय समाप्त करने के पश्चात Auto Chapter Quiz में भाग लें।\n\n` +
+        `📥 **PDF डाउनलोड करने के लिए नीचे दिए गए '📥 PDF' बटन पर तुरंत क्लिक करें। यह फाइल आपके डिवाइस में सीधे डाउनलोड हो जाएगी!**`;
+    }
 
     if (query.includes('geography') || query.includes('भूगोल')) {
       return `### 🌍 भूगोल (Geography) - संपूर्ण परिचय व अध्ययन समाधान\n\n` +
@@ -4291,10 +4379,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${userQuery.slice(0, 70)}"**:\n\n1. **Key Concept:** Clear understanding of this topic is essential for competitive & board exams.\n2. **Revision Strategy:** Create concise notes of key formulas, facts, and definitions.\n3. **Interactive Test:** Navigate to the **Auto Chapter Quiz** tab to solve custom MCQs on this topic!`;
   };
 
-  // Clear current chat messages (New Chat)
+  // Clear current chat messages (New Chat - ChatGPT style)
   const startNewChat = () => {
     setChatMessages([]);
-    showToast("New chat session started!", "success");
+    setCurrentChatSessionId(null);
+    setActiveView('chat');
+    showToast(language === 'hindi' ? "नया चैट शुरू किया गया! 💬" : "New chat session started! 💬", "success");
+  };
+
+  // Load a saved chat (ChatGPT style)
+  const loadSavedChat = (chatSession: any) => {
+    if (!chatSession) return;
+    setCurrentChatSessionId(chatSession.id);
+    setChatMessages(chatSession.messages || []);
+    setActiveView('chat');
+    showToast(`Loaded: ${chatSession.title || 'Chat Session'}`, "success");
   };
 
   // Trigger Chatbot API Request
@@ -4349,6 +4448,33 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       imagePreviewUrl: previewUrl
     };
 
+    // Determine target session ID and auto-sync to savedChats (ChatGPT style)
+    let targetSessionId = currentChatSessionId;
+    if (!targetSessionId) {
+      targetSessionId = `chat-${Date.now()}`;
+      setCurrentChatSessionId(targetSessionId);
+      const cleanTitle = messageContent.length > 38 ? messageContent.slice(0, 38) + '...' : messageContent;
+      const newSession = {
+        id: targetSessionId,
+        title: cleanTitle || `Chat - ${new Date().toLocaleDateString()}`,
+        messages: [userMsg],
+        timestamp: new Date().toISOString(),
+        isPinned: false
+      };
+      setSavedChats(prev => [newSession, ...prev.filter(s => s.id !== targetSessionId)]);
+    } else {
+      setSavedChats(prev => prev.map(s => {
+        if (s.id === targetSessionId) {
+          return {
+            ...s,
+            messages: [...(s.messages || []), userMsg],
+            timestamp: new Date().toISOString()
+          };
+        }
+        return s;
+      }));
+    }
+
     setChatMessages(prev => [...prev, userMsg]);
     if (!textToSend) setChatInput('');
     setChatAttachedImage(null); // Reset image selection state
@@ -4373,12 +4499,23 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       }
 
       setTimeout(() => {
-        setChatMessages(prev => [...prev, {
+        const assistantMsg: Message = {
           id: `reply-${Date.now()}`,
           role: 'assistant',
           content: offlineReply,
           timestamp: new Date()
-        }]);
+        };
+        setChatMessages(prev => [...prev, assistantMsg]);
+        setSavedChats(prev => prev.map(s => {
+          if (s.id === targetSessionId) {
+            return {
+              ...s,
+              messages: [...(s.messages || []), assistantMsg],
+              timestamp: new Date().toISOString()
+            };
+          }
+          return s;
+        }));
         setIsChatLoading(false);
       }, 300);
       return;
@@ -4410,12 +4547,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       }
 
       const data = await res.json();
-      setChatMessages(prev => [...prev, {
+      const assistantMsg: Message = {
         id: `reply-${Date.now()}`,
         role: 'assistant',
         content: data.reply,
         timestamp: new Date()
-      }]);
+      };
+
+      setChatMessages(prev => [...prev, assistantMsg]);
+      setSavedChats(prev => prev.map(s => {
+        if (s.id === targetSessionId) {
+          return {
+            ...s,
+            messages: [...(s.messages || []), assistantMsg],
+            timestamp: new Date().toISOString()
+          };
+        }
+        return s;
+      }));
 
       if ((isVoiceAssistantActive || isVoiceAssistantActiveRef.current) && data.reply) {
         speakVoiceAssistantReply(data.reply);
@@ -4430,37 +4579,49 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       const isCreatorQuery = query.includes('creator') || query.includes('founder') || query.includes('who made') || query.includes('who built') || query.includes('who created') || query.includes('hanslal') || query.includes('pal ji') || query.includes('पाल जी') || query.includes('निर्माता') || query.includes('maker');
       const isNotUnderstanding = query.includes('understand') || query.includes('समझ नहीं') || query.includes('नहीं समझा') || query.includes('फिर से') || query.includes('easy') || query.includes('सरल');
 
-    if (isCapabilityQuery) {
-      customReply = `✨ **HansAI (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
-        `1. 🎓 **SSC, Board & Competitive Exams**: SSC CGL/CHSL, Railway, State PCS/UPSC, भूगोल, इतिहास, संविधान, विज्ञान, गणित, रीजनिंग व अंग्रेजी।\n` +
-        `2. ✍️ **Shorthand & Dictation Tools**: Shorthand स्ट्रोक रेफरेंस, डिक्टेशन टाइमर और स्पीड प्रैक्टिस।\n` +
-        `3. 🚀 **Deep Research AI**: विषय पर गहरा अध्ययन, टाइमलाइन और याद करने की ट्रिक्स।\n` +
-        `4. 🧠 **Interactive Live Quizzes**: तुरंत 5 सवालों का क्विज टेस्ट, स्कोर और व्याख्या।\n` +
-        `5. 🎙️ **Projects & Voice Recorder**: लेक्चर्स/नोट्स की वॉइस रिकॉर्डिंग और प्रोजेक्ट्स।\n` +
-        `6. 📖 **Study Notes & Folders**: नोट्स सहेजना, खोजना और स्मार्ट फोल्डर्स।\n` +
-        `7. 🗺️ **GIS & Map Visualizer**: इंटरएक्टिव भूगोल मानचित्र और मैपिंग।\n` +
-        `8. ☕ **Daily Motivation & Status**: सुबह की कविताएं और मोटिवेशन।\n` +
-        `9. 📶 **Offline Availability**: बिना इंटरनेट के भी सभी सेव किए गए नोट्स व टूल्स काम करते हैं!`;
-    } else if (isCreatorQuery) {
-      customReply = `HansAI के creator और founder Hanslal हैं। HansAI को Hanslal ने एक student-focused AI platform के रूप में बनाया और विकसित किया है।`;
-    } else if (isGreeting) {
-      if (language === 'hindi') {
-        customReply = `नमस्ते! मैं आपका एआई साथी (HansAI) हूँ। आज मैं आपकी पढ़ाई, भूगोल, इतिहास, विज्ञान या किसी भी परीक्षा की तैयारी में किस प्रकार सहायता कर सकता हूँ?`;
+      if (isCapabilityQuery) {
+        customReply = `✨ **HansAI (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
+          `1. 🎓 **SSC, Board & Competitive Exams**: SSC CGL/CHSL, Railway, State PCS/UPSC, भूगोल, इतिहास, संविधान, विज्ञान, गणित, रीजनिंग व अंग्रेजी।\n` +
+          `2. ✍️ **Shorthand & Dictation Tools**: Shorthand स्ट्रोक रेफरेंस, डिक्टेशन टाइमर और स्पीड प्रैक्टिस।\n` +
+          `3. 🚀 **Deep Research AI**: विषय पर गहरा अध्ययन, टाइमलाइन और याद करने की ट्रिक्स।\n` +
+          `4. 🧠 **Interactive Live Quizzes**: तुरंत 5 सवालों का क्विज टेस्ट, स्कोर और व्याख्या।\n` +
+          `5. 🎙️ **Projects & Voice Recorder**: लेक्चर्स/नोट्स की वॉइस रिकॉर्डिंग और प्रोजेक्ट्स।\n` +
+          `6. 📖 **Study Notes & Folders**: नोट्स सहेजना, खोजना और स्मार्ट फोल्डर्स।\n` +
+          `7. 🗺️ **GIS & Map Visualizer**: इंटरएक्टिव भूगोल मानचित्र और मैपिंग।\n` +
+          `8. ☕ **Daily Motivation & Status**: सुबह की कविताएं और मोटिवेशन।\n` +
+          `9. 📶 **Offline Availability**: बिना इंटरनेट के भी सभी सेव किए गए नोट्स व टूल्स काम करते हैं!`;
+      } else if (isCreatorQuery) {
+        customReply = `HansAI के creator और founder Hanslal हैं। HansAI को Hanslal ने एक student-focused AI platform के रूप में बनाया और विकसित किया है।`;
+      } else if (isGreeting) {
+        if (language === 'hindi') {
+          customReply = `नमस्ते! मैं आपका एआई साथी (HansAI) हूँ। आज मैं आपकी पढ़ाई, भूगोल, इतिहास, विज्ञान या किसी भी परीक्षा की तैयारी में किस प्रकार सहायता कर सकता हूँ?`;
+        } else {
+          customReply = `Hello! I am your AI Companion (HansAI). How can I assist you with Geography, History, Science, Maths, or competitive exam preparation today?`;
+        }
+      } else if (isNotUnderstanding) {
+        customReply = `### 💡 आसान रूप (Simplified Explanation):\n\n\`\`\`\n  [मूल सिद्धांत / Core Concept]\n         │\n         ├──➤ [नियम / Formula/Rule]\n         │      └──➤ अनुप्रयोग (Exam Questions Application)\n         └──➤ [स्मरण ट्रिक / Memorization Hack]\n\`\`\``;
       } else {
-        customReply = `Hello! I am your AI Companion (HansAI). How can I assist you with Geography, History, Science, Maths, or competitive exam preparation today?`;
+        customReply = generateSubjectKnowledgeReply(messageContent, language);
       }
-    } else if (isNotUnderstanding) {
-      customReply = `### 💡 आसान रूप (Simplified Explanation):\n\n\`\`\`\n  [मूल सिद्धांत / Core Concept]\n         │\n         ├──➤ [नियम / Formula/Rule]\n         │      └──➤ अनुप्रयोग (Exam Questions Application)\n         └──➤ [स्मरण ट्रिक / Memorization Hack]\n\`\`\``;
-    } else {
-      customReply = generateSubjectKnowledgeReply(messageContent, language);
-    }
 
-      setChatMessages(prev => [...prev, {
+      const assistantFallbackMsg: Message = {
         id: `reply-${Date.now()}`,
         role: 'assistant',
         content: customReply,
         timestamp: new Date()
-      }]);
+      };
+
+      setChatMessages(prev => [...prev, assistantFallbackMsg]);
+      setSavedChats(prev => prev.map(s => {
+        if (s.id === targetSessionId) {
+          return {
+            ...s,
+            messages: [...(s.messages || []), assistantFallbackMsg],
+            timestamp: new Date().toISOString()
+          };
+        }
+        return s;
+      }));
       showToast("HansAI Local Response Activated ✅", "success");
 
       if ((isVoiceAssistantActive || isVoiceAssistantActiveRef.current) && customReply) {
@@ -4472,7 +4633,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
   };
 
   return (
-    <div className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col ${
+    <div className={`h-screen max-h-screen w-full max-w-full overflow-hidden flex flex-col ${
       screenColorMode === 'dark' ? 'bg-[#03060E] text-slate-100' : 
       screenColorMode === 'warm_yellow' ? 'bg-[#FAF6E9] text-[#78350F] font-sans' : 
       screenColorMode === 'eco_gray' ? 'bg-[#F1F3F5] text-slate-800' :
@@ -4779,106 +4940,71 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           </div>
 
-          {/* Quick Action Navigation Buttons */}
+          {/* Official AI Assistant Guide & Public Rules Section */}
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
+            <span className="text-[10px] font-black uppercase text-indigo-400 tracking-wider block">
+              🤖 {language === 'hindi' ? 'सहायता व आधिकारिक नियम:' : 'Help & Official Rules:'}
+            </span>
+
+            {/* AI Assistant Help Guide (Explains every feature to avoid confusion) */}
             <button
-              onClick={() => { setActiveView('neural-map'); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/50 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
+              onClick={() => {
+                setIsHelpGuideOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-indigo-950/80 to-purple-950/80 hover:from-indigo-900 hover:to-purple-900 border border-indigo-500/50 rounded-xl text-indigo-200 flex items-center justify-between transition-all cursor-pointer text-left"
             >
               <div className="flex items-center gap-2">
-                <span>🧠</span>
-                <span>{language === 'hindi' ? 'AI न्यूरल मेमोरी मैप' : 'AI Neural Memory Map'}</span>
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                <span className="font-bold">{language === 'hindi' ? '🤖 HansAI गाइड व पूरी जानकारी' : '🤖 HansAI Help & Feature Guide'}</span>
               </div>
-              <span className="text-[10px] opacity-70">Open →</span>
+              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.5 rounded font-mono">
+                Guide 📖
+              </span>
             </button>
 
+            {/* Public AI Rules & Safety Guidelines */}
             <button
-              onClick={() => { setActiveView('time-travel'); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-500/50 rounded-xl text-amber-300 flex items-center justify-between transition-all"
+              onClick={() => {
+                setIsAiRulesModalOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-slate-200 flex items-center justify-between transition-all cursor-pointer text-left"
             >
               <div className="flex items-center gap-2">
-                <span>⏳</span>
-                <span>{language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}</span>
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{language === 'hindi' ? '⚖️ पब्लिक AI नियम व सेफ्टी' : '⚖️ Public AI Rules & Terms'}</span>
               </div>
-              <span className="text-[10px] opacity-70">Open →</span>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono">
+                Rules 🛡️
+              </span>
             </button>
 
-            <button
-              onClick={() => { setActiveView('calculator'); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 rounded-xl text-cyan-300 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <span>🧮</span>
-                <span>{language === 'hindi' ? 'साइंटिफिक कैलकुलेटर' : 'Scientific Calculator'}</span>
-              </div>
-              <span className="text-[10px] opacity-70">Calc →</span>
-            </button>
-
-            <button
-              onClick={() => { setActiveView('affiliate-store'); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <span>🛍️</span>
-                <span>{language === 'hindi' ? 'पुस्तकें व अध्ययन सामग्री' : 'Books & Study Store'}</span>
-              </div>
-              <span className="text-[10px] opacity-70">Store →</span>
-            </button>
-
-            <button
-              onClick={() => { setActiveView('study-plan'); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-indigo-950/60 border border-slate-800 hover:border-indigo-500/40 rounded-xl text-indigo-300 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <span>🚀</span>
-                <span>Syllabus Complete Strategy & Roadmap</span>
-              </div>
-              <span className="text-[10px] opacity-70">Syllabus →</span>
-            </button>
-
-            <button
-              onClick={() => { setActiveView('article-reader'); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <span>🎙️</span>
-                <span>{language === 'hindi' ? 'आर्टिकल वाइस रीडर एवं ट्रांसलेटर' : 'Article Voice Reader & Translator'}</span>
-              </div>
-              <span className="text-[10px] opacity-70">{language === 'hindi' ? 'सुनें →' : 'Listen →'}</span>
-            </button>
-
-            <button
-              onClick={() => { setActiveView('history'); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 rounded-xl text-emerald-300 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <History className="w-4 h-4 text-emerald-300" />
-                <span>{language === 'hindi' ? 'गतिविधि एवं इतिहास' : 'My Activity & History'}</span>
-              </div>
-              <span className="text-[10px] opacity-70">Open →</span>
-            </button>
-
+            {/* App Share Button */}
             <button
               onClick={() => { setIsShareModalOpen(true); setIsHeaderMenuOpen(false); }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 rounded-xl text-cyan-300 flex items-center justify-between transition-all"
+              className="w-full p-2.5 bg-slate-900 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 rounded-xl text-cyan-300 flex items-center justify-between transition-all cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-cyan-300" />
-                <span>{language === 'hindi' ? 'ऐप शेयर करें' : 'Share App'}</span>
+                <Share2 className="w-4 h-4 text-cyan-300 shrink-0" />
+                <span>{language === 'hindi' ? 'ऐप दोस्तों के साथ शेयर करें' : 'Share HansAI App'}</span>
               </div>
               <span className="text-[10px] opacity-70">Share →</span>
             </button>
 
+            {/* Professional Admin Console (If Admin) */}
             {isAdmin && (
               <button
                 onClick={() => { handleOpenOwnerDashboard(); setIsHeaderMenuOpen(false); }}
-                className="w-full p-2.5 bg-slate-900 hover:bg-amber-950/60 border border-slate-800 hover:border-amber-500/40 rounded-xl text-amber-300 flex items-center justify-between transition-all"
+                className="w-full p-2.5 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 rounded-xl text-amber-300 flex items-center justify-between transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-2">
-                  <span>👑</span>
-                  <span>Owner Admin Dashboard</span>
+                  <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>{language === 'hindi' ? 'ओनर एडमिन कंसोल' : 'Owner Admin Console'}</span>
                 </div>
-                <span className="text-[10px] opacity-70">Admin →</span>
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 font-mono">
+                  ADMIN
+                </span>
               </button>
             )}
 
@@ -4998,7 +5124,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         )}
 
         {/* ACTIVE CANVAS VIEW */}
-        <div className={`flex-1 ${activeView === 'chat' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 min-h-0 ${activeView === 'chat' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
           
           {/* UNIVERSAL BACK BUTTON TOP BAR FOR ALL NON-CHAT SUB-VIEWS */}
           {activeView !== 'chat' && (
@@ -5028,7 +5154,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           
           {/* VIEW: CHAT BOT (CHATGPT & GEMINI STYLE WITH SIDEBAR & NON-SCROLLABLE HOME) */}
           {activeView === 'chat' && (
-            <div className="h-[calc(100vh-4rem)] flex overflow-hidden w-full relative">
+            <div className="flex-1 min-h-0 flex overflow-hidden w-full relative">
               
               {/* LEFT SIDEBAR (ChatGPT / Gemini style side search & history bar) */}
               <div className={`w-72 sm:w-80 border-r border-slate-850/80 bg-[#060913] flex flex-col justify-between flex-shrink-0 transition-all duration-300 z-30 ${
@@ -5070,13 +5196,28 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       startNewChat();
                       if (window.innerWidth < 1024) setSidebarOpen(false);
                     }}
-                    className="w-full py-2.5 px-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-550 hover:to-indigo-650 text-white rounded-xl font-bold text-xs flex items-center justify-between transition-all shadow-md shadow-indigo-600/15 cursor-pointer border-none"
+                    className="w-full py-2.5 px-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-550 hover:to-indigo-650 text-white rounded-xl font-bold text-xs flex items-center justify-between transition-all shadow-md shadow-indigo-600/15 cursor-pointer border-none active:scale-98"
                   >
                     <div className="flex items-center gap-2">
                       <Plus className="w-4 h-4" />
-                      <span>{language === 'hindi' ? "नया चैट" : "New Chat"}</span>
+                      <span>{language === 'hindi' ? "+ नया चैट शुरू करें" : "+ New Chat"}</span>
                     </div>
-                    <span className="text-[9px] bg-indigo-900/80 px-1.5 py-0.5 rounded text-indigo-200 font-mono">Fresh</span>
+                    <span className="text-[9px] bg-indigo-900/80 px-1.5 py-0.5 rounded text-indigo-200 font-mono">ChatGPT-Style</span>
+                  </button>
+
+                  {/* Public AI Rules & Safety Button in Sidebar */}
+                  <button
+                    onClick={() => {
+                      setIsAiRulesModalOpen(true);
+                      if (window.innerWidth < 1024) setSidebarOpen(false);
+                    }}
+                    className="w-full py-2 px-3 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 rounded-xl text-amber-200 text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">⚖️</span>
+                      <span className="truncate">{language === 'hindi' ? "पब्लिक AI नियम व गाइडलाइन्स" : "AI Public Rules & Guidelines"}</span>
+                    </div>
+                    <span className="text-[8px] bg-amber-500/30 text-amber-200 px-1.5 py-0.5 rounded font-black uppercase">Rules</span>
                   </button>
 
                   {/* Sidebar Search Bar */}
@@ -5103,47 +5244,150 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Middle Scrollable list: Saved Chats & Quick Features */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-4">
                   
-                  {/* Saved Chat History / Recent Chats */}
-                  <div className="space-y-1.5">
+                  {/* Saved Chat History / Recent Chats (Grouped by Date - ChatGPT Style) */}
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
-                      <span>{language === 'hindi' ? "हाल के चैट" : "Recent Chats"}</span>
-                      <span className="text-[9px] bg-slate-800 px-1.5 py-0.2 rounded text-slate-400">{savedChats.length}</span>
+                      <span>{language === 'hindi' ? "चैट इतिहास (History)" : "Chat History"}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] bg-slate-800 px-1.5 py-0.2 rounded text-slate-400">{savedChats.length}</span>
+                        {savedChats.length > 0 && (
+                          <button
+                            onClick={() => setIsClearAllChatsModalOpen(true)}
+                            className="text-[9px] text-rose-400 hover:text-rose-300 transition-colors bg-transparent border-none cursor-pointer"
+                            title="Clear All Chat History"
+                          >
+                            Clear All
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {filteredSavedChats.length === 0 ? (
                       <div className="p-3 text-center text-[10px] text-slate-500 bg-[#080C16] border border-dashed border-slate-850 rounded-xl">
-                        {savedChats.length === 0 ? "No saved chat history yet." : "No matching chats found."}
+                        {savedChats.length === 0 
+                          ? (language === 'hindi' ? "कोई सहेजी गई चैट नहीं है। नया सवाल पूछें!" : "No chat history yet. Ask a question to start!") 
+                          : "No matching chats found."}
                       </div>
                     ) : (
-                      <div className="space-y-1 max-h-48 overflow-y-auto">
-                        {filteredSavedChats.map((sess) => (
-                          <div
-                            key={sess.id}
-                            className="group flex items-center justify-between p-2 rounded-xl bg-[#090D18] hover:bg-[#121829] border border-slate-850 hover:border-indigo-500/30 transition-all text-left cursor-pointer"
-                          >
-                            <button
-                              onClick={() => {
-                                loadSavedChat(sess);
-                                if (window.innerWidth < 1024) setSidebarOpen(false);
-                              }}
-                              className="flex-1 text-[11px] font-semibold text-slate-300 hover:text-indigo-300 truncate text-left flex items-center gap-1.5 bg-transparent border-none cursor-pointer"
-                            >
-                              <MessageSquare className="w-3 h-3 text-indigo-400 flex-shrink-0" />
-                              <span className="truncate">{sess.title}</span>
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSavedChats(prev => prev.filter(s => s.id !== sess.id));
-                                showToast("Chat deleted", "info");
-                              }}
-                              className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 text-xs transition-opacity bg-transparent border-none cursor-pointer"
-                              title="Delete Chat"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        ))}
+                      <div className="space-y-2.5">
+                        {(() => {
+                          const { pinned, today, yesterday, last7Days, older } = groupChatsByDate(filteredSavedChats);
+                          const renderChatGroup = (groupLabel: string, chats: any[]) => {
+                            if (!chats || chats.length === 0) return null;
+                            return (
+                              <div key={groupLabel} className="space-y-1">
+                                <div className="text-[9px] font-black text-slate-500 uppercase tracking-wider px-1.5 pt-1">
+                                  {groupLabel}
+                                </div>
+                                <div className="space-y-1">
+                                  {chats.map((sess) => {
+                                    const isActive = currentChatSessionId === sess.id;
+                                    const isEditing = editingChatId === sess.id;
+                                    return (
+                                      <div
+                                        key={sess.id}
+                                        className={`group relative flex items-center justify-between p-2 rounded-xl border transition-all text-left cursor-pointer ${
+                                          isActive 
+                                            ? 'bg-indigo-950/70 border-indigo-500/50 shadow-md shadow-indigo-950/50 text-white' 
+                                            : 'bg-[#090D18] hover:bg-[#121829] border-slate-850 hover:border-indigo-500/30 text-slate-300'
+                                        }`}
+                                        onClick={() => {
+                                          if (!isEditing) {
+                                            loadSavedChat(sess);
+                                            if (window.innerWidth < 1024) setSidebarOpen(false);
+                                          }
+                                        }}
+                                      >
+                                        {isEditing ? (
+                                          <div className="flex items-center gap-1 w-full" onClick={(e) => e.stopPropagation()}>
+                                            <input
+                                              type="text"
+                                              value={editingChatTitle}
+                                              onChange={(e) => setEditingChatTitle(e.target.value)}
+                                              onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleRenameChat(sess.id, editingChatTitle);
+                                                if (e.key === 'Escape') setEditingChatId(null);
+                                              }}
+                                              autoFocus
+                                              className="w-full text-[11px] bg-slate-900 border border-indigo-500 rounded px-1.5 py-0.5 text-white focus:outline-none"
+                                            />
+                                            <button
+                                              onClick={() => handleRenameChat(sess.id, editingChatTitle)}
+                                              className="p-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[10px] cursor-pointer"
+                                              title="Save Title"
+                                            >
+                                              ✓
+                                            </button>
+                                            <button
+                                              onClick={() => setEditingChatId(null)}
+                                              className="p-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-[10px] cursor-pointer"
+                                              title="Cancel"
+                                            >
+                                              ✕
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <>
+                                            <div className="flex-1 text-[11px] font-semibold truncate flex items-center gap-1.5 pr-1">
+                                              <MessageSquare className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-indigo-300' : 'text-slate-400 group-hover:text-indigo-400'}`} />
+                                              <span className="truncate">{sess.title || 'Chat Session'}</span>
+                                              {sess.isPinned && (
+                                                <span className="text-[10px] text-amber-400 ml-1">📌</span>
+                                              )}
+                                            </div>
+
+                                            {/* Action icons on hover or active */}
+                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                              {/* Pin/Unpin */}
+                                              <button
+                                                onClick={() => handlePinChat(sess.id)}
+                                                className={`p-1 text-xs hover:text-amber-400 bg-transparent border-none cursor-pointer ${sess.isPinned ? 'text-amber-400' : 'text-slate-500'}`}
+                                                title={sess.isPinned ? "Unpin Chat" : "Pin to Top"}
+                                              >
+                                                📌
+                                              </button>
+
+                                              {/* Rename button */}
+                                              <button
+                                                onClick={() => {
+                                                  setEditingChatId(sess.id);
+                                                  setEditingChatTitle(sess.title || '');
+                                                }}
+                                                className="p-1 text-slate-500 hover:text-indigo-300 text-xs bg-transparent border-none cursor-pointer"
+                                                title="Rename Chat"
+                                              >
+                                                ✏️
+                                              </button>
+
+                                              {/* Delete button */}
+                                              <button
+                                                onClick={() => deleteSavedChat(sess.id)}
+                                                className="p-1 text-slate-500 hover:text-rose-400 text-xs bg-transparent border-none cursor-pointer"
+                                                title="Delete Chat"
+                                              >
+                                                🗑️
+                                              </button>
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          };
+
+                          return (
+                            <>
+                              {renderChatGroup(language === 'hindi' ? "📌 पिन किए गए" : "📌 Pinned", pinned)}
+                              {renderChatGroup(language === 'hindi' ? "आज (Today)" : "Today", today)}
+                              {renderChatGroup(language === 'hindi' ? "कल (Yesterday)" : "Yesterday", yesterday)}
+                              {renderChatGroup(language === 'hindi' ? "पिछले 7 दिन (Previous 7 Days)" : "Previous 7 Days", last7Days)}
+                              {renderChatGroup(language === 'hindi' ? "पुराने चैट (Older)" : "Older", older)}
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
@@ -5218,6 +5462,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 block">
                       Workspace & Creator
                     </span>
+
                     {isAdmin && (
                       <button
                         onClick={() => {
@@ -5227,10 +5472,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         className="w-full flex items-center justify-between p-2 rounded-xl text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all text-left text-xs font-bold cursor-pointer"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-sm">👑</span>
+                          <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
                           <span>Owner Admin Console</span>
                         </div>
-                        <span className="text-[9px] bg-amber-500/30 px-1.5 py-0.5 rounded text-amber-200">Admin</span>
+                        <span className="text-[9px] bg-amber-500/30 px-1.5 py-0.5 rounded text-amber-200 font-mono">Admin</span>
                       </button>
                     )}
 
@@ -5365,6 +5610,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             ? 'ऑल-इन-वन AI शिक्षा, सरकारी परीक्षा तैयारी एवं लाइव साइंस-मेमोरी लैब' 
                             : 'All-in-one AI education, exam prep & interactive science-memory lab'}
                         </p>
+
+                        {/* Public AI Rules & Safety Badge Banner */}
+                        <button
+                          onClick={() => setIsAiRulesModalOpen(true)}
+                          className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 hover:text-amber-200 text-[11px] font-bold transition-all cursor-pointer shadow-sm active:scale-95"
+                          title="पब्लिक AI उपयोग के नियम व सुरक्षा दिशानिर्देश देखें"
+                        >
+                          <span>⚖️</span>
+                          <span>{language === 'hindi' ? 'पब्लिक AI उपयोग के नियम व दिशानिर्देश (AI Rules)' : 'Public AI Usage Rules & Safety Guidelines'}</span>
+                          <span className="text-[9px] bg-amber-400/20 text-amber-200 px-1.5 py-0.2 rounded font-black uppercase">Read</span>
+                        </button>
                       </div>
 
                       {/* ROW 1: 4 AI ADVANCED POWER TOOLS */}
@@ -5479,6 +5735,23 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
 
                         <button
+                          onClick={() => setActiveView('steno')}
+                          className="p-2.5 sm:p-3 bg-gradient-to-br from-amber-950/80 via-orange-950/50 to-slate-900 border border-amber-500/60 hover:border-amber-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm hover:shadow-amber-500/20 active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 text-base">
+                            ✍️
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-amber-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'स्टेनो मास्टर प्रो' : 'Steno Master Studio'}
+                            </div>
+                            <div className="text-[10px] text-slate-300 truncate">
+                              {language === 'hindi' ? 'शॉर्टहैंड व डिक्टेशन' : 'Shorthand & Speed Drill'}
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
                           onClick={() => setIsAppLauncherOpen(true)}
                           className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-cyan-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
@@ -5515,29 +5788,55 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                     </div>
                   ) : (
-                    /* ACTIVE CHAT MESSAGES THREAD */
+                    /* ACTIVE CHAT MESSAGES THREAD (ChatGPT Style Header & Session Bar) */
                     <div className="flex-1 space-y-6 w-full max-w-5xl mx-auto mb-3 overflow-y-auto pr-1">
-                      {/* Sticky Top Bar to return to Home Page */}
-                      <div className="sticky top-0 z-20 bg-[#060913]/95 backdrop-blur-md py-2 px-3 mb-2 rounded-xl border border-sky-500/40 flex items-center justify-between shadow-lg">
-                        <button
-                          onClick={() => {
-                            setActiveView('chat');
-                            startNewChat();
-                          }}
-                          className="p-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-md active:scale-95 border-none flex items-center justify-center"
-                          title="Return to main chat"
-                        >
-                          <ArrowLeft className="w-4 h-4 text-white" />
-                        </button>
+                      {/* Sticky Top Bar for active chat (ChatGPT style session navigation & title) */}
+                      <div className="sticky top-0 z-20 bg-[#060913]/95 backdrop-blur-md py-2 px-3 mb-2 rounded-xl border border-indigo-500/40 flex items-center justify-between shadow-lg">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <button
+                            onClick={() => {
+                              setActiveView('chat');
+                              startNewChat();
+                            }}
+                            className="p-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-md active:scale-95 border-none flex items-center justify-center shrink-0"
+                            title="Return to main chat home"
+                          >
+                            <ArrowLeft className="w-4 h-4 text-white" />
+                          </button>
+
+                          <div className="text-left overflow-hidden">
+                            <div className="text-xs font-extrabold text-white truncate flex items-center gap-1.5">
+                              <span>💬</span>
+                              <span className="truncate">
+                                {(() => {
+                                  const currentSession = savedChats.find(s => s.id === currentChatSessionId);
+                                  return currentSession?.title || (chatMessages[0]?.content?.slice(0, 35) + '...') || 'Active Chat Session';
+                                })()}
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate hidden sm:block">
+                              {chatMessages.length} {chatMessages.length === 1 ? 'message' : 'messages'} in session
+                            </div>
+                          </div>
+                        </div>
 
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={startNewChat}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-700/80 shadow-sm"
-                            title="Start New Chat"
+                            onClick={() => setIsAiRulesModalOpen(true)}
+                            className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/35 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+                            title="पब्लिक AI उपयोग के नियम व गाइडलाइन्स देखें"
                           >
-                            <Plus className="w-3.5 h-3.5 text-sky-400" />
-                            <span>New Chat</span>
+                            <span>⚖️</span>
+                            <span>Rules</span>
+                          </button>
+
+                          <button
+                            onClick={startNewChat}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-550 hover:to-indigo-650 text-white rounded-xl text-xs font-bold transition-all cursor-pointer border-none shadow-md shadow-indigo-600/20 active:scale-95"
+                            title="Start New Chat Session"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>+ New Chat</span>
                           </button>
                         </div>
                       </div>
@@ -5593,6 +5892,14 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           {/* Msg Actions Console */}
                           {msg.role === 'assistant' && (
                             <div className="flex items-center gap-3 pl-10 text-[10px] text-slate-500 font-medium select-none pt-1">
+                              <button
+                                onClick={() => handleDownloadMessagePdf(msg)}
+                                className="flex items-center gap-1 hover:text-cyan-300 transition-colors py-0.5 px-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-md cursor-pointer font-bold"
+                                title="Download this answer/notes directly as PDF"
+                              >
+                                <Download className="w-3 h-3 text-cyan-400" />
+                                <span>📥 PDF / डाउनलोड</span>
+                              </button>
                               <button
                                 onClick={() => handleCopyMessage(msg.id, msg.content)}
                                 className="flex items-center gap-1 hover:text-indigo-400 transition-colors py-0.5 px-1.5 hover:bg-slate-800/40 rounded-md border-none bg-transparent cursor-pointer text-slate-400"
@@ -5920,8 +6227,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <Send className="w-4 h-4" />
                       </button>
                     </form>
-                    <div className="text-center text-[10px] text-slate-500 mt-2 leading-none">
-                      AI Digital Teacher strictly built for rapid learning and discipline. Ask questions freely!
+                    <div className="text-center text-[10px] text-slate-500 mt-2 px-2 select-none">
+                      <span>HansAI can make mistakes. Verify important academic facts & formulas.</span>
                     </div>
                   </div>
 
@@ -6936,8 +7243,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <QuizMistakeRemediationModal
                   isOpen={!!activeMistakeModal}
                   onClose={() => setActiveMistakeModal(null)}
-                  question={activeMistakeModal.question}
-                  selectedOptionIndex={activeMistakeModal.selectedOptionIdx}
+                  mistake={activeMistakeModal}
                   onSaveToNotebook={(item) => handleSaveMistakeToNotebook(item)}
                 />
               )}
@@ -7865,7 +8171,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           )}
 
           {/* VIEW: STUDY ROADMAP */}
-          {activeView === 'process-map' && (
+          {activeView === 'process' && (
             <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
               <div className="border-b border-slate-800 pb-4 text-left">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -7931,7 +8237,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           <div>
                             <span className="text-[9px] uppercase tracking-wider font-extrabold text-indigo-400 font-mono block">STAGE {step.id}</span>
                             <h3 className="text-sm font-bold text-white mt-0.5">{step.title}</h3>
-                            <span className="text-[10px] text-slate-450 text-slate-400 italic block">{step.subtitle}</span>
+                            <span className="text-[10px] text-slate-450 text-slate-400 italic block">⏱️ {step.duration}</span>
                           </div>
                           
                           <span className={`px-2.5 py-1 text-[9px] uppercase tracking-wider font-extrabold font-mono rounded-lg border inline-block ${
@@ -7950,7 +8256,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] pt-1 pt-2">
                           <div className="p-2.5 bg-slate-950/45 border border-slate-850 rounded-xl leading-relaxed">
                             <strong className="text-indigo-400 block mb-0.5 font-bold uppercase tracking-wider text-[9px] font-mono">Expert Advice / धांसू टिप्स</strong>
-                            <span className="text-slate-350 text-slate-300">{step.tips}</span>
+                            <span className="text-slate-350 text-slate-300">{step.desc}</span>
                           </div>
                           <div className="p-2.5 bg-slate-950/45 border border-slate-850 rounded-xl leading-normal flex items-center">
                             <span className="text-slate-450 text-slate-400 italic">
@@ -10162,8 +10468,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 animate-fade-in text-left">
               {!isOwnerAuthenticated ? (
                 <div className="max-w-md mx-auto bg-[#0F1626] border border-amber-500/30 p-8 rounded-3xl space-y-5 text-center shadow-2xl">
-                  <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto text-2xl">
-                    👑
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/10">
+                    <ShieldCheck className="w-8 h-8 text-amber-400" />
                   </div>
                   <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                     Owner Administration Lock / ऑनर एडमिन लॉगिन
@@ -10196,6 +10502,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     setIsOwnerAuthenticated={setIsOwnerAuthenticated}
                     feedbacks={feedbacks}
                     handleDeleteLogItem={handleDeleteLogItem}
+                    setSelectedOwnerUserForBiodata={setSelectedUserBiodata}
+                    setShowOwnerBiodataModal={(val) => { if (!val) setSelectedUserBiodata(null); }}
                     addAdminAuditLog={addAdminAuditLog}
                     showToast={showToast}
                     activeHeaderBanner={activeHeaderBanner}
@@ -10380,10 +10688,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                       {isGuest ? (language === 'hindi' ? 'लिंक दर्शक' : 'Guest Link Visitor') : (language === 'hindi' ? 'लॉग इन / पंजीकृत छात्र 🟢' : 'Logged In Student 🟢')}
                                     </span>
                                   </td>
-                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.deviceInfo || usr.device || "Mobile/Desktop"}</td>
-                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.registeredAt ? new Date(usr.registeredAt).toLocaleDateString() : (usr.createdAt || "Recent")}</td>
-                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.lastActiveAt ? new Date(usr.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (usr.lastActive || "Now")}</td>
-                                  <td className="py-2.5 px-3 text-center text-indigo-400 font-mono font-bold">{usr.promptCount ?? usr.queryCount ?? 0}</td>
+                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.deviceInfo || (usr as any).device || "Mobile/Desktop"}</td>
+                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.registeredAt ? new Date(usr.registeredAt).toLocaleDateString() : ((usr as any).createdAt || "Recent")}</td>
+                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.lastActiveAt ? new Date(usr.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ((usr as any).lastActive || "Now")}</td>
+                                  <td className="py-2.5 px-3 text-center text-indigo-400 font-mono font-bold">{usr.promptCount ?? (usr as any).queryCount ?? 0}</td>
                                   <td className="py-2.5 px-3 text-right">
                                     <button
                                       onClick={() => {
@@ -10693,7 +11001,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           {feedbacks.map((fb) => (
                             <tr key={fb.id} className="hover:bg-slate-800/10">
                               <td className="py-3 px-3 text-slate-300 font-mono text-[11px]">{fb.user}</td>
-                              <td className="py-3 px-3 text-amber-400 whitespace-nowrap">{"★".repeat(fb.stars)}</td>
+                              <td className="py-3 px-3 text-amber-400 whitespace-nowrap">{"★".repeat((fb as any).stars || fb.ratingExperience || fb.ratingAccuracy || 5)}</td>
                               <td className="py-3 px-3 text-slate-200 text-left max-w-xs">{fb.comment}</td>
                               <td className="py-3 px-3 text-slate-500 text-right text-[10px] font-mono">{fb.date}</td>
                             </tr>
@@ -10846,18 +11154,199 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
           {/* VIEW: DIGITAL BOOK READER & LIBRARY */}
           {activeView === 'book-reader' && (
-            <GlobalBookReader
-              showToast={showToast}
-              language={language}
-              onBackToChat={() => setActiveView('chat')}
-            />
+            <ErrorBoundary fallbackTitle="Digital Book Reader" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <GlobalBookReader
+                  showToast={showToast}
+                  language={language}
+                  onBackToChat={() => setActiveView('chat')}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: DEDICATED STENO MASTER STUDIO */}
+          {activeView === 'steno' && (
+            <ErrorBoundary fallbackTitle="Steno Master Studio" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <DedicatedStenoMasterStudio
+                  showToast={showToast}
+                  language={language}
+                  onBackToChat={() => setActiveView('chat')}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: PUBLIC LAUNCH & LEGAL COMPLIANCE HUB */}
+          {activeView === 'launch-hub' && (
+            <ErrorBoundary fallbackTitle="Public Launch Hub" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <PublicLaunchHubView
+                  showToast={showToast}
+                  language={language}
+                  onBackToChat={() => setActiveView('chat')}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: AI STUDY PLAN & ROADMAP */}
+          {(activeView === 'planner' || activeView === 'study-plan') && (
+            <ErrorBoundary fallbackTitle="AI Study Planner" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <StudyPlanView user={user} onExportPdf={handleExportPdf} showToast={showToast} language={language} />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: AFFILIATE STORE & SARKARI PRODUCTS */}
+          {(activeView === 'affiliate-store' || activeView === 'affiliate' || activeView === 'sarkari-result') && (
+            <ErrorBoundary fallbackTitle="Affiliate Store" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <AffiliateStoreView user={user} showToast={showToast} />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: AI FLASHCARDS DECK */}
+          {activeView === 'flashcards' && (
+            <ErrorBoundary fallbackTitle="AI Flashcards Deck" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <FlashcardsView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: PHOTO DOUBT SOLVER & OCR */}
+          {activeView === 'photo-doubt' && (
+            <ErrorBoundary fallbackTitle="Photo Doubt Solver" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <PhotoDoubtView onExportPdf={handleExportPdf} showToast={showToast} />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: HANDWRITTEN NOTES OCR & QUIZ SCANNER */}
+          {(activeView === 'notes-ocr' || activeView === 'photo-ocr') && (
+            <ErrorBoundary fallbackTitle="Notes OCR Scanner" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <NotesOcrView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: ARTICLE VOICE READER & TRANSLATOR */}
+          {activeView === 'article-reader' && (
+            <ErrorBoundary fallbackTitle="Article Voice Reader" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <ArticleVoiceReader onBackToChat={() => setActiveView('chat')} showToast={showToast} language={language} />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: SECURITY SYSTEM AUDIT HUB */}
+          {activeView === 'security' && (
+            <ErrorBoundary fallbackTitle="Security Hub" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <SecurityHubView user={user} showToast={showToast} />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: FILE FORMAT CONVERTER */}
+          {activeView === 'file-converter' && (
+            <ErrorBoundary fallbackTitle="File Converter" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <FileConverterView 
+                  showToast={showToast} 
+                  language={language} 
+                  onBack={() => setActiveView('chat')} 
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: WEATHER & CLIMATE ALERT CENTER */}
+          {activeView === 'weather-alerts' && (
+            <ErrorBoundary fallbackTitle="Weather Alerts" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <WeatherAlertView 
+                  showToast={showToast} 
+                  language={language} 
+                  onBack={() => setActiveView('chat')} 
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: AI NEURAL KNOWLEDGE SYNAPSE & RETENTION MAP */}
+          {activeView === 'neural-map' && (
+            <ErrorBoundary fallbackTitle="Neural Knowledge Map" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <NeuralMemoryMapView 
+                  showToast={showToast} 
+                  language={language} 
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: AI HISTORICAL TIME-TRAVEL SIMULATOR */}
+          {activeView === 'time-travel' && (
+            <ErrorBoundary fallbackTitle="Time Travel Simulator" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <TimeTravelSimulatorView 
+                  showToast={showToast} 
+                  language={language} 
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: AI SMART MNEMONICS TRICK GENERATOR */}
+          {activeView === 'mnemonics' && (
+            <ErrorBoundary fallbackTitle="Mnemonics Generator" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <MnemonicsTrickGeneratorView 
+                  showToast={showToast} 
+                  language={language} 
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: INTERACTIVE SCIENCE & FORMULA PLAYGROUND LAB */}
+          {activeView === 'science-lab' && (
+            <ErrorBoundary fallbackTitle="Science Formula Lab" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <ScienceFormulaLabView 
+                  showToast={showToast} 
+                  language={language} 
+                />
+              </div>
+            </ErrorBoundary>
           )}
 
         </div>
 
-        {/* BOTTOM MINIMAL FOOTER BAR */}
-        <footer className="py-4 text-center text-[10px] text-slate-600 uppercase tracking-wider border-t border-slate-800/60 bg-[#090D16]/85">
-          <span>Digital Teacher Ecosystem • Built for All Indian Aspirants & Competitive Exams</span>
+        {/* BOTTOM COMPLIANCE & LEGAL FOOTER BAR */}
+        <footer className="py-2.5 px-4 border-t border-slate-800/80 bg-[#060914] text-xs text-slate-400 shrink-0">
+          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-bold text-slate-300">
+                HansAI Ecosystem • By Hanslal Pal • 100% Student Data Encrypted
+              </span>
+            </div>
+            
+            <button
+              onClick={() => setIsAiRulesModalOpen(true)}
+              className="text-amber-400 hover:text-amber-300 font-bold transition-colors flex items-center gap-1.5 cursor-pointer bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1 rounded-lg border border-amber-500/30 text-[11px]"
+            >
+              <span>⚖️ Public AI Usage Rules & Guidelines</span>
+            </button>
+          </div>
         </footer>
 
       {/* SETTINGS MODAL DIALOG */}
@@ -10993,6 +11482,62 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* AI Chat Assistant & Feature Guide inside Settings */}
+              <div className="border-t border-slate-800/60 pt-3 space-y-2">
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">
+                  🤖 {language === 'hindi' ? 'AI चैट असिस्टेंट व हेल्प गाइड' : 'AI Chat Assistant & Feature Guide'}
+                </span>
+                <button
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    setIsHelpGuideOpen(true);
+                  }}
+                  className="w-full py-2.5 px-3 bg-gradient-to-r from-indigo-950/80 via-purple-950/80 to-slate-900 border border-indigo-500/40 hover:border-indigo-400 rounded-xl text-indigo-200 hover:text-white text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-sm active:scale-98"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                    <span>{language === 'hindi' ? '🤖 HansAI गाइड व सहायता केंद्र' : '🤖 HansAI Help & Feature Guide'}</span>
+                  </div>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">
+                    Guide 📖
+                  </span>
+                </button>
+              </div>
+
+              {/* Official Community, Helpline & Support Section */}
+              <div className="border-t border-slate-800/60 pt-3 space-y-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  💬 {language === 'hindi' ? 'सपोर्ट व कम्युनिटी (हेल्पलाइन)' : 'Support & Community Helpline'}
+                </span>
+                <a
+                  href="https://chat.whatsapp.com/F0EfHMyUK6KJYedVpZqgXR?s=sh&p=a&mlu=4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="w-full py-2 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-300 hover:text-emerald-200 text-xs font-bold flex items-center justify-between transition-all no-underline cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{language === 'hindi' ? 'आधिकारिक WhatsApp ग्रुप जॉइन करें' : 'Join WhatsApp Community'}</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 font-mono">Join 💬</span>
+                </a>
+
+                <a
+                  href="https://chat.whatsapp.com/F0EfHMyUK6KJYedVpZqgXR?s=sh&p=a&mlu=4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="w-full py-2 px-3 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-indigo-300 hover:text-indigo-200 text-xs font-bold flex items-center justify-between transition-all no-underline cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <PhoneCall className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>{language === 'hindi' ? 'छात्र सहायता व हेल्पलाइन' : 'Student Helpline & 24x7 Support'}</span>
+                  </div>
+                  <span className="text-[10px] text-indigo-400 font-mono">Help 📞</span>
+                </a>
               </div>
             </div>
 
@@ -11312,7 +11857,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 { id: 'map', title: 'GIS & Mapping Visualizer', desc: 'नक्शा और जियोग्राफी टूल', icon: '🗺️', badge: 'REAL-TIME GIS' },
                 { id: 'quiz', title: 'Interactive Live Quiz', desc: 'लाइव टेस्ट रूम', icon: '🧠', badge: 'PRACTICE' },
                 { id: 'notes', title: 'Shorthand & Formula Notes', desc: 'सूत्र व नियम नोट्स', icon: '📝', badge: 'PERSONAL' },
-                ...(isAdmin ? [{ id: 'owner-dashboard', title: 'Scholar Founder Hub', desc: 'संस्थापक कंसोल', icon: '👑', badge: 'ADMIN' }] : []),
+                ...(isAdmin ? [{ id: 'owner-dashboard', title: 'Scholar Founder Hub', desc: 'संस्थापक कंसोल', icon: '🛡️', badge: 'ADMIN' }] : []),
               ].map((item) => (
                 <button
                   key={item.id}
@@ -11988,91 +12533,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         </div>
       )}
 
-      {/* VIEW: AI STUDY PLAN & ROADMAP */}
-      {(activeView === 'planner' || activeView === 'study-plan') && (
-        <StudyPlanView user={user} onExportPdf={handleExportPdf} showToast={showToast} language={language} />
-      )}
-
-      {/* VIEW: AFFILIATE STORE & SARKARI PRODUCTS */}
-      {(activeView === 'affiliate-store' || activeView === 'affiliate' || activeView === 'sarkari-result') && (
-        <AffiliateStoreView user={user} showToast={showToast} />
-      )}
-
-      {/* VIEW: AI FLASHCARDS DECK */}
-      {activeView === 'flashcards' && (
-        <FlashcardsView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
-      )}
-
-      {/* VIEW: PHOTO DOUBT SOLVER & OCR */}
-      {activeView === 'photo-doubt' && (
-        <PhotoDoubtView onExportPdf={handleExportPdf} showToast={showToast} />
-      )}
-
-      {/* VIEW: HANDWRITTEN NOTES OCR & QUIZ SCANNER */}
-      {(activeView === 'notes-ocr' || activeView === 'photo-ocr') && (
-        <NotesOcrView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
-      )}
-
-      {/* VIEW: ARTICLE VOICE READER & TRANSLATOR */}
-      {activeView === 'article-reader' && (
-        <ArticleVoiceReader onBackToChat={() => setActiveView('chat')} showToast={showToast} language={language} />
-      )}
-
-      {/* VIEW: SECURITY SYSTEM AUDIT HUB */}
-      {activeView === 'security' && (
-        <SecurityHubView user={user} showToast={showToast} />
-      )}
-
-      {/* VIEW: FILE FORMAT CONVERTER (IMAGE TO PDF, PDF TO IMAGE, TEXT TO WORD) */}
-      {activeView === 'file-converter' && (
-        <FileConverterView 
-          showToast={showToast} 
-          language={language} 
-          onBack={() => setActiveView('chat')} 
-        />
-      )}
-
-      {/* VIEW: WEATHER & CLIMATE ALERT CENTER (CONSENT BASED) */}
-      {activeView === 'weather-alerts' && (
-        <WeatherAlertView 
-          showToast={showToast} 
-          language={language} 
-          onBack={() => setActiveView('chat')} 
-        />
-      )}
-
-      {/* VIEW: AI NEURAL KNOWLEDGE SYNAPSE & RETENTION MAP */}
-      {activeView === 'neural-map' && (
-        <NeuralMemoryMapView 
-          showToast={showToast} 
-          language={language} 
-        />
-      )}
-
-      {/* VIEW: AI HISTORICAL & CONSTITUTIONAL TIME-TRAVEL SIMULATOR */}
-      {activeView === 'time-travel' && (
-        <TimeTravelSimulatorView 
-          showToast={showToast} 
-          language={language} 
-        />
-      )}
-
-      {/* VIEW: AI SMART MNEMONICS & MEMORY TRICK GENERATOR */}
-      {activeView === 'mnemonics' && (
-        <MnemonicsTrickGeneratorView 
-          showToast={showToast} 
-          language={language} 
-        />
-      )}
-
-      {/* VIEW: INTERACTIVE SCIENCE & FORMULA PLAYGROUND LAB */}
-      {activeView === 'science-lab' && (
-        <ScienceFormulaLabView 
-          showToast={showToast} 
-          language={language} 
-        />
-      )}
-
       {/* ALL EXAMS SYLLABUS DIRECTORY MODAL */}
       <AllExamsSyllabusModal
         isOpen={isAllExamsSyllabusOpen}
@@ -12287,8 +12747,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             {/* Header */}
             <div className="flex items-start justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-orange-600 flex items-center justify-center text-xl shadow-lg shadow-amber-500/20">
-                  👑
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+                  <ShieldCheck className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h3 className="text-base font-extrabold text-white">Owner Admin Access Guard</h3>
@@ -12306,11 +12766,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             {/* Info Banner */}
             <div className="p-3.5 bg-amber-950/40 border border-amber-500/30 rounded-2xl text-xs text-amber-200 leading-relaxed space-y-1.5">
               <p className="font-bold flex items-center gap-1.5 text-amber-300">
-                <span>🛡️</span>
+                <ShieldCheck className="w-4 h-4 text-amber-400" />
                 <span>सुरक्षित ओनर डैशबोर्ड (Admin Console)</span>
               </p>
               <p className="text-[11px] text-slate-300">
-                सामान्य छात्र यूजर इस सेक्शन में प्रवेश नहीं कर सकते। ओनर कंसोल खोलने के लिए अपना <strong>Secret Owner PIN</strong> दर्ज करें (Owner Passcode: <strong>9988</strong> या <strong>1234</strong>)।
+                सामान्य छात्र यूजर इस सेक्शन में प्रवेश नहीं कर सकते। ओनर कंसोल खोलने के लिए अपना <strong>Secret Owner PIN</strong> दर्ज करें।
               </p>
             </div>
 
@@ -12325,7 +12785,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   setUser({ name: 'Hanslal Pal (Owner)', email: 'palhanslal4@gmail.com', role: 'owner' });
                   localStorage.setItem('hansai-user-session', JSON.stringify({ name: 'Hanslal Pal (Owner)', email: 'palhanslal4@gmail.com', role: 'owner' }));
                   setActiveView('owner-dashboard');
-                  showToast("👑 Owner Security PIN verified! Welcome Owner Hanslal Pal Ji.", "success");
+                  showToast("🛡️ Owner Security PIN verified! Welcome Hanslal Pal Ji.", "success");
                 } else {
                   showToast("❌ गलत Owner Secret PIN! केवल संस्थापक प्रवेश कर सकते हैं।", "warn");
                 }
@@ -12365,6 +12825,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </form>
           </div>
         </div>
+      )}
+
+      {/* 🧠 AI MISTAKE REMEDIATION CONCEPT MODAL */}
+      {activeMistakeModal && (
+        <QuizMistakeRemediationModal
+          isOpen={!!activeMistakeModal}
+          onClose={() => setActiveMistakeModal(null)}
+          mistake={activeMistakeModal}
+          onSaveToNotebook={(item) => handleSaveMistakeToNotebook(item)}
+          onRetry={handleRetryCurrentQuestion}
+        />
       )}
 
       {/* 🖼️ FULL SCREEN IMAGE VIEWER LIGHTBOX MODAL */}
@@ -12407,6 +12878,63 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 className="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-xl border border-slate-800"
                 referrerPolicy="no-referrer"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ⚖️ PUBLIC AI USAGE RULES & SAFETY GUIDELINES MODAL */}
+      <AiPublicRulesModal
+        isOpen={isAiRulesModalOpen}
+        onClose={() => setIsAiRulesModalOpen(false)}
+        language={language}
+      />
+
+      {/* 🤖 HANSAI COMPREHENSIVE AI FEATURE & HELP GUIDE MODAL */}
+      <HansAiHelpGuideModal
+        isOpen={isHelpGuideOpen}
+        onClose={() => setIsHelpGuideOpen(false)}
+        language={language}
+        onNavigateToFeature={(view) => {
+          setActiveView(view as any);
+        }}
+      />
+
+      {/* 🗑️ CLEAR ALL CHATS CONFIRMATION MODAL */}
+      {isClearAllChatsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-[#0b0f19] border border-rose-500/40 rounded-2xl max-w-sm w-full p-5 text-left shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl shrink-0">
+                ⚠️
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white">
+                  {language === 'hindi' ? 'सभी चैट इतिहास हटाएं?' : 'Clear all chat history?'}
+                </h4>
+                <p className="text-[11px] text-slate-400">
+                  {language === 'hindi' 
+                    ? 'यह सभी सहेजी गई बातचीत को हमेशा के लिए हटा देगा।' 
+                    : 'This will permanently delete all saved conversations.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsClearAllChatsModalOpen(false)}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold cursor-pointer border-none"
+              >
+                {language === 'hindi' ? 'रद्द करें' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={handleClearAllChats}
+                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-rose-950/40 cursor-pointer border-none"
+              >
+                {language === 'hindi' ? 'हाँ, सब हटाएं' : 'Yes, Delete All'}
+              </button>
             </div>
           </div>
         </div>

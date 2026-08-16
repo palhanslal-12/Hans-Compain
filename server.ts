@@ -1030,6 +1030,11 @@ app.post("/api/chat", async (req, res) => {
       customizedInstruction += `\n\nUSER NAME ADDRESSING RULE: The student's name is "${String(userName).trim()}". Kindly address them respectfully by name (e.g., "${String(userName).trim()} जी") when starting your response or explaining concepts on any topic.`;
     }
 
+    // PDF Generation and Notes Request Guideline
+    if (lastUserMessage.toLowerCase().includes("pdf") || lastUserMessage.toLowerCase().includes("पीडीएफ")) {
+      customizedInstruction += "\n\nPDF CREATION & EXPORT RULE: When the user asks to create or download a PDF ('pdf banao', 'pdf download', 'save as pdf', 'pdf chahiye', 'make pdf'), deliver comprehensive, beautifully structured study notes on their requested topic. NEVER tell them to manually press Ctrl+P or use browser print settings. Inform them with high warmth: 'आपके लिए संपूर्ण अध्ययन नोट्स तैयार हैं। आप इस संदेश के नीचे दिए गए 📥 'PDF डाउनलोड करें' बटन पर क्लिक करके सीधे अपने डिवाइस में सुरक्षित PDF फाइल डाउनलोड कर सकते हैं!'";
+    }
+
     const config: any = {
       systemInstruction: customizedInstruction,
       temperature: 0.7,
@@ -1816,6 +1821,37 @@ app.post("/api/audio-transcribe", async (req, res) => {
     console.error("Error in /api/audio-transcribe:", err);
     res.status(500).json({ error: err.message || "Failed to transcribe audio." });
   }
+});
+
+// Static Icon & Favicon Handlers for Googlebot & Browser Crawlers
+app.get('/favicon.ico', (req, res) => {
+  const icoPath = path.join(process.cwd(), 'public', 'favicon.ico');
+  if (fs.existsSync(icoPath)) {
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(icoPath);
+  }
+  res.sendStatus(404);
+});
+
+app.get('/logo.svg', (req, res) => {
+  const svgPath = path.join(process.cwd(), 'public', 'logo.svg');
+  if (fs.existsSync(svgPath)) {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(svgPath);
+  }
+  res.sendStatus(404);
+});
+
+app.get('/og-image.png', (req, res) => {
+  const ogPath = path.join(process.cwd(), 'public', 'og-image.png');
+  if (fs.existsSync(ogPath)) {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(ogPath);
+  }
+  res.sendStatus(404);
 });
 
 // Google Search Console Verification & SEO Endpoints

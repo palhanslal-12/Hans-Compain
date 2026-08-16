@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RefreshCw, Lock, Users, MessageSquare, Search, Trash2 } from 'lucide-react';
+import { RefreshCw, Lock, Users, MessageSquare, Search, Trash2, ShieldCheck } from 'lucide-react';
 
 export type AdminTabType =
   | 'dashboard'
@@ -33,8 +33,8 @@ interface AdminPanelProps {
   setIsOwnerAuthenticated: (val: boolean) => void;
   feedbacks: any[];
   handleDeleteLogItem: (id: string) => void;
-  setSelectedOwnerUserForBiodata: (user: any) => void;
-  setShowOwnerBiodataModal: (val: boolean) => void;
+  setSelectedOwnerUserForBiodata?: (user: any) => void;
+  setShowOwnerBiodataModal?: (val: boolean) => void;
   addAdminAuditLog: (action: string, category: string) => void;
   showToast: (msg: string, type: 'success' | 'error' | 'info') => void;
   activeHeaderBanner: string;
@@ -102,8 +102,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       {/* Top Bar Header */}
       <div className="bg-[#0F1626]/90 border border-amber-500/30 p-4 rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-400 text-slate-950 flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">
-            👑
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-amber-500/20">
+            <ShieldCheck className="w-6 h-6 text-slate-950" />
           </div>
           <div>
             <div className="flex items-center gap-2">

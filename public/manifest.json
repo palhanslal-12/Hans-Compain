@@ -1,16 +1,40 @@
 {
   "short_name": "HansAI",
-  "name": "HansAI Studio - Digital SSC & Shorthand Teacher",
+  "name": "Hans Compain - AI Academic & Career Companion",
   "icons": [
+    {
+      "src": "/favicon-48x48.png",
+      "type": "image/png",
+      "sizes": "48x48",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
     {
       "src": "/logo.svg",
       "type": "image/svg+xml",
-      "sizes": "192x192 512x512"
+      "sizes": "any"
     }
   ],
   "start_url": "/",
-  "background_color": "#090D16",
-  "theme_color": "#4F46E5",
+  "background_color": "#070D1D",
+  "theme_color": "#070D1D",
   "display": "standalone",
   "orientation": "portrait"
 }

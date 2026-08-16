@@ -1,0 +1,94 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Student profile record",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "QuizScore": {
+      "title": "QuizScore",
+      "description": "Student quiz score and assessment metrics",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "examCategory": { "type": "string" },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "percentage": { "type": "number" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "score", "totalQuestions"]
+    },
+    "MistakeItem": {
+      "title": "MistakeItem",
+      "description": "Student mistake registered for remediation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "question": { "type": "string" },
+        "userAnswer": { "type": "string" },
+        "correctAnswer": { "type": "string" },
+        "explanation": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "question", "correctAnswer"]
+    },
+    "StenoRecord": {
+      "title": "StenoRecord",
+      "description": "Shorthand practice transcription results",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "wpm": { "type": "number" },
+        "accuracy": { "type": "number" },
+        "passageSystem": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "wpm", "accuracy"]
+    },
+    "StudentFeedback": {
+      "title": "StudentFeedback",
+      "description": "Student feedback or content correction report",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["message"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile collection"
+    },
+    "/users/{userId}/quiz_scores/{scoreId}": {
+      "schema": "QuizScore",
+      "description": "User quiz assessment scores"
+    },
+    "/users/{userId}/mistakes/{mistakeId}": {
+      "schema": "MistakeItem",
+      "description": "User mistake notebook items"
+    },
+    "/users/{userId}/steno_records/{recordId}": {
+      "schema": "StenoRecord",
+      "description": "User shorthand practice and transcription records"
+    },
+    "/feedbacks/{feedbackId}": {
+      "schema": "StudentFeedback",
+      "description": "Platform bug and question correction reports"
+    }
+  }
+}
