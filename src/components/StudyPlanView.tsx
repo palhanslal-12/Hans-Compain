@@ -3,7 +3,7 @@ import { Target, Calendar, Clock, BookOpen, CheckCircle, Download, Sparkles, Ale
 
 interface StudyPlanProps {
   user: { name: string; email: string } | null;
-  onExportPdf: (title: string, elementId: string) => void;
+  onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
   language?: 'english' | 'hindi';
 }
@@ -199,7 +199,12 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
                 <p className="text-xs text-indigo-300 mt-0.5">Target: {days} Days | {dailyHours} Hours/day</p>
               </div>
               <button
-                onClick={() => onExportPdf(`${planResult.title || goal} - Study Plan`, 'study-plan-export-container')}
+                onClick={() => {
+                  const phasesText = (planResult.weeklyPhases || []).map((p: any, i: number) => `Phase ${i+1}: ${p.phaseName || ''} (${p.duration || ''})\nTopic: ${p.focusTopic || ''}\nDaily Targets: ${(p.dailyTargets || []).join(', ')}\nMilestone: ${p.milestoneGoal || ''}`).join('\n\n');
+                  const dailyRoutineText = (planResult.dailyTimeSlots || []).map((s: any) => `${s.time || ''} - ${s.activity || ''} (${s.subject || ''})`).join('\n');
+                  const rawContent = `Goal: ${planResult.title || goal}\nDuration: ${days} Days | ${dailyHours} Hours/day\n\nStrategy Overview:\n${planResult.overview || planResult.strategy || ''}\n\nWeekly Phases:\n${phasesText}\n\nDaily Routine:\n${dailyRoutineText}`;
+                  onExportPdf(`${planResult.title || goal} - Study Plan`, 'study-plan-export-container', rawContent);
+                }}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />

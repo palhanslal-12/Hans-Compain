@@ -9,7 +9,7 @@ interface Flashcard {
 }
 
 interface FlashcardsViewProps {
-  onExportPdf: (title: string, elementId: string) => void;
+  onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
   language?: 'english' | 'hindi';
 }
@@ -88,7 +88,10 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ onExportPdf, sho
             </p>
           </div>
           <button
-            onClick={() => onExportPdf("Academic Flashcards Deck", "flashcards-deck-export")}
+            onClick={() => {
+              const deckRaw = `Topic: ${topic}\nTotal Flashcards: ${cards.length}\n\n` + cards.map((c, i) => `[Card ${i+1}] - Category: ${c.category || 'General'}\nQuestion: ${c.front}\nAnswer / Solution: ${c.back}`).join('\n\n---\n\n');
+              onExportPdf(`Flashcards - ${topic}`, 'flashcards-deck-export', deckRaw);
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
           >
             <Download className="w-3.5 h-3.5" />

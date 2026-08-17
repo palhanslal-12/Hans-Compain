@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { RotateCcw, ArrowLeft } from 'lucide-react';
 
@@ -13,7 +13,7 @@ interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("HansAI Component Crash Caught:", error, errorInfo);
   }
 
@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
     }
   };
 
-  public render() {
+  public override render() {
     if (this.state.hasError) {
       return (
         <div className="w-full min-h-[60vh] flex flex-col items-center justify-center p-6 text-center animate-fade-in">
@@ -84,3 +84,4 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+

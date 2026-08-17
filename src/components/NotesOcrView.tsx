@@ -7,7 +7,7 @@ import {
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
 
 interface NotesOcrViewProps {
-  onExportPdf: (title: string, elementId: string) => void;
+  onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
   language?: 'english' | 'hindi';
 }
@@ -369,7 +369,7 @@ Explanation: Reason...]`,
 
                 {/* PDF Export Button */}
                 <button
-                  onClick={() => onExportPdf("HansAI_Scanned_Notes", "notes-ocr-export-node")}
+                  onClick={() => onExportPdf("HansAI_Scanned_Notes", "notes-ocr-export-node", summaryText)}
                   className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-slate-700"
                 >
                   <Download className="w-3.5 h-3.5 text-amber-400" />
@@ -395,7 +395,7 @@ Explanation: Reason...]`,
               </div>
             ) : summaryText ? (
               activeTab === 'summary' ? (
-                <div className="prose prose-invert prose-sm max-w-none text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-xs sm:text-sm bg-[#060913] p-4 rounded-xl border border-slate-800">
+                <div id="notes-ocr-export-node" className="prose prose-invert prose-sm max-w-none text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-xs sm:text-sm bg-[#060913] p-4 rounded-xl border border-slate-800">
                   {summaryText}
                 </div>
               ) : (

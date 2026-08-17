@@ -31,6 +31,7 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
 
   // Speech Mode & Voice Settings
   const [speechLang, setSpeechLang] = useState<'hi' | 'en'>('hi');
+  const [voiceGender, setVoiceGender] = useState<'male' | 'female'>('male');
   const [sentences, setSentences] = useState<string[]>([]);
   const [currentSentenceIdx, setCurrentSentenceIdx] = useState<number>(-1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -140,7 +141,7 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
 
       if (!res.ok) throw new Error("Fetch failed");
       const data = await res.json();
-      const extractedText = data.response || (isHindi ? "लेख लोड हो गया है।" : "Article text loaded successfully.");
+      const extractedText = data.reply || data.response || (isHindi ? "लेख लोड हो गया है।" : "Article text loaded successfully.");
       
       setInputText(extractedText);
       setTranslatedText(extractedText);
@@ -179,7 +180,7 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
 
       if (!res.ok) throw new Error("Translation failed");
       const data = await res.json();
-      const result = data.response || textToTranslate;
+      const result = data.reply || data.response || textToTranslate;
       setTranslatedText(result);
 
       if (selectedLanguage === 'hindi' || selectedLanguage === 'hinglish' || selectedLanguage === 'bhojpuri') {
@@ -226,6 +227,7 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
     setCurrentSentenceIdx(index);
 
     speakText(speechText, {
+      gender: voiceGender,
       rate: playbackRate,
       pitch: voicePitch,
       onEnd: () => {
@@ -422,6 +424,41 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
                 >
                   <Volume2 className="w-3.5 h-3.5" />
                   <span>{isHindi ? "अंग्रेजी" : "English"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Voice Gender Switcher (Male / Female) */}
+            <div className="space-y-1">
+              <label className="text-[10px] text-slate-400 font-medium block">
+                {isHindi ? "आवाज़ का लिंग (Voice Gender):" : "Voice Gender:"}
+              </label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  onClick={() => {
+                    setVoiceGender('male');
+                    showToast(isHindi ? "पुरुष आवाज़ (Male Voice) सक्रिय" : "Male Voice Active", "info");
+                  }}
+                  className={`py-2 rounded-xl border text-center font-bold cursor-pointer transition-all flex items-center justify-center gap-1.5 ${
+                    voiceGender === 'male'
+                      ? 'bg-indigo-600 text-white border-indigo-400 shadow-sm'
+                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                  }`}
+                >
+                  <span>👨 {isHindi ? "पुरुष (Male)" : "Male"}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setVoiceGender('female');
+                    showToast(isHindi ? "महिला आवाज़ (Female Voice) सक्रिय" : "Female Voice Active", "info");
+                  }}
+                  className={`py-2 rounded-xl border text-center font-bold cursor-pointer transition-all flex items-center justify-center gap-1.5 ${
+                    voiceGender === 'female'
+                      ? 'bg-pink-600 text-white border-pink-400 shadow-sm'
+                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                  }`}
+                >
+                  <span>👩 {isHindi ? "महिला (Female)" : "Female"}</span>
                 </button>
               </div>
             </div>

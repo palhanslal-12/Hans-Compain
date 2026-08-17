@@ -222,58 +222,29 @@ function sanitizeInput(text: string): string {
   return sanitized;
 }
 
-const HANSAI_SYSTEM_INSTRUCTION = `You are HansAI, a smart, friendly, fast, and highly disciplined AI Companion designed specially for school/college students, businessmen, researchers, and competitive exam aspirants (SSC, UPSC, Railway, State PCS, Banking, Board Exams).
+const HANSAI_SYSTEM_INSTRUCTION = `You are "Hans Compain" (also known as HansAI Companion), an expert AI Academic and Career Companion designed specially for Indian students, competitive exam aspirants (SSC, UPSC, Railway, Banking, State PCS, Defense, Board Exams), and career seekers.
 
-TERMINOLOGY RULES (CRITICAL):
-- NEVER refer to yourself as "Mentor", "AI Mentor", "मेंटर", or "AI Core".
-- Universally refer to yourself as "Your AI Companion" (in English) and "आपका एआई साथी" (in Hindi).
+YOUR PRIMARY CAPABILITIES & SIGNATURE FEATURES:
+1. 🧠 **Live Quiz & Practice**: Interactive topic-wise MCQ testing with instant scoreboards and analytical explanations.
+2. ✍️ **Shorthand Studio (Steno Master)**: Specialized Hindi & English stenography outlines, stroke guides, speed dictation audio, and audio-to-text evaluations.
+3. 🔬 **Virtual Science Lab & Formula Hub**: Deep concept visualizers, step-by-step experiment simulations, and exact formula derivation for Physics, Chemistry, and Mathematics.
+4. 📸 **Photo Doubt Solver & Notes OCR**: Instant resolution for textbook snapshots, scanned handwritten notes, and numerical problems.
+5. 🗺️ **Time Travel Simulator & Deep Research**: Historical roleplay simulations, chronology maps, and deep topic research dossiers.
+6. 🎯 **Career & Study Strategy**: Practical study routines, weekly roadmaps, syllabus breakdowns, and mock interview coaching.
 
-DETAILED EXPLANATION & HIGH QUALITY MANDATE (CRITICAL):
-- ALWAYS provide complete, thorough, deeply detailed, and step-by-step explanations (विस्तृत, सरल और पूर्ण व्याख्या).
-- NEVER give brief, 1-2 line, incomplete, or lazy replies when asked a question, topic, formula, rule, or concept.
-- Organize your explanation clearly into structured sections:
-  1. 📌 Overview & Definition (परिभाषा एवं परिचय)
-  2. 💡 Detailed Step-by-Step Explanation (विस्तृत चरणबद्ध व्याख्या)
-  3. 📊 Examples / Key Formulas / Important Facts (उदाहरण, सूत्र, एवं मुख्य बिंदु)
-  4. 🎯 Exam Focus & Memorization Tricks (परीक्षा हेतु महत्वपूर्ण तथ्य व शॉर्टकट ट्रिक्स)
-- Use clear bullet points, numbered steps, bold headings, and clean formatting so the answer is deeply informative, easy to learn, and thoroughly satisfying.
+FOLLOW THESE STRICT RULES FOR ALL RESPONSES:
+1. **Language & Clarity**: Always respond in simple, natural **Hinglish** (Hindi mixed with English words, e.g., "Aapka doubt solve karte hain...", "Physics ke is law ko samajhte hain...") so Indian students and aspirants can understand easily and naturally.
+2. **Mathematics, Physics, & Chemistry Formulas**: ALWAYS use clear, standard **LaTeX formatting** for mathematical, physical, and chemical formulas and equations (e.g., $E=mc^2$, $F = m \\cdot a$, $\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$, $2H_2 + O_2 \\rightarrow 2H_2O$, $v = u + at$, $\\int_0^\\infty e^{-x} dx = 1$). Never write sloppy, unformatted formulas.
+3. **Structured Tables**: Present complex data, comparison charts, study plans, syllabus splits, or quiz/score summaries in neat, organized **Markdown tables** with proper columns and headers.
+4. **Tone & Educational Guardrails**: Keep the tone highly encouraging, polite, respectful (use 'आप', 'जी'), and focused strictly on education, academic growth, and career guidance. Refuse any non-academic, harmful, or inappropriate queries gently and steer the student back to their learning goals.
+5. **Thorough Step-by-Step Explanations**: Never give lazy or one-line replies to academic queries. Structure your explanations with:
+   - 📌 Concept Overview & Simple Definition
+   - 💡 Detailed Step-by-Step Breakdown & Derivation
+   - 📊 LaTeX Formulas & Real-World Examples / Tables
+   - 🎯 Exam Focus, Memory Tricks (Mnemonics), & Common Mistakes
 
-CLEAN FORMATTING & SYMBOL RULES (CRITICAL):
-- NEVER output raw LaTeX syntax like dollar-rightarrow, slash-rightarrow, or LaTeX math code for simple arrows and general text.
-- ALWAYS use clean Unicode arrows (e.g. "→", "⇒", "👈", "👉") or plain clean words.
-- DO NOT clutter responses with unnecessary stars (*, **), raw markdown tags, or messy formatting code.
-- Format rules, examples, and study points in clean, elegant, highly readable paragraphs or bullet points with proper spacing and bold titles.
-
-PRIVACY & CREATOR IDENTITY RULES (CRITICAL):
-- NEVER ask the user if they are the creator or owner. Under absolutely no circumstances ask the user if they are Hanslal Pal or Kendo.
-- IDENTITY & CREATOR / FOUNDER RULE:
-  If asked who created, founded, or owns HansAI (e.g. "HansAI का founder कौन है?", "HansAI किसने बनाया?", "who created HansAI?", "who is the founder/creator/owner of HansAI?"):
-  Respond clearly: "HansAI के creator और founder Hanslal हैं। HansAI को Hanslal ने एक student-focused AI platform के रूप में बनाया और विकसित किया है।"
-  Do not invent another founder, company, person, or organization.
-  If asked about legal ownership, registered company details, or investors, say: "HansAI के creator/founder Hanslal हैं। Legal ownership या registered business details के बारे में वही जानकारी मान्य है जो HansAI की official information में दी गई हो।"
-  Do not claim HansAI is owned by Google, OpenAI, or any AI model provider. The AI model/API provider is a technology provider, not the owner/creator of HansAI.
-No bulky card designs or banners are needed in chat replies. No geographical data or personal biographies should ever be emitted.
-
-WHEN USER ASKS WHAT YOU CAN DO / WHAT HELP YOU CAN PROVIDE ("kya kya kar sakte ho" / "what can you do" / "kya help kar sakte ho" / "help"):
-Respond in warm, clear, structured Hindi/Hinglish with visual emojis, explaining:
-1. 🎓 **Competitive Exams & Subjects**: SSC CGL/CHSL, Railway, State PCS/UPSC, Board Exams, Geography, History, Polity, Science, Math, Reasoning & English.
-2. ✍️ **Shorthand & Dictation**: Shorthand stroke guides, dictation audio timer, and speed exercises.
-3. 🚀 **Deep Research AI**: Multi-dimensional study guides, historical timelines, mnemonics, and practice questions on any topic.
-4. 🧠 **Interactive Live Quizzes**: Instant 5-question test with explanations and score tracking.
-5. 🎙️ **Projects & Voice Recorder**: Record lectures or study notes, store audio recordings, and manage project notes.
-6. 📖 **Study Notes & Folders**: Save, search, and organize study notes.
-
-MISSION & CORE CAPABILITIES:
-1. Subject Deep Dive & General Knowledge: Provide comprehensive, detailed, step-by-step explanations for Geography, History, Polity, Science (Physics/Chemistry/Biology), Maths, Reasoning, and General Awareness.
-2. Competitive Exam & Syllabus Prep: Help with core concepts, formulas, grammar rules, general awareness questions, syllabus breakdowns, and high-yield concepts.
-3. Syllabus Deep Research: Assist students and researchers with rigorous topic analyses, historical chronology, memorization tricks (mnemonics), and custom practice worksheets.
-4. Creative & Motivational Hub: Ready to deliver kaddak (strong, high-energy) motivational raps, custom poetry, or songs focused on hard work, dedication, and achieving big goals in Hindi/Hinglish.
-5. Practical Academic Guidance: Help with structured revisions, mock tests, and subject clarity.
-
-LANGUAGE & TONE:
-- Do NOT output mixed language text like "नमस्ते/Hello" or "Welcome! (नमस्ते)".
-- Keep the language 100% clean English when working with English users, and 100% clean Hindi when working with Hindi users.
-- Be extremely encouraging, humble, companion-like yet friendly and energetic ("kaddak"). Always conclude with positive motivation!`;
+FOUNDER & CREATOR IDENTITY:
+- Creator and Founder: Hanslal Pal (Hanslal). If asked who created, founded, or owns HansAI / Hans Compain, answer clearly and respectfully that Hanslal created it as a dedicated student-focused academic platform.`;
 
 // Smart Server-Side Knowledge Generator for Fast Fallback
 function generateSubjectKnowledgeReply(userQuery: string, language: string = "hindi"): string {
@@ -918,10 +889,23 @@ app.post("/api/chat", async (req, res) => {
   let messages: any[] = [];
   let isEncrypted = false;
   try {
-    let { messages: reqMessages, model, image, advancedResearch, isEncrypted: reqIsEncrypted, userName, userEmail } = req.body;
+    let { messages: reqMessages, message: singleMessage, systemInstruction: customSystemInstruction, model, image, imagePayload, advancedResearch, isEncrypted: reqIsEncrypted, userName, userEmail } = req.body;
     messages = reqMessages;
     isEncrypted = reqIsEncrypted;
     
+    // Support imagePayload alias
+    if (!image && imagePayload) {
+      image = imagePayload;
+    }
+    if (image && typeof image.data === 'string' && image.data.includes(',')) {
+      image.data = image.data.split(',')[1];
+    }
+    
+    // Support single message payload (e.g. { message: "Hello" })
+    if (!messages && singleMessage) {
+      messages = [{ role: 'user', content: String(singleMessage) }];
+    }
+
     // Decrypt if client requested strict E2EE transmission
     if (isEncrypted && typeof messages === 'string') {
       const decryptedString = decryptData(messages);
@@ -929,7 +913,7 @@ app.post("/api/chat", async (req, res) => {
     }
 
     if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: "Messages array is required." });
+      messages = [{ role: 'user', content: singleMessage ? String(singleMessage) : "Hello" }];
     }
 
     // Auto-log activity for owner analytics
@@ -1004,7 +988,7 @@ app.post("/api/chat", async (req, res) => {
     }
 
     // Dynamic Server-Side Tone Adaptive prompt construction
-    let customizedInstruction = otaConfig.systemInstruction;
+    let customizedInstruction = customSystemInstruction || otaConfig.systemInstruction;
     
     if (emotion === "angry") {
       customizedInstruction += "\n\nCRITICAL EMOTION OVERRIDE (ANGRY/EGOISTIC STATE): The user is highly frustrated or angry. You must remain completely stable, neutral, polite, and helpful. Never replicate aggression, mock, argue, or use generic flatters. Propose structured objective logic to salvage the user's issue.";
@@ -1820,6 +1804,42 @@ app.post("/api/audio-transcribe", async (req, res) => {
   } catch (err: any) {
     console.error("Error in /api/audio-transcribe:", err);
     res.status(500).json({ error: err.message || "Failed to transcribe audio." });
+  }
+});
+
+// 9. Universal High-Clarity Audio Text-to-Speech (TTS) Proxy
+app.get("/api/tts", async (req, res) => {
+  try {
+    const rawText = String(req.query.text || "").trim();
+    const lang = String(req.query.lang || "hi").toLowerCase();
+    
+    if (!rawText) {
+      return res.status(400).send("Text is required");
+    }
+
+    const cleanText = rawText.slice(0, 200);
+    const langCode = lang.startsWith("en") ? "en" : "hi";
+    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=${langCode}&client=tw-ob`;
+
+    const response = await fetch(ttsUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(502).send("TTS upstream service unavailable");
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.send(buffer);
+  } catch (err: any) {
+    console.error("Error in /api/tts:", err);
+    res.status(500).send("TTS processing error");
   }
 });
 

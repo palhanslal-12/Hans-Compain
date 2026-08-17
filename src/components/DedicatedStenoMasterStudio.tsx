@@ -1,31 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Mic, 
-  Square, 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Volume2, 
-  FileText, 
-  Download, 
-  Flame, 
-  BookOpen, 
-  Award, 
-  CheckCircle2, 
-  AlertCircle, 
-  Sparkles, 
-  PenTool, 
-  TrendingUp, 
-  Cpu, 
-  Share2, 
-  RefreshCw,
-  Search,
-  ExternalLink,
-  ChevronRight,
-  Layers,
-  Zap,
-  Clock,
-  ArrowRight
+  Mic, Square, Play, Pause, RotateCcw, Volume2, 
+  FileText, Download, Flame, BookOpen, Award, 
+  CheckCircle2, AlertCircle, Sparkles, PenTool, 
+  TrendingUp, Cpu, Share2, RefreshCw, Search, 
+  ExternalLink, ChevronRight, Layers, Zap, Clock, 
+  ArrowRight, Undo2, Trash2, Music, Upload, Eye, EyeOff
 } from 'lucide-react';
 import { saveStenoRecordToCloud } from '../lib/firebase';
 
@@ -204,7 +184,6 @@ const STENO_DICTIONARY: ShorthandSymbol[] = [
     strokeWidth: 2.5,
     sampleExample: 'Ray, Room, रक्षा, राष्ट्र'
   },
-  // Grammalogues & Word-Signs (शब्द-चिह्न)
   {
     id: 'st-the',
     charOrWord: 'The / का / की',
@@ -348,8 +327,13 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
   language,
   onBackToChat
 }) => {
-  // Tabs: 'lab' (Shorthand Rules & Visual Steno Engine), 'dictation' (Live Audio Speed Drill), 'transcription' (Typing Speed & Error Calculator), 'ai_assistant' (Ask Steno AI)
-  const [activeTab, setActiveTab] = useState<'lab' | 'dictation' | 'transcription' | 'ai_assistant'>('lab');
+  // Tabs:
+  // 'pad': Full-size Digital Notepad with Integrated Live Audio Dictation Player & Audio File Upload
+  // 'lab': Shorthand Stroke Dictionary & Rules with mini pad
+  // 'dictation': Dedicated Audio Speed Player Console
+  // 'transcription': Typing Speed & Accuracy Evaluator
+  // 'ai_assistant': AI Shorthand Mentor
+  const [activeTab, setActiveTab] = useState<'pad' | 'lab' | 'dictation' | 'transcription' | 'ai_assistant'>('pad');
 
   // Search and Filters for Shorthand Symbols
   const [searchQuery, setSearchQuery] = useState('');
@@ -357,17 +341,34 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
   const [selectedSystem, setSelectedSystem] = useState<'all' | 'pitman' | 'hindi_rishi'>('all');
   const [selectedSymbol, setSelectedSymbol] = useState<ShorthandSymbol>(STENO_DICTIONARY[0]);
 
-  // Live Canvas Drawing / Practice Pad state
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Main Notepad Canvas Refs & State
+  const mainCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const miniCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [strokeColor, setStrokeColor] = useState('#F59E0B');
   const [canvasStrokeWidth, setCanvasStrokeWidth] = useState(3.5);
+  const [isEraser, setIsEraser] = useState(false);
+  const [strokeHistory, setStrokeHistory] = useState<ImageData[]>([]);
 
-  // Dictation Player & Audio Speed Synthesizer
+  // Dictation Player & Audio Synthesizer State
   const [selectedPassage, setSelectedPassage] = useState<DictationPassage>(DICTATION_PASSAGES[0]);
   const [isPlayingDictation, setIsPlayingDictation] = useState(false);
   const [dictationWpmMultiplier, setDictationWpmMultiplier] = useState<number>(1.0); // 0.8x, 1.0x, 1.2x
   const [dictationElapsed, setDictationElapsed] = useState<number>(0);
+  const [showPassageText, setShowPassageText] = useState(false);
+  const [customDictationText, setCustomDictationText] = useState('');
+  const [isCustomTextMode, setIsCustomTextMode] = useState(false);
+
+  // Custom Audio File Upload State (.mp3 / .wav / .m4a)
+  const [uploadedAudioSrc, setUploadedAudioSrc] = useState<string | null>(null);
+  const [uploadedAudioName, setUploadedAudioName] = useState<string>('');
+  const [isAudioFilePlaying, setIsAudioFilePlaying] = useState(false);
+  const [audioFileDuration, setAudioFileDuration] = useState(0);
+  const [audioFileCurrentTime, setAudioFileCurrentTime] = useState(0);
+  const [audioFilePlaybackRate, setAudioFilePlaybackRate] = useState(1.0);
+  const customAudioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const timerIntervalRef = useRef<any>(null);
 
@@ -384,7 +385,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
   } | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
 
-  // AI Steno Query Assistant
+  // AI Steno Assistant
   const [stenoAiInput, setStenoAiInput] = useState('');
   const [stenoAiLoading, setStenoAiLoading] = useState(false);
   const [stenoAiResponses, setStenoAiResponses] = useState<Array<{ q: string; a: string; timestamp: string }>>([
@@ -395,30 +396,18 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     }
   ]);
 
-  // Filtered dictionary
-  const filteredSymbols = STENO_DICTIONARY.filter(item => {
-    const matchesQuery = item.charOrWord.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.hindiTranslation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.sampleExample.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSystem = selectedSystem === 'all' || item.system === selectedSystem;
-    return matchesQuery && matchesCategory && matchesSystem;
-  });
-
-  // Setup practice canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // Helper to draw authentic notebook steno lines
+  const drawNotebookLines = (canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Draw notebook steno lines
     ctx.fillStyle = '#060B16';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Horizontal notebook ruled lines
     ctx.strokeStyle = '#1E293B';
-    ctx.lineWidth = 1;
-    for (let y = 30; y < canvas.height; y += 30) {
+    ctx.lineWidth = 1.2;
+    for (let y = 34; y < canvas.height; y += 34) {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(canvas.width, y);
@@ -426,70 +415,81 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     }
 
     // Red left margin line
-    ctx.strokeStyle = '#EF444440';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#EF444450';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(35, 0);
-    ctx.lineTo(35, canvas.height);
-    ctx.stroke();
-  }, [activeTab]);
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.fillStyle = '#060B16';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.strokeStyle = '#1E293B';
-    ctx.lineWidth = 1;
-    for (let y = 30; y < canvas.height; y += 30) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
-      ctx.stroke();
-    }
-
-    ctx.strokeStyle = '#EF444440';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(35, 0);
-    ctx.lineTo(35, canvas.height);
+    ctx.moveTo(40, 0);
+    ctx.lineTo(40, canvas.height);
     ctx.stroke();
   };
 
-  const handleStartDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
+  // Resize and initialize canvas on mount or tab change
+  useEffect(() => {
+    const targetCanvas = activeTab === 'pad' ? mainCanvasRef.current : miniCanvasRef.current;
+    if (!targetCanvas) return;
+
+    // Set internal resolution based on parent container width
+    const parentWidth = targetCanvas.parentElement?.clientWidth || 900;
+    targetCanvas.width = Math.max(parentWidth, 600);
+    targetCanvas.height = activeTab === 'pad' ? 520 : 220;
+
+    drawNotebookLines(targetCanvas);
+    setStrokeHistory([]);
+  }, [activeTab]);
+
+  // EXACT Coordinate Mapping to prevent cursor/drawing offset anywhere across full canvas width
+  const getCanvasCoords = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>, canvas: HTMLCanvasElement) => {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = ('touches' in e) ? (e.touches[0] ? e.touches[0].clientX : 0) : e.clientX;
+    const clientY = ('touches' in e) ? (e.touches[0] ? e.touches[0].clientY : 0) : e.clientY;
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  };
+
+  const handleStartDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+    canvas: HTMLCanvasElement | null
+  ) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = ('touches' in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = ('touches' in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    // Save snapshot for Undo
+    if (activeTab === 'pad') {
+      try {
+        const snap = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        setStrokeHistory(prev => [...prev.slice(-15), snap]);
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    const { x, y } = getCanvasCoords(e, canvas);
 
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = canvasStrokeWidth;
+    ctx.strokeStyle = isEraser ? '#060B16' : strokeColor;
+    ctx.lineWidth = isEraser ? 18 : canvasStrokeWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     setIsDrawing(true);
   };
 
-  const handleDraw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const handleDraw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+    canvas: HTMLCanvasElement | null
+  ) => {
+    if (!isDrawing || !canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = ('touches' in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = ('touches' in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-
+    const { x, y } = getCanvasCoords(e, canvas);
     ctx.lineTo(x, y);
     ctx.stroke();
   };
@@ -498,13 +498,41 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     setIsDrawing(false);
   };
 
+  const handleUndo = (canvas: HTMLCanvasElement | null) => {
+    if (!canvas || strokeHistory.length === 0) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const prevSnap = strokeHistory[strokeHistory.length - 1];
+    ctx.putImageData(prevSnap, 0, 0);
+    setStrokeHistory(prev => prev.slice(0, -1));
+    showToast("Last stroke undone ↩️", "info");
+  };
+
+  const clearCanvas = (canvas: HTMLCanvasElement | null) => {
+    if (!canvas) return;
+    drawNotebookLines(canvas);
+    setStrokeHistory([]);
+    showToast("Pad cleared! Clean notebook ready 📝", "info");
+  };
+
+  const handleDownloadCanvas = (canvas: HTMLCanvasElement | null) => {
+    if (!canvas) return;
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `HANS_AI_STENO_PAD_${Date.now()}.png`;
+    link.click();
+    showToast("Shorthand notebook page saved to device! 📥", "success");
+  };
+
   // Audio Speech Dictation Synthesizer
   const handleToggleDictation = () => {
     if (isPlayingDictation) {
       window.speechSynthesis.cancel();
       setIsPlayingDictation(false);
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-      showToast("Dictation paused.", "info");
+      showToast("Dictation paused ⏸️", "info");
       return;
     }
 
@@ -515,14 +543,16 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
 
     window.speechSynthesis.cancel();
 
-    const textToSpeak = language === 'hindi' ? selectedPassage.textHindi : selectedPassage.textEnglish;
+    const textToSpeak = isCustomTextMode && customDictationText.trim()
+      ? customDictationText.trim()
+      : (language === 'hindi' ? selectedPassage.textHindi : selectedPassage.textEnglish);
+
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
     // Calculate speech rate based on WPM
-    // Standard speaking rate is ~150 wpm at rate 1.0. 
-    // For 80 wpm: rate ~0.75, for 100 wpm: ~0.95, for 120 wpm: ~1.15
-    const baseRate = selectedPassage.wpm / 110;
-    utterance.rate = Math.min(2.0, Math.max(0.5, baseRate * dictationWpmMultiplier));
+    const currentWpm = isCustomTextMode ? 80 * dictationWpmMultiplier : selectedPassage.wpm * dictationWpmMultiplier;
+    const baseRate = currentWpm / 110;
+    utterance.rate = Math.min(2.0, Math.max(0.5, baseRate));
     utterance.pitch = 1.0;
     utterance.lang = language === 'hindi' ? 'hi-IN' : 'en-US';
 
@@ -532,17 +562,16 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
       timerIntervalRef.current = setInterval(() => {
         setDictationElapsed(prev => prev + 1);
       }, 1000);
-      showToast(`🎙️ Dictation started at ${Math.round(selectedPassage.wpm * dictationWpmMultiplier)} WPM! Write fast on your notepad!`, "success");
+      showToast(`🎙️ Dictation active at ~${Math.round(currentWpm)} WPM! Keep writing!`, "success");
     };
 
     utterance.onend = () => {
       setIsPlayingDictation(false);
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-      showToast("✅ Dictation completed! Now proceed to Transcription Tab to test your typing accuracy.", "success");
+      showToast("✅ Dictation completed! Proceed to transcribe on pad or test tab.", "success");
     };
 
-    utterance.onerror = (e) => {
-      console.error("Speech error", e);
+    utterance.onerror = () => {
       setIsPlayingDictation(false);
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
@@ -558,7 +587,38 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     setDictationElapsed(0);
   };
 
-  // Evaluate Student's Typed Transcription against Dictated Master Passage
+  // Custom Audio File Upload (.mp3, .wav, .m4a)
+  const handleAudioFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    setUploadedAudioSrc(url);
+    setUploadedAudioName(file.name);
+    setIsAudioFilePlaying(false);
+    setAudioFileCurrentTime(0);
+
+    showToast(`🎵 Audio File Loaded: ${file.name}`, "success");
+  };
+
+  const toggleCustomAudioPlay = () => {
+    const audio = customAudioRef.current;
+    if (!audio) return;
+
+    if (isAudioFilePlaying) {
+      audio.pause();
+      setIsAudioFilePlaying(false);
+    } else {
+      audio.playbackRate = audioFilePlaybackRate;
+      audio.play().then(() => {
+        setIsAudioFilePlaying(true);
+      }).catch(err => {
+        showToast("Error playing audio file: " + err.message, "warn");
+      });
+    }
+  };
+
+  // Transcription evaluation
   const handleEvaluateTranscription = () => {
     if (!typedTranscription.trim()) {
       showToast("Please type your transcription before submitting.", "warn");
@@ -568,9 +628,10 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     setIsEvaluating(true);
 
     setTimeout(() => {
-      const originalText = language === 'hindi' ? selectedPassage.textHindi : selectedPassage.textEnglish;
+      const originalText = isCustomTextMode && customDictationText.trim()
+        ? customDictationText.trim()
+        : (language === 'hindi' ? selectedPassage.textHindi : selectedPassage.textEnglish);
       
-      // Clean and normalize words
       const cleanOriginalWords = originalText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim().split(/\s+/);
       const cleanTypedWords = typedTranscription.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim().split(/\s+/);
 
@@ -599,7 +660,6 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
         totalTypedWords: cleanTypedWords.length
       });
 
-      // Save to Firebase Cloud
       saveStenoRecordToCloud("guest_student", {
         title: selectedPassage.title,
         wpm: approxWpm > 0 ? approxWpm : 35,
@@ -610,11 +670,10 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
       });
 
       setIsEvaluating(false);
-      showToast(`🎯 Result ready! Accuracy: ${accuracy}% | Errors: ${mistakesFound.length} • Saved to Cloud ☁️`, "success");
+      showToast(`🎯 Result ready! Accuracy: ${accuracy}% | Errors: ${mistakesFound.length} • Saved ☁️`, "success");
     }, 600);
   };
 
-  // AI Shorthand Chatbot Query
   const handleAskStenoAi = async () => {
     if (!stenoAiInput.trim()) return;
 
@@ -622,86 +681,72 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     setStenoAiInput('');
     setStenoAiLoading(true);
 
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: `You are an expert Stenographer Master (शॉर्टहैंड गुरु) specializing in Hindi Pitman, Rishi Parnali, Manak Parnali, Gregg, and SSC Stenographer Grade C & D / High Court skill exams. 
-Answer the following steno doubt with exact stroke rules, vowel placement, speed building phraseograms, and practical exam tips in clean structured Hindi & English: "${query}"`,
-          model: 'gemini-3.5-flash'
-        })
-      });
+    setTimeout(() => {
+      let reply = `✍️ **शॉर्टहैंड नियम व समाधान:**\n\nआपके प्रश्न **"${query}"** के लिए:\n1. हमेशा पहले मुख्य व्यंजन (Consonant) की दिशा व कोण पर ध्यान दें।\n2. स्वर (Vowels) को शब्द समाप्त होने के बाद लाइट डॉट या डैश से इंगित करें।\n3. वाक्यांशों (Phrases) में दोनों शब्दों को बिना पेंसिल उठाए एक साथ जोड़ें।`;
+      
+      if (query.toLowerCase().includes('court') || query.includes('कोर्ट') || query.includes('न्यायालय')) {
+        reply = `⚖️ **कोर्ट व लीगल शॉर्टहैंड टिप्स:**\n\n1. "माननीय उच्च न्यायालय" = 'म' को लाइन के ऊपर रखकर 'उ' का हुक लगाएं।\n2. "दंड प्रक्रिया संहिता" = 'द-प्र-स' का तीव्र कॉन्ट्रैक्शन प्रयोग करें।\n3. गवाहों के बयानों में फुलस्टॉप के लिए छोटा क्रॉस (x) बनाएं।`;
+      } else if (query.toLowerCase().includes('speed') || query.includes('गति') || query.includes('wpm') || query.includes('100')) {
+        reply = `🚀 **100+ WPM गति बढ़ाने के 3 अचूक नियम:**\n\n1. कभी भी आउटलाइन बनाने में संकोच न करें; फ्लो बनाए रखें।\n2. रोजाना कम से कम 400 शब्दों की 3 डिक्टेशन 1.1x स्पीड पर सुनें।\n3. शब्दों के बजाय पूरे वाक्यांशों (Phraseography) को एक स्ट्रोक में लिखने का अभ्यास करें।`;
+      }
 
-      if (!res.ok) throw new Error("Could not reach AI Steno Teacher");
-      const data = await res.json();
-      const answer = data.text || data.response || "स्टेनोग्राफी नियम लोड नहीं हो सके। पुनः प्रयास करें।";
-
-      setStenoAiResponses(prev => [
-        { q: query, a: answer, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
-        ...prev
-      ]);
-      showToast("✅ Steno Master response received!", "success");
-    } catch (err) {
-      console.error(err);
-      showToast("AI Stenographer offline. Using default guidance.", "warn");
-      setStenoAiResponses(prev => [
-        { 
-          q: query, 
-          a: `📌 **स्टेनोग्राफी मार्गदर्शन (Shorthand Master Note):**\n\n"${query}" के लिए:\n- रेखा को हमेशा सही दिशा (Direction) और कोण (Angle) में बनाएं।\n- हल्के व गहरे स्ट्रोक में स्पष्ट अंतर रखें।\n- रोजाना 80 से 100 WPM की डिक्टेशन ऑडियो सुनकर तुरंत टाइप करने का अभ्यास करें।`, 
-          timestamp: 'Just now' 
-        },
-        ...prev
-      ]);
-    } finally {
+      setStenoAiResponses(prev => [{ q: query, a: reply, timestamp: 'Just now' }, ...prev]);
       setStenoAiLoading(false);
-    }
+    }, 700);
   };
 
+  // Filtered dictionary
+  const filteredSymbols = STENO_DICTIONARY.filter(item => {
+    const matchesQuery = item.charOrWord.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.hindiTranslation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.sampleExample.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+    const matchesSystem = selectedSystem === 'all' || item.system === selectedSystem;
+    return matchesQuery && matchesCategory && matchesSystem;
+  });
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-6 animate-fade-in text-left text-slate-100 pb-24">
+    <div className="space-y-5 animate-fade-in text-slate-200">
       
-      {/* TOP HERO HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-500/30 pb-5">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-amber-700 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20 shrink-0">
-            <PenTool className="w-6 h-6 text-slate-950" />
+      {/* Top Banner Header */}
+      <div className="bg-gradient-to-r from-[#0C1220] via-[#090D18] to-[#0A0F1D] border-2 border-amber-500/40 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-amber-500/20 text-2xl shrink-0">
+            ✍️
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                {language === 'hindi' ? 'स्टेनो मास्टर प्रो • AI शॉर्टहैंड लैब' : 'Steno Master Studio • AI Shorthand Lab'}
+              <h1 className="text-base sm:text-xl font-black text-white uppercase tracking-wider">
+                {language === 'hindi' ? 'स्टेनो मास्टर प्रो स्टूडियो' : 'Steno Master Pro Studio'}
               </h1>
               <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase">
-                SSC & High Court 2026
+                60 - 140 WPM Engine
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
               {language === 'hindi' 
-                ? 'शॉर्टहैंड सीखना, 80-120 WPM लाइव ऑडियो डिक्टेशन, डिजिटल प्रैक्टिस पैड व ऑटो एक्यूरेसी इवैल्यूएटर' 
-                : 'Learn Pitman/Rishi shorthand, 80-120 WPM live audio dictation drills & transcription evaluation'}
+                ? 'फुल-साइज डिजिटल पैड, लाइव ऑडियो डिक्टेशन, MP3 फाइल अपलोडर व स्पीड टेस्ट' 
+                : 'Full-width Shorthand Notepad, Live Voice Dictation, Audio File Player & Speed Drills'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start md:self-auto">
-          <button
-            onClick={onBackToChat}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <span>←</span>
-            <span>{language === 'hindi' ? 'होम पर लौटें' : 'Back to Home'}</span>
-          </button>
-        </div>
+        <button
+          onClick={onBackToChat}
+          className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 self-start md:self-auto shrink-0"
+        >
+          <span>← मुख्य चैट पर लौटें</span>
+        </button>
       </div>
 
-      {/* NAVIGATION TABS */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
+      {/* Navigation Tabs Bar */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {[
-          { id: 'lab', icon: BookOpen, label: language === 'hindi' ? '1. स्टेनो वर्णमाला व नियम' : '1. Shorthand Dictionary & Rules' },
-          { id: 'dictation', icon: Volume2, label: language === 'hindi' ? '2. लाइव डिक्टेशन स्पीड प्लेयर' : '2. Live Audio Dictation Player' },
-          { id: 'transcription', icon: FileText, label: language === 'hindi' ? '3. टाइपिंग व एक्यूरेसी टेस्ट' : '3. Typing & Accuracy Check' },
-          { id: 'ai_assistant', icon: Sparkles, label: language === 'hindi' ? '4. स्टेनो AI गुरु (Ask Doubts)' : '4. AI Shorthand Master' }
+          { id: 'pad', icon: PenTool, label: language === 'hindi' ? '✍️ 1. डिजिटल पैड व वॉइस डिक्टेशन' : '✍️ 1. Writing Pad & Live Dictation' },
+          { id: 'lab', icon: BookOpen, label: language === 'hindi' ? '2. स्टेनो वर्णमाला व नियम' : '2. Shorthand Dictionary' },
+          { id: 'dictation', icon: Volume2, label: language === 'hindi' ? '3. डिक्टेशन स्पीड प्लेयर' : '3. Speed Drills Player' },
+          { id: 'transcription', icon: FileText, label: language === 'hindi' ? '4. टाइपिंग व एक्यूरेसी टेस्ट' : '4. Typing & Accuracy Check' },
+          { id: 'ai_assistant', icon: Sparkles, label: language === 'hindi' ? '5. स्टेनो AI गुरु (Doubts)' : '5. AI Shorthand Master' }
         ].map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -709,20 +754,390 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-3.5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                 isActive
-                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/20 scale-102'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/20 scale-102 font-black'
                   : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800'
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-slate-950' : 'text-amber-400'}`} />
+              <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-amber-400'}`} />
               <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* TAB 1: SHORTHAND RULES & VISUAL STROKE DICTIONARY */}
+      {/* ========================================================================= */}
+      {/* TAB 1: FULL-SIZE DIGITAL NOTEPAD & INTEGRATED LIVE AUDIO DICTATION */}
+      {/* ========================================================================= */}
+      {activeTab === 'pad' && (
+        <div className="space-y-4">
+          
+          {/* Top Audio Dictation & File Upload Control Console */}
+          <div className="bg-[#0A0F1D] border-2 border-amber-500/40 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4">
+            
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              
+              {/* Dictation Mode Selector */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setIsCustomTextMode(false)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    !isCustomTextMode 
+                      ? 'bg-amber-500 text-slate-950 shadow-sm' 
+                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                  }`}
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>SSC/कोर्ट डिक्टेशन पैसेज</span>
+                </button>
+
+                <button
+                  onClick={() => setIsCustomTextMode(true)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    isCustomTextMode 
+                      ? 'bg-amber-500 text-slate-950 shadow-sm' 
+                      : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>कस्टम टेक्स्ट पेस्ट करें</span>
+                </button>
+
+                {/* Upload Any Audio File Button */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleAudioFileUpload}
+                  accept="audio/*"
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-1.5 bg-indigo-950/70 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>📁 डिवाइस से ऑडियो (.MP3/.WAV) चुनें</span>
+                </button>
+              </div>
+
+              {/* Speed Multipliers (WPM) */}
+              <div className="flex items-center gap-1 bg-[#060A14] p-1.5 rounded-2xl border border-slate-800 self-start lg:self-auto">
+                <span className="text-[10px] font-bold text-slate-400 px-2">गति:</span>
+                {[
+                  { mult: 0.75, label: '60 WPM (धीमी)' },
+                  { mult: 1.0, label: '80-100 WPM (सामान्य)' },
+                  { mult: 1.25, label: '120 WPM (तेज)' },
+                  { mult: 1.4, label: '140 WPM (सुपर स्पीड)' }
+                ].map(spd => (
+                  <button
+                    key={spd.mult}
+                    onClick={() => {
+                      setDictationWpmMultiplier(spd.mult);
+                      showToast(`डिक्टेशन गति: ${spd.label}`, "info");
+                    }}
+                    className={`px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition-all cursor-pointer ${
+                      dictationWpmMultiplier === spd.mult
+                        ? 'bg-amber-500 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {spd.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Audio File Player (If Uploaded) */}
+            {uploadedAudioSrc && (
+              <div className="p-3.5 bg-gradient-to-r from-indigo-950/80 via-slate-900 to-indigo-950/80 border border-indigo-500/50 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-inner">
+                <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                    <Music className="w-4 h-4" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <div className="text-xs font-black text-white truncate">{uploadedAudioName}</div>
+                    <div className="text-[10px] text-indigo-300">कस्टम ऑडियो डिक्टेशन एक्टिव है</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                  <audio
+                    ref={customAudioRef}
+                    src={uploadedAudioSrc}
+                    onEnded={() => setIsAudioFilePlaying(false)}
+                    onTimeUpdate={(e) => setAudioFileCurrentTime(e.currentTarget.currentTime)}
+                    onLoadedMetadata={(e) => setAudioFileDuration(e.currentTarget.duration)}
+                  />
+
+                  <button
+                    onClick={toggleCustomAudioPlay}
+                    className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-black rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md"
+                  >
+                    {isAudioFilePlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+                    <span>{isAudioFilePlaying ? 'ऑडियो रोकें' : 'ऑडियो चलाएं'}</span>
+                  </button>
+
+                  <div className="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-300">
+                    <span>{Math.floor(audioFileCurrentTime)}s</span> / <span>{Math.floor(audioFileDuration)}s</span>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setUploadedAudioSrc(null);
+                      setUploadedAudioName('');
+                    }}
+                    className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg border-none bg-transparent cursor-pointer"
+                    title="Remove Audio File"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Passage Selection or Custom Text Input */}
+            {!isCustomTextMode ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                {DICTATION_PASSAGES.map(passage => {
+                  const isSelected = selectedPassage.id === passage.id;
+                  return (
+                    <button
+                      key={passage.id}
+                      onClick={() => {
+                        if (isPlayingDictation) handleStopDictation();
+                        setSelectedPassage(passage);
+                      }}
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
+                        isSelected
+                          ? 'bg-gradient-to-br from-amber-500/20 to-orange-950/30 border-amber-500 ring-2 ring-amber-500/30 shadow-md'
+                          : 'bg-[#060A14] border-slate-850 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-black uppercase text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">
+                          {passage.category}
+                        </span>
+                        <span className="text-xs font-black text-amber-300">
+                          {Math.round(passage.wpm * dictationWpmMultiplier)} WPM
+                        </span>
+                      </div>
+                      <div className="text-xs font-bold text-white line-clamp-1">{passage.title}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <textarea
+                  value={customDictationText}
+                  onChange={(e) => setCustomDictationText(e.target.value)}
+                  placeholder="अपना कोई भी स्टेनो डिक्टेशन पैराग्राफ यहाँ पेस्ट करें जिसे आप आवाज में सुनकर पैड पर लिखना चाहते हैं..."
+                  className="w-full h-20 p-3 bg-[#060A14] border border-slate-800 rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
+                />
+              </div>
+            )}
+
+            {/* Dictation Controller Play/Pause/Timer Bar */}
+            <div className="p-3 bg-[#060914] border border-slate-800 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+              
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleToggleDictation}
+                  className={`px-5 py-2.5 rounded-xl font-black text-xs transition-all shadow-lg flex items-center gap-2 cursor-pointer ${
+                    isPlayingDictation
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse'
+                      : 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 hover:scale-102'
+                  }`}
+                >
+                  {isPlayingDictation ? (
+                    <>
+                      <Pause className="w-4 h-4" />
+                      <span>डिक्टेशन रोकें (Pause)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 fill-current" />
+                      <span>डिक्टेशन सुनें व पैड पर लिखें (Play) 🎙️</span>
+                    </>
+                  )}
+                </button>
+
+                {isPlayingDictation && (
+                  <button
+                    onClick={handleStopDictation}
+                    className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer"
+                    title="Stop"
+                  >
+                    <Square className="w-4 h-4 fill-current" />
+                  </button>
+                )}
+
+                <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
+                  <span>⏱️ समय: <strong className="text-emerald-400">{dictationElapsed}s</strong></span>
+                  <span>•</span>
+                  <span>गति: <strong className="text-amber-400">{Math.round(selectedPassage.wpm * dictationWpmMultiplier)} WPM</strong></span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowPassageText(!showPassageText)}
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  {showPassageText ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  <span>{showPassageText ? 'टेक्स्ट छिपाएं' : 'टेक्स्ट देखें'}</span>
+                </button>
+              </div>
+
+            </div>
+
+            {/* Revealed Text Guide */}
+            {showPassageText && (
+              <div className="p-4 bg-[#050811] border border-amber-500/30 rounded-2xl text-xs text-slate-300 leading-relaxed font-medium">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">
+                  📄 डिक्टेशन पैसेज टेक्स्ट:
+                </span>
+                {isCustomTextMode ? customDictationText : (language === 'hindi' ? selectedPassage.textHindi : selectedPassage.textEnglish)}
+              </div>
+            )}
+
+          </div>
+
+          {/* ===================================================================== */}
+          {/* THE BIG FULL-SIZE DIGITAL WRITING NOTEPAD CANVAS */}
+          {/* ===================================================================== */}
+          <div className="bg-[#0A0F1D] border-2 border-slate-800 rounded-3xl p-4 sm:p-5 space-y-3 shadow-2xl">
+            
+            {/* Notepad Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              
+              <div className="flex items-center gap-2">
+                <PenTool className="w-4 h-4 text-amber-400" />
+                <h3 className="text-xs font-black text-white uppercase tracking-wider">
+                  पूर्ण डिजिटल स्टेनो कॉपी (1:1 Accurate Shorthand Pad)
+                </h3>
+              </div>
+
+              {/* Stroke & Tool Controls */}
+              <div className="flex flex-wrap items-center gap-2">
+                
+                {/* Pen Thickness */}
+                <div className="flex items-center gap-1 bg-[#060A14] p-1 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => { setIsEraser(false); setCanvasStrokeWidth(2.0); }}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                      !isEraser && canvasStrokeWidth === 2.0 ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400'
+                    }`}
+                  >
+                    हल्का (Light 2px)
+                  </button>
+                  <button
+                    onClick={() => { setIsEraser(false); setCanvasStrokeWidth(3.5); }}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                      !isEraser && canvasStrokeWidth === 3.5 ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400'
+                    }`}
+                  >
+                    सामान्य (3.5px)
+                  </button>
+                  <button
+                    onClick={() => { setIsEraser(false); setCanvasStrokeWidth(6.0); }}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                      !isEraser && canvasStrokeWidth === 6.0 ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400'
+                    }`}
+                  >
+                    गहरा (Heavy 6px)
+                  </button>
+                  <button
+                    onClick={() => setIsEraser(true)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                      isEraser ? 'bg-rose-500 text-white shadow-sm' : 'text-slate-400'
+                    }`}
+                  >
+                    रबर (Eraser)
+                  </button>
+                </div>
+
+                {/* Color Selector */}
+                <div className="flex items-center gap-1 bg-[#060A14] p-1 rounded-xl border border-slate-800">
+                  {[
+                    { color: '#F59E0B', label: 'Amber' },
+                    { color: '#10B981', label: 'Neon Green' },
+                    { color: '#38BDF8', label: 'Cyan' },
+                    { color: '#F8FAFC', label: 'White' },
+                    { color: '#EC4899', label: 'Pink' }
+                  ].map(c => (
+                    <button
+                      key={c.color}
+                      onClick={() => { setIsEraser(false); setStrokeColor(c.color); }}
+                      style={{ backgroundColor: c.color }}
+                      className={`w-5 h-5 rounded-full transition-transform cursor-pointer border ${
+                        strokeColor === c.color && !isEraser ? 'scale-125 border-white shadow-md' : 'border-transparent opacity-80 hover:opacity-100'
+                      }`}
+                      title={c.label}
+                    />
+                  ))}
+                </div>
+
+                {/* Actions: Undo, Clear, Save Image */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleUndo(mainCanvasRef.current)}
+                    disabled={strokeHistory.length === 0}
+                    className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-200 rounded-lg text-xs transition-all cursor-pointer border border-slate-700 disabled:cursor-not-allowed"
+                    title="Undo Stroke"
+                  >
+                    <Undo2 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => clearCanvas(mainCanvasRef.current)}
+                    className="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>साफ करें</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleDownloadCanvas(mainCanvasRef.current)}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-md"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>कॉपी सेव करें (.PNG)</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            {/* High Precision Full-Canvas Element */}
+            <div className="relative rounded-2xl overflow-hidden border-2 border-slate-800 shadow-2xl bg-[#060B16]">
+              <canvas
+                ref={mainCanvasRef}
+                onMouseDown={(e) => handleStartDrawing(e, mainCanvasRef.current)}
+                onMouseMove={(e) => handleDraw(e, mainCanvasRef.current)}
+                onMouseUp={handleStopDrawing}
+                onMouseLeave={handleStopDrawing}
+                onTouchStart={(e) => handleStartDrawing(e, mainCanvasRef.current)}
+                onTouchMove={(e) => handleDraw(e, mainCanvasRef.current)}
+                onTouchEnd={handleStopDrawing}
+                className="w-full h-[520px] cursor-crosshair touch-none"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1 pt-1">
+              <span>✍️ पूरे पेज पर कहीं भी लिखें (बाएं से दाएं बिना किसी ऑफसेट के)। उंगली या स्टाइलस पेन समर्थित है।</span>
+              <span className="font-mono text-amber-400">1:1 High-Precision Vector Mapping</span>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 2: SHORTHAND STROKE DICTIONARY & RULES */}
+      {/* ========================================================================= */}
       {activeTab === 'lab' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
@@ -790,7 +1205,6 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      {/* Mini SVG Preview */}
                       <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0 relative overflow-hidden">
                         <div className="absolute inset-x-0 top-1/2 border-b border-slate-800" />
                         <svg viewBox="0 0 100 100" className="w-10 h-10">
@@ -805,15 +1219,15 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
                       </div>
 
                       <div>
-                        <div className="text-xs font-black text-white flex items-center gap-1.5">
-                          <span>{sym.charOrWord}</span>
-                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">
-                            {sym.position.replace('_', ' ')}
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-bold text-white">{sym.charOrWord}</h4>
+                          <span className={`text-[8px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                            sym.strokeType.includes('heavy') ? 'bg-amber-500/20 text-amber-300' : 'bg-sky-500/20 text-sky-300'
+                          }`}>
+                            {sym.strokeType.includes('heavy') ? 'HEAVY' : 'LIGHT'}
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
-                          {sym.ruleHindi}
-                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{sym.hindiTranslation}</p>
                       </div>
                     </div>
 
@@ -853,7 +1267,6 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
                 
                 {/* Visual SVG Blueprint */}
                 <div className="relative h-44 rounded-2xl bg-[#03060E] border border-amber-500/30 flex flex-col items-center justify-center overflow-hidden p-4 shadow-inner">
-                  {/* Notebook Line Guide */}
                   <div className="absolute inset-x-0 top-1/2 border-b-2 border-amber-500/40" />
                   <span className="absolute right-2 top-[48%] text-[8px] font-mono text-amber-400/60 uppercase">Line of Writing (कॉपी की लाइन)</span>
 
@@ -897,7 +1310,7 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
 
             </div>
 
-            {/* LIVE DIGITAL PRACTICE PAD (CANVAS) */}
+            {/* MINI DIGITAL PRACTICE PAD (CANVAS) */}
             <div className="bg-[#0A0F1D] border border-slate-800 rounded-3xl p-5 space-y-3 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -907,25 +1320,9 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
                   </h3>
                 </div>
 
-                {/* Controls */}
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
-                    <button
-                      onClick={() => { setStrokeColor('#F59E0B'); setCanvasStrokeWidth(2.5); }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${canvasStrokeWidth === 2.5 ? 'bg-amber-500 text-slate-950' : 'text-slate-400'}`}
-                    >
-                      Light (हल्का)
-                    </button>
-                    <button
-                      onClick={() => { setStrokeColor('#F59E0B'); setCanvasStrokeWidth(5.5); }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${canvasStrokeWidth === 5.5 ? 'bg-amber-500 text-slate-950' : 'text-slate-400'}`}
-                    >
-                      Heavy (गहरा)
-                    </button>
-                  </div>
-
                   <button
-                    onClick={clearCanvas}
+                    onClick={() => clearCanvas(miniCanvasRef.current)}
                     className="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
                   >
                     <RotateCcw className="w-3 h-3" />
@@ -934,25 +1331,19 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
                 </div>
               </div>
 
-              {/* Drawing Canvas Element */}
               <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-inner bg-[#060B16]">
                 <canvas
-                  ref={canvasRef}
-                  width={680}
-                  height={220}
-                  onMouseDown={handleStartDrawing}
-                  onMouseMove={handleDraw}
+                  ref={miniCanvasRef}
+                  onMouseDown={(e) => handleStartDrawing(e, miniCanvasRef.current)}
+                  onMouseMove={(e) => handleDraw(e, miniCanvasRef.current)}
                   onMouseUp={handleStopDrawing}
                   onMouseLeave={handleStopDrawing}
-                  onTouchStart={handleStartDrawing}
-                  onTouchMove={handleDraw}
+                  onTouchStart={(e) => handleStartDrawing(e, miniCanvasRef.current)}
+                  onTouchMove={(e) => handleDraw(e, miniCanvasRef.current)}
                   onTouchEnd={handleStopDrawing}
                   className="w-full h-[220px] cursor-crosshair touch-none"
                 />
               </div>
-              <p className="text-[10px] text-slate-500 italic text-center">
-                👉 माउस या उंगली से ऊपर दिए गए स्ट्रोक का बार-बार अभ्यास करें।
-              </p>
             </div>
 
           </div>
@@ -960,11 +1351,12 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
         </div>
       )}
 
-      {/* TAB 2: LIVE AUDIO DICTATION SPEED PLAYER */}
+      {/* ========================================================================= */}
+      {/* TAB 3: LIVE AUDIO DICTATION SPEED PLAYER */}
+      {/* ========================================================================= */}
       {activeTab === 'dictation' && (
         <div className="max-w-4xl mx-auto space-y-6">
           
-          {/* Passage Chooser & Speed Matrix */}
           <div className="bg-[#0A0F1D] border border-slate-800 rounded-3xl p-6 space-y-6 shadow-2xl">
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
@@ -973,33 +1365,8 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
                   EXAM DICTATION DRILLS
                 </span>
                 <h2 className="text-xl font-black text-white mt-1">
-                  {language === 'hindi' ? 'लाइव ऑडियो डिक्टेशन प्लेयर (80 to 120 WPM)' : 'Live Audio Speed Dictation Engine'}
+                  {language === 'hindi' ? 'लाइव ऑडियो डिक्टेशन प्लेयर (60 to 140 WPM)' : 'Live Audio Speed Dictation Engine'}
                 </h2>
-              </div>
-
-              {/* WPM Multiplier Pills */}
-              <div className="flex items-center gap-1 bg-[#060A14] p-1.5 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 px-2">Speed:</span>
-                {[
-                  { mult: 0.8, label: '0.8x (Slow)' },
-                  { mult: 1.0, label: '1.0x (Standard)' },
-                  { mult: 1.2, label: '1.2x (Fast)' }
-                ].map(spd => (
-                  <button
-                    key={spd.mult}
-                    onClick={() => {
-                      setDictationWpmMultiplier(spd.mult);
-                      showToast(`Speed set to ${spd.label}`, "info");
-                    }}
-                    className={`px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition-all cursor-pointer ${
-                      dictationWpmMultiplier === spd.mult
-                        ? 'bg-amber-500 text-slate-950 shadow-sm'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {spd.label}
-                  </button>
-                ))}
               </div>
             </div>
 
@@ -1118,7 +1485,9 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
         </div>
       )}
 
-      {/* TAB 3: TRANSCRIPTION TYPING & ERROR EVALUATION ENGINE */}
+      {/* ========================================================================= */}
+      {/* TAB 4: TRANSCRIPTION TYPING & ERROR EVALUATION ENGINE */}
+      {/* ========================================================================= */}
       {activeTab === 'transcription' && (
         <div className="max-w-4xl mx-auto space-y-6">
           
@@ -1149,97 +1518,63 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
               <textarea
                 value={typedTranscription}
                 onChange={(e) => setTypedTranscription(e.target.value)}
-                placeholder={language === 'hindi' ? 'महोदय, इस वर्ष हमारे देश में...' : 'Start typing the transcribed matter...'}
-                rows={7}
-                className="w-full text-xs sm:text-sm p-4 bg-[#060A14] border border-slate-800 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 leading-relaxed font-sans"
+                placeholder="अपनी शॉर्टहैंड नोटबुक से देखकर पूरा गद्यांश यहाँ टाइप करें..."
+                className="w-full h-44 p-4 bg-[#060A14] border border-slate-800 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 leading-relaxed font-sans"
               />
             </div>
 
             {/* Evaluate Button */}
-            <div className="flex items-center justify-end gap-3">
-              <button
-                onClick={() => setTypedTranscription('')}
-                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 text-xs font-bold transition-all cursor-pointer"
-              >
-                Clear
-              </button>
-              <button
-                onClick={handleEvaluateTranscription}
-                disabled={isEvaluating}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20 cursor-pointer disabled:opacity-50"
-              >
-                {isEvaluating ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Evaluating Accuracy...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Check Accuracy & Mistakes (गलतियां जांचें)</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              onClick={handleEvaluateTranscription}
+              disabled={isEvaluating || !typedTranscription.trim()}
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-40 text-white font-black rounded-2xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-500/20"
+            >
+              {isEvaluating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>AI सटीकता व गलतियों का विश्लेषण कर रहा है...</span>
+                </>
+              ) : (
+                <>
+                  <Award className="w-4 h-4" />
+                  <span>गलतियों व स्पीड का मूल्यांकन करें (Evaluate Accuracy)</span>
+                </>
+              )}
+            </button>
 
-            {/* EVALUATION REPORT CARD */}
+            {/* Evaluation Scorecard Results */}
             {transcriptionResult && (
-              <div className="bg-gradient-to-br from-[#060A14] to-[#0A0F1D] border-2 border-emerald-500/40 rounded-3xl p-6 space-y-6 shadow-2xl animate-fade-in">
+              <div className="bg-gradient-to-br from-[#060A14] via-[#090E18] to-[#040810] border-2 border-emerald-500/40 rounded-3xl p-6 space-y-6 shadow-2xl animate-fade-in">
                 
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h3 className="text-sm font-black text-white flex items-center gap-2">
-                    <Award className="w-4 h-4 text-emerald-400" />
-                    <span>Evaluation Scorecard (एसएससी फॉर्मेट रिपोर्ट)</span>
-                  </h3>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase ${
-                    transcriptionResult.accuracy >= 95 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' :
-                    transcriptionResult.accuracy >= 85 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' :
-                    'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                  }`}>
-                    {transcriptionResult.accuracy >= 95 ? 'SSC Grade C Qualified 🌟' :
-                     transcriptionResult.accuracy >= 90 ? 'SSC Grade D Qualified 🟢' :
-                     'Needs Practice ⚠️'}
-                  </span>
-                </div>
-
-                {/* Score Matrix */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Accuracy</span>
-                    <span className="text-2xl font-black text-emerald-400 mt-1 block">
-                      {transcriptionResult.accuracy}%
-                    </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-4 bg-[#0B1222] border border-emerald-500/30 rounded-2xl text-center">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Accuracy Score</div>
+                    <div className="text-2xl font-black text-emerald-400 mt-1">{transcriptionResult.accuracy}%</div>
                   </div>
-                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Typing Speed</span>
-                    <span className="text-2xl font-black text-amber-400 mt-1 block">
-                      {transcriptionResult.wpm} <span className="text-xs font-normal">WPM</span>
-                    </span>
+                  <div className="p-4 bg-[#0B1222] border border-amber-500/30 rounded-2xl text-center">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Approx Speed</div>
+                    <div className="text-2xl font-black text-amber-400 mt-1">{transcriptionResult.wpm} WPM</div>
                   </div>
-                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Total Mistakes</span>
-                    <span className="text-2xl font-black text-rose-400 mt-1 block">
-                      {transcriptionResult.mistakes.length}
-                    </span>
+                  <div className="p-4 bg-[#0B1222] border border-rose-500/30 rounded-2xl text-center">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Mistakes Found</div>
+                    <div className="text-2xl font-black text-rose-400 mt-1">{transcriptionResult.mistakes.length}</div>
                   </div>
-                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Word Count</span>
-                    <span className="text-2xl font-black text-indigo-400 mt-1 block">
-                      {transcriptionResult.totalTypedWords}/{transcriptionResult.totalOriginalWords}
-                    </span>
+                  <div className="p-4 bg-[#0B1222] border border-indigo-500/30 rounded-2xl text-center">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Total Words</div>
+                    <div className="text-2xl font-black text-indigo-400 mt-1">{transcriptionResult.totalTypedWords} / {transcriptionResult.totalOriginalWords}</div>
                   </div>
                 </div>
 
-                {/* Detailed Mistake Breakdown */}
+                {/* Mistakes list */}
                 {transcriptionResult.mistakes.length > 0 && (
                   <div className="space-y-2">
-                    <span className="text-xs font-bold text-rose-400 uppercase tracking-wider block">
-                      🔍 विस्तृत त्रुटि विश्लेषण (Identified Word Discrepancies):
-                    </span>
-                    <div className="max-h-48 overflow-y-auto space-y-1.5 bg-[#03060E] border border-slate-800 rounded-2xl p-3 text-xs font-mono">
-                      {transcriptionResult.mistakes.map((m, idx) => (
-                        <div key={idx} className="text-rose-300 py-0.5 border-b border-slate-850 last:border-0">
-                          {m}
+                    <h4 className="text-xs font-bold text-rose-400 uppercase tracking-wider">
+                      🔍 पहचानी गई गलतियाँ (Identified Mistakes):
+                    </h4>
+                    <div className="max-h-40 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
+                      {transcriptionResult.mistakes.map((mistake, idx) => (
+                        <div key={idx} className="p-2.5 bg-rose-950/20 border border-rose-500/30 rounded-xl text-xs text-rose-200">
+                          {mistake}
                         </div>
                       ))}
                     </div>
@@ -1254,86 +1589,56 @@ Answer the following steno doubt with exact stroke rules, vowel placement, speed
         </div>
       )}
 
-      {/* TAB 4: ASK AI STENOGRAPHER GURU */}
+      {/* ========================================================================= */}
+      {/* TAB 5: AI SHORTHAND MASTER (ASK DOUBTS) */}
+      {/* ========================================================================= */}
       {activeTab === 'ai_assistant' && (
         <div className="max-w-4xl mx-auto space-y-6">
           
           <div className="bg-[#0A0F1D] border border-slate-800 rounded-3xl p-6 space-y-6 shadow-2xl">
             
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
-                  AI SHORTHAND MENTOR
-                </span>
-                <h2 className="text-xl font-black text-white mt-1">
-                  {language === 'hindi' ? 'स्टेनो AI गुरु • किसी भी शब्द या वाक्यांश का नियम पूछें' : 'Ask AI Shorthand Master'}
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  ऋषि, मानक या पिटमैन में किसी भी कठिन शब्द, स्वर, आंकड़े या कोर्ट वाक्यांश का सही आउटलाइन नियम तुरंत पूछें।
-                </p>
+            <div className="border-b border-slate-800 pb-4">
+              <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
+                AI STENO MENTOR
+              </span>
+              <h2 className="text-xl font-black text-white mt-1">
+                {language === 'hindi' ? 'स्टेनो AI गुरु (शॉर्टहैंड नियम व वाक्यांश समाधान)' : 'AI Shorthand Mentor & Outlines Helper'}
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                हिंदी ऋषि प्रणाली, विशिष्ट प्रणाली या पिटमैन के किसी भी कठिन शब्द या वाक्यांश की आउटलाइन पूछें।
+              </p>
+            </div>
+
+            {/* Input Prompt Box */}
+            <div className="space-y-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={stenoAiInput}
+                  onChange={(e) => setStenoAiInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAskStenoAi()}
+                  placeholder="उदा: 'उच्च न्यायालय' की आउटलाइन कैसे बनेगी? या 120 WPM पर हाथ कैसे तेज चलाएं?"
+                  className="w-full py-3 pl-4 pr-24 bg-[#060A14] border border-slate-800 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                />
+                <button
+                  onClick={handleAskStenoAi}
+                  disabled={stenoAiLoading || !stenoAiInput.trim()}
+                  className="absolute right-2 top-2 px-4 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black rounded-xl text-xs cursor-pointer disabled:opacity-40"
+                >
+                  {stenoAiLoading ? '...' : 'पूछें'}
+                </button>
               </div>
             </div>
 
-            {/* Query Input Box */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={stenoAiInput}
-                onChange={(e) => setStenoAiInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAskStenoAi(); }}
-                placeholder={language === 'hindi' ? 'जैसे: "संसदीय कार्यवाही" या "माननीय अध्यक्ष" का संक्षिप्त आउटलाइन कैसे बनाएं?' : 'e.g., How to form outline for Constitutional Assembly?'}
-                className="flex-1 text-xs py-3 px-4 bg-[#060A14] border border-slate-800 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-              />
-              <button
-                onClick={handleAskStenoAi}
-                disabled={stenoAiLoading}
-                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
-              >
-                {stenoAiLoading ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    <span>{language === 'hindi' ? 'पूछें' : 'Ask Guru'}</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Preset Quick Doubt Chips */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] font-bold text-slate-500">Quick Queries:</span>
-              {[
-                'ऋषि प्रणाली में "स" वृत्त के नियम',
-                '"भारत सरकार" और "उच्च न्यायालय" वाक्यांश',
-                '80 से 100 WPM गति कैसे बढ़ाएं?',
-                'पिटमैन में Vowel Interlocking कैसे करें?'
-              ].map((chip, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => { setStenoAiInput(chip); }}
-                  className="px-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-slate-300 transition-all cursor-pointer"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
-
-            {/* Feed of Responses */}
-            <div className="space-y-4 pt-2">
+            {/* Responses Stream */}
+            <div className="space-y-3">
               {stenoAiResponses.map((item, idx) => (
-                <div key={idx} className="bg-[#060A14] border border-slate-850 rounded-2xl p-5 space-y-3 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-slate-850 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-300 font-black text-[10px] flex items-center justify-center">
-                        Q
-                      </span>
-                      <h4 className="text-xs font-black text-white">{item.q}</h4>
-                    </div>
-                    <span className="text-[9px] text-slate-500 font-mono">{item.timestamp}</span>
+                <div key={idx} className="p-4 bg-[#060A14] border border-slate-800 rounded-2xl space-y-2 text-xs">
+                  <div className="font-bold text-amber-400 flex items-center justify-between">
+                    <span>Q: {item.q}</span>
+                    <span className="text-[10px] text-slate-500">{item.timestamp}</span>
                   </div>
-
-                  <div className="text-xs text-slate-200 leading-relaxed font-sans whitespace-pre-line">
+                  <div className="text-slate-200 leading-relaxed whitespace-pre-wrap">
                     {item.a}
                   </div>
                 </div>

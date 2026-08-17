@@ -114,12 +114,27 @@ import { StartupIntroSplash } from './components/StartupIntroSplash';
 import { HansCompainLogo } from './components/HansCompainLogo';
 import { QuizMistakeRemediationModal } from './components/QuizMistakeRemediationModal';
 import { QuizMistakeNotebookView } from './components/QuizMistakeNotebookView';
+import { MockInterviewView } from './components/MockInterviewView';
+import { AIPerformanceDiagnosticsView } from './components/AIPerformanceDiagnosticsView';
 import { DedicatedStenoMasterStudio } from './components/DedicatedStenoMasterStudio';
 import { PublicLaunchHubView } from './components/PublicLaunchHubView';
 import { AiPublicRulesModal } from './components/AiPublicRulesModal';
 import { HansAiHelpGuideModal } from './components/HansAiHelpGuideModal';
+import { SystemDiagnosticsModal } from './components/SystemDiagnosticsModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { generateStudyNotesPdf } from './utils/pdfGenerator';
+import {
+  getAppShareUrl,
+  getShareText,
+  shareViaWhatsApp,
+  shareViaTelegram,
+  shareViaTwitter,
+  shareViaFacebook,
+  shareViaLinkedIn,
+  shareViaEmail,
+  shareUniversal,
+  copyToClipboard
+} from './utils/shareUtils';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -457,7 +472,7 @@ const STATUS_THEMES = [
 
 export default function App() {
   // Navigation & View state
-  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'study-plan' | 'flashcards' | 'photo-doubt' | 'security' | 'book-reader' | 'notes-ocr' | 'photo-ocr' | 'neural-map' | 'time-travel' | 'mnemonics' | 'science-lab' | 'steno' | 'launch-hub' | 'article-reader' | 'file-converter' | 'weather-alerts' | 'affiliate-store' | 'affiliate' | 'mistake-notebook'>('chat');
+  const [activeView, setActiveView] = useState<'chat' | 'newsboard' | 'research' | 'quiz' | 'leaderboard' | 'process' | 'calculator' | 'rap' | 'notes' | 'timer' | 'history' | 'goals' | 'map' | 'soul' | 'sarkari-result' | 'owner-dashboard' | 'feedback' | 'planner' | 'study-plan' | 'flashcards' | 'photo-doubt' | 'security' | 'book-reader' | 'notes-ocr' | 'photo-ocr' | 'neural-map' | 'time-travel' | 'mnemonics' | 'science-lab' | 'steno' | 'launch-hub' | 'article-reader' | 'file-converter' | 'weather-alerts' | 'affiliate-store' | 'affiliate' | 'mistake-notebook' | 'mock-interview' | 'performance-analytics'>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
   const [isCreatorDrawerOpen, setIsCreatorDrawerOpen] = useState(false);
@@ -485,8 +500,8 @@ export default function App() {
   const [isAuthLoginOpen, setIsAuthLoginOpen] = useState(false);
   const [isAuthForgotOpen, setIsAuthForgotOpen] = useState(false);
 
-  // Helper for Export PDF using real jsPDF file generator
-  const handleExportPdf = (title: string, elementId?: string, rawText?: string) => {
+  // Helper for Export PDF using real jsPDF + html2canvas file generator with full Unicode/Hindi support
+  const handleExportPdf = async (title: string, elementId?: string, rawText?: string) => {
     let content = rawText || '';
     if (!content && elementId) {
       const el = document.getElementById(elementId);
@@ -498,7 +513,8 @@ export default function App() {
       content = `HansAI Study Notes & Academic Solutions for ${title}`;
     }
 
-    const success = generateStudyNotesPdf({
+    showToast(language === 'hindi' ? "📄 PDF तैयार हो रहा है, कृपया प्रतीक्षा करें..." : "📄 Generating high-res PDF...", "info");
+    const success = await generateStudyNotesPdf({
       title: title || 'HansAI Study Notes',
       content: content,
       author: user?.name || user?.email || 'HansAI Student',
@@ -507,15 +523,13 @@ export default function App() {
 
     if (success) {
       showToast(language === 'hindi' ? "📄 PDF फाइल सफलतापूर्वक डाउनलोड हो गई! 📥" : "📄 PDF downloaded successfully! 📥", "success");
-    } else {
-      showToast("PDF generation failed, fallback to print", "info");
-      window.print();
     }
   };
 
   // 1-Click Message to PDF Downloader
-  const handleDownloadMessagePdf = (msg: Message) => {
-    const success = generateStudyNotesPdf({
+  const handleDownloadMessagePdf = async (msg: Message) => {
+    showToast(language === 'hindi' ? "📥 PDF तैयार हो रहा है..." : "📥 Preparing PDF...", "info");
+    const success = await generateStudyNotesPdf({
       title: `HansAI Study Notes - ${new Date().toLocaleDateString()}`,
       topic: msg.content.slice(0, 45).replace(/[#*`]/g, '').trim(),
       content: msg.content,
@@ -524,8 +538,6 @@ export default function App() {
     });
     if (success) {
       showToast(language === 'hindi' ? "📥 नोट्स की PDF फाइल डाउनलोड हो गई!" : "📥 Study notes PDF downloaded!", "success");
-    } else {
-      showToast("Failed to download PDF", "warn");
     }
   };
 
@@ -571,8 +583,13 @@ export default function App() {
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareSelectedTab, setShareSelectedTab] = useState<string>('all');
+  const [isCopiedShareLink, setIsCopiedShareLink] = useState<boolean>(false);
   const [isAppLauncherOpen, setIsAppLauncherOpen] = useState<boolean>(false);
   const [isAllExamsSyllabusOpen, setIsAllExamsSyllabusOpen] = useState<boolean>(false);
+  const [isAiRulesModalOpen, setIsAiRulesModalOpen] = useState<boolean>(false);
+  const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
+  const [isDiagnosticsModalOpen, setIsDiagnosticsModalOpen] = useState<boolean>(false);
   
   // Universal Feature Hub (Hide / Show Drawers for Universal Users & Students)
   const [isFeatureHubOpen, setIsFeatureHubOpen] = useState<boolean>(false);
@@ -897,6 +914,23 @@ export default function App() {
     };
 
     trackVisitorSession();
+
+    // Check deep-link navigation from shared URLs (e.g. ?tab=quiz or ?view=steno)
+    try {
+      if (typeof window !== 'undefined' && window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetTab = urlParams.get('tab') || urlParams.get('view');
+        if (targetTab) {
+          const validViews = ['chat', 'newsboard', 'research', 'quiz', 'leaderboard', 'process', 'calculator', 'rap', 'notes', 'timer', 'history', 'goals', 'map', 'soul', 'sarkari-result', 'owner-dashboard', 'feedback', 'planner', 'study-plan', 'flashcards', 'photo-doubt', 'security', 'book-reader', 'notes-ocr', 'photo-ocr', 'neural-map', 'time-travel', 'mnemonics', 'science-lab', 'steno', 'launch-hub', 'article-reader', 'file-converter', 'weather-alerts', 'affiliate-store', 'affiliate', 'mistake-notebook', 'mock-interview', 'performance-analytics'];
+          if (validViews.includes(targetTab)) {
+            setActiveView(targetTab as any);
+            showToast(`Opened shared workspace: ${targetTab.toUpperCase()}`, 'info');
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Could not parse shared deep-link url params", e);
+    }
   }, []);
 
   // Owner analytics state (for owner dashboard)
@@ -1271,8 +1305,6 @@ export default function App() {
   const [currentChatSessionId, setCurrentChatSessionId] = useState<string | null>(null);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingChatTitle, setEditingChatTitle] = useState<string>('');
-  const [isAiRulesModalOpen, setIsAiRulesModalOpen] = useState<boolean>(false);
-  const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
   const [isClearAllChatsModalOpen, setIsClearAllChatsModalOpen] = useState<boolean>(false);
 
   const deleteSavedChat = (id: string) => {
@@ -4956,10 +4988,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             >
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
-                <span className="font-bold">{language === 'hindi' ? '🤖 HansAI गाइड व पूरी जानकारी' : '🤖 HansAI Help & Feature Guide'}</span>
+                <span className="font-bold">{language === 'hindi' ? '🤖 A8 AI सहायता चैट सिस्टम' : '🤖 A8 AI Help & Chat Assistant'}</span>
               </div>
-              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.5 rounded font-mono">
-                Guide 📖
+              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">
+                A8 Chat ✨
+              </span>
+            </button>
+
+            {/* 🔍 HansAI Auto-Problem Diagnostics & Owner Alert */}
+            <button
+              onClick={() => {
+                setIsDiagnosticsModalOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-emerald-950/80 to-teal-950/80 hover:from-emerald-900 hover:to-teal-900 border border-emerald-500/50 rounded-xl text-emerald-200 flex items-center justify-between transition-all cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-400 shrink-0 animate-pulse" />
+                <span className="font-bold">{language === 'hindi' ? '🔍 ऑटो प्रॉब्लम स्कैनर व ईमेल रिपोर्ट' : '🔍 Auto Problem Diagnostics'}</span>
+              </div>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono">
+                Auto Scan ⚡
               </span>
             </button>
 
@@ -5398,6 +5447,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       {language === 'hindi' ? "विशेषज्ञ AI टूल्स" : "Specialized AI Hub"}
                     </span>
                     <div className="space-y-1 text-xs font-semibold">
+                      <button
+                        onClick={() => { setActiveView('mock-interview'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-indigo-300 hover:text-indigo-200 hover:bg-[#121829] transition-all text-left bg-indigo-500/15 border border-indigo-500/30 cursor-pointer font-bold"
+                      >
+                        <span className="text-sm">🎙️</span>
+                        <span className="truncate">{language === 'hindi' ? 'AI मॉक इंटरव्यू सिमुलेटर' : 'AI Mock Interview Simulator'}</span>
+                      </button>
+                      <button
+                        onClick={() => { setActiveView('performance-analytics'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-rose-300 hover:text-rose-200 hover:bg-[#121829] transition-all text-left bg-rose-500/15 border border-rose-500/30 cursor-pointer font-bold"
+                      >
+                        <span className="text-sm">📊</span>
+                        <span className="truncate">{language === 'hindi' ? 'AI परफॉरमेंस एवं कमज़ोर विषय' : 'AI Weak Area Diagnostics'}</span>
+                      </button>
+                      <button
+                        onClick={() => { setActiveView('study-plan'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-cyan-300 hover:text-cyan-200 hover:bg-[#121829] transition-all text-left bg-cyan-500/15 border border-cyan-500/30 cursor-pointer font-bold"
+                      >
+                        <span className="text-sm">🗓️</span>
+                        <span className="truncate">{language === 'hindi' ? 'स्मार्ट स्टडी प्लानर' : 'Smart Study Planner'}</span>
+                      </button>
                       <button
                         onClick={() => { setActiveView('neural-map'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
                         className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/15 border border-emerald-500/30 cursor-pointer font-bold"
@@ -10517,6 +10587,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     adminPasswordSecret={adminPasswordSecret}
                     setAdminPasswordSecret={setAdminPasswordSecret}
                     adminAuditLogs={adminAuditLogs}
+                    onOpenDiagnostics={() => setIsDiagnosticsModalOpen(true)}
                   />
                 </>
               )}
@@ -11328,6 +11399,51 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </ErrorBoundary>
           )}
 
+          {/* VIEW: AI MOCK INTERVIEW SIMULATOR */}
+          {activeView === 'mock-interview' && (
+            <ErrorBoundary fallbackTitle="AI Mock Interview" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <MockInterviewView
+                  language={language}
+                  showToast={showToast}
+                  onExportPdf={handleExportPdf}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: AI PERFORMANCE DIAGNOSTICS & WEAK AREA ANALYTICS */}
+          {activeView === 'performance-analytics' && (
+            <ErrorBoundary fallbackTitle="AI Performance Analytics" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <AIPerformanceDiagnosticsView
+                  language={language}
+                  showToast={showToast}
+                  onExportPdf={handleExportPdf}
+                  onNavigateToQuiz={(subj) => {
+                    setQuizSubject(subj);
+                    setActiveView('quiz');
+                  }}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: QUIZ MISTAKE NOTEBOOK */}
+          {activeView === 'mistake-notebook' && (
+            <ErrorBoundary fallbackTitle="Mistake Notebook" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <QuizMistakeNotebookView
+                  mistakes={mistakeNotebook}
+                  onRetest={(questions, title) => handleStartRetestFromMistakes(questions, title)}
+                  onDelete={handleDeleteMistake}
+                  onClearAll={handleClearAllMistakes}
+                  onToggleMastered={handleToggleMasteredMistake}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
         </div>
 
         {/* BOTTOM COMPLIANCE & LEGAL FOOTER BAR */}
@@ -12029,14 +12145,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
                   ];
                   const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
+                  const dynamicShareUrl = getAppShareUrl();
                   
-                  const shareText = `🎯 _HansAI Space - Daily Study Motivation_ 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 *Start practicing studies, quizzes & live GIS maps for exams too!* Join Free At: https://hansai.vercel.app\n\n🕊️ _HansAI Academic Ecosystem_`;
+                  const shareText = `🎯 *Hans Compain - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\n🕊️ _Hans Compain (HansAI) Academic Ecosystem_`;
                   
                   if (navigator.share) {
                     navigator.share({
-                      title: 'HansAI Daily Status Badge',
+                      title: 'Hans Compain Daily Status Badge',
                       text: shareText,
-                      url: 'https://hansai.vercel.app'
+                      url: dynamicShareUrl
                     }).then(() => {
                       showToast("Shared successfully! 🎉", "success");
                     }).catch(() => {
@@ -12063,10 +12180,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
                   ];
                   const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
+                  const dynamicShareUrl = getAppShareUrl();
                   
-                  const shareText = `🎯 _HansAI Space - Daily Study Motivation_ 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 JOIN AT: https://hansai.vercel.app\n\n🕊️ _HansAI Academic Ecosystem_`;
-                  navigator.clipboard.writeText(shareText);
-                  showToast("📋 Copying layout text for clipboard sharing!", "success");
+                  const shareText = `🎯 *Hans Compain - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 JOIN AT: ${dynamicShareUrl}\n\n🕊️ _Hans Compain Academic Ecosystem_`;
+                  copyToClipboard(shareText, showToast);
                 }}
                 className="w-full py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
@@ -12564,23 +12681,26 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         showToast={showToast}
       />
 
-      {/* SOCIAL MEDIA SHARE APP MODAL */}
+      {/* HANS COMPAIN ADVANCED SHARE LINK MODAL */}
       {isShareModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-[#0B0F19] border border-cyan-500/40 rounded-3xl max-w-lg w-full p-6 space-y-5 text-left shadow-2xl shadow-cyan-500/10 relative overflow-hidden">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in font-sans">
+          <div className="bg-[#0A0E1A] border border-cyan-500/30 rounded-3xl max-w-lg w-full p-5 sm:p-6 space-y-4 text-left shadow-2xl shadow-cyan-950/40 relative max-h-[92vh] overflow-y-auto">
             
             {/* Header */}
-            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-cyan-500/20">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-purple-600 flex items-center justify-center text-xl shadow-lg shadow-cyan-500/20 text-white font-bold">
                   🚀
                 </div>
                 <div>
                   <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                    HansAI ऐप शेयर करें
+                    <span>{language === 'hindi' ? 'Hans Compain ऐप शेयर करें' : 'Share Hans Compain App'}</span>
+                    <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">
+                      Live Share
+                    </span>
                   </h3>
                   <p className="text-xs text-slate-400">
-                    WhatsApp, Instagram, Telegram, Facebook पर दोस्तों को भेजें
+                    {language === 'hindi' ? 'दोस्तों और स्टडी ग्रुप्स में 1-क्लिक शेयर करें' : 'Share with friends, batchmates & study groups'}
                   </p>
                 </div>
               </div>
@@ -12592,58 +12712,111 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </button>
             </div>
 
-            {/* AUTOMATIC LINK UPDATE EXPLANATION BANNER */}
-            <div className="p-3.5 bg-indigo-950/60 border border-indigo-500/40 rounded-2xl space-y-1.5 text-xs text-indigo-200 leading-relaxed">
-              <div className="flex items-center gap-2 font-bold text-cyan-300">
-                <span>⚡</span>
-                <span>क्या लिंक अपने-आप (Automatically) अपडेट होता है?</span>
+            {/* Feature Deep-Link Selector */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
+                {language === 'hindi' ? '🎯 क्या शेयर करना चाहते हैं? (Select Workspace)' : '🎯 What do you want to share?'}
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                {[
+                  { id: 'all', label: '🌐 All Features', tab: undefined },
+                  { id: 'quiz', label: '🧠 Live Quiz', tab: 'quiz' },
+                  { id: 'steno', label: '✍️ Shorthand', tab: 'steno' },
+                  { id: 'science-lab', label: '🔬 Science Lab', tab: 'science-lab' },
+                  { id: 'photo-doubt', label: '📸 Photo Doubt', tab: 'photo-doubt' },
+                  { id: 'notes-ocr', label: '📜 Notes OCR', tab: 'notes-ocr' },
+                  { id: 'time-travel', label: '⏳ Time Travel', tab: 'time-travel' },
+                  { id: 'study-plan', label: '📅 Study Plan', tab: 'study-plan' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setShareSelectedTab(item.id);
+                      setIsCopiedShareLink(false);
+                    }}
+                    className={`p-2 rounded-xl text-[11px] font-bold transition-all text-center border cursor-pointer ${
+                      shareSelectedTab === item.id
+                        ? 'bg-cyan-600/30 border-cyan-500 text-cyan-200 shadow-md shadow-cyan-950/30'
+                        : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
-              <p className="text-[11px] text-slate-300">
-                <strong>हाँ, बिल्कुल!</strong> यह शेयर किया गया वेब लिंक हमेशा <strong>लाइव और ऑटोमैटिक अपडेट</strong> रहता है। जब भी <strong>हंसलाल पाल जी (Owner)</strong> इस ऐप में नए सवाल, स्टडी मटेरियल या फीचर्स जोड़ेंगे, तो इस लिंक को खोलने पर सभी यूजर्स को तुरंत नया अपडेटेड ऐप ही मिलेगा। आपको बार-बार नया लिंक भेजने की आवश्यकता नहीं है!
-              </p>
             </div>
 
             {/* DIRECT COPY LINK BOX */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
-                लाइव ऐप लिंक (Direct Web Link)
-              </label>
-              <div className="flex items-center gap-2 bg-[#04070F] border border-slate-800 p-2 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider block">
+                  {language === 'hindi' ? '🔗 लाइव शेयर लिंक (Direct Live Link)' : '🔗 Direct Live Link'}
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {shareSelectedTab === 'all' ? 'Full App' : `Target: ?tab=${shareSelectedTab}`}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2 bg-[#04070F] border border-cyan-500/30 p-2 rounded-2xl">
                 <input
                   type="text"
                   readOnly
-                  value={typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com'}
-                  className="w-full text-xs bg-transparent text-cyan-300 font-mono outline-none px-2 truncate"
+                  value={getAppShareUrl(shareSelectedTab === 'all' ? undefined : shareSelectedTab)}
+                  className="w-full text-xs bg-transparent text-cyan-200 font-mono outline-none px-2 truncate selection:bg-cyan-800"
                 />
                 <button
-                  onClick={() => {
-                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
-                    navigator.clipboard.writeText(shareUrl);
-                    showToast("📋 HansAI App Link copied to clipboard!", "success");
+                  onClick={async () => {
+                    const targetUrl = getAppShareUrl(shareSelectedTab === 'all' ? undefined : shareSelectedTab);
+                    const copied = await copyToClipboard(targetUrl, showToast);
+                    if (copied) {
+                      setIsCopiedShareLink(true);
+                      setTimeout(() => setIsCopiedShareLink(false), 3000);
+                    }
                   }}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer shadow-md"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer shadow-md ${
+                    isCopiedShareLink
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white'
+                  }`}
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Link</span>
+                  {isCopiedShareLink ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{language === 'hindi' ? 'कॉपी हुआ!' : 'Copied!'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{language === 'hindi' ? 'लिंक कॉपी करें' : 'Copy Link'}</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* SOCIAL MEDIA SHARE BUTTONS */}
+            {/* 1-CLICK SOCIAL MEDIA SHARE BUTTONS */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
-                सोशल मीडिया पर डायरेक्ट शेयर करें (One-Click Share)
+                {language === 'hindi' ? '📱 सोशल मीडिया पर तुरंत शेयर करें (One-Click Share)' : '📱 Share via Social Media'}
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 
                 {/* WhatsApp */}
                 <button
                   onClick={() => {
-                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
-                    const text = encodeURIComponent(`📚 *HansAI Digital Teacher & Shorthand Platform*\nनिःशुल्क अध्ययन, AI डाउट सॉल्वर, SSC एवं आशुलिपि तैयारी के लिए ऐप खोलें:\n${shareUrl}`);
-                    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
+                    const featureNames: Record<string, string> = {
+                      quiz: 'Interactive Live Quiz & Mock Tests',
+                      steno: 'Shorthand Studio & Speed Dictation',
+                      'science-lab': 'Virtual Science Lab & Formula Hub',
+                      'photo-doubt': 'Photo Doubt Solver',
+                      'notes-ocr': 'Scanned Handwritten Notes OCR',
+                      'time-travel': 'Historical Time Travel Simulator',
+                      'study-plan': 'Smart Study Planner'
+                    };
+                    shareViaWhatsApp({ tab: currentTab, title: currentTab ? featureNames[currentTab] : undefined });
                   }}
-                  className="p-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                  className="p-2.5 bg-emerald-650 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
                 >
                   <span className="text-base">💬</span>
                   <span>WhatsApp</span>
@@ -12652,12 +12825,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Telegram */}
                 <button
                   onClick={() => {
-                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
-                    const url = encodeURIComponent(shareUrl);
-                    const text = encodeURIComponent("HansAI Quantum Lab • Digital AI Teacher for SSC & Shorthand Aspirants");
-                    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
+                    shareViaTelegram({ tab: currentTab });
                   }}
-                  className="p-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                  className="p-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
                 >
                   <span className="text-base">✈️</span>
                   <span>Telegram</span>
@@ -12665,74 +12836,98 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                 {/* Instagram */}
                 <button
-                  onClick={() => {
-                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
-                    navigator.clipboard.writeText(shareUrl);
-                    showToast("📋 Link copied! Paste on Instagram Story or Message! 📸", "success");
+                  onClick={async () => {
+                    const targetUrl = getAppShareUrl(shareSelectedTab === 'all' ? undefined : shareSelectedTab);
+                    await copyToClipboard(targetUrl, showToast);
+                    showToast(language === 'hindi' ? "📋 लिंक कॉपी हुआ! इंस्टाग्राम स्टोरी या DM में पेस्ट करें 📸" : "📋 Link copied! Paste in Instagram Story or DM! 📸", "success");
                     window.open("https://www.instagram.com", "_blank");
                   }}
-                  className="p-2.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-90 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                  className="p-2.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-90 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
                 >
                   <span className="text-base">📸</span>
                   <span>Instagram</span>
                 </button>
 
-                {/* Facebook */}
+                {/* X (Twitter) */}
                 <button
                   onClick={() => {
-                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
-                    const url = encodeURIComponent(shareUrl);
-                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
+                    shareViaTwitter({ tab: currentTab });
                   }}
-                  className="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
-                >
-                  <span className="text-base">📘</span>
-                  <span>Facebook</span>
-                </button>
-
-                {/* X / Twitter */}
-                <button
-                  onClick={() => {
-                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
-                    const url = encodeURIComponent(shareUrl);
-                    const text = encodeURIComponent("Check out HansAI Digital Teacher Platform for SSC & Shorthand preparation!");
-                    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-                  }}
-                  className="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer border border-slate-700"
+                  className="p-2.5 bg-slate-850 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-700 shadow-md"
                 >
                   <span className="text-base">𝕏</span>
                   <span>X (Twitter)</span>
                 </button>
 
-                {/* Native Device Share API */}
+                {/* Facebook */}
                 <button
                   onClick={() => {
-                    const shareUrl = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://hans-compain.onrender.com';
-                    if (navigator.share) {
-                      navigator.share({
-                        title: 'HansAI Quantum Lab',
-                        text: 'Free AI Teacher & SSC Shorthand Study Companion',
-                        url: shareUrl,
-                      }).catch(() => {});
-                    } else {
-                      navigator.clipboard.writeText(shareUrl);
-                      showToast("📋 HansAI Link copied to clipboard!", "success");
-                    }
+                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
+                    shareViaFacebook({ tab: currentTab });
                   }}
-                  className="p-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                  className="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
                 >
-                  <Share2 className="w-4 h-4 text-white" />
-                  <span>More Options</span>
+                  <span className="text-base">📘</span>
+                  <span>Facebook</span>
+                </button>
+
+                {/* LinkedIn */}
+                <button
+                  onClick={() => {
+                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
+                    shareViaLinkedIn({ tab: currentTab });
+                  }}
+                  className="p-2.5 bg-blue-700 hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
+                >
+                  <span className="text-base">💼</span>
+                  <span>LinkedIn</span>
+                </button>
+
+                {/* Email */}
+                <button
+                  onClick={() => {
+                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
+                    shareViaEmail({ tab: currentTab });
+                  }}
+                  className="p-2.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
+                >
+                  <span className="text-base">✉️</span>
+                  <span>Email</span>
+                </button>
+
+                {/* Universal Web Share */}
+                <button
+                  onClick={() => {
+                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
+                    shareUniversal({ tab: currentTab }, showToast);
+                  }}
+                  className="p-2.5 bg-cyan-700 hover:bg-cyan-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-cyan-200" />
+                  <span>{language === 'hindi' ? 'अन्य विकल्प' : 'More'}</span>
                 </button>
 
               </div>
             </div>
 
+            {/* AUTOMATIC LINK UPDATE EXPLANATION BANNER */}
+            <div className="p-3 bg-[#060A14] border border-cyan-500/20 rounded-2xl space-y-1 text-xs text-slate-300 leading-relaxed">
+              <div className="flex items-center gap-2 font-bold text-emerald-400 text-[11px]">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{language === 'hindi' ? 'ऑटोमैटिक लाइव अपडेट गारंटी (Zero Downtime)' : 'Automatic Live Updates Guaranteed'}</span>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                {language === 'hindi'
+                  ? 'यह शेयर किया गया लिंक हमेशा लाइव रहता है। जब भी Hanslal Pal जी (Founder) कोई नया क्विज़, साइंस एक्सपेरिमेंट या फीचर जोड़ते हैं, तो लिंक खोलने पर छात्रों को तुरंत नया अपडेटेड वर्जन मिलता है।'
+                  : 'This shared link stays permanently live and synchronized. Whenever new quizzes, formulas, or features are published, visitors always get the latest version seamlessly.'}
+              </p>
+            </div>
+
             {/* Footer note */}
-            <div className="pt-2 border-t border-slate-800 text-center">
-              <span className="text-[10px] text-slate-400">
-                HansAI Platform • Digital Learning & Research Ecosystem
-              </span>
+            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
+              <span>Hans Compain • Expert Academic & Career AI</span>
+              <span className="text-cyan-400 font-medium">Free for Students & Aspirants</span>
             </div>
 
           </div>
@@ -12897,6 +13092,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         language={language}
         onNavigateToFeature={(view) => {
           setActiveView(view as any);
+        }}
+      />
+
+      {/* 🔍 HANSAI AUTOMATIC PROBLEM DETECTOR & SYSTEM DIAGNOSTICS MODAL */}
+      <SystemDiagnosticsModal
+        isOpen={isDiagnosticsModalOpen}
+        onClose={() => setIsDiagnosticsModalOpen(false)}
+        language={language}
+        onFixAction={(feature) => {
+          setActiveView(feature as any);
         }}
       />
 

@@ -48,6 +48,7 @@ interface AdminPanelProps {
   adminPasswordSecret: string;
   setAdminPasswordSecret: (val: string) => void;
   adminAuditLogs: any[];
+  onOpenDiagnostics?: () => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
@@ -71,6 +72,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   setSeoSettings,
   setAdminPasswordSecret,
   adminAuditLogs,
+  onOpenDiagnostics,
 }) => {
   const [adminActiveTab, setAdminActiveTab] = useState<AdminTabType>('dashboard');
   const [ownerUserSearchQuery, setOwnerUserSearchQuery] = useState('');
@@ -801,9 +803,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           {/* 12. 🖥️ SYSTEM HEALTH */}
           {adminActiveTab === 'system_health' && (
             <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4 animate-fade-in">
-              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">
-                🖥️ System Health Metrics
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                  <span>🖥️ System Health Metrics & Auto Problem Scanner</span>
+                </h3>
+                {onOpenDiagnostics && (
+                  <button
+                    onClick={onOpenDiagnostics}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 border-none cursor-pointer"
+                  >
+                    <span>🔍</span>
+                    <span>ओपन ऑटो प्रॉब्लम स्कैनर (Launch Diagnostic Suite)</span>
+                  </button>
+                )}
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-3 bg-[#060913] border border-emerald-500/30 rounded-2xl">
@@ -817,6 +830,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div className="p-3 bg-[#060913] border border-amber-500/30 rounded-2xl">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">API Latency</div>
                   <div className="text-lg font-black text-amber-400">320 ms</div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gradient-to-br from-[#060913] to-slate-900 border border-slate-800 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">📧</span>
+                    <div>
+                      <h4 className="text-xs font-bold text-white">ऑटो प्रॉब्लम डिटेक्शन व ओनर ईमेल अलर्ट</h4>
+                      <p className="text-[11px] text-slate-400">किसी भी एरर पर ओनर (palhanslal4@gmail.com) को 1-क्लिक में डायग्नोस्टिक रिपोर्ट ईमेल करें</p>
+                    </div>
+                  </div>
+                  {onOpenDiagnostics && (
+                    <button
+                      onClick={onOpenDiagnostics}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      टेस्ट रन करें ⚡
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

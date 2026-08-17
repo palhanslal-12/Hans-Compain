@@ -1,5 +1,5 @@
 // /src/utils/speechUtils.ts
-// Universal, Rock-Solid Hindi & English Text-To-Speech Engine
+// Universal, Rock-Solid Hindi & English Text-To-Speech Engine with Gender-Aware Voices (Male / Female)
 
 let currentAudioPlayer: HTMLAudioElement | null = null;
 
@@ -7,6 +7,7 @@ export interface SpeechOptions {
   lang?: string;
   rate?: number;
   pitch?: number;
+  gender?: 'male' | 'female';
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (err: any) => void;
@@ -68,9 +69,7 @@ export const stopAllSpeech = () => {
 };
 
 /**
- * Universal Speech Engine
- * For Hindi text: Uses server-side /api/tts endpoint for 100% crystal-clear Hindi spoken audio.
- * For English text: Uses WebSpeech API with fallback to /api/tts endpoint.
+ * Universal Speech Engine with Male/Female Gender Voice Support
  */
 export const speakText = (text: string, rawOptions: SpeechOptions | string = {}) => {
   const options: SpeechOptions = typeof rawOptions === 'string' ? { lang: rawOptions } : rawOptions;
@@ -84,11 +83,16 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
   }
 
   const isHindi = isHindiText(cleanText);
+  const targetGender: 'male' | 'female' = options.gender || 'male';
+
+  // Pitch calculation according to gender
+  const defaultPitch = targetGender === 'female' ? 1.25 : 0.85;
+  const activePitch = options.pitch !== undefined ? options.pitch : defaultPitch;
+  const activeRate = options.rate || 0.95;
 
   // Split into manageable chunks by sentence punctuation boundaries
   const rawChunks = cleanText.split(/(?<=[.!?\n।])\s+/).filter(c => c.trim().length > 0);
   
-  // Re-pack chunks so none exceed 150 characters for stable audio streaming
   const chunks: string[] = [];
   for (const rawChunk of rawChunks) {
     if (rawChunk.length <= 150) {
@@ -113,54 +117,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
   let currentChunkIdx = 0;
   if (options.onStart) options.onStart();
 
-  // Audio TTS player using server-side /api/tts endpoint
-  const playAudioTTS = () => {
-    const playNextChunk = () => {
-      if (currentChunkIdx >= chunks.length) {
-        if (options.onEnd) options.onEnd();
-        return;
-      }
-
-      const chunk = chunks[currentChunkIdx];
-      const chunkIsHindi = isHindiText(chunk) || isHindi;
-      const langCode = chunkIsHindi ? 'hi' : 'en';
-
-      const audioUrl = `/api/tts?text=${encodeURIComponent(chunk)}&lang=${langCode}`;
-
-      const audio = new Audio(audioUrl);
-      currentAudioPlayer = audio;
-      audio.playbackRate = options.rate || 1.0;
-
-      audio.onended = () => {
-        currentChunkIdx++;
-        playNextChunk();
-      };
-
-      audio.onerror = (err) => {
-        console.warn("Server Audio TTS playback error, advancing chunk:", err);
-        currentChunkIdx++;
-        if (currentChunkIdx < chunks.length) {
-          playNextChunk();
-        } else {
-          if (options.onEnd) options.onEnd();
-        }
-      };
-
-      audio.play().catch(e => {
-        console.warn("Audio play error:", e);
-        currentChunkIdx++;
-        if (currentChunkIdx < chunks.length) {
-          playNextChunk();
-        } else {
-          if (options.onEnd) options.onEnd();
-        }
-      });
-    };
-
-    playNextChunk();
-  };
-
-  // Web Speech API for English
+  // 1. Web Speech Synthesis with Voice & Pitch Selection
   const tryWebSpeech = () => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       playAudioTTS();
@@ -176,18 +133,48 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       }
 
       const chunk = chunks[currentChunkIdx];
+      const chunkIsHindi = isHindiText(chunk) || isHindi;
       const utterance = new SpeechSynthesisUtterance(chunk);
-      utterance.rate = options.rate || 1.0;
-      utterance.pitch = options.pitch || 1.0;
-      utterance.lang = 'en-US';
+      utterance.rate = activeRate;
+      utterance.pitch = activePitch;
+      utterance.lang = chunkIsHindi ? 'hi-IN' : (options.lang || 'en-US');
 
-      const bestVoice = voices.find(v => 
-        v.lang.toLowerCase().startsWith('en') && 
-        (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('natural'))
-      ) || voices.find(v => v.lang.toLowerCase().startsWith('en'));
+      // Pick gender-appropriate voice
+      if (voices.length > 0) {
+        const langFilter = chunkIsHindi 
+          ? (v: SpeechSynthesisVoice) => v.lang.toLowerCase().includes('hi')
+          : (v: SpeechSynthesisVoice) => v.lang.toLowerCase().startsWith('en');
 
-      if (bestVoice) {
-        utterance.voice = bestVoice;
+        const availableLangVoices = voices.filter(langFilter);
+
+        let selectedVoice: SpeechSynthesisVoice | undefined;
+
+        if (targetGender === 'female') {
+          // Look for female identifiers in voice name
+          selectedVoice = availableLangVoices.find(v => {
+            const n = v.name.toLowerCase();
+            return n.includes('female') || n.includes('swara') || n.includes('kavya') || 
+                   n.includes('priya') || n.includes('zira') || n.includes('samantha') || 
+                   n.includes('victoria') || n.includes('kiran') || n.includes('kalpana');
+          });
+        } else {
+          // Look for male identifiers in voice name
+          selectedVoice = availableLangVoices.find(v => {
+            const n = v.name.toLowerCase();
+            return n.includes('male') || n.includes('hemant') || n.includes('neel') || 
+                   n.includes('david') || n.includes('alex') || n.includes('mark') || 
+                   n.includes('george') || n.includes('ravi') || n.includes('madhav');
+          });
+        }
+
+        // Fallback to any matching language voice
+        if (!selectedVoice && availableLangVoices.length > 0) {
+          selectedVoice = availableLangVoices[0];
+        }
+
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+        }
       }
 
       let hasEnded = false;
@@ -200,7 +187,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       };
 
       utterance.onerror = (e) => {
-        console.warn("WebSpeech synthesis error, switching to Audio TTS:", e);
+        console.warn("WebSpeech synthesis error, falling back to Audio TTS:", e);
         if (hasEnded) return;
         hasEnded = true;
         playAudioTTS();
@@ -216,11 +203,51 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
     speakWebChunk();
   };
 
-  // For Hindi text, ALWAYS use the reliable server-side Audio TTS engine.
-  // For English text, try native WebSpeech with Audio TTS fallback.
-  if (isHindi) {
-    playAudioTTS();
-  } else {
-    tryWebSpeech();
-  }
+  // 2. Server-side /api/tts Audio Streamer Fallback
+  const playAudioTTS = () => {
+    const playNextChunk = () => {
+      if (currentChunkIdx >= chunks.length) {
+        if (options.onEnd) options.onEnd();
+        return;
+      }
+
+      const chunk = chunks[currentChunkIdx];
+      const chunkIsHindi = isHindiText(chunk) || isHindi;
+      const langCode = chunkIsHindi ? 'hi' : 'en';
+
+      const audioUrl = `/api/tts?text=${encodeURIComponent(chunk)}&lang=${langCode}&gender=${targetGender}`;
+
+      const audio = new Audio(audioUrl);
+      currentAudioPlayer = audio;
+      audio.playbackRate = activeRate;
+
+      audio.onended = () => {
+        currentChunkIdx++;
+        playNextChunk();
+      };
+
+      audio.onerror = () => {
+        currentChunkIdx++;
+        if (currentChunkIdx < chunks.length) {
+          playNextChunk();
+        } else {
+          if (options.onEnd) options.onEnd();
+        }
+      };
+
+      audio.play().catch(() => {
+        currentChunkIdx++;
+        if (currentChunkIdx < chunks.length) {
+          playNextChunk();
+        } else {
+          if (options.onEnd) options.onEnd();
+        }
+      });
+    };
+
+    playNextChunk();
+  };
+
+  // Start with WebSpeech (fast, zero-latency, pitch/gender modifiable), fallback to Audio TTS
+  tryWebSpeech();
 };

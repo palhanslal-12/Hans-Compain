@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Camera, Upload, Sparkles, CheckCircle2, HelpCircle, Download, FileText } from 'lucide-react';
 
 interface PhotoDoubtViewProps {
-  onExportPdf: (title: string, elementId: string) => void;
+  onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
 }
 
@@ -151,7 +151,10 @@ export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, sho
                 <h2 className="text-lg font-black text-white">Verified AI Solution</h2>
               </div>
               <button
-                onClick={() => onExportPdf("Doubt Solution & MCQs", "ocr-solution-export-container")}
+                onClick={() => {
+                  const solutionRaw = `Question:\n${result.extractedText || userQuery}\n\nDetailed Solution:\n${result.solution}\n\n${result.practiceMcqs ? result.practiceMcqs.map((m: any, i: number) => `Q${i+1}: ${m.question}\n${(m.options || []).map((opt: string, oi: number) => `(${String.fromCharCode(65+oi)}) ${opt}`).join('\n')}\nCorrect Answer: ${m.options?.[m.answerIndex] || ''}\nExplanation: ${m.explanation || ''}`).join('\n\n') : ''}`;
+                  onExportPdf("Doubt Solution & MCQs", "ocr-solution-export-container", solutionRaw);
+                }}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
