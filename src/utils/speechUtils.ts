@@ -124,7 +124,8 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       return;
     }
 
-    const voices = cachedVoices.length > 0 ? cachedVoices : window.speechSynthesis.getVoices();
+    const allVoices = window.speechSynthesis.getVoices();
+    const voices = allVoices.length > 0 ? allVoices : cachedVoices;
 
     const speakWebChunk = () => {
       if (currentChunkIdx >= chunks.length) {
@@ -133,7 +134,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       }
 
       const chunk = chunks[currentChunkIdx];
-      const chunkIsHindi = isHindiText(chunk) || isHindi;
+      const chunkIsHindi = isHindiText(chunk) || isHindi || (options.lang && options.lang.startsWith('hi'));
       const utterance = new SpeechSynthesisUtterance(chunk);
       utterance.rate = activeRate;
       utterance.pitch = activePitch;
@@ -141,39 +142,47 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
 
       // Pick gender-appropriate voice
       if (voices.length > 0) {
-        const langFilter = chunkIsHindi 
-          ? (v: SpeechSynthesisVoice) => v.lang.toLowerCase().includes('hi')
-          : (v: SpeechSynthesisVoice) => v.lang.toLowerCase().startsWith('en');
+        let matchingVoices: SpeechSynthesisVoice[] = [];
 
-        const availableLangVoices = voices.filter(langFilter);
+        if (chunkIsHindi) {
+          matchingVoices = voices.filter(v => 
+            v.lang.toLowerCase().startsWith('hi') || 
+            v.lang.toLowerCase().includes('hi-in') ||
+            v.lang.toLowerCase().includes('hindi')
+          );
+        } else {
+          matchingVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+        }
 
         let selectedVoice: SpeechSynthesisVoice | undefined;
 
-        if (targetGender === 'female') {
-          // Look for female identifiers in voice name
-          selectedVoice = availableLangVoices.find(v => {
-            const n = v.name.toLowerCase();
-            return n.includes('female') || n.includes('swara') || n.includes('kavya') || 
-                   n.includes('priya') || n.includes('zira') || n.includes('samantha') || 
-                   n.includes('victoria') || n.includes('kiran') || n.includes('kalpana');
-          });
-        } else {
-          // Look for male identifiers in voice name
-          selectedVoice = availableLangVoices.find(v => {
-            const n = v.name.toLowerCase();
-            return n.includes('male') || n.includes('hemant') || n.includes('neel') || 
-                   n.includes('david') || n.includes('alex') || n.includes('mark') || 
-                   n.includes('george') || n.includes('ravi') || n.includes('madhav');
-          });
-        }
+        if (matchingVoices.length > 0) {
+          if (targetGender === 'female') {
+            selectedVoice = matchingVoices.find(v => {
+              const n = v.name.toLowerCase();
+              return n.includes('female') || n.includes('swara') || n.includes('kavya') || 
+                     n.includes('priya') || n.includes('zira') || n.includes('samantha') || 
+                     n.includes('victoria') || n.includes('kiran') || n.includes('kalpana') ||
+                     n.includes('lekha');
+            });
+          } else {
+            selectedVoice = matchingVoices.find(v => {
+              const n = v.name.toLowerCase();
+              return n.includes('male') || n.includes('hemant') || n.includes('neel') || 
+                     n.includes('david') || n.includes('alex') || n.includes('mark') || 
+                     n.includes('george') || n.includes('ravi') || n.includes('madhav') ||
+                     n.includes('google हिन्दी') || n.includes('hindi');
+            });
+          }
 
-        // Fallback to any matching language voice
-        if (!selectedVoice && availableLangVoices.length > 0) {
-          selectedVoice = availableLangVoices[0];
+          if (!selectedVoice) {
+            selectedVoice = matchingVoices[0];
+          }
         }
 
         if (selectedVoice) {
           utterance.voice = selectedVoice;
+          utterance.lang = selectedVoice.lang;
         }
       }
 

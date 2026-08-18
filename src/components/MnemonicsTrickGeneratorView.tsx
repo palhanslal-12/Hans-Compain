@@ -149,7 +149,6 @@ interface MnemonicsTrickGeneratorViewProps {
 export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewProps> = ({ showToast, language }) => {
   const [mnemonicList, setMnemonicList] = useState<MnemonicItem[]>(PRESET_MNEMONICS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('All');
   const [activeMnemonic, setActiveMnemonic] = useState<MnemonicItem>(PRESET_MNEMONICS[0]);
   
   const [customTopicInput, setCustomTopicInput] = useState('');
@@ -160,7 +159,7 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
   // Generate Custom Mnemonic with AI
   const handleGenerateCustomMnemonic = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const query = customTopicInput.trim();
+    const query = (customTopicInput || searchQuery).trim();
     if (!query) return;
 
     setIsGenerating(true);
@@ -202,6 +201,7 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
       setMnemonicList(prev => [newItem, ...prev]);
       setActiveMnemonic(newItem);
       setCustomTopicInput('');
+      setSearchQuery('');
       showToast(
         language === 'hindi' ? `🎉 "${query}" की जादुई ट्रिक बन कर तैयार है!` : `🎉 Mnemonic created for "${query}"!`,
         'success'
@@ -232,12 +232,12 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
   };
 
   const filteredMnemonics = mnemonicList.filter(item => {
-    const matchesSubject = selectedSubjectFilter === 'All' || item.subject === selectedSubjectFilter;
-    const matchesSearch = searchQuery === '' || 
-      item.topic.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.acronymOrCode.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSubject && matchesSearch;
+    const q = (searchQuery || customTopicInput).toLowerCase().trim();
+    if (!q) return true;
+    return item.topic.toLowerCase().includes(q) || 
+      item.title.toLowerCase().includes(q) ||
+      item.acronymOrCode.toLowerCase().includes(q) ||
+      item.storyTrickHindi.toLowerCase().includes(q);
   });
 
   return (
@@ -260,8 +260,8 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
             </h1>
             <p className="text-xs text-slate-300 mt-0.5">
               {language === 'hindi'
-                ? 'कठिन तारीखें, अनुच्छेद, मुगल काल, नदियाँ व फॉर्मूले 10 सेकेंड में याद रखें — मजेदार कविताओं, एक्क्रोनिक कोड व कहानियों के साथ!'
-                : 'Instantly master tough formulas, historical dates, constitutional articles & science series with AI rhymes & acronyms!'}
+                ? 'कठिन तारीखें, अनुच्छेद, सूत्र, नदियाँ व वैज्ञानिक नियम याद रखें — सीधा विषय लिखें और तुरंत ट्रिक पाएं!'
+                : 'Instantly master tough formulas, historical dates, constitutional articles & science rules with AI tricks!'}
             </p>
           </div>
         </div>
@@ -274,11 +274,14 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
           <input
             type="text"
             value={customTopicInput}
-            onChange={(e) => setCustomTopicInput(e.target.value)}
+            onChange={(e) => {
+              setCustomTopicInput(e.target.value);
+              setSearchQuery(e.target.value);
+            }}
             placeholder={
               language === 'hindi'
-                ? "किसी भी कठिन टॉपिक की ट्रिक बनाएं (जैसे: Fundamental Rights, Periodic Table, Oceans, Akbar Battles, Trigonometry)..."
-                : "Type any tough topic to create instant memory trick (e.g. Fundamental Rights, Periodic Table, Rivers)..."
+                ? "किसी भी टॉपिक का नाम लिखें (जैसे: Fundamental Rights, Periodic Table, Oceans, Akbar Battles, Trigonometry)..."
+                : "Type any topic to get or generate memory trick (e.g. Fundamental Rights, Periodic Table, Rivers)..."
             }
             className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none px-2 py-1 font-semibold"
             disabled={isGenerating}
@@ -302,23 +305,6 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
           </button>
         </div>
       </form>
-
-      {/* CATEGORY SUBJECT FILTERS */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {['All', 'Medical', 'Science', 'Teaching', 'Polity', 'History', 'Geography', 'General'].map(subject => (
-          <button
-            key={subject}
-            onClick={() => setSelectedSubjectFilter(subject)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
-              selectedSubjectFilter === subject
-                ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-lg scale-105'
-                : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
-            }`}
-          >
-            {subject === 'All' ? '🌐 All Subjects' : subject === 'Medical' ? '🩺 Medical & NEET' : subject === 'Teaching' ? '🎓 Teaching & CDP' : subject}
-          </button>
-        ))}
-      </div>
 
       {/* MAIN CONTENT GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

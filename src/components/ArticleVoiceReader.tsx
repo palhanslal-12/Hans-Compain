@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
+import { AudioSpeedControl } from './AudioSpeedControl';
+import { FullScreenLayout } from './FullScreenLayout';
 import { 
   Play, Pause, Square, Languages, Link as LinkIcon, 
   FileText, Copy, Check, Sparkles, RefreshCw, Sliders, 
@@ -271,7 +273,11 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-3 sm:p-5 space-y-4 font-sans text-left animate-fade-in">
+    <FullScreenLayout
+      title={isHindi ? "आर्टिकल वाइस रीडर" : "Article Voice Reader"}
+      isHindi={isHindi}
+    >
+      <div className="max-w-5xl mx-auto p-3 sm:p-5 space-y-4 font-sans text-left animate-fade-in">
       
       {/* Sleek Minimal Header */}
       <div className="flex items-center justify-between bg-[#0B0F19] border border-slate-800 px-4 py-3 rounded-2xl shadow-md">
@@ -492,29 +498,20 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div className="space-y-1">
                 <label className="text-[10px] text-slate-400 font-medium block">
-                  {isHindi ? "गति:" : "Speed:"} {playbackRate}x
+                  {isHindi ? "गति (Audio Speed):" : "Speed:"}
                 </label>
-                <div className="flex items-center gap-1">
-                  {[0.8, 0.9, 1.0].map((rate) => (
-                    <button
-                      key={rate}
-                      onClick={() => {
-                        setPlaybackRate(rate);
-                        if (isPlaying) {
-                          stopSpeech();
-                          setTimeout(() => startSpeech(), 100);
-                        }
-                      }}
-                      className={`flex-1 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-                        playbackRate === rate
-                          ? 'bg-amber-500 text-slate-950 shadow-sm'
-                          : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
-                      }`}
-                    >
-                      {rate}x
-                    </button>
-                  ))}
-                </div>
+                <AudioSpeedControl
+                  currentRate={playbackRate}
+                  onRateChange={(rate) => {
+                    setPlaybackRate(rate);
+                    if (isPlaying) {
+                      stopSpeech();
+                      setTimeout(() => startSpeech(), 100);
+                    }
+                  }}
+                  isHindi={isHindi}
+                  className="bg-slate-900 border-slate-800"
+                />
               </div>
 
               <div className="space-y-1">
@@ -751,7 +748,7 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
         </div>
 
       </div>
-
     </div>
+  </FullScreenLayout>
   );
 };

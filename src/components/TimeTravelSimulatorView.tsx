@@ -4,6 +4,8 @@ import {
   Search, UserPlus, History, User
 } from 'lucide-react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
+import { AudioSpeedControl } from './AudioSpeedControl';
+import { FullScreenLayout } from './FullScreenLayout';
 
 export interface EraPersona {
   id: string;
@@ -196,6 +198,7 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeakingMsgId, setIsSpeakingMsgId] = useState<string | null>(null);
+  const [audioSpeed, setAudioSpeed] = useState<number>(0.92);
 
   const handleSelectEra = (era: EraPersona) => {
     setSelectedEra(era);
@@ -368,11 +371,13 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
     } else {
       stopAllSpeech();
       setIsSpeakingMsgId(msgId);
-      // Pass gender explicitly (Male voice for Dr. Ambedkar/Gandhi/Bhagat Singh, Female voice for Rani Lakshmibai)
+      // Explicitly pass hindi language tag if text contains Devanagari or app language is hindi
+      const isHindiScript = /[\u0900-\u097F]/.test(text) || language === 'hindi';
       speakText(text, { 
+        lang: isHindiScript ? 'hi-IN' : 'en-US',
         gender: selectedEra.gender, 
-        rate: 0.95,
-        pitch: selectedEra.gender === 'female' ? 1.25 : 0.85,
+        rate: audioSpeed,
+        pitch: selectedEra.gender === 'female' ? 1.15 : 0.85,
         onEnd: () => setIsSpeakingMsgId(null),
         onError: () => setIsSpeakingMsgId(null)
       });
@@ -380,34 +385,52 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-3 sm:p-6 text-slate-100 space-y-6">
-      
-      {/* HEADER BAR */}
-      <div className="bg-gradient-to-r from-purple-950/80 via-slate-900 to-amber-950/80 border border-purple-500/30 p-5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/20 shrink-0">
-            <Compass className="w-6 h-6 animate-spin-slow" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-500/30">
-                AI TIME MACHINE
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-bold border border-indigo-500/30">
-                🎙️ Gender-Aware Voice (Male / Female)
-              </span>
+    <FullScreenLayout
+      title={language === 'hindi' ? `⏳ काल-यात्रा: ${selectedEra.name}` : `⏳ Time Travel: ${selectedEra.name}`}
+      isHindi={language === 'hindi'}
+    >
+      <div className="w-full max-w-7xl mx-auto p-3 sm:p-6 text-slate-100 space-y-6">
+        
+        {/* HEADER BAR */}
+        <div className="bg-gradient-to-r from-purple-950/80 via-slate-900 to-amber-950/80 border border-purple-500/30 p-5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/20 shrink-0">
+              <Compass className="w-6 h-6 animate-spin-slow" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight mt-1">
-              {language === 'hindi' ? '⏳ AI काल-यात्रा एवं इतिहास सिमुलेटर' : '⏳ AI Historical & Constitutional Time-Travel Simulator'}
-            </h1>
-            <p className="text-xs text-slate-300 mt-0.5">
-              {language === 'hindi'
-                ? 'डॉ. बी.आर. आंबेडकर, गांधीजी, रानी लक्ष्मीबाई या किसी भी ऐतिहासिक व्यक्ति से उनकी मूल आवाज़ में बात करें व परीक्षा के मुख्य बिंदु सीखें!'
-                : 'Debate constitutional and historical decisions with real AI personas in authentic male/female voices!'}
-            </p>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-500/30">
+                  AI TIME MACHINE
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-bold border border-indigo-500/30">
+                  🎙️ Gender-Aware Voice ({selectedEra.gender === 'female' ? 'Female' : 'Male'})
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight mt-1">
+                {language === 'hindi' ? '⏳ AI काल-यात्रा एवं इतिहास सिमुलेटर' : '⏳ AI Historical & Constitutional Time-Travel Simulator'}
+              </h1>
+              <p className="text-xs text-slate-300 mt-0.5">
+                {language === 'hindi'
+                  ? 'डॉ. बी.आर. आंबेडकर, गांधीजी, रानी लक्ष्मीबाई या किसी भी ऐतिहासिक व्यक्ति से उनकी मूल आवाज़ में बात करें व परीक्षा के मुख्य बिंदु सीखें!'
+                  : 'Debate constitutional and historical decisions with real AI personas in authentic male/female voices!'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <AudioSpeedControl
+              currentRate={audioSpeed}
+              onRateChange={(rate) => {
+                setAudioSpeed(rate);
+                if (isSpeakingMsgId) {
+                  stopAllSpeech();
+                  setIsSpeakingMsgId(null);
+                }
+              }}
+              isHindi={language === 'hindi'}
+            />
           </div>
         </div>
-      </div>
 
       {/* UNIVERSAL HISTORICAL PERSONA SEARCH BAR */}
       <form onSubmit={handleSearchPersona} className="relative w-full">
@@ -649,7 +672,7 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
         </div>
 
       </div>
-
     </div>
+  </FullScreenLayout>
   );
 };

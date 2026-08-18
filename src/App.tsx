@@ -2095,7 +2095,7 @@ export default function App() {
       .replace(/\$\s*→\s*\$/g, '→')
       .replace(/\$\s*([a-zA-Z0-9\s]+)\s*\$/g, '$1');
 
-    const highlightRegex = /(shorthand|steno|stenographer|dictation|consonants|vowels|Pitman|PMEGP|Mudra|subsidy|subsidies|yield percentage|processed goods|machinery|net profit|revenue|हंसलाल पाल|हंसलाल पाल जी)/ig;
+    const highlightRegex = /(shorthand|steno|stenographer|dictation|consonants|vowels|Pitman|PMEGP|Mudra|subsidy|subsidies|yield percentage|processed goods|machinery|net profit|revenue|हंसलाल पाल|हंसलाल पाल जी|Article \d+|अनुच्छेद \d+|Fundamental Rights|मौलिक अधिकार|Important|महत्वपूर्ण|Key Point|Key Takeaway|Formula|सूत्र|PYQ|Note:|Exam Tip|याद रखें)/ig;
 
     const highlightInlineText = (text: string) => {
       if (!isHighlightingEnabled || !text) return text;

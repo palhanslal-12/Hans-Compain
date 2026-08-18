@@ -181,7 +181,7 @@ interface NeuralMemoryMapViewProps {
 
 export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showToast, language }) => {
   const [nodes, setNodes] = useState<MemoryNode[]>(INITIAL_NODES);
-  const [selectedNode, setSelectedNode] = useState<MemoryNode | null>(INITIAL_NODES[0]);
+  const [selectedNode, setSelectedNode] = useState<MemoryNode | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchingAI, setIsSearchingAI] = useState<boolean>(false);
   const [activeQuizQuestion, setActiveQuizQuestion] = useState<any | null>(null);
@@ -799,11 +799,33 @@ export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showTo
 
             </div>
           ) : (
-            <div className="bg-[#0A0E1A] border border-slate-800 p-8 rounded-3xl text-center text-slate-400 space-y-2">
-              <Brain className="w-10 h-10 mx-auto text-slate-600" />
-              <p className="text-xs">
-                {language === 'hindi' ? 'बायें मैप में से किसी भी विषय पर क्लिक करके उसका रिपोर्टकार्ड देखें।' : 'Click any subject node on the left graph to view its memory decay diagnostics.'}
-              </p>
+            <div className="bg-[#0A0E1A] border-2 border-dashed border-slate-800 p-8 rounded-3xl text-center text-slate-400 space-y-4 shadow-xl flex flex-col items-center justify-center min-h-[380px]">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
+                <Search className="w-8 h-8 animate-pulse" />
+              </div>
+              <div className="space-y-1.5 max-w-md">
+                <h3 className="text-sm font-black text-white">
+                  {language === 'hindi' 
+                    ? 'विषय खोजें या न्यूरल नोड पर क्लिक करें' 
+                    : 'Search Topic or Click Any Neural Node'}
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                  {language === 'hindi' 
+                    ? 'ऊपर सर्च बार में कोई भी विषय (जैसे Fundamental Rights, Periodic Table, Repo Rate, Shorthand) लिखें या बायें न्यूरल मैप के किसी नोड पर क्लिक करें — तब उसकी स्मृति हानि स्थिति, सचित्र आरेख और मुख्य बिंदु दिखाई देंगे।' 
+                    : 'Search any exam topic or click a node on the left neural graph to reveal its detailed memory retention diagnostics, visual diagram and high-yield exam points.'}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                {nodes.slice(0, 4).map(n => (
+                  <button
+                    key={n.id}
+                    onClick={() => setSelectedNode(n)}
+                    className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 text-[11px] font-bold text-slate-300 hover:text-emerald-300 transition-all cursor-pointer"
+                  >
+                    📍 {n.subject.split(':')[0]}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 

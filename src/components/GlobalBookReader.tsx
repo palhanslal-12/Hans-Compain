@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
+import { AudioSpeedControl } from './AudioSpeedControl';
+import { FullScreenLayout } from './FullScreenLayout';
 import {
   Search, BookOpen, Volume2, VolumeX, Highlighter, Languages, Sparkles, Play,
   Pause, Bookmark, ChevronRight, CheckCircle2, ArrowLeft, RotateCcw, Share2,
@@ -1541,7 +1543,7 @@ Structure the response into:
               </span>
             </div>
 
-            {/* Read Aloud & Speed */}
+            {/* Read Aloud & Standardized Audio Speed */}
             <div className="flex items-center gap-2">
               <button
                 onClick={togglePlaySpeech}
@@ -1555,16 +1557,17 @@ Structure the response into:
                 <span>{isPlayingAudio ? 'Pause' : 'Listen (सुनें)'}</span>
               </button>
 
-              <select
-                value={speechRate}
-                onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                className="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2 py-1 focus:outline-none"
-              >
-                <option value={0.8}>0.8x</option>
-                <option value={1.0}>1.0x</option>
-                <option value={1.25}>1.25x</option>
-                <option value={1.5}>1.5x</option>
-              </select>
+              <AudioSpeedControl
+                currentRate={speechRate}
+                onRateChange={(r) => {
+                  setSpeechRate(r);
+                  if (isPlayingAudio) {
+                    togglePlaySpeech();
+                    setTimeout(() => togglePlaySpeech(), 100);
+                  }
+                }}
+                isHindi={language === 'hindi'}
+              />
             </div>
 
             {/* Multi-language Translator */}
@@ -1667,85 +1670,90 @@ Structure the response into:
             </div>
           )}
 
-          {/* READER CANVAS DISPLAY */}
-          <div
-            className={`p-6 sm:p-10 rounded-3xl border transition-all space-y-6 shadow-2xl relative min-h-[500px] ${
-              readerTheme === 'dark'
-                ? 'bg-[#0B0F1A] border-slate-800 text-slate-100'
-                : readerTheme === 'cream'
-                ? 'bg-[#FDF6E3] border-amber-300/80 text-[#2B2B2B]'
-                : 'bg-white border-slate-300 text-slate-900'
-            }`}
+          {/* READER CANVAS DISPLAY WITH FULL SCREEN SUPPORT */}
+          <FullScreenLayout
+            title={`${selectedBook.title} — ${activeChapter.title}`}
+            isHindi={language === 'hindi'}
           >
-            {/* Chapter Header */}
-            <div className="border-b pb-4 space-y-1" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-amber-500">
-                  {selectedBook.title}
-                </span>
-                <span className="text-xs font-mono font-bold opacity-60">
-                  Chapter {selectedChapterIndex + 1} of {selectedBook.chapters.length}
-                </span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black leading-tight">
-                {activeChapter.title}
-              </h2>
-            </div>
-
-            {/* Chapter Text Body */}
             <div
-              className={`prose max-w-none whitespace-pre-wrap leading-relaxed ${
-                fontFamily === 'serif' ? 'font-serif' : fontFamily === 'mono' ? 'font-mono' : 'font-sans'
-              } ${
-                fontSize === 'sm' ? 'text-xs' : fontSize === 'lg' ? 'text-base' : fontSize === 'xl' ? 'text-lg' : 'text-sm'
+              className={`p-6 sm:p-10 rounded-3xl border transition-all space-y-6 shadow-2xl relative min-h-[500px] ${
+                readerTheme === 'dark'
+                  ? 'bg-[#0B0F1A] border-slate-800 text-slate-100'
+                  : readerTheme === 'cream'
+                  ? 'bg-[#FDF6E3] border-amber-300/80 text-[#2B2B2B]'
+                  : 'bg-white border-slate-300 text-slate-900'
               }`}
             >
-              {isTranslating ? (
-                <div className="py-16 text-center space-y-3">
-                  <Sparkles className="w-8 h-8 text-emerald-400 animate-spin mx-auto" />
-                  <p className="text-sm font-bold">Translating book chapter into selected language...</p>
+              {/* Chapter Header */}
+              <div className="border-b pb-4 space-y-1" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider text-amber-500">
+                    {selectedBook.title}
+                  </span>
+                  <span className="text-xs font-mono font-bold opacity-60">
+                    Chapter {selectedChapterIndex + 1} of {selectedBook.chapters.length}
+                  </span>
                 </div>
-              ) : (
-                translatedText || activeChapter.content
-              )}
-            </div>
+                <h2 className="text-xl sm:text-2xl font-black leading-tight">
+                  {activeChapter.title}
+                </h2>
+              </div>
 
-            {/* Chapter Footer Navigation */}
-            <div className="flex items-center justify-between pt-6 border-t" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-              <button
-                disabled={selectedChapterIndex === 0}
-                onClick={() => handleSelectChapter(selectedChapterIndex - 1)}
-                className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              {/* Chapter Text Body */}
+              <div
+                className={`prose max-w-none whitespace-pre-wrap leading-relaxed ${
+                  fontFamily === 'serif' ? 'font-serif' : fontFamily === 'mono' ? 'font-mono' : 'font-sans'
+                } ${
+                  fontSize === 'sm' ? 'text-xs' : fontSize === 'lg' ? 'text-base' : fontSize === 'xl' ? 'text-lg' : 'text-sm'
+                }`}
               >
-                ← Previous Chapter
-              </button>
+                {isTranslating ? (
+                  <div className="py-16 text-center space-y-3">
+                    <Sparkles className="w-8 h-8 text-emerald-400 animate-spin mx-auto" />
+                    <p className="text-sm font-bold">Translating book chapter into selected language...</p>
+                  </div>
+                ) : (
+                  translatedText || activeChapter.content
+                )}
+              </div>
 
-              {/* Study Action Quick Launch */}
-              <div className="flex items-center gap-2">
+              {/* Chapter Footer Navigation */}
+              <div className="flex items-center justify-between pt-6 border-t" style={{ borderColor: readerTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
                 <button
-                  onClick={() => handleQuickAiAction('explain')}
-                  className="px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl font-bold text-xs hover:bg-amber-500/30 cursor-pointer"
+                  disabled={selectedChapterIndex === 0}
+                  onClick={() => handleSelectChapter(selectedChapterIndex - 1)}
+                  className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
                 >
-                  💡 Explain Chapter
+                  ← Previous Chapter
                 </button>
+
+                {/* Study Action Quick Launch */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleQuickAiAction('explain')}
+                    className="px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl font-bold text-xs hover:bg-amber-500/30 cursor-pointer"
+                  >
+                    💡 Explain Chapter
+                  </button>
+                  <button
+                    onClick={() => handleQuickAiAction('keypoints')}
+                    className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-xl font-bold text-xs hover:bg-indigo-500/30 cursor-pointer"
+                  >
+                    🔑 Key Points
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => handleQuickAiAction('keypoints')}
-                  className="px-3 py-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-xl font-bold text-xs hover:bg-indigo-500/30 cursor-pointer"
+                  disabled={selectedChapterIndex === selectedBook.chapters.length - 1}
+                  onClick={() => handleSelectChapter(selectedChapterIndex + 1)}
+                  className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
                 >
-                  🔑 Key Points
+                  Next Chapter →
                 </button>
               </div>
 
-              <button
-                disabled={selectedChapterIndex === selectedBook.chapters.length - 1}
-                onClick={() => handleSelectChapter(selectedChapterIndex + 1)}
-                className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 rounded-xl text-xs font-bold transition-all cursor-pointer"
-              >
-                Next Chapter →
-              </button>
             </div>
-
-          </div>
+          </FullScreenLayout>
 
         </div>
       )}
