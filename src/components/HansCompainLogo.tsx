@@ -27,12 +27,12 @@ export const HansCompainLogo: React.FC<HansCompainLogoProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Dynamic Vector Icon */}
-      <div className={`relative flex-shrink-0 ${currentStyle.icon} ${animate ? 'hover:scale-105 transition-transform duration-300' : ''}`}>
+      {/* Dynamic Vector Icon with subtle rotating animation and +20% hover scale */}
+      <div className={`relative flex-shrink-0 ${currentStyle.icon} group cursor-pointer transition-all duration-300 hover:scale-[1.20] hover:rotate-6`}>
         <img
           src="/logo.svg"
           alt="Hans Compain"
-          className="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(34,197,94,0.25)]"
+          className="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(34,197,94,0.25)] transition-transform duration-500 group-hover:rotate-12"
         />
       </div>
 

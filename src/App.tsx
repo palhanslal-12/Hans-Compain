@@ -3328,6 +3328,23 @@ export default function App() {
     }
   }, [activityLogs]);
 
+  // Delete a specific single activity log entry from History
+  const deleteSpecificHistoryLog = (id: string, itemTitle?: string) => {
+    setActivityLogs(prev => {
+      const updated = prev.filter(item => item.id !== id);
+      try {
+        localStorage.setItem('hansai-history', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+    showToast(
+      language === 'hindi'
+        ? `इतिहास से आइटम हटाया गया: ${itemTitle ? `"${itemTitle.slice(0, 25)}..."` : 'सफलतापूर्वक'} 🗑️`
+        : `Specific history item removed 🗑️`,
+      'info'
+    );
+  };
+
   // ======= DAILY GOAL TRACKER, LIFE BALANCE & CONCEPT MAP STATES =======
   const [timerSubTab, setTimerSubTab] = useState<'clock' | 'projects'>('clock');
   const [triggerConfetti, setTriggerConfetti] = useState(false);
@@ -5681,15 +5698,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             : 'All-in-one AI education, exam prep & interactive science-memory lab'}
                         </p>
 
-                        {/* Public AI Rules & Safety Badge Banner */}
+                        {/* WIDE SKY-BLUE (ASMANI) "ALL STENOGRAPHER" HERO BANNER */}
                         <button
-                          onClick={() => setIsAiRulesModalOpen(true)}
-                          className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 hover:text-amber-200 text-[11px] font-bold transition-all cursor-pointer shadow-sm active:scale-95"
-                          title="पब्लिक AI उपयोग के नियम व सुरक्षा दिशानिर्देश देखें"
+                          onClick={() => setActiveView('steno')}
+                          className="mt-2 w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-sky-600 via-cyan-500 to-sky-600 hover:from-sky-500 hover:to-cyan-400 border border-sky-300/40 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-900/40 hover:shadow-cyan-500/30 flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99] group"
                         >
-                          <span>⚖️</span>
-                          <span>{language === 'hindi' ? 'पब्लिक AI उपयोग के नियम व दिशानिर्देश (AI Rules)' : 'Public AI Usage Rules & Safety Guidelines'}</span>
-                          <span className="text-[9px] bg-amber-400/20 text-amber-200 px-1.5 py-0.2 rounded font-black uppercase">Read</span>
+                          <span className="text-base group-hover:scale-110 transition-transform">✍️</span>
+                          <span className="font-extrabold uppercase tracking-wider">
+                            {language === 'hindi' ? 'All Stenographer • सम्पूर्ण आशुलिपि (ऋषि, मानक, पिटमैन) व डिक्टेशन' : 'All Stenographer • Complete Shorthand & Dictation Studio'}
+                          </span>
+                          <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-normal">
+                            Open
+                          </span>
                         </button>
                       </div>
 
@@ -5805,18 +5825,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
 
                         <button
-                          onClick={() => setActiveView('steno')}
-                          className="p-2.5 sm:p-3 bg-gradient-to-br from-amber-950/80 via-orange-950/50 to-slate-900 border border-amber-500/60 hover:border-amber-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm hover:shadow-amber-500/20 active:scale-98"
+                          onClick={() => setIsAllExamsSyllabusOpen(true)}
+                          className="p-2.5 sm:p-3 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/60 hover:border-purple-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm hover:shadow-purple-500/20 active:scale-98"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 text-base">
-                            ✍️
+                          <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-base">
+                            📚
                           </div>
                           <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-amber-300 group-hover:text-white truncate">
-                              {language === 'hindi' ? 'स्टेनो मास्टर प्रो' : 'Steno Master Studio'}
+                            <div className="text-xs font-bold text-purple-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'परीक्षा सिलेबस' : 'Exams Syllabus'}
                             </div>
                             <div className="text-[10px] text-slate-300 truncate">
-                              {language === 'hindi' ? 'शॉर्टहैंड व डिक्टेशन' : 'Shorthand & Speed Drill'}
+                              10th, 12th, SSC, RRB
                             </div>
                           </div>
                         </button>
@@ -5834,23 +5854,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             </div>
                             <div className="text-[10px] text-slate-400 truncate">
                               YouTube, Wikipedia
-                            </div>
-                          </div>
-                        </button>
-
-                        <button
-                          onClick={() => setIsAllExamsSyllabusOpen(true)}
-                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-base">
-                            📚
-                          </div>
-                          <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-slate-200 group-hover:text-purple-300 truncate">
-                              {language === 'hindi' ? 'परीक्षा सिलेबस' : 'Exams Syllabus'}
-                            </div>
-                            <div className="text-[10px] text-slate-400 truncate">
-                              10th, 12th, SSC, RRB
                             </div>
                           </div>
                         </button>
@@ -9661,16 +9664,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                 setActiveView('chat');
                                 showToast(`Loaded chat: "${session.title}"`, "success");
                               }}
-                              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer shadow-md"
+                              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-md"
                             >
                               Open Chat 💬
                             </button>
                             <button
                               onClick={() => deleteSavedChat(session.id)}
-                              className="p-1.5 bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 rounded-lg text-xs transition-all cursor-pointer"
-                              title="Delete saved chat session"
+                              className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 border border-rose-500/30 hover:border-rose-500/50 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+                              title={language === 'hindi' ? "सहेजी गई चैट हटाएं" : "Delete saved chat session"}
+                              aria-label="Delete saved chat"
                             >
-                              🗑️
+                              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                              <span>{language === 'hindi' ? 'हटाएं' : 'Clear'}</span>
                             </button>
                           </div>
                         </div>
@@ -9759,7 +9764,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                       setActiveView('chat');
                                       handleSendChat(rawQueryText);
                                     }}
-                                    className="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white border border-cyan-500/30 rounded-xl text-[10px] font-bold transition-all cursor-pointer"
+                                    className="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white border border-cyan-500/30 rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-sm"
                                   >
                                     Ask Again 💬
                                   </button>
@@ -9773,13 +9778,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                 )}
 
                                 <button
-                                  onClick={() => {
-                                    setActivityLogs(prev => prev.filter(item => item.id !== log.id));
-                                  }}
-                                  className="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800/80 transition-all cursor-pointer text-xs"
-                                  title="Remove item from history"
+                                  onClick={() => deleteSpecificHistoryLog(log.id, log.title)}
+                                  className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 border border-rose-500/30 hover:border-rose-500/50 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+                                  title={language === 'hindi' ? "इस आइटम को इतिहास से हटाएं" : "Clear this specific item from history"}
+                                  aria-label="Clear specific history item"
                                 >
-                                  🗑️
+                                  <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                                  <span>{language === 'hindi' ? 'हटाएं' : 'Clear'}</span>
                                 </button>
                               </div>
                             </div>

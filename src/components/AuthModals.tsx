@@ -51,9 +51,85 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
   const [isRegistering, setIsRegistering] = useState(false);
 
   // Login state
+  const [loginMode, setLoginMode] = useState<'password' | 'otp'>('password');
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // OTP Login state
+  const [otpLoginEmail, setOtpLoginEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [activeOtpHint, setActiveOtpHint] = useState<string | null>(null);
+
+  // Send OTP handler
+  const handleSendOtp = async (targetEmail: string) => {
+    const cleanEmail = targetEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      showToast("कृपया एक वैध ईमेल पता दर्ज करें (Enter valid email).", "warn");
+      return;
+    }
+    setIsSendingOtp(true);
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send OTP");
+
+      setOtpSent(true);
+      setActiveOtpHint(data.otpHint || null);
+      setOtpCountdown(60);
+      showToast(`सुरक्षा OTP कोड (${data.otpHint || '******'}) भेजा गया है! 📩`, "success");
+    } catch (err: any) {
+      showToast(err.message || "OTP भेजने में त्रुटि।", "warn");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  // Verify OTP handler
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = (otpLoginEmail || loginEmail).trim().toLowerCase();
+    const cleanOtp = otpCode.trim();
+
+    if (!cleanEmail) {
+      showToast("ईमेल पता दर्ज करें।", "warn");
+      return;
+    }
+    if (!cleanOtp || cleanOtp.length !== 6) {
+      showToast("कृपया 6-अंकों का सुरक्षा OTP दर्ज करें।", "warn");
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, otp: cleanOtp })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid OTP code");
+
+      const displayName = getCleanDisplayName(data.user?.name, cleanEmail);
+      const uObj = { name: displayName, email: cleanEmail, role: data.user?.role || 'student' };
+      setUser(uObj);
+      localStorage.setItem('hansai-user-session', JSON.stringify(uObj));
+      onCloseLogin();
+      showToast(`सुरक्षा OTP सत्यापित! Welcome ${displayName}! 🛡️`, "success");
+    } catch (err: any) {
+      showToast(err.message || "गलत OTP कोड दर्ज किया गया है।", "warn");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
 
   // Forgot Password state
   const [forgotEmail, setForgotEmail] = useState("");
@@ -490,52 +566,145 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
               </span>
             </div>
 
-            {/* Email Login Form */}
-            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-300 mb-1">Registered Email / ईमेल</label>
-                <input
-                  type="email"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="student@example.com"
-                  className="w-full text-xs p-3 bg-[#050811] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-cyan-500 font-mono"
-                  required
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[11px] font-bold text-slate-300">Password / पासवर्ड</label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onCloseLogin();
-                      onOpenForgot();
-                    }}
-                    className="text-[10px] text-amber-400 hover:underline font-bold bg-transparent border-none cursor-pointer"
-                  >
-                    Forgot Password? (पासवर्ड भूल गए?)
-                  </button>
-                </div>
-                <input
-                  type="password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full text-xs p-3 bg-[#050811] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-cyan-500 font-mono"
-                  required
-                />
-              </div>
+            {/* LOGIN METHOD TOGGLE: PASSWORD vs 6-DIGIT OTP */}
+            <div className="grid grid-cols-2 gap-2 bg-[#050811] p-1.5 rounded-2xl border border-slate-800">
+              <button
+                type="button"
+                onClick={() => setLoginMode('password')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
+                  loginMode === 'password'
+                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white bg-transparent'
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Password Login</span>
+              </button>
 
               <button
-                type="submit"
-                disabled={isLoggingIn}
-                className="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-xs rounded-xl shadow-lg shadow-cyan-950/50 cursor-pointer transition-all border-none disabled:opacity-50 mt-2"
+                type="button"
+                onClick={() => {
+                  setLoginMode('otp');
+                  if (loginEmail && !otpLoginEmail) setOtpLoginEmail(loginEmail);
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
+                  loginMode === 'otp'
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white bg-transparent'
+                }`}
               >
-                {isLoggingIn ? "Authenticating..." : "Login Securely 🔐"}
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>6-Digit OTP Login ⚡</span>
               </button>
-            </form>
+            </div>
+
+            {/* METHOD 1: PASSWORD LOGIN FORM */}
+            {loginMode === 'password' && (
+              <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Registered Email / ईमेल</label>
+                  <input
+                    type="email"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="student@example.com"
+                    className="w-full text-xs p-3 bg-[#050811] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-cyan-500 font-mono"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-300">Password / पासवर्ड</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onCloseLogin();
+                        onOpenForgot();
+                      }}
+                      className="text-[10px] text-amber-400 hover:underline font-bold bg-transparent border-none cursor-pointer"
+                    >
+                      Forgot Password? (पासवर्ड भूल गए?)
+                    </button>
+                  </div>
+                  <input
+                    type="password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full text-xs p-3 bg-[#050811] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-cyan-500 font-mono"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-xs rounded-xl shadow-lg shadow-cyan-950/50 cursor-pointer transition-all border-none disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>{isLoggingIn ? "Verifying Credentials..." : "Login with Password 🔐"}</span>
+                </button>
+              </form>
+            )}
+
+            {/* METHOD 2: 6-DIGIT EMAIL OTP LOGIN FORM */}
+            {loginMode === 'otp' && (
+              <form onSubmit={handleVerifyOtp} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Email Address / ईमेल</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={otpLoginEmail}
+                      onChange={(e) => setOtpLoginEmail(e.target.value)}
+                      placeholder="student@example.com"
+                      className="flex-1 text-xs p-3 bg-[#050811] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
+                      required
+                    />
+                    <button
+                      type="button"
+                      disabled={isSendingOtp || (otpCountdown > 0)}
+                      onClick={() => handleSendOtp(otpLoginEmail)}
+                      className="px-3.5 py-2 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 text-xs font-bold rounded-xl transition-all cursor-pointer whitespace-nowrap disabled:opacity-50"
+                    >
+                      {isSendingOtp ? "Sending..." : otpCountdown > 0 ? `Resend (${otpCountdown}s)` : "Get OTP 📩"}
+                    </button>
+                  </div>
+                </div>
+
+                {otpSent && (
+                  <div className="space-y-2 p-3 bg-emerald-950/30 border border-emerald-500/40 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold text-emerald-300">Enter 6-Digit OTP (सुरक्षा कोड)</label>
+                      {activeOtpHint && (
+                        <span className="text-[10px] text-amber-300 font-mono bg-amber-500/20 px-1.5 py-0.5 rounded">
+                          OTP: {activeOtpHint}
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="6-Digit OTP (उदा. 749281)"
+                      className="w-full text-center tracking-[0.4em] text-lg font-black p-2.5 bg-[#03060E] border border-emerald-500/60 rounded-xl text-emerald-300 focus:outline-none focus:border-emerald-400 font-mono"
+                      required
+                    />
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isVerifyingOtp || !otpSent}
+                  className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs rounded-xl shadow-lg shadow-emerald-950/50 cursor-pointer transition-all border-none disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>{isVerifyingOtp ? "Verifying OTP Code..." : "Verify OTP & Sign In 🛡️"}</span>
+                </button>
+              </form>
+            )}
 
             <div className="text-center pt-2">
               <span className="text-xs text-slate-400">New user? </span>

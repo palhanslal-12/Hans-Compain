@@ -33,13 +33,261 @@ interface ShorthandSymbol {
 }
 
 const STENO_DICTIONARY: ShorthandSymbol[] = [
-  // Consonants - Pitman / Hindi Rishi
+  // 1. कवर्ग (K-Group: क, ख, ग, घ)
+  {
+    id: 'st-k',
+    charOrWord: 'K / क',
+    hindiTranslation: 'क (हल्की क्षैतिज रेखा)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Horizontal Left to Right (बाएं से दाएं 180°)',
+    position: 'on_line',
+    ruleHindi: 'कॉपी की रेखा पर बाएं से दाएं हल्की सीधी 180° क्षैतिज रेखा।',
+    ruleEnglish: 'Light horizontal straight stroke from left to right on the line.',
+    svgPath: 'M 20,50 L 80,50',
+    strokeWidth: 2.5,
+    sampleExample: 'कलम, कमल, काम, कर्म, King'
+  },
+  {
+    id: 'st-kh',
+    charOrWord: 'KH / ख',
+    hindiTranslation: 'ख (हल्की कटी क्षैतिज रेखा)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Horizontal Cut (बाएं से दाएं 180° बीच में कट)',
+    position: 'on_line',
+    ruleHindi: 'बाएं से दाएं हल्की क्षैतिज रेखा जिसके आरंभ या मध्य में छोटा कट लगाया जाता है।',
+    ruleEnglish: 'Light horizontal stroke with an initial or central tick mark.',
+    svgPath: 'M 20,50 L 80,50 M 48,42 L 52,58',
+    strokeWidth: 2.5,
+    sampleExample: 'खबर, खेल, खाट, खत'
+  },
+  {
+    id: 'st-g',
+    charOrWord: 'G / ग',
+    hindiTranslation: 'ग (गहरी क्षैतिज रेखा)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_heavy',
+    direction: 'Horizontal Heavy (बाएं से दाएं मोटी रेखा)',
+    position: 'on_line',
+    ruleHindi: 'कॉपी की रेखा पर बाएं से दाएं गहरी (मोटी) 180° क्षैतिज रेखा।',
+    ruleEnglish: 'Heavy horizontal straight stroke from left to right on the line.',
+    svgPath: 'M 20,50 L 80,50',
+    strokeWidth: 5.5,
+    sampleExample: 'गगन, गति, गरम, Give, Go'
+  },
+  {
+    id: 'st-gh',
+    charOrWord: 'GH / घ',
+    hindiTranslation: 'घ (गहरी कटी क्षैतिज रेखा)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_heavy',
+    direction: 'Horizontal Heavy Cut (मोटी रेखा बीच में कट)',
+    position: 'on_line',
+    ruleHindi: 'बाएं से दाएं गहरी (मोटी) क्षैतिज रेखा जिसके मध्य में छोटा कट होता है।',
+    ruleEnglish: 'Heavy horizontal stroke with a center tick mark.',
+    svgPath: 'M 20,50 L 80,50 M 48,42 L 52,58',
+    strokeWidth: 5.5,
+    sampleExample: 'घर, घट, घंटी, घोष'
+  },
+
+  // 2. चवर्ग (CH-Group: च, छ, ज, झ)
+  {
+    id: 'st-ch',
+    charOrWord: 'CH / च',
+    hindiTranslation: 'च (हल्की तिरछी 60°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Downward 60° (ऊपर-बाएं से नीचे-दाएं)',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे 60° के कोण पर हल्की सीधी तिरछी रेखा।',
+    ruleEnglish: 'Light downward straight stroke inclined at 60 degrees.',
+    svgPath: 'M 65,20 L 35,80',
+    strokeWidth: 2.5,
+    sampleExample: 'चल, चमक, चार, Chair'
+  },
+  {
+    id: 'st-chh',
+    charOrWord: 'CHH / छ',
+    hindiTranslation: 'छ (हल्की कटी तिरछी 60°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Downward 60° Cut',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे 60° कोण पर हल्की रेखा जिसके बीच में छोटा कट लगाया जाता है।',
+    ruleEnglish: 'Light downward 60° stroke with a middle dash/cut.',
+    svgPath: 'M 65,20 L 35,80 M 45,46 L 55,54',
+    strokeWidth: 2.5,
+    sampleExample: 'छत, छात्र, छाया, छल'
+  },
+  {
+    id: 'st-j',
+    charOrWord: 'J / ज',
+    hindiTranslation: 'ज (गहरी तिरछी 60°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_heavy',
+    direction: 'Downward 60° Heavy',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे 60° कोण पर भारी (गहरी) तिरछी रेखा।',
+    ruleEnglish: 'Heavy downward straight stroke at 60 degrees.',
+    svgPath: 'M 65,20 L 35,80',
+    strokeWidth: 5.5,
+    sampleExample: 'जल, जीवन, जज, Judge, Join'
+  },
+  {
+    id: 'st-jh',
+    charOrWord: 'JH / झ',
+    hindiTranslation: 'झ (गहरी कटी तिरछी 60°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_heavy',
+    direction: 'Downward 60° Heavy Cut',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे 60° कोण पर गहरी रेखा जिसके मध्य में छोटा कट होता है।',
+    ruleEnglish: 'Heavy downward 60° stroke with a central cut.',
+    svgPath: 'M 65,20 L 35,80 M 45,46 L 55,54',
+    strokeWidth: 5.5,
+    sampleExample: 'झंडा, झरना, झील'
+  },
+
+  // 3. टवर्ग (T-Group: ट, ठ, ड, ढ)
+  {
+    id: 'st-t',
+    charOrWord: 'T / ट',
+    hindiTranslation: 'ट (हल्की लंबवत 90°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Downward 90° (सीधा नीचे)',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे की ओर 90 अंश पर लंबवत हल्की सीधी रेखा।',
+    ruleEnglish: 'Light downward perpendicular straight stroke at 90 degrees.',
+    svgPath: 'M 50,20 L 50,80',
+    strokeWidth: 2.5,
+    sampleExample: 'टमटम, टमाटर, टोकन, Top'
+  },
+  {
+    id: 'st-th-dot',
+    charOrWord: 'TH / ठ',
+    hindiTranslation: 'ठ (हल्की कटी लंबवत 90°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Downward 90° Cut',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे 90° लंबवत हल्की रेखा जिसके मध्य में छोटा कट होता है।',
+    ruleEnglish: 'Light perpendicular stroke at 90° with a center tick.',
+    svgPath: 'M 50,20 L 50,80 M 42,50 L 58,50',
+    strokeWidth: 2.5,
+    sampleExample: 'ठहर, ठीक, ठग'
+  },
+  {
+    id: 'st-d-hard',
+    charOrWord: 'D / ड',
+    hindiTranslation: 'ड (गहरी लंबवत 90°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_heavy',
+    direction: 'Downward 90° Heavy',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे की ओर 90° पर गहरी (मोटी) लंबवत रेखा।',
+    ruleEnglish: 'Heavy downward perpendicular stroke at 90 degrees.',
+    svgPath: 'M 50,20 L 50,80',
+    strokeWidth: 5.5,
+    sampleExample: 'डर, डमरू, डाक, Day'
+  },
+  {
+    id: 'st-dh-hard',
+    charOrWord: 'DH / ढ',
+    hindiTranslation: 'ढ (गहरी कटी लंबवत 90°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_heavy',
+    direction: 'Downward 90° Heavy Cut',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे 90° पर गहरी रेखा जिसके मध्य में छोटा कट होता है।',
+    ruleEnglish: 'Heavy perpendicular stroke at 90° with center dash.',
+    svgPath: 'M 50,20 L 50,80 M 42,50 L 58,50',
+    strokeWidth: 5.5,
+    sampleExample: 'ढोलक, ढक्कन, ढलान'
+  },
+
+  // 4. तवर्ग (T-Soft: त, थ, द, ध)
+  {
+    id: 'st-ta-soft',
+    charOrWord: 'T (Soft) / त',
+    hindiTranslation: 'त (हल्का वक्र चाप)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'curved_light',
+    direction: 'Downward Curve (बायां/दायां चाप)',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे की ओर अर्धचंद्राकार हल्का वक्र (बायां या दायां त)।',
+    ruleEnglish: 'Light downward shallow curve (left or right arc).',
+    svgPath: 'M 45,20 C 32,38 32,62 45,80',
+    strokeWidth: 2.5,
+    sampleExample: 'तरंग, तब, तारा'
+  },
+  {
+    id: 'st-tha-soft',
+    charOrWord: 'TH (Soft) / थ',
+    hindiTranslation: 'थ (हल्का कटा वक्र चाप)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'curved_light',
+    direction: 'Downward Curve Cut',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे हल्का वक्र चाप जिसके बीच में छोटा कट लगाया जाता है।',
+    ruleEnglish: 'Light downward curved stroke with middle tick.',
+    svgPath: 'M 45,20 C 32,38 32,62 45,80 M 30,50 L 42,50',
+    strokeWidth: 2.5,
+    sampleExample: 'थाली, थोड़ा, थल'
+  },
+  {
+    id: 'st-da-soft',
+    charOrWord: 'D (Soft) / द',
+    hindiTranslation: 'द (गहरा वक्र चाप)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'curved_heavy',
+    direction: 'Downward Curve Heavy',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे की ओर गहरा (मोटा) अर्धचंद्राकार वक्र रेखा।',
+    ruleEnglish: 'Heavy downward shallow curved arc.',
+    svgPath: 'M 45,20 C 32,38 32,62 45,80',
+    strokeWidth: 5.5,
+    sampleExample: 'देश, दीपक, दल, Door'
+  },
+  {
+    id: 'st-dha-soft',
+    charOrWord: 'DH (Soft) / ध',
+    hindiTranslation: 'ध (गहरा कटा वक्र चाप)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'curved_heavy',
+    direction: 'Downward Curve Heavy Cut',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे गहरा वक्र चाप जिसके मध्य में छोटा कट लगाया जाता है।',
+    ruleEnglish: 'Heavy downward curve with central tick.',
+    svgPath: 'M 45,20 C 32,38 32,62 45,80 M 30,50 L 42,50',
+    strokeWidth: 5.5,
+    sampleExample: 'धर्म, धन, धारा'
+  },
+
+  // 5. पवर्ग (P-Group: प, फ, ब, भ)
   {
     id: 'st-p',
     charOrWord: 'P / प',
-    hindiTranslation: 'प (हल्की रेखा)',
+    hindiTranslation: 'प (हल्की तिरछी 120°)',
     category: 'consonant',
-    system: 'pitman',
+    system: 'hindi_rishi',
     strokeType: 'straight_light',
     direction: 'Downward 120° (ऊपर से नीचे)',
     position: 'on_line',
@@ -47,173 +295,256 @@ const STENO_DICTIONARY: ShorthandSymbol[] = [
     ruleEnglish: 'Light downward straight stroke at 120 degrees angle.',
     svgPath: 'M 35,20 L 65,80',
     strokeWidth: 2.5,
-    sampleExample: 'Pay, Pen, पल, पत्र'
+    sampleExample: 'Pay, Pen, पल, पत्र, पानी'
+  },
+  {
+    id: 'st-ph',
+    charOrWord: 'PH / F / फ',
+    hindiTranslation: 'फ (हल्की कटी तिरछी 120°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Downward 120° Cut',
+    position: 'on_line',
+    ruleHindi: 'ऊपर से नीचे 120° कोण पर हल्की रेखा जिसके मध्य में छोटा कट होता है।',
+    ruleEnglish: 'Light downward stroke at 120° with central tick.',
+    svgPath: 'M 35,20 L 65,80 M 45,46 L 55,54',
+    strokeWidth: 2.5,
+    sampleExample: 'फल, फूल, फोन, Free'
   },
   {
     id: 'st-b',
     charOrWord: 'B / ब',
-    hindiTranslation: 'ब (गहरी रेखा)',
+    hindiTranslation: 'ब (गहरी तिरछी 120°)',
     category: 'consonant',
-    system: 'pitman',
+    system: 'hindi_rishi',
     strokeType: 'straight_heavy',
-    direction: 'Downward 120° (ऊपर से नीचे)',
+    direction: 'Downward 120° Heavy',
     position: 'on_line',
     ruleHindi: 'ऊपर से नीचे की ओर 120 अंश के कोण पर भारी (मोटी) सीधी रेखा।',
     ruleEnglish: 'Heavy downward straight stroke at 120 degrees angle.',
     svgPath: 'M 35,20 L 65,80',
     strokeWidth: 5.5,
-    sampleExample: 'Boy, Book, बल, बालक'
+    sampleExample: 'Boy, Book, बल, बालक, बस'
   },
   {
-    id: 'st-t',
-    charOrWord: 'T / ट / त',
-    hindiTranslation: 'ट या त (हल्की लंबवत रेखा)',
+    id: 'st-bh',
+    charOrWord: 'BH / भ',
+    hindiTranslation: 'भ (गहरी कटी तिरछी 120°)',
     category: 'consonant',
-    system: 'pitman',
-    strokeType: 'straight_light',
-    direction: 'Downward 90° (बिल्कुल सीधा नीचे)',
-    position: 'on_line',
-    ruleHindi: 'ऊपर से नीचे की ओर 90 अंश के कोण पर लंबवत हल्की सीधी रेखा।',
-    ruleEnglish: 'Light downward perpendicular straight stroke at 90 degrees.',
-    svgPath: 'M 50,20 L 50,80',
-    strokeWidth: 2.5,
-    sampleExample: 'Tea, Top, टमटम, तब'
-  },
-  {
-    id: 'st-d',
-    charOrWord: 'D / ड / द',
-    hindiTranslation: 'ड या द (गहरी लंबवत रेखा)',
-    category: 'consonant',
-    system: 'pitman',
+    system: 'hindi_rishi',
     strokeType: 'straight_heavy',
-    direction: 'Downward 90° (बिल्कुल सीधा नीचे)',
+    direction: 'Downward 120° Heavy Cut',
     position: 'on_line',
-    ruleHindi: 'ऊपर से नीचे की ओर 90 अंश के कोण पर भारी (गहरी) लंबवत रेखा।',
-    ruleEnglish: 'Heavy downward perpendicular straight stroke at 90 degrees.',
-    svgPath: 'M 50,20 L 50,80',
+    ruleHindi: 'ऊपर से नीचे 120° कोण पर भारी रेखा जिसके मध्य में छोटा कट होता है।',
+    ruleEnglish: 'Heavy downward 120° stroke with central tick.',
+    svgPath: 'M 35,20 L 65,80 M 45,46 L 55,54',
     strokeWidth: 5.5,
-    sampleExample: 'Day, Door, देश, दीपक'
+    sampleExample: 'भारत, भवन, भाई, भाषा'
   },
+
+  // 6. अनुनासिक व अन्तःस्थ (म, न, य, र, ल, व, श, स, ह)
   {
-    id: 'st-ch',
-    charOrWord: 'CH / च',
-    hindiTranslation: 'च (हल्की तिरछी 60°)',
+    id: 'st-m',
+    charOrWord: 'M / म',
+    hindiTranslation: 'म (उत्तल क्षैतिज चाप)',
     category: 'consonant',
-    system: 'pitman',
-    strokeType: 'straight_light',
-    direction: 'Downward 60° (ऊपर-बाएं से नीचे-दाएं)',
+    system: 'hindi_rishi',
+    strokeType: 'curved_light',
+    direction: 'Horizontal Arc (बाएं से दाएं ऊपर का चाप)',
     position: 'on_line',
-    ruleHindi: 'ऊपर से नीचे 60° कोण पर हल्की तिरछी रेखा।',
-    ruleEnglish: 'Light downward straight stroke at 60 degrees.',
-    svgPath: 'M 65,20 L 35,80',
+    ruleHindi: 'बाएं से दाएं की ओर ऊपर की तरफ मुड़ा हुआ हल्का क्षैतिज चाप।',
+    ruleEnglish: 'Light horizontal upward curve from left to right.',
+    svgPath: 'M 20,60 C 35,40 65,40 80,60',
     strokeWidth: 2.5,
-    sampleExample: 'Chair, Much, चल, चमक'
+    sampleExample: 'मन, माता, मंदिर, Make, Man'
   },
   {
-    id: 'st-j',
-    charOrWord: 'J / ज',
-    hindiTranslation: 'ज (गहरी तिरछी 60°)',
+    id: 'st-n',
+    charOrWord: 'N / न / ङ / ण',
+    hindiTranslation: 'न (अवतल क्षैतिज चाप)',
     category: 'consonant',
-    system: 'pitman',
-    strokeType: 'straight_heavy',
-    direction: 'Downward 60° (ऊपर-बाएं से नीचे-दाएं)',
+    system: 'hindi_rishi',
+    strokeType: 'curved_light',
+    direction: 'Horizontal Arc (बाएं से दाएं नीचे का चाप)',
     position: 'on_line',
-    ruleHindi: 'ऊपर से नीचे 60° कोण पर गहरी/मोटी तिरछी रेखा।',
-    ruleEnglish: 'Heavy downward straight stroke at 60 degrees.',
-    svgPath: 'M 65,20 L 35,80',
-    strokeWidth: 5.5,
-    sampleExample: 'Judge, Join, जल, जीवन'
-  },
-  {
-    id: 'st-k',
-    charOrWord: 'K / क',
-    hindiTranslation: 'क (हल्की क्षैतिज रेखा)',
-    category: 'consonant',
-    system: 'pitman',
-    strokeType: 'straight_light',
-    direction: 'Horizontal Left to Right (बाएं से दाएं)',
-    position: 'on_line',
-    ruleHindi: 'कॉपी की लाइन पर बाएं से दाएं हल्की सीधी क्षैतिज रेखा।',
-    ruleEnglish: 'Light horizontal stroke from left to right on the line.',
-    svgPath: 'M 20,50 L 80,50',
+    ruleHindi: 'बाएं से दाएं की ओर नीचे की तरफ मुड़ा हुआ हल्का क्षैतिज चाप।',
+    ruleEnglish: 'Light horizontal downward shallow curve.',
+    svgPath: 'M 20,40 C 35,60 65,60 80,40',
     strokeWidth: 2.5,
-    sampleExample: 'King, Key, कर्म, कलम'
+    sampleExample: 'नगर, नाम, नियम, Name'
   },
   {
-    id: 'st-g',
-    charOrWord: 'G / ग',
-    hindiTranslation: 'ग (गहरी क्षैतिज रेखा)',
+    id: 'st-y',
+    charOrWord: 'Y / य',
+    hindiTranslation: 'य (आरंभिक हुक + ऊर्ध्वगामी 30°)',
     category: 'consonant',
-    system: 'pitman',
-    strokeType: 'straight_heavy',
-    direction: 'Horizontal Left to Right (बाएं से दाएं)',
+    system: 'hindi_rishi',
+    strokeType: 'hook',
+    direction: 'Upward 30° with initial hook',
     position: 'on_line',
-    ruleHindi: 'कॉपी की लाइन पर बाएं से दाएं गहरी (मोटी) क्षैतिज रेखा।',
-    ruleEnglish: 'Heavy horizontal stroke from left to right on the line.',
-    svgPath: 'M 20,50 L 80,50',
-    strokeWidth: 5.5,
-    sampleExample: 'Go, Give, गगन, गति'
+    ruleHindi: 'शुरू में छोटा हुक बनाकर ऊपर की ओर 30 अंश की हल्की सीधी रेखा।',
+    ruleEnglish: 'Small initial hook curving into an upward 30° ray.',
+    svgPath: 'M 25,75 C 28,70 32,70 34,73 L 75,30',
+    strokeWidth: 2.5,
+    sampleExample: 'यज्ञ, योग, युवा, Yes'
+  },
+  {
+    id: 'st-r-up',
+    charOrWord: 'R (Upward) / र',
+    hindiTranslation: 'र (ऊर्ध्वगामी 30°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Upward 30° (नीचे से ऊपर 30°)',
+    position: 'on_line',
+    ruleHindi: 'नीचे से ऊपर की ओर 30 अंश के कोण पर हल्की सीधी किरण रेखा।',
+    ruleEnglish: 'Light straight ray drawn upwards at 30 degrees.',
+    svgPath: 'M 25,75 L 75,25',
+    strokeWidth: 2.5,
+    sampleExample: 'रक्षा, राष्ट्र, रात, Ray'
+  },
+  {
+    id: 'st-l',
+    charOrWord: 'L / ल',
+    hindiTranslation: 'ल (ऊर्ध्वगामी वक्र)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'curved_light',
+    direction: 'Upward Curve (नीचे से ऊपर चाप)',
+    position: 'on_line',
+    ruleHindi: 'नीचे से ऊपर की ओर अर्धचंद्राकार हल्का वक्र चाप।',
+    ruleEnglish: 'Light upward curved arc from bottom-left to top-right.',
+    svgPath: 'M 25,75 C 35,65 55,45 70,25',
+    strokeWidth: 2.5,
+    sampleExample: 'लाल, लोग, लाख, Line'
+  },
+  {
+    id: 'st-v',
+    charOrWord: 'V / W / व',
+    hindiTranslation: 'व (उल्टा हुक + ऊर्ध्वगामी 30°)',
+    category: 'consonant',
+    system: 'hindi_rishi',
+    strokeType: 'hook',
+    direction: 'Upward 30° with outer hook',
+    position: 'on_line',
+    ruleHindi: 'शुरू में दायां हुक बनाकर ऊपर की ओर 30 अंश पर हल्की रेखा।',
+    ruleEnglish: 'Small clockwise hook rising upward at 30 degrees.',
+    svgPath: 'M 25,75 C 22,70 26,67 30,70 L 75,30',
+    strokeWidth: 2.5,
+    sampleExample: 'विकास, विचार, वन, Vote'
   },
   {
     id: 'st-s',
-    charOrWord: 'S / स',
-    hindiTranslation: 'स (हल्का वक्र)',
+    charOrWord: 'S / SH / स / श / ष',
+    hindiTranslation: 'स या श (हल्का वक्र चाप)',
     category: 'consonant',
-    system: 'pitman',
+    system: 'hindi_rishi',
     strokeType: 'curved_light',
-    direction: 'Downward Curve (बायां चाप)',
+    direction: 'Downward Curve (बायां/दायां चाप)',
     position: 'on_line',
-    ruleHindi: 'ऊपर से नीचे की ओर हल्का बायां अर्धचंद्राकार वक्र रेखा।',
-    ruleEnglish: 'Light downward left curve stroke.',
+    ruleHindi: 'ऊपर से नीचे की ओर हल्का अर्धचंद्राकार वक्र रेखा या वृत्त (सर्किल)।',
+    ruleEnglish: 'Light downward curve or small circle attachment.',
     svgPath: 'M 45,20 C 30,40 30,60 45,80',
     strokeWidth: 2.5,
-    sampleExample: 'See, Say, समय, सत्य'
+    sampleExample: 'समय, सत्य, शासन, See, Shall'
   },
   {
-    id: 'st-r',
-    charOrWord: 'R (Up/Down) / र / ड़',
-    hindiTranslation: 'र (ऊर्ध्वगामी व अधोगामी)',
+    id: 'st-h',
+    charOrWord: 'H / ह',
+    hindiTranslation: 'ह (वृत्त + ऊर्ध्वगामी/अधोगामी रेखा)',
     category: 'consonant',
-    system: 'pitman',
-    strokeType: 'straight_light',
-    direction: 'Upward 30° / Downward Curve',
+    system: 'hindi_rishi',
+    strokeType: 'circle',
+    direction: 'Upward 30° with initial circle',
     position: 'on_line',
-    ruleHindi: 'स्वर की स्थिति अनुसार ऊपर की ओर 30° तिरछी रेखा या नीचे वक्र।',
-    ruleEnglish: 'Upward straight ray stroke at 30° or downward arc.',
-    svgPath: 'M 25,75 L 75,25',
+    ruleHindi: 'प्रारंभ में छोटा वृत्त (Circle) बनाकर 30° ऊपर या नीचे खींची जाने वाली रेखा।',
+    ruleEnglish: 'Small initial circle flowing into a 30° straight stroke.',
+    svgPath: 'M 30,72 A 5,5 0 1,1 30,62 L 75,25',
     strokeWidth: 2.5,
-    sampleExample: 'Ray, Room, रक्षा, राष्ट्र'
+    sampleExample: 'हाथ, हम, हंस, Hope, He'
   },
+
+  // 7. स्वर व मात्राएं (Vowels)
   {
-    id: 'st-the',
-    charOrWord: 'The / का / की',
-    hindiTranslation: 'The / का, की (शब्द-चिह्न)',
-    category: 'grammalogue',
-    system: 'pitman',
+    id: 'st-vowel-a',
+    charOrWord: 'अ / आ (First Place Vowel)',
+    hindiTranslation: 'आ की मात्रा (प्रथम स्थान)',
+    category: 'vowel',
+    system: 'hindi_rishi',
     strokeType: 'straight_light',
-    direction: 'Dot on line or tick',
-    position: 'on_line',
-    ruleHindi: 'लाइन पर छोटा हल्का बिंदु या तिर्यक टिक जोड़ना।',
-    ruleEnglish: 'A small light dot on the line or small joined tick.',
-    svgPath: 'M 48,50 A 2,2 0 1,1 52,50 A 2,2 0 1,1 48,50',
+    direction: 'Heavy Dot/Dash above the line',
+    position: 'above_line',
+    ruleHindi: 'प्रथम स्थान: व्यंजन रेखा के आरंभ में गहरा बिंदु (Heavy Dot) या गहरा डैश।',
+    ruleEnglish: 'Heavy dot or dash at first place (stroke kept above the line).',
+    svgPath: 'M 20,60 L 80,60 M 35,45 A 3,3 0 1,1 35,46',
     strokeWidth: 4,
-    sampleExample: 'The book, Of the, भारत का'
+    sampleExample: 'आम, आज, काम, नाम'
   },
   {
-    id: 'st-to',
-    charOrWord: 'To / Too / Two / को',
-    hindiTranslation: 'To / Too / को',
-    category: 'grammalogue',
-    system: 'pitman',
+    id: 'st-vowel-e',
+    charOrWord: 'ए / ओ (Second Place Vowel)',
+    hindiTranslation: 'ए / ओ की मात्रा (द्वितीय स्थान)',
+    category: 'vowel',
+    system: 'hindi_rishi',
     strokeType: 'straight_light',
-    direction: 'Short light slant downward',
+    direction: 'Middle Dot/Dash on the line',
     position: 'on_line',
-    ruleHindi: 'लाइन पर छोटी हल्की 120° की तिर्यक रेखा।',
-    ruleEnglish: 'A short light downward slant on the line.',
+    ruleHindi: 'द्वितीय स्थान: व्यंजन रेखा के मध्य में गहरा बिंदु (ए) या गहरा डैश (ओ)।',
+    ruleEnglish: 'Heavy dot (E) or dash (O) at the middle of the stroke on the line.',
+    svgPath: 'M 20,60 L 80,60 M 50,45 A 3,3 0 1,1 50,46',
+    strokeWidth: 4,
+    sampleExample: 'एक, सेब, लोग, मोर'
+  },
+  {
+    id: 'st-vowel-ee',
+    charOrWord: 'इ / ई / उ / ऊ (Third Place Vowel)',
+    hindiTranslation: 'ई / ऊ की मात्रा (तृतीय स्थान)',
+    category: 'vowel',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'End Dot/Dash through the line',
+    position: 'through_line',
+    ruleHindi: 'तृतीय स्थान: व्यंजन रेखा के अंत में बिंदु/डैश तथा रेखा लाइन काटकर लिखी जाती है।',
+    ruleEnglish: 'Third place dot/dash; outline cuts through the line.',
+    svgPath: 'M 20,60 L 80,60 M 65,45 A 3,3 0 1,1 65,46',
+    strokeWidth: 4,
+    sampleExample: 'ईख, गीत, रूप, मूल'
+  },
+
+  // 8. शब्दाक्षर व शब्द-चिह्न (Grammalogues)
+  {
+    id: 'st-ka-ki',
+    charOrWord: 'का / की / के / The',
+    hindiTranslation: 'का, की, के (शब्द-चिह्न)',
+    category: 'grammalogue',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Short light tick on line',
+    position: 'on_line',
+    ruleHindi: 'लाइन के ऊपर छोटी तिरछी टिक (का) या लाइन पर (की/के)।',
+    ruleEnglish: 'Light upward/downward tick placed on or above the line.',
     svgPath: 'M 40,40 L 60,60',
     strokeWidth: 2.5,
-    sampleExample: 'To go, To do, सरकार को'
+    sampleExample: 'भारत का, सदन की, सदस्यों के'
   },
+  {
+    id: 'st-ne-se',
+    charOrWord: 'ने / से / में / पर',
+    hindiTranslation: 'ने, से, में, पर (विभक्ति चिन्ह)',
+    category: 'grammalogue',
+    system: 'hindi_rishi',
+    strokeType: 'straight_light',
+    direction: 'Perpendicular small tick',
+    position: 'on_line',
+    ruleHindi: 'लाइन के ऊपर छोटा लंबवत टिक (ने), लाइन पर (से), लाइन के बीच (में/पर)।',
+    ruleEnglish: 'Grammalogue ticks representing post-positions in Hindi shorthand.',
+    svgPath: 'M 50,35 L 50,65',
+    strokeWidth: 3,
+    sampleExample: 'सरकार ने, न्यायालय से, देश में, मंच पर'
+  },
+
+  // 9. कोर्ट व लीगल वाक्यांश (High Court & Legal Phraseograms)
   {
     id: 'st-court',
     charOrWord: 'High Court / माननीय उच्च न्यायालय',
@@ -227,8 +558,40 @@ const STENO_DICTIONARY: ShorthandSymbol[] = [
     ruleEnglish: 'Interlocking high-speed legal phraseogram for courtroom records.',
     svgPath: 'M 30,30 L 30,70 M 30,50 L 55,50 M 55,30 L 55,70 M 60,40 C 75,35 75,65 60,65',
     strokeWidth: 3,
-    sampleExample: 'Honorable High Court, न्यायपीठ'
+    sampleExample: 'Honorable High Court, न्यायपीठ, रिट याचिका'
   },
+  {
+    id: 'st-supreme-court',
+    charOrWord: 'Supreme Court / माननीय उच्चतम न्यायालय',
+    hindiTranslation: 'उच्चतम न्यायालय (सर्वोच्च अदालत)',
+    category: 'court_legal',
+    system: 'hindi_rishi',
+    strokeType: 'hook',
+    direction: 'S-C loop above the line',
+    position: 'above_line',
+    ruleHindi: 'स का बड़ा वृत्त बनाकर च व्यंजन को लाइन के ऊपर तीव्र गति से लिखा जाता है।',
+    ruleEnglish: 'Large S-circle connected to CH stroke above the line.',
+    svgPath: 'M 35,40 A 8,8 0 1,1 35,56 L 65,75',
+    strokeWidth: 3.5,
+    sampleExample: 'माननीय उच्चतम न्यायालय, Supreme Court Ruling'
+  },
+  {
+    id: 'st-crpc',
+    charOrWord: 'CrPC / दंड प्रक्रिया संहिता',
+    hindiTranslation: 'दंड प्रक्रिया संहिता (धारा 482/302)',
+    category: 'court_legal',
+    system: 'hindi_rishi',
+    strokeType: 'hook',
+    direction: 'D-P-S Triple Contraction',
+    position: 'through_line',
+    ruleHindi: 'द व्यंजन को प और स के साथ मिलाकर लाइन काटकर तीव्र गति में लिखते हैं।',
+    ruleEnglish: 'Triple contracted outline cutting the line for high-speed legal transcript.',
+    svgPath: 'M 30,30 L 50,55 L 70,45 L 80,70',
+    strokeWidth: 3,
+    sampleExample: 'दंड प्रक्रिया संहिता, भारतीय दंड संहिता'
+  },
+
+  // 10. SSC व संसदीय वाक्यांश (SSC & Parliamentary Phrases)
   {
     id: 'st-ssc-govt',
     charOrWord: 'Government of India / भारत सरकार',
@@ -242,7 +605,37 @@ const STENO_DICTIONARY: ShorthandSymbol[] = [
     ruleEnglish: 'Contracted fast phraseogram for administrative dictation.',
     svgPath: 'M 25,60 C 25,35 50,35 50,60 C 50,85 75,85 75,60',
     strokeWidth: 3.5,
-    sampleExample: 'भारत सरकार, Gazette of India'
+    sampleExample: 'भारत सरकार, Gazette of India, राजपत्र'
+  },
+  {
+    id: 'st-speaker',
+    charOrWord: 'अध्यक्ष महोदय / Mr. Speaker Sir',
+    hindiTranslation: 'अध्यक्ष महोदय (संसदीय वाक्यांश)',
+    category: 'ssc_special',
+    system: 'hindi_rishi',
+    strokeType: 'hook',
+    direction: 'Adhyaksh + Mahoday joined symbol',
+    position: 'above_line',
+    ruleHindi: 'अ स्वर के साथ ध व्यंजन और म लूप को बिना पेंसिल उठाए एक साथ जोड़कर लिखें।',
+    ruleEnglish: 'Joined outline combining initial vowel with DH and M loop.',
+    svgPath: 'M 25,35 L 50,65 C 58,75 70,60 65,45',
+    strokeWidth: 3.5,
+    sampleExample: 'अध्यक्ष महोदय, उपाध्यक्ष महोदय, सभापति महोदय'
+  },
+  {
+    id: 'st-constitution',
+    charOrWord: 'संविधान / Constitution of India',
+    hindiTranslation: 'संविधान / संवैधानिक पीठ',
+    category: 'ssc_special',
+    system: 'hindi_rishi',
+    strokeType: 'hook',
+    direction: 'S-V-DH-N Outline',
+    position: 'on_line',
+    ruleHindi: 'स का वृत्त + व का हुक + ध रेखा + न का अंतिम हुक।',
+    ruleEnglish: 'High speed outline with S-circle, V-hook and final N-hook.',
+    svgPath: 'M 25,50 A 6,6 0 1,1 35,50 L 55,35 L 75,65',
+    strokeWidth: 3.5,
+    sampleExample: 'भारतीय संविधान, संविधान सभा, अनुच्छेद'
   }
 ];
 
@@ -711,22 +1104,22 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
       {/* Top Banner Header */}
       <div className="bg-gradient-to-r from-[#0C1220] via-[#090D18] to-[#0A0F1D] border-2 border-amber-500/40 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-amber-500/20 text-2xl shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-cyan-500/20 text-2xl shrink-0">
             ✍️
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-xl font-black text-white uppercase tracking-wider">
-                {language === 'hindi' ? 'स्टेनो मास्टर प्रो स्टूडियो' : 'Steno Master Pro Studio'}
+                {language === 'hindi' ? 'All Stenographer • सम्पूर्ण आशुलिपि एवं डिक्टेशन लैब' : 'All Stenographer • Shorthand & Dictation Studio'}
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase">
+              <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-black uppercase">
                 60 - 140 WPM Engine
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
               {language === 'hindi' 
-                ? 'फुल-साइज डिजिटल पैड, लाइव ऑडियो डिक्टेशन, MP3 फाइल अपलोडर व स्पीड टेस्ट' 
-                : 'Full-width Shorthand Notepad, Live Voice Dictation, Audio File Player & Speed Drills'}
+                ? 'सभी स्ट्रोक व वर्णमाला (ऋषि, मानक, पिटमैन), डिजिटल पैड, लाइव ऑडियो डिक्टेशन व स्पीड टेस्ट' 
+                : 'All Shorthand Strokes (Rishi, Manak, Pitman), Digital Writing Pad, Voice Dictation & Speed Drills'}
             </p>
           </div>
         </div>
@@ -1192,49 +1585,86 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
 
             {/* Scrollable Symbols Grid */}
             <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-              {filteredSymbols.map(sym => {
-                const isSelected = selectedSymbol.id === sym.id;
-                return (
-                  <div
-                    key={sym.id}
-                    onClick={() => setSelectedSymbol(sym)}
-                    className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-transparent border-amber-500/60 ring-1 ring-amber-500/40'
-                        : 'bg-[#060A14] border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/60'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0 relative overflow-hidden">
-                        <div className="absolute inset-x-0 top-1/2 border-b border-slate-800" />
-                        <svg viewBox="0 0 100 100" className="w-10 h-10">
-                          <path
-                            d={sym.svgPath}
-                            fill="none"
-                            stroke={isSelected ? '#F59E0B' : '#38BDF8'}
-                            strokeWidth={sym.strokeWidth}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-white">{sym.charOrWord}</h4>
-                          <span className={`text-[8px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                            sym.strokeType.includes('heavy') ? 'bg-amber-500/20 text-amber-300' : 'bg-sky-500/20 text-sky-300'
-                          }`}>
-                            {sym.strokeType.includes('heavy') ? 'HEAVY' : 'LIGHT'}
-                          </span>
+              {filteredSymbols.length > 0 ? (
+                filteredSymbols.map(sym => {
+                  const isSelected = selectedSymbol.id === sym.id;
+                  return (
+                    <div
+                      key={sym.id}
+                      onClick={() => setSelectedSymbol(sym)}
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-transparent border-amber-500/60 ring-1 ring-amber-500/40'
+                          : 'bg-[#060A14] border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0 relative overflow-hidden">
+                          <div className="absolute inset-x-0 top-1/2 border-b border-slate-800" />
+                          <svg viewBox="0 0 100 100" className="w-10 h-10">
+                            <path
+                              d={sym.svgPath}
+                              fill="none"
+                              stroke={isSelected ? '#F59E0B' : '#38BDF8'}
+                              strokeWidth={sym.strokeWidth}
+                              strokeLinecap="round"
+                            />
+                          </svg>
                         </div>
-                        <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{sym.hindiTranslation}</p>
-                      </div>
-                    </div>
 
-                    <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isSelected ? 'text-amber-400 translate-x-0.5' : 'text-slate-600'}`} />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-bold text-white">{sym.charOrWord}</h4>
+                            <span className={`text-[8px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                              sym.strokeType.includes('heavy') ? 'bg-amber-500/20 text-amber-300' : 'bg-sky-500/20 text-sky-300'
+                            }`}>
+                              {sym.strokeType.includes('heavy') ? 'HEAVY' : 'LIGHT'}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{sym.hindiTranslation}</p>
+                        </div>
+                      </div>
+
+                      <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isSelected ? 'text-amber-400 translate-x-0.5' : 'text-slate-600'}`} />
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-4 rounded-2xl bg-slate-900/80 border border-amber-500/30 text-center space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 mx-auto flex items-center justify-center text-xl">
+                    ✍️
                   </div>
-                );
-              })}
+                  <div>
+                    <h4 className="text-xs font-bold text-white">"{searchQuery}" का लाइव स्ट्रोक नियम</h4>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      शब्द के प्रत्येक व्यंजन (क, ख, ग, म, र, ल आदि) की दिशा व कोण को मिलाकर संयुक्त आउटलाइन (Outline) बनाएं।
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const dynamicSym: ShorthandSymbol = {
+                        id: `st-dyn-${Date.now()}`,
+                        charOrWord: searchQuery,
+                        hindiTranslation: `${searchQuery} (कस्टम शॉर्टहैंड स्ट्रोक)`,
+                        category: 'consonant',
+                        system: 'hindi_rishi',
+                        strokeType: 'straight_light',
+                        direction: 'Phonetic Sequential Flow',
+                        position: 'on_line',
+                        ruleHindi: `"${searchQuery}" के लिए पहले व्यंजन की दिशा का पालन करें, पेंसिल बिना उठाए अगले व्यंजन की रेखा जोड़ें तथा स्वर का बिंदु/डैश अंत में लगाएं।`,
+                        ruleEnglish: `For "${searchQuery}", join the constituent phonetic consonant strokes seamlessly on or through the line.`,
+                        svgPath: 'M 20,50 L 50,50 L 75,25',
+                        strokeWidth: 3,
+                        sampleExample: searchQuery
+                      };
+                      setSelectedSymbol(dynamicSym);
+                    }}
+                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition-all cursor-pointer shadow-md"
+                  >
+                    इस शब्द का चिन्ह बनाएं
+                  </button>
+                </div>
+              )}
             </div>
 
           </div>
