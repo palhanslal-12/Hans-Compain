@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Compass, Sparkles, Send, Volume2, VolumeX, ShieldCheck, Flame, Play, RotateCcw,
-  Search, UserPlus, History, User
+  Search, UserPlus, History, User, Mic, MicOff
 } from 'lucide-react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
+import { startVoiceRecognition, VoiceRecognitionHandle } from '../utils/voiceInputUtils';
 import { AudioSpeedControl } from './AudioSpeedControl';
 import { FullScreenLayout } from './FullScreenLayout';
 
@@ -199,6 +200,75 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeakingMsgId, setIsSpeakingMsgId] = useState<string | null>(null);
   const [audioSpeed, setAudioSpeed] = useState<number>(0.92);
+  const [isListeningSearch, setIsListeningSearch] = useState<boolean>(false);
+  const [isListeningChat, setIsListeningChat] = useState<boolean>(false);
+  const [searchVoiceHandle, setSearchVoiceHandle] = useState<VoiceRecognitionHandle | null>(null);
+  const [chatVoiceHandle, setChatVoiceHandle] = useState<VoiceRecognitionHandle | null>(null);
+
+  // Stop speech and voice recognition on unmount
+  useEffect(() => {
+    return () => {
+      stopAllSpeech();
+      if (searchVoiceHandle) searchVoiceHandle.stop();
+      if (chatVoiceHandle) chatVoiceHandle.stop();
+    };
+  }, []);
+
+  const handleToggleVoiceSearch = () => {
+    if (isListeningSearch) {
+      if (searchVoiceHandle) searchVoiceHandle.stop();
+      setIsListeningSearch(false);
+      return;
+    }
+
+    stopAllSpeech();
+    setIsListeningSearch(true);
+    showToast(language === 'hindi' ? '🎙️ बोलिए... ऐतिहासिक व्यक्ति का नाम' : '🎙️ Speak historical persona name...', 'info');
+
+    const handle = startVoiceRecognition({
+      lang: language === 'hindi' ? 'hi-IN' : 'en-US',
+      onResult: (text) => {
+        setSearchPersonaQuery(text);
+      },
+      onEnd: () => {
+        setIsListeningSearch(false);
+      },
+      onError: (err) => {
+        setIsListeningSearch(false);
+        showToast(err, 'warn');
+      }
+    });
+
+    setSearchVoiceHandle(handle);
+  };
+
+  const handleToggleVoiceChat = () => {
+    if (isListeningChat) {
+      if (chatVoiceHandle) chatVoiceHandle.stop();
+      setIsListeningChat(false);
+      return;
+    }
+
+    stopAllSpeech();
+    setIsListeningChat(true);
+    showToast(language === 'hindi' ? '🎙️ बोलिए... अपना प्रश्न पूछें' : '🎙️ Speak your question...', 'info');
+
+    const handle = startVoiceRecognition({
+      lang: language === 'hindi' ? 'hi-IN' : 'en-US',
+      onResult: (text) => {
+        setInputQuery(text);
+      },
+      onEnd: () => {
+        setIsListeningChat(false);
+      },
+      onError: (err) => {
+        setIsListeningChat(false);
+        showToast(err, 'warn');
+      }
+    });
+
+    setChatVoiceHandle(handle);
+  };
 
   const handleSelectEra = (era: EraPersona) => {
     setSelectedEra(era);
@@ -442,12 +512,28 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
             onChange={(e) => setSearchPersonaQuery(e.target.value)}
             placeholder={
               language === 'hindi'
-                ? "किसी भी ऐतिहासिक व्यक्ति को खोजें (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Rani Lakshmibai, APJ Abdul Kalam, Sardar Patel)..."
-                : "Search any historical persona (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Rani Lakshmibai, APJ Abdul Kalam)..."
+                ? "किसी भी ऐतिहासिक व्यक्ति को खोजें या बोलकर बताएं (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Rani Lakshmibai)..."
+                : "Search or speak any historical persona (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Rani Lakshmibai)..."
             }
             className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none px-2 py-1 font-medium"
             disabled={isSearchingPersona}
           />
+          
+          {/* VOICE SEARCH MIC BUTTON */}
+          <button
+            type="button"
+            onClick={handleToggleVoiceSearch}
+            className={`p-2.5 rounded-xl transition-all border cursor-pointer shrink-0 flex items-center gap-1.5 text-xs font-bold ${
+              isListeningSearch
+                ? 'bg-rose-500 text-white border-rose-400 animate-pulse shadow-lg ring-2 ring-rose-400/50'
+                : 'bg-slate-800 text-purple-300 border-purple-500/30 hover:bg-purple-900/40 hover:text-white'
+            }`}
+            title={language === 'hindi' ? 'बोलकर खोजें (Voice Search)' : 'Speak to Search'}
+          >
+            {isListeningSearch ? <MicOff className="w-4 h-4 animate-bounce" /> : <Mic className="w-4 h-4" />}
+            <span className="hidden sm:inline text-[11px]">{isListeningSearch ? (language === 'hindi' ? 'सुन रहे हैं...' : 'Listening...') : (language === 'hindi' ? 'बोलें' : 'Voice')}</span>
+          </button>
+
           <button
             type="submit"
             disabled={isSearchingPersona || !searchPersonaQuery.trim()}
@@ -612,15 +698,27 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder={
                 language === 'hindi'
-                  ? `${selectedEra.name} से इतिहास, संविधान या निर्णयों पर प्रश्न पूछें (e.g. Hindi me batao aapka bhumika kya raha hai)...`
-                  : `Ask ${selectedEra.name} about historical events, decisions or articles...`
+                  ? `${selectedEra.name} से बोलकर या लिखकर प्रश्न पूछें (e.g. Hindi me batao aapka bhumika kya raha hai)...`
+                  : `Ask or speak to ${selectedEra.name} about historical events, decisions or articles...`
               }
               className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
             />
             <button
+              type="button"
+              onClick={handleToggleVoiceChat}
+              className={`p-2.5 rounded-xl transition-all border cursor-pointer shrink-0 ${
+                isListeningChat
+                  ? 'bg-rose-500 text-white border-rose-400 animate-pulse ring-2 ring-rose-400/50'
+                  : 'bg-slate-900 text-amber-300 border-amber-500/30 hover:bg-amber-900/40 hover:text-white'
+              }`}
+              title={language === 'hindi' ? 'बोलकर प्रश्न पूछें' : 'Speak your question'}
+            >
+              {isListeningChat ? <MicOff className="w-4 h-4 animate-bounce" /> : <Mic className="w-4 h-4" />}
+            </button>
+            <button
               onClick={() => handleSendMessage()}
               disabled={isLoading || !inputQuery.trim()}
-              className="p-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 rounded-xl font-bold transition-all border-none cursor-pointer disabled:opacity-40"
+              className="p-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 rounded-xl font-bold transition-all border-none cursor-pointer disabled:opacity-40 shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>

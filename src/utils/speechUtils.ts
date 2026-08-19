@@ -2,6 +2,7 @@
 // Universal, Rock-Solid Hindi & English Text-To-Speech Engine with Gender-Aware Voices (Male / Female)
 
 let currentAudioPlayer: HTMLAudioElement | null = null;
+let currentSpeechSessionId = 0;
 
 export interface SpeechOptions {
   lang?: string;
@@ -52,6 +53,9 @@ export const cleanTextForSpeech = (rawText: string): string => {
 };
 
 export const stopAllSpeech = () => {
+  // Invalidate any active speech session so ongoing or queued callbacks abort immediately
+  currentSpeechSessionId++;
+
   if (typeof window !== 'undefined') {
     if ('speechSynthesis' in window) {
       try {
@@ -62,6 +66,7 @@ export const stopAllSpeech = () => {
       try {
         currentAudioPlayer.pause();
         currentAudioPlayer.currentTime = 0;
+        currentAudioPlayer.src = '';
       } catch (e) {}
       currentAudioPlayer = null;
     }
@@ -73,7 +78,10 @@ export const stopAllSpeech = () => {
  */
 export const speakText = (text: string, rawOptions: SpeechOptions | string = {}) => {
   const options: SpeechOptions = typeof rawOptions === 'string' ? { lang: rawOptions } : rawOptions;
+  
+  // Stop all previous speech and get new unique session token
   stopAllSpeech();
+  const sessionId = currentSpeechSessionId;
 
   const cleanText = cleanTextForSpeech(text);
 
@@ -128,6 +136,11 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
     const voices = allVoices.length > 0 ? allVoices : cachedVoices;
 
     const speakWebChunk = () => {
+      // Abort if session was stopped/superseded
+      if (sessionId !== currentSpeechSessionId) {
+        return;
+      }
+
       if (currentChunkIdx >= chunks.length) {
         if (options.onEnd) options.onEnd();
         return;
@@ -189,23 +202,32 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       let hasEnded = false;
 
       utterance.onend = () => {
-        if (hasEnded) return;
+        if (hasEnded || sessionId !== currentSpeechSessionId) return;
         hasEnded = true;
         currentChunkIdx++;
         speakWebChunk();
       };
 
-      utterance.onerror = (e) => {
-        console.warn("WebSpeech synthesis error, falling back to Audio TTS:", e);
-        if (hasEnded) return;
+      utterance.onerror = (e: any) => {
+        if (hasEnded || sessionId !== currentSpeechSessionId) return;
         hasEnded = true;
+
+        // If explicitly canceled or interrupted by user stop/switch, do NOT fall back to playing second audio!
+        if (e && (e.error === 'canceled' || e.error === 'interrupted')) {
+          if (options.onEnd) options.onEnd();
+          return;
+        }
+
+        console.warn("WebSpeech synthesis error, trying Audio TTS fallback:", e);
         playAudioTTS();
       };
 
       try {
         window.speechSynthesis.speak(utterance);
       } catch (e) {
-        playAudioTTS();
+        if (sessionId === currentSpeechSessionId) {
+          playAudioTTS();
+        }
       }
     };
 
@@ -215,6 +237,8 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
   // 2. Server-side /api/tts Audio Streamer Fallback
   const playAudioTTS = () => {
     const playNextChunk = () => {
+      if (sessionId !== currentSpeechSessionId) return;
+
       if (currentChunkIdx >= chunks.length) {
         if (options.onEnd) options.onEnd();
         return;
@@ -231,11 +255,13 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       audio.playbackRate = activeRate;
 
       audio.onended = () => {
+        if (sessionId !== currentSpeechSessionId) return;
         currentChunkIdx++;
         playNextChunk();
       };
 
       audio.onerror = () => {
+        if (sessionId !== currentSpeechSessionId) return;
         currentChunkIdx++;
         if (currentChunkIdx < chunks.length) {
           playNextChunk();
@@ -245,6 +271,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       };
 
       audio.play().catch(() => {
+        if (sessionId !== currentSpeechSessionId) return;
         currentChunkIdx++;
         if (currentChunkIdx < chunks.length) {
           playNextChunk();

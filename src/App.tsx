@@ -118,9 +118,12 @@ import { MockInterviewView } from './components/MockInterviewView';
 import { AIPerformanceDiagnosticsView } from './components/AIPerformanceDiagnosticsView';
 import { DedicatedStenoMasterStudio } from './components/DedicatedStenoMasterStudio';
 import { PublicLaunchHubView } from './components/PublicLaunchHubView';
+import { GoogleScholarResearchModal } from './components/GoogleScholarResearchModal';
+import { startVoiceRecognition, VoiceRecognitionHandle } from './utils/voiceInputUtils';
 import { AiPublicRulesModal } from './components/AiPublicRulesModal';
 import { HansAiHelpGuideModal } from './components/HansAiHelpGuideModal';
 import { SystemDiagnosticsModal } from './components/SystemDiagnosticsModal';
+import { SarkariResultEligibilityHub } from './components/SarkariResultEligibilityHub';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { generateStudyNotesPdf } from './utils/pdfGenerator';
 import {
@@ -356,7 +359,7 @@ const QuantumSwanLogo = ({
   containerClassName?: string;
 }) => {
   const svgLogo = (
-    <svg viewBox="0 0 200 200" className={className} xmlns="http://www.w3.org/2000/svg" id="hans-app-official-logo">
+    <svg viewBox="0 0 200 200" className={`${className} transition-transform duration-500 hover:rotate-6`} xmlns="http://www.w3.org/2000/svg" id="hans-app-official-logo">
       <defs>
         <linearGradient id="hansCircleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#0284C7" />
@@ -451,7 +454,7 @@ const QuantumSwanLogo = ({
   if (!showLightBg) return svgLogo;
 
   return (
-    <div className={`relative inline-flex items-center justify-center p-2.5 sm:p-3.5 rounded-3xl bg-gradient-to-br from-white via-sky-50 to-indigo-100 shadow-[0_0_35px_rgba(56,189,248,0.6)] border-2 border-white/90 transition-all duration-300 hover:scale-105 shrink-0 ${containerClassName}`}>
+    <div className={`relative inline-flex items-center justify-center p-2.5 sm:p-3.5 rounded-3xl bg-gradient-to-br from-white via-sky-50 to-indigo-100 shadow-[0_0_35px_rgba(56,189,248,0.6)] border-2 border-white/90 transition-all duration-300 hover:scale-[1.20] hover:rotate-3 shrink-0 ${containerClassName}`}>
       {/* Soft Animated Light Pulse Aura */}
       <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-sky-400/50 via-cyan-300/40 to-emerald-400/50 blur-lg animate-pulse pointer-events-none" />
       <div className="relative z-10 flex items-center justify-center">
@@ -586,6 +589,8 @@ export default function App() {
   const [shareSelectedTab, setShareSelectedTab] = useState<string>('all');
   const [isCopiedShareLink, setIsCopiedShareLink] = useState<boolean>(false);
   const [isAppLauncherOpen, setIsAppLauncherOpen] = useState<boolean>(false);
+  const [isGoogleScholarModalOpen, setIsGoogleScholarModalOpen] = useState<boolean>(false);
+  const [scholarTopic, setScholarTopic] = useState<string>('Indian Constitution & Fundamental Rights');
   const [isAllExamsSyllabusOpen, setIsAllExamsSyllabusOpen] = useState<boolean>(false);
   const [isAiRulesModalOpen, setIsAiRulesModalOpen] = useState<boolean>(false);
   const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
@@ -1262,6 +1267,22 @@ export default function App() {
       }
     })
     .catch(err => console.error("Activity log error", err));
+  };
+
+  const deleteSpecificHistoryLog = (logId: string, title?: string) => {
+    setActivityLogs(prev => {
+      const updated = prev.filter(item => item.id !== logId);
+      try {
+        localStorage.setItem('hansai-history', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+    showToast(
+      language === 'hindi'
+        ? `इतिहास से "${title ? title.slice(0, 30) : 'आइटम'}" हटा दिया गया 🗑️`
+        : `Cleared item from history 🗑️`,
+      "info"
+    );
   };
 
   // Premium Utility states
@@ -3328,23 +3349,6 @@ export default function App() {
     }
   }, [activityLogs]);
 
-  // Delete a specific single activity log entry from History
-  const deleteSpecificHistoryLog = (id: string, itemTitle?: string) => {
-    setActivityLogs(prev => {
-      const updated = prev.filter(item => item.id !== id);
-      try {
-        localStorage.setItem('hansai-history', JSON.stringify(updated));
-      } catch (e) {}
-      return updated;
-    });
-    showToast(
-      language === 'hindi'
-        ? `इतिहास से आइटम हटाया गया: ${itemTitle ? `"${itemTitle.slice(0, 25)}..."` : 'सफलतापूर्वक'} 🗑️`
-        : `Specific history item removed 🗑️`,
-      'info'
-    );
-  };
-
   // ======= DAILY GOAL TRACKER, LIFE BALANCE & CONCEPT MAP STATES =======
   const [timerSubTab, setTimerSubTab] = useState<'clock' | 'projects'>('clock');
   const [triggerConfetti, setTriggerConfetti] = useState(false);
@@ -3470,6 +3474,66 @@ export default function App() {
   const [isGeneratingConceptMap, setIsGeneratingConceptMap] = useState(false);
   const [mapTab, setMapTab] = useState<'flowchart' | 'geo'>('flowchart');
   const [selectedGeoRegion, setSelectedGeoRegion] = useState<any | null>(null);
+  const [isListeningMapVoice, setIsListeningMapVoice] = useState(false);
+  const [mapVoiceHandle, setMapVoiceHandle] = useState<VoiceRecognitionHandle | null>(null);
+  const [isListeningLauncherVoice, setIsListeningLauncherVoice] = useState(false);
+  const [launcherVoiceHandle, setLauncherVoiceHandle] = useState<VoiceRecognitionHandle | null>(null);
+
+  const handleToggleMapVoice = () => {
+    if (isListeningMapVoice) {
+      if (mapVoiceHandle) mapVoiceHandle.stop();
+      setIsListeningMapVoice(false);
+      return;
+    }
+
+    stopAllSpeech();
+    setIsListeningMapVoice(true);
+    showToast(language === 'hindi' ? '🎙️ बोलिए... विषय या स्थान का नाम' : '🎙️ Speak map topic or location...', 'info');
+
+    const handle = startVoiceRecognition({
+      lang: language === 'hindi' ? 'hi-IN' : 'en-US',
+      onResult: (text) => {
+        setConceptMapTopic(text);
+      },
+      onEnd: () => {
+        setIsListeningMapVoice(false);
+      },
+      onError: (err) => {
+        setIsListeningMapVoice(false);
+        showToast(err, 'warn');
+      }
+    });
+
+    setMapVoiceHandle(handle);
+  };
+
+  const handleToggleLauncherVoice = () => {
+    if (isListeningLauncherVoice) {
+      if (launcherVoiceHandle) launcherVoiceHandle.stop();
+      setIsListeningLauncherVoice(false);
+      return;
+    }
+
+    stopAllSpeech();
+    setIsListeningLauncherVoice(true);
+    showToast(language === 'hindi' ? '🎙️ बोलिए... अपना सर्च टॉपिक' : '🎙️ Speak your search query...', 'info');
+
+    const handle = startVoiceRecognition({
+      lang: language === 'hindi' ? 'hi-IN' : 'en-US',
+      onResult: (text) => {
+        setLauncherSearchTopic(text);
+      },
+      onEnd: () => {
+        setIsListeningLauncherVoice(false);
+      },
+      onError: (err) => {
+        setIsListeningLauncherVoice(false);
+        showToast(err, 'warn');
+      }
+    });
+
+    setLauncherVoiceHandle(handle);
+  };
 
   const geoLandmarks = [
     {
@@ -4183,10 +4247,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
   };
 
   const handleLaunchGoogleScholar = (topic = launcherSearchTopic) => {
-    const clean = (topic || "Indian Constitution").trim();
+    const clean = (topic || "Indian Constitution & Fundamental Rights").trim();
+    setScholarTopic(clean);
+    setIsGoogleScholarModalOpen(true);
     const url = `https://scholar.google.com/scholar?q=${encodeURIComponent(clean)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-    showToast(`Google Scholar launched for "${clean}"! 📚`, "info");
+    try {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      console.warn("Popup blocked, scholar modal opened:", e);
+    }
+    showToast(
+      language === 'hindi'
+        ? `Google Scholar रिसर्च पोर्टल खुल गया है: "${clean}" 📚`
+        : `Google Scholar Research Hub opened for "${clean}"! 📚`,
+      "success"
+    );
   };
 
   const handleLaunchWikipedia = (topic = launcherSearchTopic) => {
@@ -5464,6 +5539,22 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       {language === 'hindi' ? "विशेषज्ञ AI टूल्स" : "Specialized AI Hub"}
                     </span>
                     <div className="space-y-1 text-xs font-semibold">
+                      {/* PROMINENT ALL STENOGRAPHER SHORTCUT BUTTON */}
+                      <button
+                        onClick={() => { setActiveView('steno'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl text-sky-200 hover:text-white hover:bg-gradient-to-r hover:from-sky-900/60 hover:to-cyan-900/60 transition-all text-left bg-gradient-to-r from-sky-950/80 to-cyan-950/80 border-2 border-cyan-400/50 cursor-pointer font-black shadow-lg shadow-cyan-950/60"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-base shrink-0">✍️</span>
+                          <span className="truncate font-black text-sky-300">
+                            {language === 'hindi' ? 'All Stenographer • सम्पूर्ण स्टेनो' : 'All Stenographer Studio'}
+                          </span>
+                        </div>
+                        <span className="text-[8px] bg-cyan-400 text-slate-950 px-1.5 py-0.5 rounded-md font-black uppercase shrink-0">
+                          Syllabus & Lab
+                        </span>
+                      </button>
+
                       <button
                         onClick={() => { setActiveView('mock-interview'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
                         className="w-full flex items-center gap-2.5 p-2 rounded-xl text-indigo-300 hover:text-indigo-200 hover:bg-[#121829] transition-all text-left bg-indigo-500/15 border border-indigo-500/30 cursor-pointer font-bold"
@@ -10089,19 +10180,35 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   <div className="bg-[#0F1626]/40 border border-slate-800 p-4 rounded-2xl space-y-3">
                     <form 
                       onSubmit={(e) => { e.preventDefault(); handleGenerateConceptMap(); }}
-                      className="flex flex-col sm:flex-row gap-3"
+                      className="flex flex-col sm:flex-row gap-2"
                     >
-                      <input
-                        type="text"
-                        value={conceptMapTopic}
-                        onChange={(e) => setConceptMapTopic(e.target.value)}
-                        placeholder={
-                          language === 'hindi'
-                            ? "कोई भी विषय, प्रश्न या स्थान टाइप करें (जैसे: Newton's Laws, Photosynthesis, 1857 Revolt Places, Ganga River System, Budget)..."
-                            : "Type any topic or region (e.g. Newton's Laws, Photosynthesis, Ganga River System, 1857 Revolt)..."
-                        }
-                        className="flex-1 text-xs px-4 py-3 bg-[#090D16] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-sans font-semibold"
-                      />
+                      <div className="relative flex-1 flex items-center bg-[#090D16] border border-slate-800 focus-within:border-indigo-500 rounded-xl px-2">
+                        <input
+                          type="text"
+                          value={conceptMapTopic}
+                          onChange={(e) => setConceptMapTopic(e.target.value)}
+                          placeholder={
+                            language === 'hindi'
+                              ? "कोई भी विषय, प्रश्न या स्थान बोलें या लिखें (जैसे: Newton's Laws, Photosynthesis, 1857 Revolt, Ganga River System)..."
+                              : "Speak or type any topic or region (e.g. Newton's Laws, Photosynthesis, Ganga River System, 1857 Revolt)..."
+                          }
+                          className="flex-1 text-xs px-2 py-3 bg-transparent text-white placeholder-slate-500 focus:outline-none font-sans font-semibold"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleToggleMapVoice}
+                          className={`p-2 rounded-lg transition-all border cursor-pointer shrink-0 flex items-center gap-1 text-xs font-bold ${
+                            isListeningMapVoice
+                              ? 'bg-rose-500 text-white border-rose-400 animate-pulse'
+                              : 'bg-slate-850 text-indigo-300 border-indigo-500/30 hover:bg-indigo-900/40 hover:text-white'
+                          }`}
+                          title={language === 'hindi' ? 'बोलकर सर्च करें' : 'Speak to search'}
+                        >
+                          {isListeningMapVoice ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                          <span className="text-[10px] hidden sm:inline">{isListeningMapVoice ? 'Listening...' : 'Voice'}</span>
+                        </button>
+                      </div>
+
                       <button
                         type="submit"
                         disabled={isGeneratingConceptMap || !conceptMapTopic.trim()}
@@ -11093,138 +11200,149 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           )}
 
-          {/* VIEW: SARKARI RESULT / सरकारी नौकरी */}
+          {/* VIEW: SARKARI RESULT / सरकारी नौकरी & पात्रता फाइंडर */}
           {activeView === 'sarkari-result' && (
-            <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
-              <div className="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
-                <div>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <FileText className="w-5.5 h-5.5 text-orange-400" />
-                    Sarkari Result Portal / सरकारी नौकरी और परीक्षा नवीनतम अपडेट
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1 pb-1">
-                    Get actual real-time notifications for SSC Stenographer, CGL, CHSL, GD, selection posts, and other state exam rules.
-                  </p>
+            <div className="max-w-6xl mx-auto px-2 sm:px-4 py-6 space-y-8 animate-fade-in text-left">
+              
+              {/* Top Interactive Student Eligibility Job Matcher */}
+              <SarkariResultEligibilityHub
+                onAskHansAi={(prompt) => handleSendChat(prompt)}
+                onStartStenoMock={(subject) => {
+                  setActiveView('steno');
+                  showToast(`${subject} का स्टैनो स्टूडियो एक्टिव हो गया! ✍️`, "info");
+                }}
+                showToast={showToast}
+                language={language}
+              />
+
+              {/* Classic Sarkari Result 3-Column Updates (Admit Cards, Results, Notifications) */}
+              <div className="border-t border-slate-800 pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-orange-400" />
+                    <span>दैनिक प्रवेश पत्र व परिणाम त्वरित बुलेटिन (Daily Sarkari Updates)</span>
+                  </h3>
+                  <a 
+                    href="https://www.sarkariresult.com/" 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-xs text-orange-400 hover:underline font-bold flex items-center gap-1"
+                  >
+                    <span>मूल वेबसाइट sarkariresult.com</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
-                <a 
-                  href="https://www.sarkariresult.com/" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="px-3.5 py-1.5 bg-orange-600/20 text-orange-400 border border-orange-500/30 rounded-xl text-xs font-bold hover:bg-orange-600 hover:text-white transition-all flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-                >
-                  Visit Official site / मूल वेबसाइट 🌐
-                </a>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* 1. Latest Jobs Section */}
+                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                      <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                        Latest Jobs / रिक्तियां
+                      </h3>
+                      <span className="bg-emerald-500/10 text-emerald-400 text-[9px] px-1.5 py-0.2 rounded font-black font-mono">NEW</span>
+                    </div>
+                    <div className="space-y-3 font-medium">
+                      {[
+                        { title: "SSC Stenographer Grade C & D Notification 2026", desc: "Short Notice Released. Online App Starts Soon.", subject: "SSC Stenographer" },
+                        { title: "SSC CHSL (10+2) 2026 Tier I Online Application", desc: "Apply Online now for 3800+ vacancies across India.", subject: "SSC CHSL" },
+                        { title: "BPSC 71st Combined Mains Exam Forms 2026", desc: "For Administrative postings. Apply before deadline.", subject: "BPSC Mains" },
+                        { title: "SSC GD Constable Recruitments 2026", desc: "35,000+ posts in CAPF, NIA, SSF, and Assam Rifles.", subject: "SSC GD" },
+                        { title: "Railway RRB ALP Recruitments 2026 Stage II", desc: "Exam dates active. Download admit papers soon.", subject: "Railway ALP" }
+                      ].map((job, idx) => (
+                        <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-855 hover:border-slate-800 transition-all space-y-1">
+                          <h4 className="text-[11px] font-bold text-slate-100 hover:text-indigo-400 cursor-pointer" onClick={() => handleSendChat(`Give me details, eligibility, syllabus, and selection pattern for ${job.title}`)}>{job.title}</h4>
+                          <p className="text-[10px] text-slate-400">{job.desc}</p>
+                          <div className="flex items-center justify-between pt-1">
+                            <button 
+                              onClick={() => {
+                                setResearchTopic(job.subject);
+                                setActiveView('research');
+                              }}
+                              className="text-[9px] text-indigo-400 hover:underline font-bold cursor-pointer"
+                            >
+                              Research Syllabus 🔬
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setTimerPresetVal(30);
+                                setTimeLeft(1800);
+                                setDisableNotesForTimer(true);
+                                setActiveView('timer');
+                                showToast(`Steno offline mock timer for ${job.subject} started! ⏱️`, "info");
+                              }}
+                              className="text-[9px] text-amber-500 hover:underline font-bold cursor-pointer"
+                            >
+                              Practice Mock ⏱️
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 2. Admit Cards Section */}
+                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                      <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <FileText className="w-4 h-4 text-indigo-400" />
+                        Admit Cards / प्रवेश पत्र
+                      </h3>
+                    </div>
+                    <div className="space-y-3 font-medium">
+                      {[
+                        { title: "SSC CGL 2026 Tier I Exam Region Wise Admit Papers", desc: "All regions CRF, NWR, ER download status active." },
+                        { title: "UPSC Civil Services Prelims 2026 Call Letters", desc: "Enter Registration details to download PDF print." },
+                        { title: "SSC GD Constable 2025 Physical Standards Call Letter", desc: "Physical test phase starting from next fortnight." },
+                        { title: "Bihar Police Sub Inspector Main Exam Hall Ticket", desc: "Download available via Bihar board login node." }
+                      ].map((admit, idx) => (
+                        <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-855 space-y-1">
+                          <h4 className="text-[11px] font-bold text-slate-200">{admit.title}</h4>
+                          <p className="text-[10px] text-slate-400 leading-relaxed">{admit.desc}</p>
+                          <div className="pt-1.5 flex justify-end">
+                            <span className="text-[9px] bg-indigo-500/10 text-indigo-400 rounded px-1.5 py-0.5 font-bold">STATUS: RELEASING</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Results Section */}
+                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                      <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                        <Award className="w-4 h-4 text-amber-500" />
+                        Exam Results / परिणाम
+                      </h3>
+                    </div>
+                    <div className="space-y-3 font-medium">
+                      {[
+                        { title: "SSC CGL 2025 Final Out Selected List PDF", desc: "Combined Graduate Level score verified. Checked selection lists." },
+                        { title: "Bihar BPSC 70th Prelims Cut Off Marks", desc: "Cutoffs released. General candidates score cutoff: 104.5." },
+                        { title: "SSC Stenographer Grade C & D 2025 Skill Test Result", desc: "Download roll numbers qualifying the shorthand criteria." },
+                        { title: "UGC NET June Session Final Cutoff Result 2026", desc: "JRF & Assistant Professorship subject list available." }
+                      ].map((resItem, idx) => (
+                        <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-855 space-y-1 hover:bg-[#090D16]/80 transition-all">
+                          <h4 className="text-[11px] font-bold text-slate-200">{resItem.title}</h4>
+                          <p className="text-[10px] text-slate-400 leading-relaxed">{resItem.desc}</p>
+                          <div className="pt-2 flex items-center justify-between">
+                            <button 
+                              onClick={() => handleSendChat(`Analyze cutoffs and download result process for ${resItem.title}`)}
+                              className="text-[9px] text-[#22c55e] hover:underline font-bold cursor-pointer"
+                            >
+                              Analyze Cutoffs 📈
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
               </div>
 
-              {/* Sarkari result sections layout */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {/* 1. Latest Jobs Section */}
-                <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                    <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                      Latest Jobs / रिक्तियां
-                    </h3>
-                    <span className="bg-emerald-500/10 text-emerald-400 text-[9px] px-1.5 py-0.2 rounded font-black font-mono">NEW</span>
-                  </div>
-                  <div className="space-y-3 font-medium">
-                    {[
-                      { title: "SSC Stenographer Grade C & D Notification 2026", desc: "Short Notice Released. Online App Starts Soon.", subject: "SSC Stenographer" },
-                      { title: "SSC CHSL (10+2) 2026 Tier I Online Application", desc: "Apply Online now for 3800+ vacancies across India.", subject: "SSC CHSL" },
-                      { title: "BPSC 71st Combined Mains Exam Forms 2026", desc: "For Administrative postings. Apply before deadline.", subject: "BPSC Mains" },
-                      { title: "SSC GD Constable Recruitments 2026", desc: "35,000+ posts in CAPF, NIA, SSF, and Assam Rifles.", subject: "SSC GD" },
-                      { title: "Railway RRB ALP Recruitments 2026 Stage II", desc: "Exam dates active. Download admit papers soon.", subject: "Railway ALP" }
-                    ].map((job, idx) => (
-                      <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-850 hover:border-slate-800 transition-all space-y-1">
-                        <h4 className="text-[11px] font-bold text-slate-100 hover:text-indigo-400 cursor-pointer" onClick={() => handleSendChat(`Give me details, eligibility, syllabus, and selection pattern for ${job.title}`)}>{job.title}</h4>
-                        <p className="text-[10px] text-slate-400">{job.desc}</p>
-                        <div className="flex items-center justify-between pt-1">
-                          <button 
-                            onClick={() => {
-                              setResearchTopic(job.subject);
-                              setActiveView('research');
-                            }}
-                            className="text-[9px] text-indigo-400 hover:underline font-bold cursor-pointer"
-                          >
-                            Research Syllabus 🔬
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setTimerPresetVal(30);
-                              setTimeLeft(1800);
-                              setDisableNotesForTimer(true);
-                              setActiveView('timer');
-                              showToast(`Steno offline mock timer for ${job.subject} started! ⏱️`, "info");
-                            }}
-                            className="text-[9px] text-amber-500 hover:underline font-bold cursor-pointer"
-                          >
-                            Practice Mock ⏱️
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 2. Admit Cards Section */}
-                <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                    <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <FileText className="w-4 h-4 text-indigo-400" />
-                      Admit Cards / प्रवेश पत्र
-                    </h3>
-                  </div>
-                  <div className="space-y-3 font-medium">
-                    {[
-                      { title: "SSC CGL 2026 Tier I Exam Region Wise Admit Papers", desc: "All regions CRF, NWR, ER download status active." },
-                      { title: "UPSC Civil Services Prelims 2026 Call Letters", desc: "Enter Registration details to download PDF print." },
-                      { title: "SSC GD Constable 2025 Physical Standards Call Letter", desc: "Physical test phase starting from next fortnight." },
-                      { title: "Bihar Police Sub Inspector Main Exam Hall Ticket", desc: "Download available via Bihar board login node." }
-                    ].map((admit, idx) => (
-                      <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-850 space-y-1">
-                        <h4 className="text-[11px] font-bold text-slate-200">{admit.title}</h4>
-                        <p className="text-[10px] text-slate-400 leading-relaxed">{admit.desc}</p>
-                        <div className="pt-1.5 flex justify-end">
-                          <span className="text-[9px] bg-indigo-500/10 text-indigo-400 rounded px-1.5 py-0.5 font-bold">STATUS: RELEASING</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 3. Results Section */}
-                <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                    <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
-                      <Award className="w-4 h-4 text-amber-500" />
-                      Exam Results / परिणाम
-                    </h3>
-                  </div>
-                  <div className="space-y-3 font-medium">
-                    {[
-                      { title: "SSC CGL 2025 Final Out Selected List PDF", desc: "Combined Graduate Level score verified. Checked selection lists." },
-                      { title: "Bihar BPSC 70th Prelims Cut Off Marks", desc: "Cutoffs released. General candidates score cutoff: 104.5." },
-                      { title: "SSC Stenographer Grade C & D 2025 Skill Test Result", desc: "Download roll numbers qualifying the shorthand criteria." },
-                      { title: "UGC NET June Session Final Cutoff Result 2026", desc: "JRF & Assistant Professorship subject list available." }
-                    ].map((resItem, idx) => (
-                      <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-850 space-y-1 hover:bg-[#090D16]/80 transition-all">
-                        <h4 className="text-[11px] font-bold text-slate-200">{resItem.title}</h4>
-                        <p className="text-[10px] text-slate-400 leading-relaxed">{resItem.desc}</p>
-                        <div className="pt-2 flex items-center justify-between">
-                          <button 
-                            onClick={() => handleSendChat(`Analyze cutoffs and download result process for ${resItem.title}`)}
-                            className="text-[9px] text-[#22c55e] hover:underline font-bold cursor-pointer"
-                          >
-                            Analyze Cutoffs 📈
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
             </div>
           )}
 
@@ -12548,13 +12666,28 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
                 Study Search Topic / विषय या प्रश्न
               </label>
-              <input
-                type="text"
-                value={launcherSearchTopic}
-                onChange={(e) => setLauncherSearchTopic(e.target.value)}
-                placeholder="e.g. Pitman Shorthand dictation 80wpm, Indian Polity MCQs, Photosynthesis..."
-                className="w-full text-xs bg-slate-950 border border-slate-800 px-3.5 py-2.5 rounded-xl text-white outline-none focus:border-cyan-500 font-sans"
-              />
+              <div className="relative flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 focus-within:border-cyan-500">
+                <input
+                  type="text"
+                  value={launcherSearchTopic}
+                  onChange={(e) => setLauncherSearchTopic(e.target.value)}
+                  placeholder="e.g. Pitman Shorthand dictation 80wpm, Indian Polity MCQs, Photosynthesis..."
+                  className="flex-1 text-xs bg-transparent px-2 py-2.5 text-white outline-none font-sans"
+                />
+                <button
+                  type="button"
+                  onClick={handleToggleLauncherVoice}
+                  className={`p-1.5 rounded-lg transition-all border cursor-pointer shrink-0 flex items-center gap-1 text-xs font-bold ${
+                    isListeningLauncherVoice
+                      ? 'bg-rose-500 text-white border-rose-400 animate-pulse'
+                      : 'bg-slate-900 text-cyan-300 border-cyan-500/30 hover:bg-cyan-900/40 hover:text-white'
+                  }`}
+                  title={language === 'hindi' ? 'बोलकर खोजें' : 'Speak to search'}
+                >
+                  {isListeningLauncherVoice ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{isListeningLauncherVoice ? 'Listening...' : 'Voice'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Quick Launcher Action Grid */}
@@ -12667,6 +12800,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           setActiveView('study-plan');
           showToast(`Syllabus roadmap & planner activated for ${examName}! 🚀`, 'success');
         }}
+        showToast={showToast}
+      />
+
+      {/* 📚 GOOGLE SCHOLAR & ACADEMIC RESEARCH PAPERS MODAL */}
+      <GoogleScholarResearchModal
+        isOpen={isGoogleScholarModalOpen}
+        onClose={() => setIsGoogleScholarModalOpen(false)}
+        initialTopic={scholarTopic}
+        language={language}
         showToast={showToast}
       />
 
