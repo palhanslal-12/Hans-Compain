@@ -5012,7 +5012,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
   };
 
   return (
-    <div className={`h-screen max-h-screen w-full max-w-full overflow-hidden flex flex-col ${
+    <div className={`min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden flex flex-col ${
       screenColorMode === 'dark' ? 'bg-[#03060E] text-slate-100' : 
       screenColorMode === 'warm_yellow' ? 'bg-[#FAF6E9] text-[#78350F] font-sans' : 
       screenColorMode === 'eco_gray' ? 'bg-[#F1F3F5] text-slate-800' :
@@ -6120,57 +6120,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
               {/* RIGHT MAIN CHAT AREA (ChatGPT / Gemini style viewport centered layout) */}
               <div className={`flex-1 flex flex-col h-full overflow-hidden ${themeColors.bgMain} relative transition-colors duration-300`}>
-                
-                {/* TOP CHAT TOOLBAR: Shown ONLY when active chat messages are present */}
-                {chatMessages.length > 0 && (
-                  <div className="bg-[#080D1A]/95 backdrop-blur-md border-b border-slate-800/80 px-3 py-2 flex items-center justify-between gap-2 z-20 shrink-0 shadow-sm animate-fade-in">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="p-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-700/60 transition-all cursor-pointer flex items-center justify-center"
-                        title="Toggle Sidebar & History"
-                      >
-                        <Menu className="w-4 h-4 text-slate-300" />
-                      </button>
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span className="text-xs sm:text-sm font-black text-white">
-                          {currentChatSessionId ? (language === 'hindi' ? 'सक्रिय चैट सत्र' : 'Active Chat Session') : (language === 'hindi' ? 'हंस AI लाइव असिस्टेंट' : 'HansAI Live Assistant')}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* Prominent New Chat / Close Action Button */}
-                      <button
-                        onClick={() => startNewChat()}
-                        className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 border border-indigo-400/40"
-                        title={language === 'hindi' ? "नया चैट शुरू करें या रीसेट करें" : "Start New Chat / Close"}
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>+ New Chat / Close</span>
-                      </button>
-
-                      {/* Saved History Modal & Drawer Trigger */}
-                      <button
-                        onClick={() => {
-                          setIsChatHistoryModalOpen(true);
-                          setSidebarOpen(true);
-                        }}
-                        className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-900/90 hover:bg-slate-800 text-slate-300 rounded-full border border-slate-700/80 flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 relative"
-                        title="View Saved Chat & Activity History"
-                      >
-                        <History className="w-4 h-4 text-slate-300" />
-                        {savedChats.length > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[9px] font-mono w-4 h-4 rounded-full flex items-center justify-center">
-                            {savedChats.length}
-                          </span>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 {/* Google AdSense Responsive Placement (Shown during active chat messages) */}
                 {chatMessages.length > 0 && (
@@ -6260,7 +6209,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
 
                       {/* ROW 1: 4 AI ADVANCED POWER TOOLS */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 w-full text-left my-auto">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full text-left mt-2 mb-2">
                         <button
                           onClick={() => setActiveView('mnemonics')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
@@ -6335,7 +6284,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
 
                       {/* ROW 2: 4 ESSENTIAL STUDY & PREP TOOLS */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full text-left">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full text-left mb-2">
                         <button
                           onClick={() => setActiveView('quiz')}
                           className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
@@ -6406,7 +6355,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
 
                       {/* ROW 3: ADDITIONAL EXPERT TOOLS (Mock Interview & Analytics) */}
-                      <div className="grid grid-cols-2 gap-3 w-full text-left">
+                      <div className="grid grid-cols-2 gap-4 sm:gap-5 w-full text-left mb-2">
                         <button
                           onClick={() => setActiveView('mock-interview')}
                           className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
@@ -6446,55 +6395,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   ) : (
                     /* ACTIVE CHAT MESSAGES THREAD (ChatGPT Style Header & Session Bar) */
                     <div className="flex-1 space-y-6 w-full max-w-5xl mx-auto mb-3 overflow-y-auto pr-1">
-                      {/* Sticky Top Bar for active chat (ChatGPT style session navigation & title) */}
-                      <div className="sticky top-0 z-20 bg-[#060913]/95 backdrop-blur-md py-2 px-3 mb-2 rounded-xl border border-indigo-500/40 flex items-center justify-between shadow-lg">
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <button
-                            onClick={() => {
-                              setActiveView('chat');
-                              startNewChat();
-                            }}
-                            className="p-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-md active:scale-95 border-none flex items-center justify-center shrink-0"
-                            title="Return to main chat home"
-                          >
-                            <ArrowLeft className="w-4 h-4 text-white" />
-                          </button>
-
-                          <div className="text-left overflow-hidden">
-                            <div className="text-xs font-extrabold text-white truncate flex items-center gap-1.5">
-                              <span>💬</span>
-                              <span className="truncate">
-                                {(() => {
-                                  const currentSession = savedChats.find(s => s.id === currentChatSessionId);
-                                  return currentSession?.title || (chatMessages[0]?.content?.slice(0, 35) + '...') || 'Active Chat Session';
-                                })()}
-                              </span>
-                            </div>
-                            <div className="text-[10px] text-slate-400 truncate hidden sm:block">
-                              {chatMessages.length} {chatMessages.length === 1 ? 'message' : 'messages'} in session
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setIsAiRulesModalOpen(true)}
-                            className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/35 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
-                            title="पब्लिक AI उपयोग के नियम व गाइडलाइन्स देखें"
-                          >
-                            <span>⚖️</span>
-                            <span>Rules</span>
-                          </button>
-
-                          <button
-                            onClick={startNewChat}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-550 hover:to-indigo-650 text-white rounded-xl text-xs font-bold transition-all cursor-pointer border-none shadow-md shadow-indigo-600/20 active:scale-95"
-                            title="Start New Chat Session"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>+ New Chat</span>
-                          </button>
-                        </div>
+                      {/* Simple Back Arrow (Top Left) to return to Home Grid */}
+                      <div className="flex items-start justify-start mb-2 px-1">
+                        <button
+                          onClick={() => startNewChat()}
+                          className="w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 flex items-center justify-center transition-all cursor-pointer shadow-md"
+                          title="Back to Home"
+                        >
+                          <ArrowLeft className="w-4 h-4" />
+                        </button>
                       </div>
 
                       {chatMessages.map((msg) => (
@@ -12632,7 +12541,22 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </button>
             </div>
 
-            <div className="py-4 space-y-2.5 mt-2">
+            {/* NEW CHAT BUTTON AT THE VERY TOP */}
+            <div className="pt-4 pb-2 border-b border-slate-850/50">
+              <button
+                onClick={() => {
+                  setSidebarOpen(false);
+                  setActiveView('chat');
+                  startNewChat();
+                }}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl text-sm font-black transition-all cursor-pointer shadow-lg active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span>New Chat</span>
+              </button>
+            </div>
+
+            <div className="py-4 space-y-2.5">
               <div className="px-2 text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Primary Core Workspace</div>
               {[
                 { id: 'chat', title: 'AI Study Chat Workspace', desc: 'Concept explainer & studies', icon: '💬', badge: 'ACTIVECORE' },
