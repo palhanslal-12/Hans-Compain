@@ -1343,60 +1343,112 @@ Structure the response into:
           )}
 
           {/* SEARCH, SORT & UPLOAD TOOLBAR */}
-          <div className="bg-[#0F172A] border border-slate-800 p-4 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
-            
-            {/* Search Input */}
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3.5 top-3 w-4 h-4 text-indigo-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search titles, authors, subjects..."
-                className="w-full pl-10 pr-4 py-2 bg-[#050811] border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              />
+          <div className="bg-[#0F172A] border border-slate-800 p-4 rounded-3xl space-y-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Search Input with 1-Click Search Button */}
+              <div className="relative w-full sm:flex-1 flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-3 w-4 h-4 text-indigo-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (searchQuery.trim()) {
+                          handleGenerateBookWithAI(searchQuery);
+                        }
+                      }
+                    }}
+                    placeholder="Search ANY book in the world (e.g. Godan, Atomic Habits, Wings of Fire, Class 10 NCERT)..."
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#050811] border border-slate-800 focus:border-indigo-500 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleGenerateBookWithAI(searchQuery)}
+                  disabled={isGeneratingAiBook || !searchQuery.trim()}
+                  className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                >
+                  {isGeneratingAiBook ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isGeneratingAiBook ? 'Opening...' : 'Search & Read 📖'}</span>
+                </button>
+              </div>
+
+              {/* Filter & Sort Controls */}
+              <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+                <select
+                  value={filterCategory}
+                  onChange={(e: any) => setFilterCategory(e.target.value)}
+                  className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
+                >
+                  <option value="all">All Books</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+
+                <select
+                  value={sortBy}
+                  onChange={(e: any) => setSortBy(e.target.value)}
+                  className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
+                >
+                  <option value="recent">Sort by Recent</option>
+                  <option value="name">Sort by Title</option>
+                  <option value="progress">Sort by Progress</option>
+                </select>
+
+                {/* Upload Book Button */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".pdf,.txt,.epub,.md"
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                >
+                  {isUploading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  <span>+ Upload PDF</span>
+                </button>
+              </div>
             </div>
 
-            {/* Filter & Sort Controls */}
-            <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-              <select
-                value={filterCategory}
-                onChange={(e: any) => setFilterCategory(e.target.value)}
-                className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
-              >
-                <option value="all">All Books</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-
-              <select
-                value={sortBy}
-                onChange={(e: any) => setSortBy(e.target.value)}
-                className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
-              >
-                <option value="recent">Sort by Recent</option>
-                <option value="name">Sort by Title</option>
-                <option value="progress">Sort by Progress</option>
-              </select>
-
-              {/* Upload Book Button */}
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".pdf,.txt,.epub,.md"
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-              >
-                {isUploading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                <span>+ Upload Book (PDF/TXT)</span>
-              </button>
+            {/* Quick 1-Tap Trending Book Chips */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-1 text-[10px]">
+              <span className="text-slate-500 font-bold uppercase tracking-wider">Popular Searches:</span>
+              {[
+                'गोदान (Godan)',
+                'गबन (Gaban)',
+                'Atomic Habits',
+                'Wings of Fire (अग्नि की उड़ान)',
+                'Rich Dad Poor Dad',
+                'चाणक्य नीति (Chanakya Niti)',
+                'Indian Polity (भारतीय राजव्यवस्था)',
+                'General Science NCERT',
+                'The Alchemist',
+                'Psychology of Money'
+              ].map((bookTitle) => (
+                <button
+                  key={bookTitle}
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery(bookTitle);
+                    handleGenerateBookWithAI(bookTitle);
+                  }}
+                  className="px-2.5 py-1 bg-slate-900 hover:bg-indigo-950/80 hover:text-amber-300 text-slate-300 border border-slate-800 hover:border-indigo-500/40 rounded-lg transition-all cursor-pointer font-medium"
+                >
+                  {bookTitle}
+                </button>
+              ))}
             </div>
-
           </div>
 
           {/* BOOKS GRID */}

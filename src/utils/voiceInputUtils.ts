@@ -1,8 +1,9 @@
 // /src/utils/voiceInputUtils.ts
-// Robust, multi-lingual Voice-to-Text Speech Recognition for Hindi & English
+// Robust, multi-lingual Voice-to-Text Speech Recognition for all Indian State Languages & English
 
 export interface VoiceRecognitionOptions {
   lang?: string;
+  continuous?: boolean;
   onResult: (transcript: string) => void;
   onEnd?: () => void;
   onError?: (errorMsg: string) => void;
@@ -34,7 +35,7 @@ export const startVoiceRecognition = (options: VoiceRecognitionOptions): VoiceRe
 
   try {
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = options.continuous || false;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
     recognition.lang = options.lang || 'hi-IN';

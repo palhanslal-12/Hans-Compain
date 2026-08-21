@@ -2,16 +2,54 @@
   "entities": {
     "User": {
       "title": "User",
-      "description": "Student profile record",
+      "description": "Student and visitor profile record",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
         "displayName": { "type": "string" },
         "email": { "type": "string" },
         "role": { "type": "string" },
-        "createdAt": { "type": "string" }
+        "isGuest": { "type": "boolean" },
+        "visitorId": { "type": "string" },
+        "deviceInfo": { "type": "string" },
+        "referralSource": { "type": "string" },
+        "promptCount": { "type": "number" },
+        "registeredAt": { "type": "string" },
+        "lastActiveAt": { "type": "string" }
       },
-      "required": ["uid", "email"]
+      "required": ["uid"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "User activity, feature usage and AI interaction log for real analytics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "type": { "type": "string" },
+        "feature": { "type": "string" },
+        "query": { "type": "string" },
+        "status": { "type": "string" },
+        "errorDetails": { "type": "string" },
+        "referral": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["type", "timestamp"]
+    },
+    "ReferralClick": {
+      "title": "ReferralClick",
+      "description": "Share link and referral source tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "referralCode": { "type": "string" },
+        "visitorId": { "type": "string" },
+        "referrer": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "convertedToUser": { "type": "boolean" }
+      },
+      "required": ["visitorId", "timestamp"]
     },
     "QuizScore": {
       "title": "QuizScore",
@@ -72,7 +110,15 @@
   "firestore": {
     "/users/{userId}": {
       "schema": "User",
-      "description": "User profile collection"
+      "description": "User and visitor profile collection"
+    },
+    "/activity_logs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "Real-time usage and feature analytics logs"
+    },
+    "/referrals/{refId}": {
+      "schema": "ReferralClick",
+      "description": "Share-link clicks and referral tracker"
     },
     "/users/{userId}/quiz_scores/{scoreId}": {
       "schema": "QuizScore",

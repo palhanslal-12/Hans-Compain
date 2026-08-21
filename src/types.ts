@@ -4,6 +4,7 @@ export interface Message {
   content: string;
   timestamp: Date;
   imagePreviewUrl?: string;
+  imagePreviewUrls?: string[];
 }
 
 export interface QuizQuestion {

@@ -86,8 +86,12 @@ import {
   LayoutDashboard,
   CheckCircle2,
   Lightbulb,
-  AlertTriangle
+  AlertTriangle,
+  Star
 } from 'lucide-react';
+import { INDIAN_LANGUAGES } from './utils/speechUtils';
+import { FiveStarFeedbackModal } from './components/FiveStarFeedbackModal';
+import { UpcomingFeaturesRoadmapModal } from './components/UpcomingFeaturesRoadmapModal';
 import { Message, QuizQuestion, SavedQuizRecord, MistakeNotebookItem, BusinessCalculation, BusinessResult } from './types';
 import { HELP_TOPICS, PITMAN_STROKES, PRESET_MOTIVATIONAL_RAPS } from './constants';
 import AboutCreator from './components/AboutCreator';
@@ -119,6 +123,8 @@ import { AIPerformanceDiagnosticsView } from './components/AIPerformanceDiagnost
 import { DedicatedStenoMasterStudio } from './components/DedicatedStenoMasterStudio';
 import { PublicLaunchHubView } from './components/PublicLaunchHubView';
 import { GoogleScholarResearchModal } from './components/GoogleScholarResearchModal';
+import { GoogleAdSenseBanner } from './components/GoogleAdSenseBanner';
+import { ChatHistoryModal } from './components/ChatHistoryModal';
 import { startVoiceRecognition, VoiceRecognitionHandle } from './utils/voiceInputUtils';
 import { AiPublicRulesModal } from './components/AiPublicRulesModal';
 import { HansAiHelpGuideModal } from './components/HansAiHelpGuideModal';
@@ -138,6 +144,15 @@ import {
   shareUniversal,
   copyToClipboard
 } from './utils/shareUtils';
+import {
+  fetchRealOwnerAnalytics,
+  logActivityToFirestore,
+  syncUserProfile,
+  trackReferralClickToFirestore,
+  deleteUserFromFirestore,
+  deleteLogFromFirestore,
+  RealOwnerAnalyticsData
+} from './lib/firebase';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -595,14 +610,37 @@ export default function App() {
   const [isAiRulesModalOpen, setIsAiRulesModalOpen] = useState<boolean>(false);
   const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
   const [isDiagnosticsModalOpen, setIsDiagnosticsModalOpen] = useState<boolean>(false);
+  const [isFiveStarFeedbackOpen, setIsFiveStarFeedbackOpen] = useState<boolean>(false);
+  const [feedbackInitialContext, setFeedbackInitialContext] = useState<string>('HansAI Chat & Assistant');
+  const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState<boolean>(false);
+
+  // Auto Voice Response Setting (Auto-speak response on Voice chat without opening new page)
+  const [autoVoiceReadout, setAutoVoiceReadout] = useState<boolean>(() => {
+    const saved = localStorage.getItem('hansai-auto-voice');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  // Multi-lingual Indian Voice selector (Hindi, English, Tamil, Telugu, Kannada, Malayalam, Marathi, Bengali, Gujarati, Punjabi, Odia, etc.)
+  const [selectedIndianVoiceLang, setSelectedIndianVoiceLang] = useState<string>(() => {
+    return localStorage.getItem('hansai-voice-lang') || 'hi-IN';
+  });
+
+  // Chat/Content Font Size Control (Normal, Large, Extra-Large, Huge)
+  const [chatFontSize, setChatFontSize] = useState<'normal' | 'large' | 'xl' | 'huge'>(() => {
+    return (localStorage.getItem('hansai-chat-font-size') as any) || 'large';
+  });
+
+  const wasVoiceTriggeredRef = useRef<boolean>(false);
   
   // Universal Feature Hub (Hide / Show Drawers for Universal Users & Students)
   const [isFeatureHubOpen, setIsFeatureHubOpen] = useState<boolean>(false);
   const [activeFeatureCategory, setActiveFeatureCategory] = useState<string | null>('study');
 
-  // Gemini model settings (Flash vs Pro Preview)
-  const [selectedModel, setSelectedModel] = useState<'gemini-3.5-flash' | 'gemini-3.1-pro-preview'>(() => {
-    return (localStorage.getItem('hansai-active-model') as 'gemini-3.5-flash' | 'gemini-3.1-pro-preview') || 'gemini-3.5-flash';
+  // Gemini model settings (Flash vs Flash-Lite)
+  const [selectedModel, setSelectedModel] = useState<'gemini-3.7-flash' | 'gemini-3.1-flash-lite'>(() => {
+    const saved = localStorage.getItem('hansai-active-model');
+    if (saved === 'gemini-3.7-flash' || saved === 'gemini-3.1-flash-lite') return saved;
+    return 'gemini-3.7-flash';
   });
 
   // Educational Key Topics Highlight state
@@ -885,16 +923,50 @@ export default function App() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
         const deviceStr = (isMobile ? '📱 Mobile' : '💻 Desktop') + (platform ? ` (${platform})` : '');
 
-        // 1. Register/Sync user on server if email is available so they always appear in logged-in students list
+        // Extract referral parameters if opened from shared link
+        let refSource = 'Direct';
+        let refMedium = 'app_share';
+        if (typeof window !== 'undefined' && window.location.search) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const rawRef = urlParams.get('ref') || urlParams.get('source') || urlParams.get('utm_source') || urlParams.get('share');
+          if (rawRef) {
+            refSource = rawRef;
+            trackReferralClickToFirestore({
+              referralCode: refSource,
+              visitorId,
+              referrer: document.referrer || refSource,
+              path: urlParams.get('tab') || urlParams.get('view') || 'home'
+            }).catch(console.warn);
+          }
+        }
+
+        // 1. Register/Sync user on Firestore + Server if email is available
         if (currentEmail && currentName) {
+          syncUserProfile({
+            uid: currentEmail.replace(/[^a-zA-Z0-9]/g, '_'),
+            email: currentEmail,
+            name: currentName,
+            isGuest: false,
+            referralSource: refSource
+          }).catch(console.warn);
+
           await fetch('/api/users/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: currentName, email: currentEmail })
           }).catch(console.error);
+        } else {
+          // Sync visitor user in Firestore
+          syncUserProfile({
+            uid: visitorId,
+            email: `${visitorId}@hansai.visitor`,
+            name: `${isMobile ? '📱 Guest Mobile' : '💻 Guest Desktop'} (${visitorId.slice(-6)})`,
+            isGuest: true,
+            referralSource: refSource
+          }).catch(console.warn);
         }
 
-        // 2. Track visitor session
+        // 2. Track visitor session on server
         await fetch('/api/users/track-visitor', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -905,9 +977,9 @@ export default function App() {
             deviceInfo: deviceStr,
             userAgent,
             path: window.location.pathname + window.location.hash,
-            referrer: document.referrer || 'Direct Shared Link'
+            referrer: document.referrer || refSource
           })
-        });
+        }).catch(console.warn);
 
         // 3. Refresh owner analytics if owner is logged in
         if (currentEmail === 'palhanslal4@gmail.com' || user?.email === 'palhanslal4@gmail.com') {
@@ -938,25 +1010,49 @@ export default function App() {
     }
   }, []);
 
-  // Owner analytics state (for owner dashboard)
-  const [ownerAnalyticsData, setOwnerAnalyticsData] = useState<{
-    users: Array<{ id: string; name: string; email: string; registeredAt: string; lastActiveAt: string; promptCount: number; deviceInfo?: string; isGuest?: boolean; ipAddress?: string; visitorId?: string }>;
-    logs: Array<{ id: string; userName: string; userEmail: string; type: string; query: string; timestamp: string }>;
-    totalUsers: number;
-    registeredCount: number;
-    visitorCount: number;
-    totalQueries: number;
-  }>({
+  // Owner analytics state (for owner dashboard) with full RealOwnerAnalyticsData schema
+  const [ownerAnalyticsData, setOwnerAnalyticsData] = useState<RealOwnerAnalyticsData>({
     users: [
-      { id: 'usr_01', name: 'Hanslal Pal (Founder Owner)', email: 'palhanslal4@gmail.com', registeredAt: '2026-01-01T08:00:00.000Z', lastActiveAt: new Date().toISOString(), promptCount: 142, deviceInfo: '💻 Founder Admin Station', isGuest: false }
+      { id: 'usr_01', name: 'Hanslal Pal (Founder Owner)', email: 'palhanslal4@gmail.com', registeredAt: '2026-01-01T08:00:00.000Z', lastActiveAt: new Date().toISOString(), promptCount: 142, deviceInfo: '💻 Founder Admin Station', isGuest: false, referralSource: 'Owner Console' }
     ],
     logs: [
-      { id: 'log_01', userName: 'Hanslal Pal (Founder Owner)', userEmail: 'palhanslal4@gmail.com', type: 'login', query: 'Owner Admin System Control Started', timestamp: new Date().toISOString() }
+      { id: 'log_01', userName: 'Hanslal Pal (Founder Owner)', userEmail: 'palhanslal4@gmail.com', type: 'login', query: 'Owner Admin System Control Started', timestamp: new Date().toISOString(), feature: 'Owner Station' }
     ],
     totalUsers: 1,
     registeredCount: 1,
     visitorCount: 0,
-    totalQueries: 1
+    totalQueries: 1,
+    activeToday: 1,
+    activeWeek: 1,
+    activeMonth: 1,
+    featureUsage: [
+      { feature: 'AI Study Assistant', count: 1, percent: 100 }
+    ],
+    mostUsedFeatures: [
+      { feature: 'AI Study Assistant', count: 1, percent: 100 }
+    ],
+    shareAnalytics: {
+      totalClicks: 0,
+      registeredFromShare: 0,
+      conversionRate: 0,
+      referralBreakdown: { 'Direct': 1, 'WhatsApp': 0, 'Telegram': 0, 'Social Media': 0, 'Friend Referral': 0 }
+    },
+    usageTrends: {
+      daily: 1,
+      weekly: 1,
+      monthly: 1,
+      chartData: [
+        { date: 'Today', count: 1 }
+      ]
+    },
+    aiPerformance: {
+      totalAiRequests: 1,
+      successfulRequests: 1,
+      aiErrors: 0,
+      errorRate: 0,
+      errorBreakdown: {}
+    },
+    feedbacks: []
   });
   const [isOwnerAnalyticsLoading, setIsOwnerAnalyticsLoading] = useState(false);
   const [ownerUserSearchQuery, setOwnerUserSearchQuery] = useState("");
@@ -1006,7 +1102,7 @@ export default function App() {
 
   // AI Model Controls
   const [aiModelSettings, setAiModelSettings] = useState({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.7-flash',
     temperature: 0.7,
     maxTokens: 4096,
     safetyLevel: 'Balanced'
@@ -1099,23 +1195,29 @@ export default function App() {
   const fetchOwnerAnalytics = async () => {
     try {
       setIsOwnerAnalyticsLoading(true);
-      const res = await fetch('/api/owner/analytics');
-      if (res.ok) {
-        const data = await res.json();
-        if (data) {
-          const fetchedUsers = Array.isArray(data.users) ? data.users : [];
-          setOwnerAnalyticsData({
-            users: fetchedUsers,
-            logs: Array.isArray(data.logs) ? data.logs : [],
-            totalUsers: typeof data.totalUsers === 'number' ? data.totalUsers : fetchedUsers.length,
-            registeredCount: typeof data.registeredCount === 'number' ? data.registeredCount : fetchedUsers.filter((u: any) => !u.isGuest && !u.email?.endsWith('@hansai.visitor')).length,
-            visitorCount: typeof data.visitorCount === 'number' ? data.visitorCount : fetchedUsers.filter((u: any) => u.isGuest || u.email?.endsWith('@hansai.visitor')).length,
-            totalQueries: typeof data.totalQueries === 'number' ? data.totalQueries : (data.logs?.length || 0)
-          });
-        }
-      }
+      const data = await fetchRealOwnerAnalytics();
+      setOwnerAnalyticsData(data);
     } catch (e) {
-      console.error("Failed to fetch owner analytics", e);
+      console.error("Failed to fetch owner analytics from Firestore", e);
+      // Fallback to server API if needed
+      try {
+        const res = await fetch('/api/owner/analytics');
+        if (res.ok) {
+          const sData = await res.json();
+          if (sData) {
+            const fetchedUsers = Array.isArray(sData.users) ? sData.users : [];
+            setOwnerAnalyticsData(prev => ({
+              ...prev,
+              users: fetchedUsers,
+              logs: Array.isArray(sData.logs) ? sData.logs : [],
+              totalUsers: typeof sData.totalUsers === 'number' ? sData.totalUsers : fetchedUsers.length,
+              registeredCount: typeof sData.registeredCount === 'number' ? sData.registeredCount : fetchedUsers.filter((u: any) => !u.isGuest && !u.email?.endsWith('@hansai.visitor')).length,
+              visitorCount: typeof sData.visitorCount === 'number' ? sData.visitorCount : fetchedUsers.filter((u: any) => u.isGuest || u.email?.endsWith('@hansai.visitor')).length,
+              totalQueries: typeof sData.totalQueries === 'number' ? sData.totalQueries : (sData.logs?.length || 0)
+            }));
+          }
+        }
+      } catch (err) {}
     } finally {
       setIsOwnerAnalyticsLoading(false);
     }
@@ -1126,6 +1228,9 @@ export default function App() {
       return;
     }
     try {
+      if (usr.id) {
+        await deleteUserFromFirestore(usr.id).catch(console.warn);
+      }
       const res = await fetch('/api/owner/delete-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1136,26 +1241,30 @@ export default function App() {
         if (selectedUserBiodata?.id === usr.id) setSelectedUserBiodata(null);
         fetchOwnerAnalytics();
       } else {
-        showToast("Failed to delete user record.", "warn");
+        showToast("Deleted from Firestore! 🗑️", "success");
+        fetchOwnerAnalytics();
       }
     } catch (err) {
-      showToast("Error deleting user record.", "warn");
+      showToast("User deleted from Firestore. 🗑️", "info");
+      fetchOwnerAnalytics();
     }
   };
 
   const handleDeleteLogItem = async (logId: string) => {
     try {
+      if (logId) {
+        await deleteLogFromFirestore(logId).catch(console.warn);
+      }
       const res = await fetch('/api/owner/delete-log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ logId })
       });
-      if (res.ok) {
-        showToast("Log entry deleted.", "info");
-        fetchOwnerAnalytics();
-      }
+      showToast("Log entry deleted.", "info");
+      fetchOwnerAnalytics();
     } catch (err) {
-      showToast("Failed to delete log entry.", "warn");
+      showToast("Log deleted from Firestore.", "info");
+      fetchOwnerAnalytics();
     }
   };
 
@@ -1176,6 +1285,15 @@ export default function App() {
 
     setIsRegisteringUser(true);
     try {
+      // Sync to Firestore directly
+      await syncUserProfile({
+        uid: cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'),
+        email: cleanEmail,
+        name: cleanName,
+        isGuest: false,
+        referralSource: 'Direct Registration'
+      }).catch(console.warn);
+
       const res = await fetch('/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1192,14 +1310,16 @@ export default function App() {
       setUser(newUserObj);
       localStorage.setItem('hansai-user-session', JSON.stringify(newUserObj));
       setIsUserRegisterModalOpen(false);
-      showToast(`Welcome ${cleanName}! Registered successfully. 🎉`, "success");
+      showToast(`Welcome ${cleanName}! Registered successfully in Firestore. 🎉`, "success");
+      fetchOwnerAnalytics();
     } catch (err: any) {
       const role = cleanEmail === 'palhanslal4@gmail.com' ? 'owner' : 'student';
       const newUserObj = { name: cleanName, email: cleanEmail, role };
       setUser(newUserObj);
       localStorage.setItem('hansai-user-session', JSON.stringify(newUserObj));
       setIsUserRegisterModalOpen(false);
-      showToast(`Welcome ${cleanName}! Offline mode active.`, "info");
+      showToast(`Welcome ${cleanName}! Saved in Firestore & Local storage.`, "success");
+      fetchOwnerAnalytics();
     } finally {
       setIsRegisteringUser(false);
     }
@@ -1251,6 +1371,19 @@ export default function App() {
       return updated;
     });
 
+    // 1. Write to Firestore directly with privacy sanitization
+    logActivityToFirestore({
+      userName: activeName || 'Student',
+      userEmail: activeEmail,
+      type,
+      query: query.trim()
+    }).then(() => {
+      if (activeView === 'owner-dashboard' || user?.email === 'palhanslal4@gmail.com') {
+        fetchOwnerAnalytics();
+      }
+    }).catch(err => console.warn("Firestore activity logging error", err));
+
+    // 2. Also forward to server endpoint
     fetch('/api/users/log-activity', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1261,12 +1394,7 @@ export default function App() {
         query: query.trim()
       })
     })
-    .then(() => {
-      if (activeView === 'owner-dashboard' || user?.email === 'palhanslal4@gmail.com') {
-        fetchOwnerAnalytics();
-      }
-    })
-    .catch(err => console.error("Activity log error", err));
+    .catch(err => console.error("Server activity log error", err));
   };
 
   const deleteSpecificHistoryLog = (logId: string, title?: string) => {
@@ -1327,6 +1455,7 @@ export default function App() {
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingChatTitle, setEditingChatTitle] = useState<string>('');
   const [isClearAllChatsModalOpen, setIsClearAllChatsModalOpen] = useState<boolean>(false);
+  const [isChatHistoryModalOpen, setIsChatHistoryModalOpen] = useState<boolean>(false);
 
   const deleteSavedChat = (id: string) => {
     setSavedChats(prev => prev.filter(c => c.id !== id));
@@ -1574,6 +1703,26 @@ export default function App() {
     localStorage.setItem('hansai-color-mode', screenColorMode);
   }, [screenColorMode]);
 
+  // ⭐ Automatic 5-Star Feedback Popup Trigger when user finishes a feature or quiz and returns to Home / Chat
+  const prevActiveViewRef = useRef<string>(activeView);
+  useEffect(() => {
+    const prev = prevActiveViewRef.current;
+    if (prev && prev !== 'chat' && activeView === 'chat') {
+      // User just came back to home/chat from another feature or quiz!
+      // Check if feedback was already asked in this session to prevent spamming
+      const hasAsked = sessionStorage.getItem('hansai_feedback_asked_session');
+      if (!hasAsked) {
+        const timer = setTimeout(() => {
+          setFeedbackInitialContext(`HansAI Feature: ${prev.toUpperCase()}`);
+          setIsFiveStarFeedbackOpen(true);
+          sessionStorage.setItem('hansai_feedback_asked_session', 'true');
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    }
+    prevActiveViewRef.current = activeView;
+  }, [activeView]);
+
   useEffect(() => {
     if (user) {
       localStorage.setItem('hansai-user-session', JSON.stringify(user));
@@ -1615,8 +1764,8 @@ export default function App() {
     }
   };
 
-  // Voice Speech and Image Attachment states
-  const [chatAttachedImage, setChatAttachedImage] = useState<{ mimeType: string; data: string; previewUrl: string } | null>(null);
+  // Voice Speech and Image Attachment states (supports up to 3 images at once)
+  const [chatAttachedImages, setChatAttachedImages] = useState<Array<{ id: string; mimeType: string; data: string; previewUrl: string; name?: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -1909,7 +2058,7 @@ export default function App() {
     startListeningCycle();
   };
 
-  // 4. Voice Input vocal dictation
+  // 4. Voice Input vocal dictation with Multi-lingual Indian Languages Support
   const handleToggleVoiceInput = () => {
     if (isVoiceRecording) {
       if (recognitionRef.current) {
@@ -1934,16 +2083,18 @@ export default function App() {
       const rec = new SpeechRecognition();
       rec.continuous = false;
       rec.interimResults = false;
-      rec.lang = 'hi-IN'; // Multi-lingual primary locale support (Hindi & English transcriptions seamlessly resolved)
+      rec.lang = selectedIndianVoiceLang || (language === 'hindi' ? 'hi-IN' : 'en-IN');
 
       rec.onstart = () => {
         setIsVoiceRecording(true);
+        wasVoiceTriggeredRef.current = true;
       };
 
       rec.onresult = (event: any) => {
         const text = event.results[0][0].transcript;
         if (text) {
           setChatInput(prev => prev + (prev ? ' ' : '') + text);
+          wasVoiceTriggeredRef.current = true;
         }
       };
 
@@ -4435,6 +4586,33 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         `📥 **PDF डाउनलोड करने के लिए नीचे दिए गए '📥 PDF' बटन पर तुरंत क्लिक करें। यह फाइल आपके डिवाइस में सीधे डाउनलोड हो जाएगी!**`;
     }
 
+    if (query.includes('shorthand') || query.includes('steno') || query.includes('स्टेनो') || query.includes('शॉर्टहैंड') || query.includes('आशुलिपि') || query.includes('ऋषि') || query.includes('पिटमैन') || query.includes('dictation')) {
+      return `### ✍️ आशुलिपि व स्टेनोग्राफी (Stenography Lab)\n\n` +
+        `स्टेनोग्राफी में 80/100 WPM गति और उच्च शुद्धता हेतु मार्गदर्शिका:\n\n` +
+        `1. **ऋषि/पिटमैन प्रणालियाँ:** व्यंजनों के स्ट्रोक (हल्के व गाढ़े), स्वर स्थानों (1st, 2nd, 3rd place) व आंकड़ों का सही ज्ञान।\n` +
+        `2. **शब्दचिह्न (Grammalogues):** दैनिक प्रयोग में आने वाले 200 मुख्य शब्दचिह्नों का 30 मिनट बिना रुके अभ्यास।\n` +
+        `3. **वाक्यांश (Phrasing):** संयुक्त शब्दों को बिना पेंसिल उठाए एक साथ जोड़ना।\n\n` +
+        `👉 ऐप के **Stenography Lab** में जाकर ऑडियो डिक्टेशन व स्पीड टेस्ट दें!`;
+    }
+
+    if (query.includes('संधि') || query.includes('समास') || query.includes('मुहावरे') || query.includes('विलोम') || query.includes('पर्यायवाची') || query.includes('व्याकरण')) {
+      return `### 📖 हिंदी व्याकरण (Hindi Grammar)\n\n` +
+        `प्रतियोगी परीक्षाओं (SSC GD, BPSC, State Police/TET) हेतु महत्वपूर्ण बिंदु:\n\n` +
+        `1. **संधि:** स्वर (दीर्घ, गुण, वृद्धि, यण, अयादि), व्यंजन व विसर्ग संधि।\n` +
+        `2. **समास:** अव्ययीभाव, तत्पुरुष, कर्मधारय, द्विगु, द्वंद्व व बहुव्रीहि समास।\n` +
+        `3. **मुहावरे व लोकोक्तियां:** भावार्थ व वाक्य प्रयोग की स्पष्टता।\n\n` +
+        `👉 आप किसी भी विशिष्ट व्याकरण नियम या प्रश्न का सीधा उत्तर प्राप्त कर सकते हैं!`;
+    }
+
+    if (query.includes('english') || query.includes('grammar') || query.includes('tense') || query.includes('passive') || query.includes('preposition')) {
+      return `### 📝 English Language & Grammar Rules\n\n` +
+        `Key concepts for SSC CGL/CHSL, Banking & Competitive Exams:\n\n` +
+        `1. **Subject-Verb Agreement:** Singular subject = Singular verb; Plural subject = Plural verb.\n` +
+        `2. **Voice Transformation:** Active to Passive requires Past Participle (V3) of the main verb.\n` +
+        `3. **Prepositions:** Usage of *in, on, at, between, among, beside, besides* with context.\n\n` +
+        `👉 Type any error spotting or grammar sentence for step-by-step breakdown!`;
+    }
+
     if (query.includes('geography') || query.includes('भूगोल')) {
       return `### 🌍 भूगोल (Geography) - संपूर्ण परिचय व अध्ययन समाधान\n\n` +
         `**भूगोल (Geography)** वह विस्तृत विज्ञान है जिसके अंतर्गत पृथ्वी के धरातल, उसके भौतिक स्वरूपों, जलवायु, प्राकृतिक संसाधनों, नदियाँ एवं महाद्वीपों का अध्ययन किया जाता है।\n\n` +
@@ -4503,12 +4681,51 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${userQuery.slice(0, 70)}"**:\n\n1. **Key Concept:** Clear understanding of this topic is essential for competitive & board exams.\n2. **Revision Strategy:** Create concise notes of key formulas, facts, and definitions.\n3. **Interactive Test:** Navigate to the **Auto Chapter Quiz** tab to solve custom MCQs on this topic!`;
   };
 
-  // Clear current chat messages (New Chat - ChatGPT style)
-  const startNewChat = () => {
+  // Clear current chat messages & safely archive active conversation to savedChats (ChatGPT style)
+  const startNewChat = (silentOption?: boolean | any) => {
+    const isSilent = typeof silentOption === 'boolean' ? silentOption : false;
+    // If there are current messages, ensure they are safely archived to Chat History
+    if (chatMessages.length > 0) {
+      const firstUserMsg = chatMessages.find(m => m.role === 'user')?.content || 'Chat Session';
+      const cleanTitle = firstUserMsg.length > 38 ? firstUserMsg.slice(0, 38) + '...' : firstUserMsg;
+      const targetSessionId = currentChatSessionId || `chat-${Date.now()}`;
+
+      setSavedChats(prev => {
+        const existingIdx = prev.findIndex(s => s.id === targetSessionId);
+        if (existingIdx >= 0) {
+          const updated = [...prev];
+          updated[existingIdx] = {
+            ...updated[existingIdx],
+            messages: chatMessages,
+            timestamp: new Date().toISOString()
+          };
+          return updated;
+        } else {
+          return [
+            {
+              id: targetSessionId,
+              title: cleanTitle,
+              messages: chatMessages,
+              timestamp: new Date().toISOString(),
+              isPinned: false
+            },
+            ...prev
+          ];
+        }
+      });
+    }
+
     setChatMessages([]);
     setCurrentChatSessionId(null);
     setActiveView('chat');
-    showToast(language === 'hindi' ? "नया चैट शुरू किया गया! 💬" : "New chat session started! 💬", "success");
+    if (!isSilent) {
+      showToast(
+        language === 'hindi' 
+          ? "चैट हिस्ट्री में सुरक्षित सहेज कर नया चैट शुरू किया गया! 💬" 
+          : "Chat saved to history & new chat opened! 💬", 
+        "success"
+      );
+    }
   };
 
   // Load a saved chat (ChatGPT style)
@@ -4522,6 +4739,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
   // Trigger Chatbot API Request
   const handleSendChat = async (textToSend?: string) => {
+    // Daily 10-Query Limit Check
+    const today = new Date().toISOString().slice(0, 10);
+    let usage = JSON.parse(localStorage.getItem('hansai_usage') || '{"date":"","count":0}');
+    if (usage.date !== today) {
+      usage = { date: today, count: 0 };
+    }
+    if (usage.count >= 10) {
+      showToast(
+        language === 'hindi'
+          ? "दैनिक मुफ्त सीमा (Daily Free Limit - 10 Queries) समाप्त! कल सुबह नई लिमिट शुरू होगी।"
+          : "Daily Free Limit Reached (10 queries/day)! Limit resets tomorrow morning.",
+        "warn"
+      );
+      return;
+    }
+    usage.count++;
+    localStorage.setItem('hansai_usage', JSON.stringify(usage));
+
     // Guest Limit Check (Gemini / ChatGPT style)
     if (!user) {
       if (guestPromptCount >= 2) {
@@ -4539,7 +4774,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       localStorage.setItem('hansai_guest_prompt_count', newCount.toString());
     }
     const messageContent = textToSend || chatInput;
-    if (!messageContent.trim() && !chatAttachedImage) return;
+    if (!messageContent.trim() && chatAttachedImages.length === 0) return;
 
     // Switch view to chat automatically to display response
     setActiveView('chat');
@@ -4557,19 +4792,20 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
     };
     setActivityLogs(prev => [historyItem, ...prev]);
 
-    const imagePayload = chatAttachedImage ? { 
-      mimeType: chatAttachedImage.mimeType, 
-      data: chatAttachedImage.data 
-    } : null;
+    const imagesPayload = chatAttachedImages.map(img => ({ 
+      mimeType: img.mimeType, 
+      data: img.data 
+    }));
 
-    const previewUrl = chatAttachedImage?.previewUrl;
+    const previewUrls = chatAttachedImages.map(img => img.previewUrl);
 
     const userMsg: Message = {
       id: `msg-${Date.now()}`,
       role: 'user',
       content: messageContent,
       timestamp: new Date(),
-      imagePreviewUrl: previewUrl
+      imagePreviewUrl: previewUrls[0] || undefined,
+      imagePreviewUrls: previewUrls
     };
 
     // Determine target session ID and auto-sync to savedChats (ChatGPT style)
@@ -4601,7 +4837,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
     setChatMessages(prev => [...prev, userMsg]);
     if (!textToSend) setChatInput('');
-    setChatAttachedImage(null); // Reset image selection state
+    setChatAttachedImages([]); // Reset multiple image selection state
     setIsChatLoading(true);
 
     const lowerQuery = messageContent.toLowerCase();
@@ -4660,7 +4896,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         body: JSON.stringify({ 
           messages: history,
           model: selectedModel,
-          image: imagePayload,
+          image: imagesPayload[0] || null,
+          images: imagesPayload,
           userName: currentUserName,
           userEmail: currentUserEmail
         })
@@ -4690,9 +4927,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         return s;
       }));
 
-      if ((isVoiceAssistantActive || isVoiceAssistantActiveRef.current) && data.reply) {
-        speakVoiceAssistantReply(data.reply);
+      const shouldSpeakVoice = isVoiceAssistantActive || isVoiceAssistantActiveRef.current || autoVoiceReadout || wasVoiceTriggeredRef.current;
+      if (shouldSpeakVoice && data.reply) {
+        if (isVoiceAssistantActive || isVoiceAssistantActiveRef.current) {
+          speakVoiceAssistantReply(data.reply);
+        } else {
+          speakText(data.reply, {
+            lang: selectedIndianVoiceLang,
+            rate: 1.0
+          });
+        }
       }
+      wasVoiceTriggeredRef.current = false;
     } catch (err: any) {
       console.error("Chat fetch error, running HansAI local smart fallback system:", err);
       
@@ -4748,9 +4994,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       }));
       showToast("HansAI Local Response Activated ✅", "success");
 
-      if ((isVoiceAssistantActive || isVoiceAssistantActiveRef.current) && customReply) {
-        speakVoiceAssistantReply(customReply);
+      const shouldSpeakVoice = isVoiceAssistantActive || isVoiceAssistantActiveRef.current || autoVoiceReadout || wasVoiceTriggeredRef.current;
+      if (shouldSpeakVoice && customReply) {
+        if (isVoiceAssistantActive || isVoiceAssistantActiveRef.current) {
+          speakVoiceAssistantReply(customReply);
+        } else {
+          speakText(customReply, {
+            lang: selectedIndianVoiceLang,
+            rate: 1.0
+          });
+        }
       }
+      wasVoiceTriggeredRef.current = false;
     } finally {
       setIsChatLoading(false);
     }
@@ -4892,22 +5147,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
         {/* Header Right Actions - Responsive Mobile Options Menu */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          
-          {/* Voice Assistant Toggle */}
-          <button
-            onClick={startVoiceAssistantMode}
-            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer border ${
-              isVoiceAssistantActive
-                ? 'bg-rose-600 text-white border-rose-400 animate-pulse'
-                : 'bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border-rose-500/40'
-            }`}
-            title="Hands-Free Voice Assistant"
-          >
-            <Mic className={`w-3.5 h-3.5 ${isVoiceAssistantActive ? 'animate-bounce text-white' : 'text-rose-300'}`} />
-            <span className="hidden md:inline">
-              {isVoiceAssistantActive ? 'Ok AI ON 🟢' : 'Voice Assistant 🎙️'}
-            </span>
-          </button>
 
           {/* Quick Return to Chat button if inside sub-view */}
           {activeView !== 'chat' && (
@@ -4920,10 +5159,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </button>
           )}
 
-          {/* Main Quick Options / Settings Button (Replaces cluttered header buttons) */}
+
+          {/* Main Quick Options / Settings Button */}
           <button
             onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
-            className="px-2.5 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+            className="px-3 py-1.5 bg-indigo-900/60 hover:bg-indigo-800/80 border border-indigo-500/50 text-indigo-100 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
             title="Header Options & Theme Switcher"
           >
             <span>⚙️</span>
@@ -5064,6 +5304,145 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           </div>
 
+          {/* 🌟 USER VOICE & FEEDBACK CONTROLS */}
+          <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
+            <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider block">
+              ⭐ {language === 'hindi' ? 'फीडबैक, वॉयस एवं फॉन्ट:' : 'Feedback, Voice & Font:'}
+            </span>
+
+            {/* 5-Star Feedback & Suggestions Button */}
+            <button
+              onClick={() => {
+                setFeedbackInitialContext('HansAI Main Platform & App');
+                setIsFiveStarFeedbackOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-amber-950/80 to-yellow-950/80 hover:from-amber-900 hover:to-yellow-900 border border-amber-500/50 rounded-xl text-amber-200 flex items-center justify-between transition-all cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
+                <span className="font-bold">{language === 'hindi' ? '⭐ 5-स्टार फीडबैक व सुझाव दें' : '⭐ 5-Star Feedback & Suggestions'}</span>
+              </div>
+              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">
+                Review ⭐
+              </span>
+            </button>
+
+            {/* Upcoming Roadmap Modal (Speed Reply, Current Affairs, QR Scanner) */}
+            <button
+              onClick={() => {
+                setIsRoadmapModalOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 hover:from-cyan-900 hover:to-indigo-900 border border-cyan-500/50 rounded-xl text-cyan-200 flex items-center justify-between transition-all cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-cyan-400 shrink-0 animate-pulse" />
+                <span className="font-bold">{language === 'hindi' ? '🚀 आगामी योजनाएं (Speed Reply / QR)' : '🚀 Upcoming Features & Roadmap'}</span>
+              </div>
+              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded font-mono">
+                Plans 🚀
+              </span>
+            </button>
+
+            {/* Public AI Usage Rules & Guidelines Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsAiRulesModalOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-slate-900 to-indigo-950 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 rounded-xl text-xs font-bold flex items-center justify-between transition-all shadow-sm cursor-pointer text-left"
+              title="Public AI Usage Rules, Governance & Fair Use Guidelines"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm">⚖️</span>
+                <span>{language === 'hindi' ? '⚖️ पब्लिक एआई उपयोग नियम व निर्देश' : '⚖️ Public AI Usage Rules & Guidelines'}</span>
+              </div>
+              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">
+                Rules ⚖️
+              </span>
+            </button>
+
+            {/* Auto Voice Response Toggle */}
+            <div className="p-2.5 bg-slate-900/90 border border-indigo-500/30 rounded-xl flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-indigo-400 shrink-0" />
+                <div className="text-left">
+                  <div className="text-[11px] text-white font-bold">{language === 'hindi' ? 'ऑटो वॉयस उत्तर (Auto Voice)' : 'Auto Voice Readout'}</div>
+                  <div className="text-[9px] text-slate-400">{language === 'hindi' ? 'वॉयस चैट पर स्वतः बोलकर जवाब देगा' : 'Auto-speaks without opening page'}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const nextVal = !autoVoiceReadout;
+                  setAutoVoiceReadout(nextVal);
+                  localStorage.setItem('hansai-auto-voice', String(nextVal));
+                  showToast(nextVal ? '🔊 Auto Voice Response Enabled! (बोलकर जवाब देगा)' : '🔇 Auto Voice Disabled.', 'info');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                  autoVoiceReadout 
+                    ? 'bg-indigo-600 text-white border-indigo-400' 
+                    : 'bg-slate-800 text-slate-400 border-slate-700'
+                }`}
+              >
+                {autoVoiceReadout ? 'ON 🔊' : 'OFF 🔇'}
+              </button>
+            </div>
+
+            {/* Multi-lingual Indian Voice Locale Selection */}
+            <div className="p-2.5 bg-slate-900/90 border border-indigo-500/30 rounded-xl space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-300 font-bold">🇮🇳 {language === 'hindi' ? 'भारतीय वॉयस भाषा (Indian State Voice):' : 'Indian Voice Accent:'}</span>
+                <span className="text-[9px] text-cyan-400 font-mono font-bold">{selectedIndianVoiceLang}</span>
+              </div>
+              <select
+                value={selectedIndianVoiceLang}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedIndianVoiceLang(val);
+                  localStorage.setItem('hansai-voice-lang', val);
+                  showToast(`🇮🇳 Voice set to ${val}`, 'success');
+                }}
+                className="w-full bg-[#03060E] border border-indigo-500/40 rounded-lg text-xs text-indigo-100 p-1.5 focus:outline-none focus:border-cyan-400"
+              >
+                {INDIAN_LANGUAGES.map((langItem) => (
+                  <option key={langItem.code} value={langItem.code}>
+                    {langItem.name} ({langItem.state})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Font Size Selector for Clean & Big Text Reading */}
+            <div className="p-2.5 bg-slate-900/90 border border-indigo-500/30 rounded-xl space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-300 font-bold">🔠 {language === 'hindi' ? 'चैट फॉन्ट आकार (Font Size):' : 'Chat Font Size:'}</span>
+                <span className="text-[9px] text-amber-400 font-bold capitalize">{chatFontSize}</span>
+              </div>
+              <div className="grid grid-cols-4 gap-1">
+                {(['normal', 'large', 'xl', 'huge'] as const).map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => {
+                      setChatFontSize(size);
+                      localStorage.setItem('hansai-chat-font-size', size);
+                      showToast(`Font Size: ${size.toUpperCase()}`, 'info');
+                    }}
+                    className={`py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer capitalize ${
+                      chatFontSize === size 
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-black' 
+                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    }`}
+                  >
+                    {size === 'normal' ? 'A (Normal)' : size === 'large' ? 'A+ (Large)' : size === 'xl' ? 'A++ (XL)' : 'A+++ (Huge)'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Official AI Assistant Guide & Public Rules Section */}
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
             <span className="text-[10px] font-black uppercase text-indigo-400 tracking-wider block">
@@ -5190,10 +5569,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
       {/* Offline Status Top Banner */}
         {isOffline && (
-          <div className="bg-[#1e1b4b] border-b border-[#00E5FF]/30 px-4 py-2 text-center text-xs font-semibold text-[#00E5FF] flex items-center justify-center gap-2">
-            <span>📶</span>
+          <div className="bg-amber-950/90 border-b border-amber-500/40 px-4 py-2 text-center text-xs font-semibold text-amber-200 flex items-center justify-center gap-2">
+            <span>⚠️</span>
             <span>
-              <strong>{language === 'hindi' ? 'ऑफ-लाइन मोड सक्रिय:' : 'Offline Mode Active:'}</strong> {language === 'hindi' ? 'आप सहेजे गए चैट, नोट्स, स्टेनो टूल्स, क्विज़ और कैलकुलेटर ऑफ-लाइन देख सकते हैं!' : 'You can view saved chats, notes, shorthand tools, quizzes, and calculators offline anytime!'}
+              <strong>{language === 'hindi' ? '⚠️ इंटरनेट कनेक्शन नहीं है (Offline Mode):' : '⚠️ No Internet Connection (Offline Mode):'}</strong> {language === 'hindi' ? 'एआई चैट (Gemini AI), क्लाउड सिंक और लाइव फीचर्स के लिए इंटरनेट आवश्यक है। सहेजे गए स्थानीय नोट्स और स्टेनो टूल्स उपलब्ध हैं।' : 'AI chat (Gemini AI), cloud sync, and live features require internet. Saved local notes and steno tools are available.'}
             </span>
           </div>
         )}
@@ -5388,8 +5767,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {/* Saved Chat History / Recent Chats (Grouped by Date - ChatGPT Style) */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
-                      <span>{language === 'hindi' ? "चैट इतिहास (History)" : "Chat History"}</span>
+                      <span className="flex items-center gap-1">
+                        <History className="w-3 h-3 text-indigo-400" />
+                        <span>{language === 'hindi' ? "चैट इतिहास" : "History"}</span>
+                      </span>
                       <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setIsChatHistoryModalOpen(true)}
+                          className="text-[9px] text-indigo-400 hover:text-indigo-200 font-bold bg-indigo-500/15 hover:bg-indigo-500/30 px-1.5 py-0.5 rounded border border-indigo-500/30 cursor-pointer transition-all"
+                          title="Open Full History Modal"
+                        >
+                          {language === 'hindi' ? "पूरा देखें ↗" : "Full View ↗"}
+                        </button>
                         <span className="text-[9px] bg-slate-800 px-1.5 py-0.2 rounded text-slate-400">{savedChats.length}</span>
                         {savedChats.length > 0 && (
                           <button
@@ -5397,7 +5786,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             className="text-[9px] text-rose-400 hover:text-rose-300 transition-colors bg-transparent border-none cursor-pointer"
                             title="Clear All Chat History"
                           >
-                            Clear All
+                            Clear
                           </button>
                         )}
                       </div>
@@ -5721,18 +6110,82 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
               </div>
 
+              {/* Mobile Sidebar Backdrop Overlay */}
+              {sidebarOpen && (
+                <div 
+                  onClick={() => setSidebarOpen(false)}
+                  className="fixed inset-0 bg-black/70 backdrop-blur-sm z-20 lg:hidden transition-opacity"
+                />
+              )}
+
               {/* RIGHT MAIN CHAT AREA (ChatGPT / Gemini style viewport centered layout) */}
               <div className={`flex-1 flex flex-col h-full overflow-hidden ${themeColors.bgMain} relative transition-colors duration-300`}>
                 
+                {/* TOP CHAT TOOLBAR: Shown ONLY when active chat messages are present */}
+                {chatMessages.length > 0 && (
+                  <div className="bg-[#080D1A]/95 backdrop-blur-md border-b border-slate-800/80 px-3 py-2 flex items-center justify-between gap-2 z-20 shrink-0 shadow-sm animate-fade-in">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className="p-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-700/60 transition-all cursor-pointer flex items-center justify-center"
+                        title="Toggle Sidebar & History"
+                      >
+                        <Menu className="w-4 h-4 text-slate-300" />
+                      </button>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span className="text-xs sm:text-sm font-black text-white">
+                          {currentChatSessionId ? (language === 'hindi' ? 'सक्रिय चैट सत्र' : 'Active Chat Session') : (language === 'hindi' ? 'हंस AI लाइव असिस्टेंट' : 'HansAI Live Assistant')}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {/* Prominent New Chat / Close Action Button */}
+                      <button
+                        onClick={() => startNewChat()}
+                        className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 border border-indigo-400/40"
+                        title={language === 'hindi' ? "नया चैट शुरू करें या रीसेट करें" : "Start New Chat / Close"}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>+ New Chat / Close</span>
+                      </button>
+
+                      {/* Saved History Modal & Drawer Trigger */}
+                      <button
+                        onClick={() => {
+                          setIsChatHistoryModalOpen(true);
+                          setSidebarOpen(true);
+                        }}
+                        className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-900/90 hover:bg-slate-800 text-slate-300 rounded-full border border-slate-700/80 flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 relative"
+                        title="View Saved Chat & Activity History"
+                      >
+                        <History className="w-4 h-4 text-slate-300" />
+                        {savedChats.length > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[9px] font-mono w-4 h-4 rounded-full flex items-center justify-center">
+                            {savedChats.length}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Google AdSense Responsive Placement (Shown during active chat messages) */}
+                {chatMessages.length > 0 && (
+                  <GoogleAdSenseBanner slotId="hansai-top-chat-slot" className="px-3 shrink-0" />
+                )}
+
                 {/* MAIN CHAT CONTENT AREA */}
-                <div className="flex-1 flex flex-col w-full max-w-6xl mx-auto p-2 sm:p-4 overflow-y-auto scrollbar-thin">
+                <div className="flex-1 min-h-0 flex flex-col w-full max-w-6xl mx-auto p-2 sm:p-3 overflow-y-auto scrollbar-thin">
                   
                   {/* Hands-Free Voice Assistant Active Status Banner */}
                   {isVoiceAssistantActive && (
-                    <div className="mb-3 bg-gradient-to-r from-rose-950/90 via-indigo-950/90 to-slate-900/90 border border-rose-500/50 p-3 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-white text-xs animate-fade-in relative overflow-hidden flex-shrink-0">
+                    <div className="mb-2 bg-gradient-to-r from-rose-950/90 via-indigo-950/90 to-slate-900/90 border border-rose-500/50 p-2.5 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-2.5 text-white text-xs animate-fade-in relative overflow-hidden flex-shrink-0">
                       <div className="flex items-center gap-3 text-left">
                         <div className="relative flex-shrink-0">
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center ${isVoiceAssistantSpeaking ? 'bg-amber-500' : 'bg-rose-600'} text-white shadow-lg shadow-rose-500/30`}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isVoiceAssistantSpeaking ? 'bg-amber-500' : 'bg-rose-600'} text-white shadow-lg shadow-rose-500/30`}>
                             <Mic className={`w-4 h-4 ${isVoiceAssistantListening ? 'animate-pulse' : ''}`} />
                           </div>
                           {(isVoiceAssistantListening || isVoiceAssistantSpeaking) && (
@@ -5775,50 +6228,52 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   
                   {/* NEW CHAT WELCOME STATE (Clean A4 / Single-Screen No-Scroll Viewport Layout) */}
                   {chatMessages.length === 0 ? (
-                    <div className="my-auto py-1 px-1 flex flex-col items-center justify-center w-full max-w-5xl mx-auto text-center animate-fade-in select-none">
+                    <div className="flex-1 flex flex-col justify-between max-w-5xl mx-auto w-full py-1 px-1 text-center animate-fade-in select-none overflow-hidden">
                       
-                      {/* Logo and Greeting - Sleek & Ultra-Compact */}
-                      <div className="flex flex-col items-center space-y-1 mb-2">
-                        <QuantumSwanLogo className="w-11 h-11 sm:w-12 sm:h-12" showLightBg={true} />
-                        <h2 className="text-lg sm:text-xl font-black tracking-tight font-sans text-white">
+                      {/* Logo and Greeting - Prominent & Sleek */}
+                      <div className="flex flex-col items-center space-y-1 my-auto">
+                        <QuantumSwanLogo className="w-12 h-12 sm:w-14 sm:h-14" showLightBg={true} />
+                        <h2 className="text-xl sm:text-2xl font-black tracking-tight font-sans text-white">
                           HansAI - What can I help with today?
                         </h2>
-                        <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+                        <p className="text-xs text-slate-400 font-medium hidden sm:block">
                           {language === 'hindi' 
                             ? 'ऑल-इन-वन AI शिक्षा, सरकारी परीक्षा तैयारी एवं लाइव साइंस-मेमोरी लैब' 
                             : 'All-in-one AI education, exam prep & interactive science-memory lab'}
                         </p>
 
-                        {/* WIDE SKY-BLUE (ASMANI) "ALL STENOGRAPHER" HERO BANNER */}
+                        {/* WIDE SKY-BLUE "ALL STENOGRAPHER" HERO BANNER */}
                         <button
                           onClick={() => setActiveView('steno')}
-                          className="mt-2 w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-sky-600 via-cyan-500 to-sky-600 hover:from-sky-500 hover:to-cyan-400 border border-sky-300/40 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-900/40 hover:shadow-cyan-500/30 flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99] group"
+                          className="mt-2 w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-sky-600 via-cyan-500 to-sky-600 hover:from-sky-500 hover:to-cyan-400 border border-sky-300/40 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-900/40 hover:shadow-cyan-500/30 flex items-center justify-between gap-2.5 transition-all cursor-pointer active:scale-[0.99] group"
                         >
-                          <span className="text-base group-hover:scale-110 transition-transform">✍️</span>
-                          <span className="font-extrabold uppercase tracking-wider">
-                            {language === 'hindi' ? 'All Stenographer • सम्पूर्ण आशुलिपि (ऋषि, मानक, पिटमैन) व डिक्टेशन' : 'All Stenographer • Complete Shorthand & Dictation Studio'}
-                          </span>
-                          <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-normal">
-                            Open
+                          <div className="flex items-center gap-2">
+                            <span className="text-base group-hover:scale-110 transition-transform">✍️</span>
+                            <span className="font-extrabold tracking-wide text-left">
+                              ALL STENOGRAPHER • सम्पूर्ण आशुलिपि (ऋषि, मानक, पिटमैन) व डिक्टेशन
+                            </span>
+                          </div>
+                          <span className="text-[10px] bg-white/20 text-white px-2.5 py-0.5 rounded-full font-black uppercase tracking-normal shrink-0">
+                            OPEN
                           </span>
                         </button>
                       </div>
 
                       {/* ROW 1: 4 AI ADVANCED POWER TOOLS */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full text-left mb-2">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 w-full text-left my-auto">
                         <button
                           onClick={() => setActiveView('mnemonics')}
-                          className="p-2.5 sm:p-3 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
                         >
-                          <div className="flex items-center justify-between w-full mb-1">
-                            <span className="text-base">💡</span>
-                            <span className="px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-200 text-[8px] font-black uppercase">10X Memory</span>
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">💡</span>
+                            <span className="px-1 py-0.5 rounded bg-amber-500/30 text-amber-200 text-[7px] font-black uppercase">10X Memory</span>
                           </div>
                           <div>
-                            <div className="text-xs font-black text-amber-300 group-hover:text-white truncate">
+                            <div className="text-[11px] font-black text-amber-300 group-hover:text-white truncate">
                               {language === 'hindi' ? 'AI निमोनिक्स ट्रिक्स' : 'AI Smart Mnemonics'}
                             </div>
-                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
                               {language === 'hindi' ? 'तारीखें, फॉर्मूले व अनुसूचियों की कविताएं' : 'Formulas, dates & GK rhymes'}
                             </p>
                           </div>
@@ -5826,17 +6281,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                         <button
                           onClick={() => setActiveView('science-lab')}
-                          className="p-2.5 sm:p-3 bg-gradient-to-br from-cyan-950/80 via-blue-950/50 to-slate-900 border border-cyan-500/50 hover:border-cyan-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20 active:scale-98"
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-cyan-950/80 via-blue-950/50 to-slate-900 border border-cyan-500/50 hover:border-cyan-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20 active:scale-98"
                         >
-                          <div className="flex items-center justify-between w-full mb-1">
-                            <span className="text-base">🔬</span>
-                            <span className="px-1.5 py-0.5 rounded bg-cyan-500/30 text-cyan-200 text-[8px] font-black uppercase">Interactive</span>
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">🔬</span>
+                            <span className="px-1 py-0.5 rounded bg-cyan-500/30 text-cyan-200 text-[7px] font-black uppercase">Interactive</span>
                           </div>
                           <div>
-                            <div className="text-xs font-black text-cyan-300 group-hover:text-white truncate">
+                            <div className="text-[11px] font-black text-cyan-300 group-hover:text-white truncate">
                               {language === 'hindi' ? 'फॉर्मूला व साइंस लैब' : 'Science Formula Lab'}
                             </div>
-                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
                               {language === 'hindi' ? 'सर्किट, लेंस व पेंडुलम लाइव सिमुलेटर' : 'Circuit, Optics & Physics sim'}
                             </p>
                           </div>
@@ -5844,17 +6299,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                         <button
                           onClick={() => setActiveView('neural-map')}
-                          className="p-2.5 sm:p-3 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border border-emerald-500/50 hover:border-emerald-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border border-emerald-500/50 hover:border-emerald-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
                         >
-                          <div className="flex items-center justify-between w-full mb-1">
-                            <span className="text-base">🧠</span>
-                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-200 text-[8px] font-black uppercase">Mind-Map</span>
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">🧠</span>
+                            <span className="px-1 py-0.5 rounded bg-emerald-500/30 text-emerald-200 text-[7px] font-black uppercase">Mind-Map</span>
                           </div>
                           <div>
-                            <div className="text-xs font-black text-emerald-300 group-hover:text-white truncate">
+                            <div className="text-[11px] font-black text-emerald-300 group-hover:text-white truncate">
                               {language === 'hindi' ? 'AI न्यूरल मैप' : 'AI Neural Map'}
                             </div>
-                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
                               {language === 'hindi' ? 'विजुअल नोड्स व PYQ हाइलाइट्स' : 'Visual nodes & PYQ highlights'}
                             </p>
                           </div>
@@ -5862,17 +6317,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                         <button
                           onClick={() => setActiveView('time-travel')}
-                          className="p-2.5 sm:p-3 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
                         >
-                          <div className="flex items-center justify-between w-full mb-1">
-                            <span className="text-base">⏳</span>
-                            <span className="px-1.5 py-0.5 rounded bg-purple-500/30 text-purple-200 text-[8px] font-black uppercase">History</span>
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">⏳</span>
+                            <span className="px-1 py-0.5 rounded bg-purple-500/30 text-purple-200 text-[7px] font-black uppercase">History</span>
                           </div>
                           <div>
-                            <div className="text-xs font-black text-purple-300 group-hover:text-white truncate">
+                            <div className="text-[11px] font-black text-purple-300 group-hover:text-white truncate">
                               {language === 'hindi' ? 'काल-यात्रा सिमुलेटर' : 'Time-Travel Simulator'}
                             </div>
-                            <p className="text-[10px] text-slate-300 line-clamp-1 mt-0.5">
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
                               {language === 'hindi' ? 'भगत सिंह, गांधी, आंबेडकर से बातचीत' : 'Converse with historical figures'}
                             </p>
                           </div>
@@ -5880,7 +6335,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
 
                       {/* ROW 2: 4 ESSENTIAL STUDY & PREP TOOLS */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full text-left">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full text-left">
                         <button
                           onClick={() => setActiveView('quiz')}
                           className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
@@ -5917,16 +6372,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                         <button
                           onClick={() => setIsAllExamsSyllabusOpen(true)}
-                          className="p-2.5 sm:p-3 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/60 hover:border-purple-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm hover:shadow-purple-500/20 active:scale-98"
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
                           <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-base">
                             📚
                           </div>
                           <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-purple-300 group-hover:text-white truncate">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-purple-300 truncate">
                               {language === 'hindi' ? 'परीक्षा सिलेबस' : 'Exams Syllabus'}
                             </div>
-                            <div className="text-[10px] text-slate-300 truncate">
+                            <div className="text-[10px] text-slate-400 truncate">
                               10th, 12th, SSC, RRB
                             </div>
                           </div>
@@ -5945,6 +6400,43 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             </div>
                             <div className="text-[10px] text-slate-400 truncate">
                               YouTube, Wikipedia
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* ROW 3: ADDITIONAL EXPERT TOOLS (Mock Interview & Analytics) */}
+                      <div className="grid grid-cols-2 gap-3 w-full text-left">
+                        <button
+                          onClick={() => setActiveView('mock-interview')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
+                            🎙️
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
+                              {language === 'hindi' ? 'AI मॉक इंटरव्यू' : 'AI Mock Interview'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'वाइवा व बोर्ड अभ्यास' : 'Viva & Board Practice'}
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('performance-analytics')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-rose-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center shrink-0 text-base">
+                            📊
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-rose-300 truncate">
+                              {language === 'hindi' ? 'परफॉरमेंस एनालिटिक्स' : 'Performance Analytics'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'कमजोर विषय पहचानें' : 'Weak Area Diagnostics'}
                             </div>
                           </div>
                         </button>
@@ -6030,20 +6522,31 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                             {/* Speech Body - Frameless & Unboxed for Assistant */}
                             <div className="flex flex-col flex-1 min-w-0">
-                              {msg.imagePreviewUrl && (
-                                <div 
-                                  onClick={() => setFullImageModalUrl(msg.imagePreviewUrl!)}
-                                  className="mb-2 max-w-xs overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40 shadow-md cursor-pointer hover:opacity-90 transition-opacity relative group"
-                                  title="Click to view full image / फोटो देखें"
-                                >
-                                  <img src={msg.imagePreviewUrl} alt="User contribution" className="max-h-48 object-contain rounded-xl" referrerPolicy="no-referrer" />
-                                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[11px] font-extrabold text-white transition-opacity gap-1">
-                                    👁️ View Full Image / फोटो देखें
-                                  </div>
+                              {/* Attached Images Render (Supports up to 3 images) */}
+                              {((msg.imagePreviewUrls && msg.imagePreviewUrls.length > 0) ? msg.imagePreviewUrls : (msg.imagePreviewUrl ? [msg.imagePreviewUrl] : [])).length > 0 && (
+                                <div className="mb-2.5 flex flex-wrap gap-2">
+                                  {((msg.imagePreviewUrls && msg.imagePreviewUrls.length > 0) ? msg.imagePreviewUrls : (msg.imagePreviewUrl ? [msg.imagePreviewUrl] : [])).map((imgUrl, imgIdx) => (
+                                    <div 
+                                      key={imgIdx}
+                                      onClick={() => setFullImageModalUrl(imgUrl)}
+                                      className="max-w-[180px] sm:max-w-[220px] overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40 shadow-md cursor-pointer hover:opacity-90 transition-opacity relative group"
+                                      title="Click to view full image / फोटो देखें"
+                                    >
+                                      <img src={imgUrl} alt={`Upload ${imgIdx + 1}`} className="max-h-40 w-full object-cover rounded-xl" referrerPolicy="no-referrer" />
+                                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-extrabold text-white transition-opacity gap-1 p-1 text-center">
+                                        👁️ View Full / बड़ा देखें
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
                               )}
 
-                              <div className={`leading-relaxed whitespace-pre-wrap ${textSizeClass} ${
+                              <div className={`leading-relaxed whitespace-pre-wrap ${
+                                chatFontSize === 'huge' ? 'text-lg sm:text-xl font-medium' :
+                                chatFontSize === 'xl' ? 'text-base sm:text-lg font-medium' :
+                                chatFontSize === 'large' ? 'text-sm sm:text-base' :
+                                'text-xs sm:text-sm'
+                              } ${
                                 msg.role === 'user' 
                                   ? 'bg-indigo-600 text-white rounded-2xl py-2 px-4 shadow-sm inline-block max-w-[85%] self-end' 
                                   : 'bg-transparent text-slate-100 border-none p-0 sm:p-1 w-full text-left font-sans'
@@ -6055,7 +6558,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                           {/* Msg Actions Console */}
                           {msg.role === 'assistant' && (
-                            <div className="flex items-center gap-3 pl-10 text-[10px] text-slate-500 font-medium select-none pt-1">
+                            <div className="flex items-center gap-2 sm:gap-3 pl-10 text-[10px] text-slate-500 font-medium select-none pt-1 flex-wrap">
                               <button
                                 onClick={() => handleDownloadMessagePdf(msg)}
                                 className="flex items-center gap-1 hover:text-cyan-300 transition-colors py-0.5 px-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-md cursor-pointer font-bold"
@@ -6079,7 +6582,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                     ? 'text-emerald-400 bg-emerald-500/10 font-bold' 
                                     : 'hover:text-amber-400 hover:bg-slate-800/40 bg-transparent text-slate-400'
                                 }`}
-                                title="Hear this read out loud"
+                                title="Hear this read out loud in Indian Voice"
                               >
                                 {currentlySpeakingMsgId === msg.id ? (
                                   <>
@@ -6089,10 +6592,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                 ) : (
                                   <>
                                     <Volume2 className="w-3 h-3" />
-                                    Listen / सुनें
+                                    Listen / सुनें 🔊
                                   </>
                                 )}
                               </button>
+                              
+                              {/* 5-Star Feedback Button on Each Assistant Response */}
+                              <button
+                                onClick={() => {
+                                  setFeedbackInitialContext(`Response: "${msg.content.slice(0, 45)}..."`);
+                                  setIsFiveStarFeedbackOpen(true);
+                                }}
+                                className="flex items-center gap-1 hover:text-amber-300 transition-colors py-0.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md cursor-pointer font-bold"
+                                title="Give 5-Star Feedback & Suggestions on this response"
+                              >
+                                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                                <span>⭐ फीडबैक / Rating</span>
+                              </button>
+
                               {currentlySpeakingMsgId === msg.id && (
                                 <span className="flex items-center gap-0.5 ml-1">
                                   <span className="w-1 h-2 bg-emerald-400 rounded-full animate-bounce"></span>
@@ -6179,37 +6696,50 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                   )}
 
-                  {/* FIXED CHAT INPUT AREA AT BOTTOM (Full Width Spacious Box with Camera Upload) */}
+                  {/* FIXED CHAT INPUT AREA AT BOTTOM (Full Width Spacious Box with Camera Upload & Multi-Image Support) */}
                   <div className="max-w-5xl w-full mx-auto pt-2 pb-2">
-                    {chatAttachedImage && (
-                      <div className="p-2 mb-2 bg-[#0F1626] border border-slate-800 rounded-xl max-w-sm flex items-center justify-between shadow-xl animate-fade-in">
-                        <div className="flex items-center gap-3">
-                          <div 
-                            onClick={() => setFullImageModalUrl(chatAttachedImage.previewUrl)}
-                            className="w-10 h-10 rounded-lg border border-slate-800 overflow-hidden bg-slate-950 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                            title="Click to view image / फोटो देखें"
-                          >
-                            <img src={chatAttachedImage.previewUrl} alt="Pre-selection preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold text-white block">Image Attached</span>
+                    {/* Attached Multiple Images Previews (Up to 3 images) */}
+                    {chatAttachedImages.length > 0 && (
+                      <div className="mb-2 p-2 rounded-2xl bg-slate-900/90 border border-indigo-500/40 flex flex-wrap items-center gap-2 animate-fade-in">
+                        {chatAttachedImages.map((img, idx) => (
+                          <div key={img.id || idx} className="flex items-center gap-2 bg-slate-950/80 border border-slate-800 rounded-xl p-1.5 pr-2">
+                            <div 
+                              onClick={() => setFullImageModalUrl(img.previewUrl)}
+                              className="w-10 h-10 rounded-lg border border-indigo-500/40 overflow-hidden bg-slate-950 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                              title="Click to view image / फोटो देखें"
+                            >
+                              <img src={img.previewUrl} alt={`Attached ${idx + 1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            </div>
+                            <div className="text-left">
+                              <span className="text-[11px] font-bold text-indigo-200 block">Image {idx + 1}/3</span>
+                              <button
+                                type="button"
+                                onClick={() => setFullImageModalUrl(img.previewUrl)}
+                                className="text-[9px] text-indigo-400 hover:text-indigo-300 font-bold uppercase underline bg-transparent border-none p-0 cursor-pointer"
+                              >
+                                👁️ View
+                              </button>
+                            </div>
                             <button
                               type="button"
-                              onClick={() => setFullImageModalUrl(chatAttachedImage.previewUrl)}
-                              className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase underline bg-transparent border-none p-0 cursor-pointer"
+                              onClick={() => setChatAttachedImages(prev => prev.filter((_, i) => i !== idx))}
+                              className="ml-1 p-1 bg-slate-800 hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 rounded-md transition-all border-none cursor-pointer"
+                              title="Remove image"
                             >
-                              👁️ View Photo / फोटो देखें
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setChatAttachedImage(null)}
-                          className="p-1.5 bg-slate-800 hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 rounded-lg transition-all border-none cursor-pointer"
-                          title="Clear image choice"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        ))}
+                        {chatAttachedImages.length < 3 && (
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-2.5 py-2 border border-dashed border-indigo-500/40 hover:border-indigo-400 text-indigo-300 rounded-xl text-[11px] font-bold flex items-center gap-1 bg-indigo-950/30 hover:bg-indigo-950/50 transition-all cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add (+{3 - chatAttachedImages.length})</span>
+                          </button>
+                        )}
                       </div>
                     )}
 
@@ -6264,39 +6794,61 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </div>
                       </div>
                     )}
+
                     <form 
                       onSubmit={(e) => { e.preventDefault(); handleSendChat(); }}
                       className="bg-slate-900/95 border border-slate-800 p-3 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all flex items-center gap-2 shadow-2xl w-full"
                     >
-                      {/* Hidden File Gallery Input */}
+                      {/* Hidden File Gallery Input (Supports multiple files up to 3) */}
                       <input 
                         type="file" 
                         ref={fileInputRef}
                         accept="image/*"
+                        multiple
                         className="hidden"
                         onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            if (!file.type.startsWith('image/')) {
-                              showToast(
-                                language === 'hindi' 
-                                  ? "कृपया एक मान्य इमेज फाइल चुनें!" 
-                                  : "Please choose a valid image file!", 
-                                "warn"
-                              );
-                              return;
-                            }
+                          const files = e.target.files;
+                          if (!files || files.length === 0) return;
+                          const fileArray = Array.from(files);
+                          const validImageFiles = fileArray.filter(f => f.type.startsWith('image/'));
+                          
+                          if (validImageFiles.length === 0) {
+                            showToast(language === 'hindi' ? "कृपया मान्य इमेज फाइल चुनें!" : "Please choose valid image files!", "warn");
+                            return;
+                          }
+                          
+                          const remainingSlots = 3 - chatAttachedImages.length;
+                          if (remainingSlots <= 0) {
+                            showToast(language === 'hindi' ? "अधिकतम 3 इमेज ही अपलोड कर सकते हैं!" : "Maximum 3 images can be attached!", "warn");
+                            return;
+                          }
+                          
+                          const filesToAdd = validImageFiles.slice(0, remainingSlots);
+                          filesToAdd.forEach((file) => {
                             const reader = new FileReader();
                             reader.onload = () => {
                               const base64Data = (reader.result as string).split(',')[1];
-                              setChatAttachedImage({
-                                mimeType: file.type,
-                                data: base64Data,
-                                previewUrl: URL.createObjectURL(file)
+                              setChatAttachedImages(prev => {
+                                if (prev.length >= 3) return prev;
+                                return [
+                                  ...prev,
+                                  {
+                                    id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                                    mimeType: file.type,
+                                    data: base64Data,
+                                    previewUrl: URL.createObjectURL(file),
+                                    name: file.name
+                                  }
+                                ];
                               });
                             };
                             reader.readAsDataURL(file);
+                          });
+
+                          if (validImageFiles.length > remainingSlots) {
+                            showToast(language === 'hindi' ? "केवल 3 इमेज तक ही जोड़ी जा सकती हैं।" : "Only up to 3 images can be attached.", "info");
                           }
+                          e.target.value = '';
                         }}
                       />
 
@@ -6311,25 +6863,30 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           const file = e.target.files?.[0];
                           if (file) {
                             if (!file.type.startsWith('image/')) {
-                              showToast(
-                                language === 'hindi' 
-                                  ? "कृपया एक मान्य इमेज फाइल चुनें!" 
-                                  : "Please choose a valid image file!", 
-                                "warn"
-                              );
+                              showToast(language === 'hindi' ? "कृपया एक मान्य इमेज फाइल चुनें!" : "Please choose a valid image file!", "warn");
+                              return;
+                            }
+                            if (chatAttachedImages.length >= 3) {
+                              showToast(language === 'hindi' ? "अधिकतम 3 इमेज ही अपलोड कर सकते हैं!" : "Maximum 3 images can be attached!", "warn");
                               return;
                             }
                             const reader = new FileReader();
                             reader.onload = () => {
                               const base64Data = (reader.result as string).split(',')[1];
-                              setChatAttachedImage({
-                                mimeType: file.type,
-                                data: base64Data,
-                                previewUrl: URL.createObjectURL(file)
-                              });
+                              setChatAttachedImages(prev => [
+                                ...prev,
+                                {
+                                  id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                                  mimeType: file.type,
+                                  data: base64Data,
+                                  previewUrl: URL.createObjectURL(file),
+                                  name: file.name
+                                }
+                              ]);
                             };
                             reader.readAsDataURL(file);
                           }
+                          e.target.value = '';
                         }}
                       />
 
@@ -6337,10 +6894,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800/60 rounded-xl transition-all flex-shrink-0 border-none bg-transparent cursor-pointer"
-                        title="Attach Image / फाइल जोड़ें"
+                        className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800/60 rounded-xl transition-all flex-shrink-0 border-none bg-transparent cursor-pointer relative"
+                        title="Attach Images (Up to 3) / फोटो जोड़ें (अधिकतम 3)"
                       >
                         <Paperclip className="w-4.5 h-4.5" />
+                        {chatAttachedImages.length > 0 && (
+                          <span className="absolute top-0 right-0 w-4 h-4 bg-indigo-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                            {chatAttachedImages.length}
+                          </span>
+                        )}
                       </button>
 
                       {/* Camera Capture Button */}
@@ -6357,7 +6919,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         type="text"
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
-                        placeholder={language === 'hindi' ? "हंस-एआई से कुछ भी पूछें... (प्रश्नों या नोट्स की फोटो भी अपलोड करें)" : "Ask HansAI anything... (Snap/upload question or notes)"}
+                        placeholder={language === 'hindi' ? "हंस-एआई से कुछ भी पूछें... (प्रश्नों या नोट्स की 3 फोटो तक जोड़ें)" : "Ask HansAI anything... (Snap/attach up to 3 photos)"}
                         className="flex-1 w-full bg-transparent px-3 py-2 text-xs sm:text-sm focus:outline-none placeholder-slate-500 text-slate-100 font-sans"
                         disabled={isChatLoading}
                       />
@@ -6385,14 +6947,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <button
                         type="submit"
                         className="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all disabled:opacity-30 disabled:hover:bg-indigo-600 flex-shrink-0 border-none cursor-pointer"
-                        disabled={isChatLoading || (!chatInput.trim() && !chatAttachedImage)}
+                        disabled={isChatLoading || (!chatInput.trim() && chatAttachedImages.length === 0)}
                         title="Send Message / भेजें"
                       >
                         <Send className="w-4 h-4" />
                       </button>
                     </form>
-                    <div className="text-center text-[10px] text-slate-500 mt-2 px-2 select-none">
-                      <span>HansAI can make mistakes. Verify important academic facts & formulas.</span>
+                    <div className="text-center mt-2 px-2 select-none">
+                      <p className="text-[10px] text-slate-500">
+                        HansAI can make mistakes. Verify important academic facts & formulas.
+                      </p>
                     </div>
                   </div>
 
@@ -11569,24 +12133,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
         </div>
 
-        {/* BOTTOM COMPLIANCE & LEGAL FOOTER BAR */}
-        <footer className="py-2.5 px-4 border-t border-slate-800/80 bg-[#060914] text-xs text-slate-400 shrink-0">
-          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-bold text-slate-300">
-                HansAI Ecosystem • By Hanslal Pal • 100% Student Data Encrypted
-              </span>
-            </div>
-            
-            <button
-              onClick={() => setIsAiRulesModalOpen(true)}
-              className="text-amber-400 hover:text-amber-300 font-bold transition-colors flex items-center gap-1.5 cursor-pointer bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1 rounded-lg border border-amber-500/30 text-[11px]"
-            >
-              <span>⚖️ Public AI Usage Rules & Guidelines</span>
-            </button>
-          </div>
-        </footer>
+
 
       {/* SETTINGS MODAL DIALOG */}
       {isSettingsOpen && (
@@ -11618,27 +12165,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 </label>
                 <div className="flex flex-col gap-1.5">
                   <button
-                    onClick={() => setSelectedModel('gemini-3.5-flash')}
+                    onClick={() => setSelectedModel('gemini-3.7-flash')}
                     className={`p-2 rounded-xl border text-left transition-all ${
-                      selectedModel === 'gemini-3.5-flash'
+                      selectedModel === 'gemini-3.7-flash'
                         ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold shadow-inner'
                         : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <span className="text-xs font-bold block mb-0.5">Gemini 3.5 Flash (Default)</span>
+                    <span className="text-xs font-bold block mb-0.5">Gemini 3.7 Flash (Default)</span>
                     <span className="text-[9px] opacity-75 block">Recommended. Extremely fast, intelligent educational companion.</span>
                   </button>
                   
                   <button
-                    onClick={() => setSelectedModel('gemini-3.1-pro-preview')}
+                    onClick={() => setSelectedModel('gemini-3.1-flash-lite')}
                     className={`p-2 rounded-xl border text-left transition-all ${
-                      selectedModel === 'gemini-3.1-pro-preview'
+                      selectedModel === 'gemini-3.1-flash-lite'
                         ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold shadow-inner'
                         : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <span className="text-xs font-bold block mb-0.5">Gemini 3.1 Pro (Academic)</span>
-                    <span className="text-[9px] opacity-75 block">Sophisticated coding, long stenographer explanations, and intense calculations.</span>
+                    <span className="text-xs font-bold block mb-0.5">Gemini 3.1 Flash Lite (Ultra Fast)</span>
+                    <span className="text-[9px] opacity-75 block">Low-latency, lightweight responses for rapid quizzes and revision.</span>
                   </button>
                 </div>
               </div>
@@ -13291,6 +13838,56 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           </div>
         </div>
       )}
+
+      {/* 💬 DEDICATED CHAT & ACTIVITY HISTORY MODAL */}
+      <ChatHistoryModal
+        isOpen={isChatHistoryModalOpen}
+        onClose={() => setIsChatHistoryModalOpen(false)}
+        language={language}
+        savedChats={savedChats}
+        currentChatSessionId={currentChatSessionId}
+        onLoadChat={(chat) => {
+          setCurrentChatSessionId(chat.id);
+          setChatMessages(chat.messages || []);
+          setActiveView('chat');
+          showToast(language === 'hindi' ? `चैट "${chat.title || 'सत्र'}" लोड हो गई 💬` : `Loaded "${chat.title || 'Chat'}" 💬`, 'info');
+        }}
+        onDeleteChat={deleteSavedChat}
+        onRenameChat={handleRenameChat}
+        onPinChat={handlePinChat}
+        onClearAllChats={() => {
+          setIsChatHistoryModalOpen(false);
+          setIsClearAllChatsModalOpen(true);
+        }}
+        activityLogs={activityLogs}
+        onClearActivityLog={deleteSpecificHistoryLog}
+        onStartNewChat={() => {
+          startNewChat();
+        }}
+      />
+
+      {/* ⭐ 5-STAR FEEDBACK & USER SUGGESTIONS MODAL */}
+      <FiveStarFeedbackModal
+        isOpen={isFiveStarFeedbackOpen}
+        onClose={() => setIsFiveStarFeedbackOpen(false)}
+        language={language}
+        initialContext={feedbackInitialContext}
+        onFeedbackSubmitted={(data) => {
+          showToast(language === 'hindi' ? `⭐ आपका ${data.stars}-स्टार फीडबैक व सुझाव दर्ज कर लिया गया है!` : `⭐ Thank you! Your ${data.stars}-star feedback & review was recorded!`, 'success');
+        }}
+      />
+
+      {/* 🚀 HANS COMPAIN UPCOMING FEATURES & ROADMAP MODAL */}
+      <UpcomingFeaturesRoadmapModal
+        isOpen={isRoadmapModalOpen}
+        onClose={() => setIsRoadmapModalOpen(false)}
+        language={language}
+        onLaunchFeature={(featureId) => {
+          if (featureId === 'chat' || featureId === 'quiz' || featureId === 'shorthand' || featureId === 'study-plan' || featureId === 'flashcards' || featureId === 'music-studio' || featureId === 'weather-alerts' || featureId === 'store' || featureId === 'security-hub') {
+            setActiveView(featureId as any);
+          }
+        }}
+      />
 
     </div>
   );

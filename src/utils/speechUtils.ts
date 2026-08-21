@@ -1,8 +1,31 @@
 // /src/utils/speechUtils.ts
-// Universal, Rock-Solid Hindi & English Text-To-Speech Engine with Gender-Aware Voices (Male / Female)
+// Universal, Rock-Solid Multi-Lingual Text-To-Speech Engine for All Indian State Languages & English
 
 let currentAudioPlayer: HTMLAudioElement | null = null;
 let currentSpeechSessionId = 0;
+
+export interface IndianLanguageOption {
+  code: string;
+  shortCode: string;
+  name: string;
+  nativeName: string;
+  state: string;
+}
+
+export const INDIAN_LANGUAGES: IndianLanguageOption[] = [
+  { code: 'hi-IN', shortCode: 'hi', name: 'Hindi', nativeName: 'हिन्दी', state: 'All India / North' },
+  { code: 'en-IN', shortCode: 'en', name: 'English (India)', nativeName: 'English', state: 'National / Global' },
+  { code: 'ta-IN', shortCode: 'ta', name: 'Tamil', nativeName: 'தமிழ்', state: 'Tamil Nadu' },
+  { code: 'te-IN', shortCode: 'te', name: 'Telugu', nativeName: 'తెలుగు', state: 'Andhra / Telangana' },
+  { code: 'kn-IN', shortCode: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ', state: 'Karnataka' },
+  { code: 'ml-IN', shortCode: 'ml', name: 'Malayalam', nativeName: 'മലയാളം', state: 'Kerala' },
+  { code: 'bn-IN', shortCode: 'bn', name: 'Bengali', nativeName: 'বাংলা', state: 'West Bengal / Tripura' },
+  { code: 'mr-IN', shortCode: 'mr', name: 'Marathi', nativeName: 'मराठी', state: 'Maharashtra' },
+  { code: 'gu-IN', shortCode: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી', state: 'Gujarat' },
+  { code: 'pa-IN', shortCode: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', state: 'Punjab' },
+  { code: 'or-IN', shortCode: 'or', name: 'Odia', nativeName: 'ଓଡ଼ିଆ', state: 'Odisha' },
+  { code: 'ur-IN', shortCode: 'ur', name: 'Urdu', nativeName: 'اردو', state: 'National' }
+];
 
 export interface SpeechOptions {
   lang?: string;
@@ -30,6 +53,20 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = updateVoices;
   }
 }
+
+export const detectIndianLanguage = (text: string): string => {
+  if (/[\u0900-\u097F]/.test(text)) return 'hi-IN'; // Devanagari (Hindi, Marathi)
+  if (/[\u0B80-\u0BFF]/.test(text)) return 'ta-IN'; // Tamil
+  if (/[\u0C00-\u0C7F]/.test(text)) return 'te-IN'; // Telugu
+  if (/[\u0C80-\u0CFF]/.test(text)) return 'kn-IN'; // Kannada
+  if (/[\u0D00-\u0D7F]/.test(text)) return 'ml-IN'; // Malayalam
+  if (/[\u0980-\u09FF]/.test(text)) return 'bn-IN'; // Bengali
+  if (/[\u0A80-\u0AFF]/.test(text)) return 'gu-IN'; // Gujarati
+  if (/[\u0A00-\u0A7F]/.test(text)) return 'pa-IN'; // Gurmukhi (Punjabi)
+  if (/[\u0B00-\u0B7F]/.test(text)) return 'or-IN'; // Odia
+  if (/[\u0600-\u06FF]/.test(text)) return 'ur-IN'; // Urdu / Arabic
+  return 'en-IN';
+};
 
 export const isHindiText = (text: string): boolean => {
   return /[\u0900-\u097F]/.test(text);
@@ -74,7 +111,7 @@ export const stopAllSpeech = () => {
 };
 
 /**
- * Universal Speech Engine with Male/Female Gender Voice Support
+ * Universal Speech Engine with All Indian Languages & Gender Voice Support
  */
 export const speakText = (text: string, rawOptions: SpeechOptions | string = {}) => {
   const options: SpeechOptions = typeof rawOptions === 'string' ? { lang: rawOptions } : rawOptions;
@@ -90,16 +127,17 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
     return;
   }
 
-  const isHindi = isHindiText(cleanText);
+  const detectedLangCode = detectIndianLanguage(cleanText);
+  const targetLang = options.lang || detectedLangCode || 'hi-IN';
   const targetGender: 'male' | 'female' = options.gender || 'male';
 
   // Pitch calculation according to gender
-  const defaultPitch = targetGender === 'female' ? 1.25 : 0.85;
+  const defaultPitch = targetGender === 'female' ? 1.2 : 0.88;
   const activePitch = options.pitch !== undefined ? options.pitch : defaultPitch;
   const activeRate = options.rate || 0.95;
 
   // Split into manageable chunks by sentence punctuation boundaries
-  const rawChunks = cleanText.split(/(?<=[.!?\n।])\s+/).filter(c => c.trim().length > 0);
+  const rawChunks = cleanText.split(/(?<=[.!?\n।|])\s+/).filter(c => c.trim().length > 0);
   
   const chunks: string[] = [];
   for (const rawChunk of rawChunks) {
@@ -147,24 +185,22 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       }
 
       const chunk = chunks[currentChunkIdx];
-      const chunkIsHindi = isHindiText(chunk) || isHindi || (options.lang && options.lang.startsWith('hi'));
+      const chunkLang = detectIndianLanguage(chunk) || targetLang;
       const utterance = new SpeechSynthesisUtterance(chunk);
       utterance.rate = activeRate;
       utterance.pitch = activePitch;
-      utterance.lang = chunkIsHindi ? 'hi-IN' : (options.lang || 'en-US');
+      utterance.lang = chunkLang;
 
-      // Pick gender-appropriate voice
+      // Pick gender and language appropriate voice
       if (voices.length > 0) {
-        let matchingVoices: SpeechSynthesisVoice[] = [];
+        const langPrefix = chunkLang.split('-')[0].toLowerCase();
+        let matchingVoices = voices.filter(v => 
+          v.lang.toLowerCase().startsWith(langPrefix) || 
+          v.lang.toLowerCase().includes(chunkLang.toLowerCase())
+        );
 
-        if (chunkIsHindi) {
-          matchingVoices = voices.filter(v => 
-            v.lang.toLowerCase().startsWith('hi') || 
-            v.lang.toLowerCase().includes('hi-in') ||
-            v.lang.toLowerCase().includes('hindi')
-          );
-        } else {
-          matchingVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+        if (matchingVoices.length === 0) {
+          matchingVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en') || v.lang.toLowerCase().startsWith('hi'));
         }
 
         let selectedVoice: SpeechSynthesisVoice | undefined;
@@ -176,7 +212,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
               return n.includes('female') || n.includes('swara') || n.includes('kavya') || 
                      n.includes('priya') || n.includes('zira') || n.includes('samantha') || 
                      n.includes('victoria') || n.includes('kiran') || n.includes('kalpana') ||
-                     n.includes('lekha');
+                     n.includes('lekha') || n.includes('geeta') || n.includes('ananya');
             });
           } else {
             selectedVoice = matchingVoices.find(v => {
@@ -184,7 +220,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
               return n.includes('male') || n.includes('hemant') || n.includes('neel') || 
                      n.includes('david') || n.includes('alex') || n.includes('mark') || 
                      n.includes('george') || n.includes('ravi') || n.includes('madhav') ||
-                     n.includes('google हिन्दी') || n.includes('hindi');
+                     n.includes('valluvar') || n.includes('google');
             });
           }
 
@@ -212,7 +248,6 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
         if (hasEnded || sessionId !== currentSpeechSessionId) return;
         hasEnded = true;
 
-        // If explicitly canceled or interrupted by user stop/switch, do NOT fall back to playing second audio!
         if (e && (e.error === 'canceled' || e.error === 'interrupted')) {
           if (options.onEnd) options.onEnd();
           return;
@@ -234,7 +269,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
     speakWebChunk();
   };
 
-  // 2. Server-side /api/tts Audio Streamer Fallback
+  // 2. Server-side /api/tts Audio Streamer Fallback (Multi-lingual)
   const playAudioTTS = () => {
     const playNextChunk = () => {
       if (sessionId !== currentSpeechSessionId) return;
@@ -245,10 +280,9 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       }
 
       const chunk = chunks[currentChunkIdx];
-      const chunkIsHindi = isHindiText(chunk) || isHindi;
-      const langCode = chunkIsHindi ? 'hi' : 'en';
+      const chunkLang = (detectIndianLanguage(chunk) || targetLang).slice(0, 2);
 
-      const audioUrl = `/api/tts?text=${encodeURIComponent(chunk)}&lang=${langCode}&gender=${targetGender}`;
+      const audioUrl = `/api/tts?text=${encodeURIComponent(chunk)}&lang=${chunkLang}&gender=${targetGender}`;
 
       const audio = new Audio(audioUrl);
       currentAudioPlayer = audio;
