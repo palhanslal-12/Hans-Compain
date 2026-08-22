@@ -148,12 +148,12 @@ function getGenAI() {
 
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
-  // Use gemini-1.5-flash as preferred primary free model
-  const isOutdatedOrInvalid = !primaryModel || primaryModel.includes("2.5") || primaryModel.includes("3.5") || primaryModel.includes("3.6") || primaryModel.includes("2.0") || primaryModel.includes("pro");
-  const requested = isOutdatedOrInvalid ? "gemini-1.5-flash" : primaryModel;
+  // Use gemini-2.5-flash as preferred primary fast model for minimum latency
+  const isOutdatedOrInvalid = !primaryModel || primaryModel.includes("pro");
+  const requested = isOutdatedOrInvalid ? "gemini-2.5-flash" : primaryModel;
   
-  // High-availability fallback sequence: requested model -> gemini-1.5-flash -> gemini-flash-latest -> gemini-3.1-flash-lite
-  const fallbackSequence = [requested, "gemini-1.5-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
+  // High-availability fallback sequence: requested model -> gemini-2.5-flash -> gemini-2.5-flash -> gemini-3.1-flash-lite
+  const fallbackSequence = [requested, "gemini-2.5-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"];
   const uniqueModels = Array.from(new Set(fallbackSequence.filter(Boolean)));
 
   let lastError: any = null;
@@ -1288,6 +1288,8 @@ Always present these capabilities proudly and clearly in bullet points when aske
     // Mandatory Respectful Tone & Personalized Name Instruction
     customizedInstruction += "\n\nCRITICAL RESPECT & DIGNITY RULE: You MUST speak with extreme respect, politeness, warmth, and dignity at all times (e.g. use 'जी', 'आप', 'आपका हार्दिक स्वागत है'). Never use informal slang or disrespectful words.";
 
+    customizedInstruction += "\n\nLUCENT-STYLE HIGHLIGHTING RULE: You MUST act like a classic 'Lucent's GK' book. Highlight highly important terms, dates, formulas, or names. Wrap critically important points (errors, warnings, main concepts) with `==` like `==this is red==` to highlight them in RED. Wrap positive confirmations, study tips, or key formulas with `++` like `++this is green++` to highlight them in GREEN.";
+
     customizedInstruction += "\n\nCREATIVE POETRY & LITERATURE FEEDBACK RULE: When a user shares their original poem, lines, or creative thoughts (जैसे कविता, दोहा, शायरी या सुविचार), HansAI MUST respond with high appreciation, deep respect, and structured constructive feedback. Highlight the core emotion ('भाव बहुत सुंदर है'), mention the best theme/analogy ('सबसे अच्छी बात: ...'), and offer a refined, highly lyrical and polished version (or dohe/kavita style) while retaining the original sentiment.";
 
     if (userName && String(userName).trim() && String(userName).trim() !== "Visitor Aspirant" && String(userName).trim() !== "Student" && String(userName).trim() !== "Guest Link Visitor") {
@@ -1308,7 +1310,7 @@ Always present these capabilities proudly and clearly in bullet points when aske
       config.tools = [{ googleSearch: {} }];
     }
 
-    const response = await generateContentWithFallback(ai, model || "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
       contents: formattedContents,
       config: config
     });
@@ -1352,7 +1354,7 @@ app.post("/api/quiz", async (req, res) => {
 
     const prompt = `Generate a high-quality educational quiz on "${subject}" for ${level || "general"} level/class. Please generate exactly 5 interesting multiple choice questions. ${langInstruction} Explain the correct answer step-by-step.`;
 
-    const response = await generateContentWithFallback(ai, model || "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1499,7 +1501,7 @@ app.post("/api/research", async (req, res) => {
     - High-retention mnemonic tools or short tricks to memorize key components
     - Exactly 3 multiple-choice practice questions targeting this specific topic with detailed options and answers.`;
 
-    const response = await generateContentWithFallback(ai, model || "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1603,7 +1605,7 @@ app.post("/api/status-generate", async (req, res) => {
     If category is 'motivation', write a powerful 2-line motivational quote in Hindi/Hinglish.
     Ensure it is totally new, creative, elegant, and ready to share as a morning status! Do not repeat old generic quotes.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         systemInstruction: "You are the companion HansAI, writing beautiful, positive, and motivating daily WhatsApp status messages and poems for Indian students."
@@ -1644,7 +1646,7 @@ Generate exactly 5 nodes:
 - "x": integer percentage position on canvas (step 1: 50, step 2: 25, step 3: 75, step 4: 35, step 5: 50)
 - "y": integer percentage position on canvas (step 1: 15, step 2: 35, step 3: 55, step 4: 72, step 5: 88)`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1742,7 +1744,7 @@ Generate a valid JSON object matching this structure:
   ]
 }`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1845,7 +1847,7 @@ app.post("/api/news", async (req, res) => {
     Absolute prohibition of mixed language components or mechanical word-by-word copy translations. 
     Aspirants depend on this feed for real-world study; employ elite, fluid, natural, and professionally localized translation grammar.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -1913,7 +1915,7 @@ app.post("/api/study-plan", async (req, res) => {
     - weeklyPhases: 4 weekly phases detailing specific focus topics, practice mocks, and revision milestones
     - examTips: 3 strategic preparation tips in Hindi/Hinglish`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1978,7 +1980,7 @@ app.post("/api/flashcards", async (req, res) => {
     - back: Concise, precise answer or explanation (in Hindi/English)
     - category: subject tag`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2024,7 +2026,7 @@ app.post("/api/ocr-solve", async (req, res) => {
     - solution: Detailed step-by-step solution in Hindi/English
     - practiceMcqs: Array of 3 MCQs (question, options [4], answerIndex, explanation)`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: [
         {
           role: "user",
@@ -2091,7 +2093,7 @@ app.post("/api/audio-transcribe", async (req, res) => {
     - summary: 3-5 bullet points of key takeaways
     - subjectTag: Main subject area detected`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: [
         {
           role: "user",

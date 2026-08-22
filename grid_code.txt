@@ -1,0 +1,170 @@
+                          onClick={() => setActiveView('mnemonics')}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
+                        >
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">💡</span>
+                            <span className="px-1 py-0.5 rounded bg-amber-500/30 text-amber-200 text-[7px] font-black uppercase">10X Memory</span>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-black text-amber-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'AI निमोनिक्स ट्रिक्स' : 'AI Smart Mnemonics'}
+                            </div>
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'तारीखें, फॉर्मूले व अनुसूचियों की कविताएं' : 'Formulas, dates & GK rhymes'}
+                            </p>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('science-lab')}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-cyan-950/80 via-blue-950/50 to-slate-900 border border-cyan-500/50 hover:border-cyan-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20 active:scale-98"
+                        >
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">🔬</span>
+                            <span className="px-1 py-0.5 rounded bg-cyan-500/30 text-cyan-200 text-[7px] font-black uppercase">Interactive</span>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-black text-cyan-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'फॉर्मूला व साइंस लैब' : 'Science Formula Lab'}
+                            </div>
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'सर्किट, लेंस व पेंडुलम लाइव सिमुलेटर' : 'Circuit, Optics & Physics sim'}
+                            </p>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('neural-map')}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border border-emerald-500/50 hover:border-emerald-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
+                        >
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">🧠</span>
+                            <span className="px-1 py-0.5 rounded bg-emerald-500/30 text-emerald-200 text-[7px] font-black uppercase">Mind-Map</span>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-black text-emerald-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'AI न्यूरल मैप' : 'AI Neural Map'}
+                            </div>
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'विजुअल नोड्स व PYQ हाइलाइट्स' : 'Visual nodes & PYQ highlights'}
+                            </p>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('time-travel')}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
+                        >
+                          <div className="flex items-center justify-between w-full mb-0.5">
+                            <span className="text-sm">⏳</span>
+                            <span className="px-1 py-0.5 rounded bg-purple-500/30 text-purple-200 text-[7px] font-black uppercase">History</span>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-black text-purple-300 group-hover:text-white truncate">
+                              {language === 'hindi' ? 'काल-यात्रा सिमुलेटर' : 'Time-Travel Simulator'}
+                            </div>
+                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
+                              {language === 'hindi' ? 'भगत सिंह, गांधी, आंबेडकर से बातचीत' : 'Converse with historical figures'}
+                            </p>
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* ROW 2: 4 ESSENTIAL STUDY & PREP TOOLS */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full text-left mb-5">
+                        <button
+                          onClick={() => setActiveView('quiz')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
+                            🎯
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
+                              {language === 'hindi' ? 'ऑटो क्विज टेस्ट' : 'Chapter Quiz'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'PYQ व स्कोरकार्ड' : 'PYQ & Scorecard'}
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('book-reader')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-base">
+                            🎙️
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-emerald-300 truncate">
+                              {language === 'hindi' ? 'वॉइस रीडर' : 'Voice Reader'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'सुनें व समझें' : 'Listen & Learn'}
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setIsAllExamsSyllabusOpen(true)}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-base">
+                            📚
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-purple-300 truncate">
+                              {language === 'hindi' ? 'परीक्षा सिलेबस' : 'Exams Syllabus'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              10th, 12th, SSC, RRB
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setIsAppLauncherOpen(true)}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-cyan-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shrink-0 text-base">
+                            🌐
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 truncate">
+                              App Launcher
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              YouTube, Wikipedia
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* ROW 3: ADDITIONAL EXPERT TOOLS (Mock Interview & Analytics) */}
+                      <div className="grid grid-cols-2 gap-4 sm:gap-5 w-full text-left mb-2">
+                        <button
+                          onClick={() => setActiveView('mock-interview')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
+                            🎙️
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
+                              {language === 'hindi' ? 'AI मॉक इंटरव्यू' : 'AI Mock Interview'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'वाइवा व बोर्ड अभ्यास' : 'Viva & Board Practice'}
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('performance-analytics')}
+                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-rose-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center shrink-0 text-base">
+                            📊
+                          </div>
+                          <div className="overflow-hidden">

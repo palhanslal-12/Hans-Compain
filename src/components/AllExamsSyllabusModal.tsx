@@ -789,6 +789,14 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
 
   const activeExam = EXAM_SYLLABUS_DATA.find(e => e.id === selectedExamId) || filteredExams[0] || EXAM_SYLLABUS_DATA[0];
 
+  const handleDynamicSyllabusSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
+    const prompt = `Please provide the complete, detailed exam syllabus, paper pattern, marking scheme, and a structured 3-phase study strategy for the exam: "${searchQuery}". Organize it cleanly with bullet points and highlight the most important topics.`;
+    onSelectSyllabusPrompt(prompt);
+    onClose();
+  };
+
   const handleCopySyllabus = () => {
     if (!activeExam) return;
     const text = `📚 ${activeExam.name} Syllabus Summary:\nLevel: ${activeExam.level}\nPattern: ${activeExam.durationMarks}\nNegative Marking: ${activeExam.negativeMarking}\n\nSUBJECTS:\n` +
@@ -1097,16 +1105,27 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
 
         {/* Search & Filter Bar */}
         <div className="p-3 sm:p-4 border-b border-slate-800/80 bg-[#0A0E1A] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search exam (e.g., CGL, 10th, Railway, Steno)..."
-              className="w-full pl-9 pr-3 py-2 bg-[#03060E] border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
-            />
-          </div>
+          <form onSubmit={handleDynamicSyllabusSearch} className="relative w-full sm:w-80 flex items-center gap-2">
+            <div className="relative w-full">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search any exam (e.g., SSC JE, BPSC Teacher)..."
+                className="w-full pl-9 pr-3 py-2 bg-[#03060E] border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            {searchQuery.trim().length > 1 && (
+              <button
+                type="submit"
+                className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] rounded-xl flex items-center gap-1.5 whitespace-nowrap shadow-md"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Generate
+              </button>
+            )}
+          </form>
 
           {/* Category Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">

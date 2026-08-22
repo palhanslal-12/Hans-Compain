@@ -954,7 +954,7 @@ export default function App() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: currentName, email: currentEmail })
-          }).catch(console.error);
+          }).catch(console.warn);
         } else {
           // Sync visitor user in Firestore
           syncUserProfile({
@@ -1394,7 +1394,7 @@ export default function App() {
         query: query.trim()
       })
     })
-    .catch(err => console.error("Server activity log error", err));
+    .catch(err => console.warn("Server activity log error", err));
   };
 
   const deleteSpecificHistoryLog = (logId: string, title?: string) => {
@@ -1865,6 +1865,7 @@ export default function App() {
     setVoiceAssistantStatus("🔊 Speaking AI Response...");
 
     speakText(replyText, {
+      lang: selectedIndianVoiceLang,
       rate: 1.0,
       onEnd: () => {
         isVoiceAssistantSpeakingRef.current = false;
@@ -2291,29 +2292,56 @@ export default function App() {
 
     const formatInline = (text: string) => {
       if (!text) return "";
-      // Handle **bold** text
-      const boldParts = text.split(/(\*\*[^*]+\*\*)/g);
-      return boldParts.map((part, bIdx) => {
-        if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
-          const innerText = part.slice(2, -2);
+      
+      // Handle ==red== highlights
+      const redParts = text.split(/(==[^=]+==)/g);
+      return redParts.map((rPart, rIdx) => {
+        if (rPart.startsWith('==') && rPart.endsWith('==') && rPart.length > 4) {
+          const innerText = rPart.slice(2, -2);
           return (
-            <strong key={bIdx} className="font-bold text-amber-200/95">
+            <strong key={`r-${rIdx}`} className="bg-rose-500/20 text-rose-400 font-bold px-1.5 py-0.5 rounded border border-rose-500/30 mx-0.5 shadow-sm">
               {highlightInlineText(innerText)}
             </strong>
           );
         }
-        // Handle *italic* text
-        const italicParts = part.split(/(\*[^*]+\*)/g);
-        return italicParts.map((iPart, iIdx) => {
-          if (iPart.startsWith('*') && iPart.endsWith('*') && iPart.length > 2) {
-            const innerText = iPart.slice(1, -1);
+
+        // Handle ++green++ highlights
+        const greenParts = rPart.split(/(\+\+[^+]+\+\+)/g);
+        return greenParts.map((gPart, gIdx) => {
+          if (gPart.startsWith('++') && gPart.endsWith('++') && gPart.length > 4) {
+            const innerText = gPart.slice(2, -2);
             return (
-              <em key={iIdx} className="italic text-slate-200">
+              <strong key={`g-${gIdx}`} className="bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30 mx-0.5 shadow-sm">
                 {highlightInlineText(innerText)}
-              </em>
+              </strong>
             );
           }
-          return highlightInlineText(iPart);
+
+          // Handle **bold** text
+          const boldParts = gPart.split(/(\*\*[^*]+\*\*)/g);
+          return boldParts.map((part, bIdx) => {
+            if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+              const innerText = part.slice(2, -2);
+              return (
+                <strong key={bIdx} className="font-bold text-amber-200/95">
+                  {highlightInlineText(innerText)}
+                </strong>
+              );
+            }
+            // Handle *italic* text
+            const italicParts = part.split(/(\*[^*]+\*)/g);
+            return italicParts.map((iPart, iIdx) => {
+              if (iPart.startsWith('*') && iPart.endsWith('*') && iPart.length > 2) {
+                const innerText = iPart.slice(1, -1);
+                return (
+                  <em key={iIdx} className="italic text-slate-200">
+                    {highlightInlineText(innerText)}
+                  </em>
+                );
+              }
+              return highlightInlineText(iPart);
+            });
+          });
         });
       });
     };
@@ -5126,14 +5154,18 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <Menu className="w-5 h-5 text-indigo-400" />
           </button>
           
-          {/* Back Arrow Button (Only when in sub-views) */}
-          {activeView !== 'chat' && (
+          {/* Back Arrow Button (Visible in sub-views OR active chat) */}
+          {(activeView !== 'chat' || chatMessages.length > 0) && (
             <button
               onClick={() => {
-                setActiveView('chat');
+                if (activeView === 'chat') {
+                  startNewChat();
+                } else {
+                  setActiveView('chat');
+                }
               }}
-              className="p-2 bg-sky-500/20 hover:bg-sky-500/35 border border-sky-400/40 text-sky-200 hover:text-white rounded-xl text-xs font-extrabold flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
-              title="Return to Workspace"
+              className="p-1.5 sm:p-2 bg-sky-500/20 hover:bg-sky-500/35 border border-sky-400/40 text-sky-200 hover:text-white rounded-xl text-xs font-extrabold flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
+              title={activeView === 'chat' ? "Back to Homepage" : "Return to Workspace"}
             >
               <ArrowLeft className="w-4 h-4 text-sky-300" />
             </button>
@@ -6208,103 +6240,79 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
                       </div>
 
-                      {/* ROW 1: 4 AI ADVANCED POWER TOOLS */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full text-left mt-2 mb-2">
+                      {/* ROW 1: CORE DAILY LEARNING (WIDE BUTTONS) */}
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 w-full text-left mt-3 mb-3">
                         <button
                           onClick={() => setActiveView('mnemonics')}
-                          className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
                         >
-                          <div className="flex items-center justify-between w-full mb-0.5">
-                            <span className="text-sm">💡</span>
-                            <span className="px-1 py-0.5 rounded bg-amber-500/30 text-amber-200 text-[7px] font-black uppercase">10X Memory</span>
+                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 text-base">
+                            💡
                           </div>
-                          <div>
-                            <div className="text-[11px] font-black text-amber-300 group-hover:text-white truncate">
-                              {language === 'hindi' ? 'AI निमोनिक्स ट्रिक्स' : 'AI Smart Mnemonics'}
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-amber-300 truncate">
+                              {language === 'hindi' ? 'AI निमोनिक्स' : 'Smart Mnemonics'}
                             </div>
-                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
-                              {language === 'hindi' ? 'तारीखें, फॉर्मूले व अनुसूचियों की कविताएं' : 'Formulas, dates & GK rhymes'}
-                            </p>
+                            <div className="text-[9px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'तारीखें व कविताएं' : 'GK rhymes'}
+                            </div>
                           </div>
                         </button>
 
                         <button
                           onClick={() => setActiveView('science-lab')}
-                          className="p-2 sm:p-2.5 bg-gradient-to-br from-cyan-950/80 via-blue-950/50 to-slate-900 border border-cyan-500/50 hover:border-cyan-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20 active:scale-98"
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-cyan-950/80 via-blue-950/50 to-slate-900 border border-cyan-500/50 hover:border-cyan-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20 active:scale-98"
                         >
-                          <div className="flex items-center justify-between w-full mb-0.5">
-                            <span className="text-sm">🔬</span>
-                            <span className="px-1 py-0.5 rounded bg-cyan-500/30 text-cyan-200 text-[7px] font-black uppercase">Interactive</span>
+                          <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shrink-0 text-base">
+                            🔬
                           </div>
-                          <div>
-                            <div className="text-[11px] font-black text-cyan-300 group-hover:text-white truncate">
-                              {language === 'hindi' ? 'फॉर्मूला व साइंस लैब' : 'Science Formula Lab'}
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 truncate">
+                              {language === 'hindi' ? 'साइंस लैब' : 'Science Lab'}
                             </div>
-                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
-                              {language === 'hindi' ? 'सर्किट, लेंस व पेंडुलम लाइव सिमुलेटर' : 'Circuit, Optics & Physics sim'}
-                            </p>
+                            <div className="text-[9px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'सर्किट व सिमुलेटर' : 'Circuit & Physics sim'}
+                            </div>
                           </div>
                         </button>
 
                         <button
                           onClick={() => setActiveView('neural-map')}
-                          className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border border-emerald-500/50 hover:border-emerald-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border border-emerald-500/50 hover:border-emerald-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
                         >
-                          <div className="flex items-center justify-between w-full mb-0.5">
-                            <span className="text-sm">🧠</span>
-                            <span className="px-1 py-0.5 rounded bg-emerald-500/30 text-emerald-200 text-[7px] font-black uppercase">Mind-Map</span>
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-base">
+                            🧠
                           </div>
-                          <div>
-                            <div className="text-[11px] font-black text-emerald-300 group-hover:text-white truncate">
-                              {language === 'hindi' ? 'AI न्यूरल मैप' : 'AI Neural Map'}
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-bold text-slate-200 group-hover:text-emerald-300 truncate">
+                              {language === 'hindi' ? 'न्यूरल मैप' : 'Neural Map'}
                             </div>
-                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
-                              {language === 'hindi' ? 'विजुअल नोड्स व PYQ हाइलाइट्स' : 'Visual nodes & PYQ highlights'}
-                            </p>
+                            <div className="text-[9px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'विजुअल नोड्स' : 'Visual nodes & PYQ'}
+                            </div>
                           </div>
                         </button>
-
-                        <button
-                          onClick={() => setActiveView('time-travel')}
-                          className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex flex-col justify-between group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
-                        >
-                          <div className="flex items-center justify-between w-full mb-0.5">
-                            <span className="text-sm">⏳</span>
-                            <span className="px-1 py-0.5 rounded bg-purple-500/30 text-purple-200 text-[7px] font-black uppercase">History</span>
-                          </div>
-                          <div>
-                            <div className="text-[11px] font-black text-purple-300 group-hover:text-white truncate">
-                              {language === 'hindi' ? 'काल-यात्रा सिमुलेटर' : 'Time-Travel Simulator'}
-                            </div>
-                            <p className="text-[9px] text-slate-300 line-clamp-1 mt-0.5">
-                              {language === 'hindi' ? 'भगत सिंह, गांधी, आंबेडकर से बातचीत' : 'Converse with historical figures'}
-                            </p>
-                          </div>
-                        </button>
-                      </div>
-
-                      {/* ROW 2: 4 ESSENTIAL STUDY & PREP TOOLS */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full text-left mb-2">
+                        
                         <button
                           onClick={() => setActiveView('quiz')}
-                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                          className="p-2 sm:p-2.5 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
                           <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
                             🎯
                           </div>
                           <div className="overflow-hidden">
                             <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
-                              {language === 'hindi' ? 'ऑटो क्विज टेस्ट' : 'Chapter Quiz'}
+                              {language === 'hindi' ? 'ऑटो क्विज' : 'Chapter Quiz'}
                             </div>
-                            <div className="text-[10px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'PYQ व स्कोरकार्ड' : 'PYQ & Scorecard'}
+                            <div className="text-[9px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'स्कोरकार्ड' : 'PYQ & Scorecard'}
                             </div>
                           </div>
                         </button>
 
                         <button
                           onClick={() => setActiveView('book-reader')}
-                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                          className="p-2 sm:p-2.5 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
                           <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-base">
                             🎙️
@@ -6313,80 +6321,77 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             <div className="text-xs font-bold text-slate-200 group-hover:text-emerald-300 truncate">
                               {language === 'hindi' ? 'वॉइस रीडर' : 'Voice Reader'}
                             </div>
-                            <div className="text-[10px] text-slate-400 truncate">
+                            <div className="text-[9px] text-slate-400 truncate">
                               {language === 'hindi' ? 'सुनें व समझें' : 'Listen & Learn'}
                             </div>
                           </div>
                         </button>
-
+                        
                         <button
-                          onClick={() => setIsAllExamsSyllabusOpen(true)}
-                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                          onClick={() => setActiveView('time-travel')}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
                         >
                           <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-base">
-                            📚
+                            ⏳
                           </div>
                           <div className="overflow-hidden">
                             <div className="text-xs font-bold text-slate-200 group-hover:text-purple-300 truncate">
-                              {language === 'hindi' ? 'परीक्षा सिलेबस' : 'Exams Syllabus'}
+                              {language === 'hindi' ? 'काल-यात्रा' : 'Time-Travel Simulator'}
                             </div>
-                            <div className="text-[10px] text-slate-400 truncate">
-                              10th, 12th, SSC, RRB
-                            </div>
-                          </div>
-                        </button>
-
-                        <button
-                          onClick={() => setIsAppLauncherOpen(true)}
-                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-cyan-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shrink-0 text-base">
-                            🌐
-                          </div>
-                          <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 truncate">
-                              App Launcher
-                            </div>
-                            <div className="text-[10px] text-slate-400 truncate">
-                              YouTube, Wikipedia
+                            <div className="text-[9px] text-slate-400 truncate">
+                              {language === 'hindi' ? 'भगत सिंह' : 'Converse with history'}
                             </div>
                           </div>
                         </button>
                       </div>
 
-                      {/* ROW 3: ADDITIONAL EXPERT TOOLS (Mock Interview & Analytics) */}
-                      <div className="grid grid-cols-2 gap-4 sm:gap-5 w-full text-left mb-2">
+                      {/* ROW 2: OTHER UTILITIES (SQUARE BUTTONS) */}
+                      <div className="grid grid-cols-4 gap-2 sm:gap-3 w-full text-center mb-2">
+                        <button
+                          onClick={() => setIsAllExamsSyllabusOpen(true)}
+                          className="p-2 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 rounded-xl flex flex-col items-center justify-center gap-1 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-sm">
+                            📚
+                          </div>
+                          <div className="text-[9px] font-bold text-slate-300 group-hover:text-purple-300 leading-tight">
+                            Syllabus
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setIsAppLauncherOpen(true)}
+                          className="p-2 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-cyan-500/60 rounded-xl flex flex-col items-center justify-center gap-1 group cursor-pointer transition-all shadow-sm active:scale-98"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shrink-0 text-sm">
+                            🌐
+                          </div>
+                          <div className="text-[9px] font-bold text-slate-300 group-hover:text-cyan-300 leading-tight">
+                            Apps
+                          </div>
+                        </button>
+                        
                         <button
                           onClick={() => setActiveView('mock-interview')}
-                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                          className="p-2 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex flex-col items-center justify-center gap-1 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
+                          <div className="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-sm">
                             🎙️
                           </div>
-                          <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
-                              {language === 'hindi' ? 'AI मॉक इंटरव्यू' : 'AI Mock Interview'}
-                            </div>
-                            <div className="text-[10px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'वाइवा व बोर्ड अभ्यास' : 'Viva & Board Practice'}
-                            </div>
+                          <div className="text-[9px] font-bold text-slate-300 group-hover:text-indigo-300 leading-tight">
+                            Interview
                           </div>
                         </button>
 
                         <button
                           onClick={() => setActiveView('performance-analytics')}
-                          className="p-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-rose-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                          className="p-2 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-rose-500/60 rounded-xl flex flex-col items-center justify-center gap-1 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center shrink-0 text-base">
+                          <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center shrink-0 text-sm">
                             📊
                           </div>
-                          <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-slate-200 group-hover:text-rose-300 truncate">
-                              {language === 'hindi' ? 'परफॉरमेंस एनालिटिक्स' : 'Performance Analytics'}
-                            </div>
-                            <div className="text-[10px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'कमजोर विषय पहचानें' : 'Weak Area Diagnostics'}
-                            </div>
+                          <div className="text-[9px] font-bold text-slate-300 group-hover:text-rose-300 leading-tight">
+                            Analytics
                           </div>
                         </button>
                       </div>
@@ -6395,16 +6400,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   ) : (
                     /* ACTIVE CHAT MESSAGES THREAD (ChatGPT Style Header & Session Bar) */
                     <div className="flex-1 space-y-6 w-full max-w-5xl mx-auto mb-3 overflow-y-auto pr-1">
-                      {/* Simple Back Arrow (Top Left) to return to Home Grid */}
-                      <div className="flex items-start justify-start mb-2 px-1">
-                        <button
-                          onClick={() => startNewChat()}
-                          className="w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 flex items-center justify-center transition-all cursor-pointer shadow-md"
-                          title="Back to Home"
-                        >
-                          <ArrowLeft className="w-4 h-4" />
-                        </button>
-                      </div>
 
                       {chatMessages.map((msg) => (
                         <div 
@@ -12003,6 +11998,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   language={language}
                   showToast={showToast}
                   onExportPdf={handleExportPdf}
+                  onStartLiveChat={() => {
+                    setActiveView('chat');
+                    setChatInput("Start a live, unrecorded AI mock interview with me. Act as a strict interview board panel member. Ask me the first question and wait for my response.");
+                  }}
                 />
               </div>
             </ErrorBoundary>
@@ -12336,7 +12335,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ name, email })
-                    }).then(() => fetchOwnerAnalytics()).catch(console.error);
+                    }).then(() => fetchOwnerAnalytics()).catch(console.warn);
 
                     fetch('/api/users/log-activity', {
                       method: 'POST',
@@ -12347,7 +12346,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         type: 'login',
                         query: `Student Logged In (${name})`
                       })
-                    }).catch(console.error);
+                    }).catch(console.warn);
                     
                     showToast(`Successfully authenticated as ${name}! 🚀`, "success");
                   }}
@@ -12514,7 +12513,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       )}
 
       {/* NAVIGATION DRAWER/SIDEBAR (FUNCTIONAL & REVEAL ACTIVE VIEW) */}
-      {sidebarOpen && (
+      {sidebarOpen && activeView !== 'chat' && (
         <div className="fixed inset-0 z-50 flex font-sans text-left">
           {/* Backdrop blur click wrapper */}
           <div 

@@ -174,6 +174,15 @@ const INTERVIEW_PRESETS = [
         expectedKeywords: ['first aid', 'buddy system', 'shelter', 'calm leadership']
       }
     ]
+  },
+  {
+    id: 'live-dynamic',
+    title: 'Live Real-Time AI Interview (Unrecorded Dynamic)',
+    titleHi: 'लाइव रीयल-टाइम AI इंटरव्यू (कोई रिकॉर्डिंग नहीं, असली अनुभव)',
+    icon: '🔥',
+    description: 'Start a completely live, unpredictable interview directly with the voice AI agent.',
+    color: 'from-violet-600 to-violet-900',
+    questions: []
   }
 ];
 
@@ -181,12 +190,14 @@ interface MockInterviewViewProps {
   language: 'english' | 'hindi';
   showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warn') => void;
   onExportPdf?: (title: string, elementId?: string, rawText?: string) => void;
+  onStartLiveChat?: () => void;
 }
 
 export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
   language,
   showToast,
-  onExportPdf
+  onExportPdf,
+  onStartLiveChat
 }) => {
   const isHindi = language === 'hindi';
   const [selectedPresetId, setSelectedPresetId] = useState<string>('upsc');
@@ -198,6 +209,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
   const [rounds, setRounds] = useState<RoundRecord[]>([]);
   const [overallScore, setOverallScore] = useState<number>(0);
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
+  const [voiceSpeed, setVoiceSpeed] = useState<number>(1.0);
 
   const recognitionRef = useRef<any>(null);
   const timerIntervalRef = useRef<any>(null);
@@ -246,6 +258,13 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
 
   // Start Interview
   const handleStartInterview = (presetId: string) => {
+    if (presetId === 'live-dynamic') {
+      if (onStartLiveChat) {
+        onStartLiveChat();
+        return;
+      }
+    }
+
     setSelectedPresetId(presetId);
     setInterviewState('in_progress');
     setCurrentQuestionIndex(0);
@@ -274,7 +293,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
       gender,
       lang: isHindi ? 'hi-IN' : 'en-US',
       pitch: gender === 'female' ? 1.25 : 0.85,
-      rate: 0.95,
+      rate: voiceSpeed,
       onEnd: () => setIsPlayingAudio(false),
       onError: () => setIsPlayingAudio(false)
     });
@@ -429,6 +448,24 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
                 ? "UPSC, SSC, बैंकिंग और राज्य लोक सेवा आयोग के लिए रीयल-टाइम इंटरव्यू बोर्ड सिमुलेशन, वॉयस उत्तर और AI स्कोरकार्ड।"
                 : "Real-time AI Interview Board simulation for UPSC, Banking, SSC & Defense with voice input and in-depth performance analytics."}
             </p>
+            
+            {/* Speed Controller */}
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-[10px] text-slate-400 font-bold uppercase">Voice Speed:</span>
+              <div className="flex items-center gap-1 bg-[#0A0E1A] p-1 rounded-lg border border-slate-700/50">
+                {[0.75, 1.0, 1.25].map(speed => (
+                  <button
+                    key={speed}
+                    onClick={() => setVoiceSpeed(speed)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                      voiceSpeed === speed ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {speed}x
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {interviewState === 'in_progress' && (

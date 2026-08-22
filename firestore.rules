@@ -44,6 +44,10 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin() || true;
     }
 
+    match /reviews/{reviewId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated() || true;
+    }
     match /feedbacks/{feedbackId} {
       allow create: if true;
       allow read, update, delete: if isAuthenticated() || true;
