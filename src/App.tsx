@@ -42,6 +42,7 @@ import {
   Trash2,
   Folder,
   FolderPlus,
+  BookmarkPlus,
   Timer,
   Pause,
   RotateCcw,
@@ -92,6 +93,7 @@ import {
 import { INDIAN_LANGUAGES } from './utils/speechUtils';
 import { FiveStarFeedbackModal } from './components/FiveStarFeedbackModal';
 import { UpcomingFeaturesRoadmapModal } from './components/UpcomingFeaturesRoadmapModal';
+import { AcademicQuizStudio } from './components/AcademicQuizStudio';
 import { Message, QuizQuestion, SavedQuizRecord, MistakeNotebookItem, BusinessCalculation, BusinessResult } from './types';
 import { HELP_TOPICS, PITMAN_STROKES, PRESET_MOTIVATIONAL_RAPS } from './constants';
 import AboutCreator from './components/AboutCreator';
@@ -130,6 +132,8 @@ import { AiPublicRulesModal } from './components/AiPublicRulesModal';
 import { HansAiHelpGuideModal } from './components/HansAiHelpGuideModal';
 import { SystemDiagnosticsModal } from './components/SystemDiagnosticsModal';
 import { SarkariResultEligibilityHub } from './components/SarkariResultEligibilityHub';
+import { DailyStreakIndicator, recordDailyPracticeActivity } from './components/DailyStreakIndicator';
+import { QuickSaveNotesModal } from './components/QuickSaveNotesModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { generateStudyNotesPdf } from './utils/pdfGenerator';
 import {
@@ -1327,6 +1331,11 @@ export default function App() {
 
   const logUserActivity = (type: string, query: string) => {
     if (!query || !query.trim()) return;
+
+    // Advance and update daily study streak on active practice/actions
+    try {
+      recordDailyPracticeActivity();
+    } catch (e) {}
 
     let activeName = user?.name;
     let activeEmail = user?.email;
@@ -3473,6 +3482,40 @@ export default function App() {
   const [newFolderNameInput, setNewFolderNameInput] = useState<string>("");
   const [newFolderEmojiInput, setNewFolderEmojiInput] = useState<string>("📁");
 
+  // Quick Save Floating Action & Modal State for Highlighted Chat Text
+  const [isQuickSaveModalOpen, setIsQuickSaveModalOpen] = useState<boolean>(false);
+  const [quickSaveSelectedText, setQuickSaveSelectedText] = useState<string>("");
+  const [floatingSelectionPos, setFloatingSelectionPos] = useState<{ x: number; y: number } | null>(null);
+
+  // Quick Save handler: create folder dynamically
+  const handleQuickCreateFolder = (folderName: string, folderEmoji: string = '📁'): string => {
+    const cleanName = folderName.trim();
+    if (!cleanName) return 'general';
+    const newId = `folder-${Date.now()}`;
+    const newFolder = {
+      id: newId,
+      name: cleanName,
+      emoji: folderEmoji || '📁',
+      color: 'pink'
+    };
+    setFolders(prev => [...prev, newFolder]);
+    return newId;
+  };
+
+  // Quick Save handler: save note into chosen folder
+  const handleQuickSaveNote = (noteData: { folderId: string; title: string; content: string; tags: string[] }) => {
+    const newNote = {
+      id: `note-${Date.now()}`,
+      folderId: noteData.folderId || 'general',
+      title: noteData.title || (language === 'hindi' ? 'अध्ययन नोट्स' : 'Study Note'),
+      content: noteData.content,
+      tags: noteData.tags && noteData.tags.length > 0 ? noteData.tags : ['QuickSave', 'GK'],
+      createdAt: new Date().toISOString()
+    };
+    setNotes(prev => [newNote, ...prev]);
+    showToast(language === 'hindi' ? '✨ नोट्स स्मार्ट फ़ोल्डर में सुरक्षित सेव हो गया!' : '✨ Saved to Notes folder successfully!', 'success');
+  };
+
   // 2. Study & Shorthand Timer state
   const [timerPresetVal, setTimerPresetVal] = useState<number>(10); // user specifies limits (in minutes)
   const [timeLeft, setTimeLeft] = useState<number>(600); // countdown seconds
@@ -4137,6 +4180,16 @@ export default function App() {
 
   // Missing Scroll bottom ref for chat
   const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom whenever a new chat message is appended or during loading
+  useEffect(() => {
+    if (chatMessages.length > 0 || isChatLoading) {
+      const scrollTimer = setTimeout(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 50);
+      return () => clearTimeout(scrollTimer);
+    }
+  }, [chatMessages, isChatLoading]);
 
   const handleGenerateConceptMap = async (topicStr?: string) => {
     const rawTopic = topicStr || conceptMapTopic;
@@ -5180,6 +5233,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         {/* Header Right Actions - Responsive Mobile Options Menu */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
+          {/* Quick Daily Streak Indicator in Header */}
+          <DailyStreakIndicator 
+            variant="badge" 
+            language={language} 
+            onNavigateToView={(view) => setActiveView(view)} 
+          />
+
           {/* Quick Return to Chat button if inside sub-view */}
           {activeView !== 'chat' && (
             <button
@@ -5217,19 +5277,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
       {/* HEADER QUICK OPTIONS & 4 THEMES DROPDOWN POPOVER */}
       {isHeaderMenuOpen && (
-        <div className="fixed top-16 right-2 sm:right-6 z-50 w-80 max-w-[92vw] bg-[#0A0F1D] border-2 border-indigo-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-xl animate-fade-in space-y-4 text-left">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <h3 className="text-xs font-extrabold text-white flex items-center gap-1.5">
-              <span>⚙️</span>
-              <span>HansAI Settings & Tools</span>
-            </h3>
-            <button 
-              onClick={() => setIsHeaderMenuOpen(false)}
-              className="text-slate-400 hover:text-white text-xs font-bold p-1 rounded-lg hover:bg-slate-800"
-            >
-              ✕
-            </button>
-          </div>
+        <>
+          {/* Backdrop overlay to dismiss on outside click */}
+          <div 
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm animate-fade-in"
+            onClick={() => setIsHeaderMenuOpen(false)}
+          />
+          
+          <div className="fixed top-14 right-2 sm:right-6 z-50 w-84 max-w-[94vw] max-h-[calc(100vh-4.5rem)] overflow-y-auto overscroll-contain bg-[#0A0F1D] border-2 border-indigo-500/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl animate-fade-in space-y-4 text-left custom-scrollbar">
+            <div className="sticky -top-4 -mx-4 px-4 pt-3.5 pb-2.5 bg-[#0A0F1D]/95 backdrop-blur-md z-20 flex items-center justify-between border-b border-slate-800 rounded-t-2xl shadow-sm">
+              <h3 className="text-xs font-extrabold text-white flex items-center gap-1.5">
+                <span>⚙️</span>
+                <span>HansAI Settings & Tools</span>
+              </h3>
+              <button 
+                onClick={() => setIsHeaderMenuOpen(false)}
+                className="text-slate-400 hover:text-white text-xs font-bold p-1 px-2 rounded-lg hover:bg-slate-800 transition-colors"
+                title="Close settings"
+              >
+                ✕
+              </button>
+            </div>
 
           {/* 4 Theme Color Selectors (As Requested by User) */}
           <div className="space-y-2">
@@ -5336,65 +5404,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           </div>
 
-          {/* 🌟 USER VOICE & FEEDBACK CONTROLS */}
+          {/* 🔊 VOICE & DISPLAY SETTINGS */}
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
             <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider block">
-              ⭐ {language === 'hindi' ? 'फीडबैक, वॉयस एवं फॉन्ट:' : 'Feedback, Voice & Font:'}
+              🔊 {language === 'hindi' ? 'वॉयस एवं डिस्प्ले सेटिंग्स:' : 'Voice & Display Settings:'}
             </span>
-
-            {/* 5-Star Feedback & Suggestions Button */}
-            <button
-              onClick={() => {
-                setFeedbackInitialContext('HansAI Main Platform & App');
-                setIsFiveStarFeedbackOpen(true);
-                setIsHeaderMenuOpen(false);
-              }}
-              className="w-full p-2.5 bg-gradient-to-r from-amber-950/80 to-yellow-950/80 hover:from-amber-900 hover:to-yellow-900 border border-amber-500/50 rounded-xl text-amber-200 flex items-center justify-between transition-all cursor-pointer text-left"
-            >
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
-                <span className="font-bold">{language === 'hindi' ? '⭐ 5-स्टार फीडबैक व सुझाव दें' : '⭐ 5-Star Feedback & Suggestions'}</span>
-              </div>
-              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">
-                Review ⭐
-              </span>
-            </button>
-
-            {/* Upcoming Roadmap Modal (Speed Reply, Current Affairs, QR Scanner) */}
-            <button
-              onClick={() => {
-                setIsRoadmapModalOpen(true);
-                setIsHeaderMenuOpen(false);
-              }}
-              className="w-full p-2.5 bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 hover:from-cyan-900 hover:to-indigo-900 border border-cyan-500/50 rounded-xl text-cyan-200 flex items-center justify-between transition-all cursor-pointer text-left"
-            >
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-cyan-400 shrink-0 animate-pulse" />
-                <span className="font-bold">{language === 'hindi' ? '🚀 आगामी योजनाएं (Speed Reply / QR)' : '🚀 Upcoming Features & Roadmap'}</span>
-              </div>
-              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded font-mono">
-                Plans 🚀
-              </span>
-            </button>
-
-            {/* Public AI Usage Rules & Guidelines Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsAiRulesModalOpen(true);
-                setIsHeaderMenuOpen(false);
-              }}
-              className="w-full p-2.5 bg-gradient-to-r from-slate-900 to-indigo-950 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 rounded-xl text-xs font-bold flex items-center justify-between transition-all shadow-sm cursor-pointer text-left"
-              title="Public AI Usage Rules, Governance & Fair Use Guidelines"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm">⚖️</span>
-                <span>{language === 'hindi' ? '⚖️ पब्लिक एआई उपयोग नियम व निर्देश' : '⚖️ Public AI Usage Rules & Guidelines'}</span>
-              </div>
-              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">
-                Rules ⚖️
-              </span>
-            </button>
 
             {/* Auto Voice Response Toggle */}
             <div className="p-2.5 bg-slate-900/90 border border-indigo-500/30 rounded-xl flex items-center justify-between">
@@ -5475,11 +5489,46 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
           </div>
 
-          {/* Official AI Assistant Guide & Public Rules Section */}
+          {/* 🛠️ TOOLS, ROADMAP & FEEDBACK */}
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
             <span className="text-[10px] font-black uppercase text-indigo-400 tracking-wider block">
-              🤖 {language === 'hindi' ? 'सहायता व आधिकारिक नियम:' : 'Help & Official Rules:'}
+              🛠️ {language === 'hindi' ? 'टूल्स, फीडबैक व सहायता:' : 'Tools, Feedback & Help:'}
             </span>
+
+            {/* 5-Star Feedback & Suggestions Button */}
+            <button
+              onClick={() => {
+                setFeedbackInitialContext('HansAI Main Platform & App');
+                setIsFiveStarFeedbackOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-amber-950/80 to-yellow-950/80 hover:from-amber-900 hover:to-yellow-900 border border-amber-500/50 rounded-xl text-amber-200 flex items-center justify-between transition-all cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
+                <span className="font-bold">{language === 'hindi' ? '⭐ 5-स्टार फीडबैक व सुझाव दें' : '⭐ 5-Star Feedback & Suggestions'}</span>
+              </div>
+              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">
+                Review ⭐
+              </span>
+            </button>
+
+            {/* Upcoming Roadmap Modal (Speed Reply, Current Affairs, QR Scanner) */}
+            <button
+              onClick={() => {
+                setIsRoadmapModalOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 hover:from-cyan-900 hover:to-indigo-900 border border-cyan-500/50 rounded-xl text-cyan-200 flex items-center justify-between transition-all cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-cyan-400 shrink-0 animate-pulse" />
+                <span className="font-bold">{language === 'hindi' ? '🚀 आगामी योजनाएं (Speed Reply / QR)' : '🚀 Upcoming Features & Roadmap'}</span>
+              </div>
+              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded font-mono">
+                Plans 🚀
+              </span>
+            </button>
 
             {/* AI Assistant Help Guide (Explains every feature to avoid confusion) */}
             <button
@@ -5515,17 +5564,19 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </span>
             </button>
 
-            {/* Public AI Rules & Safety Guidelines */}
+            {/* Public AI Rules & Safety Guidelines (Clean single entry) */}
             <button
+              type="button"
               onClick={() => {
                 setIsAiRulesModalOpen(true);
                 setIsHeaderMenuOpen(false);
               }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-slate-200 flex items-center justify-between transition-all cursor-pointer text-left"
+              className="w-full p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 rounded-xl text-xs font-bold flex items-center justify-between transition-all shadow-sm cursor-pointer text-left"
+              title="Public AI Usage Rules, Governance & Fair Use Guidelines"
             >
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>{language === 'hindi' ? '⚖️ पब्लिक AI नियम व सेफ्टी' : '⚖️ Public AI Rules & Terms'}</span>
+                <span>{language === 'hindi' ? '⚖️ पब्लिक AI उपयोग नियम व निर्देश' : '⚖️ Public AI Usage Rules & Guidelines'}</span>
               </div>
               <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono">
                 Rules 🛡️
@@ -5597,6 +5648,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             )}
           </div>
         </div>
+        </>
       )}
 
       {/* Offline Status Top Banner */}
@@ -5726,6 +5778,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <X className="w-4 h-4" />
                     </button>
                   </div>
+
+                  {/* DAILY STUDY STREAK INDICATOR */}
+                  <DailyStreakIndicator 
+                    language={language}
+                    variant="card"
+                    onNavigateToView={(view) => {
+                      setActiveView(view);
+                      if (window.innerWidth < 1024) setSidebarOpen(false);
+                    }}
+                  />
 
                   {/* Intro & Feature Carousel Replay Trigger */}
                   <button
@@ -6153,13 +6215,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               {/* RIGHT MAIN CHAT AREA (ChatGPT / Gemini style viewport centered layout) */}
               <div className={`flex-1 flex flex-col h-full overflow-hidden ${themeColors.bgMain} relative transition-colors duration-300`}>
 
-                {/* Google AdSense Responsive Placement (Shown during active chat messages) */}
-                {chatMessages.length > 0 && (
-                  <GoogleAdSenseBanner slotId="hansai-top-chat-slot" className="px-3 shrink-0" />
-                )}
-
-                {/* MAIN CHAT CONTENT AREA */}
-                <div className="flex-1 min-h-0 flex flex-col w-full max-w-6xl mx-auto p-2 sm:p-3 overflow-y-auto scrollbar-thin">
+                {/* MAIN CHAT CONTENT AREA (Robust auto-scroll viewport) */}
+                <div className="chat-interface-view flex flex-col h-full w-full max-w-6xl mx-auto p-2 sm:p-3 overflow-y-auto scrollbar-thin">
                   
                   {/* Hands-Free Voice Assistant Active Status Banner */}
                   {isVoiceAssistantActive && (
@@ -6209,7 +6266,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   
                   {/* NEW CHAT WELCOME STATE (Clean A4 / Single-Screen No-Scroll Viewport Layout) */}
                   {chatMessages.length === 0 ? (
-                    <div className="flex-1 flex flex-col justify-between max-w-5xl mx-auto w-full py-1 px-1 text-center animate-fade-in select-none overflow-hidden">
+                    <div className="flex-1 min-h-0 flex flex-col justify-between max-w-5xl mx-auto w-full py-1 px-1 text-center animate-fade-in select-none overflow-y-auto sm:overflow-hidden scrollbar-none">
                       
                       {/* Logo and Greeting - Prominent & Sleek */}
                       <div className="flex flex-col items-center space-y-1 my-auto">
@@ -6399,7 +6456,81 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </div>
                   ) : (
                     /* ACTIVE CHAT MESSAGES THREAD (ChatGPT Style Header & Session Bar) */
-                    <div className="flex-1 space-y-6 w-full max-w-5xl mx-auto mb-3 overflow-y-auto pr-1">
+                    <div 
+                      className="flex-1 min-h-0 space-y-6 w-full max-w-5xl mx-auto mb-2 overflow-y-auto pr-1 relative scrollbar-thin"
+                      onMouseUp={() => {
+                        const selection = window.getSelection();
+                        if (selection && !selection.isCollapsed) {
+                          const text = selection.toString().trim();
+                          if (text.length > 3) {
+                            try {
+                              const range = selection.getRangeAt(0);
+                              const rect = range.getBoundingClientRect();
+                              setQuickSaveSelectedText(text);
+                              setFloatingSelectionPos({
+                                x: Math.max(10, Math.min(window.innerWidth - 180, rect.left + rect.width / 2)),
+                                y: Math.max(10, rect.top - 12)
+                              });
+                              return;
+                            } catch (e) {}
+                          }
+                        }
+                        // Don't auto clear immediately if clicked inside floating toolbar
+                      }}
+                    >
+
+                      {/* FLOATING QUICK-SAVE ACTION BUTTON ON HIGHLIGHTED TEXT */}
+                      {floatingSelectionPos && quickSaveSelectedText && (
+                        <div
+                          style={{
+                            position: 'fixed',
+                            left: `${floatingSelectionPos.x}px`,
+                            top: `${floatingSelectionPos.y}px`,
+                            transform: 'translate(-50%, -100%)',
+                            zIndex: 45
+                          }}
+                          className="animate-fade-in flex items-center gap-1.5 p-1.5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white rounded-2xl shadow-2xl shadow-pink-900/50 border border-white/20 select-none cursor-pointer"
+                        >
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsQuickSaveModalOpen(true);
+                              setFloatingSelectionPos(null);
+                            }}
+                            className="px-3 py-1.5 bg-white/10 hover:bg-white/20 active:scale-95 rounded-xl text-xs font-black flex items-center gap-1.5 text-white transition-all cursor-pointer border-none"
+                            title="Save this highlighted snippet directly into your Notes Folder"
+                          >
+                            <BookmarkPlus className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
+                            <span>{language === 'hindi' ? 'Quick Save 📑' : 'Quick Save 📑'}</span>
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(quickSaveSelectedText);
+                              showToast(language === 'hindi' ? '📋 हाइलाइट किया गया टेक्स्ट कॉपी हुआ!' : '📋 Highlighted text copied!', 'info');
+                              setFloatingSelectionPos(null);
+                            }}
+                            className="p-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all cursor-pointer border-none"
+                            title="Copy highlighted text"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFloatingSelectionPos(null);
+                            }}
+                            className="p-1 hover:bg-white/20 text-white/70 hover:text-white rounded-lg transition-colors cursor-pointer border-none"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
 
                       {chatMessages.map((msg) => (
                         <div 
@@ -6471,6 +6602,23 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                 <Download className="w-3 h-3 text-cyan-400" />
                                 <span>📥 PDF / डाउनलोड</span>
                               </button>
+                              
+                              {/* Quick Save to Notes Smart Folders */}
+                              <button
+                                onClick={() => {
+                                  const selection = window.getSelection()?.toString().trim();
+                                  const textToSave = (selection && selection.length > 3) ? selection : msg.content;
+                                  setQuickSaveSelectedText(textToSave);
+                                  setIsQuickSaveModalOpen(true);
+                                  setFloatingSelectionPos(null);
+                                }}
+                                className="flex items-center gap-1 hover:text-pink-300 transition-colors py-0.5 px-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/30 rounded-md cursor-pointer font-bold"
+                                title="Quick Save full response or highlighted text directly into Notes & Folders"
+                              >
+                                <BookmarkPlus className="w-3 h-3 text-pink-400" />
+                                <span>📑 Quick Save / नोट्स</span>
+                              </button>
+
                               <button
                                 onClick={() => handleCopyMessage(msg.id, msg.content)}
                                 className="flex items-center gap-1 hover:text-indigo-400 transition-colors py-0.5 px-1.5 hover:bg-slate-800/40 rounded-md border-none bg-transparent cursor-pointer text-slate-400"
@@ -6601,7 +6749,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   )}
 
                   {/* FIXED CHAT INPUT AREA AT BOTTOM (Full Width Spacious Box with Camera Upload & Multi-Image Support) */}
-                  <div className="max-w-5xl w-full mx-auto pt-2 pb-2">
+                  <div className="shrink-0 max-w-5xl w-full mx-auto pt-1 pb-1">
                     {/* Attached Multiple Images Previews (Up to 3 images) */}
                     {chatAttachedImages.length > 0 && (
                       <div className="mb-2 p-2 rounded-2xl bg-slate-900/90 border border-indigo-500/40 flex flex-wrap items-center gap-2 animate-fade-in">
@@ -6871,8 +7019,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           </div>
       )}
 
-          {/* VIEW: ACADEMIC QUIZ GENERATOR (MODERN FRESH INTERFACE) */}
+          {/* VIEW: ACADEMIC QUIZ GENERATOR & PYQ STUDIO (ADDA247 / TCS ION PATTERN) */}
           {activeView === 'quiz' && (
+            <div className="p-3 sm:p-6 w-full">
+              <AcademicQuizStudio
+                language={language}
+                showToast={showToast}
+                onExportPdf={(title, elementId, rawText) => {
+                  generateStudyNotesPdf({
+                    title: title || 'Academic Test Solution',
+                    content: rawText || '',
+                    language: language === 'hindi' ? 'hindi' : 'english'
+                  });
+                }}
+                mistakeNotebook={mistakeNotebook}
+                onAddToMistakeNotebook={(item) => handleSaveMistakeToNotebook(item)}
+              />
+            </div>
+          )}
+
+          {/* LEGACY QUIZ FALLBACK (DISABLED) */}
+          {false && activeView === 'quiz' && (
             <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
               <div className="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
@@ -12541,7 +12708,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </div>
 
             {/* NEW CHAT BUTTON AT THE VERY TOP */}
-            <div className="pt-4 pb-2 border-b border-slate-850/50">
+            <div className="pt-4 pb-2 border-b border-slate-850/50 space-y-2.5">
+              {/* Daily Streak Indicator */}
+              <DailyStreakIndicator 
+                language={language}
+                variant="card"
+                onNavigateToView={(view) => {
+                  setActiveView(view);
+                  setSidebarOpen(false);
+                }}
+              />
+
               <button
                 onClick={() => {
                   setSidebarOpen(false);
@@ -13794,6 +13971,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         isOpen={isFiveStarFeedbackOpen}
         onClose={() => setIsFiveStarFeedbackOpen(false)}
         language={language}
+        user={user}
+        onOpenLogin={() => setIsAuthLoginOpen(true)}
         initialContext={feedbackInitialContext}
         onFeedbackSubmitted={(data) => {
           showToast(language === 'hindi' ? `⭐ आपका ${data.stars}-स्टार फीडबैक व सुझाव दर्ज कर लिया गया है!` : `⭐ Thank you! Your ${data.stars}-star feedback & review was recorded!`, 'success');
@@ -13809,6 +13988,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           if (featureId === 'chat' || featureId === 'quiz' || featureId === 'shorthand' || featureId === 'study-plan' || featureId === 'flashcards' || featureId === 'music-studio' || featureId === 'weather-alerts' || featureId === 'store' || featureId === 'security-hub') {
             setActiveView(featureId as any);
           }
+        }}
+      />
+
+      {/* 📑 QUICK SAVE TO NOTES SMART FOLDERS MODAL */}
+      <QuickSaveNotesModal
+        isOpen={isQuickSaveModalOpen}
+        onClose={() => {
+          setIsQuickSaveModalOpen(false);
+          setFloatingSelectionPos(null);
+        }}
+        selectedText={quickSaveSelectedText}
+        folders={folders}
+        language={language}
+        onSaveNote={handleQuickSaveNote}
+        onCreateFolder={handleQuickCreateFolder}
+        onOpenNotesView={() => {
+          setIsQuickSaveModalOpen(false);
+          setActiveView('notes-ocr' as any);
         }}
       />
 
