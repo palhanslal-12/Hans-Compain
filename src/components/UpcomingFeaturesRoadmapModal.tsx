@@ -92,10 +92,11 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
             </div>
           </div>
 
-          {/* Feature 2: Current Affairs (Coming Soon) */}
+          {/* Feature 2: Current Affairs (NOW ACTIVE) */}
           <div className="bg-gradient-to-br from-indigo-950/40 via-slate-900/90 to-slate-900 border border-indigo-500/40 rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
-            <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/20 border border-amber-500/50 rounded-full text-[11px] font-bold text-amber-300">
-              <span>⏳ Comming Soon.....</span>
+            <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/50 rounded-full text-[11px] font-bold text-emerald-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>LIVE & AVAILABLE NOW</span>
             </div>
 
             <div className="flex items-start gap-3.5">
@@ -109,23 +110,36 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
                 <p className="text-xs text-slate-300 leading-relaxed">
                   दैनिक राष्ट्रीय व अंतर्राष्ट्रीय करंट अफेयर्स, परीक्षा उपयोगी 1-लाइनर फैक्ट्स, साप्ताहिक क्विज़ और स्टेट लेवल बुलेटिन (हिंदी, इंग्लिश एवं क्षेत्रीय भाषाओं में)।
                 </p>
-                <div className="pt-2 flex items-center gap-2">
+                <div className="pt-2 flex flex-wrap items-center gap-2">
+                  {onLaunchFeature && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onLaunchFeature('current-affairs');
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-indigo-600/30 cursor-pointer border-none"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-300" />
+                      <span>करंट अफेयर्स हब खोलें (Open Hub) →</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => handleNotifyMe('Current Affairs')}
-                    className="px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/50 text-indigo-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                    className="px-3 py-1.5 rounded-lg bg-indigo-950 hover:bg-indigo-900 border border-indigo-500/30 text-indigo-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
                   >
                     <Bell className="w-3.5 h-3.5 text-amber-300" />
-                    {subscribedFeature === 'Current Affairs' ? 'नोटिफिकेशन सेट हो गया ✅' : 'रिलीज़ अलर्ट सेट करें (Notify Me)'}
+                    {subscribedFeature === 'Current Affairs' ? 'नोटिफिकेशन सेट हो गया ✅' : 'डेली अलर्ट'}
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Feature 3: QR Scanner (Coming Soon) */}
+          {/* Feature 3: QR Scanner (NOW ACTIVE) */}
           <div className="bg-gradient-to-br from-cyan-950/40 via-slate-900/90 to-slate-900 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
-            <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/20 border border-amber-500/50 rounded-full text-[11px] font-bold text-amber-300">
-              <span>⏳ Comming Soon.....</span>
+            <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/50 rounded-full text-[11px] font-bold text-emerald-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>LIVE & AVAILABLE NOW</span>
             </div>
 
             <div className="flex items-start gap-3.5">
@@ -139,13 +153,25 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
                 <p className="text-xs text-slate-300 leading-relaxed">
                   किताबों के QR कोड, स्टडी नोट्स, और क्वेश्चन पेपर्स को तुरंत स्कैन करके सीधा HansAI में खोलें और वॉइस से व्याख्या सुनें।
                 </p>
-                <div className="pt-2 flex items-center gap-2">
+                <div className="pt-2 flex flex-wrap items-center gap-2">
+                  {onLaunchFeature && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onLaunchFeature('qr-scanner');
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-xs font-black flex items-center gap-1.5 transition-all shadow-md shadow-cyan-600/30 cursor-pointer border-none"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>QR स्कैनर खोलें (Open Scanner) →</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => handleNotifyMe('QR Scanner')}
-                    className="px-3 py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/50 text-cyan-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                    className="px-3 py-1.5 rounded-lg bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/30 text-cyan-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
                   >
                     <Bell className="w-3.5 h-3.5 text-amber-300" />
-                    {subscribedFeature === 'QR Scanner' ? 'नोटिफिकेशन सेट हो गया ✅' : 'रिलीज़ अलर्ट सेट करें (Notify Me)'}
+                    {subscribedFeature === 'QR Scanner' ? 'नोटिफिकेशन सेट हो गया ✅' : 'डेली अलर्ट'}
                   </button>
                 </div>
               </div>

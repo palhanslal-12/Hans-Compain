@@ -9465,4550 +9465,195 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       setTimerSubTab('clock');
                       showToast("Smart Study Timer Active ‚è±Ô∏è", "success");
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      timerSubTab === 'clock'
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    ‚è±Ô∏è Study Timer
-                  </button>
-                  <button
-                    onClick={() => {
-                      setTimerSubTab('projects');
-                      showToast("Audio Recorder & Projects Active üéôÔ∏è", "success");
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      timerSubTab === 'projects'
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    üéôÔ∏è Voice & Projects
-                  </button>
-                </div>
-              </div>
-
-              {timerSubTab === 'clock' ? (
-                /* TAB 1: SMART STUDY TIMER WITH SHORTHAND KEYBOARD & DRAFT AUTO-SAVE */
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-in">
-                  
-                  {/* Left Column: Clock and Settings */}
-                  <div className="lg:col-span-5 bg-slate-900/50 border border-slate-850 rounded-2xl p-6 space-y-6 text-left">
-                    <div className="text-center space-y-4">
-                      <span className="text-[10px] uppercase font-black tracking-widest text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full leading-none inline-block">
-                        {isTimerRunning ? "‚ö° Focus Session In Progress" : "‚è±Ô∏è Session Idle"}
-                      </span>
-
-                      {/* Giant digital glowing countdown clock */}
-                      <div className="py-6 flex justify-center">
-                        <div className="relative w-48 h-48 rounded-full border-4 border-indigo-500/20 flex flex-col items-center justify-center bg-[#03060E] shadow-2xl shadow-indigo-500/5">
-                          {/* Pulsing ring during ticking */}
-                          {isTimerRunning && (
-                            <div className="absolute inset-0 rounded-full border border-indigo-400 animate-ping opacity-15" />
-                          )}
-                          <span className="text-4xl font-mono font-black text-white tracking-widest">
-                            {Math.floor(timeLeft / 60).toString().padStart(2, "0")}:
-                            {(timeLeft % 60).toString().padStart(2, "0")}
-                          </span>
-                          <span className="text-[10px] text-slate-500 font-bold uppercase mt-1">
-                            Target: {timerPresetVal} Mins
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Main Playback Controls */}
-                      <div className="flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => {
-                            setIsTimerRunning(!isTimerRunning);
-                            showToast(isTimerRunning ? "Timer Paused / ‡§∞‡•Å‡§ï‡§æ ‡§π‡•Å‡§Ü ‚è∏Ô∏è" : "Study Timer Started / ‡§ö‡§æ‡§≤‡•Ç ‚è±Ô∏è", "info");
-                          }}
-                          className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 cursor-pointer ${
-                            isTimerRunning 
-                              ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/10' 
-                              : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-500/10'
-                          }`}
-                        >
-                          {isTimerRunning ? "‚è∏Ô∏è Pause Session" : "‚ñ∂Ô∏è Start Focus"}
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setIsTimerRunning(false);
-                            setTimeLeft(timerPresetVal * 60);
-                            showToast("Timer Reset / ‡§¶‡•ã‡§¨‡§æ‡§∞‡§æ ‡§∞‡•Ä‡§∏‡•á‡§ü ‡§ï‡§ø‡§Ø‡§æ ‡§ó‡§Ø‡§æ ‚è±Ô∏è", "info");
-                          }}
-                          className="px-4 py-2.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-700"
-                        >
-                          üîÑ Reset
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Quick Preset Selector Chips & Custom Alarm Inputs */}
-                    <div className="space-y-3 border-t border-slate-850 pt-4">
-                      <div>
-                        <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">
-                          Alarm Label / ‡§Ö‡§≤‡§æ‡§∞‡•ç‡§Æ ‡§ï‡§æ ‡§®‡§æ‡§Æ
-                        </label>
-                        <input
-                          type="text"
-                          value={timerAlarmTitle}
-                          onChange={(e) => setTimerAlarmTitle(e.target.value)}
-                          placeholder="e.g. Shorthand Practice / Polity Revision / 20 MCQs"
-                          className="w-full text-xs bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-slate-200 outline-none focus:border-indigo-500 font-sans"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] text-slate-400 font-bold uppercase block">Quick Alarm Presets / ‡§ï‡•ç‡§µ‡§ø‡§ï ‡§Ö‡§≤‡§æ‡§∞‡•ç‡§Æ</label>
-                        <div className="grid grid-cols-4 gap-1.5">
-                          {[1, 5, 10, 15, 25, 30, 45, 60].map((mins) => (
-                            <button
-                              key={mins}
-                              onClick={() => {
-                                setIsTimerRunning(false);
-                                setTimerPresetVal(mins);
-                                setTimeLeft(mins * 60);
-                                showToast(`Alarm set for ${mins} Mins ‚è±Ô∏è`, "success");
-                              }}
-                              className={`py-2 rounded-lg text-[10px] font-bold text-center border transition-all cursor-pointer ${
-                                timerPresetVal === mins && timeLeft === mins * 60
-                                  ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
-                                  : 'border-slate-850 bg-slate-950 text-slate-400 hover:border-slate-700'
-                              }`}
-                            >
-                              {mins}m
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Custom Minutes & Seconds Input */}
-                      <div className="p-3 bg-[#03060E] border border-slate-850 rounded-xl space-y-2">
-                        <span className="text-[10px] text-slate-400 font-bold uppercase block">Custom Alarm Time (Custom Min & Sec)</span>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min="0"
-                            max="300"
-                            placeholder="Mins (e.g. 3)"
-                            value={customAlarmMinutes}
-                            onChange={(e) => setCustomAlarmMinutes(e.target.value)}
-                            className="w-1/2 text-xs bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg text-white outline-none focus:border-indigo-500"
-                          />
-                          <span className="text-slate-500 text-xs font-bold">:</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="59"
-                            placeholder="Secs (e.g. 30)"
-                            value={customAlarmSeconds}
-                            onChange={(e) => setCustomAlarmSeconds(e.target.value)}
-                            className="w-1/2 text-xs bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg text-white outline-none focus:border-indigo-500"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const m = parseInt(customAlarmMinutes || "0", 10);
-                              const s = parseInt(customAlarmSeconds || "0", 10);
-                              const totalSecs = (m * 60) + s;
-                              if (isNaN(totalSecs) || totalSecs <= 0) {
-                                showToast("Please enter valid positive minutes or seconds.", "warn");
-                                return;
-                              }
-                              setIsTimerRunning(false);
-                              setTimerPresetVal(m || 1);
-                              setTimeLeft(totalSecs);
-                              showToast(`Custom alarm set for ${m}m ${s}s! ‚è∞`, "success");
-                            }}
-                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all"
-                          >
-                            Set Alarm ‚è∞
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Sound Test & External App Launcher Shortcut */}
-                      <div className="flex items-center justify-between gap-2 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            playLoudAlarmChime();
-                            showToast("üîä Testing loud alarm chime sound!", "info");
-                          }}
-                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold border border-slate-700 cursor-pointer transition-all"
-                        >
-                          üîä Test Alarm Ring
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setIsAppLauncherOpen(true)}
-                          className="px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 rounded-lg text-[10px] font-bold border border-cyan-500/30 cursor-pointer transition-all flex items-center gap-1"
-                        >
-                          üåê Launch Apps (YouTube / ChatGPT)
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Smart Audio Assistant Settings */}
-                    <div className="space-y-3.5 border-t border-slate-850 pt-4">
-                      <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Smart Exam Simulator Settings</span>
-                      
-                      <div className="space-y-2.5">
-                        <label className="flex items-center gap-2.5 cursor-pointer group text-xs text-slate-300">
-                          <input
-                            type="checkbox"
-                            checked={isMetronomeEnabled}
-                            onChange={(e) => {
-                              setIsMetronomeEnabled(e.target.checked);
-                              showToast(e.target.checked ? "Pacing Metronome Enabled! üì¢" : "Metronome disabled.", "info");
-                            }}
-                            className="rounded bg-slate-950 border-slate-800 text-indigo-500 focus:ring-0 w-4 h-4 cursor-pointer"
-                          />
-                          <div>
-                            <span className="font-bold group-hover:text-white transition-colors">Speed Pacing Metronome clicks</span>
-                            <p className="text-[9px] text-slate-500">Plays a gentle tick sound every second to maintain a steady words-per-minute pacing (WPM).</p>
-                          </div>
-                        </label>
-
-                        <div className="p-3 bg-[#03060E] border border-slate-850 rounded-xl space-y-1.5 text-[11px] text-slate-450 leading-relaxed">
-                          <span className="text-amber-400 font-bold block">üí° About Smart Study Timer:</span>
-                          <p>
-                            We will automatically play a smart pacing double-beep at exactly the <strong>50% half-time mark</strong> (e.g. at 12m 30s for a 25m session) to warn you of your pacing.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* Right Column: Interactive Practice Notebook */}
-                  <div className="lg:col-span-7 bg-slate-900/50 border border-slate-850 rounded-2xl p-6 space-y-4 text-left">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-850">
-                      <div>
-                        <h3 className="text-sm font-bold text-white">Dictation Practice Notebook / ‡§Ü‡§∂‡•Å‡§≤‡§ø‡§™‡§ø ‡§Ö‡§≠‡•ç‡§Ø‡§æ‡§∏ ‡§™‡•Å‡§∏‡•ç‡§§‡§ø‡§ï‡§æ</h3>
-                        <p className="text-[10px] text-slate-500 mt-0.5">Type or transcribe live dictation here. It will auto-save to Notes when time runs out.</p>
-                      </div>
-                      
-                      {/* Live typing stats */}
-                      <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
-                        <span className="px-1.5 py-0.5 bg-slate-950 rounded">
-                          Words: <strong className="text-indigo-400">{timerNoteContent.trim() ? timerNoteContent.trim().split(/\s+/).length : 0}</strong>
-                        </span>
-                        <span className="px-1.5 py-0.5 bg-slate-950 rounded">
-                          Chars: <strong className="text-emerald-400">{timerNoteContent.length}</strong>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      {/* Interactive Notebook Textarea */}
-                      <div className="relative">
-                        <textarea
-                          value={timerNoteContent}
-                          onChange={(e) => setTimerNoteContent(e.target.value)}
-                          placeholder="Dictate, listen, or practice typing your SSC Steno, Civil Services, or general study materials here..."
-                          className="w-full text-xs sm:text-sm bg-[#03060E] border border-slate-850 px-4 py-3.5 rounded-2xl text-slate-200 outline-none focus:border-indigo-500 transition-all h-80 font-sans leading-relaxed resize-none placeholder-slate-650"
-                        />
-                        {timerNoteContent.length === 0 && (
-                          <div className="absolute inset-x-4 top-20 text-[11px] text-slate-550 leading-relaxed pointer-events-none space-y-1 select-none">
-                            <span className="font-bold text-slate-500 block">‚ö° Pro-Tip for Shorthand Practice:</span>
-                            <p>1. Play your external audio dictation (or start a fresh mock dictation task).</p>
-                            <p>2. Keep writing with the speed pacing metronome clicks toggled on to control words per minute.</p>
-                            <p>3. Let the timer complete, and we will safely archive your transcript directly in Notes!</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Manual Notebook preservation buttons */}
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-                        <label className="flex items-center gap-2 cursor-pointer text-[10px] text-slate-500">
-                          <input
-                            type="checkbox"
-                            checked={disableNotesForTimer}
-                            onChange={(e) => setDisableNotesForTimer(e.target.checked)}
-                            className="rounded bg-slate-950 border-slate-800 text-indigo-500 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
-                          />
-                          <span>Keep sidebar notes list hidden during active practice</span>
-                        </label>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!timerNoteContent.trim()) {
-                              showToast("Please enter some typing content to save.", "warn");
-                              return;
-                            }
-                            const newNote = {
-                              id: `note-manual-timer-${Date.now()}`,
-                              title: `Practice Draft (${timerPresetVal} min)`,
-                              content: timerNoteContent,
-                              folderId: "general",
-                              tags: ["TimerPractice", "Manual"],
-                              createdAt: new Date().toISOString()
-                            };
-                            setNotes(prev => [newNote, ...prev]);
-                            setTimerNoteContent("");
-                            showToast("üìù Saved practice notebook successfully to Notes & Folders!", "success");
-                          }}
-                          disabled={!timerNoteContent.trim()}
-                          className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:bg-slate-850 text-white font-bold rounded-xl text-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          üíæ Save Current Draft to Notes
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              ) : (
-                /* TAB 2: MY PROJECTS & AUDIO RECORDER */
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-in">
-                  
-                  {/* Left side: Audio Recorder and Custom Project creation form */}
-                  <div className="lg:col-span-7 space-y-6">
-                    
-                    {/* Interactive Audio Recorder Panel */}
-                    <div className="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 space-y-4 text-left relative overflow-hidden">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                          Voice Recorder / ‡§°‡§ø‡§ï‡•ç‡§ü‡•á‡§∂‡§® ‡§∞‡§ø‡§ï‡•â‡§∞‡•ç‡§°‡§∞
-                        </h3>
-                        {isRecording && (
-                          <span className="text-[10px] uppercase font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded animate-pulse">
-                            Live Recording
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="py-8 flex flex-col items-center justify-center space-y-4 bg-[#03060E] border border-slate-850 rounded-xl relative">
-                        {/* CSS Waves Animation during recording */}
-                        {isRecording ? (
-                          <div className="flex items-center justify-center gap-1 h-8 w-full px-8">
-                            {[...Array(12)].map((_, i) => (
-                              <div
-                                key={i}
-                                className="w-1 bg-gradient-to-t from-indigo-500 to-[#00E5FF] rounded-full animate-pulse flex-1"
-                                style={{
-                                  height: `${Math.random() * 80 + 20}%`,
-                                  minHeight: '8px',
-                                  animationDuration: `${0.3 + i * 0.08}s`
-                                }}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-slate-500 text-xs text-center py-2 px-4 leading-relaxed max-w-sm">
-                            üé§ Tap "Start Recording" to capture your speech, answers, outlines, or lecture drafts.
-                          </div>
-                        )}
-
-                        {/* Display timer */}
-                        <div className="text-2xl font-black text-white font-mono">
-                          {Math.floor(recordingTime / 60).toString().padStart(2, "0")}:
-                          {(recordingTime % 60).toString().padStart(2, "0")}
-                        </div>
-
-                        {/* Recorder Controls */}
-                        <div className="flex items-center gap-4">
-                          {!isRecording ? (
-                            <button
-                              type="button"
-                              onClick={startRecording}
-                              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/15 flex items-center gap-2 cursor-pointer"
-                            >
-                              <span className="text-sm">üî¥</span> Start Recording
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={stopRecording}
-                              className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-rose-600/15 flex items-center gap-2 cursor-pointer animate-bounce"
-                            >
-                              <span className="text-sm">‚èπÔ∏è</span> Stop Recording
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Recorded Audio Player Preview */}
-                      {recordedAudioUrl && (
-                        <div className="p-3 bg-indigo-950/20 border border-indigo-500/20 rounded-xl space-y-2 animate-fade-in">
-                          <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wide block">Preview Recorded Sound:</span>
-                          <audio src={recordedAudioUrl} controls className="w-full h-8 bg-slate-950 rounded" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Create New Project Form */}
-                    <div className="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 space-y-4 text-left">
-                      <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-                        üìù Create New Project / ‡§®‡§Ø‡§æ ‡§™‡•ç‡§∞‡•ã‡§ú‡•á‡§ï‡•ç‡§ü ‡§°‡•ç‡§∞‡§æ‡§´‡•ç‡§ü ‡§ï‡§∞‡•á‡§Ç
-                      </h3>
-
-                      <div className="space-y-3.5">
-                        <div>
-                          <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Project Title / ‡§µ‡§ø‡§∑‡§Ø ‡§ï‡§æ ‡§®‡§æ‡§Æ</label>
-                          <input
-                            type="text"
-                            value={newProjectName}
-                            onChange={(e) => setNewProjectName(e.target.value)}
-                            placeholder="e.g. Ancient Indian Rivers, Gupta Dynasty Coins, My Daily Vocabulary list..."
-                            className="w-full text-xs bg-slate-950 border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all font-sans"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Important points / ‡§Æ‡§π‡§§‡•ç‡§µ‡§™‡•Ç‡§∞‡•ç‡§£ ‡§¨‡§ø‡§Ç‡§¶‡•Å</label>
-                            <textarea
-                              value={newProjectPoints}
-                              onChange={(e) => setNewProjectPoints(e.target.value)}
-                              placeholder="Enter bullet points, rules or formula lists..."
-                              className="w-full text-xs bg-slate-950 border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all h-20 resize-none font-sans"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Headlines & Highlights / ‡§Æ‡•Å‡§ñ‡•ç‡§Ø ‡§∏‡•Å‡§∞‡•ç‡§ñ‡§ø‡§Ø‡§æ‡§Ç</label>
-                            <textarea
-                              value={newProjectHeadlines}
-                              onChange={(e) => setNewProjectHeadlines(e.target.value)}
-                              placeholder="Key quotes, news flashes, or summaries..."
-                              className="w-full text-xs bg-slate-950 border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all h-20 resize-none font-sans"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Detailed Summary & Analysis / ‡§∏‡§Ç‡§™‡•Ç‡§∞‡•ç‡§£ ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ</label>
-                          <textarea
-                            value={newProjectNotes}
-                            onChange={(e) => setNewProjectNotes(e.target.value)}
-                            placeholder="Write custom notes, study details, or lecture summary drafts..."
-                            className="w-full text-xs bg-[#03060E] border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all h-28 resize-none leading-relaxed font-sans"
-                          />
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => saveProject(newProjectName, newProjectNotes, newProjectPoints, newProjectHeadlines, recordedAudioUrl)}
-                          disabled={!newProjectName.trim()}
-                          className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-550 hover:from-indigo-500 hover:to-indigo-450 disabled:from-slate-850 disabled:to-slate-850 disabled:opacity-45 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/10 cursor-pointer"
-                        >
-                          üìÅ Save to My Projects / ‡§∏‡§π‡•á‡§ú‡•á‡§Ç
-                        </button>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* Right side: Repository list of saved projects */}
-                  <div className="lg:col-span-5 space-y-6">
-                    
-                    <div className="bg-slate-900/50 border border-slate-850 rounded-2xl p-5 sm:p-6 space-y-4 text-left">
-                      <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                        üìÅ Saved Projects Repository / ‡§Ü‡§™‡§ï‡•á ‡§∏‡§π‡•á‡§ú‡•á ‡§ó‡§è ‡§™‡•ç‡§∞‡•ã‡§ú‡•á‡§ï‡•ç‡§ü‡•ç‡§∏ ({savedProjects.length})
-                      </h3>
-
-                      {savedProjects.length === 0 ? (
-                        <div className="py-16 text-center text-slate-500 space-y-3.5">
-                          <span className="text-3xl block">üì≠</span>
-                          <p className="text-xs max-w-xs mx-auto text-slate-400">No saved projects yet. Create a new draft or save dynamic syllabus research results directly from our tools!</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
-                          {savedProjects.map((proj) => (
-                            <div 
-                              key={proj.id} 
-                              className="bg-[#03060E]/90 border border-slate-850 hover:border-indigo-500/30 rounded-xl p-4 space-y-3 transition-all relative overflow-hidden group"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <h4 className="text-xs sm:text-sm font-black text-indigo-300 leading-tight group-hover:text-white transition-colors">{proj.title}</h4>
-                                  <span className="text-[9px] text-slate-500 font-mono block mt-1">
-                                    ‚è±Ô∏è {new Date(proj.timestamp).toLocaleString()}
-                                  </span>
-                                </div>
-                                <button
-                                  onClick={() => {
-                                    if (confirm("Are you sure you want to delete this project?")) {
-                                      setSavedProjects(prev => prev.filter(p => p.id !== proj.id));
-                                      showToast("Project deleted.", "info");
-                                    }
-                                  }}
-                                  className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition-all cursor-pointer text-[10px]"
-                                  title="Delete Project"
-                                >
-                                  üóëÔ∏è
-                                </button>
-                              </div>
-
-                              {/* Bullet points & lists showing headlines/points */}
-                              {proj.points && (
-                                <div className="space-y-1">
-                                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Important Points:</span>
-                                  <div className="text-[11px] text-slate-350 bg-[#121214]/60 p-2 rounded border border-slate-850 leading-relaxed font-sans whitespace-pre-wrap">
-                                    {proj.points}
-                                  </div>
-                                </div>
-                              )}
-
-                              {proj.headlines && (
-                                <div className="space-y-1">
-                                  <span className="text-[10px] font-bold text-teal-400 uppercase tracking-wider block">Headlines & Highlights:</span>
-                                  <div className="text-[11px] text-slate-355 bg-[#121214]/60 p-2 rounded border border-slate-850 leading-relaxed font-sans whitespace-pre-wrap">
-                                    {proj.headlines}
-                                  </div>
-                                </div>
-                              )}
-
-                              {proj.notes && (
-                                <div className="space-y-1">
-                                  <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">Analysis Notes / ‡§∏‡§Ç‡§™‡•Ç‡§∞‡•ç‡§£ ‡§µ‡§ø‡§µ‡§∞‡§£:</span>
-                                  <p className="text-[11px] text-slate-400 leading-relaxed whitespace-pre-wrap font-sans">
-                                    {proj.notes}
-                                  </p>
-                                </div>
-                              )}
-
-                              {proj.audioUrl && (
-                                <div className="pt-2 border-t border-slate-850/60 flex flex-col gap-1">
-                                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">üéôÔ∏è Attached Voice Recording:</span>
-                                  <audio src={proj.audioUrl} controls className="w-full h-8 bg-slate-900 rounded" />
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                  </div>
-
-                </div>
-              )}
-
-            </div>
-          )}
-
-          {/* VIEW: MY PROJECTS & AUDIO RECORDER */}
-          {activeView === 'timer' && (
-            <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in">
-              {/* Header */}
-              <div className="border-b border-slate-800 pb-4 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-                    <span className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 font-extrabold text-lg leading-none">üéôÔ∏è</span>
-                    My Projects & Audio Recorder / ‡§Æ‡•á‡§∞‡•á ‡§™‡•ç‡§∞‡•ã‡§ú‡•á‡§ï‡•ç‡§ü‡•ç‡§∏ ‡§è‡§µ‡§Ç ‡§ë‡§°‡§ø‡§Ø‡•ã ‡§∞‡§ø‡§ï‡•â‡§∞‡•ç‡§°‡§∞
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Record voice drafts, dictate important headlines, or save your smart research findings dynamically into your personalized local repository.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      if (confirm("Are you sure you want to clear all your projects? This action cannot be undone.")) {
-                        setSavedProjects([]);
-                        showToast("All projects cleared successfully!", "info");
-                      }
-                    }}
-                    className="px-3 py-1.5 bg-rose-500/15 hover:bg-rose-500 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
-                  >
-                    Clear All Projects
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                
-                {/* Left side: Audio Recorder and Custom Project creation form */}
-                <div className="lg:col-span-7 space-y-6">
-                  
-                  {/* Interactive Audio Recorder Panel */}
-                  <div className="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 space-y-4 text-left relative overflow-hidden">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                        Voice Recorder / ‡§°‡§ø‡§ï‡•ç‡§ü‡•á‡§∂‡§® ‡§∞‡§ø‡§ï‡•â‡§∞‡•ç‡§°‡§∞
-                      </h3>
-                      {isRecording && (
-                        <span className="text-[10px] uppercase font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded animate-pulse">
-                          Live Recording
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="py-8 flex flex-col items-center justify-center space-y-4 bg-[#03060E] border border-slate-850 rounded-xl relative">
-                      
-                      {/* CSS Waves Animation during recording */}
-                      {isRecording ? (
-                        <div className="flex items-center justify-center gap-1 h-8 w-full px-8">
-                          {[...Array(12)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="w-1 bg-gradient-to-t from-indigo-500 to-[#00E5FF] rounded-full animate-pulse flex-1"
-                              style={{
-                                height: `${Math.random() * 80 + 20}%`,
-                                minHeight: '8px',
-                                animationDuration: `${0.3 + i * 0.08}s`
-                              }}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-slate-500 text-xs text-center py-2 px-4 leading-relaxed max-w-sm">
-                          üé§ Tap "Start Recording" to capture your speech, answers, outlines, or lecture drafts.
-                        </div>
-                      )}
-
-                      {/* Display timer */}
-                      <div className="text-2xl font-black text-white font-mono">
-                        {Math.floor(recordingTime / 60).toString().padStart(2, "0")}:
-                        {(recordingTime % 60).toString().padStart(2, "0")}
-                      </div>
-
-                      {/* Recorder Controls */}
-                      <div className="flex items-center gap-4">
-                        {!isRecording ? (
-                          <button
-                            type="button"
-                            onClick={startRecording}
-                            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/15 flex items-center gap-2 cursor-pointer"
-                          >
-                            <span className="text-sm">üî¥</span> Start Recording
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={stopRecording}
-                            className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-rose-600/15 flex items-center gap-2 cursor-pointer animate-bounce"
-                          >
-                            <span className="text-sm">‚èπÔ∏è</span> Stop Recording
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Recorded Audio Player Preview */}
-                    {recordedAudioUrl && (
-                      <div className="p-3 bg-indigo-950/20 border border-indigo-500/20 rounded-xl space-y-2 animate-fade-in">
-                        <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wide block">Preview Recorded Sound:</span>
-                        <audio src={recordedAudioUrl} controls className="w-full h-8 bg-slate-950 rounded" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Create New Project Form */}
-                  <div className="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 space-y-4 text-left">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-                      üìù Create New Project / ‡§®‡§Ø‡§æ ‡§™‡•ç‡§∞‡•ã‡§ú‡•á‡§ï‡•ç‡§ü ‡§°‡•ç‡§∞‡§æ‡§´‡•ç‡§ü ‡§ï‡§∞‡•á‡§Ç
-                    </h3>
-
-                    <div className="space-y-3.5">
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Project Title / ‡§µ‡§ø‡§∑‡§Ø ‡§ï‡§æ ‡§®‡§æ‡§Æ</label>
-                        <input
-                          type="text"
-                          value={newProjectName}
-                          onChange={(e) => setNewProjectName(e.target.value)}
-                          placeholder="e.g. Ancient Indian Rivers, Gupta Dynasty Coins, My Daily Vocabulary list..."
-                          className="w-full text-xs bg-slate-950 border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all font-sans"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Important points / ‡§Æ‡§π‡§§‡•ç‡§µ‡§™‡•Ç‡§∞‡•ç‡§£ ‡§¨‡§ø‡§Ç‡§¶‡•Å</label>
-                          <textarea
-                            value={newProjectPoints}
-                            onChange={(e) => setNewProjectPoints(e.target.value)}
-                            placeholder="Enter bullet points, rules or formula lists..."
-                            className="w-full text-xs bg-slate-950 border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all h-20 resize-none font-sans"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Headlines & Highlights / ‡§Æ‡•Å‡§ñ‡•ç‡§Ø ‡§∏‡•Å‡§∞‡•ç‡§ñ‡§ø‡§Ø‡§æ‡§Ç</label>
-                          <textarea
-                            value={newProjectHeadlines}
-                            onChange={(e) => setNewProjectHeadlines(e.target.value)}
-                            placeholder="Key quotes, news flashes, or summaries..."
-                            className="w-full text-xs bg-slate-950 border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all h-20 resize-none font-sans"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Detailed Summary & Analysis / ‡§∏‡§Ç‡§™‡•Ç‡§∞‡•ç‡§£ ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ</label>
-                        <textarea
-                          value={newProjectNotes}
-                          onChange={(e) => setNewProjectNotes(e.target.value)}
-                          placeholder="Write custom notes, study details, or lecture summary drafts..."
-                          className="w-full text-xs bg-[#03060E] border border-slate-850 px-3.5 py-2.5 rounded-xl text-slate-200 outline-none focus:border-indigo-500 transition-all h-28 resize-none leading-relaxed font-sans"
-                        />
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => saveProject(newProjectName, newProjectNotes, newProjectPoints, newProjectHeadlines, recordedAudioUrl)}
-                        disabled={!newProjectName.trim()}
-                        className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-550 hover:from-indigo-500 hover:to-indigo-450 disabled:from-slate-850 disabled:to-slate-850 disabled:opacity-45 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/10 cursor-pointer"
-                      >
-                        üìÅ Save to My Projects / ‡§∏‡§π‡•á‡§ú‡•á‡§Ç
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Right side: Repository list of saved projects */}
-                <div className="lg:col-span-5 space-y-6">
-                  
-                  <div className="bg-slate-900/50 border border-slate-850 rounded-2xl p-5 sm:p-6 space-y-4 text-left">
-                    <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                      üìÅ Saved Projects Repository / ‡§Ü‡§™‡§ï‡•á ‡§∏‡§π‡•á‡§ú‡•á ‡§ó‡§è ‡§™‡•ç‡§∞‡•ã‡§ú‡•á‡§ï‡•ç‡§ü‡•ç‡§∏ ({savedProjects.length})
-                    </h3>
-
-                    {savedProjects.length === 0 ? (
-                      <div className="py-16 text-center text-slate-500 space-y-3.5">
-                        <span className="text-3xl block">üì≠</span>
-                        <p className="text-xs max-w-xs mx-auto text-slate-400">No saved projects yet. Create a new draft or save dynamic syllabus research results directly from our tools!</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
-                        {savedProjects.map((proj) => (
-                          <div 
-                            key={proj.id} 
-                            className="bg-[#03060E]/90 border border-slate-850 hover:border-indigo-500/30 rounded-xl p-4 space-y-3 transition-all relative overflow-hidden group"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <h4 className="text-xs sm:text-sm font-black text-indigo-300 leading-tight group-hover:text-white transition-colors">{proj.title}</h4>
-                                <span className="text-[9px] text-slate-500 font-mono block mt-1">
-                                  ‚è±Ô∏è {new Date(proj.timestamp).toLocaleString()}
-                                </span>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  if (confirm("Are you sure you want to delete this project?")) {
-                                    setSavedProjects(prev => prev.filter(p => p.id !== proj.id));
-                                    showToast("Project deleted.", "info");
-                                  }
-                                }}
-                                className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition-all cursor-pointer text-[10px]"
-                                title="Delete Project"
-                              >
-                                üóëÔ∏è
-                              </button>
-                            </div>
-
-                            {/* Bullet points & lists showing headlines/points */}
-                            {proj.points && (
-                              <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Important Points:</span>
-                                <div className="text-[11px] text-slate-350 bg-[#121214]/60 p-2 rounded border border-slate-850 leading-relaxed font-sans whitespace-pre-wrap">
-                                  {proj.points}
-                                </div>
-                              </div>
-                            )}
-
-                            {proj.headlines && (
-                              <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-teal-400 uppercase tracking-wider block">Headlines & Highlights:</span>
-                                <div className="text-[11px] text-slate-355 bg-[#121214]/60 p-2 rounded border border-slate-850 leading-relaxed font-sans whitespace-pre-wrap">
-                                  {proj.headlines}
-                                </div>
-                              </div>
-                            )}
-
-                            {proj.notes && (
-                              <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">Analysis Notes / ‡§∏‡§Ç‡§™‡•Ç‡§∞‡•ç‡§£ ‡§µ‡§ø‡§µ‡§∞‡§£:</span>
-                                <p className="text-[11px] text-slate-400 leading-relaxed whitespace-pre-wrap font-sans">
-                                  {proj.notes}
-                                </p>
-                              </div>
-                            )}
-
-                            {proj.audioUrl && (
-                              <div className="pt-2 border-t border-slate-850/60 flex flex-col gap-1">
-                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">üéôÔ∏è Attached Voice Recording:</span>
-                                <audio src={proj.audioUrl} controls className="w-full h-8 bg-slate-900 rounded" />
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-          )}
-
-          {/* VIEW: SESSION HISTORY LOGS */}
-          {activeView === 'history' && (
-            <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
-              {/* Header */}
-              <div className="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="text-left">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <History className="w-5.5 h-5.5 text-emerald-400 animate-pulse" />
-                    User Study History & AI Chats / ‡§â‡§™‡§Ø‡•ã‡§ó‡§ï‡§∞‡•ç‡§§‡§æ ‡§á‡§§‡§ø‡§π‡§æ‡§∏ ‡§è‡§µ‡§Ç ‡§ö‡•à‡§ü
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Chronological history of your AI chat questions, saved chat sessions, quiz assessments, timer practice, and smart study notes.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => {
-                    if (confirm("Are you sure you want to clear your activity history logs / ‡§ï‡•ç‡§Ø‡§æ ‡§Ü‡§™ ‡§∏‡§≠‡•Ä ‡§á‡§§‡§ø‡§π‡§æ‡§∏ ‡§Æ‡§ø‡§ü‡§æ‡§®‡§æ ‡§ö‡§æ‡§π‡§§‡•á ‡§π‡•à‡§Ç?")) {
-                      setActivityLogs([]);
-                      showToast("History cleared / ‡§á‡§§‡§ø‡§π‡§æ‡§∏ ‡§Æ‡§ø‡§ü‡§æ ‡§¶‡§ø‡§Ø‡§æ ‡§ó‡§Ø‡§æ", "info");
-                    }
-                  }}
-                  className="px-3.5 py-1.5 bg-[#0F1626] hover:bg-slate-850 text-xs font-bold text-[#FDA4AF] border border-slate-800 rounded-xl transition-all self-start sm:self-auto uppercase tracking-wide cursor-pointer"
-                >
-                  Clear All History / ‡§Æ‡§ø‡§ü‡§æ‡§Ø‡•á‡§Ç
-                </button>
-              </div>
-
-              {/* Scorecard Statistics overview */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-[#090D16] border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">üí¨ AI Questions</span>
-                  <span className="text-xl font-black text-cyan-400 mt-1">
-                    {activityLogs.filter(l => l.type === 'chat').length} Asked
-                  </span>
-                  <span className="text-[9px] text-slate-500 mt-0.5">Queries recorded</span>
-                </div>
-                <div className="bg-[#090D16] border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">üíæ Saved Chats</span>
-                  <span className="text-xl font-black text-indigo-400 mt-1">
-                    {savedChats.length} Sessions
-                  </span>
-                  <span className="text-[9px] text-slate-500 mt-0.5">Saved in storage</span>
-                </div>
-                <div className="bg-[#090D16] border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">üèÜ Quizzes Taken</span>
-                  <span className="text-xl font-black text-amber-400 mt-1">
-                    {activityLogs.filter(l => l.type === 'quiz').length} Tests
-                  </span>
-                  <span className="text-[9px] text-slate-500 mt-0.5">Syllabus scores</span>
-                </div>
-                <div className="bg-[#090D16] border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">üïí Focus Drills</span>
-                  <span className="text-xl font-black text-emerald-400 mt-1">
-                    {activityLogs.filter(l => l.type === 'timer').length} Timers
-                  </span>
-                  <span className="text-[9px] text-slate-500 mt-0.5">Completed sessions</span>
-                </div>
-              </div>
-
-              {/* Search Bar & Filter Categories */}
-              <div className="space-y-3 bg-[#090D16] p-4 border border-slate-850 rounded-2xl">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={historySearchQuery}
-                    onChange={(e) => setHistorySearchQuery(e.target.value)}
-                    placeholder="Search in history (e.g. grammar, quiz, geography, CGL...)..."
-                    className="w-full bg-[#03060E] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 outline-none focus:border-emerald-500 transition-all pl-9"
-                  />
-                  <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                  {historySearchQuery && (
-                    <button
-                      onClick={() => setHistorySearchQuery("")}
-                      className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-white"
-                    >
-                      ‚úï
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
-                  {[
-                    { id: 'all', label: 'All History / ‡§∏‡§≠‡•Ä' },
-                    { id: 'chat', label: 'üí¨ AI Questions' },
-                    { id: 'session', label: 'üíæ Saved Sessions' },
-                    { id: 'quiz', label: 'üèÜ Quizzes' },
-                    { id: 'timer', label: 'üïí Timers' },
-                    { id: 'note', label: 'üìù Notes' }
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setHistoryFilterCategory(tab.id as any)}
-                      className={`px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer border ${
-                        historyFilterCategory === tab.id
-                          ? 'bg-emerald-600 text-white border-emerald-400 font-bold shadow-md shadow-emerald-600/20'
-                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-850 hover:text-slate-200'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* SAVED CHAT SESSIONS SECTION (If selected or 'all') */}
-              {(historyFilterCategory === 'all' || historyFilterCategory === 'session') && savedChats.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center justify-between">
-                    <span>üíæ Saved AI Chat Sessions ({savedChats.length})</span>
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {savedChats
-                      .filter(s => !historySearchQuery || s.title.toLowerCase().includes(historySearchQuery.toLowerCase()))
-                      .map((session) => (
-                        <div 
-                          key={session.id}
-                          className="bg-[#0F1626]/50 hover:bg-[#0F1626] border border-slate-800 p-4 rounded-xl flex items-center justify-between gap-3 transition-all text-left"
-                        >
-                          <div className="space-y-1 overflow-hidden">
-                            <span className="text-[9px] font-bold uppercase text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">
-                              üí¨ {session.messages.length} Messages
-                            </span>
-                            <h4 className="text-xs font-bold text-white truncate mt-1">
-                              {session.title}
-                            </h4>
-                            <span className="text-[10px] text-slate-500 block">
-                              {new Date(session.timestamp).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <button
-                              onClick={() => {
-                                setChatMessages(session.messages);
-                                setActiveView('chat');
-                                showToast(`Loaded chat: "${session.title}"`, "success");
-                              }}
-                              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-md"
-                            >
-                              Open Chat üí¨
-                            </button>
-                            <button
-                              onClick={() => deleteSavedChat(session.id)}
-                              className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 border border-rose-500/30 hover:border-rose-500/50 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
-                              title={language === 'hindi' ? "‡§∏‡§π‡•á‡§ú‡•Ä ‡§ó‡§à ‡§ö‡•à‡§ü ‡§π‡§ü‡§æ‡§è‡§Ç" : "Delete saved chat session"}
-                              aria-label="Delete saved chat"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                              <span>{language === 'hindi' ? '‡§π‡§ü‡§æ‡§è‡§Ç' : 'Clear'}</span>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* CHRONOLOGICAL ACTIVITY STREAM */}
-              {(historyFilterCategory !== 'session') && (
-                <div className="space-y-3.5">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">
-                    Chronological Activity Stream / ‡§ï‡•ç‡§∞‡§ø‡§Ø‡§æ‡§ï‡§≤‡§æ‡§™ ‡§á‡§§‡§ø‡§π‡§æ‡§∏
-                  </h3>
-
-                  {activityLogs.length === 0 ? (
-                    <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-8 text-center text-slate-500 text-xs">
-                      <span>‡§ï‡•ã‡§à ‡§á‡§§‡§ø‡§π‡§æ‡§∏ ‡§∞‡§ø‡§ï‡•â‡§∞‡•ç‡§° ‡§®‡§π‡•Ä‡§Ç ‡§π‡•à‡•§ ‡§™‡•ç‡§∞‡§∂‡•ç‡§® ‡§™‡•Ç‡§õ‡§®‡•á ‡§Ø‡§æ ‡§ï‡•ç‡§µ‡§ø‡§ú‡§º ‡§∂‡•Å‡§∞‡•Ç ‡§ï‡§∞‡§®‡•á ‡§™‡§∞ ‡§Ü‡§™‡§ï‡•Ä ‡§ó‡§§‡§ø‡§µ‡§ø‡§ß‡§ø‡§Ø‡§æ‡§Å ‡§Ø‡§π‡§æ‡§Å ‡§¶‡§ø‡§ñ‡•á‡§Ç‡§ó‡•Ä!</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-2.5">
-                      {activityLogs
-                        .filter(log => {
-                          if (historyFilterCategory !== 'all' && log.type !== historyFilterCategory) return false;
-                          if (historySearchQuery) {
-                            const query = historySearchQuery.toLowerCase();
-                            return log.title.toLowerCase().includes(query) || log.subtitle.toLowerCase().includes(query);
-                          }
-                          return true;
-                        })
-                        .map((log) => {
-                          let typeBadge = null;
-                          if (log.type === 'chat') {
-                            typeBadge = (
-                              <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 text-[9px] font-bold uppercase tracking-wide">
-                                üí¨ AI Query
-                              </span>
-                            );
-                          } else if (log.type === 'timer') {
-                            typeBadge = (
-                              <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 text-[9px] font-bold uppercase tracking-wide">
-                                üïí Timer Completed
-                              </span>
-                            );
-                          } else if (log.type === 'quiz') {
-                            typeBadge = (
-                              <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[9px] font-bold uppercase tracking-wide">
-                                üèÜ Quiz Assessment
-                              </span>
-                            );
-                          } else {
-                            typeBadge = (
-                              <span className="px-2 py-0.5 rounded bg-pink-500/10 text-pink-300 text-[9px] font-bold uppercase tracking-wide">
-                                üìù Note Synced
-                              </span>
-                            );
-                          }
-
-                          const rawQueryText = log.title.replace(/^AI Query:\s*"/, '').replace(/"$/, '');
-
-                          return (
-                            <div 
-                              key={log.id}
-                              className="bg-[#0F1626]/30 hover:bg-[#0F1626]/55 border border-slate-850 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
-                            >
-                              <div className="space-y-1 block text-left">
-                                <div className="flex items-center gap-2 mb-1">
-                                  {typeBadge}
-                                  <span className="text-[10px] text-slate-500">
-                                    {new Date(log.timestamp).toLocaleString()}
-                                  </span>
-                                </div>
-                                <h4 className="text-xs sm:text-sm font-bold text-slate-200">
-                                  {log.title}
-                                </h4>
-                                <p className="text-[11px] sm:text-xs text-slate-400">
-                                  {log.subtitle}
-                                </p>
-                              </div>
-
-                              <div className="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
-                                {log.type === 'chat' && (
-                                  <button
-                                    onClick={() => {
-                                      setChatInput(rawQueryText);
-                                      setActiveView('chat');
-                                      handleSendChat(rawQueryText);
-                                    }}
-                                    className="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white border border-cyan-500/30 rounded-xl text-[10px] font-bold transition-all cursor-pointer shadow-sm"
-                                  >
-                                    Ask Again üí¨
-                                  </button>
-                                )}
-
-                                {log.score && (
-                                  <div className="bg-[#090D16] border border-slate-800 px-3.5 py-1.5 rounded-xl text-center">
-                                    <span className="text-[9px] block text-slate-500 uppercase font-bold">SCORE</span>
-                                    <span className="text-xs sm:text-sm font-black text-amber-400">{log.score}</span>
-                                  </div>
-                                )}
-
-                                <button
-                                  onClick={() => deleteSpecificHistoryLog(log.id, log.title)}
-                                  className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 border border-rose-500/30 hover:border-rose-500/50 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
-                                  title={language === 'hindi' ? "‡§á‡§∏ ‡§Ü‡§á‡§ü‡§Æ ‡§ï‡•ã ‡§á‡§§‡§ø‡§π‡§æ‡§∏ ‡§∏‡•á ‡§π‡§ü‡§æ‡§è‡§Ç" : "Clear this specific item from history"}
-                                  aria-label="Clear specific history item"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                                  <span>{language === 'hindi' ? '‡§π‡§ü‡§æ‡§è‡§Ç' : 'Clear'}</span>
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* VIEW: DAILY GOALS & TRACKER & PROGRESS METRICS */}
-          {activeView === 'goals' && (
-            <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
-              
-              {/* Confetti Celebration Particle Overlay */}
-              {triggerConfetti && (
-                <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-                  <style>{`
-                    @keyframes floatUpParticle {
-                      0% { transform: translateY(105vh) scale(0.6) rotate(0deg); opacity: 1; }
-                      100% { transform: translateY(-20vh) scale(1.3) rotate(360deg); opacity: 0; }
-                    }
-                    .animate-floating {
-                      animation: floatUpParticle 3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-                    }
-                  `}</style>
-                  {confettiParticles.map(p => (
-                    <span
-                      key={p.id}
-                      className="fixed text-2xl animate-floating select-none pointer-events-none"
-                      style={{
-                        left: `${p.x}%`,
-                        fontSize: `${p.size}px`,
-                        animationDelay: `${p.delay}s`,
-                      }}
-                    >
-                      {p.char}
-                    </span>
-                  ))}
-                  
-                  {/* Flash Celebration Overlay */}
-                  <div className="fixed inset-0 bg-emerald-500/5 backdrop-blur-[1px] flex items-center justify-center transition-all duration-300">
-                    <div className="bg-[#1E1B4B]/95 border border-emerald-500/30 p-6 rounded-2xl text-center space-y-2 max-w-xs shadow-2xl scale-110">
-                      <Award className="w-8 h-8 text-amber-400 mx-auto animate-bounce" />
-                      <h4 className="text-sm font-bold text-white uppercase tracking-wider">Goal Accomplished! / ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø ‡§™‡•Ç‡§∞‡•ç‡§£!</h4>
-                      <p className="text-xs text-slate-350">‡§¨‡§ß‡§æ‡§à ‡§π‡•ã! ‡§Ü‡§™‡§®‡•á ‡§Ö‡§™‡§®‡§æ ‡§¶‡•à‡§®‡§ø‡§ï ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø ‡§™‡•Ç‡§∞‡§æ ‡§ï‡§∞ ‡§≤‡§ø‡§Ø‡§æ ‡§π‡•à‡•§ ‡§ï‡•ú‡§ï ‡§§‡•à‡§Ø‡§æ‡§∞‡•Ä ‡§ú‡§æ‡§∞‡•Ä ‡§∞‡§ñ‡•á‡§Ç!</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Header */}
-              <div className="border-b border-slate-800 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="text-left">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Target className="w-5.5 h-5.5 text-emerald-400 animate-pulse" />
-                    Daily Goal Tracker & Statistics / ‡§¶‡•à‡§®‡§ø‡§ï ‡§™‡•ç‡§∞‡§ó‡§§‡§ø ‡§Æ‡•Ä‡§ü‡§∞
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Balance academic studies and health tasks. Every checkmark triggers a visual confetti completion celebration!
-                  </p>
-                </div>
-                
-                {/* Overall Scorecard */}
-                <div className="bg-[#0F1626] border border-slate-800 px-4 py-2 rounded-xl flex items-center gap-3">
-                  <div className="text-right">
-                    <span className="text-[9px] text-slate-500 uppercase font-black block tracking-wider">Total Progress</span>
-                    <span className="text-sm font-extrabold text-emerald-400">
-                      {dailyGoals.filter(g => g.done).length} / {dailyGoals.length} Done
-                    </span>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-emerald-900/20 border border-emerald-500/20 flex items-center justify-center text-xs font-black text-emerald-400">
-                    {dailyGoals.length > 0 ? Math.round((dailyGoals.filter(g => g.done).length / dailyGoals.length) * 100) : 0}%
-                  </div>
-                </div>
-              </div>
-
-              {/* Category-Wise Progress Bars */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                {['GK & Civil', 'English Rules', 'Quantitative', 'Healthy Life'].map((cat) => {
-                  const catGoals = dailyGoals.filter(g => g.category === cat);
-                  const total = catGoals.length;
-                  const completed = catGoals.filter(g => g.done).length;
-                  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-                  
-                  return (
-                    <div key={cat} className="bg-[#0F1626]/40 border border-slate-850 p-4 rounded-xl space-y-2 text-left">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-bold text-slate-300">
-                          {cat === 'GK & Civil' ? 'üö© GK & Polity' : cat === 'English Rules' ? 'üìù English Rules' : cat === 'Quantitative' ? 'üìê Quantitative' : 'üçÉ Healthy Life'}
-                        </span>
-                        <span className="text-xs font-black text-emerald-400">{percentage}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-emerald-500 transition-all duration-500 rounded-full" 
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                      <span className="text-[10px] text-slate-500 block">{completed} of {total} completed</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Goals list and creator */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {/* List Column */}
-                <div className="md:col-span-2 bg-[#0F1626]/30 border border-slate-800 rounded-2xl p-5 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Objectives / ‡§∏‡§ï‡•ç‡§∞‡§ø‡§Ø ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø</h3>
-                    <span className="text-[10px] text-slate-500 italic">Tap checkbox to complete</span>
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {dailyGoals.map(g => (
-                      <div 
-                        key={g.id} 
-                        className={`p-3.5 rounded-xl border transition-all flex items-center justify-between gap-3 ${
-                          g.done 
-                            ? 'bg-emerald-950/20 border-emerald-500/20 text-slate-500 line-through' 
-                            : 'bg-[#090D16]/50 border-slate-850 text-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 text-left">
-                          <button
-                            onClick={() => handleToggleGoal(g.id)}
-                            className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all flex-shrink-0 ${
-                              g.done 
-                                ? 'bg-emerald-500 border-emerald-400 text-white' 
-                                : 'border-slate-700 hover:border-slate-500 bg-slate-900'
-                            }`}
-                          >
-                            {g.done && <Check className="w-3.5 h-3.5 stroke-[3.5]" />}
-                          </button>
-                          
-                          <div>
-                            <span className="text-xs sm:text-sm leading-relaxed block">{g.text}</span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-bold uppercase tracking-wider inline-block mt-1">
-                              {g.category}
-                            </span>
-                          </div>
-                        </div>
-
-                        <button 
-                          onClick={() => handleDeleteGoal(g.id)}
-                          className="p-1 text-slate-600 hover:text-rose-400 transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Addition and statistics controls Column */}
-                <div className="space-y-6">
-                  
-                  {/* Create Goal Card */}
-                  <div className="bg-[#0F1626]/30 border border-slate-800 rounded-2xl p-5 space-y-4 text-left">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Add Custom Goal / ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø ‡§ú‡•ã‡•ú‡•á‡§Ç</h3>
-                    
-                    <div className="space-y-2">
-                      <label className="text-[10px] text-slate-500 font-bold uppercase block">Describe Task</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g., Learn 15 vocabulary synonyms..."
-                        value={newGoalInput}
-                        onChange={(e) => setNewGoalInput(e.target.value)}
-                        className="w-full text-xs p-2.5 bg-[#090D16] border border-slate-850 rounded-xl text-white placeholder-slate-650 focus:outline-none focus:border-indigo-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] text-slate-500 font-bold uppercase block">Category</label>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {['GK & Civil', 'English Rules', 'Quantitative', 'Healthy Life'].map((cat) => (
-                          <button
-                            key={cat}
-                            onClick={() => setNewGoalCategory(cat)}
-                            className={`px-2 py-1.5 rounded-lg border text-[10px] font-bold text-center transition-all ${
-                              newGoalCategory === cat
-                                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
-                                : 'border-slate-850 bg-slate-900 text-slate-400 hover:border-slate-700'
-                            }`}
-                          >
-                            {cat === 'GK & Civil' ? 'Civics' : cat === 'English Rules' ? 'English' : cat === 'Quantitative' ? 'Math' : 'Healthy'}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleAddGoal}
-                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all uppercase tracking-wider block"
-                    >
-                      Insert Daily Goal
-                    </button>
-                  </div>
-
-                  {/* Interactive Prep Hours Progress graph */}
-                  <div className="bg-[#090D16]/60 border border-slate-800 rounded-2xl p-5 space-y-4 text-left">
-                    <h3 className="text-xs font-bold text-slate-450 text-slate-450 text-slate-400 uppercase tracking-widest block">Subject Progress Hours / ‡§Ö‡§ß‡•ç‡§Ø‡§Ø‡§® ‡§Ö‡§µ‡§ß‡§ø</h3>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">
-                      Visualize and log study duration. Maintain balance across syllabus segments to pass key exams securely:
-                    </p>
-
-                    <div className="space-y-3.5">
-                      {subjectProgress.map(p => {
-                        const maxVal = 60;
-                        const percentage = Math.round((p.hours / maxVal) * 100);
-                        
-                        return (
-                          <div key={p.id} className="space-y-1 block">
-                            <div className="flex justify-between items-center text-[11px]">
-                              <span className="font-semibold text-slate-300 truncate text-ellipsis max-w-[140px]">{p.subject}</span>
-                              <div className="flex items-center gap-1.5">
-                                <button 
-                                  onClick={() => handleUpdateProgressHour(p.id, -1)}
-                                  className="w-4.5 h-4.5 rounded bg-slate-800 text-slate-450 hover:bg-slate-755 hover:bg-slate-700 font-bold flex items-center justify-center text-[10px]"
-                                >
-                                  -
-                                </button>
-                                <span className="font-mono font-black text-indigo-400 text-xs">{p.hours} Hrs</span>
-                                <button 
-                                  onClick={() => handleUpdateProgressHour(p.id, 1)}
-                                  className="w-4.5 h-4.5 rounded bg-slate-800 text-slate-450 hover:bg-slate-755 hover:bg-slate-700 font-bold flex items-center justify-center text-[10px]"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                            <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-indigo-500 rounded-full transition-all duration-300"
-                                style={{ width: `${Math.min(100, percentage)}%` }}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-          )}
-
-          {/* VIEW: CONCEPT FLOWCHART & GEOGRAPHIC MAP */}
-          {activeView === 'map' && (
-            <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 animate-fade-in text-left">
-              
-              {/* Header */}
-              <div className="border-b border-slate-800 pb-4 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Network className="w-5.5 h-5.5 text-amber-500 animate-pulse" />
-                    GIS Concept & Geographic Visualizer / ‡§ú‡•Ä‡§Ü‡§à‡§è‡§∏ ‡§Æ‡•à‡§™‡§ø‡§Ç‡§ó ‡§µ ‡§∏‡§Ç‡§ï‡§≤‡•ç‡§™‡§®‡§æ
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {language === 'hindi' 
-                      ? '‡§Æ‡•à‡§™ ‡§™‡§∞ ‡§ï‡§ø‡§∏‡•Ä ‡§≠‡•Ä ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§™‡§∞ ‡§ï‡•ç‡§≤‡§ø‡§ï ‡§ï‡§∞‡•á‡§Ç ‚Äî ‡§†‡•Ä‡§ï ‡§®‡•Ä‡§ö‡•á ‡§â‡§∏ ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§ï‡•Ä ‡§∏‡§Ç‡§™‡•Ç‡§∞‡•ç‡§£ ‡§µ‡§ø‡§∏‡•ç‡§§‡•É‡§§ ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ, ‡§™‡§∞‡•Ä‡§ï‡•ç‡§∑‡§æ ‡§§‡§•‡•ç‡§Ø ‡§µ ‡§∂‡•â‡§∞‡•ç‡§ü‡§ï‡§ü ‡§ü‡•ç‡§∞‡§ø‡§ï‡•ç‡§∏ ‡§¶‡•á‡§ñ‡•á‡§Ç!'
-                      : 'Click any point on the map ‚Äî see its full live explanation, key exam points & memory tricks directly below!'}
-                  </p>
-                </div>
-
-                {/* Map Mode Subtab Switcher */}
-                <div className="flex items-center gap-1.5 bg-[#090D16] p-1.5 rounded-2xl border border-slate-800 shrink-0">
-                  <button
-                    onClick={() => setMapTab('flowchart')}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      mapTab === 'flowchart'
-                        ? 'bg-indigo-600 text-white shadow-lg'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    <span>üß† Concept Flowchart Map</span>
-                  </button>
-                  <button
-                    onClick={() => { setMapTab('geo'); if (!selectedGeoRegion) setSelectedGeoRegion(geoLandmarks[0]); }}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      mapTab === 'geo'
-                        ? 'bg-amber-600 text-white shadow-lg'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    <span>üó∫Ô∏è Geographic GIS Topography</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* MODE 1: CONCEPT FLOWCHART */}
-              {mapTab === 'flowchart' && (
-                <div className="space-y-6">
-                  {/* Topic Generator Control */}
-                  <div className="bg-[#0F1626]/40 border border-slate-800 p-4 rounded-2xl space-y-3">
-                    <form 
-                      onSubmit={(e) => { e.preventDefault(); handleGenerateConceptMap(); }}
-                      className="flex flex-col sm:flex-row gap-2"
-                    >
-                      <div className="relative flex-1 flex items-center bg-[#090D16] border border-slate-800 focus-within:border-indigo-500 rounded-xl px-2">
-                        <input
-                          type="text"
-                          value={conceptMapTopic}
-                          onChange={(e) => setConceptMapTopic(e.target.value)}
-                          placeholder={
-                            language === 'hindi'
-                              ? "‡§ï‡•ã‡§à ‡§≠‡•Ä ‡§µ‡§ø‡§∑‡§Ø, ‡§™‡•ç‡§∞‡§∂‡•ç‡§® ‡§Ø‡§æ ‡§∏‡•ç‡§•‡§æ‡§® ‡§¨‡•ã‡§≤‡•á‡§Ç ‡§Ø‡§æ ‡§≤‡§ø‡§ñ‡•á‡§Ç (‡§ú‡•à‡§∏‡•á: Newton's Laws, Photosynthesis, 1857 Revolt, Ganga River System)..."
-                              : "Speak or type any topic or region (e.g. Newton's Laws, Photosynthesis, Ganga River System, 1857 Revolt)..."
-                          }
-                          className="flex-1 text-xs px-2 py-3 bg-transparent text-white placeholder-slate-500 focus:outline-none font-sans font-semibold"
-                        />
-                        <button
-                          type="button"
-                          onClick={handleToggleMapVoice}
-                          className={`p-2 rounded-lg transition-all border cursor-pointer shrink-0 flex items-center gap-1 text-xs font-bold ${
-                            isListeningMapVoice
-                              ? 'bg-rose-500 text-white border-rose-400 animate-pulse'
-                              : 'bg-slate-850 text-indigo-300 border-indigo-500/30 hover:bg-indigo-900/40 hover:text-white'
-                          }`}
-                          title={language === 'hindi' ? '‡§¨‡•ã‡§≤‡§ï‡§∞ ‡§∏‡§∞‡•ç‡§ö ‡§ï‡§∞‡•á‡§Ç' : 'Speak to search'}
-                        >
-                          {isListeningMapVoice ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                          <span className="text-[10px] hidden sm:inline">{isListeningMapVoice ? 'Listening...' : 'Voice'}</span>
-                        </button>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isGeneratingConceptMap || !conceptMapTopic.trim()}
-                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0"
-                      >
-                        {isGeneratingConceptMap ? (
-                          <>
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            <span>Creating GIS Map...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Search className="w-3.5 h-3.5" />
-                            <span>{language === 'hindi' ? '‡§Æ‡•à‡§™‡§ø‡§Ç‡§ó ‡§µ ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§¨‡§®‡§æ‡§è‡§Ç' : 'Visualize & Map GIS Points'}</span>
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  </div>
-
-                  {/* Graphical Flowchart Map Stage or Empty State */}
-                  {mapNodes.length === 0 ? (
-                    <div className="p-12 bg-[#090D16] border border-slate-850 rounded-2xl text-center space-y-4 max-w-xl mx-auto my-6 shadow-inner">
-                      <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center mx-auto text-3xl shadow-lg text-indigo-400">
-                        üó∫Ô∏è
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-base font-bold text-white">
-                          {language === 'hindi' ? '‡§ï‡•ã‡§à ‡§≠‡•Ä ‡§µ‡§ø‡§∑‡§Ø ‡§Ø‡§æ ‡§ü‡•â‡§™‡§ø‡§ï ‡§∏‡§∞‡•ç‡§ö ‡§ï‡§∞‡•á‡§Ç ‡§î‡§∞ ‡§≤‡§æ‡§á‡§µ ‡§Æ‡•à‡§™ ‡§¶‡•á‡§ñ‡•á‡§Ç' : 'Search Any Topic to Generate Live GIS Flowchart'}
-                        </h3>
-                        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-                          {language === 'hindi'
-                            ? '‡§ä‡§™‡§∞ ‡§µ‡§ø‡§∑‡§Ø ‡§ü‡§æ‡§á‡§™ ‡§ï‡§∞‡•á‡§Ç‡•§ AI ‡§Ü‡§™‡§ï‡•á ‡§ü‡•â‡§™‡§ø‡§ï ‡§ï‡•á ‡§∏‡§≠‡•Ä ‡§¨‡§ø‡§Ç‡§¶‡•Å‡§ì‡§Ç ‡§ï‡•ã ‡§®‡§ï‡•ç‡§∂‡•á ‡§™‡§∞ ‡§ú‡•ã‡§°‡§º‡•á‡§ó‡§æ ‡§î‡§∞ ‡§†‡•Ä‡§ï ‡§®‡•Ä‡§ö‡•á ‡§π‡§∞ ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§ï‡•Ä ‡§∏‡§Ç‡§™‡•Ç‡§∞‡•ç‡§£ ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ ‡§¶‡§ø‡§ñ‡§æ‡§è‡§ó‡§æ‡•§'
-                            : 'HansAI will build visual nodes across the map canvas and explain every point in detail right below!'}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      
-                      {/* FULL-WIDTH VISUAL MAP CANVAS */}
-                      <div className="bg-[#090D16] border border-slate-800 rounded-3xl p-5 shadow-2xl relative overflow-hidden">
-                        
-                        {/* Map Header Info */}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800/80 pb-3 gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base">üìç</span>
-                            <span className="text-xs font-black text-white uppercase tracking-wider">
-                              {language === 'hindi' ? '‡§ú‡•Ä‡§Ü‡§à‡§è‡§∏ ‡§Æ‡•à‡§™ ‡§ï‡•à‡§®‡§µ‡§æ‡§∏ (GIS Concept Net Canvas)' : 'GIS Interactive Map Canvas'}
-                            </span>
-                          </div>
-                          <span className="text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 font-mono px-2.5 py-0.5 rounded-full font-bold">
-                            {language === 'hindi' ? 'üëâ ‡§®‡§ï‡•ç‡§∂‡•á ‡§™‡§∞ ‡§ï‡§ø‡§∏‡•Ä ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§ï‡•ã ‡§ö‡•Å‡§®‡•á‡§Ç ‚Äî ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ ‡§†‡•Ä‡§ï ‡§®‡•Ä‡§ö‡•á ‡§¶‡§ø‡§ñ‡•á‡§ó‡•Ä' : 'üëâ Click any point to view explanation directly below'}
-                          </span>
-                        </div>
-
-                        {/* Interactive Visual Map Field */}
-                        <div className="relative w-full h-[320px] sm:h-[380px] my-4 border border-slate-850 rounded-2xl bg-[#060A12] overflow-hidden p-4 shadow-inner">
-                          {/* Tech Grid Lines */}
-                          <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.6)_1px,transparent_1px)] bg-[size:24px_24px] opacity-30" />
-                          
-                          {/* Connecting SVG Path Lines */}
-                          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                            {mapNodes.map((node, idx) => {
-                              if (idx === 0) return null;
-                              const prev = mapNodes[idx - 1];
-                              return (
-                                <g key={`connection-${idx}`}>
-                                  <line
-                                    x1={`${prev.x}%`}
-                                    y1={`${prev.y}%`}
-                                    x2={`${node.x}%`}
-                                    y2={`${node.y}%`}
-                                    stroke="rgba(245, 158, 11, 0.4)"
-                                    strokeWidth="3"
-                                    strokeDasharray="6 6"
-                                  />
-                                  <circle
-                                    cx={`${(prev.x + node.x) / 2}%`}
-                                    cy={`${(prev.y + node.y) / 2}%`}
-                                    r="4"
-                                    fill="#F59E0B"
-                                    className="animate-ping"
-                                  />
-                                </g>
-                              );
-                            })}
-                          </svg>
-
-                          {/* Flowchart Nodes (Map Points) */}
-                          {mapNodes.map((node, idx) => {
-                            const isActive = activeMapNode?.id === node.id;
-                            return (
-                              <button
-                                key={node.id}
-                                onClick={() => { setActiveMapNode(node); setShowDetailedDiagram(false); }}
-                                className={`absolute px-3.5 py-2 rounded-2xl border text-xs font-black transition-all shadow-2xl -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 cursor-pointer hover:scale-110 z-20 ${
-                                  isActive
-                                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border-amber-300 ring-4 ring-amber-400/40 scale-110'
-                                    : 'bg-[#0F172A]/90 text-slate-200 border-indigo-500/40 hover:border-amber-400 hover:bg-slate-800'
-                                }`}
-                                style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                              >
-                                <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
-                                  isActive ? 'bg-slate-950 text-amber-300' : 'bg-indigo-900 text-indigo-200'
-                                }`}>
-                                  {idx + 1}
-                                </span>
-                                <span className="truncate max-w-[140px] sm:max-w-none">{node.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* SEQUENCE STEPPER BAR AT BOTTOM OF CANVAS */}
-                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            {language === 'hindi' ? '‡§Æ‡•à‡§™ ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§ï‡•ç‡§∞‡§Æ (Select Map Point):' : 'All Map Points Sequence:'}
-                          </span>
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            {mapNodes.map((node, idx) => {
-                              const isActive = activeMapNode?.id === node.id;
-                              return (
-                                <button
-                                  key={`step-btn-${node.id}`}
-                                  onClick={() => { setActiveMapNode(node); setShowDetailedDiagram(false); }}
-                                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                                    isActive
-                                      ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md font-extrabold'
-                                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
-                                  }`}
-                                >
-                                  Point {idx + 1}: {node.label.length > 18 ? node.label.substring(0, 18) + '...' : node.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                      </div>
-
-                      {/* DEDICATED BOTTOM EXPLANATION PANEL (‡§®‡§ï‡•ç‡§∂‡•á ‡§ï‡•á ‡§†‡•Ä‡§ï ‡§®‡•Ä‡§ö‡•á ‡§µ‡§ø‡§∏‡•ç‡§§‡•É‡§§ ‡§¨‡§ø‡§Ç‡§¶‡•Å-‡§µ‡§æ‡§∞ ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ) */}
-                      {activeMapNode && (
-                        <div className="bg-gradient-to-br from-[#0B1222] via-[#090D16] to-[#0A0E1A] border-2 border-amber-500/40 rounded-3xl p-6 space-y-5 shadow-2xl animate-fade-in text-left">
-                          
-                          {/* PANEL HEADER */}
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-amber-500/20 pb-4 gap-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-black text-sm shrink-0">
-                                #{mapNodes.findIndex(n => n.id === activeMapNode.id) + 1}
-                              </div>
-                              <div>
-                                <span className="text-[10px] font-extrabold uppercase text-amber-400 tracking-wider bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
-                                  {language === 'hindi' ? '‡§ö‡§Ø‡§®‡§ø‡§§ ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§ï‡•Ä ‡§≤‡§æ‡§á‡§µ ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ (Live Point Detail)' : 'Selected Point Live Explanation'}
-                                </span>
-                                <h3 className="text-lg font-black text-white mt-1 flex items-center gap-2">
-                                  <span>üìå</span>
-                                  <span>{activeMapNode.label}</span>
-                                </h3>
-                              </div>
-                            </div>
-
-                            {/* Action controls */}
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => speakText(`${activeMapNode.label}. ${activeMapNode.desc}. ${activeMapNode.detail}`)}
-                                className="px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                              >
-                                <span>üéôÔ∏è</span>
-                                <span>{language === 'hindi' ? '‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ ‡§∏‡•Å‡§®‡•á‡§Ç' : 'Read Voice'}</span>
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  const idx = mapNodes.findIndex(n => n.id === activeMapNode.id);
-                                  const nextIdx = (idx + 1) % mapNodes.length;
-                                  setActiveMapNode(mapNodes[nextIdx]);
-                                }}
-                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black transition-all shadow-md flex items-center gap-1 cursor-pointer"
-                              >
-                                <span>{language === 'hindi' ? '‡§Ö‡§ó‡§≤‡§æ ‡§¨‡§ø‡§Ç‡§¶‡•Å ‚ûî' : 'Next Point ‚ûî'}</span>
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* CONTENT BREAKDOWN GRID (2 COLS) */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            
-                            {/* LEFT: SIMPLIFIED CONCEPT EXPLANATION */}
-                            <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-2">
-                              <span className="text-[10px] font-black uppercase text-indigo-400 tracking-wider block">
-                                üìñ {language === 'hindi' ? '‡§∏‡§∞‡§≤ ‡§∂‡§¨‡•ç‡§¶‡•ã‡§Ç ‡§Æ‡•á‡§Ç ‡§∏‡§Ç‡§™‡•Ç‡§∞‡•ç‡§£ ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ (Detailed Explanation):' : 'Simplified Concept Breakdown:'}
-                              </span>
-                              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-semibold">
-                                {activeMapNode.desc}
-                              </p>
-                            </div>
-
-                            {/* RIGHT: EXAM UTILITY & MEMORY TRICK */}
-                            <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-2">
-                              <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider block">
-                                üí° {language === 'hindi' ? '‡§™‡§∞‡•Ä‡§ï‡•ç‡§∑‡§æ ‡§Æ‡•Å‡§ñ‡•ç‡§Ø ‡§§‡§•‡•ç‡§Ø ‡§µ ‡§∏‡•Ç‡§§‡•ç‡§∞ (Key Exam Facts):' : 'Academic & Exam Utility:'}
-                              </span>
-                              <p className="text-xs sm:text-sm text-amber-100 leading-relaxed font-medium">
-                                {activeMapNode.detail}
-                              </p>
-                            </div>
-
-                          </div>
-
-                          {/* ASK HANS AI ABOUT THIS POINT */}
-                          <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <p className="text-xs text-slate-400 font-medium">
-                              {language === 'hindi'
-                                ? '‡§ï‡•ç‡§Ø‡§æ ‡§á‡§∏ ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§∏‡•á ‡§ú‡•Å‡§°‡§º‡§æ ‡§ï‡•ã‡§à ‡§™‡•ç‡§∞‡§∂‡•ç‡§® ‡§π‡•à? HansAI AI ‡§∏‡§æ‡§•‡•Ä ‡§∏‡•á ‡§™‡•Ç‡§õ‡•á‡§Ç!'
-                                : 'Have questions about this point? Ask HansAI Companion for instant clarification.'}
-                            </p>
-                            <button
-                              onClick={() => {
-                                const prompt = `Explain the map point "${activeMapNode.label}" in detail with examples and exam PYQs.`;
-                                setChatInput(prompt);
-                                setActiveView('chat');
-                                logUserActivity('chat', prompt);
-                              }}
-                              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all border-none cursor-pointer shrink-0"
-                            >
-                              üí¨ Ask AI Companion About This Point
-                            </button>
-                          </div>
-
-                        </div>
-                      )}
-
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* MODE 2: INTERACTIVE GEOGRAPHIC LANDMARKS MAP */}
-              {mapTab === 'geo' && (
-                <div className="space-y-6">
-                  
-                  {/* GEOGRAPHIC MAP CANVAS */}
-                  <div className="bg-[#090D16] border border-slate-800 rounded-3xl p-5 relative min-h-[380px] flex flex-col justify-between shadow-2xl overflow-hidden">
-                    {/* Grid Background */}
-                    <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
-
-                    {/* Top Canvas Watermark */}
-                    <div className="relative z-10 flex items-center justify-between border-b border-slate-800/80 pb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">üó∫Ô∏è</span>
-                        <span className="text-xs font-black text-white uppercase tracking-wider">
-                          {language === 'hindi' ? '‡§≠‡§æ‡§∞‡§§ ‡§≠‡•å‡§ó‡•ã‡§≤‡§ø‡§ï ‡§µ ‡§ê‡§§‡§ø‡§π‡§æ‡§∏‡§ø‡§ï ‡§ú‡•Ä‡§Ü‡§à‡§è‡§∏ ‡§®‡§ï‡•ç‡§∂‡§æ' : 'India Physical & Historical Topography GIS Map'}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-amber-400 bg-amber-400/10 border border-amber-400/20 font-mono px-2.5 py-0.5 rounded-full font-bold">
-                        {language === 'hindi' ? 'üëâ ‡§®‡§ï‡•ç‡§∂‡•á ‡§ï‡•á ‡§ï‡§ø‡§∏‡•Ä ‡§∏‡•ç‡§•‡§æ‡§® ‡§™‡§∞ ‡§ï‡•ç‡§≤‡§ø‡§ï ‡§ï‡§∞‡•á‡§Ç ‚Äî ‡§µ‡•ç‡§Ø‡§æ‡§ñ‡•ç‡§Ø‡§æ ‡§†‡•Ä‡§ï ‡§®‡•Ä‡§ö‡•á ‡§¶‡§ø‡§ñ‡•á‡§ó‡•Ä' : 'Click hotspot on map ‚Äî explanation directly below'}
-                      </span>
-                    </div>
-
-                    {/* Map Outline SVG Background */}
-                    <div className="relative w-full h-[320px] my-4 border border-slate-850 rounded-2xl bg-[#060A12] overflow-hidden flex items-center justify-center shadow-inner">
-                      <svg viewBox="0 0 100 100" className="w-full h-full opacity-20 text-indigo-500 fill-current">
-                        <path d="M 40,10 Q 55,5 70,12 T 80,30 T 65,50 T 70,70 T 50,95 T 30,80 T 35,55 T 20,35 Z" />
-                      </svg>
-
-                      {/* Geographic Pins */}
-                      {geoLandmarks.map((loc) => {
-                        const isSelected = selectedGeoRegion?.id === loc.id;
-                        return (
-                          <button
-                            key={loc.id}
-                            onClick={() => setSelectedGeoRegion(loc)}
-                            className={`absolute p-2.5 rounded-2xl border text-xs font-extrabold transition-all shadow-2xl flex items-center gap-2 -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 z-20 ${
-                              isSelected
-                                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-300 ring-4 ring-amber-400/30 scale-110'
-                                : 'bg-[#0F172A]/90 text-slate-200 border-indigo-500/40 hover:border-indigo-400 hover:bg-slate-800'
-                            }`}
-                            style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
-                          >
-                            <span className="text-sm">{loc.icon}</span>
-                            <span className="hidden sm:inline text-[11px] font-black">{loc.name.split('(')[0]}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Landmark Hotspot Quick Buttons Bar */}
-                    <div className="relative z-10 flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        {language === 'hindi' ? '‡§∏‡•ç‡§•‡§æ‡§® ‡§ö‡•Å‡§®‡•á‡§Ç:' : 'Select Hotspot:'}
-                      </span>
-                      {geoLandmarks.map((loc) => (
-                        <button
-                          key={`btn-${loc.id}`}
-                          onClick={() => setSelectedGeoRegion(loc)}
-                          className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
-                            selectedGeoRegion?.id === loc.id
-                              ? 'bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md'
-                              : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
-                          }`}
-                        >
-                          {loc.icon} {loc.name.split('(')[0]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* DEDICATED BOTTOM EXPLANATION PANEL FOR GIS GEOGRAPHIC LOCATION */}
-                  {selectedGeoRegion && (
-                    <div className="bg-gradient-to-br from-[#0B1222] via-[#090D16] to-[#0A0E1A] border-2 border-amber-500/40 rounded-3xl p-6 space-y-5 shadow-2xl animate-fade-in text-left">
-                      
-                      {/* HEADER */}
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-amber-500/20 pb-3 gap-3">
-                        <div>
-                          <span className="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
-                            {selectedGeoRegion.category}
-                          </span>
-                          <h3 className="text-lg font-extrabold text-white mt-1 flex items-center gap-2">
-                            <span>{selectedGeoRegion.icon}</span>
-                            <span>{selectedGeoRegion.name}</span>
-                          </h3>
-                        </div>
-
-                        <button
-                          onClick={() => speakText(`${selectedGeoRegion.name}. ${selectedGeoRegion.history}. Elevation: ${selectedGeoRegion.elevation}. Rivers: ${selectedGeoRegion.rivers}`)}
-                          className="px-3.5 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
-                        >
-                          <span>üéôÔ∏è</span>
-                          <span>{language === 'hindi' ? '‡§∏‡•ç‡§•‡§æ‡§® ‡§µ‡§ø‡§µ‡§∞‡§£ ‡§∏‡•Å‡§®‡•á‡§Ç' : 'Read Voice'}</span>
-                        </button>
-                      </div>
-
-                      {/* CONTENT GRID */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        
-                        {/* LEFT: PHYSICAL GEOGRAPHY & HISTORY */}
-                        <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
-                          <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                            <span className="text-slate-400">Elevation/Feature:</span>
-                            <span className="font-bold text-slate-200">{selectedGeoRegion.elevation}</span>
-                          </div>
-                          <div className="flex justify-between border-b border-slate-800 pb-1.5">
-                            <span className="text-slate-400">Rivers / Tributaries:</span>
-                            <span className="font-bold text-indigo-400">{selectedGeoRegion.rivers}</span>
-                          </div>
-                          <p className="text-slate-300 pt-1 leading-relaxed">{selectedGeoRegion.history}</p>
-                        </div>
-
-                        {/* RIGHT: KEY EXAM FACTS & PYQS */}
-                        <div className="bg-[#060A12] border border-slate-800 p-4 rounded-2xl space-y-3">
-                          <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Key Exam Facts (‡§Æ‡•Å‡§ñ‡•ç‡§Ø ‡§™‡§∞‡•Ä‡§ï‡•ç‡§∑‡§æ ‡§¨‡§ø‡§Ç‡§¶‡•Å):</span>
-                          <ul className="space-y-1.5 text-xs text-slate-200">
-                            {selectedGeoRegion.keyFeatures.map((kf: string, i: number) => (
-                              <li key={i} className="flex items-start gap-1.5 bg-slate-900/60 p-2 rounded-xl border border-slate-850">
-                                <span className="text-amber-400 font-bold">‚Ä¢</span>
-                                <span>{kf}</span>
-                              </li>
-                            ))}
-                          </ul>
-
-                          {selectedGeoRegion.pyqs && selectedGeoRegion.pyqs.length > 0 && (
-                            <div className="pt-2 border-t border-slate-800 space-y-1">
-                              <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">PYQ Questions:</span>
-                              {selectedGeoRegion.pyqs.map((pq: string, i: number) => (
-                                <div key={i} className="p-2 bg-indigo-950/30 border border-indigo-900/40 rounded-xl text-[11px] text-indigo-200 font-medium">
-                                  {pq}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                      </div>
-
-                      {/* ASK AI COMPANION */}
-                      <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <p className="text-xs text-slate-400 font-medium">
-                          {language === 'hindi'
-                            ? `‡§ï‡•ç‡§Ø‡§æ ${selectedGeoRegion.name.split('(')[0]} ‡§ï‡•á ‡§¨‡§æ‡§∞‡•á ‡§Æ‡•á‡§Ç ‡§î‡§∞ ‡§ú‡§æ‡§®‡§®‡§æ ‡§ö‡§æ‡§π‡§§‡•á ‡§π‡•à‡§Ç?`
-                            : `Want to ask more about ${selectedGeoRegion.name.split('(')[0]}?`}
-                        </p>
-                        <button
-                          onClick={() => {
-                            const prompt = `Please explain the geography, rivers, passes, and historical significance of ${selectedGeoRegion.name} in detail with memory tricks for competitive exams.`;
-                            setChatInput(prompt);
-                            setActiveView('chat');
-                            logUserActivity('chat', prompt);
-                          }}
-                          className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all border-none cursor-pointer"
-                        >
-                          üí¨ Ask HansAI Companion for Deeper Analysis
-                        </button>
-                      </div>
-
-                    </div>
-                  )}
-
-                </div>
-              )}
-
-            </div>
-          )}
-
-          {/* VIEW: SOUL WELLNESS & LIFE BALANCE */}
-          {activeView === 'soul' && (
-            <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in text-left">
-              
-              {/* Header */}
-              <div className="border-b border-slate-800 pb-4 text-left">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Heart className="w-5.5 h-5.5 text-rose-400 animate-pulse" />
-                  Soul Wellness & Life Balance / ‡§µ‡§ø‡§¶‡•ç‡§Ø‡§æ‡§∞‡•ç‡§•‡•Ä ‡§ú‡•Ä‡§µ‡§® ‡§∂‡•à‡§≤‡•Ä
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Exams are run over years, not days! Practice sound stress relief, mindful breathing, and preserve your vital human force.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-2xl space-y-3">
-                  <h3 className="text-sm font-bold text-rose-300">üßò‚Äç‚ôÇÔ∏è Mindful Breathing & Stress Control</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Take 5 deep breaths before studying complex topics. Keep physical movement integrated with long study sessions.
-                  </p>
-                </div>
-                <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-2xl space-y-3">
-                  <h3 className="text-sm font-bold text-indigo-300">üìö Balanced Routine & Consistency</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Maintain 7-8 hours of sound sleep and stay hydrated. Mental clarity is key for competitive exam preparation.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* VIEW: OWNER ADMIN DASHBOARD */}
-          {activeView === 'owner-dashboard' && (
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 animate-fade-in text-left">
-              {!isOwnerAuthenticated ? (
-                <div className="max-w-md mx-auto bg-[#0F1626] border border-amber-500/30 p-8 rounded-3xl space-y-5 text-center shadow-2xl">
-                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/10">
-                    <ShieldCheck className="w-8 h-8 text-amber-400" />
-                  </div>
-                  <h2 className="text-lg font-bold text-white uppercase tracking-wider">
-                    Owner Administration Lock / ‡§ë‡§®‡§∞ ‡§è‡§°‡§Æ‡§ø‡§® ‡§≤‡•â‡§ó‡§ø‡§®
-                  </h2>
-                  <p className="text-xs text-slate-400">
-                    Enter the secret owner security key to access student analytics, search history, and user activity records.
-                  </p>
-                  <form onSubmit={handleOwnerPasswordSubmit} className="space-y-4">
-                    <input
-                      type="password"
-                      value={ownerPasswordInput}
-                      onChange={(e) => setOwnerPasswordInput(e.target.value)}
-                      placeholder="Enter Admin Master Password"
-                      className="w-full text-xs py-3 px-4 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 text-center font-mono"
-                    />
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-600/20 cursor-pointer border-none"
-                    >
-                      Unlock Admin Console üîì
-                    </button>
-                  </form>
-                </div>
-              ) : (
-                <>
-                  <AdminPanel
-                    ownerAnalyticsData={ownerAnalyticsData}
-                    isOwnerAnalyticsLoading={isOwnerAnalyticsLoading}
-                    fetchOwnerAnalytics={fetchOwnerAnalytics}
-                    setIsOwnerAuthenticated={setIsOwnerAuthenticated}
-                    feedbacks={feedbacks}
-                    handleDeleteLogItem={handleDeleteLogItem}
-                    setSelectedOwnerUserForBiodata={setSelectedUserBiodata}
-                    setShowOwnerBiodataModal={(val) => { if (!val) setSelectedUserBiodata(null); }}
-                    addAdminAuditLog={addAdminAuditLog}
-                    showToast={showToast}
-                    activeHeaderBanner={activeHeaderBanner}
-                    setActiveHeaderBanner={setActiveHeaderBanner}
-                    featureFlags={featureFlags}
-                    setFeatureFlags={setFeatureFlags}
-                    aiModelSettings={aiModelSettings}
-                    setAiModelSettings={setAiModelSettings}
-                    seoSettings={seoSettings}
-                    setSeoSettings={setSeoSettings}
-                    adminPasswordSecret={adminPasswordSecret}
-                    setAdminPasswordSecret={setAdminPasswordSecret}
-                    adminAuditLogs={adminAuditLogs}
-                    onOpenDiagnostics={() => setIsDiagnosticsModalOpen(true)}
-                  />
-                </>
-              )}
-              {false && (
-                <div>
-                  <div className="border-b border-slate-800 pb-4 text-left flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-amber-500 shadow-md shadow-amber-500/20 animate-pulse" />
-                        <h2 className="text-xl font-bold text-white uppercase tracking-wider">
-                          üëë {language === 'hindi' ? '‡§π‡§Ç‡§∏‡§≤‡§æ‡§≤ ‡§™‡§æ‡§≤ ‡§ú‡•Ä ‡§Æ‡§æ‡§≤‡§ø‡§ï ‡§è‡§°‡§Æ‡§ø‡§® ‡§°‡•à‡§∂‡§¨‡•ã‡§∞‡•ç‡§°' : 'Owner Admin Console - Hanslal Pal'}
-                        </h2>
-                      </div>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {language === 'hindi' 
-                          ? '‡§∏‡•Å‡§∞‡§ï‡•ç‡§∑‡§ø‡§§ ‡§™‡§æ‡§∏‡§µ‡§∞‡•ç‡§°-‡§∏‡§Ç‡§∞‡§ï‡•ç‡§∑‡§ø‡§§ ‡§ë‡§®‡§∞ ‡§è‡§°‡§Æ‡§ø‡§®‡§ø‡§∏‡•ç‡§ü‡•ç‡§∞‡•á‡§∂‡§® ‡§ï‡§Ç‡§∏‡•ã‡§≤' 
-                          : 'Secure password-protected owner administration console'}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          setIsOwnerAuthenticated(false);
-                          showToast(language === 'hindi' ? "‡§ë‡§®‡§∞ ‡§ï‡§Ç‡§∏‡•ã‡§≤ ‡§≤‡•â‡§ï ‡§π‡•Å‡§Ü üîí" : "Owner Console Locked üîí", "info");
-                        }}
-                        className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md border border-amber-500/30"
-                      >
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>{language === 'hindi' ? '‡§ï‡§Ç‡§∏‡•ã‡§≤ ‡§≤‡•â‡§ï ‡§ï‡§∞‡•á‡§Ç üîí' : 'Lock Console üîí'}</span>
-                      </button>
-
-                      <button
-                        onClick={fetchOwnerAnalytics}
-                        disabled={isOwnerAnalyticsLoading}
-                        className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md disabled:opacity-50 border-none"
-                      >
-                        <RefreshCw className={`w-3.5 h-3.5 ${isOwnerAnalyticsLoading ? 'animate-spin' : ''}`} />
-                        <span>{isOwnerAnalyticsLoading ? (language === 'hindi' ? '‡§≤‡•ã‡§° ‡§π‡•ã ‡§∞‡§π‡§æ ‡§π‡•à...' : 'Loading...') : (language === 'hindi' ? '‡§∞‡•Ä‡§´‡•ç‡§∞‡•á‡§∂ ‡§°‡•á‡§ü‡§æ' : 'Refresh Data')}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Real-time Stats Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div className="bg-[#0F1626]/80 border border-indigo-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-indigo-950/40">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§ï‡•Å‡§≤ ‡§¶‡§∞‡•ç‡§∂‡§ï ‡§è‡§µ‡§Ç ‡§õ‡§æ‡§§‡•ç‡§∞' : 'Total Visitors & Users'}</span>
-                      <span className="text-2xl font-black text-indigo-400 block font-mono">{ownerAnalyticsData.totalUsers || ownerAnalyticsData.users.length}</span>
-                      <span className="text-[9px] text-[#22c55e] block font-semibold">{language === 'hindi' ? '‡§≤‡§ø‡§Ç‡§ï ‡§ñ‡•ã‡§≤‡§®‡•á ‡§µ‡§æ‡§≤‡•á ‡§è‡§µ‡§Ç ‡§™‡§Ç‡§ú‡•Ä‡§ï‡•É‡§§ ‡§∏‡§≠‡•Ä' : 'All App Link Opens + Registered'}</span>
-                    </div>
-                    <div className="bg-[#0F1626]/80 border border-emerald-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-emerald-950/40">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§™‡§Ç‡§ú‡•Ä‡§ï‡•É‡§§ ‡§à‡§Æ‡•á‡§≤ ‡§õ‡§æ‡§§‡•ç‡§∞' : 'Registered Email Students'}</span>
-                      <span className="text-2xl font-black text-emerald-400 block font-mono">{ownerAnalyticsData.registeredCount}</span>
-                      <span className="text-[9px] text-emerald-300 block font-semibold">{language === 'hindi' ? '‡§®‡§æ‡§Æ ‡§è‡§µ‡§Ç ‡§à‡§Æ‡•á‡§≤ ‡§¶‡§∞‡•ç‡§ú ‡§ï‡§ø‡§è ‡§π‡•Å‡§è' : 'Verified Name & Email Profiles'}</span>
-                    </div>
-                    <div className="bg-[#0F1626]/80 border border-amber-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-amber-950/40">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§ó‡•á‡§∏‡•ç‡§ü / ‡§≤‡§ø‡§Ç‡§ï ‡§¶‡§∞‡•ç‡§∂‡§ï' : 'Link Guest Visitors'}</span>
-                      <span className="text-2xl font-black text-amber-400 block font-mono">{ownerAnalyticsData.visitorCount}</span>
-                      <span className="text-[9px] text-amber-300 block font-semibold">{language === 'hindi' ? '‡§≤‡§ø‡§Ç‡§ï ‡§∂‡•á‡§Ø‡§∞ ‡§∏‡•á ‡§∏‡•Ä‡§ß‡•á ‡§Ü‡§®‡•á ‡§µ‡§æ‡§≤‡•á' : 'Visited via Shared Link'}</span>
-                    </div>
-                    <div className="bg-[#0F1626]/80 border border-pink-500/30 p-4 rounded-2xl space-y-1 shadow-lg shadow-pink-950/40">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§ï‡•Å‡§≤ ‡§õ‡§æ‡§§‡•ç‡§∞ ‡§∏‡§∞‡•ç‡§ö ‡§è‡§µ‡§Ç ‡§™‡•ç‡§∞‡§∂‡•ç‡§®' : 'Total Searches & Activity'}</span>
-                      <span className="text-2xl font-black text-pink-400 block font-mono">{ownerAnalyticsData.totalQueries || ownerAnalyticsData.logs.length}</span>
-                      <span className="text-[9px] text-slate-400 block">{language === 'hindi' ? '‡§∏‡§π‡•á‡§ú‡•Ä ‡§ó‡§à ‡§ó‡§§‡§ø‡§µ‡§ø‡§ß‡§ø' : 'Logged user interactions'}</span>
-                    </div>
-                  </div>
-
-                  {/* SECTION 1: REGISTERED USERS & VISITORS LIST */}
-                  <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                      <div>
-                        <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                          <Users className="w-4 h-4 text-indigo-400" />
-                          {language === 'hindi' ? '1. ‡§™‡§Ç‡§ú‡•Ä‡§ï‡•É‡§§ ‡§õ‡§æ‡§§‡•ç‡§∞‡•ã‡§Ç ‡§è‡§µ‡§Ç ‡§¶‡§∞‡•ç‡§∂‡§ï‡•ã‡§Ç ‡§ï‡•Ä ‡§∏‡•Ç‡§ö‡•Ä (Biodata)' : '1. Users & Visitors Directory (Biodata)'} ({ownerAnalyticsData.users.length})
-                        </h3>
-                        <p className="text-[11px] text-slate-400">
-                          Real-time list of all users, registered students, and link visitors with complete activity history.
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {/* Filter Category Tabs */}
-                        <div className="flex items-center bg-[#060913] p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
-                          <button
-                            onClick={() => setOwnerUserTypeFilter('all')}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none ${ownerUserTypeFilter === 'all' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                          >
-                            All ({ownerAnalyticsData.users.length})
-                          </button>
-                          <button
-                            onClick={() => setOwnerUserTypeFilter('logged_in')}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none flex items-center gap-1 ${ownerUserTypeFilter === 'logged_in' ? 'bg-emerald-600 text-white font-extrabold shadow-sm' : 'text-slate-400 hover:text-white'}`}
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse inline-block"></span>
-                            {language === 'hindi' ? '‡§≤‡•â‡§ó ‡§á‡§® ‡§õ‡§æ‡§§‡•ç‡§∞' : 'Logged-In'} ({ownerAnalyticsData.registeredCount})
-                          </button>
-                          <button
-                            onClick={() => setOwnerUserTypeFilter('registered')}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none ${ownerUserTypeFilter === 'registered' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                          >
-                            Registered ({ownerAnalyticsData.registeredCount})
-                          </button>
-                          <button
-                            onClick={() => setOwnerUserTypeFilter('visitors')}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none ${ownerUserTypeFilter === 'visitors' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                          >
-                            Visitors ({ownerAnalyticsData.visitorCount})
-                          </button>
-                        </div>
-
-                        {/* Search box for users */}
-                        <div className="relative w-full sm:w-48">
-                          <input
-                            type="text"
-                            value={ownerUserSearchQuery}
-                            onChange={(e) => setOwnerUserSearchQuery(e.target.value)}
-                            placeholder="Search name or email..."
-                            className="w-full text-xs py-1.5 pl-8 pr-3 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                          />
-                          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="overflow-x-auto max-h-80 overflow-y-auto">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead className="sticky top-0 bg-[#0B0F1B] z-10">
-                          <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-bold">
-                            <th className="py-2.5 px-3">Student / Visitor Name</th>
-                            <th className="py-2.5 px-3">Email / Visitor Identifier</th>
-                            <th className="py-2.5 px-3">Account Type</th>
-                            <th className="py-2.5 px-3">Device / IP</th>
-                            <th className="py-2.5 px-3">First Seen</th>
-                            <th className="py-2.5 px-3">Last Active</th>
-                            <th className="py-2.5 px-3 text-center">Prompts</th>
-                            <th className="py-2.5 px-3 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-850 font-medium">
-                          {ownerAnalyticsData.users
-                            .filter(u => {
-                              const matchesSearch = 
-                                u.name.toLowerCase().includes(ownerUserSearchQuery.toLowerCase()) || 
-                                u.email.toLowerCase().includes(ownerUserSearchQuery.toLowerCase());
-                              const isGuest = u.isGuest || u.email.endsWith('@hansai.visitor');
-                              if (ownerUserTypeFilter === 'logged_in') return matchesSearch && !isGuest;
-                              if (ownerUserTypeFilter === 'registered') return matchesSearch && !isGuest;
-                              if (ownerUserTypeFilter === 'visitors') return matchesSearch && isGuest;
-                              return matchesSearch;
-                            })
-                            .map((usr) => {
-                              const isGuest = usr.isGuest || usr.email.endsWith('@hansai.visitor');
-                              return (
-                                <tr key={usr.id} className="hover:bg-indigo-500/5 transition-all">
-                                  <td className="py-2.5 px-3 text-white font-bold flex items-center gap-2">
-                                    <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] ${
-                                      isGuest ? 'bg-amber-500/30 text-amber-300' : 'bg-emerald-500/30 text-emerald-300'
-                                    }`}>
-                                      {usr.name.charAt(0).toUpperCase()}
-                                    </div>
-                                    <span>{usr.name}</span>
-                                  </td>
-                                  <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px]">{usr.email}</td>
-                                  <td className="py-2.5 px-3">
-                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase inline-flex items-center gap-1 ${
-                                      isGuest ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                    }`}>
-                                      {!isGuest && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>}
-                                      {isGuest ? (language === 'hindi' ? '‡§≤‡§ø‡§Ç‡§ï ‡§¶‡§∞‡•ç‡§∂‡§ï' : 'Guest Link Visitor') : (language === 'hindi' ? '‡§≤‡•â‡§ó ‡§á‡§® / ‡§™‡§Ç‡§ú‡•Ä‡§ï‡•É‡§§ ‡§õ‡§æ‡§§‡•ç‡§∞ üü¢' : 'Logged In Student üü¢')}
-                                    </span>
-                                  </td>
-                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.deviceInfo || (usr as any).device || "Mobile/Desktop"}</td>
-                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.registeredAt ? new Date(usr.registeredAt).toLocaleDateString() : ((usr as any).createdAt || "Recent")}</td>
-                                  <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">{usr.lastActiveAt ? new Date(usr.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ((usr as any).lastActive || "Now")}</td>
-                                  <td className="py-2.5 px-3 text-center text-indigo-400 font-mono font-bold">{usr.promptCount ?? (usr as any).queryCount ?? 0}</td>
-                                  <td className="py-2.5 px-3 text-right">
-                                    <button
-                                      onClick={() => {
-                                        setSelectedUserForLogs(usr.email);
-                                        setOwnerLogSearchQuery(usr.email);
-                                        showToast(`Filtering activity logs for ${usr.name}`, "info");
-                                      }}
-                                      className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-none"
-                                    >
-                                      View Activity üîç
-                                    </button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-
-                          {ownerAnalyticsData.users.length === 0 && (
-                            <tr>
-                              <td colSpan={8} className="py-6 text-center text-slate-500 text-xs">
-                                No registered users or visitors recorded yet.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  
-                  {/* Real-time Stats Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§ï‡•Å‡§≤ ‡§™‡§Ç‡§ú‡•Ä‡§ï‡•É‡§§ ‡§õ‡§æ‡§§‡•ç‡§∞/‡§â‡§™‡§Ø‡•ã‡§ó‡§ï‡§∞‡•ç‡§§‡§æ' : 'Total Registered Users'}</span>
-                      <span className="text-2xl font-black text-indigo-400 block font-mono">{ownerAnalyticsData.totalUsers || ownerAnalyticsData.users.length}</span>
-                      <span className="text-[9px] text-[#22c55e] block font-semibold">{language === 'hindi' ? '‡§®‡§æ‡§Æ ‡§è‡§µ‡§Ç ‡§à‡§Æ‡•á‡§≤ ‡§¶‡•ç‡§µ‡§æ‡§∞‡§æ ‡§∞‡§ú‡§ø‡§∏‡•ç‡§ü‡§∞‡•ç‡§°' : 'Registered via Name & Email'}</span>
-                    </div>
-                    <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§ï‡•Å‡§≤ ‡§õ‡§æ‡§§‡•ç‡§∞ ‡§∏‡§∞‡•ç‡§ö ‡§è‡§µ‡§Ç ‡§™‡•ç‡§∞‡§∂‡•ç‡§®' : 'Total User Searches & Prompts'}</span>
-                      <span className="text-2xl font-black text-emerald-400 block font-mono">{ownerAnalyticsData.totalQueries || ownerAnalyticsData.logs.length}</span>
-                      <span className="text-[9px] text-slate-400 block">{language === 'hindi' ? '‡§∏‡§π‡•á‡§ú‡•Ä ‡§ó‡§à ‡§ó‡§§‡§ø‡§µ‡§ø‡§ß‡§ø' : 'Logged activity records'}</span>
-                    </div>
-                    <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§ë‡§´‡§º‡§≤‡§æ‡§á‡§® ‡§∏‡•ç‡§•‡§ø‡§§‡§ø' : 'Offline Status'}</span>
-                      <span className="text-2xl font-black text-amber-400 block font-mono">{isOffline ? 'OFFLINE' : 'ONLINE'}</span>
-                      <span className="text-[9px] text-slate-400 block font-semibold">{language === 'hindi' ? '‡§∏‡§∞‡•ç‡§µ‡§ø‡§∏ ‡§µ‡§∞‡•ç‡§ï‡§∞ ‡§ï‡•à‡§∂ ‡§∏‡§ï‡•ç‡§∞‡§ø‡§Ø' : 'Service Worker cached'}</span>
-                    </div>
-                    <div className="bg-[#0F1626]/60 border border-slate-800 p-4 rounded-2xl space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">{language === 'hindi' ? '‡§â‡§™‡§Ø‡•ã‡§ó‡§ï‡§∞‡•ç‡§§‡§æ ‡§∞‡•á‡§ü‡§ø‡§Ç‡§ó ‡§î‡§∏‡§§‡§®' : 'User Feedback Rate'}</span>
-                      <span className="text-2xl font-black text-pink-400 block font-mono">4.9 / 5.0</span>
-                      <span className="text-[9px] text-slate-400 block">{language === 'hindi' ? `${feedbacks.length} ‡§õ‡§æ‡§§‡•ç‡§∞ ‡§∏‡§Æ‡•Ä‡§ï‡•ç‡§∑‡§æ‡§ì‡§Ç ‡§¶‡•ç‡§µ‡§æ‡§∞‡§æ` : `From ${feedbacks.length} student audits`}</span>
-                    </div>
-                  </div>
-
-                  {/* SECTION 1: REGISTERED USERS LIST */}
-                  <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                      <div>
-                        <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                          <Users className="w-4 h-4 text-indigo-400" />
-                          {language === 'hindi' ? '1. ‡§™‡§Ç‡§ú‡•Ä‡§ï‡•É‡§§ ‡§õ‡§æ‡§§‡•ç‡§∞‡•ã‡§Ç ‡§ï‡•Ä ‡§∏‡•Ç‡§ö‡•Ä (‡§ï‡•å‡§®-‡§ï‡•å‡§® ‡§ö‡§≤‡§æ‡§Ø‡§æ ‡§π‡•à)' : '1. Registered Users Directory'} ({ownerAnalyticsData.users.length})
-                        </h3>
-                        <p className="text-[11px] text-slate-400">
-                          List of all students who submitted Name & Email before using HansAI.
-                        </p>
-                      </div>
-
-                      {/* Search box for users */}
-                      <div className="relative w-full sm:w-64">
-                        <input
-                          type="text"
-                          value={ownerUserSearchQuery}
-                          onChange={(e) => setOwnerUserSearchQuery(e.target.value)}
-                          placeholder="Search name or email..."
-                          className="w-full text-xs py-2 pl-8 pr-3 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                        />
-                        <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
-                      </div>
-                    </div>
-
-                    <div className="overflow-x-auto max-h-72 overflow-y-auto">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead className="sticky top-0 bg-[#0B0F1B] z-10">
-                          <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-bold">
-                            <th className="py-2.5 px-3">Student Name</th>
-                            <th className="py-2.5 px-3">Email Address</th>
-                            <th className="py-2.5 px-3">First Registered</th>
-                            <th className="py-2.5 px-3">Last Active</th>
-                            <th className="py-2.5 px-3 text-center">Prompts Used</th>
-                            <th className="py-2.5 px-3 text-right">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-850 font-medium">
-                          {ownerAnalyticsData.users
-                            .filter(u => 
-                              u.name.toLowerCase().includes(ownerUserSearchQuery.toLowerCase()) || 
-                              u.email.toLowerCase().includes(ownerUserSearchQuery.toLowerCase())
-                            )
-                            .map((usr) => (
-                              <tr key={usr.id} className="hover:bg-indigo-500/5 transition-all">
-                                <td className="py-2.5 px-3 text-white font-bold flex items-center gap-2">
-                                  <div className="w-6 h-6 rounded-full bg-indigo-600/30 text-indigo-300 font-bold flex items-center justify-center text-[10px]">
-                                    {usr.name.charAt(0).toUpperCase()}
-                                  </div>
-                                  <span>{usr.name}</span>
-                                </td>
-                                <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px]">{usr.email}</td>
-                                <td className="py-2.5 px-3 text-slate-400 text-[10px]">{usr.registeredAt ? new Date(usr.registeredAt).toLocaleString() : 'Recent'}</td>
-                                <td className="py-2.5 px-3 text-slate-400 text-[10px]">{usr.lastActiveAt ? new Date(usr.lastActiveAt).toLocaleString() : 'Recent'}</td>
-                                <td className="py-2.5 px-3 text-center">
-                                  <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-[10px]">
-                                    {usr.promptCount || 0}
-                                  </span>
-                                </td>
-                                <td className="py-2.5 px-3 text-right">
-                                  <button
-                                    onClick={() => {
-                                      setSelectedUserForLogs(usr.email);
-                                      setOwnerLogSearchQuery(usr.email);
-                                      showToast(`Filtering search history logs for ${usr.name}`, "info");
-                                    }}
-                                    className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer border-none"
-                                  >
-                                    View Searches üîç
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-
-                          {ownerAnalyticsData.users.length === 0 && (
-                            <tr>
-                              <td colSpan={6} className="py-6 text-center text-slate-500 text-xs">
-                                No registered users found yet. New users will automatically appear here once registered.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* SECTION 2: USER SEARCHES & PROMPTS LOG (‡§ï‡•ç‡§Ø‡§æ-‡§ï‡•ç‡§Ø‡§æ ‡§ñ‡•ã‡§ú‡§æ ‡§Ø‡§æ ‡§™‡•Ç‡§õ‡§æ ‡§ó‡§Ø‡§æ ‡§π‡•à) */}
-                  <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                      <div>
-                        <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                          <Search className="w-4 h-4 text-emerald-400" />
-                          2. User Searches & Prompts History / ‡§ï‡•ç‡§Ø‡§æ-‡§ï‡•ç‡§Ø‡§æ ‡§ñ‡•ã‡§ú‡§æ/‡§™‡•Ç‡§õ‡§æ ‡§ó‡§Ø‡§æ ‡§π‡•à ({ownerAnalyticsData.logs.length})
-                        </h3>
-                        <p className="text-[11px] text-slate-400">
-                          Complete audit log of questions, chats, research topics, and search queries asked by users.
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {/* Clear Logs Button */}
-                        <button
-                          onClick={async () => {
-                            if (window.confirm("‡§ï‡•ç‡§Ø‡§æ ‡§Ü‡§™ ‡§∏‡§ö‡§Æ‡•Å‡§ö ‡§∏‡§≠‡•Ä ‡§∏‡§∞‡•ç‡§µ‡§∞ ‡§∏‡§∞‡•ç‡§ö ‡§è‡§µ‡§Ç ‡§ö‡•à‡§ü ‡§≤‡•â‡§ó ‡§∏‡§æ‡§´‡§º ‡§ï‡§∞‡§®‡§æ ‡§ö‡§æ‡§π‡§§‡•á ‡§π‡•à‡§Ç?")) {
-                              try {
-                                const res = await fetch('/api/owner/clear-logs', { method: 'POST' });
-                                if (res.ok) {
-                                  showToast("All search history logs cleared! üßπ", "success");
-                                  fetchOwnerAnalytics();
-                                }
-                              } catch (e) {
-                                showToast("Failed to clear logs", "warn");
-                              }
-                            }
-                          }}
-                          className="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer border-none"
-                        >
-                          Clear Logs üßπ
-                        </button>
-
-                        {/* Search Input for logs */}
-                        <div className="relative w-full sm:w-56">
-                          <input
-                            type="text"
-                            value={ownerLogSearchQuery}
-                            onChange={(e) => setOwnerLogSearchQuery(e.target.value)}
-                            placeholder="Filter query or email..."
-                            className="w-full text-xs py-1.5 pl-8 pr-3 bg-[#060913] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                          />
-                          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Filter Badges */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold">
-                      <div className="flex items-center gap-1.5 overflow-x-auto">
-                        {['all', 'music', 'chat', 'research', 'quiz', 'search'].map((ft) => (
-                          <button
-                            key={ft}
-                            onClick={() => setOwnerLogTypeFilter(ft)}
-                            className={`px-3 py-1 rounded-xl uppercase text-[10px] font-bold transition-all cursor-pointer border-none ${
-                              ownerLogTypeFilter === ft 
-                                ? 'bg-indigo-600 text-white shadow-md' 
-                                : 'bg-slate-800/60 text-slate-400 hover:text-white'
-                            }`}
-                          >
-                            {ft === 'music' ? 'üéµ Music / ‡§∏‡§Ç‡§ó‡•Ä‡§§' : ft}
-                          </button>
-                        ))}
-                      </div>
-
-                      {selectedUserForLogs && (
-                        <div className="flex items-center gap-2 bg-indigo-500/10 px-2.5 py-1 rounded-xl text-indigo-300 text-[11px]">
-                          <span>Filtered for: <strong>{selectedUserForLogs}</strong></span>
-                          <button
-                            onClick={() => {
-                              setSelectedUserForLogs(null);
-                              setOwnerLogSearchQuery('');
-                            }}
-                            className="text-slate-400 hover:text-white text-xs cursor-pointer border-none bg-transparent"
-                          >
-                            ‚úï
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="overflow-x-auto max-h-96 overflow-y-auto">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead className="sticky top-0 bg-[#0B0F1B] z-10">
-                          <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-bold">
-                            <th className="py-2.5 px-3">Timestamp</th>
-                            <th className="py-2.5 px-3">Student Name & Email</th>
-                            <th className="py-2.5 px-3">Type</th>
-                            <th className="py-2.5 px-3">User Query / Search Text</th>
-                            <th className="py-2.5 px-3 text-right">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-850 font-medium">
-                          {ownerAnalyticsData.logs
-                            .filter(lg => {
-                              const matchesSearch = 
-                                lg.query.toLowerCase().includes(ownerLogSearchQuery.toLowerCase()) || 
-                                lg.userEmail.toLowerCase().includes(ownerLogSearchQuery.toLowerCase()) ||
-                                (lg.userName && lg.userName.toLowerCase().includes(ownerLogSearchQuery.toLowerCase()));
-                              const matchesType = ownerLogTypeFilter === 'all' || lg.type === ownerLogTypeFilter;
-                              return matchesSearch && matchesType;
-                            })
-                            .map((logItem) => (
-                              <tr key={logItem.id} className="hover:bg-slate-800/30 transition-all">
-                                <td className="py-2.5 px-3 text-slate-400 text-[10px] whitespace-nowrap font-mono">
-                                  {new Date(logItem.timestamp).toLocaleString()}
-                                </td>
-                                <td className="py-2.5 px-3">
-                                  <div className="font-bold text-slate-200">{logItem.userName || 'Student'}</div>
-                                  <div className="text-[10px] text-slate-400 font-mono">{logItem.userEmail}</div>
-                                </td>
-                                <td className="py-2.5 px-3">
-                                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
-                                    logItem.type === 'music' ? 'bg-rose-500/20 text-rose-300' :
-                                    logItem.type === 'chat' ? 'bg-indigo-500/20 text-indigo-300' :
-                                    logItem.type === 'research' ? 'bg-emerald-500/20 text-emerald-300' :
-                                    logItem.type === 'quiz' ? 'bg-pink-500/20 text-pink-300' :
-                                    'bg-amber-500/20 text-amber-300'
-                                  }`}>
-                                    {logItem.type}
-                                  </span>
-                                </td>
-                                <td className="py-2.5 px-3 text-slate-100 font-sans max-w-md leading-relaxed">
-                                  {logItem.query}
-                                </td>
-                                <td className="py-2.5 px-3 text-right">
-                                  <button
-                                    onClick={() => handleDeleteLogItem(logItem.id)}
-                                    title="Delete this log"
-                                    className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all cursor-pointer border-none bg-transparent"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5 inline" />
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-
-                          {ownerAnalyticsData.logs.length === 0 && (
-                            <tr>
-                              <td colSpan={5} className="py-6 text-center text-slate-500 text-xs">
-                                No search/chat activity logs recorded yet. Activities will automatically log as users interact.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Student Feedbacks Table */}
-                  <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4">
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                      üìù Student Reviews & Ratings ({feedbacks.length})
-                    </h3>
-                    
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead>
-                          <tr className="border-b border-slate-800 text-slate-500 text-[10px] uppercase font-bold">
-                            <th className="py-2.5 px-3">Student Email</th>
-                            <th className="py-2.5 px-3">Stars</th>
-                            <th className="py-2.5 px-3 text-center">Feedback / Review</th>
-                            <th className="py-2.5 px-3 text-right">Date Applied</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-850 font-medium">
-                          {feedbacks.map((fb) => (
-                            <tr key={fb.id} className="hover:bg-slate-800/10">
-                              <td className="py-3 px-3 text-slate-300 font-mono text-[11px]">{fb.user}</td>
-                              <td className="py-3 px-3 text-amber-400 whitespace-nowrap">{"‚òÖ".repeat((fb as any).stars || fb.ratingExperience || fb.ratingAccuracy || 5)}</td>
-                              <td className="py-3 px-3 text-slate-200 text-left max-w-xs">{fb.comment}</td>
-                              <td className="py-3 px-3 text-slate-500 text-right text-[10px] font-mono">{fb.date}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                </div>
-              )}
-
-            </div>
-          )}
-
-          {/* VIEW: SARKARI RESULT / ‡§∏‡§∞‡§ï‡§æ‡§∞‡•Ä ‡§®‡•å‡§ï‡§∞‡•Ä & ‡§™‡§æ‡§§‡•ç‡§∞‡§§‡§æ ‡§´‡§æ‡§á‡§Ç‡§°‡§∞ */}
-          {activeView === 'sarkari-result' && (
-            <div className="max-w-6xl mx-auto px-2 sm:px-4 py-6 space-y-8 animate-fade-in text-left">
-              
-              {/* Top Interactive Student Eligibility Job Matcher */}
-              <SarkariResultEligibilityHub
-                onAskHansAi={(prompt) => handleSendChat(prompt)}
-                onStartStenoMock={(subject) => {
-                  setActiveView('steno');
-                  showToast(`${subject} ‡§ï‡§æ ‡§∏‡•ç‡§ü‡•à‡§®‡•ã ‡§∏‡•ç‡§ü‡•Ç‡§°‡§ø‡§Ø‡•ã ‡§è‡§ï‡•ç‡§ü‡§ø‡§µ ‡§π‡•ã ‡§ó‡§Ø‡§æ! ‚úçÔ∏è`, "info");
-                }}
-                showToast={showToast}
-                language={language}
-              />
-
-              {/* Classic Sarkari Result 3-Column Updates (Admit Cards, Results, Notifications) */}
-              <div className="border-t border-slate-800 pt-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-orange-400" />
-                    <span>‡§¶‡•à‡§®‡§ø‡§ï ‡§™‡•ç‡§∞‡§µ‡•á‡§∂ ‡§™‡§§‡•ç‡§∞ ‡§µ ‡§™‡§∞‡§ø‡§£‡§æ‡§Æ ‡§§‡•ç‡§µ‡§∞‡§ø‡§§ ‡§¨‡•Å‡§≤‡•á‡§ü‡§ø‡§® (Daily Sarkari Updates)</span>
-                  </h3>
-                  <a 
-                    href="https://www.sarkariresult.com/" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="text-xs text-orange-400 hover:underline font-bold flex items-center gap-1"
-                  >
-                    <span>‡§Æ‡•Ç‡§≤ ‡§µ‡•á‡§¨‡§∏‡§æ‡§á‡§ü sarkariresult.com</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
-                  {/* 1. Latest Jobs Section */}
-                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                      <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                        Latest Jobs / ‡§∞‡§ø‡§ï‡•ç‡§§‡§ø‡§Ø‡§æ‡§Ç
-                      </h3>
-                      <span className="bg-emerald-500/10 text-emerald-400 text-[9px] px-1.5 py-0.2 rounded font-black font-mono">NEW</span>
-                    </div>
-                    <div className="space-y-3 font-medium">
-                      {[
-                        { title: "SSC Stenographer Grade C & D Notification 2026", desc: "Short Notice Released. Online App Starts Soon.", subject: "SSC Stenographer" },
-                        { title: "SSC CHSL (10+2) 2026 Tier I Online Application", desc: "Apply Online now for 3800+ vacancies across India.", subject: "SSC CHSL" },
-                        { title: "BPSC 71st Combined Mains Exam Forms 2026", desc: "For Administrative postings. Apply before deadline.", subject: "BPSC Mains" },
-                        { title: "SSC GD Constable Recruitments 2026", desc: "35,000+ posts in CAPF, NIA, SSF, and Assam Rifles.", subject: "SSC GD" },
-                        { title: "Railway RRB ALP Recruitments 2026 Stage II", desc: "Exam dates active. Download admit papers soon.", subject: "Railway ALP" }
-                      ].map((job, idx) => (
-                        <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-855 hover:border-slate-800 transition-all space-y-1">
-                          <h4 className="text-[11px] font-bold text-slate-100 hover:text-indigo-400 cursor-pointer" onClick={() => handleSendChat(`Give me details, eligibility, syllabus, and selection pattern for ${job.title}`)}>{job.title}</h4>
-                          <p className="text-[10px] text-slate-400">{job.desc}</p>
-                          <div className="flex items-center justify-between pt-1">
-                            <button 
-                              onClick={() => {
-                                setResearchTopic(job.subject);
-                                setActiveView('research');
-                              }}
-                              className="text-[9px] text-indigo-400 hover:underline font-bold cursor-pointer"
-                            >
-                              Research Syllabus üî¨
-                            </button>
-                            <button 
-                              onClick={() => {
-                                setTimerPresetVal(30);
-                                setTimeLeft(1800);
-                                setDisableNotesForTimer(true);
-                                setActiveView('timer');
-                                showToast(`Steno offline mock timer for ${job.subject} started! ‚è±Ô∏è`, "info");
-                              }}
-                              className="text-[9px] text-amber-500 hover:underline font-bold cursor-pointer"
-                            >
-                              Practice Mock ‚è±Ô∏è
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 2. Admit Cards Section */}
-                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                      <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <FileText className="w-4 h-4 text-indigo-400" />
-                        Admit Cards / ‡§™‡•ç‡§∞‡§µ‡•á‡§∂ ‡§™‡§§‡•ç‡§∞
-                      </h3>
-                    </div>
-                    <div className="space-y-3 font-medium">
-                      {[
-                        { title: "SSC CGL 2026 Tier I Exam Region Wise Admit Papers", desc: "All regions CRF, NWR, ER download status active." },
-                        { title: "UPSC Civil Services Prelims 2026 Call Letters", desc: "Enter Registration details to download PDF print." },
-                        { title: "SSC GD Constable 2025 Physical Standards Call Letter", desc: "Physical test phase starting from next fortnight." },
-                        { title: "Bihar Police Sub Inspector Main Exam Hall Ticket", desc: "Download available via Bihar board login node." }
-                      ].map((admit, idx) => (
-                        <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-855 space-y-1">
-                          <h4 className="text-[11px] font-bold text-slate-200">{admit.title}</h4>
-                          <p className="text-[10px] text-slate-400 leading-relaxed">{admit.desc}</p>
-                          <div className="pt-1.5 flex justify-end">
-                            <span className="text-[9px] bg-indigo-500/10 text-indigo-400 rounded px-1.5 py-0.5 font-bold">STATUS: RELEASING</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 3. Results Section */}
-                  <div className="bg-[#0F1626]/40 border border-slate-800 p-5 rounded-2xl space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                      <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
-                        <Award className="w-4 h-4 text-amber-500" />
-                        Exam Results / ‡§™‡§∞‡§ø‡§£‡§æ‡§Æ
-                      </h3>
-                    </div>
-                    <div className="space-y-3 font-medium">
-                      {[
-                        { title: "SSC CGL 2025 Final Out Selected List PDF", desc: "Combined Graduate Level score verified. Checked selection lists." },
-                        { title: "Bihar BPSC 70th Prelims Cut Off Marks", desc: "Cutoffs released. General candidates score cutoff: 104.5." },
-                        { title: "SSC Stenographer Grade C & D 2025 Skill Test Result", desc: "Download roll numbers qualifying the shorthand criteria." },
-                        { title: "UGC NET June Session Final Cutoff Result 2026", desc: "JRF & Assistant Professorship subject list available." }
-                      ].map((resItem, idx) => (
-                        <div key={idx} className="p-3 bg-[#090D16]/50 rounded-xl border border-slate-855 space-y-1 hover:bg-[#090D16]/80 transition-all">
-                          <h4 className="text-[11px] font-bold text-slate-200">{resItem.title}</h4>
-                          <p className="text-[10px] text-slate-400 leading-relaxed">{resItem.desc}</p>
-                          <div className="pt-2 flex items-center justify-between">
-                            <button 
-                              onClick={() => handleSendChat(`Analyze cutoffs and download result process for ${resItem.title}`)}
-                              className="text-[9px] text-[#22c55e] hover:underline font-bold cursor-pointer"
-                            >
-                              Analyze Cutoffs üìà
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* VIEW: DIGITAL BOOK READER & LIBRARY */}
-          {activeView === 'book-reader' && (
-            <ErrorBoundary fallbackTitle="Digital Book Reader" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <GlobalBookReader
-                  showToast={showToast}
-                  language={language}
-                  onBackToChat={() => setActiveView('chat')}
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: DEDICATED STENO MASTER STUDIO */}
-          {activeView === 'steno' && (
-            <ErrorBoundary fallbackTitle="Steno Master Studio" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <DedicatedStenoMasterStudio
-                  showToast={showToast}
-                  language={language}
-                  onBackToChat={() => setActiveView('chat')}
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: PUBLIC LAUNCH & LEGAL COMPLIANCE HUB */}
-          {activeView === 'launch-hub' && (
-            <ErrorBoundary fallbackTitle="Public Launch Hub" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <PublicLaunchHubView
-                  showToast={showToast}
-                  language={language}
-                  onBackToChat={() => setActiveView('chat')}
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AI STUDY PLAN & ROADMAP */}
-          {(activeView === 'planner' || activeView === 'study-plan') && (
-            <ErrorBoundary fallbackTitle="AI Study Planner" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <StudyPlanView user={user} onExportPdf={handleExportPdf} showToast={showToast} language={language} />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AFFILIATE STORE & SARKARI PRODUCTS */}
-          {(activeView === 'affiliate-store' || activeView === 'affiliate' || activeView === 'sarkari-result') && (
-            <ErrorBoundary fallbackTitle="Affiliate Store" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <AffiliateStoreView user={user} showToast={showToast} />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AI FLASHCARDS DECK */}
-          {activeView === 'flashcards' && (
-            <ErrorBoundary fallbackTitle="AI Flashcards Deck" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <FlashcardsView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: PHOTO DOUBT SOLVER & OCR */}
-          {activeView === 'photo-doubt' && (
-            <ErrorBoundary fallbackTitle="Photo Doubt Solver" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <PhotoDoubtView onExportPdf={handleExportPdf} showToast={showToast} />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: HANDWRITTEN NOTES OCR & QUIZ SCANNER */}
-          {(activeView === 'notes-ocr' || activeView === 'photo-ocr') && (
-            <ErrorBoundary fallbackTitle="Notes OCR Scanner" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <NotesOcrView onExportPdf={handleExportPdf} showToast={showToast} language={language} />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: ARTICLE VOICE READER & TRANSLATOR */}
-          {activeView === 'article-reader' && (
-            <ErrorBoundary fallbackTitle="Article Voice Reader" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <ArticleVoiceReader onBackToChat={() => setActiveView('chat')} showToast={showToast} language={language} />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: SECURITY SYSTEM AUDIT HUB */}
-          {activeView === 'security' && (
-            <ErrorBoundary fallbackTitle="Security Hub" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <SecurityHubView user={user} showToast={showToast} />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: FILE FORMAT CONVERTER */}
-          {activeView === 'file-converter' && (
-            <ErrorBoundary fallbackTitle="File Converter" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <FileConverterView 
-                  showToast={showToast} 
-                  language={language} 
-                  onBack={() => setActiveView('chat')} 
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: WEATHER & CLIMATE ALERT CENTER */}
-          {activeView === 'weather-alerts' && (
-            <ErrorBoundary fallbackTitle="Weather Alerts" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <WeatherAlertView 
-                  showToast={showToast} 
-                  language={language} 
-                  onBack={() => setActiveView('chat')} 
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AI NEURAL KNOWLEDGE SYNAPSE & RETENTION MAP */}
-          {activeView === 'neural-map' && (
-            <ErrorBoundary fallbackTitle="Neural Knowledge Map" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <NeuralMemoryMapView 
-                  showToast={showToast} 
-                  language={language} 
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AI HISTORICAL TIME-TRAVEL SIMULATOR */}
-          {activeView === 'time-travel' && (
-            <ErrorBoundary fallbackTitle="Time Travel Simulator" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <TimeTravelSimulatorView 
-                  showToast={showToast} 
-                  language={language} 
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AI SMART MNEMONICS TRICK GENERATOR */}
-          {activeView === 'mnemonics' && (
-            <ErrorBoundary fallbackTitle="Mnemonics Generator" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <MnemonicsTrickGeneratorView 
-                  showToast={showToast} 
-                  language={language} 
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: INTERACTIVE SCIENCE & FORMULA PLAYGROUND LAB */}
-          {activeView === 'science-lab' && (
-            <ErrorBoundary fallbackTitle="Science Formula Lab" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <ScienceFormulaLabView 
-                  showToast={showToast} 
-                  language={language} 
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AI MOCK INTERVIEW SIMULATOR */}
-          {activeView === 'mock-interview' && (
-            <ErrorBoundary fallbackTitle="AI Mock Interview" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <MockInterviewView
-                  language={language}
-                  showToast={showToast}
-                  onExportPdf={handleExportPdf}
-                  onStartLiveChat={() => {
-                    setActiveView('chat');
-                    setChatInput("Start a live, unrecorded AI mock interview with me. Act as a strict interview board panel member. Ask me the first question and wait for my response.");
-                  }}
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: AI PERFORMANCE DIAGNOSTICS & WEAK AREA ANALYTICS */}
-          {activeView === 'performance-analytics' && (
-            <ErrorBoundary fallbackTitle="AI Performance Analytics" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <AIPerformanceDiagnosticsView
-                  language={language}
-                  showToast={showToast}
-                  onExportPdf={handleExportPdf}
-                  onNavigateToQuiz={(subj) => {
-                    setQuizSubject(subj);
-                    setActiveView('quiz');
-                  }}
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-          {/* VIEW: QUIZ MISTAKE NOTEBOOK */}
-          {activeView === 'mistake-notebook' && (
-            <ErrorBoundary fallbackTitle="Mistake Notebook" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
-                <QuizMistakeNotebookView
-                  mistakes={mistakeNotebook}
-                  onRetest={(questions, title) => handleStartRetestFromMistakes(questions, title)}
-                  onDelete={handleDeleteMistake}
-                  onClearAll={handleClearAllMistakes}
-                  onToggleMastered={handleToggleMasteredMistake}
-                />
-              </div>
-            </ErrorBoundary>
-          )}
-
-        </div>
-
-
-
-      {/* SETTINGS MODAL DIALOG */}
-      {isSettingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" id="settings-overlay">
-          <div className="bg-[#0F1626] border border-slate-800 rounded-2xl w-full max-w-sm p-5 relative shadow-2xl" id="settings-card">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3" id="settings-header">
-              <div className="flex items-center gap-2">
-                <Settings className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-sm font-bold text-white tracking-wide">App Settings / ‡§∏‡•á‡§ü‡§ø‡§Ç‡§ó‡•ç‡§∏</h3>
-              </div>
-              <button 
-                onClick={() => setIsSettingsOpen(false)}
-                className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
-                id="settings-close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Content Options */}
-            <div className="py-2.5 space-y-3.5 overflow-y-auto max-h-[60vh] pr-1" id="settings-content">
-              
-              {/* API Connection Model Selector */}
-              <div className="space-y-1.5" id="settings-model-container">
-                <label className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block flex items-center gap-1">
-                  <Cpu className="w-3.5 h-3.5 text-amber-400" />
-                  AI Connection Model / ‡§è‡§Ü‡§à ‡§Æ‡•â‡§°‡§≤ ‡§ö‡•Å‡§®‡•á‡§Ç
-                </label>
-                <div className="flex flex-col gap-1.5">
-                  <button
-                    onClick={() => setSelectedModel('gemini-3.7-flash')}
-                    className={`p-2 rounded-xl border text-left transition-all ${
-                      selectedModel === 'gemini-3.7-flash'
-                        ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold shadow-inner'
-                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
-                    }`}
-                  >
-                    <span className="text-xs font-bold block mb-0.5">Gemini 3.7 Flash (Default)</span>
-                    <span className="text-[9px] opacity-75 block">Recommended. Extremely fast, intelligent educational companion.</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => setSelectedModel('gemini-3.1-flash-lite')}
-                    className={`p-2 rounded-xl border text-left transition-all ${
-                      selectedModel === 'gemini-3.1-flash-lite'
-                        ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold shadow-inner'
-                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
-                    }`}
-                  >
-                    <span className="text-xs font-bold block mb-0.5">Gemini 3.1 Flash Lite (Ultra Fast)</span>
-                    <span className="text-[9px] opacity-75 block">Low-latency, lightweight responses for rapid quizzes and revision.</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Educational Study Highlighter Toggle */}
-              <div className="space-y-1.5 border-t border-slate-800/60 pt-3" id="settings-highlight-container">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Study Highlighter / ‡§Æ‡•Å‡§ñ‡•ç‡§Ø ‡§¨‡§ø‡§Ç‡§¶‡•Å ‡§π‡§æ‡§á‡§≤‡§æ‡§á‡§ü ‡§ï‡§∞‡•á‡§Ç
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setIsHighlightingEnabled(true)}
-                    className={`py-2 px-3 rounded-xl border text-center text-xs font-semibold transition-all ${
-                      isHighlightingEnabled
-                        ? 'border-indigo-500 bg-indigo-555/15 bg-indigo-600/10 text-white font-bold'
-                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-705'
-                    }`}
-                  >
-                    Enabled (‡§ñ‡§°‡§º‡§æ ‡§™‡•Ä‡§≤‡§æ)
-                  </button>
-                  <button
-                    onClick={() => setIsHighlightingEnabled(false)}
-                    className={`py-2 px-3 rounded-xl border text-center text-xs font-semibold transition-all ${
-                      !isHighlightingEnabled
-                        ? 'border-indigo-500 bg-indigo-555/15 bg-indigo-600/10 text-white font-bold'
-                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-705'
-                    }`}
-                  >
-                    Disabled (‡§∏‡§æ‡§ß‡§æ‡§∞‡§£)
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 border-t border-slate-800/60 pt-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">App Theme / ‡§•‡•Ä‡§Æ</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setTheme('midnight')}
-                    className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
-                      theme === 'midnight'
-                        ? 'border-indigo-500 bg-indigo-600/10 text-white shadow-md'
-                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-705'
-                    }`}
-                    id="settings-theme-midnight"
-                  >
-                    <span className="text-xs font-bold block mb-0.5">Midnight / ‡§Æ‡§ø‡§°‡§®‡§æ‡§á‡§ü</span>
-                    <span className="text-[10px] opacity-75">High-contrast Slate Blue</span>
-                  </button>
-                  <button
-                    onClick={() => setTheme('charcoal')}
-                    className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
-                      theme === 'charcoal'
-                        ? 'border-indigo-500 bg-indigo-600/10 text-white shadow-md'
-                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-705'
-                    }`}
-                    id="settings-theme-charcoal"
-                  >
-                    <span className="text-xs font-bold block mb-0.5">Charcoal / ‡§ö‡§æ‡§∞‡§ï‡•ã‡§≤</span>
-                    <span className="text-[10px] opacity-75">Softer Dark Gray Zinc</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Text Size setting */}
-              <div className="space-y-1.5 border-t border-slate-800/60 pt-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Text Size / ‡§´‡•â‡§®‡•ç‡§ü ‡§∏‡§æ‡§á‡§ú</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {(['sm', 'base', 'lg'] as const).map((sz) => (
-                    <button
-                      key={sz}
-                      onClick={() => setTextSize(sz)}
-                      className={`py-1.5 px-2 rounded-lg border text-center text-xs font-semibold capitalize transition-all ${
-                        textSize === sz
-                          ? 'border-indigo-500 bg-indigo-600/10 text-white font-bold'
-                          : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-705'
-                      }`}
-                      id={`settings-size-${sz}`}
-                    >
-                      {sz === 'sm' ? 'Small' : sz === 'base' ? 'Normal' : 'Large'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* AI Chat Assistant & Feature Guide inside Settings */}
-              <div className="border-t border-slate-800/60 pt-3 space-y-2">
-                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">
-                  ü§ñ {language === 'hindi' ? 'AI ‡§ö‡•à‡§ü ‡§Ö‡§∏‡§ø‡§∏‡•ç‡§ü‡•á‡§Ç‡§ü ‡§µ ‡§π‡•á‡§≤‡•ç‡§™ ‡§ó‡§æ‡§á‡§°' : 'AI Chat Assistant & Feature Guide'}
-                </span>
-                <button
-                  onClick={() => {
-                    setIsSettingsOpen(false);
-                    setIsHelpGuideOpen(true);
-                  }}
-                  className="w-full py-2.5 px-3 bg-gradient-to-r from-indigo-950/80 via-purple-950/80 to-slate-900 border border-indigo-500/40 hover:border-indigo-400 rounded-xl text-indigo-200 hover:text-white text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-sm active:scale-98"
-                >
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
-                    <span>{language === 'hindi' ? 'ü§ñ HansAI ‡§ó‡§æ‡§á‡§° ‡§µ ‡§∏‡§π‡§æ‡§Ø‡§§‡§æ ‡§ï‡•á‡§Ç‡§¶‡•ç‡§∞' : 'ü§ñ HansAI Help & Feature Guide'}</span>
-                  </div>
-                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">
-                    Guide üìñ
-                  </span>
-                </button>
-              </div>
-
-              {/* Official Community, Helpline & Support Section */}
-              <div className="border-t border-slate-800/60 pt-3 space-y-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  üí¨ {language === 'hindi' ? '‡§∏‡§™‡•ã‡§∞‡•ç‡§ü ‡§µ ‡§ï‡§Æ‡•ç‡§Ø‡•Å‡§®‡§ø‡§ü‡•Ä (‡§π‡•á‡§≤‡•ç‡§™‡§≤‡§æ‡§á‡§®)' : 'Support & Community Helpline'}
-                </span>
-                <a
-                  href="https://chat.whatsapp.com/F0EfHMyUK6KJYedVpZqgXR?s=sh&p=a&mlu=4"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="w-full py-2 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-300 hover:text-emerald-200 text-xs font-bold flex items-center justify-between transition-all no-underline cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>{language === 'hindi' ? '‡§Ü‡§ß‡§ø‡§ï‡§æ‡§∞‡§ø‡§ï WhatsApp ‡§ó‡•ç‡§∞‡•Å‡§™ ‡§ú‡•â‡§á‡§® ‡§ï‡§∞‡•á‡§Ç' : 'Join WhatsApp Community'}</span>
-                  </div>
-                  <span className="text-[10px] text-emerald-400 font-mono">Join üí¨</span>
-                </a>
-
-                <a
-                  href="https://chat.whatsapp.com/F0EfHMyUK6KJYedVpZqgXR?s=sh&p=a&mlu=4"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="w-full py-2 px-3 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-indigo-300 hover:text-indigo-200 text-xs font-bold flex items-center justify-between transition-all no-underline cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <PhoneCall className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>{language === 'hindi' ? '‡§õ‡§æ‡§§‡•ç‡§∞ ‡§∏‡§π‡§æ‡§Ø‡§§‡§æ ‡§µ ‡§π‡•á‡§≤‡•ç‡§™‡§≤‡§æ‡§á‡§®' : 'Student Helpline & 24x7 Support'}</span>
-                  </div>
-                  <span className="text-[10px] text-indigo-400 font-mono">Help üìû</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Footer Buttons */}
-            <div className="border-t border-slate-800 pt-3 flex justify-end" id="settings-footer">
-              <button
-                onClick={() => setIsSettingsOpen(false)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-550 hover:bg-indigo-500 text-white text-xs font-bold uppercase rounded-lg tracking-wide transition-all"
-                id="settings-done"
-              >
-                Apply & Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* LOGIN MODAL DIALOG */}
-      {isLoginModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className={`${themeColors.bgCard} border ${themeColors.border} rounded-2xl w-full max-w-sm p-6 relative shadow-2xl space-y-4 text-left`}>
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-750 pb-3">
-              <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">{t('loginTitle')}</h3>
-              </div>
-              <button 
-                onClick={() => setIsLoginModalOpen(false)}
-                className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Google Account Selector Selection Choice */}
-            <div className="space-y-4 text-xs">
-              <p className="text-slate-400 leading-relaxed text-xs">
-                {t('loginDesc')}
-              </p>
-
-              {/* Sign In Options */}
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsLoginModalOpen(false);
-                    setIsAuthLoginOpen(true);
-                  }}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer border-none"
-                >
-                  <Lock className="w-4 h-4" />
-                  <span>Student Sign In (Password / OTP) üîê</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsLoginModalOpen(false);
-                    setIsAuthRegisterOpen(true);
-                  }}
-                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  <User className="w-4 h-4 text-emerald-400" />
-                  <span>New User? Create Account üöÄ</span>
-                </button>
-              </div>
-
-              {/* Direct Quick Login Form */}
-              <div className="border-t border-slate-800 pt-3 space-y-3">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">{t('useAnotherAccount')}</span>
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const email = (formData.get('email') as string || '').trim().toLowerCase();
-                    const name = (formData.get('name') as string || '').trim() || 'Scholar Student';
-
-                    if (!email || !email.includes('@')) {
-                      showToast("‡§ï‡•É‡§™‡§Ø‡§æ ‡§è‡§ï ‡§µ‡•à‡§ß ‡§à‡§Æ‡•á‡§≤ ‡§¶‡§∞‡•ç‡§ú ‡§ï‡§∞‡•á‡§Ç‡•§", "warn");
-                      return;
-                    }
-
-                    const hash = email.length % 5;
-                    const avatarList = [
-                      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100",
-                      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100",
-                      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100",
-                      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100",
-                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100"
-                    ];
-                    const selectedAvatar = avatarList[hash];
-
-                    const loggedUser = { email, name, avatarUrl: selectedAvatar, role: 'student' };
-                    localStorage.setItem('hansai-user-session', JSON.stringify(loggedUser));
-                    setUser(loggedUser);
-                    setIsLoginModalOpen(false);
-
-                    // Sync student registration on server & record login activity
-                    fetch('/api/users/register', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ name, email })
-                    }).then(() => fetchOwnerAnalytics()).catch(console.warn);
-
-                    fetch('/api/users/log-activity', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        name,
-                        email,
-                        type: 'login',
-                        query: `Student Logged In (${name})`
-                      })
-                    }).catch(console.warn);
-                    
-                    showToast(`Successfully authenticated as ${name}! üöÄ`, "success");
-                  }}
-                  className="space-y-3"
-                >
-                  <div className="grid grid-cols-2 gap-2">
-                    <input 
-                      type="text"
-                      name="name"
-                      required
-                      placeholder={t('yourNameLabel')}
-                      className="w-full py-2 px-3 bg-[#090D16] border border-slate-800 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
-                    />
-                    <input 
-                      type="email"
-                      name="email"
-                      required
-                      placeholder={t('emailLabel')}
-                      className="w-full py-2 px-3 bg-[#090D16] border border-slate-800 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold uppercase tracking-wider text-[10px] transition-all cursor-pointer"
-                  >
-                    {t('verifyProceed')}
-                  </button>
-                </form>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* FEEDBACK SUBMISSION MODAL */}
-      {isFeedbackOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#0F1626] border border-slate-800 rounded-2xl w-full max-w-sm p-6 relative shadow-2xl space-y-4 text-left">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <PenTool className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-sm font-bold text-white tracking-wide">{t('feedbackTitle')}</h3>
-              </div>
-              <button 
-                onClick={() => setIsFeedbackOpen(false)}
-                className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Strict Google Authentication Lock Check */}
-            {!user ? (
-              <div className="py-4 text-center space-y-4">
-                <AlertCircle className="w-10 h-10 text-amber-500 mx-auto animate-bounce" />
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {t('feedbackLoggedOutWarning')}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsFeedbackOpen(false);
-                    setIsLoginModalOpen(true);
-                  }}
-                  className="w-full py-2.5 bg-indigo-650 hover:bg-indigo-600 font-bold uppercase text-[10px] tracking-wider text-white rounded-xl flex items-center justify-center gap-2 shadow-inner"
-                >
-                  <User className="w-4 h-4" />
-                  {t('googleSignInBtn')}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 text-xs">
-                
-                {/* Score slider for Concepts Accuracy */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] font-bold">
-                    <span className="text-slate-300">{t('ratingAccuracy')}</span>
-                    <span className="text-amber-400">{feedbackRatingAccuracy} / 5</span>
-                  </div>
-                  <input 
-                    type="range" min="1" max="5" 
-                    value={feedbackRatingAccuracy} 
-                    onChange={(e) => setFeedbackRatingAccuracy(Number(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer h-1 bg-slate-850 rounded"
-                  />
-                </div>
-
-                {/* Score slider for Latency / speed */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] font-bold">
-                    <span className="text-[#818cb4] text-slate-300">{t('ratingSpeed')}</span>
-                    <span className="text-amber-400">{feedbackRatingSpeed} / 5</span>
-                  </div>
-                  <input 
-                    type="range" min="1" max="5" 
-                    value={feedbackRatingSpeed} 
-                    onChange={(e) => setFeedbackRatingSpeed(Number(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer h-1 bg-slate-850 rounded"
-                  />
-                </div>
-
-                {/* Score slider for Interface Experience */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] font-bold">
-                    <span className="text-[#818cb4] text-slate-300">{t('ratingExperience')}</span>
-                    <span className="text-amber-400">{feedbackRatingExperience} / 5</span>
-                  </div>
-                  <input 
-                    type="range" min="1" max="5" 
-                    value={feedbackRatingExperience} 
-                    onChange={(e) => setFeedbackRatingExperience(Number(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer h-1 bg-slate-850 rounded"
-                  />
-                </div>
-
-                {/* Comment Text */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 block tracking-wider text-left">{t('reviewTextPlaceholder')}</label>
-                  <textarea
-                    rows={3}
-                    value={feedbackComment}
-                    onChange={(e) => setFeedbackComment(e.target.value)}
-                    placeholder={language === 'hindi' ? "‡§Ö‡§®‡•Å‡§≠‡§µ ‡§Ø‡§æ ‡§∏‡•Å‡§ß‡§æ‡§∞ ‡§∏‡•Å‡§ù‡§æ‡§µ ‡§¶‡§∞‡•ç‡§ú ‡§ï‡§∞‡•á‡§Ç..." : "e.g., Stunning web interface and perfect shorthand timing guide..."}
-                    className="w-full p-3 bg-[#090D16] border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 leading-relaxed text-xs"
-                  />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!feedbackComment.trim()) {
-                      showToast("‡§ï‡•É‡§™‡§Ø‡§æ ‡§Ö‡§™‡§®‡•Ä ‡§∏‡§Æ‡•Ä‡§ï‡•ç‡§∑‡§æ ‡§¶‡§∞‡•ç‡§ú ‡§ï‡§∞‡•á‡§Ç!", "warn");
-                      return;
-                    }
-                    
-                    const newFeedbackItem = {
-                      id: `fb-user-${Date.now()}`,
-                      user: user.email,
-                      avatarUrl: user.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
-                      ratingAccuracy: feedbackRatingAccuracy,
-                      ratingSpeed: feedbackRatingSpeed,
-                      ratingExperience: feedbackRatingExperience,
-                      comment: feedbackComment.trim(),
-                      date: new Date().toISOString().split('T')[0]
-                    };
-
-                    const updatedFeedbacks = [newFeedbackItem, ...feedbacks];
-                    setFeedbacks(updatedFeedbacks);
-                    localStorage.setItem('hansai-feedbacks-v2', JSON.stringify(updatedFeedbacks));
-                    
-                    showToast(language === 'hindi' ? "‡§∏‡§Æ‡•Ä‡§ï‡•ç‡§∑‡§æ ‡§∏‡§´‡§≤‡§§‡§æ‡§™‡•Ç‡§∞‡•ç‡§µ‡§ï ‡§¶‡§∞‡•ç‡§ú ‡§ï‡•Ä ‡§ó‡§à! ‡§ß‡§®‡•ç‡§Ø‡§µ‡§æ‡§¶‡•§ üôè" : "Your rating & review successfully registered! Thank you. üôè", "success");
-                    setFeedbackComment("");
-                    setIsFeedbackOpen(false);
-                  }}
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] transition-all cursor-pointer"
-                >
-                  {t('submitFeedbackBtn')}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* NAVIGATION DRAWER/SIDEBAR (FUNCTIONAL & REVEAL ACTIVE VIEW) */}
-      {sidebarOpen && activeView !== 'chat' && (
-        <div className="fixed inset-0 z-50 flex font-sans text-left">
-          {/* Backdrop blur click wrapper */}
-          <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300"
-            onClick={() => setSidebarOpen(false)}
-          />
-
-          {/* Sidebar Panel Container */}
-          <div className="relative flex flex-col w-full max-w-xs bg-[#090D16] border-r border-slate-850 text-slate-100 h-full p-5 shadow-2xl overflow-y-auto animate-slide-in">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-850">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-indigo-400" />
-                <div>
-                  <h3 className="font-extrabold text-xs tracking-wider text-white uppercase leading-none">HansAI Terminal</h3>
-                  <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1 block">Study Workspace Companion</span>
-                </div>
-              </div>
-              <button 
-                onClick={() => setSidebarOpen(false)}
-                className="p-1 px-2.5 text-slate-400 hover:text-white bg-slate-850 hover:bg-slate-850 rounded-lg transition-all text-xs font-bold cursor-pointer"
-                title="Close drawer"
-              >
-                ‚úï Close
-              </button>
-            </div>
-
-            {/* NEW CHAT BUTTON AT THE VERY TOP */}
-            <div className="pt-4 pb-2 border-b border-slate-850/50 space-y-2.5">
-              {/* Daily Streak Indicator */}
-              <DailyStreakIndicator 
-                language={language}
-                variant="card"
-                onNavigateToView={(view) => {
-                  setActiveView(view);
-                  setSidebarOpen(false);
-                }}
-              />
-
-              <button
-                onClick={() => {
-                  setSidebarOpen(false);
-                  setActiveView('chat');
-                  startNewChat();
-                }}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl text-sm font-black transition-all cursor-pointer shadow-lg active:scale-95"
-              >
-                <Plus className="w-4 h-4" />
-                <span>New Chat</span>
-              </button>
-            </div>
-
-            <div className="py-4 space-y-2.5">
-              <div className="px-2 text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Primary Core Workspace</div>
-              {[
-                { id: 'chat', title: 'AI Study Chat Workspace', desc: 'Concept explainer & studies', icon: 'üí¨', badge: 'ACTIVECORE' },
-                { id: 'book-reader', title: 'Global Digital Library & Book Reader', desc: '‡§ï‡•ã‡§à ‡§≠‡•Ä ‡§¨‡•Å‡§ï ‡§ñ‡•ã‡§ú‡•á‡§Ç ‡§µ ‡§™‡§¢‡§º‡•á‡§Ç (Highlight & Voice)', icon: 'üìö', badge: 'BOOKS' },
-                { id: 'sarkari-result', title: 'Sarkari Result & Job Portal', desc: '‡§∏‡§∞‡§ï‡§æ‡§∞‡•Ä ‡§®‡•å‡§ï‡§∞‡•Ä ‡§µ ‡§∞‡§ø‡§ú‡§≤‡•ç‡§ü ‡§Ö‡§™‡§°‡•á‡§ü', icon: 'üìÑ', badge: 'SARKARI' },
-                { id: 'research', title: 'Deep Research AI', desc: '‡§°‡•Ä‡§™ ‡§∞‡§ø‡§∏‡§∞‡•ç‡§ö ‡§Æ‡•ã‡§°', icon: 'üöÄ', badge: 'LIVE WEB' },
-                { id: 'timer', title: 'My Projects & Audio Recorder', desc: '‡§Æ‡•á‡§∞‡•á ‡§™‡•ç‡§∞‡•ã‡§ú‡•á‡§ï‡•ç‡§ü‡•ç‡§∏ ‡§è‡§µ‡§Ç ‡§∞‡§ø‡§ï‡•â‡§∞‡•ç‡§°‡§∞', icon: 'üéôÔ∏è', badge: 'PROJECTS' },
-                { id: 'map', title: 'GIS & Mapping Visualizer', desc: '‡§®‡§ï‡•ç‡§∂‡§æ ‡§î‡§∞ ‡§ú‡§ø‡§Ø‡•ã‡§ó‡•ç‡§∞‡§æ‡§´‡•Ä ‡§ü‡•Ç‡§≤', icon: 'üó∫Ô∏è', badge: 'REAL-TIME GIS' },
-                { id: 'quiz', title: 'Interactive Live Quiz', desc: '‡§≤‡§æ‡§á‡§µ ‡§ü‡•á‡§∏‡•ç‡§ü ‡§∞‡•Ç‡§Æ', icon: 'üß†', badge: 'PRACTICE' },
-                { id: 'notes', title: 'Shorthand & Formula Notes', desc: '‡§∏‡•Ç‡§§‡•ç‡§∞ ‡§µ ‡§®‡§ø‡§Ø‡§Æ ‡§®‡•ã‡§ü‡•ç‡§∏', icon: 'üìù', badge: 'PERSONAL' },
-                ...(isAdmin ? [{ id: 'owner-dashboard', title: 'Scholar Founder Hub', desc: '‡§∏‡§Ç‡§∏‡•ç‡§•‡§æ‡§™‡§ï ‡§ï‡§Ç‡§∏‡•ã‡§≤', icon: 'üõ°Ô∏è', badge: 'ADMIN' }] : []),
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveView(item.id as any);
-                    setSidebarOpen(false);
-                    showToast(`${item.title} Activated / ‡§ö‡§æ‡§≤‡•Ç`, "success");
-                  }}
-                  className={`w-full p-3 rounded-2xl flex items-center justify-between border select-none transition-all duration-200 cursor-pointer ${
-                    activeView === item.id 
-                      ? 'bg-gradient-to-r from-indigo-950/40 to-[#0A0E17]/80 border-indigo-505 shadow-md text-white'
-                      : 'bg-[#060A12]/40 text-slate-300 border-slate-900/60 hover:bg-[#0E1524]/60 hover:border-slate-800'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <span className="text-xl">{item.icon}</span>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold leading-none">{item.title}</span>
-                      <span className="text-[9px] text-slate-550 font-bold mt-1 leading-none">{item.desc}</span>
-                    </div>
-                  </div>
-                  {activeView === item.id && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse flex-shrink-0 ml-1" />
-                  )}
-                </button>
-              ))}
-
-              <div className="px-2 text-[9px] font-black text-slate-500 uppercase tracking-widest pt-4 mb-1.5">Extra Academic Utilities</div>
-              {[
-                { id: 'goals', title: 'Daily Study Goals', desc: '‡§¶‡•à‡§®‡§ø‡§ï ‡§™‡§¢‡§º‡§æ‡§à ‡§ï‡•á ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø', icon: 'üéØ' },
-                { id: 'rap', title: 'Motivational Rap Recitals', desc: '‡§ó‡•Ä‡§§ ‡§∏‡§Ç‡§ó‡•Ä‡§§ ‡§Æ‡•ã‡§ü‡§ø‡§µ‡•á‡§∂‡§®', icon: 'üìú' },
-                { id: 'calculator', title: 'Scientific Calculator', desc: '‡§µ‡•à‡§ú‡•ç‡§û‡§æ‡§®‡§ø‡§ï ‡§ó‡§£‡§ï ‡§Ø‡§Ç‡§§‡•ç‡§∞', icon: 'üßÆ' },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveView(item.id as any);
-                    setSidebarOpen(false);
-                    showToast(`${item.title} Activated / ‡§ö‡§æ‡§≤‡•Ç`, "success");
-                  }}
-                  className={`w-full p-3 rounded-2xl flex items-center justify-between border select-none transition-all duration-200 cursor-pointer ${
-                    activeView === item.id 
-                      ? 'bg-gradient-to-r from-indigo-950/40 to-[#0A0E17]/80 border-indigo-505 shadow-md text-white'
-                      : 'bg-[#060A12]/40 text-slate-305 border-slate-900/60 hover:bg-[#0E1524]/60 hover:border-slate-800'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <span className="text-xl">{item.icon}</span>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold leading-none">{item.title}</span>
-                      <span className="text-[9px] text-slate-550 font-bold mt-1 leading-none">{item.desc}</span>
-                    </div>
-                  </div>
-                  {activeView === item.id && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse flex-shrink-0 ml-1" />
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <div className="border-t border-slate-850 pt-5 mt-auto text-center space-y-2">
-              <span className="text-[8px] tracking-widest text-[#a5b4fc] block uppercase font-black leading-none">HANS.AI/VERCEL/LIVE</span>
-              <p className="text-[8px] text-slate-500 font-mono">HansAI Learning & Research System</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* WHATSAPP STUDY STATUS POSTER MODAL (9:16 ASPECT RATIO) */}
-      {isSharePosterOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in font-sans">
-          <div className="bg-[#090D16] border border-emerald-500/20 rounded-3xl w-full max-w-md p-5 sm:p-6 relative shadow-2xl space-y-4 text-left max-h-[95vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-850 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">üé®</span>
-                <div>
-                  <h3 className="text-sm font-extrabold text-white tracking-wide">WhatsApp Daily Status Poster</h3>
-                  <p className="text-[9px] text-slate-500 font-bold">9:16 Custom Educational Branding Card</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setIsSharePosterOpen(false)}
-                className="p-1 px-2.5 text-slate-400 hover:text-white bg-slate-850/80 hover:bg-slate-800 rounded-lg transition-all text-xs font-bold"
-              >
-                ‚úï Close
-              </button>
-            </div>
-
-            {/* Poster Canvas Preview */}
-            <div className="py-2 flex justify-center">
-              <div id="status-share-poster-card" className="aspect-[9/16] w-[260px] sm:w-[280px] bg-gradient-to-b from-[#0A0E17] via-[#0E1526] to-[#04060B] border-2 border-emerald-500/30 rounded-3xl p-5 flex flex-col justify-between shadow-2xl relative overflow-hidden text-left font-sans group">
-                {/* Background decorative elements */}
-                <div className="absolute top-[-30px] right-[-30px] w-28 h-28 bg-emerald-500/10 blur-2xl rounded-full" />
-                <div className="absolute bottom-[-30px] left-[-30px] w-28 h-28 bg-indigo-500/10 blur-2xl rounded-full" />
-                
-                {/* Poster Header */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-lg">üéñÔ∏è</span>
-                      <div>
-                        <h4 className="text-xs font-black text-white leading-none tracking-tight">HansAI</h4>
-                        <span className="text-[7px] text-emerald-450 uppercase tracking-widest font-black leading-none mt-0.5">‡§Ü‡§ß‡§ø‡§ï‡§æ‡§∞‡§ø‡§ï ‡§∞‡§æ‡§∑‡•ç‡§ü‡•ç‡§∞ ‡§∞‡§ï‡•ç‡§∑‡§ï</span>
-                      </div>
-                    </div>
-                    <span className="text-[9px] text-[#818cb4] bg-indigo-950/40 text-indigo-400 px-2 py-0.5 rounded border border-indigo-900/30 font-bold">2026 EDITION</span>
-                  </div>
-                  
-                  <div className="h-[2px] w-full bg-gradient-to-r from-emerald-500/40 via-indigo-500/30 to-transparent" />
-                </div>
-
-                {/* Poster Center Quote Area */}
-                <div className="my-auto py-6 space-y-4 relative z-10">
-                  <span className="text-4xl text-emerald-500/20 font-serif leading-none absolute -top-4 -left-2 select-none">‚Äú</span>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed tracking-wide text-center pt-2 italic px-1">
-                    {(() => {
-                      const sampleQuotes = [
-                        { t: "‡§∂‡§ø‡§ï‡•ç‡§∑‡§æ ‡§∏‡§¨‡§∏‡•á ‡§∂‡§ï‡•ç‡§§‡§ø‡§∂‡§æ‡§≤‡•Ä ‡§π‡§•‡§ø‡§Ø‡§æ‡§∞ ‡§π‡•à ‡§ú‡§ø‡§∏‡§ï‡§æ ‡§â‡§™‡§Ø‡•ã‡§ó ‡§Ü‡§™ ‡§¶‡•Å‡§®‡§ø‡§Ø‡§æ ‡§ï‡•ã ‡§¨‡§¶‡§≤‡§®‡•á ‡§ï‡•á ‡§≤‡§ø‡§è ‡§ï‡§∞ ‡§∏‡§ï‡§§‡•á ‡§π‡•à‡§Ç‡•§", a: "Nelson Mandela" },
-                        { t: "‡§â‡§†‡•ã, ‡§ú‡§æ‡§ó‡•ã ‡§î‡§∞ ‡§§‡§¨ ‡§§‡§ï ‡§Æ‡§§ ‡§∞‡•Å‡§ï‡•ã ‡§ú‡§¨ ‡§§‡§ï ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø ‡§ï‡•Ä ‡§™‡•ç‡§∞‡§æ‡§™‡•ç‡§§‡§ø ‡§® ‡§π‡•ã ‡§ú‡§æ‡§è‡•§", a: "Swami Vivekananda" },
-                        { t: "‡§ï‡§†‡§ø‡§® ‡§™‡§∞‡§ø‡§∂‡•ç‡§∞‡§Æ ‡§ï‡§æ ‡§ï‡•ã‡§à ‡§µ‡§ø‡§ï‡§≤‡•ç‡§™ ‡§®‡§π‡•Ä‡§Ç ‡§π‡•à, ‡§®‡§ø‡§∞‡§Ç‡§§‡§∞ ‡§Ö‡§≠‡•ç‡§Ø‡§æ‡§∏ ‡§π‡•Ä ‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§ï‡•Å‡§Ç‡§ú‡•Ä ‡§π‡•à‡•§", a: "Golden Study Rule" },
-                        { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                        { t: "‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§∂‡•Å‡§∞‡•Å‡§Ü‡§§ ‡§π‡§Æ‡•á‡§∂‡§æ ‡§∏‡•ç‡§µ‡§Ø‡§Ç ‡§™‡§∞ ‡§µ‡§ø‡§∂‡•ç‡§µ‡§æ‡§∏ ‡§ï‡§∞‡§®‡•á ‡§∏‡•á ‡§π‡•ã‡§§‡•Ä ‡§π‡•à‡•§", a: "HansAI Inspiration" }
-                      ];
-                      const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
-                      return activeQuote.t;
-                    })()}
-                  </p>
-                  <p className="text-[9px] text-emerald-400 text-right pr-2 font-bold select-none leading-none">
-                    ‚Äî {(() => {
-                      const sampleQuotes = [
-                        { t: "‡§∂‡§ø‡§ï‡•ç‡§∑‡§æ ‡§∏‡§¨‡§∏‡•á ‡§∂‡§ï‡•ç‡§§‡§ø‡§∂‡§æ‡§≤‡•Ä ‡§π‡§•‡§ø‡§Ø‡§æ‡§∞ ‡§π‡•à ‡§ú‡§ø‡§∏‡§ï‡§æ ‡§â‡§™‡§Ø‡•ã‡§ó ‡§Ü‡§™ ‡§¶‡•Å‡§®‡§ø‡§Ø‡§æ ‡§ï‡•ã ‡§¨‡§¶‡§≤‡§®‡•á ‡§ï‡•á ‡§≤‡§ø‡§è ‡§ï‡§∞ ‡§∏‡§ï‡§§‡•á ‡§π‡•à‡§Ç‡•§", a: "Nelson Mandela" },
-                        { t: "‡§â‡§†‡•ã, ‡§ú‡§æ‡§ó‡•ã ‡§î‡§∞ ‡§§‡§¨ ‡§§‡§ï ‡§Æ‡§§ ‡§∞‡•Å‡§ï‡•ã ‡§ú‡§¨ ‡§§‡§ï ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø ‡§ï‡•Ä ‡§™‡•ç‡§∞‡§æ‡§™‡•ç‡§§‡§ø ‡§® ‡§π‡•ã ‡§ú‡§æ‡§è‡•§", a: "Swami Vivekananda" },
-                        { t: "‡§ï‡§†‡§ø‡§® ‡§™‡§∞‡§ø‡§∂‡•ç‡§∞‡§Æ ‡§ï‡§æ ‡§ï‡•ã‡§à ‡§µ‡§ø‡§ï‡§≤‡•ç‡§™ ‡§®‡§π‡•Ä‡§Ç ‡§π‡•à, ‡§®‡§ø‡§∞‡§Ç‡§§‡§∞ ‡§Ö‡§≠‡•ç‡§Ø‡§æ‡§∏ ‡§π‡•Ä ‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§ï‡•Å‡§Ç‡§ú‡•Ä ‡§π‡•à‡•§", a: "Golden Study Rule" },
-                        { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                        { t: "‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§∂‡•Å‡§∞‡•Å‡§Ü‡§§ ‡§π‡§Æ‡•á‡§∂‡§æ ‡§∏‡•ç‡§µ‡§Ø‡§Ç ‡§™‡§∞ ‡§µ‡§ø‡§∂‡•ç‡§µ‡§æ‡§∏ ‡§ï‡§∞‡§®‡•á ‡§∏‡•á ‡§π‡•ã‡§§‡•Ä ‡§π‡•à‡•§", a: "HansAI Inspiration" }
-                      ];
-                      const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
-                      return activeQuote.a;
-                    })()}
-                  </p>
-                </div>
-
-                {/* Poster Footer */}
-                <div className="space-y-3.5 border-t border-slate-850/60 pt-3 text-center">
-                  <div className="text-center space-y-1">
-                    <span className="text-[8px] text-slate-500 block">SUPPORT LINE</span>
-                    <span className="text-[8px] font-black tracking-widest text-[#a5b4fc] block uppercase leading-none">HANS.AI/VERCEL/LIVE</span>
-                  </div>
-                  
-                  <div className="bg-[#02050A]/80 p-2 rounded-xl border border-slate-850 text-center">
-                    <p className="text-[7.5px] font-mono text-emerald-400/95 font-bold tracking-tight">
-                      Developed for HansAI Academic Ecosystem
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions for modal */}
-            <div className="space-y-2 pt-1 font-sans">
-              <button
-                type="button"
-                onClick={() => {
-                  const sampleQuotes = [
-                    { t: "‡§∂‡§ø‡§ï‡•ç‡§∑‡§æ ‡§∏‡§¨‡§∏‡•á ‡§∂‡§ï‡•ç‡§§‡§ø‡§∂‡§æ‡§≤‡•Ä ‡§π‡§•‡§ø‡§Ø‡§æ‡§∞ ‡§π‡•à ‡§ú‡§ø‡§∏‡§ï‡§æ ‡§â‡§™‡§Ø‡•ã‡§ó ‡§Ü‡§™ ‡§¶‡•Å‡§®‡§ø‡§Ø‡§æ ‡§ï‡•ã ‡§¨‡§¶‡§≤‡§®‡•á ‡§ï‡•á ‡§≤‡§ø‡§è ‡§ï‡§∞ ‡§∏‡§ï‡§§‡•á ‡§π‡•à‡§Ç‡•§", a: "Nelson Mandela" },
-                    { t: "‡§â‡§†‡•ã, ‡§ú‡§æ‡§ó‡•ã ‡§î‡§∞ ‡§§‡§¨ ‡§§‡§ï ‡§Æ‡§§ ‡§∞‡•Å‡§ï‡•ã ‡§ú‡§¨ ‡§§‡§ï ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø ‡§ï‡•Ä ‡§™‡•ç‡§∞‡§æ‡§™‡•ç‡§§‡§ø ‡§® ‡§π‡•ã ‡§ú‡§æ‡§è‡•§", a: "Swami Vivekananda" },
-                    { t: "‡§ï‡§†‡§ø‡§® ‡§™‡§∞‡§ø‡§∂‡•ç‡§∞‡§Æ ‡§ï‡§æ ‡§ï‡•ã‡§à ‡§µ‡§ø‡§ï‡§≤‡•ç‡§™ ‡§®‡§π‡•Ä‡§Ç ‡§π‡•à, ‡§®‡§ø‡§∞‡§Ç‡§§‡§∞ ‡§Ö‡§≠‡•ç‡§Ø‡§æ‡§∏ ‡§π‡•Ä ‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§ï‡•Å‡§Ç‡§ú‡•Ä ‡§π‡•à‡•§", a: "Golden Study Rule" },
-                    { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                    { t: "‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§∂‡•Å‡§∞‡•Å‡§Ü‡§§ ‡§π‡§Æ‡•á‡§∂‡§æ ‡§∏‡•ç‡§µ‡§Ø‡§Ç ‡§™‡§∞ ‡§µ‡§ø‡§∂‡•ç‡§µ‡§æ‡§∏ ‡§ï‡§∞‡§®‡•á ‡§∏‡•á ‡§π‡•ã‡§§‡•Ä ‡§π‡•à‡•§", a: "HansAI Inspiration" }
-                  ];
-                  const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
-                  const dynamicShareUrl = getAppShareUrl();
-                  
-                  const shareText = `üéØ *Hans Compain - Daily Study Motivation* üéØ\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\nüì≤ *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\nüïäÔ∏è _Hans Compain (HansAI) Academic Ecosystem_`;
-                  
-                  if (navigator.share) {
-                    navigator.share({
-                      title: 'Hans Compain Daily Status Badge',
-                      text: shareText,
-                      url: dynamicShareUrl
-                    }).then(() => {
-                      showToast("Shared successfully! üéâ", "success");
-                    }).catch(() => {
-                      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
-                    });
-                  } else {
-                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
-                    showToast("Opening WhatsApp Status Share... üí¨", "info");
-                  }
-                }}
-                className="w-full py-2.5 bg-emerald-650 hover:bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] flex items-center justify-center gap-2 shadow-lg cursor-pointer"
-              >
-                <span>üí¨ share status on whatsapp</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const sampleQuotes = [
-                    { t: "‡§∂‡§ø‡§ï‡•ç‡§∑‡§æ ‡§∏‡§¨‡§∏‡•á ‡§∂‡§ï‡•ç‡§§‡§ø‡§∂‡§æ‡§≤‡•Ä ‡§π‡§•‡§ø‡§Ø‡§æ‡§∞ ‡§π‡•à ‡§ú‡§ø‡§∏‡§ï‡§æ ‡§â‡§™‡§Ø‡•ã‡§ó ‡§Ü‡§™ ‡§¶‡•Å‡§®‡§ø‡§Ø‡§æ ‡§ï‡•ã ‡§¨‡§¶‡§≤‡§®‡•á ‡§ï‡•á ‡§≤‡§ø‡§è ‡§ï‡§∞ ‡§∏‡§ï‡§§‡•á ‡§π‡•à‡§Ç‡•§", a: "Nelson Mandela" },
-                    { t: "‡§â‡§†‡•ã, ‡§ú‡§æ‡§ó‡•ã ‡§î‡§∞ ‡§§‡§¨ ‡§§‡§ï ‡§Æ‡§§ ‡§∞‡•Å‡§ï‡•ã ‡§ú‡§¨ ‡§§‡§ï ‡§≤‡§ï‡•ç‡§∑‡•ç‡§Ø ‡§ï‡•Ä ‡§™‡•ç‡§∞‡§æ‡§™‡•ç‡§§‡§ø ‡§® ‡§π‡•ã ‡§ú‡§æ‡§è‡•§", a: "Swami Vivekananda" },
-                    { t: "‡§ï‡§†‡§ø‡§® ‡§™‡§∞‡§ø‡§∂‡•ç‡§∞‡§Æ ‡§ï‡§æ ‡§ï‡•ã‡§à ‡§µ‡§ø‡§ï‡§≤‡•ç‡§™ ‡§®‡§π‡•Ä‡§Ç ‡§π‡•à, ‡§®‡§ø‡§∞‡§Ç‡§§‡§∞ ‡§Ö‡§≠‡•ç‡§Ø‡§æ‡§∏ ‡§π‡•Ä ‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§ï‡•Å‡§Ç‡§ú‡•Ä ‡§π‡•à‡•§", a: "Golden Study Rule" },
-                    { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                    { t: "‡§∏‡§´‡§≤‡§§‡§æ ‡§ï‡•Ä ‡§∂‡•Å‡§∞‡•Å‡§Ü‡§§ ‡§π‡§Æ‡•á‡§∂‡§æ ‡§∏‡•ç‡§µ‡§Ø‡§Ç ‡§™‡§∞ ‡§µ‡§ø‡§∂‡•ç‡§µ‡§æ‡§∏ ‡§ï‡§∞‡§®‡•á ‡§∏‡•á ‡§π‡•ã‡§§‡•Ä ‡§π‡•à‡•§", a: "HansAI Inspiration" }
-                  ];
-                  const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
-                  const dynamicShareUrl = getAppShareUrl();
-                  
-                  const shareText = `üéØ *Hans Compain - Daily Study Motivation* üéØ\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\nüì≤ JOIN AT: ${dynamicShareUrl}\n\nüïäÔ∏è _Hans Compain Academic Ecosystem_`;
-                  copyToClipboard(shareText, showToast);
-                }}
-                className="w-full py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <span>üìã copy status quote text</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* PREMIUM UTILITY DASHBOARD MODAL */}
-      {isUtilityDashboardOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="bg-[#0b0f19] border border-indigo-500/30 rounded-3xl w-full max-w-2xl p-6 sm:p-8 relative shadow-2xl space-y-6 text-left max-h-[90vh] overflow-y-auto">
-            
-            {/* Modal Close & Header */}
-            <div className="flex items-center justify-between border-b border-indigo-950 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-indigo-600/10 rounded-xl text-indigo-400">
-                  <Settings className="w-5 h-5 animate-spin-slow animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="text-base font-extrabold text-white tracking-wide">
-                    {language === 'hindi' ? t('utilityDashboard') : 'Premium Utility Dashboard'}
-                  </h3>
-                  <p className="text-[10px] text-slate-500 font-medium">
-                    {language === 'hindi' ? '‡§µ‡§æ‡§∏‡•ç‡§§‡§µ‡§ø‡§ï ‡§∏‡§Æ‡§Ø ‡§µ‡§ø‡§∂‡•ç‡§≤‡•á‡§∑‡§£, ‡§∏‡•Å‡§∞‡§ï‡•ç‡§∑‡§æ‡§§‡•ç‡§Æ‡§ï ‡§∏‡§Æ‡§æ‡§ö‡§æ‡§∞ ‡§µ ‡§ó‡§π‡§® ‡§∂‡•ã‡§ß ‡§®‡§ø‡§Ø‡§Ç‡§§‡•ç‡§∞‡§£' : 'Real-Time Analytics, Unbiased Global Feed & Advanced Research Controllers'}
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setIsUtilityDashboardOpen(false)}
-                className="p-1.5 focus:outline-none hover:bg-slate-800/80 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer bg-transparent border-none"
-                title="Close"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Grid layout containing KPI Rings & Research Switchers */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              
-              {/* Box 1: KPI Progress Rings */}
-              <div className="bg-[#0f1626]/60 border border-slate-900 rounded-2xl p-4 sm:p-5 space-y-4">
-                <h4 className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-emerald-400" />
-                  {language === 'hindi' ? '‡§µ‡§æ‡§∏‡•ç‡§§‡§µ‡§ø‡§ï ‡§∏‡§Æ‡§Ø KPI ‡§µ‡§ø‡§∂‡•ç‡§≤‡•á‡§∑‡§£' : 'Real-Time KPI Analytics'}
-                </h4>
-
-                <div className="grid grid-cols-2 gap-4 pt-1">
-                  
-                  {/* Circular Ring 1: Shorthand Speed Guidelines */}
-                  <div className="flex flex-col items-center text-center space-y-2.5 py-2 mx-auto">
-                    <div className="relative w-20 h-20 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="40" cy="40" r="32" className="stroke-slate-800" strokeWidth="5" fill="none" />
-                        <circle 
-                          cx="40" cy="40" r="32" 
-                          className="stroke-indigo-500 transition-all duration-1000" 
-                          strokeWidth="5" 
-                          fill="none" 
-                          strokeDasharray={2 * Math.PI * 32}
-                          strokeDashoffset={2 * Math.PI * 32 * (1 - 0.95)}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-xs font-black text-white">120+</span>
-                        <span className="text-[6px] text-slate-500 font-bold uppercase">WPM Guide</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h5 className="text-[10px] font-bold text-slate-300">Shorthand Speed</h5>
-                      <p className="text-[8px] text-emerald-400 font-bold">95% Match Ratio</p>
-                    </div>
-                  </div>
-
-                  {/* Circular Ring 2: Active Study Session */}
-                  <div className="flex flex-col items-center text-center space-y-2.5 py-2 mx-auto">
-                    <div className="relative w-20 h-20 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="40" cy="40" r="32" className="stroke-slate-800" strokeWidth="5" fill="none" />
-                        <circle 
-                          cx="40" cy="40" r="32" 
-                          className="stroke-emerald-500 transition-all duration-1000" 
-                          strokeWidth="5" 
-                          fill="none" 
-                          strokeDasharray={2 * Math.PI * 32}
-                          strokeDashoffset={2 * Math.PI * 32 * (1 - 0.88)}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-xs font-black text-white">2.2h</span>
-                        <span className="text-[6px] text-slate-500 font-bold uppercase">Active Tracker</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h5 className="text-[10px] font-bold text-slate-300">Daily Study</h5>
-                      <p className="text-[8px] text-emerald-400 font-bold">88% Completion</p>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Additional KPI context */}
-                <div className="bg-[#090d16]/75 border border-indigo-950 rounded-xl p-3 text-[10px] text-slate-400 leading-relaxed text-left">
-                  <p className="font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <Zap className="w-3.5 h-3.5 text-indigo-400" />
-                    How to optimize shorthand speed:
-                  </p>
-                  Practice high-frequency English and Hindi vocabulary outlines daily, maintain steady pen movements, and utilize HansAI's custom shorthand transcription feedback alerts.
-                </div>
-              </div>
-
-              {/* Box 2: Premium Research Switches & Options */}
-              <div className="bg-[#0f1626]/60 border border-slate-900 rounded-2xl p-4 sm:p-5 space-y-5">
-                <h4 className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-pink-400" />
-                  {language === 'hindi' ? '‡§è‡§Ü‡§à ‡§∂‡•ã‡§ß ‡§µ ‡§™‡•Ç‡§∞‡•ç‡§µ‡§æ‡§ó‡•ç‡§∞‡§π ‡§∞‡•ã‡§ß‡•Ä ‡§á‡§Ç‡§ú‡§®' : 'AI Research & Anti-Bias Config'}
-                </h4>
-
-                {/* Switcher 1: Advanced AI Deep Research Console */}
-                <div className="flex items-center justify-between gap-3 p-3 bg-[#090d16] rounded-xl border border-indigo-950/50">
-                  <div className="space-y-0.5 max-w-[70%] text-left">
-                    <span className="text-[10px] font-black text-white block">
-                      {language === 'hindi' ? 'üî¨ ‡§è‡§°‡§µ‡§æ‡§Ç‡§∏‡•ç‡§° ‡§è‡§Ü‡§à ‡§°‡•Ä‡§™ ‡§∞‡§ø‡§∏‡§∞‡•ç‡§ö' : 'üî¨ Advanced AI Deep Research'}
-                    </span>
-                    <span className="text-[9px] text-slate-400 block leading-tight">
-                      {language === 'hindi' ? '‡§¨‡§π‡•Å-‡§∏‡•ç‡§∞‡•ã‡§§ ‡§≤‡§æ‡§á‡§µ ‡§µ‡•á‡§¨ ‡§ñ‡•ã‡§ú ‡§∏‡§§‡•ç‡§Ø‡§æ‡§™‡§® ‡§∏‡§ï‡•ç‡§∞‡§ø‡§Ø ‡§ï‡§∞‡•á‡§Ç' : 'Deploys Live Google Grounding search verification on all academic search inputs.'}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAdvancedResearchMode(!advancedResearchMode);
-                      showToast(advancedResearchMode ? "Standard search mode activated." : "Advanced deep research mode expanded! üî¨", "info");
-                    }}
-                    className={`w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer flex items-center border-none focus:outline-none ${advancedResearchMode ? 'bg-indigo-600' : 'bg-slate-800'}`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-250 ${advancedResearchMode ? 'translate-x-5' : 'translate-x-0'}`} />
-                  </button>
-                </div>
-
-                {/* Filter indicator: Anti-Bias & Accuracy Filter */}
-                <div className="p-3 bg-emerald-950/10 border border-emerald-500/20 rounded-xl flex items-start gap-2.5 text-left">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-emerald-300 block">
-                      {language === 'hindi' ? t('biasFilterLabel') : 'Anti-Bias & Truthfulness Shield Active'}
-                    </span>
-                    <p className="text-[9px] text-emerald-300/80 leading-snug">
-                      Universally filters speculative press headlines from the live neutral press engine to ensure fully objective global insights.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Bottom section: Neutral Global Press aggregation */}
-            <div className="bg-[#0f1626]/40 border border-slate-900 rounded-2xl p-4 sm:p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-indigo-950/60 pb-3 flex-wrap gap-2 text-left">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-indigo-400" />
-                  <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">
-                    {language === 'hindi' ? t('verifiedNewsTitle') : 'üì∞ Neutral Global Press & verified news'}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 flex-wrap">
-                  {/* Zoom Controls */}
-                  <div className="flex items-center gap-1.5 bg-[#090d16] p-1 rounded-xl border border-slate-800/80">
-                    <button
-                      type="button"
-                      onClick={() => setNewsZoom(prev => Math.max(80, prev - 10))}
-                      className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors border-none bg-transparent cursor-pointer"
-                      title="Zoom Out / ‡§õ‡•ã‡§ü‡§æ ‡§ï‡§∞‡•á‡§Ç"
-                    >
-                      <ZoomOut className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-[10px] text-slate-350 font-bold px-1 font-mono min-w-[32px] text-center">
-                      {newsZoom}%
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setNewsZoom(prev => Math.min(150, prev + 10))}
-                      className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors border-none bg-transparent cursor-pointer"
-                      title="Zoom In / ‡§¨‡•ú‡§æ ‡§ï‡§∞‡•á‡§Ç"
-                    >
-                      <ZoomIn className="w-3.5 h-3.5" />
-                    </button>
-                    {newsZoom !== 100 && (
-                      <button
-                        type="button"
-                        onClick={() => setNewsZoom(100)}
-                        className="text-[8px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase transition-colors cursor-pointer border-none"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                  
-                  <button
-                    type="button"
-                    disabled={isNewsLoading}
-                    onClick={handleFetchVerifiedNews}
-                    className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer border-none"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${isNewsLoading ? 'animate-spin' : ''}`} />
-                    <span>{isNewsLoading ? (language === 'hindi' ? t('newsLoading') : 'Syncing...') : (language === 'hindi' ? t('fetchNewsButton') : 'Fetch Verified News')}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Verified News item list */}
-              <div 
-                className="space-y-3.5 max-h-[500px] overflow-y-auto pr-1 transition-all duration-200"
-                style={{ fontSize: `${newsZoom}%`, lineHeight: '1.5' }}
-              >
-                {isNewsLoading ? (
-                  <div className="py-8 text-center space-y-2 animate-pulse">
-                    <Loader className="w-6 h-6 text-indigo-500 animate-spin mx-auto" />
-                    <p className="text-[10px] text-slate-500 font-medium">
-                      {language === 'hindi' ? t('newsLoading') : 'Fetching verified, bias-filtered global press feed... Please wait.'}
-                    </p>
-                  </div>
-                ) : (
-                  newsFeed.map((news, idx) => (
-                    <div key={idx} className="bg-[#090d16]/70 border border-indigo-950/50 p-3.5 rounded-xl space-y-2.5 text-left animate-fade-in hover:border-indigo-500/20 transition-all">
-                      <div className="flex items-start justify-between gap-4 text-left">
-                        <h5 className="text-xs font-bold text-white leading-normal">{news.title}</h5>
-                        <span className="text-[9px] bg-indigo-500/10 text-indigo-300 font-black px-2 py-0.5 rounded uppercase font-mono tracking-wider flex-shrink-0">
-                          {news.source}
-                        </span>
-                      </div>
-                      <ul className="space-y-1 pl-4 list-disc text-[10px] text-slate-400 leading-relaxed text-left">
-                        {news.bulletPoints.map((bp, bidx) => (
-                          <li key={bidx}>{bp}</li>
-                        ))}
-                      </ul>
-                      <div className="text-[8px] text-slate-600 font-bold uppercase tracking-wider text-right font-mono">
-                        Grounding Date: {news.date}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ‚è∞ ALARM RINGING MODAL DIALOG */}
-      {isAlarmRingingModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="bg-[#0b0f19] border-2 border-amber-500/50 rounded-3xl w-full max-w-md p-6 sm:p-8 relative shadow-2xl text-center space-y-5 animate-bounce-short">
-            
-            <div className="w-20 h-20 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto text-4xl animate-pulse">
-              ‚è∞
-            </div>
-
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full inline-block mb-2">
-                üö® ALARM RINGING / ‡§Ö‡§≤‡§æ‡§∞‡•ç‡§Æ ‡§¨‡§ú ‡§∞‡§π‡§æ ‡§π‡•à
-              </span>
-              <h3 className="text-xl font-black text-white">
-                {timerAlarmTitle || "Study Target Session"}
-              </h3>
-              <p className="text-xs text-slate-300 mt-1">
-                Your focused time limit ({timerPresetVal} minutes) is complete! Great job staying disciplined.
-              </p>
-            </div>
-
-            <div className="p-3 bg-[#04070F] border border-slate-880 rounded-2xl text-left text-xs text-slate-300 space-y-1">
-              <span className="text-[10px] text-amber-400 font-bold uppercase block">Next Steps:</span>
-              <p>‚Ä¢ Take a 5-minute eye rest break or hydrate.</p>
-              <p>‚Ä¢ Your notes & shorthand drafts have been auto-saved.</p>
-            </div>
-
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsAlarmRingingModalOpen(false);
-                  showToast("Alarm dismissed. Great work! üéâ", "success");
-                }}
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg cursor-pointer"
-              >
-                ‚èπÔ∏è Dismiss Alarm / ‡§¨‡§Ç‡§¶ ‡§ï‡§∞‡•á‡§Ç
-              </button>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAlarmRingingModalOpen(false);
-                    setTimeLeft(300); // 5 mins
-                    setIsTimerRunning(true);
-                    showToast("Snoozed for 5 minutes üí§", "info");
-                  }}
-                  className="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-[11px] border border-slate-700 transition-all cursor-pointer"
-                >
-                  üí§ Snooze 5 Min
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAlarmRingingModalOpen(false);
-                    setTimeLeft(timerPresetVal * 60);
-                    setIsTimerRunning(true);
-                    showToast("Restarted study alarm üîÅ", "success");
-                  }}
-                  className="py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-[11px] transition-all cursor-pointer"
-                >
-                  üîÅ Restart Alarm
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* üåê APP & RESOURCE LAUNCHER MODAL */}
-      {isAppLauncherOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-3xl w-full max-w-lg p-6 sm:p-8 relative shadow-2xl text-left space-y-6 max-h-[90vh] overflow-y-auto">
-            
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-cyan-950 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-cyan-500/10 rounded-xl text-cyan-400 text-2xl">
-                  üåê
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white">
-                    App & External Resource Launcher / ‡§ê‡§™‡•ç‡§∏ ‡§è‡§µ‡§Ç ‡§µ‡•á‡§¨ ‡§™‡•ã‡§∞‡•ç‡§ü‡§≤
-                  </h3>
-                  <p className="text-[10px] text-slate-400">
-                    Open YouTube lectures, OpenAI ChatGPT, Google Scholar, Wikipedia & NCERT books in 1 click.
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setIsAppLauncherOpen(false)}
-                className="p-1.5 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer bg-transparent border-none"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Topic / Query Search Input */}
-            <div className="space-y-2">
-              <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                Study Search Topic / ‡§µ‡§ø‡§∑‡§Ø ‡§Ø‡§æ ‡§™‡•ç‡§∞‡§∂‡•ç‡§®
-              </label>
-              <div className="relative flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 focus-within:border-cyan-500">
-                <input
-                  type="text"
-                  value={launcherSearchTopic}
-                  onChange={(e) => setLauncherSearchTopic(e.target.value)}
-                  placeholder="e.g. Pitman Shorthand dictation 80wpm, Indian Polity MCQs, Photosynthesis..."
-                  className="flex-1 text-xs bg-transparent px-2 py-2.5 text-white outline-none font-sans"
-                />
-                <button
-                  type="button"
-                  onClick={handleToggleLauncherVoice}
-                  className={`p-1.5 rounded-lg transition-all border cursor-pointer shrink-0 flex items-center gap-1 text-xs font-bold ${
-                    isListeningLauncherVoice
-                      ? 'bg-rose-500 text-white border-rose-400 animate-pulse'
-                      : 'bg-slate-900 text-cyan-300 border-cyan-500/30 hover:bg-cyan-900/40 hover:text-white'
-                  }`}
-                  title={language === 'hindi' ? '‡§¨‡•ã‡§≤‡§ï‡§∞ ‡§ñ‡•ã‡§ú‡•á‡§Ç' : 'Speak to search'}
-                >
-                  {isListeningLauncherVoice ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                  <span className="text-[10px] hidden sm:inline">{isListeningLauncherVoice ? 'Listening...' : 'Voice'}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Launcher Action Grid */}
-            <div className="space-y-2">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                1-Click External App Launchers
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleLaunchYouTube()}
-                  className="p-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-xl text-left space-y-1 group transition-all cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-rose-300 flex items-center gap-1.5">
-                      üé¨ YouTube Search
-                    </span>
-                    <span className="text-xs text-rose-400 font-bold">Launch ‚Üí</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400">Search video lectures, dictations & tutorials</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleLaunchChatGPT}
-                  className="p-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-left space-y-1 group transition-all cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                      ü§ñ OpenAI ChatGPT
-                    </span>
-                    <span className="text-xs text-emerald-400 font-bold">Launch ‚Üí</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400">Open ChatGPT AI in a fresh tab</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleLaunchGoogleScholar()}
-                  className="p-3 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-left space-y-1 group transition-all cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
-                      üìö Google Scholar
-                    </span>
-                    <span className="text-xs text-indigo-400 font-bold">Launch ‚Üí</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400">Research academic research papers</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleLaunchWikipedia()}
-                  className="p-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-left space-y-1 group transition-all cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                      üåê Wikipedia Portal
-                    </span>
-                    <span className="text-xs text-amber-400 font-bold">Launch ‚Üí</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400">Instant encyclopedic facts verification</p>
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleLaunchNCERT}
-                className="w-full p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-300 font-bold cursor-pointer transition-all"
-              >
-                <span className="flex items-center gap-2">üìò NCERT & ePathshala Official Books Portal</span>
-                <span className="text-cyan-400 text-xs">Open Site ‚Üó</span>
-              </button>
-            </div>
-
-            {/* Custom URL Input Field */}
-            <div className="p-3 bg-[#04070F] border border-slate-800 rounded-2xl space-y-2">
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">Open Any Custom Web App / URL</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={customLauncherUrl}
-                  onChange={(e) => setCustomLauncherUrl(e.target.value)}
-                  placeholder="https://example.com"
-                  className="w-full text-xs bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-white outline-none focus:border-cyan-500 font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={handleLaunchCustomUrl}
-                  className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition-all"
-                >
-                  Open üöÄ
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ALL EXAMS SYLLABUS DIRECTORY MODAL */}
-      <AllExamsSyllabusModal
-        isOpen={isAllExamsSyllabusOpen}
-        onClose={() => setIsAllExamsSyllabusOpen(false)}
-        onSelectSyllabusPrompt={(promptText) => {
-          setActiveView('chat');
-          setChatInput(promptText);
-        }}
-        onOpenStudyPlannerWithExam={(examName) => {
-          setActiveView('study-plan');
-          showToast(`Syllabus roadmap & planner activated for ${examName}! üöÄ`, 'success');
-        }}
-        showToast={showToast}
-      />
-
-      {/* üìö GOOGLE SCHOLAR & ACADEMIC RESEARCH PAPERS MODAL */}
-      <GoogleScholarResearchModal
-        isOpen={isGoogleScholarModalOpen}
-        onClose={() => setIsGoogleScholarModalOpen(false)}
-        initialTopic={scholarTopic}
-        language={language}
-        showToast={showToast}
-      />
-
-      {/* SECURE AUTH MODALS (LOGIN, REGISTER, FORGOT PASSWORD) */}
-      <AuthModals
-        isRegisterOpen={isAuthRegisterOpen}
-        onCloseRegister={() => setIsAuthRegisterOpen(false)}
-        isLoginOpen={isAuthLoginOpen}
-        onCloseLogin={() => setIsAuthLoginOpen(false)}
-        isForgotOpen={isAuthForgotOpen}
-        onCloseForgot={() => setIsAuthForgotOpen(false)}
-        onOpenForgot={() => setIsAuthForgotOpen(true)}
-        onOpenLogin={() => setIsAuthLoginOpen(true)}
-        onOpenRegister={() => setIsAuthRegisterOpen(true)}
-        user={user}
-        setUser={setUser}
-        showToast={showToast}
-      />
-
-      {/* HANS COMPAIN ADVANCED SHARE LINK MODAL */}
-      {isShareModalOpen && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in font-sans">
-          <div className="bg-[#0A0E1A] border border-cyan-500/30 rounded-3xl max-w-lg w-full p-5 sm:p-6 space-y-4 text-left shadow-2xl shadow-cyan-950/40 relative max-h-[92vh] overflow-y-auto">
-            
-            {/* Header */}
-            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-purple-600 flex items-center justify-center text-xl shadow-lg shadow-cyan-500/20 text-white font-bold">
-                  üöÄ
-                </div>
-                <div>
-                  <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                    <span>{language === 'hindi' ? 'Hans Compain ‡§ê‡§™ ‡§∂‡•á‡§Ø‡§∞ ‡§ï‡§∞‡•á‡§Ç' : 'Share Hans Compain App'}</span>
-                    <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">
-                      Live Share
-                    </span>
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    {language === 'hindi' ? '‡§¶‡•ã‡§∏‡•ç‡§§‡•ã‡§Ç ‡§î‡§∞ ‡§∏‡•ç‡§ü‡§°‡•Ä ‡§ó‡•ç‡§∞‡•Å‡§™‡•ç‡§∏ ‡§Æ‡•á‡§Ç 1-‡§ï‡•ç‡§≤‡§ø‡§ï ‡§∂‡•á‡§Ø‡§∞ ‡§ï‡§∞‡•á‡§Ç' : 'Share with friends, batchmates & study groups'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsShareModalOpen(false)}
-                className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl transition-all cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Feature Deep-Link Selector */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
-                {language === 'hindi' ? 'üéØ ‡§ï‡•ç‡§Ø‡§æ ‡§∂‡•á‡§Ø‡§∞ ‡§ï‡§∞‡§®‡§æ ‡§ö‡§æ‡§π‡§§‡•á ‡§π‡•à‡§Ç? (Select Workspace)' : 'üéØ What do you want to share?'}
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                {[
-                  { id: 'all', label: 'üåê All Features', tab: undefined },
-                  { id: 'quiz', label: 'üß† Live Quiz', tab: 'quiz' },
-                  { id: 'steno', label: '‚úçÔ∏è Shorthand', tab: 'steno' },
-                  { id: 'science-lab', label: 'üî¨ Science Lab', tab: 'science-lab' },
-                  { id: 'photo-doubt', label: 'üì∏ Photo Doubt', tab: 'photo-doubt' },
-                  { id: 'notes-ocr', label: 'üìú Notes OCR', tab: 'notes-ocr' },
-                  { id: 'time-travel', label: '‚è≥ Time Travel', tab: 'time-travel' },
-                  { id: 'study-plan', label: 'üìÖ Study Plan', tab: 'study-plan' }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setShareSelectedTab(item.id);
-                      setIsCopiedShareLink(false);
-                    }}
-                    className={`p-2 rounded-xl text-[11px] font-bold transition-all text-center border cursor-pointer ${
-                      shareSelectedTab === item.id
-                        ? 'bg-cyan-600/30 border-cyan-500 text-cyan-200 shadow-md shadow-cyan-950/30'
-                        : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-850'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* DIRECT COPY LINK BOX */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider block">
-                  {language === 'hindi' ? 'üîó ‡§≤‡§æ‡§á‡§µ ‡§∂‡•á‡§Ø‡§∞ ‡§≤‡§ø‡§Ç‡§ï (Direct Live Link)' : 'üîó Direct Live Link'}
-                </label>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  {shareSelectedTab === 'all' ? 'Full App' : `Target: ?tab=${shareSelectedTab}`}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2 bg-[#04070F] border border-cyan-500/30 p-2 rounded-2xl">
-                <input
-                  type="text"
-                  readOnly
-                  value={getAppShareUrl(shareSelectedTab === 'all' ? undefined : shareSelectedTab)}
-                  className="w-full text-xs bg-transparent text-cyan-200 font-mono outline-none px-2 truncate selection:bg-cyan-800"
-                />
-                <button
-                  onClick={async () => {
-                    const targetUrl = getAppShareUrl(shareSelectedTab === 'all' ? undefined : shareSelectedTab);
-                    const copied = await copyToClipboard(targetUrl, showToast);
-                    if (copied) {
-                      setIsCopiedShareLink(true);
-                      setTimeout(() => setIsCopiedShareLink(false), 3000);
-                    }
-                  }}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer shadow-md ${
-                    isCopiedShareLink
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white'
-                  }`}
-                >
-                  {isCopiedShareLink ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{language === 'hindi' ? '‡§ï‡•â‡§™‡•Ä ‡§π‡•Å‡§Ü!' : 'Copied!'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>{language === 'hindi' ? '‡§≤‡§ø‡§Ç‡§ï ‡§ï‡•â‡§™‡•Ä ‡§ï‡§∞‡•á‡§Ç' : 'Copy Link'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* 1-CLICK SOCIAL MEDIA SHARE BUTTONS */}
-            <div className="space-y-2">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
-                {language === 'hindi' ? 'üì± ‡§∏‡•ã‡§∂‡§≤ ‡§Æ‡•Ä‡§°‡§ø‡§Ø‡§æ ‡§™‡§∞ ‡§§‡•Å‡§∞‡§Ç‡§§ ‡§∂‡•á‡§Ø‡§∞ ‡§ï‡§∞‡•á‡§Ç (One-Click Share)' : 'üì± Share via Social Media'}
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                
-                {/* WhatsApp */}
-                <button
-                  onClick={() => {
-                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
-                    const featureNames: Record<string, string> = {
-                      quiz: 'Interactive Live Quiz & Mock Tests',
-                      steno: 'Shorthand Studio & Speed Dictation',
-                      'science-lab': 'Virtual Science Lab & Formula Hub',
-                      'photo-doubt': 'Photo Doubt Solver',
-                      'notes-ocr': 'Scanned Handwritten Notes OCR',
-                      'time-travel': 'Historical Time Travel Simulator',
-                      'study-plan': 'Smart Study Planner'
-                    };
-                    shareViaWhatsApp({ tab: currentTab, title: currentTab ? featureNames[currentTab] : undefined });
-                  }}
-                  className="p-2.5 bg-emerald-650 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
-                >
-                  <span className="text-base">üí¨</span>
-                  <span>WhatsApp</span>
-                </button>
-
-                {/* Telegram */}
-                <button
-                  onClick={() => {
-                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
-                    shareViaTelegram({ tab: currentTab });
-                  }}
-                  className="p-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
-                >
-                  <span className="text-base">‚úàÔ∏è</span>
-                  <span>Telegram</span>
-                </button>
-
-                {/* Instagram */}
-                <button
-                  onClick={async () => {
-                    const targetUrl = getAppShareUrl(shareSelectedTab === 'all' ? undefined : shareSelectedTab);
-                    await copyToClipboard(targetUrl, showToast);
-                    showToast(language === 'hindi' ? "üìã ‡§≤‡§ø‡§Ç‡§ï ‡§ï‡•â‡§™‡•Ä ‡§π‡•Å‡§Ü! ‡§á‡§Ç‡§∏‡•ç‡§ü‡§æ‡§ó‡•ç‡§∞‡§æ‡§Æ ‡§∏‡•ç‡§ü‡•ã‡§∞‡•Ä ‡§Ø‡§æ DM ‡§Æ‡•á‡§Ç ‡§™‡•á‡§∏‡•ç‡§ü ‡§ï‡§∞‡•á‡§Ç üì∏" : "üìã Link copied! Paste in Instagram Story or DM! üì∏", "success");
-                    window.open("https://www.instagram.com", "_blank");
-                  }}
-                  className="p-2.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-90 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
-                >
-                  <span className="text-base">üì∏</span>
-                  <span>Instagram</span>
-                </button>
-
-                {/* X (Twitter) */}
-                <button
-                  onClick={() => {
-                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
-                    shareViaTwitter({ tab: currentTab });
-                  }}
-                  className="p-2.5 bg-slate-850 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-700 shadow-md"
-                >
-                  <span className="text-base">ùïè</span>
-                  <span>X (Twitter)</span>
-                </button>
-
-                {/* Facebook */}
-                <button
-                  onClick={() => {
-                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
-                    shareViaFacebook({ tab: currentTab });
-                  }}
-                  className="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
-                >
-                  <span className="text-base">üìò</span>
-                  <span>Facebook</span>
-                </button>
-
-                {/* LinkedIn */}
-                <button
-                  onClick={() => {
-                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
-                    shareViaLinkedIn({ tab: currentTab });
-                  }}
-                  className="p-2.5 bg-blue-700 hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
-                >
-                  <span className="text-base">üíº</span>
-                  <span>LinkedIn</span>
-                </button>
-
-                {/* Email */}
-                <button
-                  onClick={() => {
-                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
-                    shareViaEmail({ tab: currentTab });
-                  }}
-                  className="p-2.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
-                >
-                  <span className="text-base">‚úâÔ∏è</span>
-                  <span>Email</span>
-                </button>
-
-                {/* Universal Web Share */}
-                <button
-                  onClick={() => {
-                    const currentTab = shareSelectedTab === 'all' ? undefined : shareSelectedTab;
-                    shareUniversal({ tab: currentTab }, showToast);
-                  }}
-                  className="p-2.5 bg-cyan-700 hover:bg-cyan-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
-                >
-                  <Share2 className="w-3.5 h-3.5 text-cyan-200" />
-                  <span>{language === 'hindi' ? '‡§Ö‡§®‡•ç‡§Ø ‡§µ‡§ø‡§ï‡§≤‡•ç‡§™' : 'More'}</span>
-                </button>
-
-              </div>
-            </div>
-
-            {/* AUTOMATIC LINK UPDATE EXPLANATION BANNER */}
-            <div className="p-3 bg-[#060A14] border border-cyan-500/20 rounded-2xl space-y-1 text-xs text-slate-300 leading-relaxed">
-              <div className="flex items-center gap-2 font-bold text-emerald-400 text-[11px]">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{language === 'hindi' ? '‡§ë‡§ü‡•ã‡§Æ‡•à‡§ü‡§ø‡§ï ‡§≤‡§æ‡§á‡§µ ‡§Ö‡§™‡§°‡•á‡§ü ‡§ó‡§æ‡§∞‡§Ç‡§ü‡•Ä (Zero Downtime)' : 'Automatic Live Updates Guaranteed'}</span>
-              </div>
-              <p className="text-[11px] text-slate-400">
-                {language === 'hindi'
-                  ? '‡§Ø‡§π ‡§∂‡•á‡§Ø‡§∞ ‡§ï‡§ø‡§Ø‡§æ ‡§ó‡§Ø‡§æ ‡§≤‡§ø‡§Ç‡§ï ‡§π‡§Æ‡•á‡§∂‡§æ ‡§≤‡§æ‡§á‡§µ ‡§∞‡§π‡§§‡§æ ‡§π‡•à‡•§ ‡§ú‡§¨ ‡§≠‡•Ä Hanslal Pal ‡§ú‡•Ä (Founder) ‡§ï‡•ã‡§à ‡§®‡§Ø‡§æ ‡§ï‡•ç‡§µ‡§ø‡§ú‡§º, ‡§∏‡§æ‡§á‡§Ç‡§∏ ‡§è‡§ï‡•ç‡§∏‡§™‡•á‡§∞‡§ø‡§Æ‡•á‡§Ç‡§ü ‡§Ø‡§æ ‡§´‡•Ä‡§ö‡§∞ ‡§ú‡•ã‡§°‡§º‡§§‡•á ‡§π‡•à‡§Ç, ‡§§‡•ã ‡§≤‡§ø‡§Ç‡§ï ‡§ñ‡•ã‡§≤‡§®‡•á ‡§™‡§∞ ‡§õ‡§æ‡§§‡•ç‡§∞‡•ã‡§Ç ‡§ï‡•ã ‡§§‡•Å‡§∞‡§Ç‡§§ ‡§®‡§Ø‡§æ ‡§Ö‡§™‡§°‡•á‡§ü‡•á‡§° ‡§µ‡§∞‡•ç‡§ú‡§® ‡§Æ‡§ø‡§≤‡§§‡§æ ‡§π‡•à‡•§'
-                  : 'This shared link stays permanently live and synchronized. Whenever new quizzes, formulas, or features are published, visitors always get the latest version seamlessly.'}
-              </p>
-            </div>
-
-            {/* Footer note */}
-            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
-              <span>Hans Compain ‚Ä¢ Expert Academic & Career AI</span>
-              <span className="text-cyan-400 font-medium">Free for Students & Aspirants</span>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* OWNER ADMIN SECRET PIN SECURITY MODAL */}
-      {isOwnerPinModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-[#0B0F19] border border-amber-500/40 rounded-3xl max-w-md w-full p-6 space-y-5 text-left shadow-2xl shadow-amber-500/10 relative overflow-hidden">
-            
-            {/* Header */}
-            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
-                  <ShieldCheck className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-base font-extrabold text-white">Owner Admin Access Guard</h3>
-                  <p className="text-xs text-amber-400 font-medium">‡§ì‡§®‡§∞ ‡§™‡§ø‡§® ‡§¶‡§∞‡•ç‡§ú ‡§ï‡§∞‡•á‡§Ç / Founder Security Lock</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsOwnerPinModalOpen(false)}
-                className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl transition-all cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Info Banner */}
-            <div className="p-3.5 bg-amber-950/40 border border-amber-500/30 rounded-2xl text-xs text-amber-200 leading-relaxed space-y-1.5">
-              <p className="font-bold flex items-center gap-1.5 text-amber-300">
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
-                <span>‡§∏‡•Å‡§∞‡§ï‡•ç‡§∑‡§ø‡§§ ‡§ì‡§®‡§∞ ‡§°‡•à‡§∂‡§¨‡•ã‡§∞‡•ç‡§° (Admin Console)</span>
-              </p>
-              <p className="text-[11px] text-slate-300">
-                ‡§∏‡§æ‡§Æ‡§æ‡§®‡•ç‡§Ø ‡§õ‡§æ‡§§‡•ç‡§∞ ‡§Ø‡•Ç‡§ú‡§∞ ‡§á‡§∏ ‡§∏‡•á‡§ï‡•ç‡§∂‡§® ‡§Æ‡•á‡§Ç ‡§™‡•ç‡§∞‡§µ‡•á‡§∂ ‡§®‡§π‡•Ä‡§Ç ‡§ï‡§∞ ‡§∏‡§ï‡§§‡•á‡•§ ‡§ì‡§®‡§∞ ‡§ï‡§Ç‡§∏‡•ã‡§≤ ‡§ñ‡•ã‡§≤‡§®‡•á ‡§ï‡•á ‡§≤‡§ø‡§è ‡§Ö‡§™‡§®‡§æ <strong>Secret Owner PIN</strong> ‡§¶‡§∞‡•ç‡§ú ‡§ï‡§∞‡•á‡§Ç‡•§
-              </p>
-            </div>
-
-            {/* Form */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const pin = ownerPinInput.trim();
-                if (['9988', '1234', 'hansai', 'palhanslal4'].includes(pin.toLowerCase())) {
-                  setIsOwnerUnlocked(true);
-                  setIsOwnerPinModalOpen(false);
-                  setUser({ name: 'Hanslal Pal (Owner)', email: 'palhanslal4@gmail.com', role: 'owner' });
-                  localStorage.setItem('hansai-user-session', JSON.stringify({ name: 'Hanslal Pal (Owner)', email: 'palhanslal4@gmail.com', role: 'owner' }));
-                  setActiveView('owner-dashboard');
-                  showToast("üõ°Ô∏è Owner Security PIN verified! Welcome Hanslal Pal Ji.", "success");
-                } else {
-                  showToast("‚ùå ‡§ó‡§≤‡§§ Owner Secret PIN! ‡§ï‡•á‡§µ‡§≤ ‡§∏‡§Ç‡§∏‡•ç‡§•‡§æ‡§™‡§ï ‡§™‡•ç‡§∞‡§µ‡•á‡§∂ ‡§ï‡§∞ ‡§∏‡§ï‡§§‡•á ‡§π‡•à‡§Ç‡•§", "warn");
-                }
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-[11px] font-bold text-slate-300 mb-1.5">
-                  Enter Owner Secret PIN / ‡§ì‡§®‡§∞ ‡§™‡§ø‡§®
-                </label>
-                <input
-                  type="password"
-                  autoFocus
-                  value={ownerPinInput}
-                  onChange={(e) => setOwnerPinInput(e.target.value)}
-                  placeholder="Enter Owner Secret PIN"
-                  className="w-full text-sm p-3.5 bg-[#04070F] border border-amber-500/40 rounded-xl text-amber-300 font-mono tracking-widest outline-none focus:border-amber-400"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsOwnerPinModalOpen(false)}
-                  className="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="w-2/3 py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-extrabold rounded-xl text-xs cursor-pointer shadow-lg shadow-amber-600/20"
-                >
-                  Unlock Console üîê
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* üß† AI MISTAKE REMEDIATION CONCEPT MODAL */}
-      {activeMistakeModal && (
-        <QuizMistakeRemediationModal
-          isOpen={!!activeMistakeModal}
-          onClose={() => setActiveMistakeModal(null)}
-          mistake={activeMistakeModal}
-          onSaveToNotebook={(item) => handleSaveMistakeToNotebook(item)}
-          onRetry={handleRetryCurrentQuestion}
-        />
-      )}
-
-      {/* üñºÔ∏è FULL SCREEN IMAGE VIEWER LIGHTBOX MODAL */}
-      {fullImageModalUrl && (
-        <div 
-          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-fade-in"
-          onClick={() => setFullImageModalUrl(null)}
-        >
-          <div 
-            className="relative max-w-4xl w-full max-h-[92vh] bg-[#0A0E1A] border border-slate-700 rounded-3xl p-4 shadow-2xl flex flex-col items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-full flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-              <span className="text-xs font-bold text-white flex items-center gap-2">
-                <span>üñºÔ∏è</span>
-                <span>Uploaded Image Viewer / ‡§´‡•ã‡§ü‡•ã ‡§¶‡•É‡§∂‡•ç‡§Ø</span>
-              </span>
-              <div className="flex items-center gap-2">
-                <a 
-                  href={fullImageModalUrl} 
-                  download="uploaded_photo.png" 
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold no-underline transition-all flex items-center gap-1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  ‚¨áÔ∏è Save / ‡§°‡§æ‡§â‡§®‡§≤‡•ã‡§°
-                </a>
-                <button 
-                  onClick={() => setFullImageModalUrl(null)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-all border-none cursor-pointer"
-                >
-                  ‚úï Close
-                </button>
-              </div>
-            </div>
-            <div className="overflow-auto max-h-[75vh] flex items-center justify-center w-full p-2">
-              <img 
-                src={fullImageModalUrl} 
-                alt="Full screen uploaded view" 
-                className="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-xl border border-slate-800"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ‚öñÔ∏è PUBLIC AI USAGE RULES & SAFETY GUIDELINES MODAL */}
-      <AiPublicRulesModal
-        isOpen={isAiRulesModalOpen}
-        onClose={() => setIsAiRulesModalOpen(false)}
-        language={language}
-      />
-
-      {/* ü§ñ HANSAI COMPREHENSIVE AI FEATURE & HELP GUIDE MODAL */}
-      <HansAiHelpGuideModal
-        isOpen={isHelpGuideOpen}
-        onClose={() => setIsHelpGuideOpen(false)}
-        language={language}
-        onNavigateToFeature={(view) => {
-          setActiveView(view as any);
-        }}
-      />
-
-      {/* üîç HANSAI AUTOMATIC PROBLEM DETECTOR & SYSTEM DIAGNOSTICS MODAL */}
-      <SystemDiagnosticsModal
-        isOpen={isDiagnosticsModalOpen}
-        onClose={() => setIsDiagnosticsModalOpen(false)}
-        language={language}
-        onFixAction={(feature) => {
-          setActiveView(feature as any);
-        }}
-      />
-
-      {/* üóëÔ∏è CLEAR ALL CHATS CONFIRMATION MODAL */}
-      {isClearAllChatsModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-[#0b0f19] border border-rose-500/40 rounded-2xl max-w-sm w-full p-5 text-left shadow-2xl space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl shrink-0">
-                ‚ö†Ô∏è
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white">
-                  {language === 'hindi' ? '‡§∏‡§≠‡•Ä ‡§ö‡•à‡§ü ‡§á‡§§‡§ø‡§π‡§æ‡§∏ ‡§π‡§ü‡§æ‡§è‡§Ç?' : 'Clear all chat history?'}
-                </h4>
-                <p className="text-[11px] text-slate-400">
-                  {language === 'hindi' 
-                    ? '‡§Ø‡§π ‡§∏‡§≠‡•Ä ‡§∏‡§π‡•á‡§ú‡•Ä ‡§ó‡§à ‡§¨‡§æ‡§§‡§ö‡•Ä‡§§ ‡§ï‡•ã ‡§π‡§Æ‡•á‡§∂‡§æ ‡§ï‡•á ‡§≤‡§ø‡§è ‡§π‡§ü‡§æ ‡§¶‡•á‡§ó‡§æ‡•§' 
-                    : 'This will permanently delete all saved conversations.'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-              <button
-                type="button"
-                onClick={() => setIsClearAllChatsModalOpen(false)}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold cursor-pointer border-none"
-              >
-                {language === 'hindi' ? '‡§∞‡§¶‡•ç‡§¶ ‡§ï‡§∞‡•á‡§Ç' : 'Cancel'}
-              </button>
-              <button
-                type="button"
-                onClick={handleClearAllChats}
-                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-rose-950/40 cursor-pointer border-none"
-              >
-                {language === 'hindi' ? '‡§π‡§æ‡§Å, ‡§∏‡§¨ ‡§π‡§ü‡§æ‡§è‡§Ç' : 'Yes, Delete All'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* üí¨ DEDICATED CHAT & ACTIVITY HISTORY MODAL */}
-      <ChatHistoryModal
-        isOpen={isChatHistoryModalOpen}
-        onClose={() => setIsChatHistoryModalOpen(false)}
-        language={language}
-        savedChats={savedChats}
-        currentChatSessionId={currentChatSessionId}
-        onLoadChat={(chat) => {
-          setCurrentChatSessionId(chat.id);
-          setChatMessages(chat.messages || []);
-          setActiveView('chat');
-          showToast(language === 'hindi' ? `‡§ö‡•à‡§ü "${chat.title || '‡§∏‡§§‡•ç‡§∞'}" ‡§≤‡•ã‡§° ‡§π‡•ã ‡§ó‡§à üí¨` : `Loaded "${chat.title || 'Chat'}" üí¨`, 'info');
-        }}
-        onDeleteChat={deleteSavedChat}
-        onRenameChat={handleRenameChat}
-        onPinChat={handlePinChat}
-        onClearAllChats={() => {
-          setIsChatHistoryModalOpen(false);
-          setIsClearAllChatsModalOpen(true);
-        }}
-        activityLogs={activityLogs}
-        onClearActivityLog={deleteSpecificHistoryLog}
-        onStartNewChat={() => {
-          startNewChat();
-        }}
-      />
-
-      {/* ‚≠ê 5-STAR FEEDBACK & USER SUGGESTIONS MODAL */}
-      <FiveStarFeedbackModal
-        isOpen={isFiveStarFeedbackOpen}
-        onClose={() => setIsFiveStarFeedbackOpen(false)}
-        language={language}
-        user={user}
-        onOpenLogin={() => setIsAuthLoginOpen(true)}
-        initialContext={feedbackInitialContext}
-        onFeedbackSubmitted={(data) => {
-          showToast(language === 'hindi' ? `‚≠ê ‡§Ü‡§™‡§ï‡§æ ${data.stars}-‡§∏‡•ç‡§ü‡§æ‡§∞ ‡§´‡•Ä‡§°‡§¨‡•à‡§ï ‡§µ ‡§∏‡•Å‡§ù‡§æ‡§µ ‡§¶‡§∞‡•ç‡§ú ‡§ï‡§∞ ‡§≤‡§ø‡§Ø‡§æ ‡§ó‡§Ø‡§æ ‡§π‡•à!` : `‚≠ê Thank you! Your ${data.stars}-star feedback & review was recorded!`, 'success');
-        }}
-      />
-
-      {/* üöÄ HANS COMPAIN UPCOMING FEATURES & ROADMAP MODAL */}
-      <UpcomingFeaturesRoadmapModal
-        isOpen={isRoadmapModalOpen}
-        onClose={() => setIsRoadmapModalOpen(false)}
-        language={language}
-        onLaunchFeature={(featureId) => {
-          if (featureId === 'chat' || featureId === 'quiz' || featureId === 'shorthand' || featureId === 'study-plan' || featureId === 'flashcards' || featureId === 'music-studio' || featureId === 'weather-alerts' || featureId === 'store' || featureId === 'security-hub') {
-            setActiveView(featureId as any);
-          }
-        }}
-      />
-
-      {/* üìë QUICK SAVE TO NOTES SMART FOLDERS MODAL */}
-      <QuickSaveNotesModal
-        isOpen={isQuickSaveModalOpen}
-        onClose={() => {
-          setIsQuickSaveModalOpen(false);
-          setFloatingSelectionPos(null);
-        }}
-        selectedText={quickSaveSelectedText}
-        folders={folders}
-        language={language}
-        onSaveNote={handleQuickSaveNote}
-        onCreateFolder={handleQuickCreateFolder}
-        onOpenNotesView={() => {
-          setIsQuickSaveModalOpen(false);
-          setActiveView('notes-ocr' as any);
-        }}
-      />
-
-    </div>
-  );
-}
+   xúÏΩ{w◊ï'˙ˇ˝Gå#Ç	AÇ )Kå(DRØ)ë&`i|5∫≠"P$jT@¡UQ0£µœÌ8=È¥;qﬂvªØ&”r«◊ì8æ^◊e÷¨ÙW—ÚhÑŸ˚úSÔÛ* î‰Óîó)†PèÛÿgü˝¯ÌΩ	…m◊
+ÇVœ^?π;xP]&ÉQuiaï¯ﬁ∞ﬂ±;U˜àÑˆÉ∞˙  á^?¨xnáÑæ’ú–Ò˙UÀu…°k? Nh˜Çj€Óá∂Oé¨}J{Ëû_x=˝“…ˇñ?;Bßg˚Õ·AÀ: ÎÎÎd∂ÌzÌ{≥í´	yÖÃUù~«9Ú™Áj5÷∆„.4Ç]´„W{˘Ìkdñﬁ∏VhWW‡˛Æwﬂˆ◊R'Îµö¯˛áw
+Œ_^˚ı{ˇﬂø<yè4√agDZÿG¡eÜaËıEè∏»~>‹Îo∏N˚ﬁ˙Ieé¨_"≤°Ï∞ïånev‡{ˇ—ná¡Ï‹dwtΩ„ñgae¶1Ï8Ÿ∑€ûﬂÅ˘;Kˆ¯›§—ù˚6˘Ê—ﬂ¸tqfûÃ√v€Ç…säÜÌÖ•øxîæÌ$»'à‹Ùú∂ùö¿RÑxq±„‹œüÊ'sgO$K∆´RxÓ‚˜H´qô,≠ëÊı∆~ã4[ØoæAZ€◊∑ˆ…≠Ì÷5“º∂ªﬂ∫÷∏±I^›z„Únc∫∞πﬂ∏“"ç◊[ª’f„Ê˘ﬁb±¡–¥iÕ˘Ná‡üj€sÉÍqè÷R_Îî`Œq
+BÀâ’wz8áV«ÜiûØ‡‘	Ùi«>…ÜÁ{˝5≤Å›áßuH”Cß@ÉEÛóo34ZWVø∫JÄ÷U\®’Wk‰Ä≠HˆˇÈ<úè÷M˝ÅK∞Kp{€Æé‡•,ö&ÏJÒ˝Ùzæû¢ß¨HÓÖª±ùÖ€o/’Óê·``˚m+∞˘v-XƒÌ{0’cßc!k_O∏í’µ
+]^™`uX”» ‚na˝ª∂’¡ıΩæMúæÎÙmxª¥µ0ON@Ÿ‚˛∞ﬂá{Å<gæ˛Ë◊‰ä◊0SA ÃÖl˜qΩ˘»÷`≈ŒD¸<˙π„⁄3b∂ÜÀG§∞>“tr’±˙!Å.:°Âí#◊;∆ñ¥°k!∞M$1µàflÄ”Lô·°s8‚”ßÜ¸#|(	˚quÂ<È‚üÃPsz[â>§f®^cÔ∆?∏Æ≤9€"ú‹€ﬂ©-◊Œ’∂ÓDÏIñL=vU—z6å{C7¿ÅÛÒOgHˇ	J[ä¡£wÁà‡ÏYìRóu¿2ëÍ`ü≠÷DÉï*$Ìà∑•¨-'¢^ù!ã™æŒ©∫"^+0§t…ıºæóY|…fï[á ·Ü!ªnÖ›ÖC◊Û¸
+≤z Î…π⁄‹BË5C¸ ‹¬¿Í4ëãVÍ ‘fÊÆ©ö<Íª⁄G©ÅØπ≤√ƒŸTjÔ K…	ˇÍÖ’%Õµ,ˇ»◊¯N∏Ã√oZÓCràdÇ∆7·‹è
+fs›rÄõπ÷Ë Á˙Ê√ﬁWÇª•¨‹ö∆=tY≈k¬,;EZv¿∞ngñoÂLv9K\~,Ê∑˙ùÏY√¿Ó u?}¸≈”O~ÙÙÒOˇ	æ¸ë~˘1à˜OPˆ≈ù!%‚JÆ¸æè‡éßèø|˙…;\@IŸÈz21ôaô9ë˘Óàıî»k^+2s>“µXxÆãŒÏ»°Ú⁄Hv∂z¿œ≈¢o|jU(M«óÉ,0´{√}√ëÇt™zUü˙^ØjC+-∑√ﬁ·UC€rSM»\í ˘Ö‚Ü•âMSM´Ppgáró+îˆâF	ìQ~ı¶s¢K≈©àí˘üﬂ™=¥‹¿÷≠U¶ƒ‚Q…≤UÚ=‹0LW:_ÿ˚x3]üˇÙÙìü>}¸[∫Jø`´ñ˙€O?y˙…ªO?"t—ˇÛ”«øg?~»?ù¬bûÅµº≠ÂX‹?ü^Ï‘À´µÙVµ\´ïZ˙πÖ-R$^Æ’f∆"‘o˝Úˇb£k@r≤ﬂ•€újì√-Óµ!ê!a§k¬=◊Û…F◊†6n¿nÂıH√µ¸HˆÉa(ﬂ˝Ú{_§ˇ,G„5ØA®Rè{7¸ÍZ∂k ñ¨Hƒ™ÌêﬁÅF8a}ﬂ°/CÍˇK‹öÈÚ≥ßè?'Ò˜)=˝πbiì]rpÑm	GﬁO9©rﬂrá∞œ—5O[ﬂrB◊V-(‡F]´7Ul è"Xr{≈^©ê∂@Ø) .€]m€_ü±éH≥Î˘a˙=êúC4´,í=œHˇæCU√EÍ–ıç◊UÁRÛ}Ã4ÜhÒ&⁄æL’ØQ}òöÀÍÖÂ€èà7©:LU„C‹÷
+ö£® òÑº±R≈D-x ÷—“ÇJ≠õŒròπƒ¯#z∆JˆPjˇäÚıÀ@O‹jÛ“JdT´Æ∑óÊ…Í<Y™¡ˇo˛_Üœ+Ôπ⁄ùÖû5®Tz†3P*÷Ë•⁄Mè{ˆh˝ü®"x<JÌËxå∑´Û;[ôùuŸ¯F*‡-&Ç Ω/Ó2 ¿Õ‚–C	óU”¯˛~Wo÷NÂ6èGFnO/€»∆Õ	<µsßLpú®7sçîéGN|B-æ≥gI¨Ñ«'qLµOdÚ|Å´Ïw9üJPééµ¯¡…>õ·çBz^ñ—ΩI%ñ„°÷˜a%S¬È©W®FÏ¡cN±M®˝s·h{⁄(5Ì∂◊ÔL*ccD(mº”¢—®«π~]≈Û3ñüÚê?êJ“u÷Ì9≠°Ek¯†≤íπk≈üH ÍQ≠UI	ó‚˙åB"ß◊X÷gñUr;iÜ2∫
+ïiñÁ‘˜q1¨Máí.ß$ı¬…bÖgî«rB”“b] 3’î2S‰C8ôZo"3©ÜKiƒ”ybt,®o3ó÷ÃöœÖ‹V/î†6Xy1µ’JìgWë∆ø-r3e∞’ÛRR.Ñ·B“#Îd`˘ÅΩ›+EB~¯C¥Î£¨±ÿ…£-≠ÙC/¥\JüÎ§“cÇ$˘>	tw;á§‚ q‹®ƒOò√∑'œª∏N‡QÚsb°⁄sm‹œÿF
+ö≈¿CâÔæç+ìH´ÎÏö†é-øØóO	ÒÌpË˜µr¨Ê˜qe}Å§èÉµdz#3˛≈≠Ω+ëÛπ`Â≈˝á=¯<ŒÄ∏ˇE	Y_#ÈgMz1¢%ãâmz)â9≈¥™Ωå	V}Ôÿ∑yU ´(®÷µZºm¬x1q
+IÈæ“	∏ä∞M“B®¿Y≤ı ˙ÿ˝•1êkÿow—ÛÇ¶ôv)yVÓ’:∞√c€Ósw»@Ì¯”ÛYS.[ä«¬;⁄ÒÜ:A]X%s[¯7è~˘üÈx¢K¡Öß“∆Áê á˚Ã‘-‹ÈÂ ∑p◊§nÈÇêÿ±«]+78æ0ˆa O◊≈2&ÒPV+$Z ªª_	}ç–#ü∞ˆ±HLõèß,>YÁìFOå1gÒÉñ5≥&¸ç;õ˝∑úÖ 7!ıoÿ†Y‰…Í^kÓyx3ö=Ù‡1f#ú D¥êD¶p]‡éÈº(ÉÌäÌV)ù&ç0Ò#UùıoÎÅ’#Mß7Ñ´aWé∫ßVyJZõÎ%≠ÕÖøà'=
+ƒAñcM«< ´∂}Ô¿{†ñÀÈUvg˝ƒ	Æ€°ÔıΩûΩ’∑\ªSRc“â™î£‰ﬂëhTº!%Ñ≥¸≠Ë€ﬁ≥⁄∏%≈Ø!¸=g`≠æˇ_©ó;˘≠„Ù«≥≠™åÙ∆˘ó»ì⁄ª“fMÊMA—K’¬ËEó#úÒ’9•ë^ë_´…™§‘ZM¡åc¸Wƒ[€ûÎ˘,ÕÅ›.LC˜Õ“‰≠Ÿ≈Ö"ƒjÊíbë#XgÆMa{LÚ 64sƒ’–®HœÇ°CìEÇ–∂:#r3TÅ˚Tô^D¨¡ï[{◊Á..î#©FS˛Mc+·$ÜQ‹^9O] €;·éﬂä‡ÃvGÕYÑºöag≤∂SŒÜøyÙã_ì∆ÅR3„»)(ìâÂI9 Ñ‹≤…±[∂5ÃÇ˘Ö˝{DÂVúH˙B>moÎƒn{@¨êÿ¨vóÜ]:Ö$xtiµˆ]“µ‹√*z*Ä"¸{–@ˆ7-¡çKıYÆT…≥H}U>
+èôC2B]ôåº!ÒÒüø}AI*ä>ö(5äüø…A©`ﬂ9Í&‡Úm‰&≈àΩ—7º–><rXÖ3ybú˘Jiúy4Ù÷Ëgﬂ;∆œ&öŸ¸·Ì;(4t\DFwπh§ÌÂE @g.m:Ì–B*òÙ7ˇ¯È„?P»‡ó‘Â¸¸e^ÁﬂQÛÔ©Ô˘	¡_™'ÙÏcÊûÜﬂ..vó-∞Z!úµVk(µ@∞@Â˚mﬂA◊E˙ÈƒΩ M¡^ €a≤r´ÅW¿Ú¡~‰∏£O◊†?Ïh¡T±[ÂQ(¸;ÿ*Éê9Ä´ÄÎ˚läzFg˝KeºT† -1o-≠”^HVàí[ﬂ¬-l-‚oÖâLú•3ó«±ª–ßÖ–wz†ÁΩB$ø,◊	+ãˇ!¯˛‚‹Çk˜è¬.»Nµá1”Tp5çãl „ R®Øá"S4¨kwkL]M¶u»ı)$Ó4ÁéôE:k˘∂UÇ–£Ä—Ü¸±ä	H„¨RC;–*uˇÿH+∆RÌy`M ÌıÁëa"Ê y›æõÕêXÏæ7O6ú˚é§.
+Ë- V"Â ˚@ôc.|«r∆·∆g¡∂ÌF_ÑÎ\NπÄÍcBµrÜê.h 	|+/(ﬂú∑¯S√À_znU·WR®!≤Ha#5]ç&Ñ«*ÙÄU◊dÒjQ"&\Ø™Ç“–÷·X∏¬D((=´â›PhOπ›îKœ3∂Á{’ñ3†gh CS)ziÅFg0™∂#Û∂EÕ?…÷\A◊ãO$á0Ω]“C‰grAh˜¥ }a}Åºä≤ˆ±ÔP±Sà“v@µ?.ï˜r⁄LŒ—®€ﬂÂ°„Hò.F@„>*£,/ê;§Ô§$OÎ\ó=é‡1WÎ–E¿Ú€]‰ñtÄ"·eÄÒsæM5–©xrf2’O §Lbl˙Cò¥òü–’Âﬂg3√Ö•Ö°d¨ãóµS´W¡+ï0üã≈ãõËƒ_Ò|∫ïG	l
+ûR¥j=[√n]˙wZ∆# áËöúé}`˘§O≈y‹cI◊ÈtÄxx¸$óL¢-Wõ¶5ó<∫ËœH‰cΩc^Êñêr)§ÕûâÃï§ywºÜ‰(|°ocÁ»∫∂?Ngç‹≈9Øˆ(ß¢vø˙“…&–‰Bﬂ;ÆÃ=º;ØyHàzxN¨În˙÷aH*/a+ò”>éèﬂZAã—›xHeômË“Ûf¥M∑é@À∏=√q¨˝8aåqœ‹—6§Ë–Ó4†π0Íá≠Ç—™€Õ›(`U=ù⁄0' Ç*∞q‹G‚æÕÁvûÄ¥ä'ÔòJed)f|¬ÔˇiwqªmgÅ¬(1ú%WËLg≤ÄaPëud–_?ë-\CÁ%€aﬂ<Æ¢#ƒÎXå®kQxˆjÍ\‚ª^Õ†6i1ëâ±:?¶ §∂ò«d\?Á/˛Dßñl}Y[∏—Dû¢èS˙C··sdMû<§æFÆøAˆˆwˇ˜≠çV®±Ò˙Êˆ.Ÿﬂ⁄ÿ›ﬂ‹⁄A≥É‡ºFrÈuPËÂX%û¶Ö1îAπËçe–çÄHƒ3©ˇ9m°»5tœÍÉÏhÍÅû¢Iôƒ˘)p…∫ﬁqï…-J3o)ºèJf67
+À¬™À˘né©”πõâÓfô%2º*N'1t–pı
+'KO'⁄®ÕÕÕhz~Dc_ˇÙÒß4ñˇWQ|\*Ç©ç’'N¿ﬁjêmc<‘ÅÔvî>Ü~N%èâÃìëxû7ÂIç—q€ï⁄•zÙ«T/π^Œó»∑í¨•≤>J#0i6…-ÿ\“†£ä<ãÎ~<„™l,“%ãíèÖŸ6ä∆2¬e†ÜÛ∫D'∑A‰j¯æ5™,’Áx8ﬁ_Ã« è5Qs	è«stx€<ù‰Ñ,±A⁄HË·◊∂VØ\πìÂägî£@MEGé\Póı0fB∫6˙'A;xâ%äyß„°ó‚{‰|ç|ü‘kø´U	 ›·÷Ï˘¡ÉYì{¨àÚ6á>˝ó∂£∂∞/v†µÖ⁄˘á¡]Ìì¥ë|J5[«•7?	Öù‘Ì¢4]≈¯ëtË y©õ∑õˆ¨’cÿ√4k·õGÛò¥¨Ê9AÈ'^®3‘h@ëÂÜ94∂ªh¿éA'òèÃ⁄ÃèvXº¥Éíg†v∫ÎåtJv¥Èc¿Ïä*æ#œzî7©ê-)v™c{SYíbˆG√—&Kïtí{⁄Ÿí‘€DÇA∫ S¨‹-Fﬂz∆|0{6èoIó®ò∑ƒ<¥=°´©,Â!ˇÂ“˜d¶—Ï8´Ü9}‘c°zï≤ıQÙÀˇüKA$«/‘≥i"´·éßLﬁ`
+$A≈“ADÇÍ‘»!zÖ91ƒ¢¡º∑müm|˝ﬁˇÂ…{	uxÉi«©ÖOsFÿ·ä0:ÍPˆÌ˚é}¨`ä'>øëﬁ˜∫Ô™ï	¶ê/Ó´c/Ã*»Ò˜¢†k#[E‹ï“ïSµ¯´Èü®c¨w‰%ç*FÀcÇ.d˛œ¿oØÜÚa‰|F?îıÖ(ïÏ¶$	qÈP¸‘bLn@Ô#õŒπ)ÁTç'r…ƒvuÆjTƒ"K4ƒSk}Fç_–Ñ\S∑FPÎ˚Årˇ->˚Ω.|G∫∞—a®Qß%4	Sï[´≤‹L%B&Vä!òŸ	õçMcD«èe±˘Ô0äÖ‰M⁄46%º≤∫<M1Ç®oÛFbÔÀ{bodÓ/´]Ã’‘Ë∑QM&€¿™ÄØÌ;˜©Nru8-≤9Í[†⁄ÇpÎÙ·‰ıŸ¥wDnzmÎ`ËZ˛àzF58°…“81x–Ú¬™,â„d¯ ÉÃNJmVß$h-ÈΩN í^7P "NuÖm˜ûO#≠®`ƒF}é9??é“Fßz'2Ü˛#°ÈaæC≥	˛»`’ôAÚ(,™=⁄(É¸MäÖ≈ûQniÂ◊KI¥nG5O¸°Àb”—WÎáÆû@ª|^Ë‘E ZFg¥¢t@µm„˘/Çk∂’°Frñ\sé∫.‚¢•Äı_1‡:°`ıEk·Wq¶LXßª‚N∂‚«L¥^µG‰Õ!˙PÁ äLKóõºÇaØg˘é˝ÁÖP<¥AX˙›Á˘…bõv‚*3tÜGËzÓ[Ó(pÿJyB∑Ñ¸^ÒU*‰„WÒgQÕh©•0o¨,M7≤ò@ªÂ£⁄¿“¥0ºŸ<ácwË f√Kn ûHÙ2BfüÊÇ9üY0y€˚©ÀfßñU¿∫os‚®d≈} ˛“tì>±«≈ü'yÂ^Ia)ÑPˆ˝c·É√ú ]x∫æèœˆj&_xä‚t·Q‰N5D/Nà/>è·U≈≥Óhe’aÑ>ü1—EJkr>√∏‡£˜ƒ¿G°áöV\Gäs ?R=˛c•6JŸL‚-\gﬂ¶ôò<Æbi¿°rº7„Tˆ†33—*Ç„¶i-Çœæ59&¶ñNB(©¡Á1ïüQ—ªybY⁄ﬂSYîËﬂ'§rBß/zEG&Ép*≠I¬GÒàïKÄÎX:óÒﬁÊºff*ô%wÊ=¸~ˇw&Ò›Ög ßa~c¸ÄA+Ûî7º¸“Å-äû•{<ëë/tF}´Á¥I0rA∏w⁄ÛÅÜ.<!Ù@FJhàÁπöpµMWÈMíˆ—Ów´∑Å?¢C—FfÍk“∞ÁhÖ"KpúL=cõ4ZÖï‡ÛúŒC›≈YãLã‰<$ìd7ÂXŒ¯0NI⁄¸‹÷$ÉÒ±:ü‰nhÜ›Üëk—ÉıW!É\≠ôTÿ`ZêÚ§DRbH˜Ûîl¬)6ˇ!0™£Üäù=ÇD©Xi^j@_):x—¥ì0œ[⁄≥a:zÑ/ÏxmÀµ#É•GŸ%◊Möô”è“©—Ò¿(î∂◊?t¸^e¶¡†2†Í«Èÿ˚F¬.(êúmæ2c•†∂5”å%é"¿vì Äû Œ@Œ¿ﬁƒπƒúAÚH˛éTD˜E∞fõÁﬂâìi÷"±»8LsyVs(Pâ«=ç™Vö ›z ê†G—Ò»ôıôM6œ|¸Ù7ö,≥o}¯sXeÎAÔFg◊©ïKv†Ä|9m&gô—ó“	"x∫ëä∑»/P‰£•D=OWëè6VVe¬àCïqy'yt$Ô8ªY‚G`zØQ∞∏;í8ËeñˇˆwñÍﬂ ù≈s52H™
+H∑o©"ùSXF≥äÚ¯Ùúô±o3∂lrô
+
+òn]71jøXDEKãô–îÿ,îµ˙ÇQV◊‘‹O{˘àã“æ`Ñï™8™#≠ÿrÕb˙TˆkÙÒ|E¡ˇXÜÙDiä
+…ŒjE"êN tZÜà˙zS8o´.wªhä‰c¡√‚WÁmaí´ò€Wo6PÑ%KùTCê¶∆ê–ZX-ÚFZÌ.Ãm:	.+CN)`XfK†¬jf®∞¯ïÜ>—3∆.SûV.3G«Öã≤†\xs{Îñ643›ËkxÅÇ¥p<≈ÓœóDû¸ô1
+KG÷®(–˜|™¸πâm∆V.P0∑ä”Õa≈áÉLº‚d…ÌDPô‚b∑^¥:∏S3À3~	T-eΩ'aS‡ætıˆòG®8A⁄}p6ö 1
+Ô2h†Å¯È„˜Ë~ˆ|˙y˘{∏ºLÏ„≈≈n]8)BÎin«SÿRX∑»} 'ôOtû'˚±â´›ƒëôSY0ÕØRq20w4∑µ“Tú ≤{<¶ -»Œ[¿ö]4…¿≠ë—]´#‹'%\jí¢J*Îå°=∆Ã”ZÙ	*˙l@8ïΩBZhìA˛‰¡∞˙ Iêõ ÈÕ.®m4´ÃmUáî}•Åæ…àŒiÀ`Z“)íÛã7âUEû˜=1°¨*M(À" ¯µiE¶Ò:Ÿ†á#≥ê\e∂!Õä7»…sHºp‚ÚLí%@‚3C¿î`zŸN77¿3 pjyTYÃsºHÛ®G|åòí7Älz'O`ú‡$ò$-ÄAR ≥î œ7!Äq:Ä)%(ü
+`:â 4Œ'•…`|=æ$·ÙÉˇüyËøŒ °`3¶AˇßÚ:ˇS˜7ép5
+ıü<–øLòˇ)ï∞,‡ˇØ.º_ï1Â–~Ω”YõÙ‰¥h¿8†ˇ_o8ˇ∏¥0f(ø1h∏ò‚'·o„ó
+ﬂﬁ¡˚/TË˛≥‹WêÖêî‘ÄÔr˚œ>\ˇtÉıüS®æZ=Nòæ¶∂œ∑(D_†oû_:8∫°˘œ%0ˇ¶4˝“q;√Mh“Ä¸Áb˘,ÇÒ«å´4	ƒü~˛©·ø¿ãeº»„q”¸<oíF°˜cRΩaÿ˝©›üF»˝ü…>˚„(O=”0˚•“JÑÿO9¿˛YÖ◊ˇ+ÆW¬“ò¢ÃÃP/VH˝¯ıß?•pzÉ‡Ë	BÈ’F∏q´va,ì–O>j&õ1BÁO=p˛EõWXv∆ô?•Ä˘©ÑÀªÉÂUvTÖÊî¬‰«í◊á»óêˇ∂Ö«kú9ßoˇ-	ãAÒßo:c√b?F(¸≥Ñ?˝0¯©¡Îß’  ˛[˛>Vª~1ôæõÖΩõΩüB»{ŸÄ˜IH_∞`˜o]®{π@w3v´øHF:FÄ˚≥"¢g‹˛≠m/ÿ˛lâ…8†˝Y“ãÃ˛CŸK≤Ñ±Oç\ ∞?´ı4x˝ôáÆõMÚÿ˜À°Ó”fI"Ògç„“õ[ÕÊˆÓrmªŸ⁄›ÉÏÏ^mÍ‚—AA;⁄iE§+Ïá”åM?ùàÙ¬2ì⁄AUqÍÜ®_cî]=´4Nˇ“€=¨ﬂ°¸9Ì%[HØﬁ&u©E/8K€d£kq£˚_Q£ÍÔ©¡Ù√Îˆ3ƒ®P¨◊ªÙ”?Sÿ üÚ!Á=˝‰'O?ÆÜ”â)ﬂË˙^ﬂsΩ# 'ú®—OÉ8†cmËysh®˜°;ë⁄&ÈŸ¿vÚÕ°ÛÅV¿âûMùP,Í"™?O£TY :ÛG“]´lyÒº‘8adé(N«É2'≈«f˝Éÿ≠ÃÌÍLÃ¯›”OﬁO˙ÁÙ˚#˙˝Sv€GÙÉ3°˛èîﬁQZ;;lFÌ@[TÒ‰)CE≤6X ˘¢ÆçT®Ñ9ìŒ¿!‚ÎB#F.⁄úyäyº˘ÌÔ‘Æ,ù´üªìX,Q\ üß˚˙wÆl6VW$ÈZ∆˙ö‹€Ó!∑Ä§ﬂ(◊ña£u.<—¬KB‘£©XÃ—ƒÔ%.;ôÒBºDpØhÇLb∑-øÉA!ºŒi‘ñ,AªkPÉuï‰Î
+Â¬À;õ µÕ•sÚi–…OMNvá2	¿VÍ"£-%ùÒÕ£_¸˘·k+îKx‚" ⁄#´Øc–'VjyGKyöªÄË&ç ?ûùãúo§‹≥;BÊZÆÕBC74∂Üﬁ3	ÑU≈–Ÿ√sÄ|Î…„O‹€JEÅ)PGJ«U—›êÈ;„ÈoÚç˘¥)ÄıÑUda÷ë˝oúﬁ˚1pÁ≠∑`M¥¨{v
+4êX]'f(£•XDÿÿÈH‰ëpí.ä#ÙÒ¡/»D¥ëMﬂq›i∞à¥˛21Å∞k)
+¡ÔßN"^o@Ωe±:QäJbÉ@\9Î,πB˚L6‡ÌG›µÙrO‚êœ˙ÍPAë2âÜ"÷GÂ√1©\Ga„ÄõıHlöRØÓ5√§f–®|`à‘•
+˜9Ú-û2µqûŸútGÛd„ÍŒ¬¬¬úäZ¥ÑÈ¡ßYY?2Ω‘#@V[VCP£Â&¿†‹ÍQõÖfÑã|d2›Y!›6ñ¨Î ‹aàê÷√°! ⁄‚ß
+&\nÄUªıÛÄT!AÃ»3§:˜¿GÔÇdÙE^g1!»ê_¸Å∏ª
+óØ†R{É2C˜jæWf5‘¿Ó9∏[ó¸…m1˜&NgçÃïÕŒ
+Yáoy’ë€f…CqB˛™'$O)(5∫˚9èŒ>"|#±S˜*â§üêN∫[Ÿïæ6U∂QÈnEãSÊŒ˜ˇÅπÑfÖf
+ûÃ'¥3ı*¢»2x À .4∂aÒ˝jTaO!V@¨˛»`Ÿù‹M'Ì”√ôsXŒH_ícl∫¢fR9Ç5U·AxÖÃ◊éxÈπlfÑß]…àXA›ã?•≤XØÕ*^∫F_ö8Lr\ß∞eLM)Œo≤W>º+û#i⁄35Jö≤$`
+˛%g`¬ì"Y©qskìl\k¥"_H>l¥–)RŸ>Dìò›FÕÛ#ö»O'9Q–õ»®†õò∑Ã·ÆU–j…%RogRπM‚q(‚ÆãˆCΩ91 Í¸ÄTJN[∏ˇ f†®:£’œ)ƒnIBΩq‚≈£ñ±3Hh8R,‰dg¬L¿–ó“xåÿïπßﬂvá0§ï‚MŸ+Ád’ÿ≥Ê§Î ¡îmÛG)X7Âî™WS$1_ÀU÷ïÇ¬™ıΩ`¬â£M⁄`e®πaò<3~éëü=µ®rÀ≠ê8ZêôQÎÓßrM<á=¯◊:≤˚ÿu~B›æ≈,t_Ü˛∞ﬂFø08n<C+kZ™É2ó±hpsÖÆ}1Z9iËòÄeÉ≤É&%“ÚI3Q=ËB´ÓUk:B6>óÜ=ÉàáL4"¡JûH†¬ëœè¢*‹ˆop[Ïˇªª„YÓ≈]#3/ÂàmÊÓ<ô·π•ı–e-(YûIz¸|iETòRûç«…ä	ÓÄ˘“ùåÜ®ç0∆„–Có7£Ì∏ílU⁄»ÄÏT‘3nV%4|±æ*œÏMœ’k˘ ò¯ﬁÂ\L¸C6ß¨—ƒJìRû—≤ ™^à„0ÉûeŒ†È'Æ’?¬Çå–>@ñ≥†∫ÃdÂﬁfæü$ÿÍ∑Á>‹˜û>~gTèÁ^ƒNÃËfÃÚ´JÉı‚S&,çŸÚ≠ ãø9¶∆Û.˝õ	0ñQ..∑Ÿ‹∞Ã¢FFΩ‡≥çvZÉı§KÂ°Ã%™¬†ù.B#i±k˚ª7vwvØno4vHT™õ€≠7H≥µø’∏^Bâ:S–êJ(BíXG3U(QíÂöèx:ê¢±≤0£±B@@∞≠^
+@ÛE*s…OI?|&@ßHµ ë]-„˛0ä,UÜØòÜüWE¢Ú·ñß-£ãÇÃOá ty◊Y>1‡Po3LE}Ú8 ˚¯Ù√ß$¬@ˇ=ﬁB!GﬁÛAîOÈüëÀ=˛üÑﬁ√ÚÀº%pãÓ˘æ§Éâ9O|¡©·ÔoR”˙#ˆö?∆_∞ËWÔÇ∑~ÚˆKêÆcy\™le‘Q¿™ë2ïÿõÊÈ‰?Dõ)7µê¿∫Ü'1ßû^?G|;˙}rhπÅ≠íœRØLÈ‘∫ÿπ∂◊(Ê-3Dßì´ÂCﬁR⁄)ïÊˇ&kÿH/ÜW´ﬁ¨⁄Wyõ@!Sû¥{dlÄvjE~√πºlupG$˝°ÎÍÊ+ûˇ∞G3aÈWhÒˆÖ“MÇ ¿Ó(6)]ªâûXéóB°œ"ÂµjI ·ètç7ê‘dAlLm_gÓ¸~-/ìu*É˘KHÏxncŒ)œa»™&=‚ÏÃ©8wnëFè~F˛Ï«uÄvïÙ∞“ß2™‹yGö£~˚ê∞*ÍâmóæuL9Xz
+CölxæMAï≈ˇ3brkˇ!¯ﬁÃ‚<ôùùK~ùyâù˘ÅÍU|Á“QÁ±‡6nl£⁄æMª'±q/ãl‹ãQ)K&0sèzí3L®
+Kçﬂ©‰uäd>™g…lëò“Œ,Ã/^™FÂjÕMΩ¶ırcS/#Í	ÚRòf¶0åo5O#í”fÎÜù?âó±IÄ•QBi∏h‘Ê$∆º•ëÿ<Õh–í+GFÌ≤†ä2˘∏ü9Òÿ¨N≤©µïc§3¡É[˜∑ªWIo	Ü…D∆6Ó≥£kı;∞Ì>≥è— É#x»m˙TM`xådàNÊ4âBÜëÏ÷´ ÀÂÌƒbÄﬁ˙ãá[l˜H„»r˙zg ;Ã\xËÖGa’∆‰?ú:çïü∂ƒ˜ïg8µÕä¢Ø„iûπ‘‹ÿ›ﬂ2/.S+sM≈∞˚ôK…8Ÿ©˘;Õv/ìy6gZb7—¿n;áNõ√ vº£
+˚Ê’h„˛≥Î»åyh›GÔ2ÀÌèÈßGOŒÏ≠?xüD°†yóã §Y±>«¥s,≈7⁄i›Kx§]LÏ©Ò#‹6>Xﬂy£ï1]ß}‰©:ûË9∑¡≤◊^¢ÿß™+Ñ
+ûeÃ]gú7a≥±ΩÛπ∫€ÿií≥§µﬂÿxuk>ÌÌÔ^›ﬂj6…ı≠÷˛ˆÜ6ó¬ëgπ¡s»§ Ú◊y˝C;≤ÏÛÄ’ã${ ∂:m◊&ª¿ä∞¶†¿o:–—ëÌ«˜yËù4ÄÑæjçºUE-ô1°™}ÈYÇ	Î"-ƒyÈD\«ÚﬂÅ¬Ë√;17ægÖØ‚>…D€⁄w…	c°X<bç}ƒΩ˘ç Rmı~wéPY©-úõ^åEË+µé}4˜¬”+Øë•HÒK5≈`KH^∞¥∞ø`˘\˛5Ÿ+ƒgbÍ¿a¿m≤˛«eC◊
+C∂¿ñq‡¥´ˆ[éÌ√,Õì⁄¬y¸≥<OñÊ∞ﬁ∆±ÂwÛ∞¯ª»çËä<òmNVQX
+‘ÅôéúM“3ñÒTa˙)P(]BË”,åC32êÆl”–Vç≈ıJÎ¥(Î¬‚vﬂtﬁ≤˘≈ò˛·‡Å‚Ü§¨Kôﬂ÷¡œÈmµHÍ;,Ä‚ÊÀÿµl◊ÉDÙ úÍ
+÷∏»∞)9w¢ØUÚû"üäW‰ Ñ·éÔ@,˙ [Q—JóÙ<'qux¡]î˙kÆ≥tl[KóW.ﬂYºê7&¶õ∏\£µ““˜¥∑=)ög\Êr^…dª•%π…·bpVN9O/Âs˘Vî´±®®( ∞Y…j∂…ÇJg.]ı(ê¢ç^'Ë⁄ù3FÒe‰ºˇÔqeòLû≥3*3ï6ôÃÚ*≠™Ù*P˝Ñ·~z&ˆˇsL¿_Ú/<s"£>ePu9˙Ä
+æL'IPpÎ«Ï9èÈs™‡Ü;¯8˝ÂãU Ot≠ÀnotZ˝9ùMΩNb(áœô’ﬂøuiöZ4®t YöXÖ8∫DZ∏nlåNe?YPeåé·ÿVcÈm™;|!$ê”…»tŸM¶mÉ
+‰C”∫á√F,c
+•ÆmπaóÑVp/X [˜¢—Ó⁄Ì{=ÀøG∏
+óí˚N0ÑﬁGri3o/nÌdÀ8#Ïó<S˛t·“=nC»˝ìº3&uÃ"%¢Ë]uºÑ<éEHˆ42U´c—û7WQs7lÂòw§Y”˘v†H {ø§PDj°»aM\∏4‚L πt¥–y-â˛_Ã\ù›ÑkJ
+5rõõã„*öèO4πQÑw‘Ø5AŸ‹¥LPØ»(ò£0óÇ,™0 4(ÌBÀΩ”FW*F√£[x÷˘*Eb´=¸ÓÑ;í<‘/ëUo9Åì ¶I0…âPà ‰Çm7'∑gØæ
+<x√πÔ`ÛÏVˇ≈≤è
+ÒƒkC´:!MàÄﬂØQN7";Œ°=ÀÉq€V(ı∆0/<\A«î¨ÈD¥”Qá¯Hëí∆“u∫?ñOï¸ÜvúÕ"uìú‰BVÙJÌYºEZKﬁ∂»ÆI”êËŸÇSJHù~™.BgJ° 
+@lŒÈüHÂzó∫–µòóo“+ΩtAÿYÆÆ∞GÉYÆRDç∂∆o}ÙˇznœsùpÑ∆∆¯⁄,…≥Àﬂˇí;ù∫!≥$¯ıK≤gi$˚œ˛…,π’W[≥F=NnyíPÎ√Ô™_°Æ;Xÿx∂€∫0€-˚’<<QåIΩπ[ÿ{9?bıv5◊¶’["”Y Ï2˚Cj¯Ó™\∞„T=+˙Ô$f-1Ë	Â.ˆ6>ª»íä&m˘Œ≈;-Ü¢p"y&˙ï:ÏyônZ¢ÇaBÈvﬂø·π√^ﬂHÆÖw≈ı…Í$è†“e¨âÀãEeîå§⁄q9Â‘Bf.1Ÿ=¿¬)NºûâÛd±ÏÂ»¯£Î¥A–∂L?:–\ÆúÄµ‚™¡(ÎÉ“#
+0G™¿t5w¢õë∫DU&˝G>ß4„2ÜŸXsE&¬e5‰0õÙ„¬jJêœKπ©§πò¬.tÂ®;´~	KÚÉí˙}˘Ñ±⁄¸Ú*7ßjŸNh‚˘œ˘¸˛ßÂπ6í]ÂHö¶ö„*5ºƒt”ãk`î5˝fp]jÚ¡√ÑÑ»í—j≠@C+ô∏aΩ‡Å4ì¶ëók9»AjoL… ™\3*‚¡CÌ!>·cqˆ,π∏Å¨KÊ+BﬂªgWo√Á;h	SgÌ◊{∞U∑Î˝⁄(õ|åH÷8Z¿+Ã¬@Êò¡
+Ê(¬“ìm5∑$ot˙îˇî(Èvíhòßú˜@á–‰D5±B˛¡‚åÕ¯G∂ﬁXzÄœ	ê>+!zÃd%"	M†ßƒåËVÅ™D≈Ò¡B˘±—È–Œ≥å¯âI:ÆˆQB∂,]ÌñÄX!QjﬂêYg’ˆŸ±$◊±*‚é+}v:dÉUAß˝îx∆>∆–⁄Oxqdπ‡i‰∏å•Aπ=Éb¨&»+À˘Â¶¥}Á¿&-+∏ß)bœ≤à 9Ä.ï(ôúûò¿sûÏÿñﬂ'K´‰æ◊∂Ü.VëF}Ø?Í©Î»Û‘§}˚ÁÖ¬§Â‹EîòÙFÍN≥î§xm
+u¢˙‰(¨ o»‹]©—âﬂjçß5)f/+	SÒ¸ÁGíëQYGç∫ ê©*<UC≤≤r∞Å¯õFÀÈ	«È±=ÊRz}ó/Ô…5<16ùà +™kÖÛ~∂µë›‹HX/&ŒÕ!M¢P¡î Øñ≠Ò»ÌÁW≥“π8©l^Œ?E^f ∆OÌ@cÊg‘∂`ÙPÛ/ßoÖ—◊D¸´nóíô%f'Ï◊Hax4ŒæyÁârHeeãÏö–$s∂S6∏€˝¿ˆ√&A2ñÚ)íè3
+t€∏®§ñÏ˘ˆÄ\ÛÜ~ê∏ˆhrÌRR7üú{ÓR^÷^ìˇ™OI3s©9§»d4ÿ‡,2å“o¢™MøgÈP˛í&,¡l%
+3§I¡«’b¡GÈ¶vìB5ú∑l™`"V"+r/,êÎñ”1“Ë ∆ÜÄ:∫u\^¡>¢u∑–ƒ9Ä∂·∆DÏVj°£5	’J
+≤dBî6⁄—`' U˘√‹ù=Î¡MÍi='Ù[¶/ÕxF”ﬁ–¡Bóœ-{Z‰ï?P˙ÉAúu‚•HZEÙ∞.œ`Y„=I—ú÷Q0òd“êÁúûIéJ∂%ªÆ3¿ ©Ay{iÖ˜æÑ0[6—ÜfvQµ‡?Ko‘à°q„ıA:Q(rÉ ÄÜCUó ∆AWW®1n≈ƒ‹¥Z»)˝ÚÍj·TFÃ6É≤òñ\7	•©Íáﬂ8àQLy=ØÔ©*≈Y±N¯r~HÆ˘JÑTÊùßE¶Ú˝©—∆4¬§`î81\ ım◊Ö–ÅîöiÇ
+%Ø}ì >@7¡û”Ø¿n7ü⁄Á4hvhbÏÙπw5Åe€oÈh∂gXxc˜∆∆÷^ã\ŸŸΩµq≠±ﬂ%ÓÍ÷Ó’˝∆ﬁµÌrΩ±ßi…«8†Ìú †Ì‹¥⁄¶ÖBè_zJ5Éü1Ï¸4…ÛsæµÓ<Neà:ø∫›ƒ¯¡∂=ë^xY#ßùH¯>U<>¶∞Ú?}¸í *≠"˝3ää¿àXé>.TOa¢¢¬C*Ñk„t¿Ë‚®Z…ä¶¡∂º'I^»hßû∞ê^˜∑QGˇÈÈ'?J_äΩ¸2Ü‰≥⁄…hú'_ø˝K8Ò_Ë»}@S\‚ßèX¥…_±AÃ?ïÁ¢dÉòâÇ!Qb 'º4Û'ˇ	˛“≥Q_;¬?œÛ&≤∑s'Ky¸ÙÒ'±;·+ñ&3N≈˘àˆ 3?JÅ^ÿ˝OX¬ªIàäÃE√ïAR¡ /,ƒdvmÀt\€ 7Õ ˆÉL›UÊc]ê› iˆÏ⁄ÒBêé„É(Ôé»Å˚‚°!©TUfd;◊°m◊ΩéM@≠“<v¬vW»àJË˘Jlih=π8ò2¡å RU4›B«Z÷AeeåÒg%˚XæsM◊Kô°râ	‰„"µ·ˆhsŸÍMö,›≠æ"eSKqX>Á…o«
+M"À´	ËFloU@¡.}ÛË7ˇ%f∏W¢Œ!È©‡]
+3õ9!ú§I·»ˆfÁ~@ûâ*Â ˜ﬂ∑èh1∏≤ô?[Å{v@Â¿∞ù‡vÌ‹.‘^<2¬ÓjàÌú/>˝|¯?˛Â…{Èù∑ñ7‡	«!£í·◊w7∑»íH‚‰/Êr…¿≈Xl
+ÙG¿Ó€>÷n0D¬8¯ Y@@ÆÿM= ´;tì»$Ø€Kœ	cÒ	±>@ﬂ¥≠°V`i1Âû˜ÃÊVoEæÏHa?JºL∆,ÂêUe/X¨N£DM‘Ω\Ö]d¥¢ó9WSÓ&™¬£Ï0¡ƒû˛v<ÿîºT ®»›øëΩ›‹„üÖ-®=ú"W£4”L>Ifv.÷2ôD√ﬂœã”≠Û`f&u~B•ÃO©‡ä˙íã∫Òe_¶£ì
+U~¬R≠ëˆ1üŸÄÏX«¡<ŸÎz°å˙ |_:ø˙2Ÿ∑Ô{n8OÆB-≤DÊìÊ( ⁄íóXMé52”ÿ÷=,˙F3Ó° R&g|∫èÒäÆö∆ﬂüi†Æ1Ü¯3æ~bd˜í”ÚΩtCX>,(5xcµ&o†’ûë+„)mô
+Ö¶∞∆.SLŒã pø∞VnzN[ô2ãØßQ9—Å≥õB:=ÏïàëDÉ2p¨∞˚Nˇ(ÍÄv	Œ¶≤å	jH∆à√åˆÆ[ŸÈBë1^<ïêª¿Z3âp˘i^%"üﬂPın5‹@ùUl6a!QÚÑ'ë˙QFè¶à∂™C,ÊÙW îApÇ)É∂\ºÓ¥w%†e¥ù@"≈J(É*
+ÑŸt©ä‚vg.IZ9üﬁCÖ˛¢O	f!ï˝™Y˙l·T¶ë/¸éXÆ›YáŒq°:ílïXE·Ln„] eøßJ—õÕÔw.Êú 	wX⁄’–´˙4π\F=Ù`U˘7˜M_≥öàÒï¶∞Íí1bm¬<§%ìê6ƒ5ûI
+soI∏úl&(5…ƒ» Õ∞„¢∆øo˙v–›8ñEDå.8}mÚ<¶Q40&rBÕöÀ¡óÆ∞˜Kã∞òuRT=√:•‡ìCkﬁt¯[fiM•LPg©q«kè‘LÚ*GLéºRÒöãã®ïá]e™ÆÂfM&ò$ª≠ﬁÄñfBÄX˜CEÙÜ◊±«,¶BΩ‰Vñ‹i%JÓî8Pz‘w¬òÉ”Ô+¢¬˘'Œ°˚0õS*cC¥b∂≠)9¿$˘D‘J⁄ôeT6ñıÑ+44n∑PÔ@f}÷CÑ≈à≠ÉLVﬁ;W«ÕÀ◊•BóJ¢G‘∏˛YÏê9Âóq
+©?—¥™_ë¥g"cxg"„:–pòÊ(≤ê‘ŒqΩ«Fa/é—_ç¸1î¶{ùòZLëd“1VÚL:˛ˇ9v¬d˛Q4ÄüeF3q5∂”EøﬁL?˝DÏˆy˙¯}6W<˘Ìßëk‰ô≤b4F„ÒØü>˛üÙ’2J‡Û+Ò˝ë˝Z“$Ú¸§ ìÒ›  ›W)¬rA(Å!:vPâ:∞HxJ¶>2Œ¡πq⁄Vˇæ≈R<Qﬂç”'6MÓƒ>µcáñ„ö´HÂ©â®Pöﬂ_èÁ-˛Pæ≤öÿÃàá‰4Mi¯˙ŒNı÷ˆfÎππ›|Ω±C=Ìç7˘≤™6ŸÀ"ø!Xì‰Ä±EŒ+"óπ/åª·∑˚áû¢'Wò–Ù»∂ô∏§Ç“Ò.ıÌ/ûßÓ˝e•≥\—2cá{¸°˙Ü€…Ã•oΩˇ≥ÒÉ@IJt95¶ ≈v%w·3>√2À}≈”xW“»ÄvH6Ërü£[˛ñÜp#µ∞ﬂïê˛)ƒèö§TH
+cÂÎfeVÚSù√‘(“/Iüä…e(®TNe7•≥Õ£üˇï|ﬂ»¿;n9—mË”ƒ@∫HˆötıJ,]…SÚ@”Ú^{ÿ»Ô#>(Âúœ˘ﬁ51:ÀÑ:8*¿JnW€ï≈ÅÚáÀú1ÍÓˆrΩ∆Àÿ‡óÛÙKEt·û±Ïsµ∆R˝NûÌRóëëDu≥eÉ,wÉÀvúæ- k¶ÍõuxÓG*7Óm¥&Y~l©¯GVeiuææ<øRü«ÿ±4x0ü≤3„˜π˘¸}0ıº·›wË´1•ÒZ}e‡/œù(ı5,Jç:¨%`H}LŒ ÛÊU≤gÅ"g4^¡˝#Âx≈4¡BuY°5+>V/i∞
+LÛƒÈ<0™ƒÉ^x∏ñ©§q•T]·M<xxÅoﬂ'Î$j¬m|Vï,›—›mTöèãG,l‡nõèø◊ØætØyx˜°	˜"íî¡uÑ<XÇ∑ºtÇ=¢I¥ÕJ˚åRwçåÔzPßw·\ïyWÍ.Ûw±ƒ¿Ñp’WVÁ…“Íy¯Cì∞ØÃôTÈàrA¥Î3ÀeÓŸ¥Ä˘æ5Zü9GŒô‹iV∆¢Ì¯m◊lf€Ë∏Uÿ‘íÔ6Ósdë‘çá±=J=d=dTÓ!˛˙ÃäŸ‡Ç&¥>Ûù+´∂jóÕnI3ô»áÏjJC~qÒHwë¶hñ¬=•≤ÄK„·(ø!‹êôaqN√à'‡ìå◊9O”µŒkﬁ\g|e∂Nd†î"úéQâgmQ√BFî9ÚÎiPÑÀj§˚BáeÓÖ’ıé7©mw6ˆ‰^Öñ–V¡@í#Ì4ç˜<$+ÖDi&YwEJÔ¨∆0™™KãıÙâ=!´Æós\0èKú„ûºU≠‰`¬#¢£Â…<∞QúÜs#€EYn5Ûr!…Õï®XF·A¯Oú`©qWÙ°·xƒy¿Æ,Ω\o‹YºêO˚%∞ﬁÆ‰¢ƒìˇπ8úÛ&Íjo.;‚Hé∏÷Eº{Œ#Œ"952
+‰(íUL¯≈43ù;g¯Â˙b)„ƒìCV€úÂsò¯”3ˆqeÊ∂Ë0îßPÙÇÕo…§h¶aZA´é¬*3Åî®*±L&fsMhò∆U\©++∂0ç≤πı⁄Î[76∂H≥µµ∑∑µO.7ˆI£E.Ô∂Zª◊…ÓΩ˘NeÙ:ˆa7‘∆î‘… ƒ‰ölÂÜ+ó⁄Æ•≤ÅîM>§3*È=ìbkí}N*ILb!anç.ïÜÎ&Á“¥ﬂ⁄˝∂Ω6ëE°‹ƒòÖN§€MSj)£±ó`dä]⁄ÉÍAàj]$«I”œPñ)‚ iBôR®r14Ãh()hdaÂ:IbÖ|P©™◊…’I0ì≤(∞\>ô,Ò&åì`Ü&§a≤ç—ïülfk$µù$’
+ñŒ√P¶~Ü´ﬁ]CHÊ‹;ÀQ©›»`g4ã¸ùPüö ¢˙W‹…6∑6∑7≠≠ÕhÔ⁄˙˜{;çç÷ˆÓ≤◊∏±µÉ‹ºµô˚8%∆aqêYÜøW#7¡R„≥J<…∞@u)`Åü,-ºpÈ‰ÊÀKız˝πÔX)O\_µ≠•F‰VK6›ƒ˛øí˜≠%°¨/õyTk˙–h”lûÆm56A)gˆ=O[∆/BiÂ≈i4m3,q£zN±ƒ
+7ægö)ÛÏ¨òVWI¯pﬁ#Ù‘±xŸ„;â¥pí“6¥¯A•è{c?⁄Î3‰è…JMDy£ÚÃ˙ú∑Ù*≠Ùò‘ËI…åŸQ Áò y⁄N4πŒ®(∑B˝à%E¢¨™¿¥0Ea#ÒùU(ÄÜmPLfô„†«¢Wm%Œ1ç˚ìM§°F&Ä0πG1ÜCó'–z≥ˇ∫D≈p\Ãís]Pá<äÆ1MΩ°ñ‚1ëmõUãÚ÷™πÌ¥Ê“x>tAÔ-òÂ ›óÑ√º@ÚÁÅÔ¥ÖßëÑﬁ5H	ìU/33aû›∆ˆ•‰Ïrﬁ¢‚…edv”Ë:ª!cÑE7˜/Oﬁ+e9Q¡w•ﬁ˘'iW>Â.˚∂’!Ü®~˛ˆXä=4—å∏äãLR~Û”©º…˙@)€Ù-Æ2ÃëÔíÆ◊‰q5ˆúÚW‹1hU)Î˚LRp:˘f˘û(”q:ù£†˝ø§‡√/Ωg∑„Øˇü_Röø˝‚ª)ûö™—4êu∞{£µu£E.Ôo5^›‹ΩuÉ\›ﬂﬁ$ï:¸≤”‘πº ïˆ©K3Œ§ÌN∑≥u•µFö€◊˜v∂ØlÉÇkß5ƒ≤€_ÒR6X⁄`ó‘[5ÛÒ5˘Ll¢ƒßz2±ÁW*πíb∂IS•`‘⁄œ(	ˇîAÅ?è‹•@∫ï»ñπe¥È`Å‰C~åxó}`u˜’ÊQ:åfHàÍNUæ»yüÚÖ0≤1•˙1…)⁄éH¡—fbﬂ˛ˆ’k∞∂˛}„:yΩµΩ≥›z#b∂ÆÔÓøAZ˚€Ø˛+Y
+rıÃx%¸‚◊™ï Œ(Ù9d~'*dzB◊ƒcÊ ïWÌPΩ’#WÄ(Ç»’>À~{=t∞·≥•w6ÄK2zÔŸgÿá⁄©¯}˙Ùn∂ü5öØíkçMåáh\ﬁ}ΩEZ◊04lw˚Ü(áGÊ˘∏(•KëwM_¿Kgo2	K)3kÂ£Pà"Å±˛]qfØ'Ãº˙1]+46ÑéèÇàπ∞Ç¸+Ñáe–‡ï't˘$ä
+·Ëa\]Ø……ï4“„æMﬁ⁄Ó:±ºaH¬Æ0Ë„+§‹ãﬁª·ı`}°ﬁ|Ëaq° ¥˙¥¯π[Tõ•{÷¬æuîm§ùî÷M"x$Ù µ·ÓèSâBX»yF¨\œ§BX0G	MH6pÌ(‰x‘ﬁØwı∫fÈZ!´ ¬öc†aƒj
+¶h¨Ã∂·	≥∑πﬁ—ÎÅÌ”[ÅÅÚÁâ·{µzçL´ÄjRq÷p≤†ˆ§Ø…D]ãï°úcV{∫JØ,∂öÛ$ö£d∞4;t|ˆÃﬂ“ıíY+∫§Z∏§®r£YzmF[9K•ÎdìÜ‹$0	Ø->8ŒU_#∞ülÌ76Z€7∑“πHAŸºﬁÿµ)»JJëO›5çtQÇS4¥8õ"Uâ¸òJ–VÜ–s˙’$Ï ªSÊ7ƒî ,¿ãEMÉ¢y‰¿#⁄ÈŒnLÄã€rì†ÄÔ,ŸıÀíÄ€Òk´,†Ü± µt,¿JMà≥G¨¥K-/
+4"∑`Ä}ÃEg‹Øx‰ﬂBoíæå®6≠\RvcuÃç•ûZ]Ï	BŒ™¬Ôòáòyb~˜Ùìø¶±F?MÁJE’‡o©∫œ4 ˆOTæ·?
+¬’RéÏ«¢J√6ºœ"{›Q@≥ú%◊ú Ù|˙%…â%äª»¯Ñ•™µÏ ï§≠L9 ≠l0⁄—?©`¥|ˆ/”‰∑SâLcAi]/M$%ë#*Õ†∏î˘ Xmóeÿ¢—Gc∞Vy⁄t¬Œ¥æn≥,-ÖqóΩÎ35R√ö$¯ˇå0y=ÀQœπz=ãz•π…◊≠ÇËÖ˚ÉäÂ0ö´≥>sù¨‘ÊaqºFVWÁW…À•NZ‰|m~πˇûÉì¯/úˇ]≠Õ_XÖókÛÁÒ˚2¸éﬂÎp˝*˘?gÍh∫Ö&i6˜`7TÅZ“ŸQP–ı⁄=%∆^ÂuRH∆C·qJÑ†I”˙pÏ]eKƒS∆‚òâK"(√”≈&$(y|Ç,˙@∑0ï¯ÑdjM	ë	π,µ•ñK&L#(!eû/ï†√£ên≥¡xFã0N~–õπƒ
+,„Ò*AÁsø•À$•ƒ4˛û>‹≥\'¨ÃVfÁn◊Óeq“ñ—≥⁄Ötüåÿ π∆∑Ï◊Ü∏Å_¶Ì`€gTßè÷ãÏ
+(∑Srªbœ{Fêz•ü)+eeb˝◊R¯£hdÂ∆q5a(6+Sªy0(9CëÛDπÇß±É1·©Õ#Úúg’¥ê·∫ÕZ√`À"ƒsª^ÏÔ/ìTPiTÜ7‰”™9VÎéÔ$2ˆ¶P◊‘\MV¥t°cúıï›}™f¶Õ\ª*?˚IÅz‰PËo;Z!bkÅœœÙº¨uBÈ¿∂SÅŸÊ%qµ+&∏⁄"!.¥y›‰	C±÷î>+á"ªRN:=ìë§•Ã¢ß3ﬂkwW8T“hÇÍRŸ~›rÌ˚‘|≤&º–é~ÜKi&Ù@|ùO”†Ks∏“( ˝€Ä,5piÅ9¨T™Àãâ,bÁ+jl˝«âq•ìeãN√Â(HŒúØOäãìK‹1nÔ⁄Mÿ»w‚]q@◊∂õ-ïâˆù˛≥úT-Å¥÷ÿU¿”G∂J€H2úπ3à≈+∂}{m,=W®?’ÒJÆ3çlq/¬(2ﬁIIÀw`qYæcS»tÍ]9_û∆0¡6IdÈ wÌBæW≈∆£ÑÉòDs@ﬂ´[o0Pﬂï∆F´	KyÔç◊ EÌO∂éß£ü»{“‹Ò¡óÖŒatg|'ÜËe–HsƒwqË
+ÎÉGÖ&≥X´∫&aÅP»ºgè8W·6à{ákÑÖˆŒgçÙá8,´o≠Î0ÎÉÛP‚weZA™&_¨/û√)ŒT'ì¯aLJ}g=\Hv_ø˝_K∆ò‹;4F«ªé&¡Ü&lyË™QÑ≈ŸåﬁPÅˇíÑs◊‘øÙıÂ@Ü1mNV+‡≠⁄E	láºÅÈåªtŸBº9ÓB‡É'XÉLÏ…ÖU*W√_K“‹ÇñÀiSºi$i…™¶aÉáåùGF/#ƒÒ`ª◊˜7‘±/§v™p⁄q∫ﬂÕ¿he*mŒ@ò¿~À·&ÙÀÁ˘§˙3eâU»†ñu¸˛GäIóm·ÜWÓ*πFÓﬁ≤XV\+∏GzûosË¨as_QòJ’BQYÎÄI*Ωª“[`«i‹{ƒ=ﬂ£y¬ƒ»y2 Ú∞·_ÑøvúM‡ı)∏ﬂ∂âw(ãáy<m∂§/Çã€– ;tBVÿÍi¡µÂÅµcÄj' ‘*ùé" -ìM¥å¯∑óıåƒuqE&∏âÒ¥„YGb¯¨næi€∞˜íFﬂrGÅúä’BÇ-ú5B¡. ^ÄƒÕÌ≠[k§π˚˙πµµ≥sc´â
+ÃŒˆï-rπ±”¿ÙdŸ-Éc‘ëlWº°+@∆Ê∑ñÆm%Un&"∂Û±‰tÆÑI?˜ïöY°Ä‚WP∑Täˆä“èp±[/nPn^h„‘]¬Ç|ÔáY\”*≠›¥©:‚¢|\QfÖ‹≤]∑oX∑|«9¥…eÀ•‹q1∂÷˝S
+˜∑Á}Úv{¸äYˆ˛@∑•/·îÄªu¡(’j	%¢2*ñ±`WÛá}ä-##`˘}/$kú!{4;Ù%†¿7êR±ü†ı;ˆ·<bö;á0 X¢´KÂW‹-pëÌSyCü Öm£;ÏYtç∑ÌAÔ
+õ°xOÀà®,|NUxµÑm@‰	zy"¶Ù∂åı7è~Û˝ˆœæ˛ªw∞ÊÛu>∏ó£¡Új≤ÒÁuèe.-Y,#ﬁ$^À∫gìUÿ«ÌüÂÄÿá(
+·∞3¬f·6éKê^»´xÒ ÈˆÄ∞z6≠⁄GX≠®√‰◊É{ÈC`óT¶äî!î$<¸Eö÷§ '-ÚQƒ:dDHDˇú≈yhï«ˆËÃÂuˆB¯^ÜΩ†K3@˘ç/l'Õ¢K‹ëÓ®CgjÅ\á©≥\ˇéà†≤)îﬁpŸ,üEàM4ëÇì∆[ÏÓ≠[˚§±y}˚Ÿl4Ø]ﬁmÏÁ›ÖΩ’;Ó=t¨†{‡Y~«xõ}9ªÕ÷Q?ã∂€2õÏ…'ÿ≈64Ü å˜Cå≥BU´7$Uâ+MÛRœŸ2“¸˘å˚?q˝g ÿ≈0 ÒR0-PgTó%Î˘[©ï®Vó»Ø¸S˙Ö≤∫ÌÕ.VŸË⁄Ì{ŸN¿ÚÄˇ≥më ràâ@Çâ:Â$òí∏2J*§—ÅÌ∏[qd«É^†ƒÒs™ˆ¢¸ç<˝úJ ü“LXX˝ÏCˆ]ÿëêa&fHö∫≈RÆÅÜÿmﬂ	]j¯eH˘	2‘Ø€m‹◊p7¿≠¬B˘Và"¨ 0W@GLæÇt¡2À‡#|ªÑdæw¿i,K	*tìV±çjS”Q›Én√„ÿOE6qôSRYïûïÕßÀT'^ëﬁK∑Ñ*ª2ΩRTê~∑p∑iM˙t=˙6sî»`ÁÀû¶˘≈hÅ∏“9∫A)gå\0ññıAtë-≤t)t<ïg/æá€à˚"â!P€eLJ#á(™bú@ΩãòIé†bÑ¨‘t-ÜÃÁŸÂ9 »¡!R& q∑dZ¯Î}4òsBY«smÚÕ£_æ/—ÀÂ:Ω¨í¨X=ñVıΩH€∂gımWÿ&∫7⁄¥BãØŒÃ9Òzä∂ÙË è
+iX[¯É¯)ávÿÓfØ_?úﬂÏ`[ Y¨üH~êµ¡Ó`Ñ'}3ˇ(æíq“M€µC{«;⁄Üù;bØôì“÷Fà`⁄44√]Ò¸Àé◊°#ü˙‚ÁÂœÍz«Ù9¸¬Î◊N	LêgØ∆JLgËWÒ£+XîIûÆ⁄Ít(˝4Ü'Ñû≠ü‰œH⁄ky¿S°K—G…®† .ó-å‚Z?)ûìé@Cpª¥lﬁ©ªˆäk—©OæIﬂx%sKÓÑ§èLåÌ6Ì}¡]πÚﬁÂo,ûì›Î•oÚ¥ojfoHóQe+\ñ†íG·§ºo¢àœ+Zëa¿_ﬂ„ıwvsµ˜ΩÄqö™ø§Œ”ïÑ◊VB_"Ov–bÖÒ¬ù'4Aº<˛ﬂD1µ:ÍC¬eÇ^âÍ’S?˘†ˇg—øiÈ …XP~ÍffL˛ÍF◊±‚«øyÙÛü´"b˛H1+O¢úΩ_2|ˇÙ1≥ò~ŒNƒA»y%Á◊‘à 2∑˝4≤∂˛ö‚"SzS,éT©#¬µ\ên]u—l°nƒ~SQƒD6ZvàáL1–pÙG%CÉx¢‰œ¢ÿ˚Ø‚Ò©F˘ÏóK T‚¯G<ó∫aˇ¿¶·>ï4Ä≤≠4Ã	DNõDÍQu‡{!ãêeÍ¢ïUu€lÓ—Pﬂ™“-4· ’˘lKxl%¬YT=Cug$NT$ãl&=ùô9äÌ09êŒèQXˇ≈Ã–[:—¢A[L˝uûÃ8˝CoF—.Ö[Tñ~XùÙr≠ Wb¿Â†ÔúJT¿ÄG<Un≠í)y
+K≠4YÊNΩOWÕöu(q˘\¶≤4‡ÑQNHõë“»~°äkìø±ÓÇG«	¨ñRJÚ U>ﬁU≥|º”°¨®wkQ6Ö$
+PÆl+…kﬂ>ÙÌ†ªqú+°yI6íHFë®ú>•ìŸáwê•¸ë2>4K)hı◊å€`≠Î/XVéœ·5^f˘≥+UÏÂd8ÿˇñﬁãò<.ÓP<Ö!Çz˚Ïú1’ã+∫pﬂ∂‹jËÙl“≠0`yõÃ2P‹ùA/ÂÓ\Q∆L(}cÁ%ÿ¿ÿW ÜD/I)¿· ò·◊˘xUjDJ÷ù\ÚT≤G‹–æd9gæà≤
+q˘Ò+˚{*Ò¥•îXZ˙æn:∞ò=›˚h¥ºRÿπz,I'©òR†”T/©YÚí¿Œ¥b{h»(0N-†e<ﬂé’ €‚∏˝ùzΩΩ∫jﬂI∑-I¨Ï/#Ù9éÔØ¢,Pü∆á®¸Nø$ÉˇΩ·„ ŒÎ=°π§ﬁé»5, ~è†ÚêÔú°m⁄Ó®gE!¢ó[vœˆ-∑3∆ àÓ|—ñÜx‰¡*øÆåd‹…V!~MÊ∫ô‚‚à∆Àxu¯qõ6`F¬IÈ?zˇrˆ˝F+‡S:`üg(<3¢1˙8ŒΩı^,wøGá¯¶Ì≥§‡ÿ<LìL«yœ˜◊÷åÛ‘»=Á26&vvﬂãFÍ“ÒÁ:+uñfXUfk`¬Úö´àıèwÅÈx*Ï€ÑºÔ≥LÖ∂S±µìˆ?–Ò¸=”&yz‚'îë¸Ü}˘±ÄÌ3‚∆Œ mﬂw,“ÏZ»Gp¨üU0º∑<Q”€^4öN$õó&ºé~˘(∑”fOß$ù&u∂€(ÈDÁÈë;Ωr¢ŒkCÉ'%¬éÎMK÷…Õâr¿üP6˝nlê¸êÂÛ˛0 l…üøÅø\9:≤9fÅ*Ä≠J5.WÎÕ≠öÇdiçÏo]›n∂∂ˆ∑6…ÎÕ≠}Ñﬂ‹nn∑v·„¸R*Èm9]Nd™é»„\t©=h®ã:®Wù∫Ueó#˝Ñ-§˛˜q≤\\dí~∆Z¥j¸J!X•¢+RP--HÔ/âãü$L$≥U∆øß}á¶≥zõT∏'ïï”É≤>ùMî™Mö…#Cíkíäà'd¥õ9ï©^ïô£hèOá∫È MÏHtxDNÑQ¢°á∂oû$rhh‚Q4.J˜£éS,√ŒÂƒp&ét¡ô¢ÓI#á4al˚¶ê≈\q\ºtÉßå!-Î@]YOˇ⁄&hê≠Ò,„7¬PNır2»ÜYLQZ£ÅÕ˙^ôÖ…û-ëË2…‚ìt≠i#G›êóÿj»6É≠fl
+œ,&å˝°Î.∑«Òh°‰uﬁ6u`&™Âì¨V}0ΩfzìÁ“˘/ú˛3ùBYç6≈‘&Âi§ÍË..¨ΩSüzÅ´zâöó
+…™é2Ít∆%MX2Ã*óºL‚©ï˙	≈∏≤¬,ü
+mL"´n˜e˚Lﬁêo“¥Ö•Z§$”Sß∆îIÍ€6´ëL¢Ãi‹ûLŒ g<ü±Ñ(úÕå5d≤©4IA√4cø4ˆÖÓm•§û|*x–j@ö?ØñXTàrv0Ã1é∏∫™MYé3Œ˙É˙µ2Èüaû{ä)∆ú§9['0∂6⁄9‘RbÕqˇ∏’Ûd‡3pı≥Öú'Œ3Uî:€E>(b®@ZU¡≈ô‘◊FŸBË°$Øt›*AK
+K[	M\ØÄGÈ`∞RÜ;)d0¢?»’Û‰≤…¶(>>Êmœu≠AîQSôlÌbÿ≈yÈ–`+˜Ft–jú\.◊Æ,]æCQ´◊hËõÅs¨2≠ø$V3MÜv!p`©Á0sâ{b»bƒA©·‚bÿˇôÃ˜ê<qﬂÄﬁ	≤Á6⁄md‡7†…û¥iﬂwh»ıˆﬁd∫‚¯†—7mª?Ÿsv,xCZOÚ†t‘ Ã•=öÉ"ò¸Åæs‘q¸©-R˜<¯›Wq∫†TÓ¿Îå“Ì>·tÏÍàIÌ„ú32çS9,áL‚ödiS@QAì8Á«ÎÍZÃxY*ò–€Òémñuen¡È∑]XñAE¥gØùCs∑¡[ÿ>9˛ktï£j%Ã˝µoå>C˚¢◊€˝NpÀ	ªïŸbB`9ë`¶/]à¡∫Ô\TÈ$;gœí3º=Ω(≠PùÓõ!_˙√◊ànWﬂ£îêaY–4d√¿7*¥Y å¿œê|ùò8™€∞˜_ö˛å∂¢ìâÿ,†˚jµ≈<:œ(âŸ≈∞£‰¶˘Çï„Â¥éﬂñï¢øáA’Á≤&’€rA“iYC[√&:¢ÕU-(¶gûÂr»ò<ÜB_~P3ÉÙø   ˇˇÏΩs◊ï.˙W∂xëÃ‡õí8¶|!î`Éè †G£ä@ìËÄÜª¢hé™üìƒπûƒs„(>«£9öÃ»âÀ««ˆÒ-g‰[SŒ_q˘D?·Æµv?vwÔ›› AZ¥≈J,Ë«~¨ΩﬁÎ[	?¥„ƒjõmÕ*8Ss”¿·vQó‚.w2aœπóÚlGÔΩ—˘Kú˘(\óBh‰C–/NaL¡—Èª¸wf•◊àê˚&§†ıB‹Uˆv=Åj_È1iw!3¥¯¢î¨‚dùò6~ö˜$Jãë‹Øq`#œ„öÌ∏¿Ç’MÃÓML¨·O†ÙöÎûLHŒÓç8vg≥Ö.Ÿ”Gè˛Må√ó{^™ˇ*3ó¯vé˙íÏ®œGΩEfOπ∑g¢ËEŒ4ÏX}8Ì~ÖOlö££œÆÎˆ∞q'∆¿Üc†bêhz˙f_ÎS—Ô¶IA≈ve¯uç Qßà*BÛj"=ßV’ëELLüÚú‡nm|N‚w¡úÍF◊õ”Õ[3ÏàxÄ.r†õ0ÿ5zG>µ-6˚‡·4˝-Û`åsı!79X¡?AÀ¿1…	À^z)LØ°Õ·57∂A∫¶k∂cõ©—º˜3t√yÔ'R=æaZXd;ÂÀ‚m‹ÖGë{ zWGzî_võ€!Xí·Á`ˆ˘≤_ö€äπ¬?©Ì„Ωüp9éπÖ≠CA¢—Ï O+f≈?‰œY£"…NgÔ'´∏&Ñ)/ìÎ¨~ùQÿ§GüÇk≥ú™dˇIŸÛ˚™¶Ú¸'-Äz0ÙÅÉ0;5»kGÔGò≈JúïéÚtÁ∞˜≥eäy<<ﬁcZAˆGÇØuGù´„8uè“ˆ'∫öºkjO>π–GÀ2å!˘ËY≠iJLVT‰¸>ãiΩ¥‹ŸØˇä.¸îRÒﬁÛä>M9©_	æBê¸y-”ò*9pôøp°]©|Ò3B ™„C(¬`ˆªX›q2ÈÔﬂïÉp¸¸v$71…›ß|ã5Kﬂµ4˜(*ﬂsäéØÏˇÉE èˇ”C9qÛ‘¸6o·+ÃKˆˆ®Q4J’¡)ï∂˜VÌˆ∆F•ºU‚ÉŸ¢_«LÑCbˇ¿s⁄{¬ì§°øpÓ¿„pÒßn?eãú"7LÎ∂ˇ’ÄúPÂËŸ¶—$uÇyÂıè<ﬂ{ºı∆˙û3\bµ.Z´jNj/¬qT-Â/±Y∂úü;-Fy˚Ö œc“rQıI§K◊◊èﬂıJ)¬
+ƒml<≤íâ…ûÌC§"îó}˚¥ãàûWâ√x^9îµrHRD˛#ãúˇo’√≈‚ßà_<µ^Ç‚°gød®"
+yeAÏ†m2ÎDΩ]î˝Åç^;ﬁ,ÂjÇF»mÕîŸ∫í‘∫55Ø5[VÎà9≠'ë—z‹|÷ƒl÷Ög=ó5)Àty¨âÿX'ö™za·y™Í)§™é+Aµ–jaîq$Ä¢ÊŸME!x¨·IrAøü©†)¸”HÈ<~Bg‚ÜI Lmø{Ú9wßôqob"I∑*„A…—ÚÒ2∆±«íÎñ9”m‘<∑å±»SœqÀûÚ1é‰!qeígßLû¬8áOH9πqzb*+©Eì§©Éañ≤êt G<_b2ÎπlgÍ4èFˆ‘óa_FL{[“ÀÿR^§	/·BcI{…òÙÚJy…vä(›≈ØeLw…ûÏíÂ•'∫L?õy,+ßò«≤G-ˇ0qÖm¡éÒ†¥pª‚çw:áL˝B≥Xn&—‘Ö'}gS^R|‚´‰áø’‚µ¢jÌT∑7wÍ5VŸæÍ:5›VØπPãs	ı!ˇ√˝Ï#rà˛3ˇ„Ω∞◊Ûπü›∆3Îgóy∑Gªêê‚i_»´íÿ5WrÕ≤lƒ5õHUr7πòc≠z…ã>∆∑PZ£œ¸5¨¿B’ÜÕÿ	cÀïÎºÈ,«◊r?zÕMß–llR–8‰Óô‘*vê…¢ÓƒÆê$L∆ïHUÏ|uN≥{MñE©√∫≈–6ÃÉ|”ÏÌVwj"B_ø ™‚ÅÃ˜)ñ˘3ûv„4≥pp>!;Á}
+–?bbA«
+¯`NÑ◊ÆÄ“Æx4Ë+BÖÃQDø§ªﬂ|ibz:UOu‡Ã§Î≤ºò»â≠1Ì@ö£Sì≥Zﬂò•£2€ƒ ·ôƒƒ˝ÆÓ¥ÕXM;€µ:&Èßkç∏¿éºy'}‹¯h≤àØ%”aiPzÎËY˙ªpÿj¢ôMâïtaò pcö‚J•2å¨§œSòÂË˘pXìœã¶àì:–¨^˙åíáïÙm¢*/iNÇ•U p©g˜rD}˜>∑ıV´Ó“ÆcP€˘k¿lênxbJøèPËê∫åíUE§yl\úÂïo'léã1bGG≈qK«©äÊ9,é˚s6aqÿÃ+Zk_WüµŒ}`i˝ƒfu\◊sî ´ÓX“M$>ö§”‹$P 6ŸÿFA•ˇı¥6¸˝µÅÒ:˛Î~rãá ˆú‘D◊E'ˆîmì˘èúN∞ÄÕ
+ìm1å»ÁF∞8éÁ®IØ6c„'w≈ûìé'í !t,JÏ„∆x—¥œ@– MâKﬁ«@ê
+‡âKúqéO˝Ê∂âí=≈{ﬁΩG)Lè1À(ôf“}U”JjI…√±„Æ‘d'SF„#‚7üüc2‡@èΩ«P»%iM»Œ©48PV·3«2{˚óe≥¬hˇ6›w>ƒb⁄Qx≠y£ﬂÙ{e2~2Œ$≈_Û_(èäœ›òÏ7qî>XΩDÌ'˘|Û¡±NB¢ Uúí„'Ï\Zyû∞sÇ	;Xƒn;Z∑º§1Ô«Kx<ﬁè GÓ7:– \5≥˘<øFÂ0L\/Ω¶≥ÇPkù}é2êò4Ê÷£`≠¡k–ÖXJÕœI{UÍõ¶‹WÒÉqû	é˛‚åHoÓÍ„IÇµW®íoFÊ–ïk≤kGA0√˘
+c†i¢·rö‹õîyMÅjãI@„Œkí3q˛<^”3…j^2x˚é¸tové«»„˘ È¡Ì„&3åîïIÔ‡µÄ·À¸ìÙ9È Ãi…öˆycBçïX/'æΩ‰f%ez„È,cpÆ4\Æå¿[>qyåA0º"N”êãØüOéÖ∞Ì*œ˝æœ"ÇnØ¿˝E‰q_‚7(Ûﬁ@Ò¯‹≥,¿dôa…éƒπ<{IS¸‘Œ{ß÷éM∆µ`ÓË‘]8ánË{zöjôÔkÈ~‚ÒM„Trø⁄ZØ’—◊u¡V¯,ßÅò+Õ1úÃÄ?Ö9m√FjœÜ¨#Æ@n>Í–Ïa‚Åç,≤ó˘πÄØeˆ≠e7õΩülá„≈∫•ŸÌï«ö#¶$¯œzˆS•ÑDÇì îZ>πL)ŒÈgQ™DÄ≤Bp?§&H“¶0iA≥›¥*ØÂﬂ˜.a 5ÒΩpÖuÙo;ßIí.ø¶g
+)IÈÈ£wˇ≈üwUøkËò«S¬ËÌcìX5∑‹àQßŸå‚˚6¸_„vj-üJ⁄‹P5G≥∆ÄŒÔ%–˚¯	≥.=çÕÖ∆ vSÔÈdœ¢K*8J<lÿ»`‰˚&˛^#Éuü‚õÂå™lãC’±¿8PHd™∫H~WÄÁs¿{&æ˘Ô?ü»[z_◊\+¢”FrEkFbõ*›ÎcÚ\è«˙ö†:iÕC¸p9ﬁhñ≈YŒ5qÆî#{¡ïiö›ÆNùÆ«ÛÆ 1O@<ÎZÛÊ\û·µ©Ú¯Y»“¢™]Ï¢(“ØóK7VY≠P}•P-≥j©∂[©{Q‘œ(qèL>¿l¿	–·Å˚˜yé!‡Bx@2ˇÀÉ@zÛÎ«¿ƒ¡∞~pDZòNÖd$€öuG≥∞◊ÏALˇòvïÜú®V@7Ë∫Å"Úÿ›U¯wâë˙Ëi}dÏ=ÿí—à3∆"‚˙‘Õ>+{ûÔÍæ*PÍ˚F√Ë†2˘≤Ÿ`õ‰‰¥$™–ã5>Ω*ÕN∏Ô⁄†€V≥W∞Ô0ÑÊ/^å∏öﬁkAëıæâ£ŸCqÂ‘Ωgnöd⁄É∆ﬂÎMGIµu∑êwdj“∆[Â—O°ÁÖ#˜±˜yzÁW,@∆√tN†ï∑≈è8)¸Ö√Ò‰—êèÒ<–∑É‘ÊsÏõáø˛ÎìwíÍx$1XàkG˛ØÒ´<î5%zÕlÏÃÒ¥^†A£…‹-e|OŸbÆhv›€Ì#üµ∞–Í+jVÀûqØÇ_∂LÏØ‘‘(ÌYV
+Sôπ˛‰HîdG†qôfúûJ…5íJ∆§T|ºi¨i¯/n£t |”¬4Ωƒ|û¡@@LDçHdD ¡/ÌÍœúâ†N_8æÿø˚8ëè˝,héÂ}Ã1–¨Ÿ‘:hõá>y∏‰0≠ˆç©ÃÇ5π]–∂Ù=–lßoØŒŒ‰]Ê…y'
+ÿŸ	˘≠<gqm‚ß∞oΩ;äã,Ω≥6—3·-∫eÅ∂*øJbmEˆ≈ı‡†gÏ\ZU˜ºÃ;ìºµüW˘úy{˘±óté¬bÎí™U∫Èij^vÎ†SGAf/ŒjíÉßíÿiπ›ñÄëªH´"OôUXÁÛyVArsP Ÿ¨¶Slz„|)õqæ0j¡Qb cbI¬∆(¨L~ ÕsHÜ5ürI’Û®$m¯ø™k«≤ÿµﬁùË0wvñy|ËÅáﬂ˜.4AÂRjüÍ2üÿ»#ë˘π¯“	¡%–πÊyÓŸ\ﬁü≠("U|´tcL∏å·-f≤/èn*Wˆà˚∂WŸD≠Vd§8ÌÉâÖ ‹UTFVUw=$ªŸ¬‹¬ ƒkÈvÔkõñCÄÖU’;:PT+œ∂…å9#ùé§iˆÚpü´:I^9¡ÓœdiÒZ≠¬¶ÊÁ˛faö∆√Íπ,º∂„7)~xË]¶$•˜/¬Ÿ˙vWkjΩ&ïX5-”∂AÎmZ|¥¯⁄å£º≤◊_ò≤-ö›º≤j≤—≥YÈû÷e¶’µ#+	ü1TùzÜÌXºÑ†o⁄‰jÀ3>xB≠•k-úExÄÙFz«yu∆◊≥πÁ¨™7≠Å·t	…-<∏≈Âô9\)˙ÄY±∞≥J]π0√jµ^ÆV∞mò[’ b«ÔÍz∆qUAè8–YµzÖ*;Òa!IÌÎ¨\∆G´ ıOn¨‰Ÿ∫y–ÎòZãi§èˆµ>∫ØÌzØÉWM(Kk‹lÓø73Ãh›KqŒ–y%œ\ˆÓ˚u
+óÊ÷ÁA‹,áJ§ígyŸã	≈<ä·hP:Ï*ÆΩ§™kî¶$Ãá„T,z8˙4!èΩ˘f€Ì´H“]$_ñL=∞aC;≠1+;ÆÔk™'.ƒl@ûË‰˛ÌÈ˚óÖ?Å«/%ŒZVÃ)…Ñò‡E≤∫üPGÈÔÚP‚ó‰ΩÒcùi9\CC\Ä°[uˇu¨0ERŒ{÷qzù\ƒNˆs“+Ÿ“B¨	†µ©©UÍ&æ-ÕÌÊ≠´πƒàòß8Õ≤Ñ0OpW1É’⁄¡qÆkù©≈πlªâ∑UÙ=gjI∂[÷≈»z›aE/ûr¨Å><˝`∂VÜ¶ô!Ø©
+Ãt°ºªîLè8ÉÔñA?∞Éµ§ﬂºÛR¸(·ü„ê´üûrJ‘∫C~9Pª–◊ÂŒÙÿ¥öíÍïúüúØ¸Ba”-‰ô‡Jzn”…m:ÅIé◊§KıDeD]˜p6Õ5¥˜Ì[M≈´ïêB™(¢m≠ﬁ0`3¯Ïê˛)ò#†∞YtïÕäU‘•oTgX© ZûﬁjSèOüÕ®<Ô¢P4ÓÊˆ∞ÅQÄ¶Â⁄∞‚äéJï0öQ«µ∏ùÁ™iX¬Óig}Éı-‡]Yá≥1`Àlß}hcn	*ÚΩQÜ0¨`T˛udˇ˜€H⁄ƒ⁄kÂ{H†  ú¡≤éÍä—÷,∂cvê{÷∞˜Ï>·nì≈∑é®‚XwÇF≈]Xöˆº·lò0ÃñÅGÙÃÌY≤=A¶…∑bQúå≠¿”óiVc÷À„âçÓkF—‘Qœ/s∂Ë±k0S“TÛÑ&±¢ƒ(oˆ\C¢√hYÃˆ®’ı›v(®î
+µÚ÷’’Ñœé¨^Ã{ëûÁrZ.ßÌpºb∫pÄLG%£˝∑&ähWdÒ˝õïDÅŒÆX^fF$»ˆ¿a^ù,o] ≤,‡Îæì›ûÃ%™Ëwu ≥&:‹@õ7ˆÙk€zAòˇDûe'x∏opŒi˚íπ£€ﬁ€Èc›§2|ˆ&kz~’´z˝–¨	r”‡˛.>ƒ&]∫ ÊÁñÚÀ√Hg•”óØv”AÎ:à#}HD°e¬%ΩRöÕ^h8U(†ù6V⁄ÉlFGkZXjôô´E∂U™≥óÿ.J∑m\læó|Yº tÿQ˘ruF_ÄÀAQË9:∂7õñ›6˙û◊è6-·ÈrÃkLˇv%uê<‚‚P%[£âswÚ'/–Ωç(“Ä™ì‚¸¬CGr”D˝úî@˛∫w$mÚg˙4è…Çm"∂ïÎªØÌ‘≤Ñ'D–Útúﬁd=VıÙ—ªo}7ú“dgŒ4[/_-◊ve{˚–Û
+Î`ÌùgïÚïj°˙jZ¢X√4Ô¿Y˛l…≤ƒJñeZWêõh÷!€NÄŸ§u∑rªØ„ºœ¿÷∂-Ó≠Gwß#†≈à:*DõéL≈°Â)≤Àì“.Ii]£ókÁnÇÒ÷úöüõª€Œ]¥ÙÓÙ-÷wì’r+—‰4Y"œ’éŸ–:8n>l…˛eÀz í˜Ñ?fÔ
+ÆõâG9yib7«,	Ω8⁄®LTSZ/ı“:´’K[€l≥ÄÃ‡è›ıÚvjz!%¥K/‹’∫©!4.e˝Ê°óu–õpMã'“¯æáî≥≥{•R.≤Jaw´x9MÈ*pü‚ˆÊN•\ÿ*ñÿµ›+i‘—Ωf;◊4Ü¶¢ùAƒ$´–ÿµA„å–76å«ˆ=$ûBôXÃ´lßRÿ¬™üÌ¬˙fa'J/SQÇÈ√4{(£˛·XúZá9ºbrzXj¬Ò‡Ìláø‡åçáL´Ä’ÿeF∑Ó√K˜˙`Ì¥ˆ÷é∏Èp_N^2b:±˝ﬂÿ(õ®óÄ∂´%† /Q~ß∫Ωæ[¨◊RIA€€3:.¬ºÍRíØëL8;~x¢Òû¥#8#4„èö#9iúÿ®j◊äÖÍztë‚+ic™›Dß˛–_ÊﬂÕ÷ıÊù3≤c¡®iûÒ£ΩsmªæÕ÷∑wØ‘YmªrùÃêÌb5mg˚m”1s-s–ê™$+x/[«{YÕÏ‹=3úN„ykOhØ∂÷oTÀu∞
+ÿ÷vΩT£=<œ~¥[˛	´[[•ÿñ∆xt≥9rfS.∞˘é„∑C≥^J°’ögI`”∏∑õ÷Y8»ÖjΩ\¨îÿıÌ2hÛæG°^-l’*€i'C©Õé>™_°¿og◊Mû˝{ÜÓ–i‰|‡CË‡ﬂ˛Œ◊J≈]8˙Ø≤⁄´µziìv◊Àı,ˆú≠7ñ·Ôpo<CÜú7d◊à˚ˆî(–§Klcª∫Y®É˘Ω∑gÕ1= ÄÉŸ4{ *ùŒ&¶Ô`ﬁø˝åÏ⁄3-EVÀ[v°Ï<*mÔîZf˜çR°~ç∏x±RﬁDÛ´Pra≈“Vö9–5ß≠[9≠+8º˛}ÉﬂŒ
+t˚°w–4ÊÔ%…Ä’¥U⁄≠*Ïï≠Ìï“˙U∞Ÿ_›*Ï‘–jØñ@?§V_ÔML‘ñ÷…uµ˛–¥≥E∑≤WzÊAGoÌÎlSÎü
+‚Cﬂ‘ª¶u£>":9b∏VFèMπQ/oñr†^/UX≠ºπõI)ƒ¨jƒª´wÜ¶L
+gu∫ó’åÓ†£9ÊY>8v>t‰gùjõ`"∞Õ≠“ÊˆVπXÀ†\|Ö]-ÅeòÖ∫=8=£9º$ŸÙÓt3VŒ¯#Ø[FÛé?˙3M	e‘
+≈z˘:HÜbπÑ±üÛ§êG@ˇ´W´€ª[Î¨RH7 öÑ¶ìÎh√GÑj¸^*Ñ∆*⁄ô1%¯»›Å√∏œ4= gÿ‹F@tÅeXwì£ºÑÔ≈√K’*eÔ	gdˇq–˛ò¡lëæ¨q√D◊ìÙz*¥Æ¿ âyôtëÂµQp)>è:¢MM–;ò∆:pÔÙ|IÿX*…ÚIÉNõuuó$Ä.f;¿R·û0ﬂ◊z†-tuL Ñ´Ì;X$ä…É{Üe;~ØL £‚Mãu1ï™oˆl=//Îíîrù‹q⁄)U…æGŒ∫^.\›⁄Æ’Q‡ûGÉÓV®ñ
+¨∞U®ºJü¶˘Ÿu¶ÿ’êÕjÈ(Gm'xÛaMœ»â+îÖ—Ø⁄~ã·õˆ3z¯∂¥ª∆>L©n˛h`ºÓ"O%ü@º∞∆R˘’ (n°jÀOÜM03
+Øî(Ù@mií3rÔ äü£c2€:% ÇM–Œ!„6ªC˜FÆ†awÖÏµ£n¯z9…Uu,ãÇ…›Ñ)ÉTÃJE~Õ/‹∞ÃÆ;;~ã¸Ú⁄;¸/˜Ú®g°”ÒnÒ˛ˆ^,ø´nÓÔwtû≠•∑º{√ü*_;F˜≤;ΩOx£ÙzΩºuµ”:X‘¿‹±/z@ÎGÜ]”ÇÈÿÓÎΩ0Q«™På{ +ZNnéΩûCÑPeŒ≤˚g?∑Ñi„'C–¡oÀ2˚…¿B@≤(2£µ6aªc apG;QfRNjÁL¨æ	ùUÁxçO›Ózp]d( èú\·k<¸≠sœbd0m≠J„Ÿ·€^Ù»`‘ÇŸDºπñs®rh‚2·ÏxØÁñ4o¯k¯PVØ#OsV%¬«[LñC‰?<€ñq5æ¥/\ø÷ßøŒ~¥‰!ˆ≤0’uL;÷\X≤˙?ñÏõdü‰˘Î≤ºpMÑÕC»ÃÌ>q€T"w·ç˝ö(±QÈ°ÿÓÊ
+§[ÿ¯v>z ¯+≥ |v 8¬û[ ¥i∂–mG•M¶ŒSQ∫Ö%j·AtÒQ4ÕËI!∆_Ïhxõ¢VDZ<óX„ﬁË†˘°ÿì&˛˚Éƒ∆ª˛[≈s…ÍÕr|œ_|˝¯-F0}ø"œœyß¯ü8Ë/ePe/Œ“ÇHJŸB∑iv+ì˙fƒ≤WGÛòö‹◊ä
+„Bé2∫d©ß¯Íƒ# æM rØHŸÖ«á¬µ«ÿp∑Ú∆Ø—˛Ãä˙\ŒkBùÖ=ÈeP´Ú%´˛K%f…\Ëñ™Æ5Ú±äbJiMr®˙îåné'._•ud∞é<’éM≠Î{⁄†„$ u™^√ÀéL`Üsòª∞Ã_5qπ™s¨ÎV,ñÓ9†5ÎTÁm¨uáSŸÈ˚»ı÷Ä£¥aE£ŸÖw¿Ô˘$ƒPuÌ–â—ˇ<'∏\[˚>#á 4¶Á'F?	ÛÓI®‡LÌv`Éÿ–ÍOD÷ß⁄kŒ∞BUËÑ⁄Ó˘∞x%†•ıçCˇuù◊Z˙]√ıPdÆ`„⁄@I8ç<’˛åëFÃ≠±·îOèc8£!”w‚Jπ˜¬Ò©Â%´R	_ÜY.’AêˇûtÍO	ŸU≥ˇ_ò∑ãƒ˚y …Îa«OˆGps∞§ác~e€ü$6MËaYtãÉ{e‡xáÿÄ€(¯ûÿ…»;ë>õ… ŸGÊ}ÀÀ≥ÛÀ¬+rfà#<aﬁ∑||ﬁÁ.õB™DuÛ?9(˝G‘©P÷ò'IöéÉzT¶ ˛ú>˘ú{N?LE?.≤áˇì€˚‚ÒøG9Càú„…çSì
+ËZ©∑AÉ%÷ˇù®Oæ}ÜMCööÏ-Bæ ¢òÜGn$öÎ´œﬁP*´CÎ‰z˚›Åçz¬‚ ’Gªœ‘Åä8õhrﬁ‰áƒıF{›t_·*$®Ä¸Åz=∏
+«∫+?(ÅÚ:q&ib®√¨ÜÎ√Æt˙h⁄HﬁlkV”‘:œÅ˚˚>∏7˘$¢˚
+"˜=qÙ‡Îﬁçf,‘]3˜P≠X◊¨;|t»~bÙöß`g®fÕx]gÓ™é›®:5·Leñz_°∑ÛCﬁ⁄à	Ié*/˝õGS7'ÌÓ‰ú	"˛€ŸüºÖπ&MƒõúÊÿMˆÎ	àM…≠Ö	∆…~]«#aZ∞∏¯R’]’wûw3\„ôïﬂ¶÷G`‹Ä¨,å—£hœêèŸØ+ØÅÉe–yOñá©πÒ±£€>#≥ar/‡Ó*nês†:˚u7≤K›Õk]XÔIòï˜9#~≥ÖŸ+Ù’dM™êâ‘2SÜf4$ª¡(ˆˇ0—Œ≥]sñŒÆ‡4c<ˇÒà«ËÕÂ± ?Ç%çî&qË‡ç’˛õßèˇû˘A|{⁄¯H⁄Xä º≈Ÿ’œâc˝Eh‹∆€¯=b~è6ÚÈ‡óÒfmúΩ˝Å∂8uù%€Øí6j∂î	"^ñU&ÅØw˙4J∫\âÍ.≈Gè'”à]Z·hÔ[ZÀ >ñsÃúE¿Ωﬁæ^ZûCªªÜñÎ¨~G˜>Å+9Q]öãÇÇ
+ÓÎ•wàÆ¢∫'“Ç,⁄◊E“ìí;±ª™fgPF“™›‘pr„ìT◊9ÅÓÆıAßÈËÍLÑ ûj∑-£w''tc •§¥ñSû(:o‘¬±: Ó	z‚˘F?ı˚e>NŸ9 8%Ò1HòÒìî§¶©pﬁí∏N8*≤∆Ô]L"¡≈9.æ]DﬂP(ﬁ˜I∫êúÛ>}ÙÓÔ•sP∞Ö§P3ˇÌΩ=£i f¶ŸÌz‘iWîœ≥TÏﬂ§∆Ï˝ˆ8ˇ±˜O˝ˆc5„'J¸àLâœ|mıÓ£ˇÑªı›X=äÉGÿÒu*¬ˇÁ˛á”D¥ﬁZû÷⁄_ÍaXø&ôN∏ı!&6Ê‡?∂÷ÔS€√çπ“ﬁµÕ√›WV^y˘UΩuΩˇì◊ˆ\}…^≥€Á˚k⁄˘ng∞∂$3÷"ç%W∏]Õ>V¬0°=b∫p û§í!æâ¥dÛ”Éƒœ¢ßT¸r1.ºØ√"¡˚ÿÔÂ|<¡–3sgÚÊË≤@ç˝‚¶n€päÜÖXI	/BìªQ% •æ¸…m–ÁÌ‘~Ù“+:SΩl¥œËà°"ıêÏF<I°0ù™óa©Ç{˝ì5~	ÎÚ'pp≤5c÷d¢œè≤‰(á≥¸ìøI‚V°ŸEé±†Ô}'NÒN€ÏÈ‘%#ÈgË…ízÄˇYll.◊⁄bÊê(π4t{Ö ∆¬“Ωû∆qBÁW–ˇÖ„K*$®Zˇ3Ò¯¶Bï„πaö∏WH5KOÒLÏkΩoJˆøÓ—À‚iÀ
+Éq,˘∫n_˘Ö∞Î'~tó•«ô%ZÅnŒÔ‘º·≤}[pJ“ì}y;M–‘078∂Û		æ B5HïÌ´Â≠ÑÚÅ
+6åŸ4[ZÁ
+.d( H(8∫˝¬Ö äf«¥Ï|c;›˜¯u‰K˙~JÂ¿ä¨r ËÔDinGJyN°v‡¬≤[;0∆2Å]æÒp‰‡Ÿ¯wjâÄ Tö∏|‰LMRk"™¶öúæ2≈ ab~ N+’ˇ™ibÇ\°ŸÑë9A}ÕoRlNZ±FHˇûßæxèe_ÂC`‘I¨Îv3`•üBÕÿÔ±rOY”†ûë42•tu:á}óÙu5¡*% gha‡¥Èûq9CU^Pœﬁ@q
+üÓ[¿äŸ∫&h,È_ëÆÇbÒ•†»Mƒ∞b-Ö9GÜCqp∫l≤'∑
+∏Ç—›LÁé.'MÕ”"=íõ⁄Å€‡’lñm◊w¶±?Î?•{ÀŒ—Ò|∫5V∫¸Ë6*´ˆª‡ëïﬂÊ$Hk$+*.<Øv∫˚ÇS’ñ~¿A/±¢•cNã«≥ü>zˇçÒ˘^◊{˝h Ù¬à¯‰8N÷∞áU Náˆ∞&∂$s=¨()∂^Ëôµ∆óãt≈ba·æ8≠6ht¨Z÷êûÔ[˙] ∑8eJqp(Œè©Û›uÕ—ÿÎ¡÷n∏NÈy†1ûR'◊H‚3ÙÆft‡Sﬁ√Úp«‘$}<9ç9à^—€Gî‹……È<¸—ùÇÃäy†[EX∫‰1ˆ4Lä>?U?ù˛™5€fG„m8`*ì+k¡F–õ:«'wÒﬂÚFØŸÅªÏ©…ˇkrzZŸO:h≤<AôˇJ˝ß‹‘ùw‘¨ı≠Øˇ	~{ã|‰ø‰5mÙ<ËCÆªØ?x<1√&4´ßÓπlÈŒ¿Í…øΩ/ü%_À6Vk¨Ò-ÀwÙﬁæ”f?`ÀIÀØ›Ö5∑®Ô€SµêÛΩr`ÌÎv~–≥˚XB~9Ö<øº‹eyq~1wi©’⁄õ[∏∏“⁄[xÈ`mòé™ØY¶œ≠\∏¥t·¬≈ÖπÖ\Sk]\jÓ--ÔÕ∑∆ÒÏ˘óÊ/Õ-/,ÕÂñ.,\∫x±°5Z{ó∆ÒÏÖÖπÀK+ó.,œÁµïïKK{çÖΩï˘1<{	‰“‹¸‹≈≈¿Rª‘\∏‘X∏¥∏8Á>[˙Ë[It‡UàÄ¬∏âduKqº¯›†,ÔÎ-íAkÏà‡Ì˜AªVg5ÚílêßØÚÓxÇŸ}˘Å’jÑ¸áı»£J uj≤BS3ràZõ≥yº…ˆrm{+œy»Ÿ©``”jøØL–E∫ãÙÜŸYV;Ï5ô;=jjÏ7Üˇ¡´@Î`Á«
+r˚„RX‹p•è‹”ùf{jrVÎ≥8q{÷r#ò∫äãuußm∂`ùw∂kıIŸÒ≤{∂o“-ŒŒ’AÁõÑµ~øc®Ÿø∑aù’ù
+fÎp5∫G.)p6|_ñ9ú∏{÷îÎè4”ÌÉUügjz:ÉÄ@¢“…#U≠~|©`}sﬁÍ>€À•∏òÒeT~ÀèùÚk‘‡atDf y1Ñï≤`L∑=£BÉååép ˜ßo+nVÔ¨tﬂd◊ èû/áo◊MÏàz¸!”H1olÖ Ç;¿s§∞ﬁAkÛÀ3a1πu>R$cà∏Ÿ@1UÉEn|°n™jJÿ£W‚UWX˙kPºUï= cö:hT-ÑÏ–X8è
+Êß™íÃScZAÓbz
+∫´ã]ç{Ì
+Ö.ö{’88!€˝(ì/Ç*ìaÌÈl%/~‚%CÆ>=Î;øÙÍÄVBˆ1ﬂõ¨%˘ªì§ëªå`m“ù»,oŒöWÂ”"P{Â√lâ™∑‰Ñêî|è&U´¸!úçRi˝J°¯
+´Ì^Ÿ,◊jßMùP$g∆è—ïg?é3»ßÃÅõà,;∞”É3;zØnöùë]L«¿p¬ì∞Á–…∆hD2˝>Ehj‘‘ZZ*‰û¶ˆÓ1›—9‘¨ŸK±	z”R®j√?RÑKÏX À ¬¥òúWX¡Suëm{∏Ñﬁ1o¿˙6Â©∫í —=;µ∑ÑÔäD…5‰ÌÅsÙZ∏Q∆©•]ªO√€.°ÈÏˆÌò“›…+IÖXÒíR¢26,TcÚ6€…Ên·[éÁ]W8”ë6ˆÈ,ax¶‹ª‚Ù‰$ëË8?öf´©g,=:*±ÆËÙ7M$UáV—V¿ûmÍ}«F˜ˇ ˛P‚ôO®ƒìqÀDO,∑åÔ¯|»%Ø2ò§˛|~àAëÿ@gKoﬂõFÇ_^˝ƒ ÎÏÚëw‡´°«ﬁg≥lyî¨≠≥Éü˚¿«∫Fomb~UåµâÂ	˘wµŒ@_SQzpë6æ¬: ÿê>`jkÄÎ0•Áy6eû^ßj)gZè†®kG¬¶¿◊Éê‹≈e_H òüåØ+z’KÈª¬á`€Ï>ÃˆÏP˜Õˇrq˛b≥±™å{≠œmÖqR:=Û&sw|#“8›˝ù"p‰ﬂÇe•{ MyoâÔïÛ3©~ÜÈ]‰àD<‚,S~ë‡é0Å´êAGÉ‡2%ïõ˘D∏:∂v¿ëÓ6¢^ å°Y∫¨\Ç¡2ÿkGãÚ}ä–çªPÚkì®≈Ω1JÚÖºòä<˙	™'˛êj\˛7OòwÍOË3`…ˇ˚_ËÔ/‘!ı|>?ÍÒÑûﬂœœ`6@m0v†7xC‚Éà›#0ÔƒnõñÉHÍÃ1∫xÈ>ñ‚c≤í|X´Wë1´2ìÒxÍÑ≠QJƒà–£õœ1b∆œÈè±
+ëä1>!™D#ˇ¡/Q–Ãπ„&a»>ïOr—ºÖ¡kí+^k¥VŸÌΩkøp¥‘ëÔôS”˜o´BvxÈ*˝7üÒt±ˇ7&∆d hX\æ0øxÒê‡BÆ5ﬂökÓ-^∏∞◊“S2¬Vÿ*ì€(…wìíΩï>Læ/ês—õÉoTO‡`ΩNpcòjU∑µ`œV)·
+wèr° µÌÖw·/XWƒA}r˙Ê‹-9y%ÊZ˙¯ÇñGO6ÊÌDËkÜ7Ûm+Ú>&oOE™8âô˛sw‚ô±7å VK9xÇË;XÉıò‰»G_¶«æ‡	\Ò¡º@ˇ≠såÑ—ánŸ3^˛U„?fO˝èwHÊºj,ó–(èÉö7Ÿbà⁄Àœ–[ÁXÍ;4y˛Ñ¥¯4ì	‚âÑk3{˚Üvﬂâ˘ÿ≤„‘lÎ¥–Ÿ¸°3ïÔç«Ω•É˜Mº;{ll´pΩ|µ@f◊´Ö•Íl≠º^∫R®≤©ç›≠"~Q®P#⁄Î%¯≈mCàçÑ¶≈ËB–44Àù	›ÉŒπpkŒ‰h15ôKÆàH·$Æ∏±4Ü±4x(¶ÏXÓfD·¶∑Ü÷M9?XwQ¨à¿%c≠œö"+0Ù
+	Zy∞\íŒÏÂh„&˜z∂CÕ÷ä∫≤lr¬|¸ _Z/ºgÀîƒ\TM\Âîœ„Û¥Ãe1~mw·E;»Óè∑X>òÿo`UQ\ûg0ÒäiÚP®’^*”;d$˙Ü«YZ(+_KòîßaS«eq•Æ[`/hYë^/wg\Ù´pÉºÚT∆àIï¬X◊A+ö'ùsÌ¶uáÃY¥Çyá uäæ+ÚaˆpiÚA„?ëX)‚¡xŸ	!”ê≥ ?]NàüJ h”dà√[®QΩ+kY⁄A¸¢¯z~Û¡≤°œH>în∞‚µBù]Ÿ≠◊AH¿oık  J’WY};⁄í\Tu∞¸∏Åô-™C;´Â√ŒH\Tç&√!ÜÄu€è∂0Ó+orCWÚÉÎbãì•·‡]Õ2¥û≥6AùØ$ƒtDITáöï“∏˜∑£KeZèîh„∆î£Ÿ8Ds∂™r≈X≥bàV§Ñ‰∫• »ö¨÷B¢Ï≈UΩå±”Ñí=!öÇ4◊£{Ç√Ø◊£Î‘
+d8OuÜl¯b¿¬¯bÀr+v:2ò\˘S∏Ïr∆õùHÛ%ínÏD⁄:màÎï©¢	‰M∑¡›¢;`›bó…"F|)#GÒäë#rapru{(r@.µ	–(\ØnÆR5∆úô~Øﬂ·
+ÿyJú7t.2¿Ù%¯≥ﬂ~5¥÷>=î4Ê‚vµ$Õ∞vGÇ}"s•k∫⁄1Zá≠˚à *F√¬9üg®õ∞™wπ;:_[W˝on"~LﬁI4 O_=‰û%‰£Øˇv‡üM˘ ˚ÇÎXÎ<-NÍ›˜ÖIa«–Z“|lÕ∫Ï¶d:‚◊¯0x¸ﬁÙ≤Ÿ`;¶ÛgÚƒ≈ÊD4∞qˇ—sèΩ·ŒÄ√=ÙÄL˘˛∂?z°	¸7aµBıïBµú4∫ÆYÕ∂0¯u]Ô„»ÈsV(ã#˛ôı˘Éz‚YÏÔÛû#o#“§0ú˜ﬂÜSA£ÍFÈJ“x£"éÕC∂côÿ÷Üe, ö¨ :áàÇó{°Oë˜î‡‡M>1<‡2±≈ Ø˚Çìàã˝DN|*@à?aø˘}Úé0çùÍˆÀ•b=ë2∫Z_§2vYﬁSΩ◊{@x∏°	|ËÚœ‹[Ú;ÓyH√˚î¶‚aR!π¸/Nè»âÚπ8‹˜˛øp´`—ÊÍÂÕÉa$çô∫ˆÉ¶»%Á‹;vcëËÎ‚à}4ù/òáD˙ƒ'–œh`üà˚”øÜYF1ë]`^[<U~¥‡<sª‹S£];|¶≈2–Ã√»˚∆√Oÿ€>)ÑéŒøà„+UkËêé/üœOv°&{â›tákbâLÆ•ŸmÍ.‹≠è‹ ij±kÉFÑºÈ≠›ÆoåÿŸÔã∑#{¸œÔqa}≥ºCΩ≈VŸÕ[1wË-é2ç:ÖgZp |iº3o¥T˝t≥§ø	
+î˚4j∏ﬁ;T˚–≤)g°öî¯Pi·Ô3z'§ Ì¿Cﬂ<n9 —m!˙$& gMvÀÔ∏=—¢|ÀB<~´@Ãé¥±ˆ÷W·GƒÏ4º€%“o˛óπ¬\i˛¬-ÚEb_ÀA/ AcTA^Ø“K·Å+sÖ˘Ö[ÙÇPJAÿ`∫ƒ¡:}ãn,Õ//,›>çD¯doñ·fÀVô.Ó?GﬁA†3qŸ=BpÄìs$íi*^™|≠h|áΩ(‚)Ié“ër)ÍHY)‰!ëΩY^Ú¸ï©™/¢=‹=‚è5nWŒËÄÌ€Ù_Ô0”ÈÚb—7Ê{‚w;ÿ‚VöÅ:Ñø{z:VR~∆9+<£Ñ>9`î†dwç&€uå∞"›“∆ÿ7Å?ã:§Î…@;„™˚ù/Ô˛Hu˙∫†õÅÜéÏ˘-oôë~·≈è(Ó“…>MTjC⁄◊¶IRÄ7¨j®€6—“çÈ=Rl3O‚Í8⁄/HÀ˘3ää√√§¡Ä—€M≈1≠êFÄº◊ÿÉ%/äﬂ˚„·XiÊˇìV&XØ˜æ~¸Ô¸∑Oi¨Æ≤“µ>ëÈπ\~ûI5`˘π†»s5‡˚£HÊúË•T†1-”2Ó*eu_Ò∞`b,¢L∏i¬⁄rciØyÀÕætA?âƒÒ
+[µ|°<{ΩT-ñ*≥ËRxn„ebÍ0ûã•ÀcÑù◊Äa\ﬂÛf’m åXÿ1 no\+‘kÖùV´ÔÆø
+ˇ-‘wk+JU∑˛vÍ“Í¸
++‘vJ≈:´b¬t∏&∑÷÷,}«ÙP’N∏,˜‚r$“ú;Rñ‰#d(–ï&^F@ÔΩµ≠“ÖwSpΩª:D±.›€ˆ≥|∑}+ç?©JﬁÄYUä	Pp?TFê≥E‹C·öH‰]Z€Îÿ{∫ªÊl∆©RfóŒòLcÏóÈ,a…Õn®õ˜Pê?0ÎïóhûDËº=|'@Gıiò‰x˝¥‚·|9`+zwA;ﬂq≥ÈR£‡Ì™D·@~dõà(lh∑¯“≈°≈«jvï‰õófëÕ‰n.¨P	 ¸„¢◊GTe\ïı5WÍﬁ‰jèÿΩçî⁄%–BØ¯…@2÷µf]»™¬iFQÊ!0.üô˘™m¥Z^]Ò± Ìk^”ó·ﬂ∫â_˚4∞õ¶≈ü
+¶f! ∞m„[£5l≥3¿CLˇ&(⁄∏fu±˜˛ÇA_ı˛ÔeBbÇÊ$(F | Èã&ê_◊N_˛ÍpÔÖÏoñ.ùK»
+nŸÄì ·Gê&*·ò≠T¬£≥O¬„˜}ÚNäBØê"Ó∑Ì%µxõ8ã%G˘B≈°Ê¬Æ.Úc)·mr}ÛBºÂ…rí_K°k¢ÚK›Zïm_ºò⁄A¬œò◊Àï'0?HYNï]í¸UöU‘ﬂ√≥À#Ω$dæ§J.q∂&à‰ÖπÖVZ/cÏUvé	Ëj¸†{U–¥€49v∏©
+\J≤Ø!`™ú˝$T®yBçüØLD’µt-[Ë∫©û∞¬+ÇJÍÛ¯◊sÛÒºLı/E<πz≤€:’2ˆ¬4Ï≥—2%F‚“ƒÂoﬁxò∞}R∏ê°!E—Ô⁄…Éçï9Öª_feáE_õHìÚÚUÏãõ‰(Ù°0µnø£”VŸ	†®ËkuV±Ú‡œ^4?Tv1Q—ß¸gÔÀ«t·ü=_‡‘,£Ø<PÏ÷Ω}˘ıo˘A¯'úo¿ﬂørKü((œàØ|DÂAC∂O˝÷ÅoSÜ
+|âÌ˘07\˙é[≈ºW<Êﬂ~I.`ßVÉÈmÈ¥⁄MPîa&‘PÜ¡z¿HˇÜ0√'Ò˘µﬂ≤`>Êˇ<‡-⁄3ØÈï;Úá°+¢.˘†L„#!7·#ÖÔóı•ˇ¨Ø0ı¬üPÌ@ÎÏ:úü;ZfïmNpN∏pÚÿ¡gÓV∫¯Ñ˘˚d
+}·±˝†5Íá4Æ7xÆıåü)ôÎVß5˙9Â˝⁄#ã'¸Í7¢-¡R<†ı{ìº˜ox˚Ëœ˘*ˆ‹–Hu–—3Ãπﬁ÷±ç2œ¿&‘Aœ3l¶±}cœ˘[Ï˘,C7—ÔÌ;Fß√/8Äﬂ‡»ˆt€é\‘§¶ywÑW0!T&´°[N¶Q,ƒüi!89˝Ç”÷ó^¶Œü˝BS^˛Û)ﬂáè‹§aKøóù≤¢º#Ùƒ?$o”ââØ¥Î*É¿0∏/}BQ.®‰ı°ô…π»E∆Zà+›äÀˆuáˇ∆~∫∆≈VæÉ◊7ä/…;äj«È)Ùúƒ^N3œ≈FrÙŸ¨è¶P‡ƒCaûtÑﬂºÒªÁº˝9oŒ€üÛˆÁºùIyª6ﬁû¡Œq[˛„Û¿ç Híﬂ<Y–ˆ3˘HdA'ïY0D›ñWÅµª≥≥]≠≥JyKAJr∏§aò¯÷àA-a„_dXRxYò[û+PPÉ“B©Ü√+nLÿ9π∆p!øÏ/ÿb⁄√Ï•eè%‚Råu˝Æﬁ1˚‘Ü‹Ú©˚yH•¶iS®N·Rë´;ÚÕ7P9√MﬁC«ŸE<∆Ã›—¿Ã+Çit£"ﬂ&Â#CÆÕ*÷sı*æﬂ’Í˚¶V=ª*’wCùí™9'≠FÒÁ∑{@ıMä÷"PŒÉg˙}Ôyk+5kƒ€´lç›∆|RˆC\^¿mÙXéâ)¨A
+È^¸wΩøÎMºp≤ÿÔO¸]/«~˛TªˇSºˆÈ£w?g?¨au(ÿ◊xAC›~YÕÎ∫=√ƒÚ mÍ¨¢5HÓË˜¥Æ}Óáå∫ºoX∫Œ
+ŒÍﬂı^8ä,À}˛∂ˇ˜_üº√~ö—ﬂ‰iâê˝ÈÌåká¿Q=^lZyZC`T‰2e'/#64÷P
+¬,rQvIAed5ÿN%2b-EK°ÜãΩo2Äa—”Z!®lzÚõ_e ïÒ€±$øÌ¿ËµÃÉºâÈ	∑=t(≠o‰0gCÎ˜	 ÷{≠óp9÷^8‚1[˙nµå+
+∫iœôÚóÒ´ÿ‰OAﬂÌ›ëó1„¿§˘∞L«§7˘0Oê¬&`Êû(?â≈•⁄ú|Q~~˚1nà—€3…æ±œ2UkKÄyñ%¿<+„ÊY;÷5CÌ5,∏^¸T1û§Åm≤ºùL´±~ÆÂ>◊rükπœµ‹ÁZÓ˜OÀ}yªå¯9´l›4´J⁄4˚áu‰BüJ¨ua&PFÖ]	πÒh.VµH	¡ìG1$’≈ÏŒLí´Fï‡ÔæMÊ	◊àjqî#`§(?HHçﬂ©ñ6Àªõl∑^ÆîÎØ≤ıBÌ⁄ïÌBu]÷óäWÆ{ÂÛœF"|ÜÙ˜∆‹ﬁ¸•h˙{8qIô˝æ@9•+<˝˝bb˙˚ä$˝}.=˝=ÊÕ§é2<EÏLEb‰ÒìÊÉd5≥1k^⁄=<öuÌk√G£S¿±ì˙ék∫Éÿ°‘!ÑÁ„˚ıçú}Û \îîâ&}÷Ï˝Ü_Aì%_.ê ≠ÿ+=r‡&±≥Õ‰é|x–uÅYµ<6ïΩ.¿Ì$´⁄—[ !g0È+ûB˘ÖüŒI¯≥§Ääz√Á§gÄ“ˇÔ3ÃÉ4S<øÚ*i?üÚïW1ÍÅâºGJÀá\ùyõ˜˜U˙†^3âZ’µNÆntuÊwœùaªΩÜõ€b.ˆ§"ºMÎÆ÷k¬Ø~ΩÇ`Zfß£[∂bNØPB∆°3VK‰óeòÍqÈä±¨‰ò∫∏",§ãzåâ"uqST¿æıqâc∑~ªäMj;⁄!¨™o~ä.çWv ¨JúI¨c;0úf®"ïuGZﬂŒ≥nk5⁄	w≈Âº_;áë?©"¡º«ÊWih;ñπo°ı¿«(¡*îJÕ=ÍÍà1eY∞ÚR§±#ämíëÀ…ÌÍ≤•≠Y”	Ÿ‰ôÀ∏‡Ω∑óı»=è«ÁpTº.¬ÑRüIX
+œ‘O∫“Ü KÓîÆêl¬ÿ4ƒ∞˚¿"‚Aä
+|‡(œÆb?‰Ú2óîJÈ˛Iã_Å3QŸí€∏0cπÜØ®ÅéÜ ¡È™gB!«›}â9‚"√Ó±,gô? G¡√önØ∆{kK@jÕC˛Øµ6±∏™™≤AÆ‹—÷;¡¯'7åñ”¶&8{Fß≥6A¸R’ÆY|•Ú¶M“±ÅäΩÅH	Ûs8çÑßFgòp©8˘‘'¢H‘,K;\;Z`†bkN;ÁÏálqAïîæŸ‹€ø˛35V˙\˛“≤≤˘t®
+î¶÷˙Dﬁ©Í≠læçßà1©dHZ⁄Âô`	g/„YH≈0à‘M\û_ò˚õ‰“eÍœJ60ËâÀ7v69#:ë†ÑB¨€ÀCı?¢Œ\
+}Y˘¸ƒ⁄z1?X,‡]˛“((!ÿº√T‰‚§c8d	´ΩEw]T5–4∞ÓsaΩ°vﬂCipÒ‚si ì˘ÖˆIKó’—^@dÑ3 'ˇÿ≈¡≈ã? 7~Gw®Ì¡∏§ARÜs°’2\ÿ¥g–XŒ⁄u–É,iÕÉıyaYQ"ªrCÙΩ§Á∏K“£<*º» ¢Kå- Fü¬UÊOˇDÎáÂ«"Å-Ê≥µÛ¿ükÊÜÕ>ˆ‰{]öÙQèﬁ’¨n(∆vx™ìŒ⁄∆>à0Km@›~KΩ˝éa∑©‡5ªk6µä˝CÊ∫àl÷B™ùa]Õ _p5XËCÜqÅÆyóÉÃ–3»ï	#ÂæIõ59æà–^ÖD”2˙H6~1¶a{{;?îM·M≈ÛùFΩ4ËπŸÓÛ$‚SÛè»êæ5ˇHE;D_ï ;“G¯¨ë\#ÔP ˘≠ê3ñÉæáöã}%Äg…<h?Ò Ò/›ò¸„…WR(xûzéëªbh´ÏÌ˚Ÿ]&‘—»u”°k√wÓ¬¬ÎdêùŸ⁄ßGb(nÍãâºN] ¿
+HZ…∆‡ëB8÷Õs?∏5",^<b*¬Á"Ö¿R∆”Gø√ƒîwÃùÔøè∞˝&íç–ûàÅ§‹9©KûÙ¶aÀP¢†IA'[O∫$WS$ëè)‚g9o˛úˆ≥Ä;á6≈Usõ(pˇ‚c!√Â#ˆx‚≈L¯ä}Í%bPÉZµuΩﬂ1mûﬂz’4˜Å∏Ø¢MÁR˝]D908˛&ói‘¿ÿÕpØ°˛Õv~ËuVkJÄ”Ù÷™AN9Ã©K2•lö-}Íú&˘TŸı4»nî›Üçk¶EY-oµ∫¯πÊÅùÚVº>Ì∂êpΩn¸R˝^3≈ZòÆ˙ªîÏHju~∏˙J?±OåB0”¿0QÑ√5qŒ&Dld·£é3
+O∫†£B®T„}8GÜ'ÜS9iÆ™o´3>‡]A◊TœÑn†ÅﬂÀ-”LƒOh*rô©óLV¨7å.º·µîZ‰»B∑=¨wYyÂ !œx@)3’iXÅa ]äMq√”e’:v±≠7Ô]ÔGzH&
+„…É´jc>∫–ÛUoHãAy„ê¸ﬁôöƒ»2ﬂ†
+63Áa}qÎ÷¿iµRŒ_≠mËzn‘é"œ2A,Ú–Æ'ÀÏﬁ`_9µ›åƒ≤5lŸ∫GÛ∞— ålî'}ä6∂·Q‹L@Ï JeÏ‡∑=} '§„^•˜ˆ•2·7{`°N∞f ‡Â˚<˛n¿Ò*±¯¸«Unò)|Öê“Ä©S›·*€rß‰Ê
+Ï–Ã¥˝}KﬂÁ¬3-≤(ñ∆qgöï7Ä[–Yƒæ¶¿ñG«ﬁÑ{q=’Ï!’PŒÏõ bNüæ√’'Ωµ•ÿuÃ^‡˝È£w?ìSÃyÊ›Ç±UÈ$â]+G\aO•ÛD¢ˇâ	$ÔfªÎïÅÊÖ-DÎL+é&˛§‚‡	:c≠QñMÉªÜSû>u?#?/SSÁf}òcÛsQ(Ë‡'ÇFöñ)£Üï(f¢ﬁI¢IÎ·ÈÆ	œ¶°=›8ªˇœ^ÖØBˆÇ¸J%>ü(wq)]ZjmàæM—¢O.Ñné‡fBQ|◊Ë°!º∏‡ﬂî‚›>Íπ4pˇ√K›”#I£75øÏ—‰ﬂ|7h≤‹#í¸¯ÎéÅÀΩÒí£O‘U—˜î ˆiîêç©ﬁükí«B{ŸÊÒz<I<Ù*ÇW*Í‚íç»ƒ$?˛£é°ÒÂ(#9I[¶ n‡„X~âñakçéﬁZ;2l‹∏äIz∂|€¸ΩF«xGﬂ–ùf˚∫†L§ô˘ÿÉh7k>útl¥ê™„çLRC∂û¸Zj©Ö|Jˆg2%(fUﬂe©]<àÿ¸ãx¢¡N≠/Ëbj8ŸÁjì‹+Ãà=dJ≠ÂıÇπ~W;ÏaÈx>üßøn›√ç≈]! ·∑”n3oª~=9ù–ä#’ç ˝P"	ΩíˆÏ5[≥#-/ˆ:Zë[	§ÜT)Ö@(ª˘§æ:q¬∞ùCêGGDÄ5„u}ï›~Aê‘∑gZù◊t4a=Å'„û±¯j≈˜<É~gÏ¢<Q%R††6|‹N+‰üÌíe°©	R±ü˝¢§‚Ò%˜'Z81⁄'‚≈ÂÛôÜŒé˜ mπ÷<∑˝1»áïﬂ;E«Åf8jGÚ0>ù;…Â8^L‰Á]∂Øf¥Ó)Zm—p√yg≠÷Ω˚Í0u‘dÖl0‘#¥¨JÜBé≤XãèP˚$°^i!öR£NVR€c‹['M-•ÜâË—í4áP##)˛∏’’∞«.Ωﬂ’HùÓêåâ!—ãgf—œÅ 3_ÜΩÈÅ√Å≥¬e˝!Øc¬b∏*aﬁ6VSW+c#Á¢¿óÉé‘©…˙ÿ1‰‘9ÂÕÒ•AàÛj:›ŸA¡mÛ√”Ë„—N<;Ó∏;?@xı˝ÀGç>ly«PøQmΩº8;Ëd•t9*›ä<eHäÊ¿±VÖ¶E Å3¨)^u◊¨ø´g2|÷—Ùtúœ≈$sÃ¥ÏÂ°ﬂºÛ+T
+’MV-o]Öˇπe°ÎÂBe˚j∏:¥–—¨.fÑ¬ˇ®ÇÒlñáMF¥n˛ã¨e9≠;Rby®L=
+`¯àÚ`í
+C£C2Ya¡P\.»?Y\∆4Ê‘Âu5ÊC‡'´1@ ©sYÆ\÷<urKdñ°Eò'É’µÄBÛ7zú‰q˚nCÍw~˙Ë˝#T?À±$>w{RP"áy»”æ‰N
+3àùHi!∑§ñ‘öâÂL∆uU«ËÍù8r,≥¯å5c˙u]≥ˆu«À¬ûà3àx9®ºÔ@4”M^7Ù*<˘EyÇÂK£k8lä˝⁄∫s]Î‹GÔ€¿—ÌiÑÆhÚlD˝∞N]-ƒl`	¸!≤PbF∑©çı®ö¬%î ÕfiÓ¬‹F¥‹5y/Üc+ÅN¶XuL1›UP≠LπQ≈-Ló¨9zﬂ^Uu›ª¸Õˇ˚}Gg[ŒÒıe˙°é9k¿ ﬁa¶≈⁄á-∞ßÙºDÖvüAõÿ#pûÛBF‹∂Áÿ¨≠?k†ràú!g√ü≠¯√≤lEtS“‘§@à®6V*ü∫’
+–Ut+f◊∞ÅŒÛ.’ò÷ùL8bY¡-mW|ŒÜ˝U¯Å7G∏B·ö‚MÅ"\¥ÜI<lÜèéOıÕ;_"Ä»:_0∆óèªs1…Îè!wnÏå´ ™≤‘7J{¯)winª¨ìá'.∫´=+¿c¶Ä°Lˇ-õùeÀ»%mık´:Ëa’Òîc“˚,O‘z¶˘∫·ªÏ1aƒZ{úÇµñ‹Xy"Ü≈í…è¨¶?;M∆ú/ƒKH“
+2˝ÁÃ¯r¿JlqäP“ﬁY ¢∞ºe?d+sÍªF"•™N>DR$UC£s˝Ù—Ô~ñä£òùöRº’ôxôKKc°ôﬂ˝åπÛÊ|,Åh¢üè’{˙Ëˇâa€Û¨Z™mÔVã%V)ÏnØ˘Ml√ÊXø_—¿¥h?+kG≈ÈijΩTîRY¨0“Ë∏û„ÄÙú,Õ˜4Ay¸ñ@Ú–w~˜ôÖ{rO#“f∂ËÉ∫r*]'ÉMÑ?+zûïÓ¡:`Â\Ú«1Ô$êÚO¬·ûf˛á±≤´?¢<àœ‹VÉè?ó˙ùèÅ™£8båN*h„ıAù¶Mg`!Ï0~\(≥b[sÆÓ‘gº|ÌZ≥mKöa7å;F_oL~´X™÷ÅñÃ;6h6„È#Àö;M`ö7 éIì–å˜—g$Ît"¯2u≥o4ÅH4–-¨§¶D2fÿgohgL2U—e¥|§»mâÎ^ÇsTB∫^·7◊õÉávÚº˛¿SıqF9 á±Â¢¡¶q=ü¡K2“=RA™H$Uﬁ£^ZÕÅ”s⁄Fo5"wd¨îäî∫ .üLº´u˙⁄Q«=|Ωhπd⁄#∞¬˜·Ü)›;Hï¯≠Szﬁ!óOû/ıù˜Å{Ím/µ÷&Ù¸~ûÌNWÎ	X.-£ÈT’ãs˝ÓP]·DwL¬€,˛¯–N€tL˚∞Á¥u€∞Û˘ºlñ·‰eÅ}9o^H∆èÅÒ3* ˙rƒﬁ$t;æíŒ3.ÍÊ>0XoµØ# j≤{tõ≥+u£pó#,»OhW‰Pƒ˚ã≥‰ÑaW€!àÌ–∏^Çaô∂U´]ÚßØñÑ¿39Ä'èÎ7.yœ£DâÚqMŒÁÎ\›·˝d£¸[ˆ6yeOK,±Bô˛πè“ÏVP	Qµ>˙Àì)«§â±™uá◊æ∏i4∑˜ˆRœ‡ΩxQ¬“¨•$£€¿4aÓÎû∏ú4ƒIˇLW¡e†o&ï˘&«≤v∏ê˚— NZ†íÒﬁ=ZÌBnàé@≤)Ä™“é˘Òâ@≈Dç”õJ‘q£€¶°ø¡÷≈‹Z“.„cÛIp¶«ß·jüÚFgq∑∫«A–xœ¥ˇ·BT˚ﬂ,∆ı∏êq6Kb˙„∞·«÷>πö¿'/ö„‚úíß'tå˙Ë7˚˙?ÚÚ°]æÍE0|∂.‡Cçgﬂ¸‚∑£îkf∂x\˝.0S0n|ÕÉXﬁñ∆Å¬89Iˇúx
+\S+€ã„Ê%ç%§'A¸Ú;|ƒzπQŒ√„ﬂG¨ﬂ1üd )	≤˜›âaÈ:Ï£ÙVÊhço·ƒÂ˜5∏ÆÜ¨R!úñ%Ò„∆œÉé˚ªvƒ‰¥N√ªÔG|?c>B‹Èl√ák·˚ËiﬂÜLàüﬂ◊ñı,Ñ“R¸£ ÿ	üÑ‡´ÔA‡ìı¸„?	>œ”r4yß∞—OÇ$G„‘Bπg;Zœaƒ‘§¨pˆ¥¶cá9RéÉtXrnÏ)3.ƒsA~ÁLy·∏Ò•x‹¯‚\&œ]zhEëªêbƒI™NwGIHY‹¨˚øªÆ˘ÛLﬂ—ú∂›÷:€ﬁÉ›}ó]!á='e•Ì-•ÿpàÊûÌj5ÙÂ|Ûã˜Fh$≥ÿã´k∑Zqù—ÑHêf≠gÀºäTµèh‚G˚Ñƒ*ZùBÔ–õ’ΩAV¸,Œ/õ…ûΩÜ˝xûbéëÊπ∞?OF?q1z„–^bØ; vµÏwtlò‚Ïuè∑‡ÏM˜√{Yö19'ı#æLƒó(‰gü™áÿ5iùÆ«[‚ÛÙ<û°¸2í™;!?+ j∫ÑüîûI@Cq2π
+@„È£˜ﬂØ”/{äC°Ra•6k¨ˆj•R∏≤[cÎÂj©XﬂÆæKqx±–Èî∞ÂjÌ∞”—õ2f¸◊6NgçÚ“√◊·Á¡v·∂ö∂VJÓàE,Õ^MG'Üw—éev˚<ßOø‘aœb˘>à:E†&◊˝`j≤	Ü_∏q&]¯êò¨¯†‡ö˚‚p`{€ÈhΩûn›0ú6éY¸É¥ó6 ‰…¡—ÔEF‚ß˝‹ˆf$©µ∫Fÿ˚¸}í•óΩp‰Ωı˛9"$ÏÍ¶M Á‡øfÌ»ˇ’˚vˆr8ˇçüÌÌ´ï´ØmW
+Uƒ;*÷KõÂ"Êƒî
+’‚5∂Sÿ)Ukqr	Ÿ±ÜìîfB˚©X…T#ø'F7Fé•÷°ÿLö_	zaå †1 ä’J≈›jâvÎ◊¯r‘ÿTe˚jykVÎjπV/Ugÿ∆vıÍvV≠Vª±]]üù∞Å√W»ñ®™Ôc»¿Úè\$~[$ÔÀã‹_&ªbÓ=Ò-˛±W–7±Á˚◊KæaZ˚¶#>=¯$ˆx˛UÏ˘¡ÊÄßﬂGyw—€“f#Ω)€*Gnÿx˛W†/›Ÿ•è›_F°ºkÖ≠+noÓ∞—‡˙ıhæÎ¨v≠ ‰X)oΩ"ÀW£Ñ#’%&°eœeã_°ÁÙƒµ¬\iæê5qÕœXÛ¢eû∏∂‡8â∆æ–héˇÍeàa»‘œÑrŸN%óM^<MeΩÜ$'m|πl9Ù≠‰Ê√¶D$ôﬁq≥È}˝ÎÆ°âÈ¶pI`Å≤À´”h∆´Ÿ	“‰≈Ìk±"È™ä:©ﬁu“ÍÜA„b8Ç* Í ÛÏ8ÍÔ/)˝Á≥8
+)zÓ3⁄Ô´£œ˛ Tf`«PŸßå¡,Õ…jÑ›™πƒ≠√ÇQ•ŸÈá"ë0Ï»P'&dA¸ë≤º6U¯˚õA3È'^¬„8Ë≤«åM¯ÇÑIﬁ
+¯M6üÛ0f?˜õ]•o5¶X¡)Ñ#Ÿ≤gÄ[;Õ62]™;¢$2rhûd#=µ7Kúaat¨l≈¥E—Œ∆ç{Z)â∫ÜÅZBUŒUåﬁ∆Ì3]^¯njâ/Wôî8ü‘'a¯Ñç¸Èﬂ∏ÌœÌ''∆È€F‚7ºø‰ó—æÓ/±)æÏÜi›°˘Nª†‘Ù` ±ñ…Õ;@á.&!eΩ£Ôåyè±ößPÆ»RÇÁ¸Ë¶‰D1£Ébõúa4 :t:ﬁŒ€ù£5V“Èñe [ãª{m`ºz⁄ü˛ïs«Ò/ËQ¸™ƒÁ`Zí)<Ëõáø∆ö2?c—ø0˘YM`8@ä¨––~˜1´ÒØXÖærü(\û¯‹>ÊCÊZÊ†·Ñû˚Óû*…÷›Ø¯s≈ÀüK•ò9≥iÖü˙êmQçÊv±Í?3∏4ÒâXÑ…ówuq´øyÁˇe‘r∞Ó}√*^ù≤Iæ˜ 4“üª)¡;¸o£¸ã%=›oqX	‘EîêI\£ÓŒ≠T≠Thpbˇ¸`Î≠∫÷òrü´G°Q#^o—Ω»'∑2 u˜%^—8{ãj@ûp™»eú1	s&~ÈŒ[qãóEÍ)‘hËD›≥Aàb´¶}ÏÌ®)≥8ßJ-ç%ó"LqÃ¿PãY˛·Ç$Ã¥¨xÁ0‡„ú‰àÙÂ:ã
+ú+ér2D
+%wãÇâΩÛ*7®Ølˇ¯x‚x·ﬂ°D∫ü<¥DOÓ)Ò^¥iBH¶sUıM‘Vß÷7…&<Øû‡ÜGDøívë
+Ï¢TJlô#Èë$içì›@À≠%ˆmé˙∞ ^VªˆBÏNE´É’y$ª}!)ˆ'˙FDF'Ø01äfÈZkª◊9î|Âÿ`Õ`âecê,q¡ıg5∆,”RA‚±1±"Ã#,™PÙãåS«Ùö@= p:.ˆ∏«/ ∞ÚÜäÄ˘ÚQ≥{Mñ$%õf!XàË`·ÿ€J Â%aì$,ºMC®8¸Û∞n¬†˚‘Ï| œL‡´T<œÿcS¸i”Iä@\®'TJ˚Âÿ∞oSÇ1)◊fp?UÖ∂åúRJ®Aa∏G•“pj(z®∆Îå«ì+ËyÆ¨JâÃ^±r\ë¸1+°PhrÕâ.√w¡G±rÚ‡äe-CZbûµ˛DQô∫Ré§ ´$6…X¡8’]G∆ÔØ»∑Û7iˆı„_ú#1»á~.≈'}≥
+{1qûpíO`~Ç∏èL6‚ú¢˜sI?¬Ñe≤ıÿU2Ûπb•\|Ö’∂ãÂBÖmñ÷À7Ñre∑^ﬂﬁ™ùDIËÈy_ﬁ˝?‹Â¯6™hè?Áû≈7®ÿ_ÑjQR€i~F[˘XÌgdS€ -yÅù:O•Éwq˜„]Cc5ìÆ61w$˝02'z|Å`ß—MÑ“Úf=È‚:]P◊FEÉ‰∞‹–À"öì$Û˜·Íÿ´¨™7AÕ{—v, ë∆ˇΩÔVâZt¡NïQ®hºÌãÔ3bÁŸ&¢µ’u€±'eŒ¸!/πô˝÷⁄Œ†eòp7ıÿùﬁ-3Q>"‰˜¡J8√r@)Çãû∂aZ›AGc◊ıìDO<Ip˘u@‰®o:8õ&ÊY¥0B“:∞&)˙ÄTœ˝7îkÜçU5Mòã‡Ìa5'ﬂ$¨H‡≤¡—t1Ëxvz0π˙¢ÇíÇ∫nh¡OqœP@û3ºêS¸àR$Æõ¡7∑X»'9ÓåóåÍ´Àíûï!R≥R„ÜŸ∞—}Õ*c˙∂‘ÍlP7‰ßè~˚qB äæ∂$ΩÏS ¬Í¿%@ÎûMÊ—•7ã8]ó∫Ï;á·å?¸`òÑøgè™æy¯÷_üºìFWﬁíéHWî	¬zMŸc€ÆAjûBªö çÁmñ§˛z∫æﬂZ◊è˝ämxø‚(ßﬁw.(Œò«˙¶¶Gˇ“ø8¨óaDÑZ]“¿»‚∆˜9∂Û¿ÜÙ¬V◊@$"pÂ˙Ê9~k∫c0wÛ ob¥÷œ]>88»ﬁc)ÉÙ”¨⁄ùQ ºÛ,1:Ö‘Ã+°~…+"bc`nö†óŒaÓ“Y>ˇ∏1ißﬂﬂ”èˇèŸT˝ µk˙åK>ã,^$Côzpzƒ•Çn'—˝ÀÉTë#Õàd∑f3hùmöÛf1~¢ktzXù°OŒ∂>ÉZi§Â-ÈàtÖÇOoï„›@Èﬁ≥BWﬁ,NàÆ.ƒËÍÃ[_ˇôFWﬁíéHW•ÆftŒ6Q—∆OQÆW?DSb∆Ôô•™ˇ  ˇˇ‰]{o◊ˇøübå¢ÿHÿ‚<[£ÎY≥…zwŸî"‘ªcÔîŸôÕÃ.éCêR™îDiïF)D"Dƒí°QE
+)Rø
+Ú'ËGËyÃ˚ﬁŸôµM’®ÄwgÓÃﬁ«πÁûÁÔÏﬁ˛∏ÄˆE≥∫G¢
+k<SÇ$õOπ$éFFcy*War#∑RÇÿ"W‘ˇ6©—˙fπòíÍIµñ'9c>ƒ`J
+∂°!o†éäóæ%C˝ö„B€ªSEÌ¥ÎkjªR‚®ôNcEmkäˆªFU≠¡ÂzM9©÷jZsä‘ÊW’cKô·«Â…ÕÆ_ √í™–¥«îâ„Y(<aö8{zd°≠°Ó^≤o"-ƒﬁ'%á\b¯,0(|OÅ¥w¬ÚDÏŒá‰⁄&+¬äHÁ˙+h±∏Éñàπﬂ.÷7m4y≥ªGèúÅ>2ªÏBË{`æ:÷a«å£óEbÚ®qj√±BÄæ“·KvM»√g;O%û≠»ˆE¯)a÷yò`á7£˘{‰á,áµiû›E˜ŸmÜ9~Ä3àπ áÑáìZ&äùõ¨F∞H)˝0®ƒã[ñw0ºÍÁ#d#ÚˆZ´ÃÕûÜ°G‘ﬁ7Òr˙Ô˚é¸~∑xÃ∑È∑·µÈXÎ#Ï[7d«o∏πÔ3¸íz¥‰0¯©7¯iáb4∏…—ˇ€ÃÆ∆˚YΩ∞?§ÁV∂∫@ëÌæÈÒ1‘√“îó®‘çßw†€∞k≠-∏§ä^+¥Wˆ]«6ﬂ√:#g˚Üm¿QÇÖ…Iˆ"¶≠≥
+>9n‡Ò<†á„ãñÈı±Ï‚eN,ø´[õ¯kXh‘7$X8qÒ4DÿEœ–∞€=kK¨ºX®∆)ÃéÉ¨]W˘úsUÿ	qú€Y◊CZ–Rq"ëaÑo¥waˆGä Ω®î`˛ç≤í¡&co$Íhñ·MîçÆ2f∑®ﬁ–D˛„…^øü§˘˙Y<Ø‘ïµJ3~õZ[i«N≥“ÛÊØò^}”6‹ÜiÔ3€rÒ ≥-‰Xû\,ã≈"¨§%Yí%t)L≤|%V|mRveØ)LØ3*_ıùQôÅ&∫üú ®(\t\ƒ#ô"ãíÂb!ë2éë%çê±Åh(J*≥Ü.◊êJ)œ;ΩÚ–	⁄jä⁄`f#y0HÈÌ!Ì/ÖH0õg;ü”˘ıàèæÒu/<∞íûò£ä∏+-TÑˆÆ:›Kˇ≈‘:Å˘¸_g◊UÏuG9…`tV3ô¸ÿq«cöfåîéK*¬NÃH–f°ÚÔ	§7©∂ëµÅó`zóRÑ?A’ «#ãt,w˛D[eªh{lì ˘8 Á≤≠ÃÒˆ,9∂ÁXFÜ”@Z<ØÄj w 0OˇGjqBh%	˘Ó5:±ßˆ	ªcØ£|à£1',˚nπö…cñmüíÑ}M	—œü–'îØY#àÊËF‡˛ÑÉÚ““ı˛√¯ß°¿LiíÂÿ'Äµ∏ m2Ôafîod3&Ë∆ﬁÖOW¯ »©7:vk|q`éB†,—"e,]ê∑Ì—ä±Æè≠—úƒƒ+¨¬æ¨8>3#¿ûÖëkdO`∞˘˘Ÿ◊_ÌµŸ# Ï±„/-·ﬂ>∞#›ƒOC›Í≥∂4{a¡¥ªàçﬁ¸ƒ¬»©:õÜ[ÇcfÓay¨zƒV;6∆aΩÏ(ıâ,8„Dôª¢ÿ@Êopí†0Œ—õ√¥4æë o7∫›·æÎ`T◊,Õ◊lÜU˙Æ[Ë¸ïy;
+,eŒü¶y)ô˜∏®)ºÔÕVΩ∂¿qÖ LtÔ≤f"úDçÁ{∫◊ß éY˘3QÒ¥ﬂ˘rXyWÑß/ ÍÍà—gzd$¥Ú7ÕÖºÚíäÀ'ßç®ª_˝ïÕ®∂F›¿ù
+ùòÒ˜6È∫?0ã„BÓ[˙ñım	ã∏J§µ√∆∆ﬁoÍÆ-ÌzÍä`jïÑ3/%kô\$9çk ä{\Ãƒ#’Ë¿Kœ&ïø‰2âÑïïD69·iÉÿÑ_ñÙÑx/eD ì‹Û≥û\´(§`=˛–‘pÇÚiöQ–(°¸ìïT&UŸ'8&X•kJg√F2à§ÀÆÒŒÿt1MV"JQXuáÚÃs<•|ûZ´cG_
+kÿLIPW˜e\“ÌÆ!‚gß‚ÊM†GbC.±èM@fﬂåê∞TôﬂTﬂ•EI(“7sß-K≥~Ö5ÎBì ¢E $c]LY≈ø)≤^P@K}¶®Ñ˘œØ,≠“j´oiJS£‰rﬂîÍµí÷hãV/Œ*X3Ωë~âë]RF/L5o7TÆ)Y 	AŒÃà/åÔ P⁄œŸ¿›˚j¿wó%ΩMæº•_6⁄f`8
+¸Jõ¿Ë§xﬂ:j∆çí/j#w+¿4•/%våûCÑ	àöÕZçõ?£\SÓT´J´‘‘¥öRYSW5ÂLE;´5ïjeıTÛ”Ö5AÓ^Ä¥G#ƒ‡[—ÎÌÑz•Áè-.^àLìØKLìƒT© Y◊±¶6O¶ñ6…4ÀÈq§WV0n&ˆÇ¨Æõ/óíeNCx∑	†sõç[CqH1Kgˆ\$ôA4T@,9√L´æA€#âÅü⁄‚Ç=ë±¥r≠˚hŸDëÎ•lÎgAlhv~Z‘3∂.¯4>ó˚Dgh9@-=ÖHAA-¡/8˙È–wÿıtÔŸ›?’fŸÑZœ•ÔÎÀ‚º*kÑc„Ëñç˝Q˛ÅRúÜˆ∆!ŸIÏc:èM[ﬂybúÑÌÃìÂµ¥i/√ %;¿Yä]¢¬•¬ùµ|»v0≤ú\\0kp»Ç≤»Ó˝ÎÑZ¸òHaõ4©èI3¯Å]ùícTœîQdsΩÜTd°$2èö&öEZë≈ÎΩHvª∑o(tÆÓOÙ/•∂VËÏAe*`ΩØæå¨7◊°U9ôî9ÿ–sª≈∂°n°Íá
+0 `/*óÅ◊H∂alD|ûƒOíW(Ù‚çÓé{ÑÆ—D¨
+üÔZ“F
+7Ï,⁄›¬m3üµ]éÊ,Jqqp˜÷M‹bçŒ…j•ÑraßÖ“G≥S’Zò˝©ñµˆ9eµSY—™ïö&ÅÜVÕ˙ÕªÕ±ed√àõ—Ì‚©÷ÇïÒúÜΩﬁπIx∫X´æ÷hjß¥Z´rF√ëñ5µçœ/*ß¥jÉ«(çI™y ∞Ü´c–s≥6»]¢ÈC√∑’ÙÀ& ó˙¯rf§ﬂ†rl¢Ëf[2$ÒÙ§˝„o¡§E!_çf˝dU[SV¥6a #qúkµÒJE]≠’[–HB≠-∂˚ä©oÿÏÙn&Ö§õ‰œ£Ïâ)ß≥læÀ4·≈~(HŒL˙≠¶òÃ/>√V™jjì0˙Kß‘6‚;◊ ïÊÎ]í(ÉíeËÆjYhÔÌ)‘Ä¢	≤„º¡Û
+5∏∏∏.ÜÑ•+óíû5f≠–ôú≥<æ ¥_N>}ä¬ Á;ÏŸ_Ø∆Iãj@«8Ê2≈·r˜÷◊@˘«n¶a∂ø$»Ì∏≤π}:00≤G?‡|≈[e»N¥≤∆>%IÏ	á–q‚„ßàË…x Hª
+πâ√≥O	Ù["l'é¥ø$‘ﬁ£≥F$iòåF˚Ñ¨Ô◊˝p>≤˘cﬂ}ﬂπà≥Ò˚F˝p∏t°‡‰Ûßà’óÎ~ Ê›ùå^!oõ&náXî[œ∞q^=êà{ËK£∞l*ˇ)†…›Æ≈¬}ã#⁄v/2∞NàM7‡˛™g≈!¢§º≤PdDÆ–ûixÕí‹=c` ™c≈§˜¸pâ	€ÚQ®ø˜$@<dªïD"fà˜Qø,1˘πìÕ[˛tá
+ëP˙xØ*íÄêI/Ùc=û”Ç0+¸ì«{?ÕiaŒa‡È
+Ô_ò´Ç+¥±Q+@T[©î‘∂∂B2’{iWŒ`X„©JK^WëO∂≤µtì|AMˆƒTÇ±;"∞Â+—ÁËæüéÇW[Ï‰ÆÙ∞˛óx5ﬁ—*®x˙äÁîL+I^Aç”p∂~È°5h=˜∏Õ¿ˇ¶ºˇær˛B∫}N-£<òÇ∑£s˘–WË˜˝åOo?fˆÍ!%4ó∞k˘ì‡XC2y0´¨
+ão¬Q·®Âe÷¥◊ùåjDéÕŒs ßU+X≠x≥¶ÅÒ‹,∞ùW‚Ì¶o‰M“Zå˘»R•ÚËÔ◊B[˘Yí
+	âçöúÊh´ÍlxæÎ¡ˇ&v4∫Œœ–ËbIJø{p'Q#£Zk∆¶O•‚Ëb˜ÁÚuë›W^ûoµA)k⁄ IµÙ0ÖNKk*≠ŒÍ™÷BeD¢√ïÅN±+e√Ë°ë≈“ÌÚ9ÉÏâ©8É¨œûÍ ˘Ö•Jp≤¿!≥|e›ÔQ%q=°;˙-8,jd «ôÎÈ#]\•‹≠åÛlÁ/$Çí‚WM∏æﬁ’˘$¿»£0ÈcõbÒ>‚¿íï äÔ+jˆ£,\,KÖ¥8ô!VÄùi√éªÑ»˚3 9gÏ¶˙Éî`ÇÄÇ\ÉÏõ†ªÑ]fÙfÚäó•µ‰[$Îu©R[¨4håj÷’ï5µ!hgÿu¶Ω`Ó7π‘Zù∆oÁ”h∫ıî&.uYk|B•'–	∫ÖwôDË\@>ú∫Œ ƒÎ^àÔ/ªCêÔÆÉ†÷ÔÍnœì›å=≥;Ô(úÏ˛&|Ìc§áe∏#Èêø“~0◊||q6£'5æ¿ìÇ˘%ïIdü¶úÓ,§zFS⁄u•Voeµ÷‘f[)◊´+“⁄wß« Ó‚AFÿqYD∂ '+·ÄüïOeÀeœﬁh¯≈«cÁÑº<`ê‹KÌù‡GZ±ÀQ„uä5Ç#ÃˇPîæÉâ	NÈƒl%¶¿Ö’3 “oøëÊ‚4Â∏ˆ˚ûª∏∏+˚êo«•lhtıWˇ  ˇˇ Öµ¥,
