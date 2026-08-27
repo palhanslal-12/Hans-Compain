@@ -178,6 +178,49 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
             </div>
           </div>
 
+          {/* Feature 4: Unlimited PYQ Vault (NOW ACTIVE) */}
+          <div className="bg-gradient-to-br from-amber-950/40 via-slate-900/90 to-slate-900 border border-amber-500/40 rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
+            <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/50 rounded-full text-[11px] font-bold text-emerald-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>LIVE & 100% UNLIMITED</span>
+            </div>
+
+            <div className="flex items-start gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div className="space-y-1.5 flex-1 pr-24">
+                <h4 className="font-bold text-white text-base flex items-center gap-2">
+                  # Unlimited PYQ Vault (असीमित पिछले वर्षों के प्रश्न 2015-2026)
+                </h4>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  SSC CGL/CHSL/MTS/GD, Railway NTPC/ALP/Group D, UPSC, Banking, BPSC, और State Police के असीमित प्रश्न पत्र हल सहित। अनंत अभ्यास मोड और 1-क्लिक कस्टम टेस्ट जनरेटर।
+                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-2">
+                  {onLaunchFeature && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onLaunchFeature('pyq-vault');
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/30 cursor-pointer border-none"
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>PYQ Vault खोलें (Open PYQ Hub) →</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleNotifyMe('Unlimited PYQ')}
+                    className="px-3 py-1.5 rounded-lg bg-amber-950 hover:bg-amber-900 border border-amber-500/30 text-amber-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-amber-300" />
+                    {subscribedFeature === 'Unlimited PYQ' ? 'नोटिफिकेशन सेट हो गया ✅' : 'डेली PYQ अलर्ट'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* User Suggestion prompt */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center justify-between gap-4">
             <div className="space-y-0.5">

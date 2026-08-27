@@ -43,14 +43,17 @@ export interface SavedQuizRecord {
 export interface MistakeNotebookItem {
   id: string;
   question: string;
-  options: string[];
-  userAnswerIndex: number;
-  correctAnswerIndex: number;
+  options?: string[];
+  userAnswerIndex?: number;
+  correctAnswerIndex?: number;
+  userAnswer?: string;
+  correctAnswer?: string;
   userAnswerText?: string;
   correctAnswerText?: string;
   explanation: string;
   hint?: string;
-  subject: string;
+  subject?: string;
+  topic?: string;
   level?: string;
   chapter?: string;
   difficulty?: 'standard' | 'moderate' | 'hard' | 'extreme' | string;
