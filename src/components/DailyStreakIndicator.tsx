@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   RotateCcw
 } from 'lucide-react';
+import { getAppShareUrl } from '../utils/shareUtils';
 
 export interface DailyStreakData {
   currentStreak: number;
@@ -223,9 +224,10 @@ export const DailyStreakIndicator: React.FC<DailyStreakIndicatorProps> = ({
   ];
 
   const handleShareStreak = () => {
+    const dynamicUrl = getAppShareUrl();
     const text = language === 'hindi'
-      ? `🔥 मैं HansAI पर ${streakData.currentStreak} दिनों से लगातार अभ्यास कर रहा हूँ! मेरा बेस्ट रिकॉर्ड ${streakData.bestStreak} दिन है। आप भी अपनी पढ़ाई शुरू करें: https://hans-compain.onrender.com/`
-      : `🔥 I'm on a ${streakData.currentStreak}-Day study streak on HansAI! My best record is ${streakData.bestStreak} days. Practice daily and boost your learning: https://hans-compain.onrender.com/`;
+      ? `🔥 मैं HansAI पर ${streakData.currentStreak} दिनों से लगातार अभ्यास कर रहा हूँ! मेरा बेस्ट रिकॉर्ड ${streakData.bestStreak} दिन है। आप भी अपनी पढ़ाई शुरू करें: ${dynamicUrl}`
+      : `🔥 I'm on a ${streakData.currentStreak}-Day study streak on HansAI! My best record is ${streakData.bestStreak} days. Practice daily and boost your learning: ${dynamicUrl}`;
     
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);

@@ -24,11 +24,20 @@ export function getAppShareUrl(tab?: string): string {
       const origin = window.location.origin;
       const href = window.location.href;
 
-      if (origin && origin !== "null" && !origin.includes("about:") && !origin.startsWith("file://")) {
+      if (
+        origin && 
+        origin !== "null" && 
+        !origin.includes("about:") && 
+        !origin.startsWith("file://") &&
+        !origin.includes("googleusercontent") &&
+        !origin.includes("localhost") &&
+        !origin.includes("127.0.0.1") &&
+        !origin.includes("webcontainer")
+      ) {
         // If inside an iframe on googleusercontent or localhost, keep it clean
         baseOrigin = origin;
-      } else if (href && href.startsWith("http")) {
-        baseOrigin = href.split("?")[0].split("#")[0];
+      } else {
+        baseOrigin = FALLBACK_APP_URL;
       }
     } catch {
       baseOrigin = FALLBACK_APP_URL;
