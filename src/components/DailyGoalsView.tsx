@@ -514,59 +514,112 @@ export const DailyGoalsView: React.FC<DailyGoalsViewProps> = ({
       </div>
 
       {/* Filter and Goals List Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
-        {/* Status filters */}
-        <div className="flex items-center gap-1 bg-[#090D18] p-1 rounded-xl border border-slate-800 text-xs font-bold">
-          <button
-            onClick={() => setStatusFilter('all')}
-            className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              statusFilter === 'all' 
-                ? 'bg-indigo-600 text-white shadow-sm' 
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {language === 'hindi' ? 'सभी' : 'All'} ({goals.length})
-          </button>
-          <button
-            onClick={() => setStatusFilter('active')}
-            className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              statusFilter === 'active' 
-                ? 'bg-indigo-600 text-white shadow-sm' 
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {language === 'hindi' ? 'अपूर्ण' : 'Pending'} ({totalCount - completedCount})
-          </button>
-          <button
-            onClick={() => setStatusFilter('completed')}
-            className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              statusFilter === 'completed' 
-                ? 'bg-emerald-600 text-white shadow-sm' 
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {language === 'hindi' ? 'पूर्ण' : 'Completed'} ({completedCount})
-          </button>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-2">
+        {/* Left Side: Category Filter Dropdown & Status Toggle */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Category Filter Dropdown */}
+          <div className="flex items-center gap-1.5 bg-[#090D18] px-3 py-1.5 rounded-xl border border-indigo-500/40 shadow-sm">
+            <Tag className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+            <label htmlFor="category-filter-select" className="text-[11px] font-bold text-indigo-300 uppercase tracking-wide shrink-0">
+              {language === 'hindi' ? 'श्रेणी फ़िल्टर:' : 'Category:'}
+            </label>
+            <select
+              id="category-filter-select"
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="text-xs py-1 px-2 bg-[#0E1528] border border-indigo-500/30 rounded-lg text-white font-bold focus:outline-none focus:border-indigo-400 cursor-pointer"
+            >
+              <option value="all">{language === 'hindi' ? '🌐 All (सभी श्रेणियां)' : '🌐 All Categories'}</option>
+              <option value="GK & Civil">🏛️ GK & Civil</option>
+              <option value="English Rules">📖 English Rules</option>
+              <option value="Quantitative">📐 Quantitative</option>
+              <option value="Reasoning">🧩 Reasoning</option>
+              <option value="Shorthand / Steno">✍️ Shorthand / Steno</option>
+              <option value="Current Affairs">📰 Current Affairs</option>
+              <option value="Healthy Life">🧘 Healthy Life</option>
+              <option value="Science & Tech">🔬 Science & Tech</option>
+            </select>
+          </div>
+
+          {/* Quick Category Toggle Pills */}
+          <div className="hidden lg:flex items-center gap-1">
+            {[
+              { id: 'all', label: 'All', icon: '🌐' },
+              { id: 'GK & Civil', label: 'GK & Civil', icon: '🏛️' },
+              { id: 'English Rules', label: 'English Rules', icon: '📖' },
+              { id: 'Quantitative', label: 'Quantitative', icon: '📐' }
+            ].map(cat => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setFilterCategory(cat.id)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+                  filterCategory === cat.id
+                    ? 'bg-indigo-600 border-indigo-400 text-white shadow-sm'
+                    : 'bg-[#090D18] border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                }`}
+              >
+                <span>{cat.icon} {cat.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Search Input */}
-        <div className="relative">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={language === 'hindi' ? "लक्ष्य खोजें..." : "Search targets..."}
-            className="w-full sm:w-56 text-xs py-1.5 pl-7 pr-3 bg-[#080C16] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-          />
-          <Filter className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
-          {searchQuery && (
+        {/* Right Side: Status filters & Search Input */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Status filters */}
+          <div className="flex items-center gap-1 bg-[#090D18] p-1 rounded-xl border border-slate-800 text-xs font-bold">
             <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1.5 text-slate-500 hover:text-white text-xs"
+              onClick={() => setStatusFilter('all')}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                statusFilter === 'all' 
+                  ? 'bg-indigo-600 text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
             >
-              ×
+              {language === 'hindi' ? 'सभी' : 'All'} ({goals.length})
             </button>
-          )}
+            <button
+              onClick={() => setStatusFilter('active')}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                statusFilter === 'active' 
+                  ? 'bg-indigo-600 text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {language === 'hindi' ? 'अपूर्ण' : 'Pending'} ({totalCount - completedCount})
+            </button>
+            <button
+              onClick={() => setStatusFilter('completed')}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                statusFilter === 'completed' 
+                  ? 'bg-emerald-600 text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {language === 'hindi' ? 'पूर्ण' : 'Completed'} ({completedCount})
+            </button>
+          </div>
+
+          {/* Search Input */}
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={language === 'hindi' ? "लक्ष्य खोजें..." : "Search targets..."}
+              className="w-full sm:w-44 text-xs py-1.5 pl-7 pr-3 bg-[#080C16] border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            />
+            <Filter className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1.5 text-slate-500 hover:text-white text-xs"
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

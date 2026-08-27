@@ -7,7 +7,7 @@ import {
   Pause, Play, Menu, Star, Flag, FileQuestion, SlidersHorizontal, AlertCircle,
   CheckSquare
 } from 'lucide-react';
-import { QuizQuestion, MistakeNotebookItem } from '../types';
+import { QuizQuestion, MistakeNotebookItem, BookmarkedQuestionItem } from '../types';
 
 export interface PYQExamRecord {
   id: string;
@@ -364,8 +364,55 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
 }) => {
   const isHindi = language === 'hindi';
 
-  // Navigation Sub-tabs: 'pyq' | 'practice' | 'custom' | 'mistakes'
-  const [activeTab, setActiveTab] = useState<'pyq' | 'practice' | 'custom' | 'mistakes'>('pyq');
+  // Navigation Sub-tabs: 'pyq' | 'practice' | 'custom' | 'mistakes' | 'bookmarks'
+  const [activeTab, setActiveTab] = useState<'pyq' | 'practice' | 'custom' | 'mistakes' | 'bookmarks'>('pyq');
+  
+  // Bookmarked Questions State (Persisted in localStorage)
+  const [bookmarkedQuestions, setBookmarkedQuestions] = useState<BookmarkedQuestionItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('hans_bookmarked_questions');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Sync Bookmarks to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('hans_bookmarked_questions', JSON.stringify(bookmarkedQuestions));
+    } catch (e) {
+      console.error('Failed to save bookmarks to localStorage', e);
+    }
+  }, [bookmarkedQuestions]);
+
+  // Check if question is bookmarked
+  const isQuestionBookmarked = (qText: string) => {
+    return bookmarkedQuestions.some(item => item.question === qText);
+  };
+
+  // Toggle bookmark for a question
+  const handleToggleBookmark = (q: QuizQuestion, examSubject?: string) => {
+    if (!q || !q.question) return;
+    const existing = isQuestionBookmarked(q.question);
+    if (existing) {
+      setBookmarkedQuestions(prev => prev.filter(item => item.question !== q.question));
+      showToast("🔖 प्रश्न बुकमार्क सूची से हटा दिया गया", "info");
+    } else {
+      const newItem: BookmarkedQuestionItem = {
+        id: `bm_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        question: q.question,
+        options: q.options,
+        answerIndex: q.answerIndex,
+        explanation: q.explanation || 'No explanation available.',
+        hint: q.hint,
+        subject: examSubject || currentExamMeta?.subject || currentExamMeta?.name || 'General Quiz',
+        dateStr: new Date().toLocaleDateString('hi-IN')
+      };
+      setBookmarkedQuestions(prev => [newItem, ...prev]);
+      showToast("⭐ प्रश्न 'Bookmarked Questions' में सुरक्षित सहेजा गया!", "success");
+    }
+  };
   
   // Test State
   const [activeTestMode, setActiveTestMode] = useState<boolean>(false);
@@ -707,8 +754,28 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 </span>
               </div>
 
-              {/* Marks Badges (+2.0 / -0.5) */}
+              {/* Marks Badges (+2.0 / -0.5) & Bookmark Action */}
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleToggleBookmark(currentQ)}
+                  className={`px-3 py-1 rounded-lg border font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                    isQuestionBookmarked(currentQ?.question || '')
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 ring-1 ring-amber-400/30'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700'
+                  }`}
+                  title="Bookmark Question for Later Revision"
+                >
+                  {isQuestionBookmarked(currentQ?.question || '') ? (
+                    <BookmarkCheck className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  ) : (
+                    <Bookmark className="w-3.5 h-3.5 text-slate-400" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {isQuestionBookmarked(currentQ?.question || '') ? 'Bookmarked' : 'Bookmark'}
+                  </span>
+                </button>
+
                 <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-extrabold text-xs font-mono">
                   +{currentExamMeta?.marksPerQ || 2.0}
                 </span>
@@ -1189,6 +1256,24 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                       </span>
                     )}
 
+                    {/* Bookmark Question Toggle */}
+                    <button
+                      onClick={() => handleToggleBookmark(q)}
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1 border ${
+                        isQuestionBookmarked(q.question)
+                          ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40'
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+                      }`}
+                      title="Bookmark Question"
+                    >
+                      {isQuestionBookmarked(q.question) ? (
+                        <BookmarkCheck className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                      ) : (
+                        <Bookmark className="w-3 h-3 text-slate-400" />
+                      )}
+                      <span>{isQuestionBookmarked(q.question) ? 'Bookmarked' : 'Bookmark'}</span>
+                    </button>
+
                     {/* Add to Mistake Notebook */}
                     {!isCorrect && (
                       <button
@@ -1349,6 +1434,18 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
         >
           <BookOpen className="w-4 h-4 text-rose-400" />
           <span>📓 Mistake Diary ({mistakeNotebook.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('bookmarks')}
+          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+            activeTab === 'bookmarks'
+              ? 'border-yellow-400 text-yellow-300'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Bookmark className="w-4 h-4 text-yellow-400" />
+          <span>🔖 Bookmarked Questions ({bookmarkedQuestions.length})</span>
         </button>
       </div>
 
@@ -1715,6 +1812,176 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                       ✓ सही उत्तर: {item.options[item.correctAnswerIndex]}
                     </span>
                     <p className="text-[11px] text-slate-400">{item.explanation}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 4: BOOKMARKED QUESTIONS FOR REVISION */}
+      {activeTab === 'bookmarks' && (
+        <div className="bg-[#0B101D] border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+            <div>
+              <h3 className="font-extrabold text-white text-base sm:text-lg flex items-center gap-2">
+                <Bookmark className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                <span>बुकमार्क प्रश्न रजिस्टर (Bookmarked Questions - {bookmarkedQuestions.length})</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                परीक्षा रिवीजन के लिए आपके द्वारा सहेजे गए महत्वपूर्ण व कठिन प्रश्न।
+              </p>
+            </div>
+
+            {bookmarkedQuestions.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => {
+                    const bmQuestions: QuizQuestion[] = bookmarkedQuestions.map(bm => ({
+                      question: bm.question,
+                      options: bm.options,
+                      answerIndex: bm.answerIndex,
+                      explanation: bm.explanation,
+                      hint: bm.hint
+                    }));
+                    setTestQuestions(bmQuestions);
+                    setCurrentTestTitle("Revision Test: Bookmarked Questions");
+                    setCurrentExamMeta({
+                      name: "Bookmarked Revision Test",
+                      date: new Date().toLocaleDateString('hi-IN'),
+                      shift: "Revision Session",
+                      marksPerQ: 2.0,
+                      negMark: 0.5
+                    });
+                    setUserAnswers({});
+                    setMarkedForReview({});
+                    setCurrentQIndex(0);
+                    setTimeRemainingSeconds(bmQuestions.length * 60);
+                    setIsTestSubmitted(false);
+                    setTestResult(null);
+                    setActiveTestMode(true);
+                  }}
+                  className="px-3.5 py-2 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer transition-colors flex items-center gap-1.5"
+                >
+                  <Play className="w-3.5 h-3.5 fill-slate-950" />
+                  <span>Start Bookmark Practice Test ({bookmarkedQuestions.length})</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    const textContent = `BOOKMARKED QUESTIONS REVISION SHEET (${bookmarkedQuestions.length} Questions)\n\n` +
+                      bookmarkedQuestions.map((bm, i) => 
+                        `[Q${i+1}] (${bm.subject || 'General'})\nQuestion: ${bm.question}\nOptions:\n${bm.options.map((o, oi) => `  ${String.fromCharCode(65+oi)}. ${o}`).join('\n')}\nCorrect Answer: ${bm.options[bm.answerIndex]}\nExplanation: ${bm.explanation}\n`
+                      ).join('\n---\n\n');
+                    onExportPdf("Bookmarked-Questions-Revision", "bm-pdf-export", textContent);
+                  }}
+                  className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-300" />
+                  <span>Export PDF</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (window.confirm("क्या आप सभी बुकमार्क किए गए प्रश्नों को हटाना चाहते हैं?")) {
+                      setBookmarkedQuestions([]);
+                      showToast("सभी बुकमार्क हटा दिए गए", "info");
+                    }
+                  }}
+                  className="px-3 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                >
+                  Clear All
+                </button>
+              </div>
+            )}
+          </div>
+
+          {bookmarkedQuestions.length === 0 ? (
+            <div className="p-10 text-center text-slate-400 space-y-3 bg-[#070B14] rounded-2xl border border-slate-800/80">
+              <Bookmark className="w-12 h-12 text-slate-600 mx-auto" />
+              <h4 className="text-base font-bold text-white">कोई भी प्रश्न बुकमार्क नहीं किया गया है</h4>
+              <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                लाइव टेस्ट या PYQ अभ्यास के दौरान किसी भी कठिन या महत्वपूर्ण प्रश्न के पास <strong>Bookmark (🔖)</strong> बटन दबाकर उसे यहाँ सहेजें।
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {bookmarkedQuestions.map((bm, idx) => (
+                <div 
+                  key={bm.id || idx} 
+                  className="p-4 sm:p-5 bg-[#070B14] border border-slate-800 hover:border-yellow-500/40 rounded-2xl space-y-3 transition-all text-xs"
+                >
+                  <div className="flex items-center justify-between text-xs border-b border-slate-800/80 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-lg bg-yellow-500/20 text-yellow-300 font-bold flex items-center justify-center text-[11px]">
+                        #{idx + 1}
+                      </span>
+                      <span className="font-bold text-slate-300">
+                        {bm.subject || 'General Quiz'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {bm.dateStr && (
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          Saved: {bm.dateStr}
+                        </span>
+                      )}
+                      <button
+                        onClick={() => handleToggleBookmark({
+                          question: bm.question,
+                          options: bm.options,
+                          answerIndex: bm.answerIndex,
+                          explanation: bm.explanation
+                        }, bm.subject)}
+                        className="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg font-bold text-[11px] transition-colors cursor-pointer flex items-center gap-1"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Question Text */}
+                  <p className="text-sm sm:text-base font-bold text-white leading-relaxed">
+                    {bm.question}
+                  </p>
+
+                  {/* Options List */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    {bm.options.map((opt, oIdx) => {
+                      const isCorrectOpt = oIdx === bm.answerIndex;
+                      return (
+                        <div
+                          key={oIdx}
+                          className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${
+                            isCorrectOpt
+                              ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-200 font-bold'
+                              : 'bg-slate-900/80 border-slate-800 text-slate-300'
+                          }`}
+                        >
+                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                            isCorrectOpt ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                          }`}>
+                            {String.fromCharCode(65 + oIdx)}
+                          </span>
+                          <span className="flex-1">{opt}</span>
+                          {isCorrectOpt && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Explanation Box */}
+                  <div className="p-3 bg-[#0E1526] rounded-xl border border-slate-800 text-slate-300 space-y-1">
+                    <span className="text-emerald-400 font-bold text-xs flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>सही उत्तर (Correct Answer): {bm.options[bm.answerIndex]}</span>
+                    </span>
+                    <p className="text-xs leading-relaxed text-slate-300">
+                      <strong>व्याख्या (Explanation):</strong> {bm.explanation}
+                    </p>
                   </div>
                 </div>
               ))}

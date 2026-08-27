@@ -224,26 +224,25 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Header Hero Banner */}
-        <div className="bg-gradient-to-r from-rose-950/70 via-[#0A0E1A] to-indigo-950/70 border border-rose-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-rose-400 font-extrabold text-xs uppercase tracking-wider mb-1">
-              <Activity className="w-4 h-4 text-rose-400 animate-pulse" />
+            <div className="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider mb-1">
+              <Activity className="w-4 h-4 text-indigo-400" />
               <span>AI Conceptual Gap & Weak Area Engine</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
               <span>📊</span>
               <span>{isHindi ? "कमज़ोर विषय विश्लेषण एवं सुधार वर्कशीट" : "AI Performance Diagnostic & Weak Area Analytics"}</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
               {isHindi
                 ? "क्विज़ एवं टेस्ट के आधार पर कमज़ोर विषयों की पहचान, वैचारिक अंतराल का विश्लेषण और 3-चरणीय कस्टम वर्कशीट।"
                 : "Identify conceptual gaps from quiz responses and automatically generate customized 3-step revision worksheets."}
             </p>
           </div>
-
           <button
             onClick={handleDownloadWorksheet}
-            className="px-4 py-2.5 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-rose-950/40 cursor-pointer shrink-0"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold text-xs rounded-xl flex items-center gap-2 shadow-sm cursor-pointer shrink-0 transition-colors"
           >
             <Download className="w-4 h-4" />
             <span>{isHindi ? "वर्कशीट PDF डाउनलोड" : "Download Worksheet PDF"}</span>
@@ -251,20 +250,20 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
         </div>
 
         {/* Custom Subject Diagnostic Trigger */}
-        <div className="p-4 bg-[#0A0E1A] border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center gap-3">
+        <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center gap-3">
           <div className="flex-1 w-full relative">
             <input
               type="text"
               value={customSubjectInput}
               onChange={(e) => setCustomSubjectInput(e.target.value)}
               placeholder={isHindi ? "किसी भी विषय/टॉपिक का नाम लिखें (उदा. सिंधु घाटी सभ्यता, Trigonometry, Reasoning)..." : "Enter any subject/topic (e.g. Modern History, Speed Maths, Polity Articles)..."}
-              className="w-full px-4 py-2.5 bg-[#03060E] border border-slate-700 rounded-xl text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-rose-500"
+              className="w-full px-4 py-2.5 bg-[#03060E] border border-slate-700 rounded-xl text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
             />
           </div>
           <button
             onClick={handleGenerateAIAnalysis}
             disabled={isGeneratingWorksheet}
-            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 hover:to-amber-400 text-black font-black text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-50"
+            className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-50 transition-colors"
           >
             <Zap className="w-3.5 h-3.5" />
             <span>{isGeneratingWorksheet ? (isHindi ? "स्कैनिंग..." : "Scanning...") : (isHindi ? "नया टॉपिक डायग्नोस करें" : "Diagnose Topic")}</span>
@@ -278,7 +277,7 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
           <div className="space-y-3">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between px-1">
               <span>{isHindi ? "चिह्नित कमज़ोर विषय" : "Identified Weak Topics"}</span>
-              <span className="text-rose-400">{weakTopics.length} Focus Areas</span>
+              <span className="text-indigo-400">{weakTopics.length} Focus Areas</span>
             </div>
 
             {weakTopics.map((topic) => (
@@ -287,8 +286,8 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
                 onClick={() => setSelectedTopic(topic)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                   selectedTopic.id === topic.id
-                    ? 'bg-[#0E1528] border-rose-500 shadow-xl shadow-rose-950/30'
-                    : 'bg-[#080C16] border-slate-800 hover:border-slate-700 hover:bg-[#0C1220]'
+                    ? 'bg-indigo-950/30 border-indigo-500 shadow-xl shadow-indigo-900/20'
+                    : 'bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
@@ -297,17 +296,15 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
                   </span>
                   <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                     topic.riskLevel === 'critical'
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse'
-                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                      : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
                   }`}>
                     {topic.accuracyRate}% Accuracy
                   </span>
                 </div>
-
                 <h3 className="text-xs sm:text-sm font-bold text-white line-clamp-1">
                   {topic.topic}
                 </h3>
-
                 <p className="text-[11px] text-slate-400 line-clamp-2 mt-1">
                   {topic.gapReason}
                 </p>
@@ -317,11 +314,11 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
 
           {/* Right Column: In-depth Remediation Worksheet */}
           <div className="lg:col-span-2 space-y-5">
-            <div className="p-6 bg-gradient-to-br from-[#0B1020] via-[#080C16] to-[#04060E] border border-rose-500/30 rounded-3xl space-y-5 shadow-2xl">
+            <div className="p-5 sm:p-6 bg-slate-900/50 border border-slate-800 rounded-3xl space-y-5 shadow-xl">
               
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                 <div>
-                  <span className="text-[10px] text-rose-400 font-mono font-bold uppercase tracking-wider">
+                  <span className="text-[10px] text-indigo-400 font-mono font-bold uppercase tracking-wider">
                     {selectedTopic.subject}
                   </span>
                   <h2 className="text-base sm:text-lg font-black text-white mt-0.5">

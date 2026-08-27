@@ -84,3 +84,76 @@ export interface BusinessResult {
   machineryWithSubsidy: number;
   subsidySaved: number;
 }
+
+export interface GroupQuizParticipant {
+  id: string;
+  name: string;
+  avatar: string;
+  score: number;
+  correctCount: number;
+  wrongCount: number;
+  unattemptedCount: number;
+  totalTimeSeconds: number;
+  isHost: boolean;
+  isReady: boolean;
+  isBot?: boolean;
+  lastAnswer?: {
+    questionIndex: number;
+    optionIndex: number;
+    isCorrect: boolean;
+    timeTakenSeconds: number;
+    timestamp: number;
+  };
+  answers: Record<number, {
+    optionIndex: number;
+    isCorrect: boolean;
+    timeTakenSeconds: number;
+  }>;
+}
+
+export interface GroupQuizRoom {
+  id: string; // e.g. "HANS-8921"
+  title: string;
+  subject: string;
+  category: string;
+  hostId: string;
+  hostName: string;
+  status: 'lobby' | 'countdown' | 'in-progress' | 'question-review' | 'podium-finished';
+  currentQuestionIndex: number;
+  timePerQuestion: number; // in seconds (e.g. 15, 30)
+  questionStartTime: number;
+  questions: QuizQuestion[];
+  participants: Record<string, GroupQuizParticipant>;
+  speakerEnabled: boolean;
+  voiceLanguage: 'hindi' | 'english';
+  createdAt: string;
+}
+
+export interface ExamPracticeLeaderboardEntry {
+  id: string;
+  name: string;
+  avatar: string;
+  examTitle: string;
+  subject: string;
+  score: number;
+  totalQuestions: number;
+  correctCount: number;
+  wrongCount: number;
+  timeSpentSeconds: number;
+  accuracy: number;
+  rank?: number;
+  timestamp: string;
+}
+
+export interface BookmarkedQuestionItem {
+  id: string;
+  question: string;
+  options: string[];
+  answerIndex: number;
+  explanation: string;
+  hint?: string;
+  subject?: string;
+  dateStr?: string;
+  examName?: string;
+}
+

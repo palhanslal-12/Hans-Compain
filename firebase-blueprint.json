@@ -105,6 +105,46 @@
         "timestamp": { "type": "string" }
       },
       "required": ["message"]
+    },
+    "GroupQuizRoom": {
+      "title": "GroupQuizRoom",
+      "description": "Real-time multiplayer group quiz room session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "subject": { "type": "string" },
+        "category": { "type": "string" },
+        "hostId": { "type": "string" },
+        "hostName": { "type": "string" },
+        "status": { "type": "string" },
+        "currentQuestionIndex": { "type": "number" },
+        "timePerQuestion": { "type": "number" },
+        "questionStartTime": { "type": "number" },
+        "speakerEnabled": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "hostId", "status"]
+    },
+    "ExamLeaderboardEntry": {
+      "title": "ExamLeaderboardEntry",
+      "description": "Practice set and exam mock leaderboard ranking entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "avatar": { "type": "string" },
+        "examTitle": { "type": "string" },
+        "subject": { "type": "string" },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "correctCount": { "type": "number" },
+        "wrongCount": { "type": "number" },
+        "timeSpentSeconds": { "type": "number" },
+        "accuracy": { "type": "number" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "name", "score", "totalQuestions"]
     }
   },
   "firestore": {
@@ -135,6 +175,14 @@
     "/feedbacks/{feedbackId}": {
       "schema": "StudentFeedback",
       "description": "Platform bug and question correction reports"
+    },
+    "/group_quizzes/{roomId}": {
+      "schema": "GroupQuizRoom",
+      "description": "Multiplayer live group quiz room state"
+    },
+    "/exam_leaderboard/{entryId}": {
+      "schema": "ExamLeaderboardEntry",
+      "description": "Public practice set and test series ranks"
     }
   }
 }

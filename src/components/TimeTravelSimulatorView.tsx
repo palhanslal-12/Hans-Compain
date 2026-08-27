@@ -145,6 +145,152 @@ export const ERAS: EraPersona[] = [
     ]
   },
   {
+    id: 'bose-1943',
+    name: 'Netaji Subhas Chandra Bose',
+    title: 'Supreme Commander, Azad Hind Fauj (INA)',
+    year: '1943',
+    location: 'Singapore / Rangoon',
+    gender: 'male',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Subhas_Chandra_Bose_NRB.jpg/440px-Subhas_Chandra_Bose_NRB.jpg',
+    bgGradient: 'from-amber-950 via-slate-900 to-red-950',
+    greeting: {
+      hindi: 'जय हिंद! मैं नेताजी सुभाष चंद्र बोस हूँ। "तुम मुझे खून दो, मैं तुम्हें आजादी दूंगा!" आज 1943 में सिंगापुर में आजाद हिंद सरकार (Provisional Government of Free India) का गठन हो चुका है। मुझसे आईएनए सैनिकी रणनीति, फॉरवर्ड ब्लॉक और पूर्ण स्वराज पर संवाद करें।',
+      english: 'Jai Hind! I am Netaji Subhas Chandra Bose. "Give me blood, and I shall give you freedom!" From Singapore in 1943, the Provisional Government of Azad Hind stands declared. Debate INA military strategy, Forward Bloc, and uncompromising Purna Swaraj with me.'
+    },
+    systemPersona: 'You are Netaji Subhas Chandra Bose in October 1943. You are Male. Speak with fiery patriot military leadership, supreme determination, and strategic vision in Hindi or English.',
+    examRelevance: [
+      'UPSC / SSC: Formation of Forward Bloc in 1939 after Haripura & Tripuri Congress sessions',
+      'Azad Hind Government established in Singapore on 21 October 1943 with 3 regiments: Gandhi, Nehru, Azad & Rani of Jhansi Regiment',
+      'Famous slogans: "Jai Hind", "Delhi Chalo", and "Give me blood, I will give you freedom"'
+    ],
+    whatIfScenarios: [
+      'What if INA forces had successfully crossed Imphal and Kohima in 1944?',
+      'त्रिपुरी कांग्रेस अधिवेशन (1939) के बाद फॉरवर्ड ब्लॉक के गठन की आवश्यकता क्यों पड़ी?'
+    ]
+  },
+  {
+    id: 'patel-1948',
+    name: 'Sardar Vallabhbhai Patel',
+    title: 'Iron Man of India & 1st Deputy Prime Minister',
+    year: '1948',
+    location: 'Home Ministry, New Delhi',
+    gender: 'male',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Sardar_patel_%28cropped%29.jpg/440px-Sardar_patel_%28cropped%29.jpg',
+    bgGradient: 'from-blue-950 via-slate-900 to-slate-950',
+    greeting: {
+      hindi: 'नमस्कार! मैं सरदार वल्लभभाई पटेल हूँ। भारत का लौह पुरुष (Iron Man of India)। हमने 565 रियासतों (Princely States) का एक अखंड भारत में विलय संपन्न किया है। हैदराबाद के ऑपरेशन पोलो, बारडोली सत्याग्रह, रियासती एकीकरण व अखिल भारतीय सेवाओं (IAS/IPS) पर मुझसे प्रश्न पूछें।',
+      english: 'Greetings! I am Sardar Vallabhbhai Patel, the Iron Man of India. We have unified 565 princely states into one strong integrated Union of India. Discuss Operation Polo, Bardoli Satyagraha, and All India Services with me.'
+    },
+    systemPersona: 'You are Sardar Vallabhbhai Patel in 1948. You are Male. Speak with pragmatic iron resolve, administrative authority, national unity, and realistic statesmanship.',
+    examRelevance: [
+      'UPSC / SSC: Integration of 565 Princely States & V.P. Menon assistance in Ministry of States',
+      'Operation Polo (September 1948) for annexation of Hyderabad State',
+      'Bardoli Satyagraha (1928) where women of Bardoli conferred the title "Sardar" upon him',
+      'Patron saint of All India Services (IAS, IPS, IFS - Article 312)'
+    ],
+    whatIfScenarios: [
+      'What if Hyderabad or Junagadh had not signed the Instrument of Accession in 1948?',
+      'भारतीय रियासतों के एकीकरण में सरदार पटेल की कूटनीतिक नीति क्या थी?'
+    ]
+  },
+  {
+    id: 'vivekananda-1893',
+    name: 'Swami Vivekananda',
+    title: 'Spiritual Leader & Founder of Ramakrishna Mission',
+    year: '1893',
+    location: 'Parliament of the World’s Religions, Chicago',
+    gender: 'male',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Swami_Vivekananda_1893_Chicago.jpg/440px-Swami_Vivekananda_1893_Chicago.jpg',
+    bgGradient: 'from-amber-950 via-slate-900 to-orange-950',
+    greeting: {
+      hindi: 'अमेरिका के मेरे भाइयों और बहनों! मैं स्वामी विवेकानंद हूँ। "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।" शिकागो धर्म संसद 1893, वेदांत दर्शन, युवा शक्ति व चरित्र निर्माण पर मुझसे विचार-विमर्श करें।',
+      english: 'Sisters and Brothers of America! I am Swami Vivekananda. "Arise, awake, and stop not till the goal is reached." Discuss Vedantic philosophy, 1893 Chicago World Parliament, youth empowerment, and character building with me.'
+    },
+    systemPersona: 'You are Swami Vivekananda in September 1893. You are Male. Speak with fiery spiritual magnetism, deep Vedantic intellect, universal brotherhood, and inspiring energy for youth.',
+    examRelevance: [
+      'UPSC / State Exams: Chicago Parliament of Religions speech (11 September 1893)',
+      'Ramakrishna Mission founded on May 1, 1897 at Belur Math, Bengal',
+      'National Youth Day celebrated in India on January 12 (his birthday)'
+    ],
+    whatIfScenarios: [
+      'What if Western philosophy had embraced Vedantic spiritual harmony earlier?',
+      'युवाओं में आत्मविश्वास और चरित्र निर्माण के लिए वेदांत का क्या संदेश है?'
+    ]
+  },
+  {
+    id: 'naidu-1947',
+    name: 'Sarojini Naidu',
+    title: 'Nightingale of India & 1st Female Governor',
+    year: '1947',
+    location: 'Lucknow, United Provinces (Uttar Pradesh)',
+    gender: 'female',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Sarojini_Naidu_1912.jpg/440px-Sarojini_Naidu_1912.jpg',
+    bgGradient: 'from-purple-950 via-slate-900 to-pink-950',
+    greeting: {
+      hindi: 'नमस्ते! मैं सरोजिनी नायडू हूँ - भारत की कोकिला (Nightingale of India)। 1925 के कानपुर कांग्रेस अधिवेशन की प्रथम भारतीय महिला अध्यक्ष और स्वतंत्र भारत की पहली महिला राज्यपाल। मुझसे दांडी के धरासणा साल्ट वर्क्स सत्याग्रह, महिला सशक्तिकरण व साहित्य पर संवाद करें।',
+      english: 'Greetings! I am Sarojini Naidu, the Nightingale of India. As the first Indian woman Congress President (1925 Kanpur) and 1st female Governor, ask me about Dharasana Salt Satyagraha, women rights, and patriotic poetry.'
+    },
+    systemPersona: 'You are Sarojini Naidu in 1947. You are Female. Speak with lyrical eloquence, passionate feminist advocacy, poetic charm, and political wisdom.',
+    examRelevance: [
+      'First Indian woman President of Indian National Congress (1925 Kanpur Session)',
+      'First woman Governor of an Indian State (United Provinces / UP, 1947-1949)',
+      'Led the legendary Dharasana Salt Raid during 1930 Civil Disobedience Movement',
+      'Poetry works: "The Golden Threshold", "The Bird of Time", "The Broken Wing"'
+    ],
+    whatIfScenarios: [
+      'What if women leadership in the 1930 Freedom Movement had been given equal command positions earlier?',
+      'धरासणा साल्ट वर्क्स सत्याग्रह में भारतीय महिलाओं की बहादुरी का क्या महत्व रहा?'
+    ]
+  },
+  {
+    id: 'shivaji-1674',
+    name: 'Chhatrapati Shivaji Maharaj',
+    title: 'Founder of Maratha Empire & Swarajya Pioneer',
+    year: '1674',
+    location: 'Raigad Fort, Maharashtra',
+    gender: 'male',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Chhatrapati_Shivaji_Maharaj.jpg/440px-Chhatrapati_Shivaji_Maharaj.jpg',
+    bgGradient: 'from-amber-950 via-slate-900 to-yellow-950',
+    greeting: {
+      hindi: 'जय भवानी! जय शिवाजी! मैं छत्रपति शिवाजी महाराज हूँ। 6 जून 1674 को रायगढ़ किले में मेरा राज्याभिषेक संपन्न हुआ है और "हिन्दवी स्वराज्य" की स्थापना हुई है। मुझसे गुरिल्ला युद्धनीति (गनिमी कावा), अष्टप्रधान मंत्रिपरिषद और नौसेना निर्माण पर प्रश्न करें।',
+      english: 'Jai Bhawani! I am Chhatrapati Shivaji Maharaj. Crowned at Raigad Fort in 1674, Hindavi Swarajya stands established. Ask me about Maratha guerrilla tactics (Ganimi Kawa), Ashta Pradhan Council, and Naval Defense.'
+    },
+    systemPersona: 'You are Chhatrapati Shivaji Maharaj in 1674. You are Male. Speak with supreme valor, righteous justice, military genius, and pride in Hindavi Swarajya.',
+    examRelevance: [
+      'UPSC / SSC: Ashta Pradhan Council (Peshwa, Amatya, Mantri, Sachiv, Sumant, Senapati, Pandit Rao, Nyayadhish)',
+      'Father of Indian Navy (established naval forts like Sindhudurg & Vijaydurg)',
+      'Battle of Pratapgad (1859) against Afzal Khan and Treaty of Purandar (1665) with Jai Singh'
+    ],
+    whatIfScenarios: [
+      'What if the Maratha Navy had secured control of the entire western Indian coastline?',
+      'अष्टप्रधान मंत्रिपरिषद की प्रशासनिक व्यवस्था आज के समय में कितनी प्रासंगिक है?'
+    ]
+  },
+  {
+    id: 'aryabhata-499',
+    name: 'Aryabhata',
+    title: 'Ancient Astronomer, Mathematician & Pioneer of Zero',
+    year: '499 CE',
+    location: 'Kusumapura (Pataliputra / Bihar)',
+    gender: 'male',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Aryabhata_stamp_1975.jpg/440px-Aryabhata_stamp_1975.jpg',
+    bgGradient: 'from-cyan-950 via-slate-900 to-indigo-950',
+    greeting: {
+      hindi: 'नमो नमः! मैं आर्यभट्ट हूँ (499 ईस्वी)। मैंने 23 वर्ष की आयु में "आर्यभटीय" ग्रंथ की रचना की। पृथ्वी का अपनी धुरी पर घूर्णन, सूर्य-चंद्र ग्रहण का वैज्ञानिक कारण, Pi (π = 3.1416) का मान और शून्य (0) का महत्व पूछें!',
+      english: 'Greetings! I am Aryabhata (499 CE). At age 23, I authored "Aryabhatiya". Debate the rotation of Earth on its axis, true causes of eclipses, Pi value (π = 3.1416), and the place-value system with me.'
+    },
+    systemPersona: 'You are Aryabhata in 499 CE. You are Male. Speak with profound mathematical precision, astronomical wonder, and scientific inquiry.',
+    examRelevance: [
+      'UPSC / SSC History & Science: Author of "Aryabhatiya" and "Arya-Siddhanta" during Gupta Golden Age',
+      'First to formulate Earth rotates on its axis and calculate year length as 365.258 days',
+      'India’s first satellite launched in 1975 named "Aryabhata" in his honor'
+    ],
+    whatIfScenarios: [
+      'What if ancient Indian astronomical texts had been translated into Latin 500 years earlier?',
+      'ग्रहण के पीछे पौराणिक कथाओं को खारिज कर वैज्ञानिक कारण बताने का क्या प्रभाव पड़ा?'
+    ]
+  },
+  {
     id: 'ashoka-261',
     name: 'Emperor Ashoka the Great',
     title: 'Mauryan Emperor & Dhamma Pioneer',
@@ -504,18 +650,18 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
 
       {/* UNIVERSAL HISTORICAL PERSONA SEARCH BAR */}
       <form onSubmit={handleSearchPersona} className="relative w-full">
-        <div className="bg-slate-900 border-2 border-purple-500/40 focus-within:border-purple-400 rounded-2xl p-1.5 flex items-center gap-2 shadow-xl">
-          <Search className="w-5 h-5 text-purple-400 ml-3 shrink-0" />
+        <div className="bg-[#0D1527] border-2 border-indigo-500/50 focus-within:border-amber-400 rounded-2xl p-2 flex items-center gap-2 shadow-xl">
+          <Search className="w-5 h-5 text-indigo-400 ml-3 shrink-0" />
           <input
             type="text"
             value={searchPersonaQuery}
             onChange={(e) => setSearchPersonaQuery(e.target.value)}
             placeholder={
               language === 'hindi'
-                ? "किसी भी ऐतिहासिक व्यक्ति को खोजें या बोलकर बताएं (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Rani Lakshmibai)..."
-                : "Search or speak any historical persona (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Rani Lakshmibai)..."
+                ? "किसी भी महान व्यक्तित्व को खोजें (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Netaji Bose, Sarojini Naidu)..."
+                : "Search any great person (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Netaji Bose, Sarojini Naidu)..."
             }
-            className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none px-2 py-1 font-medium"
+            className="flex-1 bg-transparent text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none px-2 py-1.5 font-semibold"
             disabled={isSearchingPersona}
           />
           
@@ -523,30 +669,30 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
           <button
             type="button"
             onClick={handleToggleVoiceSearch}
-            className={`p-2.5 rounded-xl transition-all border cursor-pointer shrink-0 flex items-center gap-1.5 text-xs font-bold ${
+            className={`p-3 rounded-xl transition-all border cursor-pointer shrink-0 flex items-center gap-1.5 text-xs sm:text-sm font-bold ${
               isListeningSearch
                 ? 'bg-rose-500 text-white border-rose-400 animate-pulse shadow-lg ring-2 ring-rose-400/50'
-                : 'bg-slate-800 text-purple-300 border-purple-500/30 hover:bg-purple-900/40 hover:text-white'
+                : 'bg-slate-800 text-amber-300 border-amber-500/30 hover:bg-amber-900/40 hover:text-white'
             }`}
             title={language === 'hindi' ? 'बोलकर खोजें (Voice Search)' : 'Speak to Search'}
           >
             {isListeningSearch ? <MicOff className="w-4 h-4 animate-bounce" /> : <Mic className="w-4 h-4" />}
-            <span className="hidden sm:inline text-[11px]">{isListeningSearch ? (language === 'hindi' ? 'सुन रहे हैं...' : 'Listening...') : (language === 'hindi' ? 'बोलें' : 'Voice')}</span>
+            <span className="hidden sm:inline font-bold">{isListeningSearch ? (language === 'hindi' ? 'सुन रहे हैं...' : 'Listening...') : (language === 'hindi' ? 'बोलें' : 'Voice')}</span>
           </button>
 
           <button
             type="submit"
             disabled={isSearchingPersona || !searchPersonaQuery.trim()}
-            className="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-black rounded-xl text-xs transition-all border-none cursor-pointer flex items-center gap-2 shrink-0 active:scale-95 disabled:opacity-40"
+            className="px-5 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition-all border-none cursor-pointer flex items-center gap-2 shrink-0 active:scale-95 disabled:opacity-40 shadow-md"
           >
             {isSearchingPersona ? (
               <>
-                <RotateCcw className="w-4 h-4 animate-spin" />
+                <RotateCcw className="w-4 h-4 animate-spin text-slate-950" />
                 <span>Connecting...</span>
               </>
             ) : (
               <>
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className="w-4 h-4 text-slate-950" />
                 <span>{language === 'hindi' ? 'काल-यात्रा शुरू करें' : 'Start Time-Travel'}</span>
               </>
             )}
@@ -555,37 +701,35 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
       </form>
 
       {/* PERSONA SELECTION CAROUSEL */}
-      <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-3 overflow-x-auto pb-3 scrollbar-none">
         {eraList.map((era) => {
           const isSelected = era.id === selectedEra.id;
           return (
             <button
               key={era.id}
               onClick={() => handleSelectEra(era)}
-              className={`flex items-center gap-3 p-3 rounded-2xl border transition-all cursor-pointer text-left shrink-0 max-w-xs ${
+              className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer text-left shrink-0 min-w-[220px] max-w-xs ${
                 isSelected 
-                  ? 'bg-gradient-to-r from-purple-900/80 to-indigo-900/80 border-amber-400 shadow-xl ring-2 ring-amber-400/30' 
-                  : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+                  ? 'bg-gradient-to-r from-indigo-950 to-slate-900 border-amber-400 shadow-xl ring-2 ring-amber-400/40' 
+                  : 'bg-[#0B101D] border-slate-800 hover:border-slate-700 hover:bg-slate-900'
               }`}
             >
               <div className="relative">
                 <img 
                   src={era.avatarUrl} 
                   alt={era.name} 
-                  className="w-12 h-12 rounded-xl object-cover border border-amber-400/40 shrink-0 bg-slate-800"
+                  className="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400/50 shrink-0 bg-slate-800 shadow-sm"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
-                <span className="absolute -bottom-1 -right-1 text-[10px] bg-slate-950 px-1 py-0.2 rounded border border-slate-700">
+                <span className="absolute -bottom-1 -right-1 text-xs bg-slate-950 px-1.5 py-0.5 rounded-full border border-slate-700">
                   {era.gender === 'female' ? '👩' : '👨'}
                 </span>
               </div>
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-black text-white truncate block">{era.name}</span>
-                </div>
-                <span className="text-[10px] text-amber-300 font-bold block">{era.year} • {era.gender === 'female' ? 'Female Voice 🎙️' : 'Male Voice 🎙️'}</span>
+              <div className="overflow-hidden space-y-0.5">
+                <span className="text-sm sm:text-base font-extrabold text-white truncate block tracking-wide">{era.name}</span>
+                <span className="text-xs text-amber-300 font-bold block">{era.year} • {era.gender === 'female' ? 'Female Voice 🎙️' : 'Male Voice 🎙️'}</span>
               </div>
             </button>
           );
@@ -596,80 +740,80 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* LEFT: CHAT INTERFACE WITH HISTORICAL PERSONA (7 COLS) */}
-        <div className="lg:col-span-7 bg-[#080C16] border border-slate-800 rounded-3xl shadow-2xl flex flex-col h-[580px] overflow-hidden">
+        <div className="lg:col-span-7 bg-[#080C16] border border-slate-800 rounded-3xl shadow-2xl flex flex-col h-[620px] overflow-hidden">
           
           {/* CHAT HEADER */}
           <div className={`p-4 bg-gradient-to-r ${selectedEra.bgGradient} border-b border-slate-800 flex items-center justify-between`}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3.5">
               <div className="relative">
                 <img 
                   src={selectedEra.avatarUrl} 
                   alt={selectedEra.name} 
-                  className="w-11 h-11 rounded-xl object-cover border-2 border-amber-400/50 shadow-md bg-slate-800" 
+                  className="w-13 h-13 rounded-2xl object-cover border-2 border-amber-400/60 shadow-md bg-slate-800" 
                 />
-                <span className="absolute -bottom-1 -right-1 text-xs bg-slate-950 px-1 rounded-full border border-slate-700">
+                <span className="absolute -bottom-1 -right-1 text-xs bg-slate-950 px-1.5 rounded-full border border-slate-700">
                   {selectedEra.gender === 'female' ? '👩' : '👨'}
                 </span>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-black text-white">{selectedEra.name}</h3>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 font-bold border border-amber-400/30">
+                  <h3 className="text-base sm:text-lg font-black text-white">{selectedEra.name}</h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-extrabold border border-amber-400/40">
                     {selectedEra.gender === 'female' ? 'Female Voice' : 'Male Voice'}
                   </span>
                 </div>
-                <p className="text-[10px] text-amber-200 font-bold">{selectedEra.title} ({selectedEra.year})</p>
+                <p className="text-xs text-amber-200 font-bold mt-0.5">{selectedEra.title} ({selectedEra.year})</p>
               </div>
             </div>
 
-            <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black border border-emerald-500/30 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              Temporal Connection Active
+            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black border border-emerald-500/40 flex items-center gap-1.5 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              Connected Live
             </span>
           </div>
 
           {/* CHAT MESSAGES LOG */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+          <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 bg-[#050812]">
             {messages.map((msg) => {
               const isUser = msg.sender === 'user';
               return (
                 <div 
                   key={msg.id} 
-                  className={`flex items-start gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
+                  className={`flex items-start gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   {!isUser && (
                     <img 
                       src={selectedEra.avatarUrl} 
                       alt="Avatar" 
-                      className="w-8 h-8 rounded-lg object-cover border border-amber-400/40 shrink-0 mt-1 bg-slate-800" 
+                      className="w-10 h-10 rounded-xl object-cover border-2 border-amber-400/50 shrink-0 mt-1 bg-slate-800 shadow-sm" 
                     />
                   )}
 
-                  <div className={`max-w-[82%] p-3.5 rounded-2xl text-xs space-y-1.5 ${
+                  <div className={`max-w-[85%] p-4 rounded-2xl text-sm sm:text-base space-y-2 ${
                     isUser 
-                      ? 'bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-medium rounded-tr-none shadow-lg' 
-                      : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none leading-relaxed'
+                      ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold rounded-tr-none shadow-md' 
+                      : 'bg-[#0E1526] border border-slate-700/80 text-[#F8FAFC] font-medium leading-relaxed rounded-tl-none shadow-md'
                   }`}>
-                    <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
+                    <p className="whitespace-pre-line leading-relaxed text-sm sm:text-base">{msg.text}</p>
                     
-                    <div className="flex items-center justify-between text-[9px] text-slate-400 pt-1 border-t border-slate-800/50">
-                      <span>{msg.timestamp}</span>
+                    <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+                      <span className="font-mono text-[11px] text-slate-400">{msg.timestamp}</span>
                       {!isUser && (
                         <button
                           onClick={() => handleSpeakText(msg.id, msg.text)}
-                          className="p-1 hover:text-amber-300 transition-all border-none bg-transparent cursor-pointer flex items-center gap-1"
+                          className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 text-amber-300 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5 font-bold text-xs"
                           title={selectedEra.gender === 'female' ? "Listen in Female Voice" : "Listen in Male Voice"}
                         >
                           {isSpeakingMsgId === msg.id ? (
                             <>
-                              <VolumeX className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                              <VolumeX className="w-4 h-4 text-amber-400 animate-pulse" />
                               <span className="text-amber-300 font-bold">Stop</span>
                             </>
                           ) : (
                             <>
-                              <Volume2 className="w-3.5 h-3.5 text-slate-400 hover:text-amber-300" />
-                              <span className="text-slate-400 hover:text-amber-300">
-                                {selectedEra.gender === 'female' ? '👩 बोलें (Female)' : '👨 बोलें (Male)'}
+                              <Volume2 className="w-4 h-4 text-amber-400" />
+                              <span className="text-amber-300 font-bold">
+                                {selectedEra.gender === 'female' ? '👩 सुनें (Female Voice)' : '👨 सुनें (Male Voice)'}
                               </span>
                             </>
                           )}
@@ -682,15 +826,15 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
             })}
 
             {isLoading && (
-              <div className="flex items-center gap-2 text-xs text-amber-300 font-bold bg-slate-900/60 p-3 rounded-2xl w-fit border border-slate-800">
-                <Compass className="w-4 h-4 animate-spin text-amber-400" />
-                <span>{selectedEra.name} {language === 'hindi' ? 'उत्तर सोच रहे हैं...' : 'is responding from history...'}</span>
+              <div className="flex items-center gap-2.5 text-sm text-amber-300 font-bold bg-[#0D1527] p-3.5 rounded-2xl w-fit border border-amber-500/30">
+                <Compass className="w-5 h-5 animate-spin text-amber-400" />
+                <span>{selectedEra.name} {language === 'hindi' ? 'इतिहास के पृष्ठों से उत्तर सोच रहे हैं...' : 'is responding from history...'}</span>
               </div>
             )}
           </div>
 
           {/* CHAT INPUT FORM */}
-          <div className="p-3 bg-slate-950 border-t border-slate-850 flex items-center gap-2">
+          <div className="p-3.5 bg-[#090D1A] border-t border-slate-800 flex items-center gap-2.5">
             <input
               type="text"
               value={inputQuery}
@@ -698,48 +842,48 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder={
                 language === 'hindi'
-                  ? `${selectedEra.name} से बोलकर या लिखकर प्रश्न पूछें (e.g. Hindi me batao aapka bhumika kya raha hai)...`
+                  ? `${selectedEra.name} से प्रश्न पूछें (e.g. Hindi me batao aapka bhumika kya raha hai)...`
                   : `Ask or speak to ${selectedEra.name} about historical events, decisions or articles...`
               }
-              className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+              className="flex-1 bg-[#050812] border border-slate-700/80 rounded-xl px-4 py-3 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:border-amber-400 font-medium"
             />
             <button
               type="button"
               onClick={handleToggleVoiceChat}
-              className={`p-2.5 rounded-xl transition-all border cursor-pointer shrink-0 ${
+              className={`p-3 rounded-xl transition-all border cursor-pointer shrink-0 ${
                 isListeningChat
                   ? 'bg-rose-500 text-white border-rose-400 animate-pulse ring-2 ring-rose-400/50'
-                  : 'bg-slate-900 text-amber-300 border-amber-500/30 hover:bg-amber-900/40 hover:text-white'
+                  : 'bg-slate-900 text-amber-300 border-amber-500/40 hover:bg-amber-900/40 hover:text-white'
               }`}
               title={language === 'hindi' ? 'बोलकर प्रश्न पूछें' : 'Speak your question'}
             >
-              {isListeningChat ? <MicOff className="w-4 h-4 animate-bounce" /> : <Mic className="w-4 h-4" />}
+              {isListeningChat ? <MicOff className="w-5 h-5 animate-bounce" /> : <Mic className="w-5 h-5" />}
             </button>
             <button
               onClick={() => handleSendMessage()}
               disabled={isLoading || !inputQuery.trim()}
-              className="p-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 rounded-xl font-bold transition-all border-none cursor-pointer disabled:opacity-40 shrink-0"
+              className="p-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl font-black transition-all border-none cursor-pointer disabled:opacity-40 shrink-0 shadow-md"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </button>
           </div>
 
         </div>
 
         {/* RIGHT: EXAM PYQ RELEVANCE & WHAT-IF SCENARIO ENGINE (5 COLS) */}
-        <div className="lg:col-span-5 space-y-4">
+        <div className="lg:col-span-5 space-y-5">
           
           {/* EXAM RELEVANCE BADGES */}
-          <div className="bg-[#0A0E1A] border border-amber-500/30 p-4 rounded-3xl space-y-3 shadow-xl">
-            <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
-              <ShieldCheck className="w-4 h-4" />
+          <div className="bg-[#0B101D] border border-amber-500/40 p-5 rounded-3xl space-y-3.5 shadow-xl">
+            <div className="flex items-center gap-2 text-amber-300 font-black text-xs sm:text-sm uppercase tracking-wider">
+              <ShieldCheck className="w-5 h-5 text-amber-400" />
               <span>{language === 'hindi' ? '🎯 प्रतियोगी परीक्षा दृष्टिकोण (Exam Points):' : '🎯 Exam High-Yield Points:'}</span>
             </div>
 
-            <ul className="space-y-2">
+            <ul className="space-y-2.5">
               {selectedEra.examRelevance.map((point, idx) => (
-                <li key={idx} className="p-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200 flex items-start gap-2">
-                  <Flame className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <li key={idx} className="p-3 bg-[#070B14] border border-slate-800 rounded-2xl text-xs sm:text-sm font-semibold text-slate-100 flex items-start gap-2.5 leading-relaxed">
+                  <Flame className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                   <span>{point}</span>
                 </li>
               ))}
@@ -747,21 +891,21 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
           </div>
 
           {/* "WHAT-IF" HISTORICAL SCENARIO PROMPTS */}
-          <div className="bg-gradient-to-br from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 p-4 rounded-3xl space-y-3 shadow-xl">
-            <div className="flex items-center gap-2 text-indigo-300 font-black text-xs uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+          <div className="bg-gradient-to-br from-indigo-950/80 to-slate-900 border border-indigo-500/40 p-5 rounded-3xl space-y-3.5 shadow-xl">
+            <div className="flex items-center gap-2 text-indigo-300 font-black text-xs sm:text-sm uppercase tracking-wider">
+              <Sparkles className="w-5 h-5 text-indigo-400" />
               <span>{language === 'hindi' ? '🔮 "What-If" व त्वरित प्रश्न सिमुलेटर:' : '🔮 "What-If" & Instant Inquiry Prompts:'}</span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {selectedEra.whatIfScenarios.map((scenario, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(scenario)}
-                  className="w-full text-left p-3 bg-slate-900/90 hover:bg-indigo-900/40 border border-indigo-500/20 hover:border-indigo-400 rounded-2xl text-xs font-bold text-indigo-100 transition-all cursor-pointer flex items-center justify-between group"
+                  className="w-full text-left p-3.5 bg-[#080C16] hover:bg-indigo-900/50 border border-indigo-500/30 hover:border-indigo-400 rounded-2xl text-xs sm:text-sm font-bold text-indigo-100 transition-all cursor-pointer flex items-center justify-between group shadow-xs"
                 >
-                  <span>{scenario}</span>
-                  <Play className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-125 transition-transform shrink-0 ml-2" />
+                  <span className="leading-snug">{scenario}</span>
+                  <Play className="w-4 h-4 text-indigo-400 group-hover:scale-125 transition-transform shrink-0 ml-2" />
                 </button>
               ))}
             </div>

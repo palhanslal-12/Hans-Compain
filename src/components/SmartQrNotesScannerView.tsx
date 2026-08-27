@@ -4,6 +4,7 @@ import { QrCode, Camera, Upload, Sparkles, CheckCircle2, Copy, ArrowRight, BookO
 interface SmartQrNotesScannerViewProps {
   onAskAiQuestion?: (q: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
+  language?: string;
 }
 
 const SAMPLE_DEMO_QRS = [
@@ -27,7 +28,8 @@ const SAMPLE_DEMO_QRS = [
   }
 ];
 
-export const SmartQrNotesScannerView: React.FC<SmartQrNotesScannerViewProps> = ({ onAskAiQuestion, showToast }) => {
+export const SmartQrNotesScannerView: React.FC<SmartQrNotesScannerViewProps> = ({ onAskAiQuestion, showToast, language = 'hindi' }) => {
+  const isHindi = language === 'hindi';
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [isScanningLive, setIsScanningLive] = useState(false);
   const [analyzingImage, setAnalyzingImage] = useState(false);
@@ -35,7 +37,7 @@ export const SmartQrNotesScannerView: React.FC<SmartQrNotesScannerViewProps> = (
 
   const handleSimulateScan = (data: string) => {
     setScanResult(data);
-    showToast("QR कोड सफलतापूर्वक स्कैन हुआ! 🎯", "success");
+    showToast(isHindi ? "QR कोड सफलतापूर्वक स्कैन हुआ! 🎯" : "QR Code successfully scanned! 🎯", "success");
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,23 +49,26 @@ export const SmartQrNotesScannerView: React.FC<SmartQrNotesScannerViewProps> = (
       setAnalyzingImage(false);
       const simulatedResult = `[QR DETECTED FROM ${file.name.toUpperCase()}]: Indian Polity Article 32 (Right to Constitutional Remedies) called Heart & Soul of Constitution by Dr. B.R. Ambedkar. Supreme Court issues 5 writs: Habeas Corpus, Mandamus, Prohibition, Quo-Warranto, Certiorari.`;
       setScanResult(simulatedResult);
-      showToast("इमेज से क्वेश्चन/QR कोड सफलतापूर्वक पढ़ा गया!", "success");
+      showToast(isHindi ? "इमेज से क्वेश्चन/QR कोड सफलतापूर्वक पढ़ा गया!" : "Question/QR code successfully extracted from image!", "success");
     }, 1200);
   };
 
   const handleCopy = () => {
     if (!scanResult) return;
     navigator.clipboard.writeText(scanResult);
-    showToast("टेक्स्ट क्लिपबोर्ड में कॉपी हो गया! 📋", "success");
+    showToast(isHindi ? "टेक्स्ट क्लिपबोर्ड में कॉपी हो गया! 📋" : "Text copied to clipboard! 📋", "success");
   };
 
   const handleSendToAi = () => {
     if (!scanResult) return;
     if (onAskAiQuestion) {
-      onAskAiQuestion(`कृपया इस स्कैन किए गए प्रश्न/नोट्स की पूरी व्याख्या हिंदी और इंग्लिश में बताएं:\n${scanResult}`);
-      showToast("HansAI Companion में प्रश्न भेजा गया! 🚀", "success");
+      onAskAiQuestion(isHindi 
+        ? `कृपया इस स्कैन किए गए प्रश्न/नोट्स की पूरी व्याख्या हिंदी और इंग्लिश में बताएं:\n${scanResult}`
+        : `Please explain this scanned question/note thoroughly in English and Hindi:\n${scanResult}`
+      );
+      showToast(isHindi ? "HansAI Companion में प्रश्न भेजा गया! 🚀" : "Question sent to HansAI Companion! 🚀", "success");
     } else {
-      showToast("HansAI को भेजा गया!", "info");
+      showToast(isHindi ? "HansAI को भेजा गया!" : "Sent to HansAI!", "info");
     }
   };
 

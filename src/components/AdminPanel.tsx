@@ -66,6 +66,8 @@ interface AdminPanelProps {
   setAdminPasswordSecret: (val: string) => void;
   adminAuditLogs: any[];
   onOpenDiagnostics?: () => void;
+  language?: string;
+  onBackToChat?: () => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
@@ -91,7 +93,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   setAdminPasswordSecret,
   adminAuditLogs,
   onOpenDiagnostics,
+  language = 'hindi',
+  onBackToChat,
 }) => {
+  const isHindi = language === 'hindi';
   const [adminActiveTab, setAdminActiveTab] = useState<AdminTabType>('dashboard');
   const [ownerUserSearchQuery, setOwnerUserSearchQuery] = useState('');
   const [ownerUserTypeFilter, setOwnerUserTypeFilter] = useState<'all' | 'registered' | 'visitors' | 'active_today'>('all');
@@ -201,25 +206,34 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         </div>
 
         <div className="flex items-center gap-2 self-end md:self-auto">
+          {onBackToChat && (
+            <button
+              onClick={onBackToChat}
+              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <span>← {isHindi ? 'होम / चैट' : 'Back to App'}</span>
+            </button>
+          )}
+
           <button
             onClick={fetchOwnerAnalytics}
             disabled={isOwnerAnalyticsLoading}
             className="px-3.5 py-2 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isOwnerAnalyticsLoading ? 'animate-spin' : ''}`} />
-            <span>{isOwnerAnalyticsLoading ? 'Syncing...' : 'Sync Firestore'}</span>
+            <span>{isOwnerAnalyticsLoading ? (isHindi ? 'सिंक हो रहा...' : 'Syncing...') : (isHindi ? 'डेटा सिंक' : 'Sync Firestore')}</span>
           </button>
 
           <button
             onClick={() => {
               setIsOwnerAuthenticated(false);
               addAdminAuditLog("Admin Console Locked", "Security");
-              showToast("Admin Console Locked 🔒", "info");
+              showToast(isHindi ? "ओनर एडमिन कंसोल लॉक किया गया 🔒" : "Admin Console Locked 🔒", "info");
             }}
             className="px-3.5 py-2 bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white border border-amber-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <Lock className="w-3.5 h-3.5" />
-            <span>Lock Console 🔒</span>
+            <span>{isHindi ? 'कंसोल लॉक करें 🔒' : 'Lock Console 🔒'}</span>
           </button>
         </div>
       </div>

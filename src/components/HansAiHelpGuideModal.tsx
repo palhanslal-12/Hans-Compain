@@ -253,7 +253,7 @@ export function HansAiHelpGuideModal({
       {
         id: 'msg-init-1',
         sender: 'bot',
-        text: '🙏 **नमस्ते! मैं HansAI स्मार्ट हेल्प व समाधान सहायक (A8 Multi-Lingual Assistant) हूँ।**\n\nकृपया नीचे अपनी पसंद की भाषा चुनें और जिस विषय में सहायता चाहिए उस विकल्प पर क्लिक करें, या सीधे नीचे अपना सवाल लिखें:',
+        text: '🙏 **नमस्ते! मैं HANS COMPAIN स्मार्ट सहायता केंद्र (A8 Multi-Lingual Assistant) हूँ।**\n\nकृपया नीचे अपनी पसंद की भाषा चुनें और जिस विषय में सहायता चाहिए उस विकल्प पर क्लिक करें, या सीधे नीचे अपना सवाल लिखें:',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ];
@@ -379,7 +379,7 @@ export function HansAiHelpGuideModal({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-1.5">
-                  <span>HansAI A8 स्मार्ट समस्या समाधान असिस्टेंट</span>
+                  <span>HANS COMPAIN स्मार्ट सहायता एवं निर्देशिका</span>
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-indigo-300 text-[10px] font-black border border-indigo-500/40">
                   A8 Multi-Lang

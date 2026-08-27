@@ -496,7 +496,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
   const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'assistant'; content: string; sourceRef?: string }[]>([
     {
       role: 'assistant',
-      content: 'नमस्ते! मैं आपका HansAI Book Study Assistant हूँ। अपनी चुनी हुई किताब से कोई भी सवाल पूछें, या दिए गए Study Tools का उपयोग करें।'
+      content: 'नमस्ते! मैं आपका HANS COMPAIN Book Study Assistant हूँ। अपनी चुनी हुई किताब से कोई भी सवाल पूछें, या दिए गए Study Tools का उपयोग करें।'
     }
   ]);
   const [aiInput, setAiInput] = useState('');
@@ -1544,7 +1544,7 @@ Structure the response into:
                     "{searchQuery}" पुस्तक खोज रहे हैं?
                   </h3>
                   <p className="text-xs text-slate-300 max-w-xl">
-                    HansAI AI Book Engine हिंदी या अंग्रेजी की किसी भी उपन्यास, कहानी, जीवनी, विज्ञान या साहित्य पुस्तक "{searchQuery}" के सभी अध्याय, सारांश व मुख्य बिंदु तुरंत तैयार कर देगा।
+                    HANS COMPAIN AI Book Engine हिंदी या अंग्रेजी की किसी भी उपन्यास, कहानी, जीवनी, विज्ञान या साहित्य पुस्तक "{searchQuery}" के सभी अध्याय, सारांश व मुख्य बिंदु तुरंत तैयार कर देगा।
                   </p>
                 </div>
                 <button
@@ -1875,7 +1875,7 @@ Structure the response into:
                   }`}
                 >
                   <div className="flex items-center justify-between text-[10px] font-bold opacity-70">
-                    <span>{msg.role === 'user' ? '👤 Student' : '🤖 HansAI Study Assistant'}</span>
+                    <span>{msg.role === 'user' ? '👤 Student' : '🤖 HANS COMPAIN Study Assistant'}</span>
                     {msg.sourceRef && <span className="text-amber-400 font-mono">{msg.sourceRef}</span>}
                   </div>
                   <div className="prose prose-invert max-w-none text-xs whitespace-pre-wrap leading-relaxed">
@@ -1905,7 +1905,7 @@ Structure the response into:
                   type="text"
                   value={aiInput}
                   onChange={(e) => setAiInput(e.target.value)}
-                  placeholder={`Ask HansAI anything about "${activeChapter.title.slice(0, 30)}..."`}
+                  placeholder={`Ask HANS COMPAIN anything about "${activeChapter.title.slice(0, 30)}..."`}
                   className="w-full pl-4 pr-24 py-3 bg-[#050811] border border-slate-800 rounded-2xl text-xs text-white focus:outline-none focus:border-amber-500"
                 />
                 <button
@@ -1932,7 +1932,7 @@ Structure the response into:
             </span>
             <h2 className="text-xl font-black text-white">Active Recall & Self-Testing Engine</h2>
             <p className="text-xs text-slate-400">
-              Test your conceptual understanding without looking at the textbook. HansAI will evaluate your answer.
+              Test your conceptual understanding without looking at the textbook. HANS COMPAIN will evaluate your answer.
             </p>
           </div>
 
@@ -1999,7 +1999,7 @@ Structure the response into:
                 <div className="p-5 bg-slate-900/90 border border-amber-500/40 rounded-2xl space-y-2 animate-fade-in">
                   <span className="text-xs font-black uppercase text-amber-400 flex items-center gap-1">
                     <Brain className="w-4 h-4" />
-                    HansAI Evaluation & Feedback:
+                    HANS COMPAIN Evaluation & Feedback:
                   </span>
                   <div className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
                     {recallFeedback}

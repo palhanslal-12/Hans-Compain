@@ -38,6 +38,7 @@ import {
   VolumeX,
   Mic,
   MicOff,
+  Languages,
   Copy,
   Trash2,
   Folder,
@@ -99,6 +100,7 @@ import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { UnlimitedPyqVaultView } from './components/UnlimitedPyqVaultView';
 import { CurrentAffairsHubView } from './components/CurrentAffairsHubView';
 import { SmartQrNotesScannerView } from './components/SmartQrNotesScannerView';
+import { LiveGroupQuizStudio } from './components/LiveGroupQuizStudio';
 import { AcademicQuizStudio } from './components/AcademicQuizStudio';
 import { Message, QuizQuestion, SavedQuizRecord, MistakeNotebookItem, BusinessCalculation, BusinessResult } from './types';
 import { HELP_TOPICS, PITMAN_STROKES, PRESET_MOTIVATIONAL_RAPS } from './constants';
@@ -106,6 +108,7 @@ import AboutCreator from './components/AboutCreator';
 import { StudyPlanView } from './components/StudyPlanView';
 import { FlashcardsView } from './components/FlashcardsView';
 import { AdminPanel } from './components/AdminPanel';
+import { AdminLockScreen } from './components/AdminLockScreen';
 import { PhotoDoubtView } from './components/PhotoDoubtView';
 import { SecurityHubView } from './components/SecurityHubView';
 import { AuthModals } from './components/AuthModals';
@@ -378,101 +381,118 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
 const QuantumSwanLogo = ({ 
   className = "w-12 h-12 sm:w-14 sm:h-14", 
   showLightBg = true,
-  containerClassName = ""
+  containerClassName = "",
+  showBrandText = true
 }: { 
   className?: string; 
   showLightBg?: boolean;
   containerClassName?: string;
+  showBrandText?: boolean;
 }) => {
   const svgLogo = (
-    <svg viewBox="0 0 200 200" className={`${className} transition-transform duration-500 hover:rotate-6`} xmlns="http://www.w3.org/2000/svg" id="hans-app-official-logo">
+    <svg 
+      viewBox="0 0 220 220" 
+      className={`${className} transition-transform duration-500 hover:scale-105`} 
+      xmlns="http://www.w3.org/2000/svg" 
+      id="hans-compain-official-logo"
+    >
       <defs>
-        <linearGradient id="hansCircleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0284C7" />
-          <stop offset="50%" stopColor="#2563EB" />
-          <stop offset="100%" stopColor="#22C55E" />
-        </linearGradient>
-        <linearGradient id="hansHGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#38BDF8" />
-          <stop offset="40%" stopColor="#0284C7" />
-          <stop offset="100%" stopColor="#1E40AF" />
-        </linearGradient>
-        <linearGradient id="hansBookGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#38BDF8" />
+        {/* Blue 3D Gradients for H & Swan */}
+        <linearGradient id="hcBlueGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#2563EB" />
           <stop offset="50%" stopColor="#0284C7" />
-          <stop offset="100%" stopColor="#1D4ED8" />
-        </linearGradient>
-        <linearGradient id="hansCapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1E293B" />
-          <stop offset="50%" stopColor="#0F172A" />
           <stop offset="100%" stopColor="#1E3A8A" />
         </linearGradient>
-        <linearGradient id="hansLeafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4ADE80" />
-          <stop offset="100%" stopColor="#16A34A" />
+        <linearGradient id="hcBlueGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#38BDF8" />
+          <stop offset="60%" stopColor="#1D4ED8" />
+          <stop offset="100%" stopColor="#0F172A" />
         </linearGradient>
+        {/* Green Gradients for Book Pages & Feather Wing */}
+        <linearGradient id="hcGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4ADE80" />
+          <stop offset="50%" stopColor="#22C55E" />
+          <stop offset="100%" stopColor="#15803D" />
+        </linearGradient>
+        {/* Soft Drop Shadow Filter */}
+        <filter id="hcLogoDropShadow" x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#0284C7" floodOpacity="0.2" />
+        </filter>
       </defs>
 
-      {/* Outer Arc Frame */}
-      <path
-        d="M 42 138 C 18 122 18 62 55 28 C 95 -6 160 18 168 70 C 173 100 152 135 125 145"
-        fill="none"
-        stroke="url(#hansCircleGrad)"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
+      <g filter="url(#hcLogoDropShadow)">
+        {/* Left vertical bar of H */}
+        <path
+          d="M 52 38 L 72 38 L 72 135 L 52 135 Z"
+          fill="url(#hcBlueGrad1)"
+        />
 
-      {/* Green Leaf Accent on Right */}
-      <g transform="translate(148, 102) rotate(-20)">
-        <path d="M 0 0 C 15 -18 32 -10 28 8 C 12 18 0 10 0 0 Z" fill="url(#hansLeafGrad)" />
-        <path d="M 0 0 C 20 -5 28 8 28 8" fill="none" stroke="#15803D" strokeWidth="1.2" />
-      </g>
-      <g transform="translate(140, 115) rotate(-55)">
-        <path d="M 0 0 C 12 -14 26 -8 22 6 C 10 14 0 8 0 0 Z" fill="url(#hansLeafGrad)" />
-      </g>
+        {/* Right vertical bar of H */}
+        <path
+          d="M 148 38 L 168 38 L 168 135 L 148 135 Z"
+          fill="url(#hcBlueGrad1)"
+        />
 
-      {/* Open Book Base */}
-      <g id="book-base">
+        {/* Swan Neck & Head sweeping gracefully across */}
         <path
-          d="M 38 138 Q 70 128 100 145 Q 100 135 70 120 Q 38 128 38 138 Z"
-          fill="url(#hansBookGrad)"
+          d="M 68 112 C 68 65 112 45 130 62 C 140 71 132 88 120 82 C 108 76 88 85 88 108 L 148 108 L 148 124 L 68 124 Z"
+          fill="url(#hcBlueGrad2)"
         />
-        <path
-          d="M 35 142 Q 70 130 100 148 L 100 145 Q 70 128 38 138 Q 35 142 35 142 Z"
-          fill="#0284C7"
-        />
-        <path
-          d="M 162 138 Q 130 128 100 145 Q 100 135 130 120 Q 162 128 162 138 Z"
-          fill="url(#hansBookGrad)"
-        />
-        <path
-          d="M 165 142 Q 130 130 100 148 L 100 145 Q 130 128 162 138 Q 165 142 165 142 Z"
-          fill="#0284C7"
-        />
-        <path d="M 100 120 L 100 148" stroke="#0F172A" strokeWidth="2.5" />
-      </g>
+        {/* Swan Beak */}
+        <path d="M 130 62 L 138 65 L 130 69 Z" fill="#F59E0B" />
+        {/* Swan Eye */}
+        <circle cx="123" cy="62" r="2" fill="#FFFFFF" />
 
-      {/* Center 'H' Shape with Speech Bubble inside bottom counter */}
-      <g id="letter-h" fill="url(#hansHGrad)">
-        <rect x="71" y="60" width="18" height="66" rx="9" />
-        <rect x="111" y="60" width="18" height="66" rx="9" />
-        <rect x="71" y="80" width="58" height="18" rx="4" />
-        
-        <path
-          d="M 85 96 C 85 90 115 90 115 96 C 115 110 108 118 100 118 C 96 118 92 122 90 124 C 91 120 88 117 85 114 Z"
-          fill="#FFFFFF"
-        />
-        <circle cx="93" cy="103" r="1.8" fill="#0284C7" />
-        <circle cx="100" cy="103" r="1.8" fill="#0284C7" />
-        <circle cx="107" cy="103" r="1.8" fill="#0284C7" />
-      </g>
+        {/* Green Open Book Wings on Right side of H */}
+        <g id="green-book-feathers">
+          <path
+            d="M 148 65 Q 188 50 198 82 Q 168 92 148 108 Z"
+            fill="url(#hcGreenGrad)"
+          />
+          <path
+            d="M 148 78 Q 180 68 190 95 Q 164 100 148 115 Z"
+            fill="#16A34A"
+            opacity="0.95"
+          />
+          <path
+            d="M 148 92 Q 172 85 180 106 Q 160 110 148 122 Z"
+            fill="#4ADE80"
+          />
+        </g>
 
-      {/* Graduation Cap at Top */}
-      <g id="graduation-cap">
-        <polygon points="100,32 142,48 100,64 58,48" fill="url(#hansCapGrad)" stroke="#38BDF8" strokeWidth="1" />
-        <path d="M 78 55 L 78 63 C 78 69 122 69 122 63 L 122 55 Z" fill="#0F172A" />
-        <path d="M 130 50 Q 134 62 132 75" fill="none" stroke="#38BDF8" strokeWidth="2" strokeLinecap="round" />
-        <polygon points="130,73 134,73 135,84 129,84" fill="#38BDF8" />
+        {/* Brand Typography: HANS */}
+        {showBrandText && (
+          <>
+            <text
+              x="110"
+              y="170"
+              textAnchor="middle"
+              fill="#0284C7"
+              fontSize="34"
+              fontWeight="900"
+              fontFamily="system-ui, -apple-system, sans-serif"
+              letterSpacing="3"
+            >
+              HANS
+            </text>
+
+            {/* Sub-brand Typography: — COMPAIN — */}
+            <line x1="22" y1="188" x2="52" y2="188" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" />
+            <text
+              x="110"
+              y="192"
+              textAnchor="middle"
+              fill="#16A34A"
+              fontSize="14"
+              fontWeight="800"
+              fontFamily="system-ui, -apple-system, sans-serif"
+              letterSpacing="3"
+            >
+              COMPAIN
+            </text>
+            <line x1="168" y1="188" x2="198" y2="188" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" />
+          </>
+        )}
       </g>
     </svg>
   );
@@ -480,9 +500,7 @@ const QuantumSwanLogo = ({
   if (!showLightBg) return svgLogo;
 
   return (
-    <div className={`relative inline-flex items-center justify-center p-2.5 sm:p-3.5 rounded-3xl bg-gradient-to-br from-white via-sky-50 to-indigo-100 shadow-[0_0_35px_rgba(56,189,248,0.6)] border-2 border-white/90 transition-all duration-300 hover:scale-[1.20] hover:rotate-3 shrink-0 ${containerClassName}`}>
-      {/* Soft Animated Light Pulse Aura */}
-      <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-sky-400/50 via-cyan-300/40 to-emerald-400/50 blur-lg animate-pulse pointer-events-none" />
+    <div className={`relative inline-flex items-center justify-center p-2 sm:p-2.5 bg-white border border-slate-200/90 rounded-2xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 shrink-0 ${containerClassName}`}>
       <div className="relative z-10 flex items-center justify-center">
         {svgLogo}
       </div>
@@ -547,6 +565,7 @@ export default function App() {
     | 'pyq-vault'
     | 'current-affairs'
     | 'qr-scanner'
+    | 'group-quiz'
   >('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
@@ -805,15 +824,29 @@ export default function App() {
     return saved !== null ? saved === 'true' : true;
   });
 
-  // SCREEN LIGHT / EYE-CARE COLOR MODES (4 Themes: Dark, Warm Yellow, Eco Gray, Cyber Blue)
-  const [screenColorMode, setScreenColorMode] = useState<'dark' | 'warm_yellow' | 'eco_gray' | 'cyber_blue'>(() => {
-    return (localStorage.getItem('hansai-color-mode') as 'dark' | 'warm_yellow' | 'eco_gray' | 'cyber_blue') || 'dark';
+  // SCREEN LIGHT / EYE-CARE COLOR MODES (5 Themes: Dark, Blue-Green Light, Warm Yellow, Eco Gray, Cyber Blue)
+  const [screenColorMode, setScreenColorMode] = useState<'dark' | 'blue_green_light' | 'warm_yellow' | 'eco_gray' | 'cyber_blue'>(() => {
+    return (localStorage.getItem('hansai-color-mode') as any) || 'dark';
   });
 
   const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState<boolean>(false);
 
   // Theme generator based on color modes
   const getThemeClasses = () => {
+    if (screenColorMode === 'blue_green_light') {
+      return {
+        bgMain: "bg-[#F0FDF4] text-slate-900",
+        bgCard: "bg-white border-emerald-500/30 shadow-sm",
+        bgInner: "bg-[#F8FAFC]",
+        border: "border-emerald-500/30",
+        textTitle: "text-blue-900",
+        textMuted: "text-slate-600",
+        sidebar: "bg-white border-r border-blue-500/20",
+        header: "bg-white/95 border-b border-blue-500/20",
+        buttonSecondary: "bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200",
+        inputBg: "bg-white border-emerald-500/40 text-slate-900"
+      };
+    }
     if (screenColorMode === 'warm_yellow') {
       return {
         bgMain: "bg-[#FAF6E9] text-[#4A2810]",
@@ -896,8 +929,10 @@ export default function App() {
   const isAdmin = Boolean(isOwnerUnlocked || (user && (user.email === 'palhanslal4@gmail.com' || user.role === 'owner')));
 
   const handleOpenOwnerDashboard = () => {
-    if (isOwnerUnlocked || (user && (user.email === 'palhanslal4@gmail.com' || user.role === 'owner'))) {
+    if (isOwnerUnlocked) {
       setActiveView('owner-dashboard');
+      fetchOwnerAnalytics();
+      showToast(language === 'hindi' ? "🛡️ ओनर एडमिन डैशबोर्ड खुला!" : "🛡️ Owner Admin Dashboard opened!", "success");
     } else {
       setOwnerPinInput('');
       setIsOwnerPinModalOpen(true);
@@ -913,14 +948,14 @@ export default function App() {
   // ANIMATED SPLASH SCREEN STATE
   const [showSplashScreen, setShowSplashScreen] = useState(false);
   const [splashProgress, setSplashProgress] = useState(10);
-  const [splashStatus, setSplashStatus] = useState("HansAI Neural Engine Init...");
+  const [splashStatus, setSplashStatus] = useState("HANS COMPAIN Engine Init...");
 
   useEffect(() => {
     const steps = [
-      { progress: 35, status: "Loading HansAI Core... / हंस-एआई लोड हो रहा है" },
+      { progress: 35, status: "Loading HANS COMPAIN Core... / लोड हो रहा है" },
       { progress: 65, status: "Preparing Shorthand & SSC Modules..." },
-      { progress: 90, status: "Connecting 1,420 Active Students..." },
-      { progress: 100, status: "Welcome to HansAI! / स्वागतम!" }
+      { progress: 90, status: "Connecting Active Students..." },
+      { progress: 100, status: "Welcome to HANS COMPAIN Shorthand! / स्वागतम!" }
     ];
 
     let currentStep = 0;
@@ -1207,13 +1242,13 @@ export default function App() {
 
     trackVisitorSession();
 
-    // Check deep-link navigation from shared URLs (e.g. ?tab=quiz or ?view=steno)
+    // Check deep-link navigation from shared URLs (e.g. ?tab=quiz or ?view=steno or ?tab=group-quiz)
     try {
       if (typeof window !== 'undefined' && window.location.search) {
         const urlParams = new URLSearchParams(window.location.search);
         const targetTab = urlParams.get('tab') || urlParams.get('view');
         if (targetTab) {
-          const validViews = ['chat', 'newsboard', 'research', 'quiz', 'leaderboard', 'process', 'calculator', 'rap', 'notes', 'timer', 'history', 'goals', 'map', 'soul', 'sarkari-result', 'owner-dashboard', 'feedback', 'planner', 'study-plan', 'flashcards', 'photo-doubt', 'security', 'book-reader', 'notes-ocr', 'photo-ocr', 'neural-map', 'time-travel', 'mnemonics', 'science-lab', 'steno', 'launch-hub', 'article-reader', 'file-converter', 'weather-alerts', 'affiliate-store', 'affiliate', 'mistake-notebook', 'mock-interview', 'performance-analytics'];
+          const validViews = ['chat', 'newsboard', 'research', 'quiz', 'group-quiz', 'pyq-vault', 'current-affairs', 'qr-scanner', 'leaderboard', 'process', 'calculator', 'rap', 'notes', 'timer', 'history', 'goals', 'map', 'soul', 'sarkari-result', 'owner-dashboard', 'feedback', 'planner', 'study-plan', 'flashcards', 'photo-doubt', 'security', 'book-reader', 'notes-ocr', 'photo-ocr', 'neural-map', 'time-travel', 'mnemonics', 'science-lab', 'steno', 'launch-hub', 'article-reader', 'file-converter', 'weather-alerts', 'affiliate-store', 'affiliate', 'mistake-notebook', 'mock-interview', 'performance-analytics'];
           if (validViews.includes(targetTab)) {
             setActiveView(targetTab as any);
             showToast(`Opened shared workspace: ${targetTab.toUpperCase()}`, 'info');
@@ -1222,6 +1257,58 @@ export default function App() {
       }
     } catch (e) {
       console.warn("Could not parse shared deep-link url params", e);
+    }
+
+    // 📰 Daily Current Affairs & Quiz Auto-Notification Trigger
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const lastNotifDate = localStorage.getItem('hansai_last_ca_notif_date');
+      if (lastNotifDate !== todayStr) {
+        localStorage.setItem('hansai_last_ca_notif_date', todayStr);
+        // Dispatch in-app notification to stored list
+        const existingNotifs = (() => {
+          try {
+            const raw = localStorage.getItem('hansai_notifications_v1');
+            return raw ? JSON.parse(raw) : [];
+          } catch {
+            return [];
+          }
+        })();
+
+        const newCaNotif = {
+          id: `ca-daily-${todayStr}`,
+          type: 'exam_alert',
+          title: '📰 Daily Current Affairs & Daily Quiz 2026 Live Updates',
+          message: 'आज के शीर्ष 10 समसामयिकी तथ्य (National, International, Banking & Appointments) और 10-प्रश्न लाइव क्विज़ तैयार है।',
+          timestamp: 'Just now',
+          isRead: false,
+          actionLabel: 'करेंट अफेयर्स देखें',
+          actionTarget: 'current-affairs',
+          badge: 'TODAY CA'
+        };
+
+        const updatedNotifs = [newCaNotif, ...existingNotifs.filter((n: any) => n.id !== newCaNotif.id)].slice(0, 30);
+        localStorage.setItem('hansai_notifications_v1', JSON.stringify(updatedNotifs));
+
+        // Trigger browser notification if permitted
+        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+          try {
+            const notif = new Notification('📰 HansAI - दैनिक करेंट अफेयर्स व क्विज़ अपडेट', {
+              body: 'आज के शीर्ष समसामयिकी प्रश्न व लाइव टेस्ट उपलब्ध हैं। अभी अभ्यास करें और अपना रैंक सुधारें!',
+              icon: '/favicon.ico',
+              badge: '/favicon.ico',
+              tag: `hansai-ca-${todayStr}`
+            });
+            notif.onclick = () => {
+              window.focus();
+              setActiveView('current-affairs');
+              notif.close();
+            };
+          } catch {}
+        }
+      }
+    } catch (err) {
+      console.warn("Could not process daily CA auto-notification", err);
     }
   }, []);
 
@@ -1276,6 +1363,7 @@ export default function App() {
   const [ownerLogTypeFilter, setOwnerLogTypeFilter] = useState("all");
   const [selectedUserForLogs, setSelectedUserForLogs] = useState<string | null>(null);
   const [selectedUserBiodata, setSelectedUserBiodata] = useState<any | null>(null);
+  const [showOwnerBiodataModal, setShowOwnerBiodataModal] = useState(false);
 
   // HANS AI ADMIN Navigation & Modules State
   type AdminTabType = 
@@ -1362,7 +1450,20 @@ export default function App() {
   const [newSarkariCategory, setNewSarkariCategory] = useState('Latest Jobs');
 
   // Security Settings
-  const [adminPasswordSecret, setAdminPasswordSecret] = useState('Chhangur#@8084');
+  const [adminPasswordSecret, setAdminPasswordSecretState] = useState<string>(() => {
+    try {
+      return localStorage.getItem('hansai_admin_pass') || 'Chhangur#@8084';
+    } catch (e) {
+      return 'Chhangur#@8084';
+    }
+  });
+
+  const setAdminPasswordSecret = (newPass: string) => {
+    setAdminPasswordSecretState(newPass);
+    try {
+      localStorage.setItem('hansai_admin_pass', newPass);
+    } catch (e) {}
+  };
   const [newAdminPasswordInput, setNewAdminPasswordInput] = useState('');
   const [adminAutoLockMinutes, setAdminAutoLockMinutes] = useState(15);
 
@@ -2167,7 +2268,7 @@ export default function App() {
       const rec = new SpeechRecognition();
       rec.continuous = true;
       rec.interimResults = true;
-      rec.lang = language === 'hindi' ? 'hi-IN' : 'en-US';
+      rec.lang = selectedIndianVoiceLang || (language === 'hindi' ? 'hi-IN' : 'en-IN');
 
       rec.onstart = () => {
         setIsVoiceAssistantListening(true);
@@ -2695,14 +2796,32 @@ export default function App() {
   // Chat state
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<Message[]>(() => {
+    // Open app on a fresh new page on startup as requested ("Chat ki history app open karne par na dikhe new page par open ho")
+    // Safely auto-archive any unarchived previous session into saved chats so history is preserved
     try {
       const saved = localStorage.getItem('hansai-chat-messages');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const rawSavedChats = localStorage.getItem('hansai-saved-chats');
+          let existing = [];
+          if (rawSavedChats) {
+            try { existing = JSON.parse(rawSavedChats) || []; } catch (e) {}
+          }
+          const firstUserMsg = parsed.find((m: any) => m.role === 'user')?.content || 'Previous Chat Session';
+          const title = firstUserMsg.length > 35 ? firstUserMsg.slice(0, 35) + '...' : firstUserMsg;
+          const archivedSession = {
+            id: 'chat-auto-' + Date.now(),
+            title: title,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            messages: parsed
+          };
+          localStorage.setItem('hansai-saved-chats', JSON.stringify([archivedSession, ...existing]));
+          localStorage.removeItem('hansai-chat-messages');
+        }
       }
     } catch (e) {}
-    return [];
+    return []; // Clean fresh page on app open
   });
   const [isChatLoading, setIsChatLoading] = useState(false);
 
@@ -4984,8 +5103,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
     }
 
     return lang === 'hindi'
-      ? `### 📚 हंस-एआई (HansAI) - विषय मार्गदर्शन\n\nआपकी जिज्ञासा **"${userQuery.slice(0, 70)}"** के संबंध में संक्षिप्त अध्ययन बिंदु:\n\n1. **मुख्य अवधारणा (Core Concept):** प्रतियोगी एवं बोर्ड परीक्षाओं (SSC, UPSC, Railway, State Exams) में इस विषय की स्पष्ट समझ अति आवश्यक है।\n2. **रिवीजन रणनीति:** महत्वपूर्ण सूत्रों, तिथियों व परिभाषाओं के संक्षिप्त नोट्स बनाकर पुनरावृत्ति करें।\n3. **लाइव टेस्ट:** आप ऐप के **Auto Chapter Quiz** सेक्शन में जाकर तुरंत 5 प्रश्नों का अभ्यास कर सकते हैं!`
-      : `### 📚 HansAI - Academic Solution & Guidance\n\nRegarding your query **"${userQuery.slice(0, 70)}"**:\n\n1. **Key Concept:** Clear understanding of this topic is essential for competitive & board exams.\n2. **Revision Strategy:** Create concise notes of key formulas, facts, and definitions.\n3. **Interactive Test:** Navigate to the **Auto Chapter Quiz** tab to solve custom MCQs on this topic!`;
+      ? `### 📚 हंस कॉम्पेन (HANS COMPAIN) - विषय मार्गदर्शन\n\nआपकी जिज्ञासा **"${userQuery.slice(0, 70)}"** के संबंध में संक्षिप्त अध्ययन बिंदु:\n\n1. **मुख्य अवधारणा (Core Concept):** प्रतियोगी एवं बोर्ड परीक्षाओं (SSC, UPSC, Railway, State Exams, Shorthand) में इस विषय की स्पष्ट समझ अति आवश्यक है।\n2. **रिवीजन रणनीति:** महत्वपूर्ण सूत्रों, तिथियों व परिभाषाओं के संक्षिप्त नोट्स बनाकर पुनरावृत्ति करें।\n3. **लाइव टेस्ट:** आप ऐप के **Auto Chapter Quiz** सेक्शन में जाकर तुरंत 5 प्रश्नों का अभ्यास कर सकते हैं!`
+      : `### 📚 HANS COMPAIN - Academic Solution & Guidance\n\nRegarding your query **"${userQuery.slice(0, 70)}"**:\n\n1. **Key Concept:** Clear understanding of this topic is essential for competitive exams & shorthand steno.\n2. **Revision Strategy:** Create concise notes of key formulas, facts, and definitions.\n3. **Interactive Test:** Navigate to the **Auto Chapter Quiz** tab to solve custom MCQs on this topic!`;
   };
 
   // Clear current chat messages & safely archive active conversation to savedChats (ChatGPT style)
@@ -5153,7 +5272,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
     if (isOffline || !navigator.onLine) {
       let offlineReply = "📶 **आप वर्तमान में ऑफ-लाइन मोड (Offline Mode) में हैं!**\n\nऑफ़लाइन मोड में आपके सभी पुराने सहेजे गए चैट, Pitman Shorthand गाइड्स, स्टडी नोट्स, क्विज़ रिकॉर्ड्स और ऑडियो रिकॉर्डर 100% उपलब्ध हैं!";
       if (isCapabilityQuery) {
-        offlineReply = `✨ **HansAI (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
+        offlineReply = `✨ **HANS COMPAIN (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
           `1. 🎓 **SSC CGL & प्रतियोगी परीक्षा तैयारी**: SSC CGL, Stenographer, State/UPSC गाइडेंस, इंग्लिश ग्रामर रूल्स और GK ट्रिक्स।\n` +
           `2. ✍️ **Pitman Shorthand & Dictation**: Shorthand स्ट्रोक रेफरेंस, डिक्टेशन टाइमर और स्पीड प्रैक्टिस।\n` +
           `3. 🚀 **Deep Research AI**: विषय पर गहरा अध्ययन, टाइमलाइन और याद करने की ट्रिक्स।\n` +
@@ -5257,9 +5376,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       const isNotUnderstanding = query.includes('understand') || query.includes('समझ नहीं') || query.includes('नहीं समझा') || query.includes('फिर से') || query.includes('easy') || query.includes('सरल');
 
       if (isCapabilityQuery) {
-        customReply = `✨ **HansAI (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
+        customReply = `✨ **HANS COMPAIN (आपका एआई साथी) - संपूर्ण सहायता निर्देशिका:**\n\n` +
           `1. 🎓 **SSC, Board & Competitive Exams**: SSC CGL/CHSL, Railway, State PCS/UPSC, भूगोल, इतिहास, संविधान, विज्ञान, गणित, रीजनिंग व अंग्रेजी।\n` +
-          `2. ✍️ **Shorthand & Dictation Tools**: Shorthand स्ट्रोक रेफरेंस, डिक्टेशन टाइमर और स्पीड प्रैक्टिस।\n` +
+          `2. ✍️ **Shorthand & Dictation Tools**: Pitman Shorthand स्ट्रोक रेफरेंस, डिक्टेशन टाइमर और स्पीड प्रैक्टिस।\n` +
           `3. 🚀 **Deep Research AI**: विषय पर गहरा अध्ययन, टाइमलाइन और याद करने की ट्रिक्स।\n` +
           `4. 🧠 **Interactive Live Quizzes**: तुरंत 5 सवालों का क्विज टेस्ट, स्कोर और व्याख्या।\n` +
           `5. 🎙️ **Projects & Voice Recorder**: लेक्चर्स/नोट्स की वॉइस रिकॉर्डिंग और प्रोजेक्ट्स।\n` +
@@ -5268,12 +5387,12 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           `8. ☕ **Daily Motivation & Status**: सुबह की कविताएं और मोटिवेशन।\n` +
           `9. 📶 **Offline Availability**: बिना इंटरनेट के भी सभी सेव किए गए नोट्स व टूल्स काम करते हैं!`;
       } else if (isCreatorQuery) {
-        customReply = `HansAI के creator और founder Hanslal हैं। HansAI को Hanslal ने एक student-focused AI platform के रूप में बनाया और विकसित किया है।`;
+        customReply = `HANS COMPAIN के creator और founder Hanslal Pal हैं। HANS COMPAIN को Hanslal Pal ने एक student-focused Shorthand & Competitive Exam AI platform के रूप में विकसित किया है।`;
       } else if (isGreeting) {
         if (language === 'hindi') {
-          customReply = `नमस्ते! मैं आपका एआई साथी (HansAI) हूँ। आज मैं आपकी पढ़ाई, भूगोल, इतिहास, विज्ञान या किसी भी परीक्षा की तैयारी में किस प्रकार सहायता कर सकता हूँ?`;
+          customReply = `नमस्ते! मैं आपका एआई साथी (HANS COMPAIN) हूँ। आज मैं आपकी आशुलिपि (Pitman Shorthand), प्रतियोगी परीक्षा की तैयारी, भूगोल, इतिहास या विज्ञान में किस प्रकार सहायता कर सकता हूँ?`;
         } else {
-          customReply = `Hello! I am your AI Companion (HansAI). How can I assist you with Geography, History, Science, Maths, or competitive exam preparation today?`;
+          customReply = `Hello! I am your AI Companion (HANS COMPAIN). How can I assist you with Pitman Shorthand Steno, Competitive Exams, Geography, History, Science, or Maths today?`;
         }
       } else if (isNotUnderstanding) {
         customReply = `### 💡 आसान रूप (Simplified Explanation):\n\n\`\`\`\n  [मूल सिद्धांत / Core Concept]\n         │\n         ├──➤ [नियम / Formula/Rule]\n         │      └──➤ अनुप्रयोग (Exam Questions Application)\n         └──➤ [स्मरण ट्रिक / Memorization Hack]\n\`\`\``;
@@ -5343,13 +5462,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <div className="space-y-1.5">
               <div className="flex items-center justify-center gap-2">
                 <span className="text-lg">⚡</span>
-                <h1 className="text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 via-amber-200 to-emerald-300 drop-shadow-md">
-                  HansAI • हंस-एआई
+                <h1 className="text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-200 via-cyan-200 to-emerald-300 drop-shadow-md">
+                  HANS COMPAIN
                 </h1>
                 <span className="text-lg">⚡</span>
               </div>
               <p className="text-xs text-amber-300 font-bold tracking-wide">
-                Universal Intelligence Platform • HansAI Academic Companion
+                Shorthand, Steno Dictation & AI Learning Platform
               </p>
               <div className="p-2 bg-indigo-950/70 border border-indigo-500/30 rounded-xl text-[11px] text-indigo-200 font-sans italic shadow-sm">
                 "ज्ञानम् परमम् बलम् • हंस-ज्ञान, अनुशासन एवं निरंतर प्रगति"
@@ -5359,7 +5478,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             {/* Live Activity Counters Badge */}
             <div className="px-3 py-1 bg-slate-900/90 border border-cyan-500/30 rounded-full flex items-center gap-1.5 text-[11px] font-semibold text-cyan-300 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>🟢 1,420 Online • HansAI Active</span>
+              <span>🟢 1,420 Online • HANS COMPAIN Active</span>
             </div>
 
             {/* Loading Progress Bar */}
@@ -5535,7 +5654,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             <div className="sticky -top-4 -mx-4 px-4 pt-3.5 pb-2.5 bg-[#0A0F1D]/95 backdrop-blur-md z-20 flex items-center justify-between border-b border-slate-800 rounded-t-2xl shadow-sm">
               <h3 className="text-xs font-extrabold text-white flex items-center gap-1.5">
                 <span>⚙️</span>
-                <span>HansAI Settings & Tools</span>
+                <span>HANS COMPAIN Settings & Tools</span>
               </h3>
               <button 
                 onClick={() => setIsHeaderMenuOpen(false)}
@@ -5546,10 +5665,30 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </button>
             </div>
 
-          {/* 4 Theme Color Selectors (As Requested by User) */}
+          {/* 5 Theme Color Selectors (Featuring Blue-Green Light as Requested) */}
           <div className="space-y-2">
-            <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider block">🎨 Select Screen Theme (4 Color Modes):</span>
+            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider block">🎨 {language === 'hindi' ? 'स्क्रीन थीम चुनें (Blue-Green Light / Dark Modes):' : 'Select Screen Theme (5 Color Modes):'}</span>
             <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                onClick={() => {
+                  setScreenColorMode('blue_green_light');
+                  localStorage.setItem('hansai-color-mode', 'blue_green_light');
+                  showToast(language === 'hindi' ? "थीम: ब्लू-ग्रीन लाइट मोड सक्रिय" : "Theme: Blue-Green Light Active", "success");
+                }}
+                className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all col-span-2 ${
+                  screenColorMode === 'blue_green_light' ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white border-emerald-400 shadow-md ring-2 ring-emerald-400/40' : 'bg-emerald-950/40 text-emerald-200 border-emerald-500/40 hover:bg-emerald-900/50'
+                }`}
+              >
+                <span>🌊🌿</span>
+                <div>
+                  <div className="text-[11px] font-black flex items-center gap-1">
+                    <span>Blue-Green Light (Standard)</span>
+                    <span className="text-[9px] bg-emerald-400/20 text-emerald-300 px-1 py-0.2 rounded font-mono">RECOMMENDED</span>
+                  </div>
+                  <div className="text-[9px] opacity-90">Clean Sky Blue & Emerald Green UI</div>
+                </div>
+              </button>
+
               <button
                 onClick={() => {
                   setScreenColorMode('dark');
@@ -5871,7 +6010,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             >
               <div className="flex items-center gap-2">
                 <Share2 className="w-4 h-4 text-cyan-300 shrink-0" />
-                <span>{language === 'hindi' ? 'ऐप दोस्तों के साथ शेयर करें' : 'Share HansAI App'}</span>
+                <span>{language === 'hindi' ? 'ऐप दोस्तों के साथ शेयर करें' : 'Share HANS COMPAIN App'}</span>
               </div>
               <span className="text-[10px] opacity-70">Share →</span>
             </button>
@@ -5958,7 +6097,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   👋
                 </div>
                 <h3 className="text-lg font-extrabold text-white">
-                  {language === 'hindi' ? 'HansAI में आपका स्वागत है!' : 'Welcome to HansAI'}
+                  {language === 'hindi' ? 'HANS COMPAIN में आपका स्वागत है!' : 'Welcome to HANS COMPAIN'}
                 </h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   {language === 'hindi' ? 'कृपया प्रयोग शुरू करने से पहले अपना नाम और ईमेल दर्ज करें:' : 'Please enter your Name and Email to start:'}
@@ -6001,7 +6140,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 >
                   {isRegisteringUser 
                     ? (language === 'hindi' ? "रजिस्टर हो रहा है..." : "Registering...") 
-                    : (language === 'hindi' ? "सुरक्षित प्रवेश करें" : "Continue to HansAI")}
+                    : (language === 'hindi' ? "सुरक्षित प्रवेश करें" : "Continue to HANS COMPAIN")}
                 </button>
               </form>
             </div>
@@ -6010,32 +6149,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
         {/* ACTIVE CANVAS VIEW */}
         <div className={`flex-1 min-h-0 ${activeView === 'chat' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
-          
-          {/* UNIVERSAL BACK BUTTON TOP BAR FOR ALL NON-CHAT SUB-VIEWS */}
-          {activeView !== 'chat' && (
-            <div className="sticky top-0 z-50 bg-[#060913]/95 backdrop-blur-md border-b border-indigo-500/30 px-3 py-2 flex items-center justify-between shadow-xl">
-              <button
-                onClick={() => setActiveView('chat')}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer border border-indigo-400/30 active:scale-95 shrink-0"
-                title={language === 'hindi' ? 'मुख्य चैट पर जाएँ' : 'Back to Chat'}
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-extrabold text-indigo-300 capitalize px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hidden sm:inline">
-                  {activeView.replace('-', ' ')}
-                </span>
-                <button
-                  onClick={() => setActiveView('chat')}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-xl bg-slate-800/80 hover:bg-slate-700 transition-all cursor-pointer"
-                  title="Close View & Return to Chat"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
           
           {/* VIEW: CHAT BOT (CHATGPT & GEMINI STYLE WITH SIDEBAR & NON-SCROLLABLE HOME) */}
           {activeView === 'chat' && (
@@ -6303,6 +6416,38 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       {language === 'hindi' ? "विशेषज्ञ AI टूल्स व हब" : "Specialized AI Hub"}
                     </span>
                     <div className="space-y-1 text-xs font-semibold">
+                      {/* PROMINENT LIVE MULTIPLAYER GROUP QUIZ BUTTON */}
+                      <button
+                        onClick={() => { setActiveView('group-quiz'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl text-emerald-200 hover:text-white hover:bg-gradient-to-r hover:from-emerald-900/60 hover:to-teal-900/60 transition-all text-left bg-gradient-to-r from-emerald-950/90 to-teal-950/90 border-2 border-emerald-400/60 cursor-pointer font-black shadow-lg shadow-emerald-950/60 ring-1 ring-emerald-400/30"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-base shrink-0">⚔️</span>
+                          <span className="truncate font-black text-emerald-300">
+                            {language === 'hindi' ? 'ग्रुप क्विज़ बैटल व लाइव रैंक्स' : 'Live Multiplayer Group Quiz'}
+                          </span>
+                        </div>
+                        <span className="text-[8px] bg-emerald-400 text-slate-950 px-1.5 py-0.5 rounded-md font-black uppercase shrink-0 animate-pulse">
+                          LIVE 🏆
+                        </span>
+                      </button>
+
+                      {/* DAILY CURRENT AFFAIRS & QUIZ 2026 */}
+                      <button
+                        onClick={() => { setActiveView('current-affairs'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl text-amber-200 hover:text-white hover:bg-gradient-to-r hover:from-amber-900/60 hover:to-orange-900/60 transition-all text-left bg-gradient-to-r from-amber-950/80 to-orange-950/80 border border-amber-500/40 cursor-pointer font-bold shadow-md"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-base shrink-0">📰</span>
+                          <span className="truncate font-bold text-amber-300">
+                            {language === 'hindi' ? 'दैनिक करेंट अफेयर्स (Daily CA)' : 'Daily Current Affairs 2026'}
+                          </span>
+                        </div>
+                        <span className="text-[8px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded-md font-bold uppercase shrink-0">
+                          DAILY
+                        </span>
+                      </button>
+
                       {/* PROMINENT ALL STENOGRAPHER SHORTCUT BUTTON */}
                       <button
                         onClick={() => { setActiveView('steno'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
@@ -6493,7 +6638,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <div className="p-3 border-t border-slate-850/80 bg-[#04070F] flex items-center justify-between text-xs text-slate-400">
                   <div className="flex items-center gap-2">
                     <QuantumSwanLogo className="w-5 h-5" showLightBg={true} />
-                    <span className="font-extrabold text-white text-[11px]">HansAI Core</span>
+                    <span className="font-extrabold text-white text-[11px]">HANS COMPAIN Core</span>
                   </div>
                   {chatMessages.length > 0 && (
                     <button
@@ -6546,6 +6691,28 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       </div>
 
                       <div className="flex items-center gap-2">
+                        <select
+                          value={selectedIndianVoiceLang}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setSelectedIndianVoiceLang(val);
+                            localStorage.setItem('hansai-voice-lang', val);
+                            showToast(`🇮🇳 Voice language set to ${val}`, 'success');
+                            if (isVoiceAssistantActiveRef.current) {
+                              if (voiceAssistantRecRef.current) {
+                                try { voiceAssistantRecRef.current.abort(); } catch (e) {}
+                              }
+                              startListeningCycle();
+                            }
+                          }}
+                          className="bg-slate-900/90 border border-rose-500/40 rounded-xl text-[10px] text-rose-200 px-2 py-1 focus:outline-none cursor-pointer max-w-[140px] truncate"
+                        >
+                          {INDIAN_LANGUAGES.map((langItem) => (
+                            <option key={langItem.code} value={langItem.code} className="bg-slate-950 text-white">
+                              {langItem.name}
+                            </option>
+                          ))}
+                        </select>
                         {isVoiceAssistantSpeaking && (
                           <button
                             onClick={() => {
@@ -6575,7 +6742,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <div className="flex flex-col items-center space-y-1 my-auto">
                         <QuantumSwanLogo className="w-12 h-12 sm:w-14 sm:h-14" showLightBg={true} />
                         <h2 className="text-xl sm:text-2xl font-black tracking-tight font-sans text-white">
-                          HansAI - What can I help with today?
+                          HANS COMPAIN - How can I help with Shorthand & Exams today?
                         </h2>
                         <p className="text-xs text-slate-400 font-medium hidden sm:block">
                           {language === 'hindi' 
@@ -6600,10 +6767,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
                       </div>
 
-                      {/* ROW 1: CORE DAILY LEARNING (WIDE BUTTONS) */}
+                      {/* ROW 1: CORE DAILY LEARNING (WIDE CLEAN CARDS) */}
                       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 w-full text-left mt-3 mb-3">
                         <button
-                          onClick={() => setActiveView('goals')}
+                          onClick={() => setActiveView('current-affairs')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-indigo-950/50 border border-indigo-500/50 hover:border-indigo-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-indigo-500/20 active:scale-98"
                         >
                           <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
@@ -6611,10 +6778,28 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                           <div className="overflow-hidden">
                             <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
-                              {language === 'hindi' ? 'करंट अफेयर्स' : 'Current Affairs'}
+                              {language === 'hindi' ? 'करंट अफेयर्स 2026' : 'Current Affairs 2026'}
                             </div>
                             <div className="text-[9px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'डेली न्यूज़ व क्विज़' : 'Daily News & Quiz'}
+                              {language === 'hindi' ? 'डेली 10 फैक्ट्स व क्विज़' : 'Daily 10 Facts & Quiz'}
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('group-quiz')}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border-2 border-emerald-400/60 hover:border-emerald-300 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98 ring-1 ring-emerald-400/30"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 text-base animate-pulse">
+                            ⚔️
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-black text-emerald-200 group-hover:text-emerald-100 truncate flex items-center gap-1">
+                              <span>{language === 'hindi' ? 'ग्रुप क्विज़ बैटल' : 'Live Group Battle'}</span>
+                              <span className="text-[8px] bg-emerald-400 text-slate-950 px-1 rounded font-black">NEW</span>
+                            </div>
+                            <div className="text-[9px] text-emerald-300/80 truncate">
+                              {language === 'hindi' ? 'लाइव रैंक्स व वॉइस स्पीकर' : 'Live Voice Ranks & Scores'}
                             </div>
                           </div>
                         </button>
@@ -6654,24 +6839,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
 
                         <button
-                          onClick={() => setActiveView('neural-map')}
-                          className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border border-emerald-500/50 hover:border-emerald-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-base">
-                            🧠
-                          </div>
-                          <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-slate-200 group-hover:text-emerald-300 truncate">
-                              {language === 'hindi' ? 'न्यूरल मैप' : 'Neural Map'}
-                            </div>
-                            <div className="text-[9px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'विजुअल नोड्स' : 'Visual nodes & PYQ'}
-                            </div>
-                          </div>
-                        </button>
-                        
-                        <button
-                          onClick={() => setActiveView('quiz')}
+                          onClick={() => setActiveView('goals')}
                           className="p-2 sm:p-2.5 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
                           <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 text-base">
@@ -6679,27 +6847,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                           <div className="overflow-hidden">
                             <div className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 truncate">
-                              {language === 'hindi' ? 'ऑटो क्विज' : 'Chapter Quiz'}
+                              {language === 'hindi' ? 'दैनिक लक्ष्य' : 'Daily Goals'}
                             </div>
                             <div className="text-[9px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'स्कोरकार्ड' : 'PYQ & Scorecard'}
+                              {language === 'hindi' ? 'GK, English & Math' : 'GK, English & Math'}
                             </div>
                           </div>
                         </button>
 
                         <button
-                          onClick={() => setActiveView('book-reader')}
+                          onClick={() => setActiveView('quiz')}
                           className="p-2 sm:p-2.5 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
                         >
                           <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-base">
-                            🎙️
+                            📝
                           </div>
                           <div className="overflow-hidden">
                             <div className="text-xs font-bold text-slate-200 group-hover:text-emerald-300 truncate">
-                              {language === 'hindi' ? 'वॉइस रीडर' : 'Voice Reader'}
+                              {language === 'hindi' ? 'लाइव PYQ क्विज़' : 'PYQ Mock Quiz'}
                             </div>
                             <div className="text-[9px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'सुनें व समझें' : 'Listen & Learn'}
+                              {language === 'hindi' ? 'TCS iON टेस्ट पैटर्न' : 'TCS iON Exam Mode'}
                             </div>
                           </div>
                         </button>
@@ -7017,7 +7185,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                           <div className="text-slate-400 text-xs sm:text-sm flex items-center gap-2">
                             <span className="w-2 h-2 bg-indigo-400 rounded-full animate-ping"></span>
-                            <span className="italic text-slate-400 font-medium">HansAI - Generating response...</span>
+                            <span className="italic text-slate-400 font-medium">HANS COMPAIN - Generating response...</span>
                           </div>
                         </div>
                       )}
@@ -7031,7 +7199,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           <p className="text-xs text-slate-300 font-medium leading-relaxed">
                             {language === 'hindi'
                               ? 'क्या आपको यह AI जवाब पसंद आया? अपनी पढ़ाई की चैट हिस्ट्री सुरक्षित रखने और असीमित AI प्रश्नों के लिए Google या Facebook से लॉगिन करें!'
-                              : 'Enjoying HansAI? Create a free student account or sign in with Google / Facebook to save your chat history and unlock unlimited AI queries!'}
+                              : 'Enjoying HANS COMPAIN? Create a free student account or sign in with Google / Facebook to save your chat history and unlock unlimited AI queries!'}
                           </p>
                           <div className="flex items-center justify-center gap-2.5 flex-wrap pt-1">
                             <button
@@ -7291,7 +7459,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         type="text"
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
-                        placeholder={language === 'hindi' ? "हंस-एआई से कुछ भी पूछें... (प्रश्नों या नोट्स की 3 फोटो तक जोड़ें)" : "Ask HansAI anything... (Snap/attach up to 3 photos)"}
+                        placeholder={language === 'hindi' ? "हंस कॉम्पेन (HANS COMPAIN) से कुछ भी पूछें..." : "Ask HANS COMPAIN anything..."}
                         className="flex-1 w-full bg-transparent px-3 py-2 text-xs sm:text-sm focus:outline-none placeholder-slate-500 text-slate-100 font-sans"
                         disabled={isChatLoading}
                       />
@@ -7327,7 +7495,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </form>
                     <div className="text-center mt-2 px-2 select-none">
                       <p className="text-[10px] text-slate-500">
-                        HansAI can make mistakes. Verify important academic facts & formulas.
+                        HANS COMPAIN can make mistakes. Verify important academic facts & formulas.
                       </p>
                     </div>
                   </div>
@@ -7338,6 +7506,68 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
           </div>
       )}
+
+          {/* VIEW: OWNER DASHBOARD & ADMIN PANEL */}
+          {activeView === 'owner-dashboard' && (
+            <ErrorBoundary fallbackTitle="Owner Admin Dashboard" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                {!isOwnerUnlocked ? (
+                  <AdminLockScreen
+                    adminPasswordSecret={adminPasswordSecret}
+                    onUnlock={() => {
+                      setIsOwnerUnlocked(true);
+                      fetchOwnerAnalytics();
+                    }}
+                    onBack={() => setActiveView('chat')}
+                    language={language}
+                    showToast={showToast}
+                    addAdminAuditLog={addAdminAuditLog}
+                  />
+                ) : (
+                  <AdminPanel
+                    ownerAnalyticsData={ownerAnalyticsData}
+                    isOwnerAnalyticsLoading={isOwnerAnalyticsLoading}
+                    fetchOwnerAnalytics={fetchOwnerAnalytics}
+                    setIsOwnerAuthenticated={setIsOwnerUnlocked}
+                    feedbacks={feedbacks}
+                    handleDeleteLogItem={handleDeleteLogItem}
+                    handleDeleteUserRecord={handleDeleteUserRecord}
+                    setSelectedOwnerUserForBiodata={setSelectedUserBiodata}
+                    setShowOwnerBiodataModal={setShowOwnerBiodataModal}
+                    addAdminAuditLog={addAdminAuditLog}
+                    showToast={showToast}
+                    activeHeaderBanner={activeHeaderBanner}
+                    setActiveHeaderBanner={setActiveHeaderBanner}
+                    featureFlags={featureFlags}
+                    setFeatureFlags={setFeatureFlags}
+                    aiModelSettings={aiModelSettings}
+                    setAiModelSettings={setAiModelSettings}
+                    seoSettings={seoSettings}
+                    setSeoSettings={setSeoSettings}
+                    adminPasswordSecret={adminPasswordSecret}
+                    setAdminPasswordSecret={setAdminPasswordSecret}
+                    adminAuditLogs={adminAuditLogs}
+                    language={language}
+                    onBackToChat={() => setActiveView('chat')}
+                  />
+                )}
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: LIVE MULTIPLAYER GROUP QUIZ BATTLE & EXAM LEADERBOARD */}
+          {activeView === 'group-quiz' && (
+            <ErrorBoundary fallbackTitle="Group Quiz Battle" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-4 animate-fade-in">
+                <LiveGroupQuizStudio
+                  user={user}
+                  language={language === 'hindi' ? 'hindi' : 'english'}
+                  showToast={showToast}
+                  onBackToHome={() => setActiveView('chat')}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
 
           {/* VIEW: ACADEMIC QUIZ GENERATOR & PYQ STUDIO (ADDA247 / TCS ION PATTERN) */}
           {activeView === 'quiz' && (
@@ -7364,6 +7594,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-4 animate-fade-in">
                 <UnlimitedPyqVaultView
                   showToast={showToast}
+                  language={language}
+                  user={user}
+                  userName={user?.name || 'Student Aspirant'}
+                  userEmail={user?.email || ''}
                   onAddToMistakeNotebook={(item) => handleSaveMistakeToNotebook(item)}
                   onStartCustomTest={(questions, title) => {
                     handleStartRetestFromMistakes(questions, title);
@@ -7386,6 +7620,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
                 <CurrentAffairsHubView
                   showToast={showToast}
+                  language={language}
                   onStartQuiz={(topic) => {
                     setActiveView('quiz');
                     showToast(topic + ' का लाइव टेस्ट लोड किया जा रहा है...', 'info');
@@ -7401,6 +7636,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
                 <SmartQrNotesScannerView
                   showToast={showToast}
+                  language={language}
                   onAskAiQuestion={(q) => handleSendChat(q)}
                 />
               </div>
@@ -7441,6 +7677,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <FlashcardsView
                   onExportPdf={handleExportPdf}
                   showToast={showToast}
+                  language={language}
                 />
               </div>
             </ErrorBoundary>
@@ -7453,6 +7690,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <PhotoDoubtView
                   onExportPdf={handleExportPdf}
                   showToast={showToast}
+                  language={language}
                 />
               </div>
             </ErrorBoundary>
@@ -7664,6 +7902,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
                 <QuizMistakeNotebookView
                   mistakes={mistakeNotebook}
+                  language={language}
                   onRetest={(questions, title) => handleStartRetestFromMistakes(questions, title)}
                   onDelete={handleDeleteMistake}
                   onClearAll={handleClearAllMistakes}
@@ -7730,8 +7969,44 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             {/* Content Options */}
             <div className="py-2.5 space-y-3.5 overflow-y-auto max-h-[60vh] pr-1" id="settings-content">
               
+              {/* 🌐 SYSTEM LANGUAGE SELECTOR */}
+              <div className="space-y-1.5" id="settings-language-container">
+                <label className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block flex items-center gap-1">
+                  <Languages className="w-3.5 h-3.5 text-cyan-400" />
+                  System Language / सिस्टम भाषा (सभी फीचर्स में बदलें)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      setLanguage('hindi');
+                      showToast("सिस्टम भाषा हिंदी (Hindi) में सेट की गई! 🇮🇳", "success");
+                    }}
+                    className={`py-2 px-3 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
+                      language === 'hindi'
+                        ? 'border-cyan-500 bg-cyan-500/20 text-cyan-200 shadow-inner'
+                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    🇮🇳 हिंदी (Hindi)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLanguage('english');
+                      showToast("System Language set to English! 🌐", "success");
+                    }}
+                    className={`py-2 px-3 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
+                      language === 'english'
+                        ? 'border-cyan-500 bg-cyan-500/20 text-cyan-200 shadow-inner'
+                        : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    🌐 English
+                  </button>
+                </div>
+              </div>
+
               {/* API Connection Model Selector */}
-              <div className="space-y-1.5" id="settings-model-container">
+              <div className="space-y-1.5 border-t border-slate-800/60 pt-3" id="settings-model-container">
                 <label className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block flex items-center gap-1">
                   <Cpu className="w-3.5 h-3.5 text-amber-400" />
                   AI Connection Model / एआई मॉडल चुनें
@@ -7925,7 +8200,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 >
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
-                    <span>{language === 'hindi' ? '🤖 HansAI गाइड व सहायता केंद्र' : '🤖 HansAI Help & Feature Guide'}</span>
+                    <span>{language === 'hindi' ? '🤖 HANS COMPAIN गाइड व सहायता केंद्र' : '🤖 HANS COMPAIN Help & Feature Guide'}</span>
                   </div>
                   <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">
                     Guide 📖
@@ -8260,7 +8535,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-indigo-400" />
                 <div>
-                  <h3 className="font-extrabold text-xs tracking-wider text-white uppercase leading-none">HansAI Terminal</h3>
+                  <h3 className="font-extrabold text-xs tracking-wider text-white uppercase leading-none">HANS COMPAIN Terminal</h3>
                   <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1 block">Study Workspace Companion</span>
                 </div>
               </div>
@@ -8400,51 +8675,54 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
             {/* Poster Canvas Preview */}
             <div className="py-2 flex justify-center">
-              <div id="status-share-poster-card" className="aspect-[9/16] w-[260px] sm:w-[280px] bg-gradient-to-b from-[#0A0E17] via-[#0E1526] to-[#04060B] border-2 border-emerald-500/30 rounded-3xl p-5 flex flex-col justify-between shadow-2xl relative overflow-hidden text-left font-sans group">
-                {/* Background decorative elements */}
-                <div className="absolute top-[-30px] right-[-30px] w-28 h-28 bg-emerald-500/10 blur-2xl rounded-full" />
-                <div className="absolute bottom-[-30px] left-[-30px] w-28 h-28 bg-indigo-500/10 blur-2xl rounded-full" />
+              <div id="status-share-poster-card" className="aspect-[9/16] w-[270px] sm:w-[290px] bg-gradient-to-b from-[#090F1C] via-[#0E172E] to-[#040710] border-2 border-emerald-500/40 rounded-3xl p-5 flex flex-col justify-between shadow-2xl relative overflow-hidden text-left font-sans group">
+                {/* Background decorative glows */}
+                <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-sky-500/15 blur-2xl rounded-full pointer-events-none" />
+                <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-emerald-500/15 blur-2xl rounded-full pointer-events-none" />
                 
-                {/* Poster Header */}
-                <div className="space-y-4">
+                {/* Poster Header with Light Background Official Logo */}
+                <div className="space-y-3 relative z-10 text-center">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-lg">🎖️</span>
-                      <div>
-                        <h4 className="text-xs font-black text-white leading-none tracking-tight">HansAI</h4>
-                        <span className="text-[7px] text-emerald-450 uppercase tracking-widest font-black leading-none mt-0.5">आधिकारिक राष्ट्र रक्षक</span>
-                      </div>
-                    </div>
-                    <span className="text-[9px] text-[#818cb4] bg-indigo-950/40 text-indigo-400 px-2 py-0.5 rounded border border-indigo-900/30 font-bold">2026 EDITION</span>
+                    <span className="text-[9px] text-emerald-400 font-extrabold uppercase tracking-widest bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      OFFICIAL BADGE
+                    </span>
+                    <span className="text-[9px] text-indigo-300 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded-full font-bold">
+                      2026 EDITION
+                    </span>
+                  </div>
+
+                  {/* Centered HANS COMPAIN Light Logo */}
+                  <div className="pt-1 flex flex-col items-center justify-center">
+                    <QuantumSwanLogo className="w-16 h-16 sm:w-18 sm:h-18" showLightBg={true} />
                   </div>
                   
-                  <div className="h-[2px] w-full bg-gradient-to-r from-emerald-500/40 via-indigo-500/30 to-transparent" />
+                  <div className="h-[2px] w-full bg-gradient-to-r from-emerald-500/50 via-sky-500/50 to-indigo-500/50 rounded-full" />
                 </div>
 
                 {/* Poster Center Quote Area */}
-                <div className="my-auto py-6 space-y-4 relative z-10">
-                  <span className="text-4xl text-emerald-500/20 font-serif leading-none absolute -top-4 -left-2 select-none">“</span>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed tracking-wide text-center pt-2 italic px-1">
+                <div className="my-auto py-4 space-y-3 relative z-10">
+                  <span className="text-4xl text-emerald-400/25 font-serif leading-none absolute -top-3 -left-1 select-none">“</span>
+                  <p className="text-xs sm:text-sm font-bold text-slate-100 leading-relaxed tracking-wide text-center pt-2 italic px-2">
                     {(() => {
                       const sampleQuotes = [
                         { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
                         { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
                         { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                         { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                        { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
+                        { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
                       ];
                       const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                       return activeQuote.t;
                     })()}
                   </p>
-                  <p className="text-[9px] text-emerald-400 text-right pr-2 font-bold select-none leading-none">
+                  <p className="text-[10px] text-emerald-400 text-right pr-2 font-extrabold select-none leading-none">
                     — {(() => {
                       const sampleQuotes = [
                         { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
                         { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
                         { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                         { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                        { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
+                        { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
                       ];
                       const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                       return activeQuote.a;
@@ -8452,16 +8730,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   </p>
                 </div>
 
-                {/* Poster Footer */}
-                <div className="space-y-3.5 border-t border-slate-850/60 pt-3 text-center">
-                  <div className="text-center space-y-1">
-                    <span className="text-[8px] text-slate-500 block">SUPPORT LINE</span>
-                    <span className="text-[8px] font-black tracking-widest text-[#a5b4fc] block uppercase leading-none">HANS.AI/VERCEL/LIVE</span>
+                {/* Poster Footer Feature Highlights & Branding */}
+                <div className="space-y-2 border-t border-slate-800/80 pt-3 text-center relative z-10">
+                  <div className="flex items-center justify-center gap-1.5 flex-wrap text-[8px] font-extrabold text-sky-300 uppercase tracking-tight">
+                    <span className="bg-sky-950/60 border border-sky-500/30 px-1.5 py-0.5 rounded">✍️ Shorthand</span>
+                    <span className="bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded">🧠 Live Quiz</span>
+                    <span className="bg-indigo-950/60 border border-indigo-500/30 px-1.5 py-0.5 rounded">🔬 Science Lab</span>
                   </div>
                   
-                  <div className="bg-[#02050A]/80 p-2 rounded-xl border border-slate-850 text-center">
-                    <p className="text-[7.5px] font-mono text-emerald-400/95 font-bold tracking-tight">
-                      Developed for HansAI Academic Ecosystem
+                  <div className="bg-[#02050A]/90 p-2 rounded-xl border border-slate-800 text-center">
+                    <p className="text-[8px] font-extrabold text-emerald-400 font-mono tracking-tight uppercase">
+                      HANS COMPAIN • AI Academic & Shorthand Studio
                     </p>
                   </div>
                 </div>
@@ -8478,16 +8757,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
                     { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                     { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                    { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
+                    { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
                   ];
                   const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                   const dynamicShareUrl = getAppShareUrl();
                   
-                  const shareText = `🎯 *Hans Compain - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\n🕊️ _Hans Compain (HansAI) Academic Ecosystem_`;
+                  const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
                   
                   if (navigator.share) {
                     navigator.share({
-                      title: 'Hans Compain Daily Status Badge',
+                      title: 'HANS COMPAIN Daily Status Badge',
                       text: shareText,
                       url: dynamicShareUrl
                     }).then(() => {
@@ -8513,12 +8792,12 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
                     { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
                     { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                    { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HansAI Inspiration" }
+                    { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
                   ];
                   const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                   const dynamicShareUrl = getAppShareUrl();
                   
-                  const shareText = `🎯 *Hans Compain - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 JOIN AT: ${dynamicShareUrl}\n\n🕊️ _Hans Compain Academic Ecosystem_`;
+                  const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 JOIN AT: ${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
                   copyToClipboard(shareText, showToast);
                 }}
                 className="w-full py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
@@ -9334,29 +9613,31 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               onSubmit={(e) => {
                 e.preventDefault();
                 const pin = ownerPinInput.trim();
-                if (['9988', '1234', 'hansai', 'palhanslal4'].includes(pin.toLowerCase())) {
+                const validPasswords = [adminPasswordSecret, 'Chhangur#@8084', 'Chhangur@8084'];
+                if (validPasswords.includes(pin)) {
                   setIsOwnerUnlocked(true);
                   setIsOwnerPinModalOpen(false);
-                  setUser({ name: 'Hanslal Pal (Owner)', email: 'palhanslal4@gmail.com', role: 'owner' });
-                  localStorage.setItem('hansai-user-session', JSON.stringify({ name: 'Hanslal Pal (Owner)', email: 'palhanslal4@gmail.com', role: 'owner' }));
                   setActiveView('owner-dashboard');
-                  showToast("🛡️ Owner Security PIN verified! Welcome Hanslal Pal Ji.", "success");
+                  fetchOwnerAnalytics();
+                  addAdminAuditLog("Admin Password Verified via Modal", "Auth");
+                  showToast(language === 'hindi' ? "🛡️ एडमिन पासवर्ड सत्यापित! स्वागत है हंसलाल पाल जी।" : "🛡️ Admin password verified! Welcome Founder.", "success");
                 } else {
-                  showToast("❌ गलत Owner Secret PIN! केवल संस्थापक प्रवेश कर सकते हैं।", "warn");
+                  addAdminAuditLog(`Failed Admin PIN attempt`, "Security");
+                  showToast(language === 'hindi' ? "❌ गलत Admin Password! केवल पासवर्ड (Chhangur#@8084) से प्रवेश संभव है।" : "❌ Incorrect Admin Password!", "warn");
                 }
               }}
               className="space-y-4"
             >
               <div>
                 <label className="block text-[11px] font-bold text-slate-300 mb-1.5">
-                  Enter Owner Secret PIN / ओनर पिन
+                  Enter Admin Password / एडमिन पासवर्ड दर्ज करें (Chhangur#@8084)
                 </label>
                 <input
                   type="password"
                   autoFocus
                   value={ownerPinInput}
                   onChange={(e) => setOwnerPinInput(e.target.value)}
-                  placeholder="Enter Owner Secret PIN"
+                  placeholder="Enter Password (Chhangur#@8084)"
                   className="w-full text-sm p-3.5 bg-[#04070F] border border-amber-500/40 rounded-xl text-amber-300 font-mono tracking-widest outline-none focus:border-amber-400"
                   required
                 />

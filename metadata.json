@@ -1,6 +1,6 @@
 {
-  "name": "HansAI",
-  "description": "Smart AI digital teacher, study mentor, and business guide created by Hanslal Pal to help students and aspiring entrepreneurs.",
+  "name": "HANS COMPAIN Shorthand",
+  "description": "HANS COMPAIN by Hans Lal Pal - Premier AI Learning Platform for Hindi & English Pitman Shorthand Steno Dictation, SSC & Railway PYQ Quizzes, Science Formula Lab, and Academic Study Tools.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

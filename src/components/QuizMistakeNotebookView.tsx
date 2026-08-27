@@ -20,6 +20,7 @@ interface QuizMistakeNotebookViewProps {
   onDelete: (id: string) => void;
   onClearAll: () => void;
   onToggleMastered: (id: string) => void;
+  language?: string;
 }
 
 export const QuizMistakeNotebookView: React.FC<QuizMistakeNotebookViewProps> = ({
@@ -28,7 +29,9 @@ export const QuizMistakeNotebookView: React.FC<QuizMistakeNotebookViewProps> = (
   onDelete,
   onClearAll,
   onToggleMastered,
+  language = 'hindi',
 }) => {
+  const isHindi = language === 'hindi';
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMode, setFilterMode] = useState<'all' | 'unmastered' | 'mastered'>('all');
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);

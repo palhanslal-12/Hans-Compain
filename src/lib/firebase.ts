@@ -13,7 +13,8 @@ import {
   where, 
   orderBy, 
   limit,
-  serverTimestamp 
+  serverTimestamp,
+  onSnapshot 
 } from 'firebase/firestore';
 import { 
   getAuth, 
@@ -727,5 +728,105 @@ export async function addReviewToFirestore(review: {
     return null;
   }
 }
+
+/**
+ * Save or Update Group Quiz Room in Firestore
+ */
+export async function saveGroupQuizRoomToFirestore(room: any): Promise<boolean> {
+  if (!room || !room.id) return false;
+  try {
+    const roomRef = doc(db, 'group_quizzes', room.id);
+    await setDoc(roomRef, {
+      ...room,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    console.warn("Notice: Firestore group quiz save:", err);
+    return false;
+  }
+}
+
+/**
+ * Real-time Listener for Group Quiz Room
+ */
+export function subscribeGroupQuizRoomFromFirestore(
+  roomId: string,
+  onUpdate: (room: any | null) => void
+): () => void {
+  if (!roomId) return () => {};
+  try {
+    const roomRef = doc(db, 'group_quizzes', roomId);
+    const unsubscribe = onSnapshot(roomRef, (snapshot) => {
+      if (snapshot.exists()) {
+        onUpdate(snapshot.data());
+      } else {
+        onUpdate(null);
+      }
+    }, (err) => {
+      console.warn("Group quiz Firestore live listener notice:", err);
+    });
+    return unsubscribe;
+  } catch (err) {
+    console.warn("Could not attach Firestore group quiz listener:", err);
+    return () => {};
+  }
+}
+
+/**
+ * Fetch Group Quiz Room once from Firestore
+ */
+export async function getGroupQuizRoomFromFirestore(roomId: string): Promise<any | null> {
+  if (!roomId) return null;
+  try {
+    const roomRef = doc(db, 'group_quizzes', roomId);
+    const snapshot = await getDoc(roomRef);
+    if (snapshot.exists()) {
+      return snapshot.data();
+    }
+    return null;
+  } catch (err) {
+    console.warn("Notice fetching group quiz room:", err);
+    return null;
+  }
+}
+
+/**
+ * Save Exam / Practice Set Leaderboard Entry to Firestore
+ */
+export async function saveExamLeaderboardEntryToFirestore(entry: any): Promise<boolean> {
+  if (!entry || !entry.id) return false;
+  try {
+    const entryRef = doc(db, 'exam_leaderboard', entry.id);
+    await setDoc(entryRef, {
+      ...entry,
+      timestamp: entry.timestamp || new Date().toISOString()
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    console.warn("Notice: Exam leaderboard save:", err);
+    return false;
+  }
+}
+
+/**
+ * Fetch Top Exam Leaderboard Entries
+ */
+export async function getExamLeaderboardFromFirestore(limitCount: number = 20): Promise<any[]> {
+  try {
+    const lbRef = collection(db, 'exam_leaderboard');
+    const q = query(lbRef, orderBy('score', 'desc'), limit(limitCount));
+    const snapshot = await getDocs(q);
+    const results: any[] = [];
+    snapshot.forEach(docSnap => {
+      results.push(docSnap.data());
+    });
+    return results;
+  } catch (err) {
+    console.warn("Notice fetching exam leaderboard:", err);
+    return [];
+  }
+}
+
 
 

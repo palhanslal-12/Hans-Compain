@@ -4,9 +4,11 @@ import { Camera, Upload, Sparkles, CheckCircle2, HelpCircle, Download, FileText 
 interface PhotoDoubtViewProps {
   onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
+  language?: string;
 }
 
-export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, showToast }) => {
+export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, showToast, language = 'hindi' }) => {
+  const isHindi = language === 'hindi';
   const [image, setImage] = useState<{ mimeType: string; data: string; previewUrl: string } | null>(null);
   const [userQuery, setUserQuery] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,7 +25,7 @@ export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, sho
         data: base64String,
         previewUrl: URL.createObjectURL(file)
       });
-      showToast("Question photo uploaded! Click Solve Doubt to process. 📸", "info");
+      showToast(isHindi ? "प्रश्न की फोटो अपलोड हो गई! 'डाउट हल करें' पर क्लिक करें। 📸" : "Question photo uploaded! Click Solve Doubt to process. 📸", "info");
     };
     reader.readAsDataURL(file);
   };
@@ -31,7 +33,7 @@ export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, sho
   const handleSolveDoubt = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!image) {
-      showToast("Please upload or capture an image of your question first.", "warn");
+      showToast(isHindi ? "कृपया पहले अपने प्रश्न की फोटो अपलोड करें या खींचें।" : "Please upload or capture an image of your question first.", "warn");
       return;
     }
     setIsProcessing(true);

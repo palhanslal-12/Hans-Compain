@@ -243,30 +243,6 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
   return (
     <div className="w-full max-w-7xl mx-auto p-3 sm:p-6 text-slate-100 space-y-6 animate-fade-in text-left">
       
-      {/* HEADER BANNER */}
-      <div className="bg-gradient-to-r from-amber-950/90 via-purple-950/80 to-slate-900 border-2 border-amber-500/40 p-5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-xl shadow-amber-500/10 shrink-0">
-            <Brain className="w-8 h-8 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-500/30">
-                10X MEMORY POWER
-              </span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight mt-1">
-              {language === 'hindi' ? '🧠 AI स्मार्ट निमोनिक्स व याद रखने की जादुई ट्रिक्स' : '🧠 AI Smart Mnemonics & Memory Trick Generator'}
-            </h1>
-            <p className="text-xs text-slate-300 mt-0.5">
-              {language === 'hindi'
-                ? 'कठिन तारीखें, अनुच्छेद, सूत्र, नदियाँ व वैज्ञानिक नियम याद रखें — सीधा विषय लिखें और तुरंत ट्रिक पाएं!'
-                : 'Instantly master tough formulas, historical dates, constitutional articles & science rules with AI tricks!'}
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* SEARCH OR GENERATE CUSTOM MNEMONIC */}
       <form onSubmit={handleGenerateCustomMnemonic} className="relative w-full">
         <div className="bg-slate-900 border-2 border-amber-500/50 focus-within:border-amber-400 rounded-2xl p-2 flex items-center gap-2 shadow-2xl">
@@ -280,8 +256,8 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
             }}
             placeholder={
               language === 'hindi'
-                ? "किसी भी टॉपिक का नाम लिखें (जैसे: Fundamental Rights, Periodic Table, Oceans, Akbar Battles, Trigonometry)..."
-                : "Type any topic to get or generate memory trick (e.g. Fundamental Rights, Periodic Table, Rivers)..."
+                ? "किसी भी टॉपिक का नाम लिखें (जैसे: Fundamental Rights)..."
+                : "Type any topic to get or generate memory trick..."
             }
             className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none px-2 py-1 font-semibold"
             disabled={isGenerating}
@@ -289,17 +265,17 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
           <button
             type="submit"
             disabled={isGenerating || !customTopicInput.trim()}
-            className="px-5 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-xl text-xs transition-all border-none cursor-pointer flex items-center gap-2 shrink-0 active:scale-95 disabled:opacity-40 shadow-lg"
+            className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-xl text-xs transition-all border-none cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 disabled:opacity-40 shadow-lg"
           >
             {isGenerating ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Creating Trick...</span>
+                <span className="hidden sm:inline">Creating...</span>
               </>
             ) : (
               <>
                 <Zap className="w-4 h-4" />
-                <span>{language === 'hindi' ? 'जादुई ट्रिक बनाएं' : 'Generate AI Trick'}</span>
+                <span>{language === 'hindi' ? 'ट्रिक बनाएं' : 'Generate'}</span>
               </>
             )}
           </button>

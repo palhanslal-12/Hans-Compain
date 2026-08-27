@@ -15,6 +15,9 @@ export interface IndianLanguageOption {
 export const INDIAN_LANGUAGES: IndianLanguageOption[] = [
   { code: 'hi-IN', shortCode: 'hi', name: 'Hindi', nativeName: 'हिन्दी', state: 'All India / North' },
   { code: 'en-IN', shortCode: 'en', name: 'English (India)', nativeName: 'English', state: 'National / Global' },
+  { code: 'hi-IN', shortCode: 'hinglish', name: 'Hinglish (Hindi+English)', nativeName: 'हिंग्लिश', state: 'Pan India Urban' },
+  { code: 'hi-IN', shortCode: 'bho', name: 'Bhojpuri', nativeName: 'भोजपुरी', state: 'Bihar / UP / Jharkhand' },
+  { code: 'hi-IN', shortCode: 'mai', name: 'Maithili', nativeName: 'मैथिली', state: 'Bihar / Mithilanchal' },
   { code: 'ta-IN', shortCode: 'ta', name: 'Tamil', nativeName: 'தமிழ்', state: 'Tamil Nadu' },
   { code: 'te-IN', shortCode: 'te', name: 'Telugu', nativeName: 'తెలుగు', state: 'Andhra / Telangana' },
   { code: 'kn-IN', shortCode: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ', state: 'Karnataka' },
@@ -24,7 +27,8 @@ export const INDIAN_LANGUAGES: IndianLanguageOption[] = [
   { code: 'gu-IN', shortCode: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી', state: 'Gujarat' },
   { code: 'pa-IN', shortCode: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', state: 'Punjab' },
   { code: 'or-IN', shortCode: 'or', name: 'Odia', nativeName: 'ଓଡ଼ିଆ', state: 'Odisha' },
-  { code: 'ur-IN', shortCode: 'ur', name: 'Urdu', nativeName: 'اردو', state: 'National' }
+  { code: 'ur-IN', shortCode: 'ur', name: 'Urdu', nativeName: 'اردو', state: 'National' },
+  { code: 'hi-IN', shortCode: 'sa', name: 'Sanskrit', nativeName: 'संस्कृतम्', state: 'Classical India' }
 ];
 
 export interface SpeechOptions {

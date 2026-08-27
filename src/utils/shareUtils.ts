@@ -61,7 +61,7 @@ export function getShareText(options: { tab?: string; quote?: { t: string; a: st
     quoteText = `\n\n💡 _"${options.quote.t}"_\n— *${options.quote.a}*`;
   }
 
-  const text = `🎯 *Hans Compain* — Expert AI Academic & Career Companion!\n\n${featureHighlight}\n\n👉 *Free में अपनी परीक्षा और करियर की तैयारी शुरू करें:*\n${url}${quoteText}\n\n🕊️ _HansAI Education Platform | Created by Hanslal_`;
+  const text = `🎯 *HANS COMPAIN* — Expert AI Academic & Career Companion!\n\n${featureHighlight}\n\n👉 *Free में अपनी परीक्षा और स्टेनोग्राफी की तैयारी शुरू करें:*\n${url}${quoteText}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
 
   return {
     title,
