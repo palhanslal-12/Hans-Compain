@@ -605,7 +605,7 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
       title={language === 'hindi' ? `⏳ काल-यात्रा: ${selectedEra.name}` : `⏳ Time Travel: ${selectedEra.name}`}
       isHindi={language === 'hindi'}
     >
-      <div className="w-full max-w-7xl mx-auto p-3 sm:p-6 text-slate-100 space-y-6">
+      <div className="w-full px-4 sm:px-8 py-6 text-slate-100 space-y-6">
         
         {/* HEADER BAR */}
         <div className="bg-gradient-to-r from-purple-950/80 via-slate-900 to-amber-950/80 border border-purple-500/30 p-5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">

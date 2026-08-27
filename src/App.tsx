@@ -1970,6 +1970,9 @@ export default function App() {
   const [fullImageModalUrl, setFullImageModalUrl] = useState<string | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isSharePosterOpen, setIsSharePosterOpen] = useState(false);
+  const [customPosterQuote, setCustomPosterQuote] = useState<string>("शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।");
+  const [customPosterAuthor, setCustomPosterAuthor] = useState<string>("Nelson Mandela");
+  const [customPosterFont, setCustomPosterFont] = useState<string>("font-serif italic text-slate-100");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [feedbackRatingAccuracy, setFeedbackRatingAccuracy] = useState<number>(5);
   const [feedbackRatingSpeed, setFeedbackRatingSpeed] = useState<number>(5);
@@ -2593,8 +2596,8 @@ export default function App() {
 
     // Clean up raw LaTeX arrow & math symbol clutter
     str = str
-      .replaceAll('$\\rightarrow$', '→')
-      .replaceAll('\\rightarrow', '→')
+      .replaceAll('$\\nightarrow$', '→')
+      .replaceAll('\\nightarrow', '→')
       .replaceAll('$\\leftarrow$', '←')
       .replaceAll('\\leftarrow', '←')
       .replaceAll('$\\Rightarrow$', '⇒')
@@ -5609,15 +5612,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           )}
 
 
-          {/* Main Quick Options / Settings Button */}
+          {/* Main Quick Options / Settings Button (Made small, discreet & low-profile as requested) */}
           <button
             onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
-            className="px-3 py-1.5 bg-indigo-900/60 hover:bg-indigo-800/80 border border-indigo-500/50 text-indigo-100 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+            className="p-1 px-1.5 text-xs text-slate-500 hover:text-slate-200 hover:bg-slate-800/40 rounded-lg transition-all cursor-pointer bg-transparent border-none opacity-40 hover:opacity-100"
             title="Header Options & Theme Switcher"
           >
             <span>⚙️</span>
-            <span className="text-xs font-bold">Options</span>
-            <span className="text-[10px] text-indigo-300">▼</span>
           </button>
 
           {/* User Avatar */}
@@ -5840,7 +5841,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 className="w-full bg-[#03060E] border border-indigo-500/40 rounded-lg text-xs text-indigo-100 p-1.5 focus:outline-none focus:border-cyan-400"
               >
                 {INDIAN_LANGUAGES.map((langItem) => (
-                  <option key={langItem.code} value={langItem.code}>
+                  <option key={`${langItem.code}-${langItem.shortCode}`} value={langItem.code}>
                     {langItem.name} ({langItem.state})
                   </option>
                 ))}
@@ -6507,6 +6508,20 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         <span className="truncate">{language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}</span>
                       </button>
                       <button
+                        onClick={() => { setActiveView('book-reader'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
+                        className="w-full flex items-center justify-between gap-2 p-2 rounded-xl text-indigo-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-indigo-500/15 border border-indigo-500/35 cursor-pointer font-extrabold"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-sm">📚</span>
+                          <span className="truncate font-black text-indigo-200">
+                            {language === 'hindi' ? 'डिजिटल बुक रीडर' : 'Global Book Reader'}
+                          </span>
+                        </div>
+                        <span className="text-[8px] bg-indigo-500 text-slate-950 px-1 py-0.5 rounded font-black uppercase tracking-wider shrink-0">
+                          HOT 🔥
+                        </span>
+                      </button>
+                      <button
                         onClick={() => { setActiveView('article-reader'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
                         className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/10 border border-amber-500/20 cursor-pointer font-bold"
                       >
@@ -6708,7 +6723,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           className="bg-slate-900/90 border border-rose-500/40 rounded-xl text-[10px] text-rose-200 px-2 py-1 focus:outline-none cursor-pointer max-w-[140px] truncate"
                         >
                           {INDIAN_LANGUAGES.map((langItem) => (
-                            <option key={langItem.code} value={langItem.code} className="bg-slate-950 text-white">
+                            <option key={`${langItem.code}-${langItem.shortCode}`} value={langItem.code} className="bg-slate-950 text-white">
                               {langItem.name}
                             </option>
                           ))}
@@ -8653,11 +8668,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         </div>
       )}
 
-      {/* WHATSAPP STUDY STATUS POSTER MODAL (9:16 ASPECT RATIO) */}
+            {/* WHATSAPP STUDY STATUS POSTER MODAL (9:16 ASPECT RATIO) */}
       {isSharePosterOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in font-sans">
           <div className="bg-[#090D16] border border-emerald-500/20 rounded-3xl w-full max-w-md p-5 sm:p-6 relative shadow-2xl space-y-4 text-left max-h-[95vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-850 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-850 pb-3 border-none shadow-none bg-transparent">
               <div className="flex items-center gap-2">
                 <span className="text-xl">🎨</span>
                 <div>
@@ -8667,7 +8682,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </div>
               <button 
                 onClick={() => setIsSharePosterOpen(false)}
-                className="p-1 px-2.5 text-slate-400 hover:text-white bg-slate-850/80 hover:bg-slate-800 rounded-lg transition-all text-xs font-bold"
+                className="p-1 px-2.5 text-slate-400 hover:text-white bg-slate-850/80 hover:bg-slate-800 rounded-lg transition-all text-xs font-bold border-none"
               >
                 ✕ Close
               </button>
@@ -8702,31 +8717,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Poster Center Quote Area */}
                 <div className="my-auto py-4 space-y-3 relative z-10">
                   <span className="text-4xl text-emerald-400/25 font-serif leading-none absolute -top-3 -left-1 select-none">“</span>
-                  <p className="text-xs sm:text-sm font-bold text-slate-100 leading-relaxed tracking-wide text-center pt-2 italic px-2">
-                    {(() => {
-                      const sampleQuotes = [
-                        { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
-                        { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                        { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
-                        { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                        { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
-                      ];
-                      const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
-                      return activeQuote.t;
-                    })()}
+                  <p className={`text-xs sm:text-sm font-bold text-center pt-2 italic px-2 leading-relaxed tracking-wide ${customPosterFont}`}>
+                    {customPosterQuote}
                   </p>
                   <p className="text-[10px] text-emerald-400 text-right pr-2 font-extrabold select-none leading-none">
-                    — {(() => {
-                      const sampleQuotes = [
-                        { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
-                        { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                        { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
-                        { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                        { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
-                      ];
-                      const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
-                      return activeQuote.a;
-                    })()}
+                    — {customPosterAuthor}
                   </p>
                 </div>
 
@@ -8747,22 +8742,62 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </div>
             </div>
 
+            {/* Customization Controls (अल्टरनेट फोंट्स और शब्द एडिटिंग) */}
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-850 space-y-3 font-sans">
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Font Style (चुनें अलग फॉन्ट स्टाइल):</span>
+                <div className="grid grid-cols-4 gap-1">
+                  {[
+                    { id: 'font-serif italic text-slate-100', name: 'Scholar 📜' },
+                    { id: 'font-sans font-black tracking-tight text-white uppercase', name: 'Impact 💥' },
+                    { id: 'font-mono tracking-widest text-emerald-300', name: 'Digital 💻' },
+                    { id: 'font-sans font-semibold tracking-wide text-indigo-200', name: 'Modern ✨' }
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setCustomPosterFont(f.id)}
+                      className={`p-1.5 text-[10px] font-bold rounded-lg border text-center transition-all cursor-pointer ${
+                        customPosterFont === f.id ? 'bg-emerald-600/30 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-850 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {f.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Status Text (लिखा हुआ शब्द बदलें):</span>
+                  <textarea
+                    value={customPosterQuote}
+                    onChange={(e) => setCustomPosterQuote(e.target.value)}
+                    className="w-full bg-[#050812] border border-slate-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-medium resize-none border-none"
+                    rows={2}
+                    placeholder="Enter status quote/text..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Signature Name (लेखक का नाम):</span>
+                  <input
+                    type="text"
+                    value={customPosterAuthor}
+                    onChange={(e) => setCustomPosterAuthor(e.target.value)}
+                    className="w-full bg-[#050812] border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 font-medium border-none"
+                    placeholder="Author name..."
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Actions for modal */}
             <div className="space-y-2 pt-1 font-sans">
               <button
                 type="button"
                 onClick={() => {
-                  const sampleQuotes = [
-                    { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
-                    { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                    { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
-                    { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                    { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
-                  ];
-                  const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                   const dynamicShareUrl = getAppShareUrl();
-                  
-                  const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
+                  const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${customPosterQuote}"\n- _${customPosterAuthor}_\n\n📲 *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
                   
                   if (navigator.share) {
                     navigator.share({
@@ -8779,7 +8814,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     showToast("Opening WhatsApp Status Share... 💬", "info");
                   }
                 }}
-                className="w-full py-2.5 bg-emerald-650 hover:bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                className="w-full py-2.5 bg-emerald-650 hover:bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] flex items-center justify-center gap-2 shadow-lg cursor-pointer border-none"
               >
                 <span>💬 share status on whatsapp</span>
               </button>
@@ -8787,20 +8822,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 type="button"
                 onClick={() => {
-                  const sampleQuotes = [
-                    { t: "शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।", a: "Nelson Mandela" },
-                    { t: "उठो, जागो और तब तक मत रुको जब तक लक्ष्य की प्राप्ति न हो जाए।", a: "Swami Vivekananda" },
-                    { t: "कठिन परिश्रम का कोई विकल्प नहीं है, निरंतर अभ्यास ही सफलता की कुंजी है।", a: "Golden Study Rule" },
-                    { t: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", a: "Brian Herbert" },
-                    { t: "सफलता की शुरुआत हमेशा स्वयं पर विश्वास करने से होती है।", a: "HANS COMPAIN Guidance" }
-                  ];
-                  const activeQuote = sampleQuotes[new Date().getDate() % sampleQuotes.length];
                   const dynamicShareUrl = getAppShareUrl();
-                  
-                  const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${activeQuote.t}"\n- _${activeQuote.a}_\n\n📲 JOIN AT: ${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
+                  const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${customPosterQuote}"\n- _${customPosterAuthor}_\n\n📲 JOIN AT: ${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
                   copyToClipboard(shareText, showToast);
                 }}
-                className="w-full py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer border-none"
               >
                 <span>📋 copy status quote text</span>
               </button>
