@@ -232,7 +232,7 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
               <span>📊</span>
-              <span>{isHindi ? "कमज़ोर विषय विश्लेषण एवं सुधार वर्कशीट" : "AI Performance Diagnostic & Weak Area Analytics"}</span>
+              <span>{isHindi ? "कमज़ोर विषय विश्लेषण एवं सुधार" : "AI Performance Diagnostics"}</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
               {isHindi
@@ -247,6 +247,49 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
             <Download className="w-4 h-4" />
             <span>{isHindi ? "वर्कशीट PDF डाउनलोड" : "Download Worksheet PDF"}</span>
           </button>
+        </div>
+
+        {/* Quick User Guide Box (Onboarding Helper) */}
+        <div className="bg-indigo-950/25 border border-indigo-500/30 rounded-2xl p-5 space-y-3">
+          <h2 className="text-xs font-black text-indigo-300 uppercase tracking-widest flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>{isHindi ? "🚀 इसका उपयोग कैसे करें? (Quick Step-by-Step Guide)" : "🚀 How to Use this Tool? (Quick Guide)"}</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-900/40 p-3.5 border border-slate-800/60 rounded-xl space-y-1.5">
+              <div className="text-xs font-black text-amber-400 flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-mono font-bold text-[10px]">1</span>
+                <span>{isHindi ? "विषय चुनें या खोजें" : "Choose / Enter Topic"}</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                {isHindi 
+                  ? "बाईं ओर दी गई चिह्नित कमज़ोर टॉपिक की लिस्ट से कोई टॉपिक चुनें, या ऊपर बने सर्च इनपुट में कोई नया विषय लिखकर 'Diagnose' करें।"
+                  : "Pick an identified weak topic from the left sidebar list, or type any subject/chapter in the box above and click 'Diagnose'."}
+              </p>
+            </div>
+            <div className="bg-slate-900/40 p-3.5 border border-slate-800/60 rounded-xl space-y-1.5">
+              <div className="text-xs font-black text-sky-400 flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center font-mono font-bold text-[10px]">2</span>
+                <span>{isHindi ? "3-चरणीय सुधार योजना पढ़ें" : "Study Action Plan"}</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                {isHindi 
+                  ? "AI आपके लिए वैचारिक अंतराल (Conceptual Gap Analysis) और उसे मजबूत करने के लिए 3 बहुत ही आसान कदम (3-Step Action Plan) दर्शाएगा।"
+                  : "Review the AI-identified conceptual gaps and follow the personalized 3-step action plan carefully to clear confusion."}
+              </p>
+            </div>
+            <div className="bg-slate-900/40 p-3.5 border border-slate-800/60 rounded-xl space-y-1.5">
+              <div className="text-xs font-black text-emerald-400 flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-mono font-bold text-[10px]">3</span>
+                <span>{isHindi ? "लाइव अभ्यास प्रश्न हल करें" : "Solve Practice Drills"}</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                {isHindi 
+                  ? "नीचे दिए गए अभ्यास प्रश्नों (Targeted MCQs) को हल करें। सही/गलत उत्तर चुनने पर विस्तृत स्पष्टीकरण (Explanation) ज़रूर पढ़ें।"
+                  : "Solve the quick practice multiple-choice questions at the bottom. Read the explanation on submit to secure your progress."}
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Custom Subject Diagnostic Trigger */}

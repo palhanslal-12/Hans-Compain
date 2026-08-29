@@ -1924,6 +1924,49 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
         </div>
       </div>
 
+      {/* Premium Steno Walkthrough Steps Guide */}
+      <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h2 className="text-xs font-black text-cyan-300 uppercase tracking-widest flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+          <span>{language === 'hindi' ? "📚 स्टेनो गाइड: सीखने के 3 आसान कदम (3 Easy Steps)" : "📚 Steno Guide: 3 Steps to Master Stenography"}</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-cyan-300 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-mono font-bold text-[10px]">1</span>
+              <span>{language === 'hindi' ? "वर्णमाला व स्ट्रोक सीखें (Learn Strokes)" : "Learn & Look Up Strokes"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {language === 'hindi' 
+                ? "टैब 2 'स्ट्रोक विजुअलाइज़र व डिक्शनरी' पर जाएँ। यहाँ हिन्दी ऋषि/मानक व पिटमैन प्रणाली के अक्षरों के सटीक आरेख और नियम खोजें व अभ्यास करें।"
+                : "Go to Tab 2 'Stroke Visualizer'. Find precise, animated stroke diagrams for Pitman, Gregg, and Rishi Hindi shorthand symbols."}
+            </p>
+          </div>
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-sky-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center font-mono font-bold text-[10px]">2</span>
+              <span>{language === 'hindi' ? "डिक्टेशन सुनें व लिखें (Listen & Dictate)" : "Listen & Practice Pad"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {language === 'hindi' 
+                ? "टैब 1 'डिजिटल पैड' या टैब 4 पर जाएँ। अपनी मनपसंद स्पीड (60, 80 या 100 WPM) का ऑडियो चलाएं और लाइव राइटिंग पैड पर त्वरित स्ट्रोक लिखें।"
+                : "Open Tab 1 'Writing Pad' or Tab 4. Turn on the live audio dictation at your desired speed (60, 80, 100 WPM) and sketch strokes."}
+            </p>
+          </div>
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-emerald-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-mono font-bold text-[10px]">3</span>
+              <span>{language === 'hindi' ? "टाइपिंग व त्रुटि जाँच (Transcribe & Score)" : "Transcribe & Audit"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {language === 'hindi' 
+                ? "टैब 5 'टाइपिंग व एक्यूरेसी टेस्ट' में अपनी लिखी शॉर्टहैंड को सामान्य हिंदी/अंग्रेजी में टाइप करें। AI आपकी सटीकता व गलतियों का विश्लेषण करेगा।"
+                : "In Tab 5 'Typing & Accuracy Test', transcribe your notes into plain text. AI instantly audits your typing speed and outline precision."}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Navigation Tabs Bar */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {[

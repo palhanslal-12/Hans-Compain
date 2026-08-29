@@ -2162,6 +2162,147 @@ app.post("/api/flashcards", async (req, res) => {
   }
 });
 
+// AI-Driven Real-time Auto-Updating Daily Current Affairs Endpoint
+app.post("/api/current-affairs/daily", async (req, res) => {
+  try {
+    const { language } = req.body;
+    const isHindi = language === "hindi";
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const cacheFile = path.join(DATA_DIR, `current_affairs_daily_${isHindi ? 'hi' : 'en'}_${todayString}.json`);
+
+    // 1. Check if cached version for today already exists
+    if (fs.existsSync(cacheFile)) {
+      try {
+        const cachedData = JSON.parse(fs.readFileSync(cacheFile, "utf-8"));
+        if (Array.isArray(cachedData) && cachedData.length > 0) {
+          return res.json({ articles: cachedData });
+        }
+      } catch (err) {
+        console.error("Error reading cached current affairs", err);
+      }
+    }
+
+    // 2. Not cached or failed to load. Use Gemini with Search Grounding to fetch the actual daily news!
+    const ai = getGenAI();
+    const day = today.getDate();
+    const monthsHi = ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
+    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthStr = isHindi ? monthsHi[today.getMonth()] : monthsEn[today.getMonth()];
+    const dateFormatted = `${day} ${monthStr} ${today.getFullYear()}`;
+
+    const prompt = `Conduct a live, precise web search to retrieve 4 to 5 major, actual, verified, and breaking National and International current affairs developments for today, ${dateFormatted} (or within the last 24-48 hours).
+    Focus specifically on high-yield and prestigious exam-relevant events in India like policies, science achievements, sports, economy updates, or international treaties.
+
+    For each current affairs article, generate the complete information.
+    Render ALL text (including questions, answers, analyses) in the language requested: ${isHindi ? 'Hindi (हिन्दी)' : 'English'}.
+    Ensure the date in Hindi is exactly in the format like "28 अगस्त 2026", and in English like "28 August 2026".
+
+    Each article must perfectly match this JSON structure:
+    - id: unique string starting with "ca-" and a timestamp
+    - category: Must be one of: 'National', 'International', 'Economy & Banking', 'Science & Tech', 'Sports', 'State Affairs', 'Schemes & Governance'
+    - titleHi: Title of article in Hindi
+    - titleEn: Title of article in English
+    - summaryHi: Comprehensive 2-3 sentence summary in Hindi
+    - summaryEn: Comprehensive 2-3 sentence summary in English
+    - date: String formatted date (e.g. "${dateFormatted}")
+    - readTime: String (e.g. "3 मिनट" or "3 min")
+    - examRelevance: Specific exams relevant (e.g. "UPSC CSE / SSC CGL")
+    - keyFact: A key fact or bullet-proof statistic
+    - tag: Subject tag (e.g., "Technology")
+    - backgroundHi: Detailed context/background in Hindi
+    - backgroundEn: Detailed context/background in English
+    - deepAnalysisHi: Array of 3-4 deep-dive analysis bullet-points in Hindi
+    - deepAnalysisEn: Array of 3-4 deep-dive analysis bullet-points in English
+    - keyProvisionsHi: Array of 2-3 key policy/system provisions in Hindi
+    - keyProvisionsEn: Array of 2-3 key policy/system provisions in English
+    - examImpactHi: Specific prelims and mains significance in Hindi
+    - examImpactEn: Specific prelims and mains significance in English
+    - mcq: Embedded practice question object with properties:
+       * questionHi: Question in Hindi
+       * questionEn: Question in English
+       * optionsHi: Array of exactly 4 choices in Hindi
+       * optionsEn: Array of exactly 4 choices in English
+       * correctIndex: Integer (0 to 3) representing the correct option index
+       * explanationHi: Detailed explanation of correct answer in Hindi
+       * explanationEn: Detailed explanation of correct answer in English
+    - mainsQuestionHi: Descriptive question in Hindi
+    - mainsQuestionEn: Descriptive question in English`;
+
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+      contents: prompt,
+      config: {
+        tools: [{ googleSearch: {} }],
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              id: { type: Type.STRING },
+              category: { type: Type.STRING },
+              titleHi: { type: Type.STRING },
+              titleEn: { type: Type.STRING },
+              summaryHi: { type: Type.STRING },
+              summaryEn: { type: Type.STRING },
+              date: { type: Type.STRING },
+              readTime: { type: Type.STRING },
+              examRelevance: { type: Type.STRING },
+              keyFact: { type: Type.STRING },
+              tag: { type: Type.STRING },
+              backgroundHi: { type: Type.STRING },
+              backgroundEn: { type: Type.STRING },
+              deepAnalysisHi: { type: Type.ARRAY, items: { type: Type.STRING } },
+              deepAnalysisEn: { type: Type.ARRAY, items: { type: Type.STRING } },
+              keyProvisionsHi: { type: Type.ARRAY, items: { type: Type.STRING } },
+              keyProvisionsEn: { type: Type.ARRAY, items: { type: Type.STRING } },
+              examImpactHi: { type: Type.STRING },
+              examImpactEn: { type: Type.STRING },
+              mcq: {
+                type: Type.OBJECT,
+                properties: {
+                  questionHi: { type: Type.STRING },
+                  questionEn: { type: Type.STRING },
+                  optionsHi: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  optionsEn: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  correctIndex: { type: Type.INTEGER },
+                  explanationHi: { type: Type.STRING },
+                  explanationEn: { type: Type.STRING }
+                },
+                required: ["questionHi", "questionEn", "optionsHi", "optionsEn", "correctIndex", "explanationHi", "explanationEn"]
+              },
+              mainsQuestionHi: { type: Type.STRING },
+              mainsQuestionEn: { type: Type.STRING }
+            },
+            required: [
+              "id", "category", "titleHi", "titleEn", "summaryHi", "summaryEn",
+              "date", "readTime", "examRelevance", "keyFact", "tag",
+              "backgroundHi", "backgroundEn", "deepAnalysisHi", "deepAnalysisEn",
+              "keyProvisionsHi", "keyProvisionsEn", "examImpactHi", "examImpactEn",
+              "mcq", "mainsQuestionHi", "mainsQuestionEn"
+            ]
+          }
+        },
+        systemInstruction: "You are HansAI Current Affairs Engine. Generate real, high-quality, actual current affairs with live search."
+      }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No current affairs generated by model");
+
+    const articles = JSON.parse(text);
+    if (Array.isArray(articles) && articles.length > 0) {
+      // Save to cache file for instant future loads
+      fs.writeFileSync(cacheFile, JSON.stringify(articles, null, 2), "utf-8");
+      return res.json({ articles });
+    }
+    throw new Error("Invalid format returned by model");
+  } catch (err: any) {
+    console.error("Error in /api/current-affairs/daily:", err);
+    res.status(500).json({ error: err.message || "Failed to generate daily current affairs" });
+  }
+});
+
 // 7. Photo to MCQ / OCR Doubt Solver
 app.post("/api/ocr-solve", async (req, res) => {
   try {

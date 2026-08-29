@@ -546,6 +546,49 @@ export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showTo
         </div>
       </div>
 
+      {/* Premium Memory Map Walkthrough Steps Guide */}
+      <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h2 className="text-xs font-black text-emerald-300 uppercase tracking-widest flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+          <span>{language === 'hindi' ? "📚 मेमोरी मैप गाइड: याददाश्त बढ़ाने के 3 आसान कदम (3 Easy Steps)" : "📚 Memory Map Guide: 3 Steps to 100% Retention"}</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-emerald-300 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-300 flex items-center justify-center font-mono font-bold text-[10px]">1</span>
+              <span>{language === 'hindi' ? "विषय चुनें या खोजें (Choose or Search)" : "Choose & Track Decay"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {language === 'hindi' 
+                ? "नीचे दिए गए न्यूरल नेटवर्क मैप में से किसी नोड पर क्लिक करें, या ऊपर सर्च बार में कोई भी नया अध्याय लिखकर 'Generate Node' करें।"
+                : "Click on any node in the interactive network map below, or type a custom topic in the search bar to generate a new memory node."}
+            </p>
+          </div>
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-sky-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center font-mono font-bold text-[10px]">2</span>
+              <span>{language === 'hindi' ? "निमोनिक व व्याख्या पढ़ें (Learn Mnemonic)" : "Review Mnemonic & Details"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {language === 'hindi' 
+                ? "चुने गए विषय की 'याद रखने की शार्ट-ट्रिक (Mnemonic)' पढ़ें और स्पीकर बटन दबाकर व्याख्या को ध्यान से सुनें।"
+                : "Read the dynamic memory trick (Mnemonic) of the selected topic and click the speaker icon to listen to the explanation."}
+            </p>
+          </div>
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-rose-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center font-mono font-bold text-[10px]">3</span>
+              <span>{language === 'hindi' ? "स्पेसड रिपीटिशन (Spaced Repetition)" : "Beat the Forgetting Curve"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {language === 'hindi' 
+                ? "नोड के बगल में दिख रहे 'Retention Score' पर नजर रखें। स्कोर घटने पर 'Mark as Re-studied' बटन दबाएं ताकि मेमोरी 100% पर रिसेट हो जाए।"
+                : "Watch the active Retention Score. If it decays, click 'Mark as Re-studied' to boost the score back to 100% and secure long-term memory."}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* UNIVERSAL SEARCH & AI NODE GENERATOR BAR */}
       <form onSubmit={handleSearchOrGenerate} className="relative w-full">
         <div className="bg-slate-900 border-2 border-emerald-500/40 focus-within:border-emerald-400 rounded-2xl p-1.5 flex items-center gap-2 shadow-xl">

@@ -663,10 +663,8 @@ export default function App() {
     return translations[language][key] || key;
   };
 
-  // Hans Compain Intro Splash Animation & Feature Walkthrough
-  const [showStartupIntro, setShowStartupIntro] = useState<boolean>(() => {
-    return !sessionStorage.getItem('hanscompain_intro_seen');
-  });
+  // Hans Compain Intro Splash Animation & Feature Walkthrough (Disabled)
+  const [showStartupIntro, setShowStartupIntro] = useState<boolean>(false);
 
   // Appearance & Personalization Settings state
   const [theme, setTheme] = useState<'midnight' | 'charcoal' | 'light'>(() => {
@@ -6184,19 +6182,19 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     }}
                   />
 
-                  {/* Intro & Feature Carousel Replay Trigger */}
+                  {/* Top Tour & Overview Control Button */}
                   <button
                     onClick={() => {
                       setShowStartupIntro(true);
                       if (window.innerWidth < 1024) setSidebarOpen(false);
                     }}
-                    className="w-full py-2 px-3 bg-gradient-to-r from-purple-950/60 to-indigo-950/60 hover:from-purple-900/80 hover:to-indigo-900/80 border border-purple-500/30 rounded-xl text-purple-200 text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-sm"
+                    className="w-full py-2 px-3 bg-gradient-to-r from-purple-900/40 to-indigo-950/40 hover:from-purple-900/60 hover:to-indigo-900/60 text-purple-200 hover:text-white rounded-2xl font-bold text-xs flex items-center justify-between transition-all border border-purple-500/30 cursor-pointer active:scale-[0.99]"
                   >
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                      <span>{language === 'hindi' ? "हंस कंप्लेन फीचर्स एनिमेटेड टूर ✨" : "Hans Compain Features Tour ✨"}</span>
+                      <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                      <span>{language === 'hindi' ? "हंस कंप्लेन फीचर्स एनिमेटेड टूर ✨" : "HANS COMPAIN Features Animated Tour ✨"}</span>
                     </div>
-                    <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">Overview</span>
+                    <span className="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded font-mono">Overview</span>
                   </button>
 
                   {/* New Chat Button */}
@@ -6214,19 +6212,19 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     <span className="text-[9px] bg-indigo-900/80 px-1.5 py-0.5 rounded text-indigo-200 font-mono">ChatGPT-Style</span>
                   </button>
 
-                  {/* Public AI Rules & Safety Button in Sidebar */}
+                  {/* Public AI Rules Modal Button */}
                   <button
                     onClick={() => {
                       setIsAiRulesModalOpen(true);
                       if (window.innerWidth < 1024) setSidebarOpen(false);
                     }}
-                    className="w-full py-2 px-3 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 rounded-xl text-amber-200 text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-sm"
+                    className="w-full py-2 px-3 bg-[#1d120a] border border-amber-500/30 hover:border-amber-400 text-amber-200 hover:text-amber-100 rounded-2xl text-xs font-bold flex items-center justify-between transition-all shadow-sm cursor-pointer active:scale-[0.99]"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">⚖️</span>
-                      <span className="truncate">{language === 'hindi' ? "पब्लिक AI नियम व गाइडलाइन्स" : "AI Public Rules & Guidelines"}</span>
+                      <span>⚖️</span>
+                      <span>{language === 'hindi' ? "पब्लिक एआई नियम व गाइडलाइन्स" : "Public AI Rules & Guidelines"}</span>
                     </div>
-                    <span className="text-[8px] bg-amber-500/30 text-amber-200 px-1.5 py-0.5 rounded font-black uppercase">Rules</span>
+                    <span className="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">RULES</span>
                   </button>
 
                   {/* Sidebar Search Bar */}
@@ -6253,6 +6251,308 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 {/* Middle Scrollable list: Saved Chats & Quick Features */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-4">
                   
+                  {/* Premium Navigation Shortcuts for All Main Features */}
+                  <div className="space-y-2 border-b border-slate-850/60 pb-3">
+                    <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-widest px-1 flex items-center gap-1.5">
+                      <span>🚀</span>
+                      <span>{language === 'hindi' ? "मुख्य स्टडी टूल्स व फीचर्स" : "Core Study Studios"}</span>
+                    </span>
+                    <div className="grid grid-cols-1 gap-2">
+                      <button
+                        onClick={() => {
+                          setActiveView('chat');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'chat'
+                            ? 'bg-indigo-600/15 border-indigo-500/60 text-indigo-200'
+                            : 'bg-[#080C16]/80 border-slate-850 hover:border-indigo-500/30 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🏠</span>
+                          <span>{language === 'hindi' ? 'होम / एआई चैट सहायक' : 'Home / AI Assistant'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('group-quiz');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'group-quiz'
+                            ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
+                            : 'bg-emerald-950/10 border-emerald-500/35 hover:border-emerald-400/50 hover:bg-emerald-950/20 text-emerald-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">⚔️</span>
+                          <span>{language === 'hindi' ? 'ग्रुप क्विज़ बैटल व लाइव रैंक्स' : 'Live Group Quiz'}</span>
+                        </div>
+                        <span className="text-[9px] bg-emerald-500 text-slate-950 px-2 py-0.5 rounded font-black">LIVE 🏆</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('current-affairs');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'current-affairs'
+                            ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
+                            : 'bg-amber-950/10 border-amber-500/35 hover:border-amber-400/50 hover:bg-amber-950/20 text-amber-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📰</span>
+                          <span>{language === 'hindi' ? 'दैनिक करेंट अफेयर्स (Daily CA)' : 'Daily Current Affairs'}</span>
+                        </div>
+                        <span className="text-[9px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded font-black">DAILY</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('steno');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'steno'
+                            ? 'bg-sky-500/15 border-sky-500/60 text-sky-200'
+                            : 'bg-sky-950/10 border-sky-500/35 hover:border-sky-400/50 hover:bg-sky-950/20 text-sky-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">✍️</span>
+                          <span>{language === 'hindi' ? 'All Stenographer • सम्पूर्ण आशुलिपि' : 'Shorthand Studio & Lab'}</span>
+                        </div>
+                        <span className="text-[9px] bg-sky-500 text-slate-950 px-2 py-0.5 rounded font-black uppercase">Syllabus & Lab</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('mock-interview');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'mock-interview'
+                            ? 'bg-indigo-600/15 border-indigo-500/60 text-indigo-200'
+                            : 'bg-indigo-950/10 border-indigo-500/35 hover:border-indigo-400/50 hover:bg-indigo-950/20 text-indigo-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🎙️</span>
+                          <span>{language === 'hindi' ? 'AI मॉक इंटरव्यू सिमुलेटर' : 'Mock Interview Board'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('performance-analytics');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'performance-analytics'
+                            ? 'bg-rose-500/15 border-rose-500/60 text-rose-200'
+                            : 'bg-rose-950/10 border-rose-500/35 hover:border-rose-400/50 hover:bg-rose-950/20 text-rose-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📊</span>
+                          <span>{language === 'hindi' ? 'AI परफॉर्मेंस एवं कमज़ोर विषय' : 'AI Performance & Weak Areas'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('goals');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'goals'
+                            ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
+                            : 'bg-amber-950/10 border-amber-500/35 hover:border-amber-400/50 hover:bg-amber-950/20 text-amber-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🎯</span>
+                          <span>{language === 'hindi' ? 'दैनिक अध्ययन लक्ष्य (Color Badges)' : 'Daily Learning Goals'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('study-plan');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'study-plan'
+                            ? 'bg-cyan-600/15 border-cyan-500/60 text-cyan-200'
+                            : 'bg-[#0B1528]/80 border-blue-500/30 hover:border-blue-400/50 hover:bg-[#12223C] text-blue-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📅</span>
+                          <span>{language === 'hindi' ? 'स्मार्ट स्टडी प्लानर' : 'Smart Study Planner'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('neural-map');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'neural-map'
+                            ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-200'
+                            : 'bg-emerald-950/10 border-emerald-500/35 hover:border-emerald-400/50 hover:bg-emerald-950/20 text-emerald-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🧠</span>
+                          <span>{language === 'hindi' ? 'AI न्यूरल मेमोरी मैप' : 'AI Neural Memory Map'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('time-travel');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'time-travel'
+                            ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
+                            : 'bg-amber-950/10 border-amber-600/30 hover:border-amber-500 hover:bg-amber-900/20 text-amber-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">⏳</span>
+                          <span>{language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('book-reader');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'book-reader'
+                            ? 'bg-violet-600/15 border-violet-500/60 text-violet-200'
+                            : 'bg-violet-950/10 border-violet-500/35 hover:border-violet-400/50 hover:bg-violet-950/20 text-violet-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📚</span>
+                          <span>{language === 'hindi' ? 'डिजिटल बुक रीडर' : 'Digital Book Reader'}</span>
+                        </div>
+                        <span className="text-[9px] bg-violet-600 text-white px-2 py-0.5 rounded font-black">HOT 🔥</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('article-reader');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'article-reader'
+                            ? 'bg-yellow-500/15 border-yellow-500/60 text-yellow-200'
+                            : 'bg-yellow-950/10 border-yellow-500/30 hover:border-yellow-400 hover:bg-yellow-900/20 text-yellow-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🎧</span>
+                          <span>{language === 'hindi' ? 'आर्टिकल वाइस रीडर 🎙️' : 'Voice Article Reader 🎙️'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('notes-ocr');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'notes-ocr'
+                            ? 'bg-cyan-500/15 border-cyan-500/60 text-cyan-200'
+                            : 'bg-cyan-950/10 border-cyan-500/30 hover:border-cyan-400 hover:bg-cyan-900/20 text-cyan-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📷</span>
+                          <span>{language === 'hindi' ? 'हस्तलिखित नोट्स फोटो स्कैनर 📷' : 'Handwritten Notes Scanner 📷'}</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('notes');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'notes'
+                            ? 'bg-indigo-600/15 border-indigo-500/60 text-indigo-200'
+                            : 'bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🎙️</span>
+                          <span>Voice Article & Audio Recorder</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('map');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'map'
+                            ? 'bg-indigo-600/15 border-indigo-500/60 text-indigo-200'
+                            : 'bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🗺️</span>
+                          <span>GIS & Map Visualizer</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('quiz');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'quiz'
+                            ? 'bg-indigo-600/15 border-indigo-500/60 text-indigo-200'
+                            : 'bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">🧠</span>
+                          <span>Interactive Live Quiz</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('process');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'process'
+                            ? 'bg-indigo-600/15 border-indigo-500/60 text-indigo-200'
+                            : 'bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📁</span>
+                          <span>Study Notes & Folders</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Saved Chat History / Recent Chats (Grouped by Date - ChatGPT Style) */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
@@ -6411,160 +6711,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     )}
                   </div>
 
-                  {/* Quick Tools & Modes */}
-                  <div className="space-y-1.5 pt-2 border-t border-slate-850">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 block">
-                      {language === 'hindi' ? "विशेषज्ञ AI टूल्स व हब" : "Specialized AI Hub"}
-                    </span>
-                    <div className="space-y-1 text-xs font-semibold">
-                      {/* PROMINENT LIVE MULTIPLAYER GROUP QUIZ BUTTON */}
-                      <button
-                        onClick={() => { setActiveView('group-quiz'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl text-emerald-200 hover:text-white hover:bg-gradient-to-r hover:from-emerald-900/60 hover:to-teal-900/60 transition-all text-left bg-gradient-to-r from-emerald-950/90 to-teal-950/90 border-2 border-emerald-400/60 cursor-pointer font-black shadow-lg shadow-emerald-950/60 ring-1 ring-emerald-400/30"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="text-base shrink-0">⚔️</span>
-                          <span className="truncate font-black text-emerald-300">
-                            {language === 'hindi' ? 'ग्रुप क्विज़ बैटल व लाइव रैंक्स' : 'Live Multiplayer Group Quiz'}
-                          </span>
-                        </div>
-                        <span className="text-[8px] bg-emerald-400 text-slate-950 px-1.5 py-0.5 rounded-md font-black uppercase shrink-0 animate-pulse">
-                          LIVE 🏆
-                        </span>
-                      </button>
-
-                      {/* DAILY CURRENT AFFAIRS & QUIZ 2026 */}
-                      <button
-                        onClick={() => { setActiveView('current-affairs'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl text-amber-200 hover:text-white hover:bg-gradient-to-r hover:from-amber-900/60 hover:to-orange-900/60 transition-all text-left bg-gradient-to-r from-amber-950/80 to-orange-950/80 border border-amber-500/40 cursor-pointer font-bold shadow-md"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="text-base shrink-0">📰</span>
-                          <span className="truncate font-bold text-amber-300">
-                            {language === 'hindi' ? 'दैनिक करेंट अफेयर्स (Daily CA)' : 'Daily Current Affairs 2026'}
-                          </span>
-                        </div>
-                        <span className="text-[8px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded-md font-bold uppercase shrink-0">
-                          DAILY
-                        </span>
-                      </button>
-
-                      {/* PROMINENT ALL STENOGRAPHER SHORTCUT BUTTON */}
-                      <button
-                        onClick={() => { setActiveView('steno'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl text-sky-200 hover:text-white hover:bg-gradient-to-r hover:from-sky-900/60 hover:to-cyan-900/60 transition-all text-left bg-gradient-to-r from-sky-950/80 to-cyan-950/80 border-2 border-cyan-400/50 cursor-pointer font-black shadow-lg shadow-cyan-950/60"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="text-base shrink-0">✍️</span>
-                          <span className="truncate font-black text-sky-300">
-                            {language === 'hindi' ? 'All Stenographer • सम्पूर्ण स्टेनो' : 'All Stenographer Studio'}
-                          </span>
-                        </div>
-                        <span className="text-[8px] bg-cyan-400 text-slate-950 px-1.5 py-0.5 rounded-md font-black uppercase shrink-0">
-                          Syllabus & Lab
-                        </span>
-                      </button>
-
-                      <button
-                        onClick={() => { setActiveView('mock-interview'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-indigo-300 hover:text-indigo-200 hover:bg-[#121829] transition-all text-left bg-indigo-500/15 border border-indigo-500/30 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🎙️</span>
-                        <span className="truncate">{language === 'hindi' ? 'AI मॉक इंटरव्यू सिमुलेटर' : 'AI Mock Interview Simulator'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('performance-analytics'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-rose-300 hover:text-rose-200 hover:bg-[#121829] transition-all text-left bg-rose-500/15 border border-rose-500/30 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">📊</span>
-                        <span className="truncate">{language === 'hindi' ? 'AI परफॉरमेंस एवं कमज़ोर विषय' : 'AI Weak Area Diagnostics'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('goals'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/15 border border-amber-500/30 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🎯</span>
-                        <span className="truncate">{language === 'hindi' ? 'दैनिक अध्ययन लक्ष्य (Color Badges)' : 'Daily Study Goals & Targets'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('study-plan'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-cyan-300 hover:text-cyan-200 hover:bg-[#121829] transition-all text-left bg-cyan-500/15 border border-cyan-500/30 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🗓️</span>
-                        <span className="truncate">{language === 'hindi' ? 'स्मार्ट स्टडी प्लानर' : 'Smart Study Planner'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('neural-map'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/15 border border-emerald-500/30 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">🧠</span>
-                        <span className="truncate">{language === 'hindi' ? 'AI न्यूरल मेमोरी मैप' : 'AI Neural Memory Map'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('time-travel'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/15 border border-amber-500/30 cursor-pointer font-bold"
-                      >
-                        <span className="text-sm">⏳</span>
-                        <span className="truncate">{language === 'hindi' ? 'AI काल-यात्रा सिमुलेटर' : 'AI Time-Travel Simulator'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('book-reader'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center justify-between gap-2 p-2 rounded-xl text-indigo-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-indigo-500/15 border border-indigo-500/35 cursor-pointer font-extrabold"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="text-sm">📚</span>
-                          <span className="truncate font-black text-indigo-200">
-                            {language === 'hindi' ? 'डिजिटल बुक रीडर' : 'Global Book Reader'}
-                          </span>
-                        </div>
-                        <span className="text-[8px] bg-indigo-500 text-slate-950 px-1 py-0.5 rounded font-black uppercase tracking-wider shrink-0">
-                          HOT 🔥
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('article-reader'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-amber-300 hover:text-amber-200 hover:bg-[#121829] transition-all text-left bg-amber-500/10 border border-amber-500/20 cursor-pointer font-bold"
-                      >
-                        <Headphones className="w-4 h-4 text-amber-300" />
-                        <span className="truncate">{language === 'hindi' ? 'आर्टिकल वाइस रीडर 🎙️' : 'Article Voice Reader 🎙️'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('notes-ocr'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-emerald-300 hover:text-emerald-200 hover:bg-[#121829] transition-all text-left bg-emerald-500/10 border border-emerald-500/20 cursor-pointer font-bold"
-                      >
-                        <Camera className="w-4 h-4 text-emerald-300" />
-                        <span className="truncate">{language === 'hindi' ? 'हस्तलिखित नोट्स फोटो स्कैनर 📷' : 'Handwritten Notes Scanner 📷'}</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('history'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-transparent border-none cursor-pointer"
-                      >
-                        <span className="text-sm">🎙️</span>
-                        <span className="truncate">Voice Article & Audio Recorder</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('map'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-transparent border-none cursor-pointer"
-                      >
-                        <span className="text-sm">🗺️</span>
-                        <span className="truncate">GIS & Map Visualizer</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('quiz'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-transparent border-none cursor-pointer"
-                      >
-                        <span className="text-sm">🧠</span>
-                        <span className="truncate">Interactive Live Quiz</span>
-                      </button>
-                      <button
-                        onClick={() => { setActiveView('notes'); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                        className="w-full flex items-center gap-2.5 p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[#121829] transition-all text-left bg-transparent border-none cursor-pointer"
-                      >
-                        <span className="text-sm">📖</span>
-                        <span className="truncate">Study Notes & Folders</span>
-                      </button>
-                    </div>
-                  </div>
+                  {/* Quick Spacer */}
+                  <div className="pt-1" />
 
                   {/* Creator & Academic Hub Drawer Toggles */}
                   <div className="space-y-1.5 pt-2 border-t border-slate-850">
@@ -6632,7 +6780,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     </button>
 
                     {isAcademicHubOpen && (
-                      <div className="p-2 bg-[#090D18] border border-slate-850 rounded-xl space-y-2 text-left animate-fade-in max-h-60 overflow-y-auto">
+                      <div className="p-2 bg-[#090D18] border border-slate-850 rounded-xl space-y-2 text-left animate-fade-in max-h-64 overflow-y-auto">
                         <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Quick Shortcuts:</div>
                         <button onClick={() => { setIsUtilityDashboardOpen(true); }} className="w-full text-left p-2 bg-slate-900 hover:bg-slate-800 rounded text-xs text-indigo-300 font-medium cursor-pointer border-none">
                           ⚙️ Utility Dashboard
@@ -6642,6 +6790,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
                         <button onClick={() => { setIsSharePosterOpen(true); }} className="w-full text-left p-2 bg-slate-900 hover:bg-slate-800 rounded text-xs text-emerald-300 font-medium cursor-pointer border-none">
                           💬 Share Status
+                        </button>
+                        <button 
+                          onClick={() => { 
+                            setIsAiRulesModalOpen(true); 
+                            if (window.innerWidth < 1024) setSidebarOpen(false); 
+                          }} 
+                          className="w-full text-left p-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded text-xs text-amber-300 font-bold cursor-pointer"
+                        >
+                          ⚖️ {language === 'hindi' ? 'पब्लिक AI नियम व गाइडलाइन्स' : 'AI Public Rules & Guidelines'}
                         </button>
                       </div>
                     )}
@@ -8630,6 +8787,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="px-2 text-[9px] font-black text-slate-500 uppercase tracking-widest pt-4 mb-1.5">Extra Academic Utilities</div>
               {[
                 { id: 'goals', title: 'Daily Study Goals', desc: 'दैनिक पढ़ाई के लक्ष्य', icon: '🎯' },
+                { id: 'flashcards', title: 'Interactive AI Flashcards', desc: 'दैनिक वोकैबलरी व फ्लैशकार्ड अभ्यास', icon: '🎴' },
+                { id: 'affiliate-store', title: 'Affiliate Book Store', desc: 'बेस्ट बुक्स और परीक्षा सामग्री स्टोर', icon: '🛒' },
                 { id: 'rap', title: 'Motivational Rap Recitals', desc: 'गीत संगीत मोटिवेशन', icon: '📜' },
                 { id: 'calculator', title: 'Scientific Calculator', desc: 'वैज्ञानिक गणक यंत्र', icon: '🧮' },
               ].map((item) => (

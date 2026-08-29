@@ -4,7 +4,7 @@ import {
   AlertTriangle, Sparkles, User, Briefcase, ChevronRight, Download, BookOpen, 
   HelpCircle, ArrowLeft, Clock, ShieldCheck, Flame, MessageSquare, Star
 } from 'lucide-react';
-import { speakText, stopAllSpeech } from '../utils/speechUtils';
+import { speakText, stopAllSpeech, INDIAN_LANGUAGES } from '../utils/speechUtils';
 
 interface QuestionItem {
   id: number;
@@ -13,6 +13,7 @@ interface QuestionItem {
   interviewerAvatar: string;
   gender: 'male' | 'female';
   question: string;
+  questionHi?: string;
   idealKeyPoints: string[];
   expectedKeywords: string[];
 }
@@ -50,6 +51,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👨‍💼',
         gender: 'male' as const,
         question: 'नमस्ते! Tell us briefly about yourself, and why do you wish to join the civil services instead of the private sector?',
+        questionHi: 'नमस्ते! हमें अपने बारे में संक्षेप में बताएं, और आप निजी क्षेत्र के बजाय सिविल सेवा में क्यों शामिल होना चाहते हैं?',
         idealKeyPoints: ['Clarity of purpose', 'Public impact vs commercial focus', 'Leadership & accountability'],
         expectedKeywords: ['public service', 'grassroots impact', 'governance', 'policy implementation']
       },
@@ -60,6 +62,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👨‍🏫',
         gender: 'male' as const,
         question: 'In your view, how can India balance rapid industrial growth with environmental sustainability and climate goals?',
+        questionHi: 'आपके विचार में, भारत पर्यावरण स्थिरता और जलवायु लक्ष्यों के साथ तीव्र औद्योगिक विकास को कैसे संतुलित कर सकता है?',
         idealKeyPoints: ['Renewable energy transition', 'Green GDP & carbon markets', 'Inclusive community rehabilitation'],
         expectedKeywords: ['solar energy', 'sustainability', 'EV adoption', 'circular economy']
       },
@@ -70,6 +73,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👩‍⚖️',
         gender: 'female' as const,
         question: 'If you are appointed District Magistrate in a communally sensitive area and a riot breaks out, what will be your first 3 immediate actions?',
+        questionHi: 'यदि आपको सांप्रदायिक रूप से संवेदनशील क्षेत्र में जिला मजिस्ट्रेट नियुक्त किया जाता है और दंगा भड़क उठता है, तो आपकी पहली 3 तत्काल कार्रवाइयां क्या होंगी?',
         idealKeyPoints: ['Law & order maintenance', 'Section 144 / police deployment', 'Community peace committee dialogue & anti-rumor drive'],
         expectedKeywords: ['law and order', 'curfew', 'neutrality', 'fact-checking', 'peace committee']
       }
@@ -90,6 +94,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👨‍💼',
         gender: 'male' as const,
         question: 'Welcome! What is the difference between Monetary Policy and Fiscal Policy, and how does Repo Rate control inflation?',
+        questionHi: 'आपका स्वागत है! मौद्रिक नीति और राजकोषीय नीति में क्या अंतर है, और रेपो दर मुद्रास्फीति को कैसे नियंत्रित करती है?',
         idealKeyPoints: ['RBI controls monetary policy, Government controls fiscal', 'Repo rate hike reduces money supply and cools demand'],
         expectedKeywords: ['RBI', 'Repo Rate', 'Liquidity', 'Fiscal Deficit', 'Taxes']
       },
@@ -100,6 +105,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👩‍💼',
         gender: 'female' as const,
         question: 'What are Non-Performing Assets (NPAs), and what measures can a branch manager take to prevent fresh slippages?',
+        questionHi: 'गैर-निष्पादित संपत्तियां (NPA) क्या हैं, और एक शाखा प्रबंधक नए स्लिपेज को रोकने के लिए क्या उपाय कर सकता है?',
         idealKeyPoints: ['90-day overdue definition', 'Early warning signals (SMA-0,1,2)', 'Regular follow-up & viable restructuring'],
         expectedKeywords: ['NPA', 'SMA', 'IBC', 'CIBIL check', 'Collateral']
       },
@@ -110,6 +116,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👨‍💼',
         gender: 'male' as const,
         question: 'How will you handle an angry rural customer who lost money due to an online OTP scam and blames the bank branch?',
+        questionHi: 'आप एक ऐसे नाराज ग्रामीण ग्राहक को कैसे संभालेंगे जिसने ऑनलाइन ओटीपी घोटाले के कारण पैसे खो दिए हैं और बैंक शाखा को जिम्मेदार ठहराता है?',
         idealKeyPoints: ['Empathy & active listening', 'Immediate card/account freeze', 'Lodge cyber complaint & guide refund process'],
         expectedKeywords: ['empathy', 'account freeze', 'cyber cell', 'grievance redressal']
       }
@@ -130,6 +137,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👨‍💼',
         gender: 'male' as const,
         question: 'What are the main constitutional provisions regarding the Right to Information (RTI Act 2005) and its importance in transparency?',
+        questionHi: 'सूचना का अधिकार (RTI अधिनियम 2005) के संबंध में मुख्य संवैधानिक प्रावधान क्या हैं और पारदर्शिता में इसका क्या महत्व है?',
         idealKeyPoints: ['RTI derives from Article 19(1)(a)', '30-day response timeline', 'Promotes citizen empowerment'],
         expectedKeywords: ['Article 19', 'transparency', 'PIO', '30 days', 'accountability']
       },
@@ -140,6 +148,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👩‍🏫',
         gender: 'female' as const,
         question: 'In official government correspondence, what is the key difference between an Office Memorandum (OM) and a Notification?',
+        questionHi: 'आधिकारिक सरकारी पत्राचार में, कार्यालय ज्ञापन (OM) और अधिसूचना में मुख्य अंतर क्या है?',
         idealKeyPoints: ['OM is internal departmental communication', 'Notification is published in the Official Gazette for legal enforcement'],
         expectedKeywords: ['OM', 'Gazette', 'statutory rules', 'internal routing']
       }
@@ -160,6 +169,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '🎖️',
         gender: 'male' as const,
         question: 'Candidate, tell me about a real situation in your life where you faced severe failure or setback, and how you overcame it.',
+        questionHi: 'उम्मीदवार, मुझे अपने जीवन की एक वास्तविक स्थिति के बारे में बताएं जहां आपको गंभीर विफलता या असफलता का सामना करना पड़ा और आपने उस पर कैसे काबू पाया।',
         idealKeyPoints: ['Honest reflection', 'No blame game', 'Action-oriented comeback and lesson learned'],
         expectedKeywords: ['resilience', 'lesson', 'discipline', 'determination', 'responsibility']
       },
@@ -170,6 +180,7 @@ const INTERVIEW_PRESETS = [
         interviewerAvatar: '👨‍⚕️',
         gender: 'male' as const,
         question: 'You are leading a team of 4 in a remote camp, and one teammate sprains an ankle with no cellular signal. What will be your step-by-step plan?',
+        questionHi: 'आप एक सुदूर शिविर में 4 लोगों की टीम का नेतृत्व कर रहे हैं, और सेलुलर सिग्नल न होने पर एक साथी के टखने में मोच आ जाती है। आपकी कदम-दर-कदम योजना क्या होगी?',
         idealKeyPoints: ['First aid & immobilize limb', 'Ensure safe shelter', 'Send 2 buddy pairs for help while 1 stays with casualty'],
         expectedKeywords: ['first aid', 'buddy system', 'shelter', 'calm leadership']
       }
@@ -211,8 +222,27 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
   const [voiceSpeed, setVoiceSpeed] = useState<number>(1.0);
 
+  // Advanced Voice & Language parameters
+  const [selectedVoiceLang, setSelectedVoiceLang] = useState<string>(isHindi ? 'hi-IN' : 'en-IN');
+  const [voiceEngine, setVoiceEngine] = useState<'cloud' | 'local'>('cloud'); // Default to Cloud Voice for maximum clarity
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female'>('male');
+  const [voicePitch, setVoicePitch] = useState<number>(1.0);
+
   const recognitionRef = useRef<any>(null);
   const timerIntervalRef = useRef<any>(null);
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const stopAllActiveAudio = () => {
+    stopAllSpeech();
+    if (activeAudioRef.current) {
+      try {
+        activeAudioRef.current.pause();
+        activeAudioRef.current.currentTime = 0;
+        activeAudioRef.current.src = '';
+      } catch (e) {}
+      activeAudioRef.current = null;
+    }
+  };
 
   const activePreset = INTERVIEW_PRESETS.find(p => p.id === selectedPresetId) || INTERVIEW_PRESETS[0];
   const currentQuestion = activePreset.questions[currentQuestionIndex];
@@ -224,7 +254,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
       const rec = new SpeechRecognition();
       rec.continuous = true;
       rec.interimResults = true;
-      rec.lang = isHindi ? 'hi-IN' : 'en-US';
+      rec.lang = selectedVoiceLang; // Syncs microphone transcription language with selected voice language!
 
       rec.onresult = (event: any) => {
         let transcript = '';
@@ -246,7 +276,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
     }
 
     return () => {
-      stopAllSpeech();
+      stopAllActiveAudio();
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (e) {}
       }
@@ -254,7 +284,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
         clearInterval(timerIntervalRef.current);
       }
     };
-  }, [isHindi]);
+  }, [selectedVoiceLang]);
 
   // Start Interview
   const handleStartInterview = (presetId: string) => {
@@ -276,8 +306,10 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
     const preset = INTERVIEW_PRESETS.find(p => p.id === presetId) || INTERVIEW_PRESETS[0];
     const firstQ = preset.questions[0];
 
-    // Speak initial welcome & question
-    speakQuestionText(firstQ.question, firstQ.gender);
+    // Speak initial welcome & question after a short delay to allow state changes to register
+    setTimeout(() => {
+      speakQuestionText(firstQ.question, firstQ.gender, firstQ.questionHi);
+    }, 200);
 
     // Start timer
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
@@ -286,13 +318,48 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
     }, 1000);
   };
 
-  const speakQuestionText = (text: string, gender: 'male' | 'female' = 'male') => {
-    stopAllSpeech();
+  const speakQuestionText = (enText: string, defaultGender: 'male' | 'female' = 'male', hiText?: string) => {
+    stopAllActiveAudio();
     setIsPlayingAudio(true);
-    speakText(text, {
-      gender,
-      lang: isHindi ? 'hi-IN' : 'en-US',
-      pitch: gender === 'female' ? 1.25 : 0.85,
+
+    const activeGender = selectedGender || defaultGender;
+    const isHindiSelected = selectedVoiceLang.startsWith('hi') || selectedVoiceLang === 'hinglish';
+    const textToSpeak = (isHindiSelected && hiText) ? hiText : enText;
+
+    if (voiceEngine === 'cloud') {
+      // Crystal clear Premium Cloud stream
+      const shortCode = selectedVoiceLang === 'hinglish' ? 'hi' : selectedVoiceLang.slice(0, 2);
+      const audioUrl = `/api/tts?text=${encodeURIComponent(textToSpeak)}&lang=${shortCode}&gender=${activeGender}`;
+      const audio = new Audio(audioUrl);
+      activeAudioRef.current = audio;
+      audio.playbackRate = voiceSpeed;
+
+      audio.onended = () => {
+        setIsPlayingAudio(false);
+      };
+
+      audio.onerror = () => {
+        setIsPlayingAudio(false);
+        // Fallback to local
+        speakLocalFallback(textToSpeak, activeGender);
+      };
+
+      audio.play().catch((err) => {
+        console.warn("Cloud Audio play failed, falling back to local:", err);
+        setIsPlayingAudio(false);
+        speakLocalFallback(textToSpeak, activeGender);
+      });
+    } else {
+      speakLocalFallback(textToSpeak, activeGender);
+    }
+  };
+
+  const speakLocalFallback = (textToSpeak: string, activeGender: 'male' | 'female') => {
+    setIsPlayingAudio(true);
+    speakText(textToSpeak, {
+      gender: activeGender,
+      lang: selectedVoiceLang === 'hinglish' ? 'hi-IN' : selectedVoiceLang,
+      pitch: voicePitch,
       rate: voiceSpeed,
       onEnd: () => setIsPlayingAudio(false),
       onError: () => setIsPlayingAudio(false)
@@ -310,7 +377,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
       setIsListening(false);
       showToast(isHindi ? "माइक बंद किया गया" : "Mic paused", "info");
     } else {
-      stopAllSpeech();
+      stopAllActiveAudio();
       try {
         recognitionRef.current.start();
         setIsListening(true);
@@ -388,7 +455,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
       setUserAnswerText('');
       setInterviewState('in_progress');
       const nextQ = activePreset.questions[currentQuestionIndex + 1];
-      speakQuestionText(nextQ.question, nextQ.gender);
+      speakQuestionText(nextQ.question, nextQ.gender, nextQ.questionHi);
     } else {
       // Completed! Calculate total score
       const totalScore = Math.round(updatedRounds.reduce((acc, r) => acc + (r.evaluation?.score || 0), 0) / updatedRounds.length);
@@ -448,16 +515,139 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
                 ? "UPSC, SSC, बैंकिंग और राज्य लोक सेवा आयोग के लिए रीयल-टाइम इंटरव्यू बोर्ड सिमुलेशन, वॉयस उत्तर और AI स्कोरकार्ड।"
                 : "Real-time AI Interview Board simulation for UPSC, Banking, SSC & Defense with voice input and in-depth performance analytics."}
             </p>
-            
-            {/* Speed Controller */}
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-[10px] text-slate-400 font-bold uppercase">Voice Speed:</span>
-              <div className="flex items-center gap-1 bg-[#0A0E1A] p-1 rounded-lg border border-slate-700/50">
-                {[0.75, 1.0, 1.25].map(speed => (
+          </div>
+
+          {interviewState === 'in_progress' && (
+            <div className="flex items-center gap-3 bg-indigo-950/80 border border-indigo-500/40 px-3.5 py-2 rounded-2xl shrink-0">
+              <Clock className="w-4 h-4 text-amber-400 animate-spin" />
+              <div className="text-right font-mono">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Time Elapsed</div>
+                <div className="text-sm font-black text-white">
+                  {Math.floor(timerSeconds / 60)}:{(timerSeconds % 60).toString().padStart(2, '0')}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Live Audio & Language Control Panel */}
+        <div className="bg-[#090D1A] border border-indigo-500/20 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+            <h3 className="text-xs font-black text-indigo-300 uppercase tracking-widest flex items-center gap-2">
+              <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
+              <span>{isHindi ? "🎙️ एआई आवाज़ एवं बहुभाषी सेटिंग्स" : "🎙️ AI Voice & Language Settings"}</span>
+            </h3>
+            <span className="text-[9px] font-mono bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/20 w-fit">
+              Configure Audio Engine Realtime
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {/* 1. Language Option Dropdown */}
+            <div className="space-y-1">
+              <label className="text-[10px] text-slate-400 font-extrabold uppercase flex items-center gap-1">
+                <span>🌐</span>
+                <span>{isHindi ? "इंटरव्यू भाषा (Language):" : "Interviewer Language:"}</span>
+              </label>
+              <select
+                value={selectedVoiceLang}
+                onChange={(e) => {
+                  setSelectedVoiceLang(e.target.value);
+                  showToast(isHindi ? `भाषा बदलकर ${e.target.selectedOptions[0].text} की गई!` : `Language changed to ${e.target.selectedOptions[0].text}!`, "success");
+                }}
+                className="w-full text-xs font-semibold bg-slate-900 border border-slate-700/80 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                {INDIAN_LANGUAGES.map((langOpt) => (
+                  <option key={langOpt.shortCode} value={langOpt.code}>
+                    {langOpt.nativeName} ({langOpt.name})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 2. Audio Engine Toggle */}
+            <div className="space-y-1">
+              <label className="text-[10px] text-slate-400 font-extrabold uppercase flex items-center gap-1">
+                <span>⚡</span>
+                <span>{isHindi ? "ऑडियो क्वालिटी (Engine):" : "Voice Quality Engine:"}</span>
+              </label>
+              <div className="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700/80">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVoiceEngine('cloud');
+                    showToast(isHindi ? "प्रीमियम क्लाउड आवाज़ सक्रिय! (अत्यंत स्पष्ट)" : "Premium Cloud Voice Activated! (Crystal Clear)", "success");
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-black transition-all ${
+                    voiceEngine === 'cloud' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Premium ⭐
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVoiceEngine('local');
+                    showToast(isHindi ? "ब्राउज़र लोकल आवाज़ सक्रिय" : "Local Device Voice Activated", "info");
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-black transition-all ${
+                    voiceEngine === 'local' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Device Local
+                </button>
+              </div>
+            </div>
+
+            {/* 3. Gender Voice Toggle */}
+            <div className="space-y-1">
+              <label className="text-[10px] text-slate-400 font-extrabold uppercase flex items-center gap-1">
+                <span>👤</span>
+                <span>{isHindi ? "पैनलिस्ट जेंडर (Gender):" : "Voice Gender:"}</span>
+              </label>
+              <div className="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700/80">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedGender('male');
+                    showToast(isHindi ? "पुरुष सदस्य की आवाज़ सक्रिय" : "Male Panelist Voice Active", "info");
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-black transition-all ${
+                    selectedGender === 'male' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {isHindi ? "पुरुष (Male)" : "Male 👨‍💼"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedGender('female');
+                    showToast(isHindi ? "महिला सदस्य की आवाज़ सक्रिय" : "Female Panelist Voice Active", "info");
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-black transition-all ${
+                    selectedGender === 'female' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {isHindi ? "महिला (Female)" : "Female 👩‍💼"}
+                </button>
+              </div>
+            </div>
+
+            {/* 4. Speed Controller Dials */}
+            <div className="space-y-1">
+              <label className="text-[10px] text-slate-400 font-extrabold uppercase flex items-center gap-1">
+                <span>⏱️</span>
+                <span>{isHindi ? "बोलने की गति (Speed):" : "Voice Speed Rate:"}</span>
+              </label>
+              <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700/80">
+                {[0.8, 1.0, 1.2].map(speed => (
                   <button
                     key={speed}
-                    onClick={() => setVoiceSpeed(speed)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                    type="button"
+                    onClick={() => {
+                      setVoiceSpeed(speed);
+                    }}
+                    className={`flex-1 py-1 rounded text-[10px] font-black transition-all ${
                       voiceSpeed === speed ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -468,17 +658,15 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
             </div>
           </div>
 
-          {interviewState === 'in_progress' && (
-            <div className="flex items-center gap-3 bg-indigo-950/80 border border-indigo-500/40 px-3.5 py-2 rounded-2xl">
-              <Clock className="w-4 h-4 text-amber-400 animate-spin" />
-              <div className="text-right font-mono">
-                <div className="text-[10px] text-slate-400 font-bold uppercase">Time Elapsed</div>
-                <div className="text-sm font-black text-white">
-                  {Math.floor(timerSeconds / 60)}:{(timerSeconds % 60).toString().padStart(2, '0')}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Clarity Tips Indicator */}
+          <div className="text-[10px] text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 p-2.5 rounded-xl flex items-center gap-2">
+            <span className="text-sm shrink-0">✨</span>
+            <p className="leading-relaxed font-semibold">
+              {isHindi
+                ? "स्पष्ट आवाज और सुंदर उच्चारण के लिए 'Premium' मोड ऑन रखें। यह सीधे क्लाउड वॉयस सर्वर से एचडी ऑडियो प्रदान करता है।"
+                : "For maximum clarity and beautiful human-like accents, please use 'Premium' voice mode. This serves crystal-clear audio directly from Google TTS servers."}
+            </p>
+          </div>
         </div>
 
         {/* 1. SELECTION SCREEN (IDLE) */}
@@ -610,7 +798,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
                 </div>
 
                 <button
-                  onClick={() => speakQuestionText(currentQuestion.question, currentQuestion.gender)}
+                  onClick={() => speakQuestionText(currentQuestion.question, currentQuestion.gender, currentQuestion.questionHi)}
                   className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
                     isPlayingAudio
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
@@ -624,7 +812,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
 
               {/* Question Text */}
               <div className="p-4 bg-[#04060E]/80 border border-indigo-500/20 rounded-2xl text-slate-100 text-sm sm:text-base font-semibold leading-relaxed">
-                "{currentQuestion.question}"
+                "{(selectedVoiceLang.startsWith('hi') || selectedVoiceLang === 'hinglish') ? (currentQuestion.questionHi || currentQuestion.question) : currentQuestion.question}"
               </div>
             </div>
 

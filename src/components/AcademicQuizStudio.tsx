@@ -1398,6 +1398,49 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
         </div>
       </div>
 
+      {/* Educational Walkthrough Steps Guide */}
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h2 className="text-xs font-black text-amber-300 uppercase tracking-widest flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-400" />
+          <span>{isHindi ? "📚 टेस्ट गाइड: परीक्षा की तैयारी कैसे करें? (3 Easy Steps)" : "📚 Test Guide: How to Practice? (3 Easy Steps)"}</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-amber-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-mono font-bold text-[10px]">1</span>
+              <span>{isHindi ? "टेस्ट प्रकार चुनें (Select Category)" : "Select Test Type"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {isHindi 
+                ? "नीचे दिए गए टैब से 'Previous Year Questions (PYQs)' चुनें या 'Custom AI Practice Sets' द्वारा विशिष्ट विषय का नया टेस्ट जेनरेट करें।"
+                : "Choose 'Previous Year Questions (PYQs)' below or switch to 'Custom AI Practice Sets' to generate dynamic mock exams."}
+            </p>
+          </div>
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-sky-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center font-mono font-bold text-[10px]">2</span>
+              <span>{isHindi ? "हल करें और मार्क करें (Solve & Bookmark)" : "Attempt & Review"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {isHindi 
+                ? "वास्तविक परीक्षा पैटर्न पर समय सीमा के अंदर टेस्ट हल करें। कठिन या अच्छे प्रश्नों को 'Bookmark 🔖' करना न भूलें।"
+                : "Solve questions within the real exam timers. Click 'Bookmark' to save tricky concepts for rapid revision later."}
+            </p>
+          </div>
+          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
+            <div className="text-xs font-black text-rose-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center font-mono font-bold text-[10px]">3</span>
+              <span>{isHindi ? "गलतियाँ सुधारें (Mistake Diary)" : "Master Your Mistakes"}</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              {isHindi 
+                ? "टेस्ट पूरा होने के बाद गलत प्रश्नों को देखें। वे स्वतः 'Mistake Diary 📓' में जुड़ेंगे ताकि आप उनका दोबारा रिविजन कर सकें।"
+                : "Upon submission, wrong answers automatically sync with 'Mistake Diary 📓' so you can re-test them anytime and score 100%."}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Main Sub-Navigation Tabs */}
       <div className="flex border-b border-slate-800 gap-2">
         <button

@@ -7,7 +7,7 @@ import {
   Pause, Bookmark, ChevronRight, CheckCircle2, ArrowLeft, RotateCcw, Share2,
   Copy, Plus, Trash2, Edit3, Eye, FileText, Check, AlertCircle, BarChart2,
   Brain, FilePlus, Layers, List, Maximize2, Minimize2, Settings, Zap, X,
-  HelpCircle, RefreshCw, BookMarked, Sliders, ChevronDown
+  HelpCircle, RefreshCw, BookMarked, Sliders, ChevronDown, Activity
 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -433,6 +433,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
   const [fontFamily, setFontFamily] = useState<'sans' | 'serif' | 'mono'>('sans');
   const [lineSpacing, setLineSpacing] = useState<'normal' | 'relaxed' | 'loose'>('relaxed');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showReaderTools, setShowReaderTools] = useState(false); // Collapsed by default to keep page clean
 
   // Reader Drawers / Overlays
   const [isTocOpen, setIsTocOpen] = useState(false);
@@ -824,6 +825,85 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
     setSelectedText('');
     setSelectionPosition(null);
     showToast(`Saved highlight under ${category.toUpperCase()}! ✨`, "success");
+  };
+
+  // Create customized Flashcard from selected text
+  const handleCreateFlashcardFromSelectedText = async () => {
+    if (!selectedBook || !activeChapter || !selectedText) return;
+
+    const textToCard = selectedText;
+    const bookTitle = selectedBook.title;
+
+    // Save as revision highlight so it lives in the book history
+    const newHighlight: HighlightItem = {
+      id: `hl-${Date.now()}`,
+      text: textToCard,
+      chapterId: activeChapter.id,
+      pageNumber: activeChapter.pageStart || selectedChapterIndex + 1,
+      category: 'revision',
+      timestamp: new Date().toLocaleDateString()
+    };
+
+    const updatedHighlights = [newHighlight, ...selectedBook.highlights];
+    const updatedBooks = books.map(b => b.id === selectedBook.id ? { ...b, highlights: updatedHighlights } : b);
+    setBooks(updatedBooks);
+    setSelectedBook(prev => prev ? { ...prev, highlights: updatedHighlights } : null);
+
+    setSelectedText('');
+    setSelectionPosition(null);
+    showToast(language === 'hindi' ? "AI फ़्लैशकार्ड बनाया जा रहा है... 🃏" : "Creating AI Flashcard... 🃏", "info");
+
+    try {
+      const res = await fetch("/api/flashcards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: `Recall from ${bookTitle}`,
+          sourceText: textToCard,
+          count: 1
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.flashcards && data.flashcards.length > 0) {
+        // Load, append and save to user flashcards
+        const existingRaw = localStorage.getItem('hansai-user-flashcards');
+        let existingCards = [];
+        if (existingRaw) {
+          try { existingCards = JSON.parse(existingRaw); } catch(e){}
+        }
+        
+        const newCard = {
+          ...data.flashcards[0],
+          id: `hl-card-${Date.now()}`,
+          category: bookTitle.slice(0, 15)
+        };
+
+        const updatedCards = [newCard, ...existingCards];
+        localStorage.setItem('hansai-user-flashcards', JSON.stringify(updatedCards));
+        showToast(language === 'hindi' ? "सफलतापूर्वक फ़्लैशकार्ड निर्मित! रिवीज़न सेक्शन में देखें। 🎓" : "Flashcard created successfully! Check Revision tab.", "success");
+      } else {
+        throw new Error("No flashcard returned");
+      }
+    } catch (err) {
+      console.error(err);
+      // Fallback local flashcard creation if offline/API fails
+      const existingRaw = localStorage.getItem('hansai-user-flashcards');
+      let existingCards = [];
+      if (existingRaw) {
+        try { existingCards = JSON.parse(existingRaw); } catch(e){}
+      }
+      const fallbackCard = {
+        id: `hl-card-local-${Date.now()}`,
+        front: language === 'hindi' ? `[री-कॉल: ${bookTitle}] निम्नलिखित अवधारणा का अर्थ समझाएं:` : `[Recall: ${bookTitle}] Explain or define:`,
+        back: textToCard,
+        category: bookTitle.slice(0, 15),
+        mastered: false
+      };
+      const updatedCards = [fallbackCard, ...existingCards];
+      localStorage.setItem('hansai-user-flashcards', JSON.stringify(updatedCards));
+      showToast(language === 'hindi' ? "फ़्लैशकार्ड स्थानीय रूप से सहेज लिया गया है। ✓" : "Flashcard saved locally! ✓", "success");
+    }
   };
 
   // Add Note
@@ -1264,7 +1344,7 @@ Structure the response into:
       {selectionPosition && selectedText && (
         <div
           style={{ top: `${selectionPosition.y - 50}px`, left: `${selectionPosition.x - 140}px` }}
-          className="fixed z-50 bg-[#0D121F] border-2 border-amber-500/80 rounded-2xl shadow-2xl p-1.5 flex items-center gap-1 text-xs animate-fade-in backdrop-blur-xl"
+          className="fixed z-50 bg-[#0D121F] border-2 border-amber-500/80 rounded-2xl shadow-2xl p-1.5 flex items-center gap-1 text-xs animate-fade-in backdrop-blur-xl animate-bounce"
         >
           <button
             onClick={() => handleAskBookAi(`Explain this text in detail: "${selectedText}"`)}
@@ -1576,120 +1656,188 @@ Structure the response into:
         <div className="space-y-4 animate-fade-in">
           
           {/* READER TOP CONTROL TOOLBAR */}
-          <div className="bg-[#0F172A] border border-slate-800 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="bg-[#0A0E1A]/95 border border-indigo-500/20 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-xl">
             
             {/* Book & Chapter Selector */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsTocOpen(!isTocOpen)}
-                className="px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-indigo-500 text-slate-200 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-indigo-500 text-slate-200 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer transition-all hover:bg-slate-800"
               >
                 <List className="w-4 h-4 text-indigo-400" />
-                <span className="hidden sm:inline">Table of Contents</span>
+                <span className="hidden sm:inline">{language === 'hindi' ? "अनुक्रमिका" : "Index"}</span>
               </button>
 
-              <span className="text-slate-600">|</span>
+              <span className="text-slate-700 font-extrabold">|</span>
 
-              <span className="font-extrabold text-white line-clamp-1 max-w-[200px] sm:max-w-xs">
+              <span className="font-extrabold text-white line-clamp-1 max-w-[150px] sm:max-w-xs text-xs sm:text-sm bg-indigo-950/40 px-2 py-1 rounded-lg border border-indigo-500/10">
                 {activeChapter.title}
               </span>
             </div>
 
-            {/* Read Aloud & Standardized Audio Speed */}
+            {/* Compact Right Side Controls */}
             <div className="flex items-center gap-2">
+              {/* Listen Button (Always Visible) */}
               <button
                 onClick={togglePlaySpeech}
-                className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl font-black flex items-center gap-1.5 transition-all cursor-pointer ${
                   isPlayingAudio
                     ? 'bg-amber-500 text-slate-950 animate-pulse'
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20'
                 }`}
               >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                {isPlayingAudio ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
                 <span>{isPlayingAudio ? 'Pause' : 'Listen (सुनें)'}</span>
               </button>
 
-              <AudioSpeedControl
-                currentRate={speechRate}
-                onRateChange={(r) => {
-                  setSpeechRate(r);
-                  if (isPlayingAudio) {
-                    togglePlaySpeech();
-                    setTimeout(() => togglePlaySpeech(), 100);
-                  }
-                }}
-                isHindi={language === 'hindi'}
-              />
-            </div>
-
-            {/* Multi-language Translator */}
-            <div className="flex items-center gap-1.5">
-              <Languages className="w-4 h-4 text-emerald-400 shrink-0" />
-              {(['original', 'hindi', 'english', 'sanskrit', 'hinglish'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => handleTranslateChapter(lang)}
-                  disabled={isTranslating}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase cursor-pointer ${
-                    targetLanguage === lang ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
-
-            {/* Customization Options (Theme & Font Size) */}
-            <div className="flex items-center gap-2">
-              {/* Bookmark Toggle */}
+              {/* Arrow Toggle Button to Hide/Show advanced settings */}
               <button
-                onClick={handleToggleBookmark}
-                className={`p-2 rounded-xl border transition-all cursor-pointer ${
-                  isCurrentPageBookmarked
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                onClick={() => setShowReaderTools(!showReaderTools)}
+                className={`px-2.5 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer text-[11px] font-bold ${
+                  showReaderTools
+                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
                 }`}
-                title="Bookmark chapter"
+                title={showReaderTools ? "Hide controls" : "Show speech, translation & customization settings"}
               >
-                <Bookmark className="w-4 h-4 fill-current" />
+                <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                <span className="hidden xs:inline">{language === 'hindi' ? "सेटिंग्स" : "Settings"}</span>
+                {showReaderTools ? (
+                  <ChevronDown className="w-3.5 h-3.5 text-amber-400 transition-transform rotate-180" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                )}
               </button>
-
-              {/* Reader Theme Switcher */}
-              <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5">
-                <button
-                  onClick={() => setReaderTheme('dark')}
-                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'dark' ? 'bg-slate-800 text-white' : 'text-slate-400'}`}
-                >
-                  Dark
-                </button>
-                <button
-                  onClick={() => setReaderTheme('cream')}
-                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'cream' ? 'bg-amber-200 text-slate-950' : 'text-slate-400'}`}
-                >
-                  Warm
-                </button>
-                <button
-                  onClick={() => setReaderTheme('white')}
-                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${readerTheme === 'white' ? 'bg-white text-slate-950' : 'text-slate-400'}`}
-                >
-                  White
-                </button>
-              </div>
-
-              {/* Font Size Selector */}
-              <select
-                value={fontSize}
-                onChange={(e: any) => setFontSize(e.target.value)}
-                className="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2 py-1 focus:outline-none"
-              >
-                <option value="sm">Small Text</option>
-                <option value="md">Normal Text</option>
-                <option value="lg">Large Text</option>
-                <option value="xl">XL Text</option>
-              </select>
             </div>
 
           </div>
+
+          {/* SINGLE-COLOR DEDICATED COMPACT SETTINGS CARD ("SMALL BOX") */}
+          {showReaderTools && (
+            <div className="bg-[#0F172A] border border-slate-800 p-4 rounded-2xl space-y-3.5 text-xs animate-fade-in shadow-xl max-w-2xl mx-auto">
+              {/* Row 1: Read Aloud Speed & Controls */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#0A0E1A] p-2.5 rounded-xl border border-slate-800/60">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black flex items-center gap-1 shrink-0">
+                  <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>⏱️ {language === 'hindi' ? "गति नियंत्रण" : "Speed (गति)"}:</span>
+                </span>
+                <div className="w-full sm:w-auto">
+                  <AudioSpeedControl
+                    currentRate={speechRate}
+                    onRateChange={(r) => {
+                      setSpeechRate(r);
+                      if (isPlayingAudio) {
+                        togglePlaySpeech();
+                        setTimeout(() => togglePlaySpeech(), 100);
+                      }
+                    }}
+                    isHindi={language === 'hindi'}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Multi-Language translation */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#0A0E1A] p-2.5 rounded-xl border border-slate-800/60">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black flex items-center gap-1 shrink-0">
+                  <Languages className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>🌐 {language === 'hindi' ? "भाषा अनुवाद" : "Translate (अनुवाद)"}:</span>
+                </span>
+                <div className="flex flex-wrap items-center gap-1 w-full sm:w-auto justify-start">
+                  {(['original', 'hindi', 'english', 'sanskrit', 'hinglish'] as const).map((lang) => {
+                    const isSelected = targetLanguage === lang;
+                    let displayName = lang.toUpperCase();
+                    if (lang === 'original') displayName = language === 'hindi' ? "मूल (Org)" : "Original";
+                    
+                    return (
+                      <button
+                        key={lang}
+                        onClick={() => handleTranslateChapter(lang)}
+                        disabled={isTranslating}
+                        className={`py-1 px-2.5 rounded-lg text-[9px] font-black tracking-tight uppercase cursor-pointer transition-all ${
+                          isSelected
+                            ? 'bg-indigo-600 text-white font-black shadow-md border border-indigo-500/30'
+                            : 'bg-slate-900/60 text-slate-400 hover:text-white hover:bg-slate-850'
+                        }`}
+                      >
+                        {displayName}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Row 3: Visual Theme Selection & Font Size */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#0A0E1A] p-2.5 rounded-xl border border-slate-800/60">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black flex items-center gap-1 shrink-0">
+                  <Settings className="w-3.5 h-3.5 text-amber-400" />
+                  <span>🎨 {language === 'hindi' ? "दिखावट" : "Appearance"}:</span>
+                </span>
+                
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                  {/* Bookmark Page */}
+                  <button
+                    onClick={handleToggleBookmark}
+                    className={`px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 text-[9px] font-extrabold ${
+                      isCurrentPageBookmarked
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                        : 'bg-slate-900 text-slate-400 border-slate-850 hover:text-white'
+                    }`}
+                    title="Bookmark this page"
+                  >
+                    <Bookmark className="w-3 h-3 fill-current" />
+                    <span>Bookmarked</span>
+                  </button>
+
+                  {/* Visual Theme Selection */}
+                  <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+                    {(['dark', 'cream', 'white'] as const).map((thm) => (
+                      <button
+                        key={thm}
+                        onClick={() => setReaderTheme(thm)}
+                        className={`px-2 py-0.5 rounded text-[8px] font-extrabold transition-all capitalize ${
+                          readerTheme === thm
+                            ? thm === 'dark'
+                              ? 'bg-slate-850 text-white border border-slate-700/50'
+                              : thm === 'cream'
+                                ? 'bg-amber-200 text-slate-950'
+                                : 'bg-white text-slate-950'
+                            : 'text-slate-500 hover:text-slate-300'
+                        }`}
+                      >
+                        {thm === 'cream' ? 'warm' : thm}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Font Size Dropdown */}
+                  <select
+                    value={fontSize}
+                    onChange={(e: any) => setFontSize(e.target.value)}
+                    className="bg-slate-900 border border-slate-800 text-slate-300 text-[9px] font-bold rounded-lg px-2 py-0.5 focus:outline-none"
+                  >
+                    <option value="sm">Small</option>
+                    <option value="md">Medium</option>
+                    <option value="lg">Large</option>
+                    <option value="xl">Extra</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Hide Arrow button inside the Box */}
+              <div className="flex justify-center border-t border-slate-800/80 pt-2 mt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowReaderTools(false)}
+                  className="px-3 py-1 bg-slate-950 hover:bg-slate-900 hover:text-white text-slate-400 border border-slate-850 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+                >
+                  <ChevronDown className="w-3.5 h-3.5 text-amber-500 transition-transform rotate-180" />
+                  <span>{language === 'hindi' ? "सेटिंग्स छिपाएं" : "Hide Settings"}</span>
+                </button>
+              </div>
+
+            </div>
+          )}
 
           {/* TABLE OF CONTENTS DRAWER OVERLAY */}
           {isTocOpen && (
@@ -1756,7 +1904,7 @@ Structure the response into:
                 className={`prose max-w-none whitespace-pre-wrap leading-relaxed ${
                   fontFamily === 'serif' ? 'font-serif' : fontFamily === 'mono' ? 'font-mono' : 'font-sans'
                 } ${
-                  fontSize === 'sm' ? 'text-xs' : fontSize === 'lg' ? 'text-base' : fontSize === 'xl' ? 'text-lg' : 'text-sm'
+                  fontSize === 'sm' ? 'text-base' : fontSize === 'lg' ? 'text-xl' : fontSize === 'xl' ? 'text-2xl' : 'text-lg'
                 }`}
               >
                 {isTranslating ? (
