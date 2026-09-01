@@ -410,6 +410,10 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
   const [selectedMcqAnswer, setSelectedMcqAnswer] = useState<number | null>(null);
   const [showMcqExplanation, setShowMcqExplanation] = useState<boolean>(false);
 
+  // Article Reader UX: Dynamic Font Scaling & On-Demand AI Doubt Drawer
+  const [fontSizeLevel, setFontSizeLevel] = useState<'normal' | 'large' | 'xlarge'>('large');
+  const [isDoubtDrawerOpen, setIsDoubtDrawerOpen] = useState<boolean>(false);
+
   // In-line AI Doubt / Chat inside the Article Modal
   const [articleDoubtMessages, setArticleDoubtMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string; time: string }>>([]);
   const [userDoubtInput, setUserDoubtInput] = useState<string>('');
@@ -957,19 +961,76 @@ Include:
           <div className="bg-[#0b101e] border border-slate-700 w-full max-w-5xl max-h-[92vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
             
             {/* Modal Top Bar */}
-            <div className="px-5 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-4">
+            <div className="px-5 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-full text-xs font-bold">
                   {selectedArticle.category}
                 </span>
-                <span className="text-xs text-slate-400 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" />
+                <span className="text-xs text-slate-300 flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-cyan-400" />
                   {selectedArticle.date}
                 </span>
                 <span className="text-xs text-slate-400">• {selectedArticle.readTime} read</span>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Toolbar Controls: Font Size Scaler, Audio, Doubt Drawer Toggle, Bookmark, Close */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Dynamic Font Size Scaler */}
+                <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl p-1 gap-1">
+                  <span className="text-[10px] text-slate-400 font-bold px-1 hidden sm:inline">फॉन्ट:</span>
+                  <button
+                    type="button"
+                    onClick={() => setFontSizeLevel('normal')}
+                    className={`px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      fontSizeLevel === 'normal'
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                    title="Normal Font (15px)"
+                  >
+                    A-
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFontSizeLevel('large')}
+                    className={`px-2.5 py-1 rounded-lg text-sm font-black transition-all cursor-pointer ${
+                      fontSizeLevel === 'large'
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                    title="Large Font (18px - Default)"
+                  >
+                    A
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFontSizeLevel('xlarge')}
+                    className={`px-2.5 py-1 rounded-lg text-base font-black transition-all cursor-pointer ${
+                      fontSizeLevel === 'xlarge'
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                    title="Extra Large Font (21px)"
+                  >
+                    A+
+                  </button>
+                </div>
+
+                {/* AI Doubt Toggle Button (Only opens when user explicitly asks!) */}
+                <button
+                  type="button"
+                  onClick={() => setIsDoubtDrawerOpen(!isDoubtDrawerOpen)}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-md ${
+                    isDoubtDrawerOpen
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-400'
+                      : 'bg-gradient-to-r from-cyan-950 to-blue-950 hover:from-cyan-900 hover:to-blue-900 text-cyan-300 border-cyan-500/50'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{isDoubtDrawerOpen ? (isHindi ? 'डाउट पैनल बंद करें' : 'Close Doubt') : (isHindi ? '💬 AI से सवाल पूछें' : '💬 Ask AI Doubt')}</span>
+                </button>
+
+                {/* Audio Reader */}
                 <button
                   onClick={() => handleSpeak(
                     lang === 'hi' 
@@ -984,7 +1045,7 @@ Include:
                   }`}
                 >
                   <Volume2 className="w-3.5 h-3.5" />
-                  <span>{isPlayingAudio === selectedArticle.id ? (isHindi ? 'ऑडियो रोकें' : 'Stop Audio') : (isHindi ? 'पूरा आर्टिकल सुनें' : 'Listen Article')}</span>
+                  <span>{isPlayingAudio === selectedArticle.id ? (isHindi ? 'रोकें' : 'Stop') : (isHindi ? 'सुनें' : 'Listen')}</span>
                 </button>
 
                 <button
@@ -999,6 +1060,7 @@ Include:
                   onClick={() => {
                     stopAllSpeech();
                     setSelectedArticle(null);
+                    setIsDoubtDrawerOpen(false);
                   }}
                   className="p-2 bg-slate-800 hover:bg-red-500 hover:text-white text-slate-400 border border-slate-700 rounded-xl cursor-pointer transition-colors"
                 >
@@ -1007,54 +1069,60 @@ Include:
               </div>
             </div>
 
-            {/* Modal Body - 2 Columns on Desktop */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
-              {/* Left Column: Full Rich Article (7 Cols) */}
-              <div className="lg:col-span-7 space-y-6">
+            {/* Modal Body - Dedicated Reading Canvas with Optional Slide-Over AI Doubt Panel */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 relative">
+              <div className={`mx-auto transition-all duration-300 ${isDoubtDrawerOpen ? 'max-w-3xl' : 'max-w-4xl'} space-y-6`}>
                 
                 {/* Article Header Title */}
-                <div className="space-y-3 border-b border-slate-800 pb-4">
-                  <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                <div className="space-y-3 border-b border-slate-800 pb-5">
+                  <h2 className={`font-black text-white leading-snug tracking-tight ${
+                    fontSizeLevel === 'normal' ? 'text-xl sm:text-2xl' : fontSizeLevel === 'xlarge' ? 'text-2xl sm:text-4xl' : 'text-2xl sm:text-3xl'
+                  }`}>
                     {lang === 'hi' ? selectedArticle.titleHi : selectedArticle.titleEn}
                   </h2>
-                  <div className="text-xs font-mono text-cyan-400 bg-cyan-950/30 border border-cyan-500/20 p-2.5 rounded-xl">
-                    🎯 <strong>{isHindi ? 'परीक्षा उपयोगिता:' : 'Exam Focus:'}</strong> {selectedArticle.examRelevance}
+                  <div className="text-xs sm:text-sm font-mono text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 p-3 rounded-2xl flex items-center gap-2">
+                    🎯 <strong>{isHindi ? 'परीक्षा उपयोगिता (Target Exams):' : 'Exam Focus:'}</strong> {selectedArticle.examRelevance}
                   </div>
                 </div>
 
                 {/* Section 1: Executive Summary */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
-                    <FileText className="w-4 h-4" />
+                <div className="space-y-2.5">
+                  <h3 className="text-sm sm:text-base font-black text-amber-400 flex items-center gap-2 uppercase tracking-wider">
+                    <FileText className="w-4 h-4 text-amber-400" />
                     {isHindi ? '1. मुख्य सारांश (Executive Summary)' : '1. Executive Summary'}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-200 leading-relaxed bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
+                  <p className={`text-slate-100 font-normal bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-inner ${
+                    fontSizeLevel === 'normal' ? 'text-sm leading-relaxed' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl leading-loose' : 'text-base sm:text-lg leading-relaxed'
+                  }`}>
                     {lang === 'hi' ? selectedArticle.summaryHi : selectedArticle.summaryEn}
                   </p>
                 </div>
 
                 {/* Section 2: Genesis & Historical Background */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-bold text-cyan-400 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4" />
+                <div className="space-y-2.5">
+                  <h3 className="text-sm sm:text-base font-black text-cyan-400 flex items-center gap-2 uppercase tracking-wider">
+                    <Lightbulb className="w-4 h-4 text-cyan-400" />
                     {isHindi ? '2. पृष्ठभूमि व ऐतिहासिक संदर्भ (Background & Genesis)' : '2. Background & Genesis'}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-900/60 border border-slate-800 p-4 rounded-2xl">
+                  <p className={`text-slate-200 font-normal bg-slate-900/60 border border-slate-800 p-5 rounded-2xl leading-relaxed ${
+                    fontSizeLevel === 'normal' ? 'text-sm leading-relaxed' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl leading-loose' : 'text-base sm:text-lg leading-relaxed'
+                  }`}>
                     {lang === 'hi' ? selectedArticle.backgroundHi : selectedArticle.backgroundEn}
                   </p>
                 </div>
 
                 {/* Section 3: Deep Technical Analysis */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Zap className="w-4 h-4" />
-                    {isHindi ? '3. विस्तृत आयाम व तकनीकी बिंदु (In-Depth Dimensions)' : '3. In-Depth Dimensions'}
+                <div className="space-y-2.5">
+                  <h3 className="text-sm sm:text-base font-black text-emerald-400 flex items-center gap-2 uppercase tracking-wider">
+                    <Zap className="w-4 h-4 text-emerald-400" />
+                    {isHindi ? '3. विस्तृत आयाम व मुख्य बिंदु (In-Depth Dimensions)' : '3. In-Depth Dimensions'}
                   </h3>
-                  <div className="space-y-2 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+                  <div className="space-y-3 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
                     {(lang === 'hi' ? selectedArticle.deepAnalysisHi : selectedArticle.deepAnalysisEn).map((pt, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs sm:text-sm text-slate-200">
-                        <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <div key={i} className={`flex items-start gap-3 text-slate-100 ${
+                        fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                      }`}>
+                        <Check className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                         <span>{pt}</span>
                       </div>
                     ))}
@@ -1062,15 +1130,17 @@ Include:
                 </div>
 
                 {/* Section 4: Key Policy Provisions */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-bold text-indigo-400 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Award className="w-4 h-4" />
+                <div className="space-y-2.5">
+                  <h3 className="text-sm sm:text-base font-black text-indigo-400 flex items-center gap-2 uppercase tracking-wider">
+                    <Award className="w-4 h-4 text-indigo-400" />
                     {isHindi ? '4. प्रमुख नीतिगत प्रावधान (Key Provisions & Data)' : '4. Key Provisions & Data'}
                   </h3>
-                  <div className="space-y-2 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+                  <div className="space-y-3 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
                     {(lang === 'hi' ? selectedArticle.keyProvisionsHi : selectedArticle.keyProvisionsEn).map((prov, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-slate-300">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0 mt-1.5" />
+                      <div key={i} className={`flex items-start gap-3 text-slate-200 ${
+                        fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                      }`}>
+                        <span className="w-2 h-2 rounded-full bg-indigo-400 shrink-0 mt-2" />
                         <span>{prov}</span>
                       </div>
                     ))}
@@ -1078,39 +1148,43 @@ Include:
                 </div>
 
                 {/* Section 5: High-Yield Fact Box */}
-                <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-2 border-amber-500/40 p-4 rounded-2xl space-y-1">
-                  <div className="text-xs font-black text-amber-300 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Target className="w-4 h-4 text-amber-400" />
-                    <span>{isHindi ? 'हाई-यील्ड एग्जाम फैक्ट (High-Yield Exam Fact)' : 'High-Yield Exam Fact'}</span>
+                <div className="bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-2 border-amber-500/50 p-5 rounded-2xl space-y-2 shadow-lg">
+                  <div className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2 uppercase tracking-wider">
+                    <Target className="w-5 h-5 text-amber-400" />
+                    <span>{isHindi ? 'हाई-यील्ड एग्जाम फैक्ट (High-Yield Exam Fact):' : 'High-Yield Exam Fact:'}</span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-100">{selectedArticle.keyFact}</p>
+                  <p className={`font-bold text-white ${
+                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                  }`}>{selectedArticle.keyFact}</p>
                 </div>
 
                 {/* Section 6: Interactive Practice MCQ */}
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
+                <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1">
-                      <HelpCircle className="w-3.5 h-3.5" />
+                    <span className="text-xs sm:text-sm font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <HelpCircle className="w-4 h-4" />
                       {isHindi ? 'अभ्यास प्रश्न (Interactive Practice MCQ)' : 'Practice MCQ'}
                     </span>
-                    <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md">Prelims Level</span>
+                    <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-bold">Prelims Level</span>
                   </div>
 
-                  <p className="text-xs sm:text-sm font-bold text-white">
+                  <p className={`font-bold text-white ${
+                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                  }`}>
                     {lang === 'hi' ? selectedArticle.mcq.questionHi : selectedArticle.mcq.questionEn}
                   </p>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {(lang === 'hi' ? selectedArticle.mcq.optionsHi : selectedArticle.mcq.optionsEn).map((opt, idx) => {
                       const isSelected = selectedMcqAnswer === idx;
                       const isCorrect = idx === selectedArticle.mcq.correctIndex;
-                      let btnClass = "bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700";
+                      let btnClass = "bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700";
                       
                       if (selectedMcqAnswer !== null) {
                         if (isCorrect) {
-                          btnClass = "bg-emerald-950/60 border-emerald-500 text-emerald-200 font-bold";
+                          btnClass = "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-bold shadow-md shadow-emerald-950/50";
                         } else if (isSelected) {
-                          btnClass = "bg-rose-950/60 border-rose-500 text-rose-200";
+                          btnClass = "bg-rose-950/80 border-rose-500 text-rose-100";
                         }
                       }
 
@@ -1126,153 +1200,191 @@ Include:
                               showToast(isHindi ? "गलत उत्तर! व्याख्या देखें।" : "Incorrect! Check explanation.", "warn");
                             }
                           }}
-                          className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
+                          className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
                         >
                           <span>{String.fromCharCode(65 + idx)}. {opt}</span>
-                          {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                          {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />}
                         </button>
                       );
                     })}
                   </div>
 
                   {showMcqExplanation && (
-                    <div className="p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-xs text-emerald-200 space-y-1 animate-fade-in">
-                      <strong className="block text-emerald-300">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
+                    <div className="p-4 bg-emerald-950/40 border border-emerald-500/40 rounded-xl text-sm sm:text-base text-emerald-100 space-y-1.5 animate-fade-in">
+                      <strong className="block text-emerald-300 font-bold">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
                       <p>{lang === 'hi' ? selectedArticle.mcq.explanationHi : selectedArticle.mcq.explanationEn}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Section 7: Mains Descriptive Model Question */}
-                <div className="bg-indigo-950/30 border border-indigo-500/30 p-4 rounded-2xl space-y-2">
-                  <span className="text-[11px] font-black text-indigo-300 uppercase tracking-wider block">
+                <div className="bg-indigo-950/40 border border-indigo-500/40 p-5 rounded-2xl space-y-2.5">
+                  <span className="text-xs sm:text-sm font-black text-indigo-300 uppercase tracking-wider block">
                     ✍️ {isHindi ? 'मुख्य परीक्षा संभावित प्रश्न (Mains Analytical Question):' : 'Mains Analytical Question:'}
                   </span>
-                  <p className="text-xs text-slate-200 font-medium leading-relaxed italic">
+                  <p className={`text-slate-100 font-medium leading-relaxed italic ${
+                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                  }`}>
                     "{lang === 'hi' ? selectedArticle.mainsQuestionHi : selectedArticle.mainsQuestionEn}"
                   </p>
                 </div>
 
+                {/* Footer Action Bar: Trigger AI Doubt or Return */}
+                <div className="pt-4 pb-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsDoubtDrawerOpen(true)}
+                    className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-black text-sm rounded-2xl shadow-lg shadow-cyan-950/50 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>{isHindi ? '💬 इस आर्टिकल पर HansAI से डाउट पूछें' : '💬 Ask HansAI Doubt on this Article'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      stopAllSpeech();
+                      setSelectedArticle(null);
+                      setIsDoubtDrawerOpen(false);
+                    }}
+                    className="w-full sm:w-auto px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm rounded-2xl cursor-pointer"
+                  >
+                    {isHindi ? 'वापस करंट अफेयर्स सूची पर जाएं' : 'Back to Current Affairs List'}
+                  </button>
+                </div>
+
               </div>
 
-              {/* Right Column: In-Line AI Tutor & Live Doubt Solver (5 Cols) */}
-              <div className="lg:col-span-5 flex flex-col bg-slate-900/95 border border-cyan-500/30 rounded-3xl p-4 sm:p-5 shadow-2xl h-[550px] lg:h-auto sticky top-2">
-                
-                {/* Header */}
-                <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
-                      <Sparkles className="w-4 h-4 animate-pulse" />
+              {/* ON-DEMAND SLIDE-OVER AI DOUBT DRAWER */}
+              {isDoubtDrawerOpen && (
+                <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[460px] bg-slate-950/98 border-l border-cyan-500/40 p-4 sm:p-5 shadow-2xl flex flex-col animate-fade-in backdrop-blur-xl">
+                  
+                  {/* Drawer Header */}
+                  <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                        <Sparkles className="w-5 h-5 animate-pulse" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black text-white">HansAI Article Tutor</h4>
+                        <p className="text-[11px] text-slate-400">{isHindi ? 'लाइव 2026 करंट अफेयर्स डाउट सॉल्वर' : 'Live Doubt Clarification'}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-xs font-black text-white">HansAI Article Tutor</h4>
-                      <p className="text-[10px] text-slate-400">{isHindi ? 'आर्टिकल में जो न समझ आए, तुरंत पूछें' : 'Instant Doubt Clarification'}</p>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setArticleDoubtMessages([
+                            {
+                              sender: 'ai',
+                              text: isHindi ? 'डाउट चैट रीसेट हुआ। आप इस आर्टिकल के बारे में कुछ भी पूछ सकते हैं!' : 'Chat reset. Ask anything about this article!',
+                              time: 'Now'
+                            }
+                          ]);
+                        }}
+                        className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 cursor-pointer"
+                        title="Clear chat"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        onClick={() => setIsDoubtDrawerOpen(false)}
+                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer"
+                        title="Close Drawer"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setArticleDoubtMessages([
-                        {
-                          sender: 'ai',
-                          text: isHindi ? 'डाउट चैट रीसेट हुआ। आप इस आर्टिकल के बारे में कुछ भी नया पूछ सकते हैं!' : 'Chat reset. Ask anything about this article!',
-                          time: 'Now'
-                        }
-                      ]);
-                    }}
-                    className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
-                    title="Clear chat"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Quick Prompts Chips */}
-                <div className="py-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-                  {[
-                    isHindi ? 'सरल भाषा में समझाएं' : 'Explain simply',
-                    isHindi ? 'भारत पर क्या प्रभाव?' : 'Impact on India',
-                    isHindi ? 'एग्जाम में क्या आएगा?' : 'Exam questions',
-                    isHindi ? 'शब्दावली स्पष्ट करें' : 'Key terms'
-                  ].map((chip, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSendArticleDoubt(chip)}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-cyan-500/20 hover:text-cyan-300 border border-slate-700 rounded-lg text-[10px] font-bold text-slate-300 whitespace-nowrap cursor-pointer transition-all"
-                    >
-                      {chip}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Chat Messages Body */}
-                <div className="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
-                  {articleDoubtMessages.map((msg, i) => (
-                    <div
-                      key={i}
-                      className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} space-y-1 animate-fade-in`}
-                    >
-                      <div
-                        className={`p-3 rounded-2xl max-w-[90%] leading-relaxed ${
-                          msg.sender === 'user'
-                            ? 'bg-cyan-500 text-slate-950 font-bold rounded-tr-none'
-                            : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none font-medium'
-                        }`}
+                  {/* Quick Prompts Chips */}
+                  <div className="py-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+                    {[
+                      isHindi ? 'सरल भाषा में समझाएं' : 'Explain simply',
+                      isHindi ? 'भारत पर क्या प्रभाव?' : 'Impact on India',
+                      isHindi ? 'एग्जाम में क्या प्रश्न आएगा?' : 'Exam questions',
+                      isHindi ? 'मुख्य शब्दावली स्पष्ट करें' : 'Key terms'
+                    ].map((chip, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSendArticleDoubt(chip)}
+                        className="px-3 py-1 bg-slate-900 hover:bg-cyan-500/20 hover:text-cyan-300 border border-slate-700 rounded-xl text-xs font-bold text-slate-300 whitespace-nowrap cursor-pointer transition-all"
                       >
-                        <p className="whitespace-pre-wrap">{msg.text}</p>
+                        {chip}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Chat Messages Body */}
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-1 text-sm py-2">
+                    {articleDoubtMessages.map((msg, i) => (
+                      <div
+                        key={i}
+                        className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} space-y-1 animate-fade-in`}
+                      >
+                        <div
+                          className={`p-3.5 rounded-2xl max-w-[90%] leading-relaxed ${
+                            msg.sender === 'user'
+                              ? 'bg-cyan-500 text-slate-950 font-bold rounded-tr-none'
+                              : 'bg-slate-900 border border-slate-800 text-slate-100 rounded-tl-none font-medium'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap">{msg.text}</p>
+                        </div>
+                        <span className="text-[10px] text-slate-500 px-1">{msg.time}</span>
                       </div>
-                      <span className="text-[9px] text-slate-500 px-1">{msg.time}</span>
-                    </div>
-                  ))}
+                    ))}
 
-                  {isAiDoubtLoading && (
-                    <div className="flex items-center gap-2 text-cyan-400 text-xs p-3 bg-slate-950 border border-slate-800 rounded-2xl rounded-tl-none animate-pulse">
-                      <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                      <span>{isHindi ? 'HansAI सोच रहा है और सटीक व्याख्या लिख रहा है...' : 'HansAI is analyzing and drafting explanation...'}</span>
-                    </div>
-                  )}
-                  <div ref={doubtEndRef} />
+                    {isAiDoubtLoading && (
+                      <div className="flex items-center gap-2 text-cyan-400 text-xs p-3 bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none animate-pulse">
+                        <Sparkles className="w-4 h-4 animate-spin" />
+                        <span>{isHindi ? 'HansAI सोच रहा है और सटीक व्याख्या लिख रहा है...' : 'HansAI is drafting explanation...'}</span>
+                      </div>
+                    )}
+                    <div ref={doubtEndRef} />
+                  </div>
+
+                  {/* Chat Input Bar */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSendArticleDoubt();
+                    }}
+                    className="pt-3 border-t border-slate-800 flex items-center gap-2"
+                  >
+                    <button
+                      type="button"
+                      onClick={handleToggleVoiceDoubt}
+                      className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+                        isListeningDoubtVoice
+                          ? 'bg-rose-600 text-white border-rose-400 animate-ping'
+                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700'
+                      }`}
+                      title="Speak Doubt"
+                    >
+                      {isListeningDoubtVoice ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    </button>
+
+                    <input
+                      type="text"
+                      value={userDoubtInput}
+                      onChange={(e) => setUserDoubtInput(e.target.value)}
+                      placeholder={isHindi ? "आर्टिकल पर डाउट या सवाल पूछें..." : "Type your doubt or question..."}
+                      className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 transition-colors"
+                    />
+
+                    <button
+                      type="submit"
+                      disabled={!userDoubtInput.trim() || isAiDoubtLoading}
+                      className="p-2.5 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 rounded-xl font-bold transition-all cursor-pointer border-none"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </form>
+
                 </div>
-
-                {/* Chat Input Bar */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSendArticleDoubt();
-                  }}
-                  className="pt-3 border-t border-slate-800 flex items-center gap-2"
-                >
-                  <button
-                    type="button"
-                    onClick={handleToggleVoiceDoubt}
-                    className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
-                      isListeningDoubtVoice
-                        ? 'bg-rose-600 text-white border-rose-400 animate-ping'
-                        : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-                    }`}
-                    title="Speak Doubt"
-                  >
-                    {isListeningDoubtVoice ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                  </button>
-
-                  <input
-                    type="text"
-                    value={userDoubtInput}
-                    onChange={(e) => setUserDoubtInput(e.target.value)}
-                    placeholder={isHindi ? "आर्टिकल पर डाउट या सवाल पूछें..." : "Type your doubt or question..."}
-                    className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 transition-colors"
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={!userDoubtInput.trim() || isAiDoubtLoading}
-                    className="p-2.5 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 rounded-xl font-bold transition-all cursor-pointer border-none"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-
-              </div>
+              )}
 
             </div>
 

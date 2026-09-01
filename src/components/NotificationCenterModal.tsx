@@ -16,6 +16,9 @@ export interface AppNotification {
   actionLabel?: string;
   actionTarget?: string; // view name or URL
   badge?: string;
+  examName?: string;
+  topic?: string;
+  category?: string;
 }
 
 const DEFAULT_NOTIFICATIONS: AppNotification[] = [
@@ -166,9 +169,37 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
   const handleActionClick = (notif: AppNotification) => {
     markSingleAsRead(notif.id);
-    if (notif.actionTarget && onNavigateToView) {
+    let targetView = notif.actionTarget || 'chat';
+
+    // If it's a quiz notification or daily practice attempt
+    if (
+      targetView === 'quiz' || 
+      targetView === 'goals' || 
+      notif.title.toLowerCase().includes('quiz') || 
+      notif.title.toLowerCase().includes('practice') || 
+      notif.title.toLowerCase().includes('current affairs') ||
+      notif.topic || 
+      notif.examName
+    ) {
+      targetView = 'quiz';
+      const quizPayload = {
+        examName: notif.examName || notif.title.replace(/^[^\w\s\u0900-\u097F]+/, '').trim(),
+        topic: notif.topic || notif.title,
+        category: notif.category || 'competitive',
+        description: notif.message,
+        timestamp: Date.now()
+      };
+      try {
+        sessionStorage.setItem('hansai_launch_quiz', JSON.stringify(quizPayload));
+        window.dispatchEvent(new CustomEvent('hansai_launch_quiz_event', { detail: quizPayload }));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    if (onNavigateToView) {
       onClose();
-      onNavigateToView(notif.actionTarget);
+      onNavigateToView(targetView);
     }
   };
 

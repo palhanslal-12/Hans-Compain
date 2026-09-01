@@ -504,6 +504,75 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     showToast(`📝 ${pyq.examName} टेस्ट शुरू! समय: ${pyq.timeMinutes} मिनट`, 'info');
   };
 
+  // Launch pre-selected quiz payload from notification or deep link
+  const launchPreselectedQuiz = (payload: { examName?: string; topic?: string; category?: string; description?: string }) => {
+    if (!payload) return;
+    const query = ((payload.examName || '') + ' ' + (payload.topic || '')).toLowerCase();
+    
+    // Find matching pre-curated test to save tokens and start instantly
+    const match = CURATED_PYQ_DATA.find(p => 
+      p.examName.toLowerCase().includes(query) || 
+      p.subject.toLowerCase().includes(query) ||
+      (p.category && query.includes(p.category.toLowerCase()))
+    );
+
+    if (match) {
+      handleStartPYQTest(match);
+      return;
+    }
+
+    // Otherwise use default high-yield exam set or generate
+    const fallbackExam = CURATED_PYQ_DATA[0];
+    if (fallbackExam) {
+      const customExam = {
+        ...fallbackExam,
+        examName: payload.examName || `[Live Practice 2026] ${payload.topic || 'Daily Exam Quiz'}`,
+        subject: payload.topic || fallbackExam.subject,
+      };
+      setTestQuestions(customExam.questions);
+      setCurrentTestTitle(customExam.examName);
+      setCurrentExamMeta({
+        name: customExam.examName,
+        subject: customExam.subject,
+        date: new Date().toLocaleDateString('hi-IN'),
+        shift: 'Real-Time Attempt Shift',
+        marksPerQ: 2.0,
+        negMark: 0.5
+      });
+      setUserAnswers({});
+      setMarkedForReview({});
+      setCurrentQIndex(0);
+      setTimeRemainingSeconds(customExam.questions.length * 60);
+      setIsTestSubmitted(false);
+      setTestResult(null);
+      setActiveTestMode(true);
+      showToast(`📝 ${customExam.examName} टेस्ट लाइव शुरू!`, 'success');
+    }
+  };
+
+  // Check for auto-launch on mount and via CustomEvent
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('hansai_launch_quiz');
+      if (saved) {
+        sessionStorage.removeItem('hansai_launch_quiz');
+        const parsed = JSON.parse(saved);
+        launchPreselectedQuiz(parsed);
+      }
+    } catch (e) {
+      console.error("Auto launch parse error", e);
+    }
+
+    const handleCustomLaunch = (e: any) => {
+      if (e?.detail) {
+        launchPreselectedQuiz(e.detail);
+      }
+    };
+
+    window.addEventListener('hansai_launch_quiz_event', handleCustomLaunch);
+    return () => window.removeEventListener('hansai_launch_quiz_event', handleCustomLaunch);
+  }, []);
+
   // Start Custom Generated Test
   const handleStartCustomQuiz = async () => {
     if (!customSubject.trim()) return;

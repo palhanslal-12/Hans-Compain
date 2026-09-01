@@ -1,3 +1,4 @@
+import { AiPublicRulesModal } from './AiPublicRulesModal';
 import React, { useState, useEffect } from 'react';
 import { Lock, Mail, Phone, User, Eye, EyeOff, X, Sparkles, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { HansCompainLogo } from './HansCompainLogo';
@@ -79,6 +80,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
   const [socialModalProvider, setSocialModalProvider] = useState<'google' | 'facebook' | null>(null);
   const [socialUserName, setSocialUserName] = useState("");
   const [socialUserEmail, setSocialUserEmail] = useState("");
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   // OTP Countdown Timers
   useEffect(() => {
@@ -564,19 +566,34 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
               </div>
             </div>
 
-            {/* Footer Navigation */}
-            <div className="text-center pt-2 text-xs text-slate-500">
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  onCloseRegister();
-                  onOpenLogin();
-                }}
-                className="font-bold text-emerald-600 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer"
-              >
-                Sign In (लॉग इन)
-              </button>
+            {/* Footer Navigation & Terms */}
+            <div className="text-center pt-2 space-y-2">
+              <div className="text-xs text-slate-500">
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCloseRegister();
+                    onOpenLogin();
+                  }}
+                  className="font-bold text-emerald-600 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer"
+                >
+                  Sign In (लॉग इन)
+                </button>
+              </div>
+
+              {/* Direct Terms & Conditions & Privacy Notice on Auth */}
+              <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-400">
+                By registering, you agree to our{" "}
+                <button
+                  type="button"
+                  onClick={() => setIsTermsOpen(true)}
+                  className="text-emerald-600 hover:text-emerald-700 font-semibold underline bg-transparent border-none cursor-pointer"
+                >
+                  Terms & Conditions (नियम व शर्तें)
+                </button>{" "}
+                and Privacy Guidelines.
+              </div>
             </div>
 
           </div>
@@ -771,19 +788,34 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
               </div>
             </div>
 
-            {/* Footer Navigation */}
-            <div className="text-center pt-2 text-xs text-slate-500">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  onCloseLogin();
-                  onOpenRegister();
-                }}
-                className="font-bold text-emerald-600 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer"
-              >
-                Register here (नया खाता)
-              </button>
+            {/* Footer Navigation & Terms */}
+            <div className="text-center pt-2 space-y-2">
+              <div className="text-xs text-slate-500">
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCloseLogin();
+                    onOpenRegister();
+                  }}
+                  className="font-bold text-emerald-600 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer"
+                >
+                  Register here (नया खाता)
+                </button>
+              </div>
+
+              {/* Direct Terms & Conditions & Privacy Notice on Auth */}
+              <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-400">
+                By signing in, you agree to our{" "}
+                <button
+                  type="button"
+                  onClick={() => setIsTermsOpen(true)}
+                  className="text-emerald-600 hover:text-emerald-700 font-semibold underline bg-transparent border-none cursor-pointer"
+                >
+                  Terms & Conditions (नियम व शर्तें)
+                </button>{" "}
+                and Privacy Guidelines.
+              </div>
             </div>
 
           </div>
@@ -984,6 +1016,12 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
           </div>
         </div>
       )}
+          {/* Dedicated Terms & Conditions Modal */}
+      <AiPublicRulesModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+        language="hindi"
+      />
     </>
   );
 };

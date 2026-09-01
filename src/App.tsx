@@ -122,6 +122,8 @@ import { AllExamsSyllabusModal } from './components/AllExamsSyllabusModal';
 import { GlobalBookReader } from './components/GlobalBookReader';
 import { NotesOcrView } from './components/NotesOcrView';
 import { NeuralMemoryMapView } from './components/NeuralMemoryMapView';
+import { GisInteractiveEarthVisualizer } from './components/GisInteractiveEarthVisualizer';
+import { BoardExamSingleTestBox, BoardChapterTest } from './components/BoardExamSingleTestBox';
 import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
 import { MnemonicsTrickGeneratorView } from './components/MnemonicsTrickGeneratorView';
 import { ScienceFormulaLabView } from './components/ScienceFormulaLabView';
@@ -566,6 +568,7 @@ export default function App() {
     | 'current-affairs'
     | 'qr-scanner'
     | 'group-quiz'
+    | 'gis-earth'
   >('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
@@ -681,6 +684,8 @@ export default function App() {
   const [isGoogleScholarModalOpen, setIsGoogleScholarModalOpen] = useState<boolean>(false);
   const [scholarTopic, setScholarTopic] = useState<string>('Indian Constitution & Fundamental Rights');
   const [isAllExamsSyllabusOpen, setIsAllExamsSyllabusOpen] = useState<boolean>(false);
+  const [isBoardExamModalOpen, setIsBoardExamModalOpen] = useState<boolean>(false);
+  const [isCompetitiveExamModalOpen, setIsCompetitiveExamModalOpen] = useState<boolean>(false);
   const [isAiRulesModalOpen, setIsAiRulesModalOpen] = useState<boolean>(false);
   const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
   const [isDiagnosticsModalOpen, setIsDiagnosticsModalOpen] = useState<boolean>(false);
@@ -1059,13 +1064,55 @@ export default function App() {
 
       if (lastNotifDate !== todayDateStr) {
         const DAILY_CA_TOPICS = [
-          { title: "🌍 Today's Current Affairs Quiz: G20 Summit & National News", desc: "Top 10 questions on recent international summits and national updates. Update your knowledge now!" },
-          { title: "🚀 Daily Quiz: Science, Tech & ISRO Missions", desc: "Practice questions based on the latest Chandrayaan, Aditya L1, and tech data." },
-          { title: "📊 Current Affairs: Economy & Union Budget", desc: "Test your knowledge on the latest budget allocations important for SSC & UPSC." },
-          { title: "🏅 Daily Practice: Sports & Awards 2026", desc: "Who won what? Attempt this quick 5-min quiz on recent sports awards and honors." },
-          { title: "⚖️ Polity Quick Quiz: Constitutional Amendments", desc: "Revise crucial amendments and articles with our daily interactive quiz." },
-          { title: "👔 Current Affairs: New Appointments & CEOs", desc: "Important national and international appointments that frequently appear in exams." },
-          { title: "🌱 Daily Quiz: Geography & Environment", desc: "Recent environmental treaties and national park updates you must know." },
+          { 
+            examName: "[SSC CGL & Railway NTPC 2026]",
+            topic: "Geography, Environment & National Parks",
+            title: "🌱 [SSC & Railway 2026] Daily Quiz: Geography & Environment", 
+            desc: "Recent environmental treaties, biosphere reserves, and national park updates you must know for SSC CGL & RRB.",
+            category: "competitive"
+          },
+          { 
+            examName: "[UPSC CSE & State PSC 2026]",
+            topic: "Economy, Union Budget & Banking Systems",
+            title: "📊 [UPSC & State PSC] Current Affairs: Economy & Union Budget 2026", 
+            desc: "Test your high-yield conceptual mastery on budget allocations, fiscal deficit, and economic surveys.",
+            category: "competitive"
+          },
+          { 
+            examName: "[Defence & Police Exams 2026]",
+            topic: "Science, Space Tech & ISRO Missions",
+            title: "🚀 [Defence / Police / CDS] Daily Quiz: Space Tech & ISRO Missions", 
+            desc: "Practice questions based on NISAR, Chandrayaan, Gaganyaan, and advanced missile defense systems.",
+            category: "competitive"
+          },
+          { 
+            examName: "[All India Competitive Exams]",
+            topic: "Sports, Honours & National Awards 2026",
+            title: "🏅 [National Level] Daily Practice: Sports, Honours & Awards 2026", 
+            desc: "Who won what? Attempt this quick 5-min speed test on prestigious Padma awards, Grand Slams & Khel Ratna.",
+            category: "competitive"
+          },
+          { 
+            examName: "[SSC, Railway & State Judiciary]",
+            topic: "Indian Polity, Articles & Constitutional Amendments",
+            title: "⚖️ [Polity Special] Quick Quiz: Constitutional Articles & Amendments", 
+            desc: "Revise crucial fundamental rights, DPSP, and high-frequency constitutional amendments in 5 minutes.",
+            category: "competitive"
+          },
+          { 
+            examName: "[Banking IBPS PO, Clerk & SBI]",
+            topic: "Banking Awareness, Monetary Policy & New Appointments",
+            title: "👔 [Banking & Economy] Appointments, RBI Guidelines & Financial Awareness", 
+            desc: "Important national/international appointments, repo rates, and banking terms frequently asked in exams.",
+            category: "competitive"
+          },
+          { 
+            examName: "[10th & 12th Board Science Special]",
+            topic: "Class 10th & 12th Core Science & Physics Concepts",
+            title: "🎓 [Board Exams 2026] 10th/12th Science & Foundation Quiz", 
+            desc: "Core concepts of optics, electricity, chemical reactions, and genetics for board examination revision.",
+            category: "board"
+          }
         ];
 
         const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
@@ -1079,10 +1126,12 @@ export default function App() {
           timestamp: 'Just now',
           isRead: false,
           badge: 'NEW UPDATE',
-          actionLabel: 'Attempt Now',
-          actionTarget: 'goals'
+          actionLabel: 'Attempt Now →',
+          actionTarget: 'quiz',
+          examName: selectedTopic.examName,
+          topic: selectedTopic.topic,
+          category: selectedTopic.category
         };
-
         // Save to localStorage
         try {
           const savedNotifsStr = localStorage.getItem('hansai_notifications_v1');
@@ -6399,6 +6448,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                       <button
                         onClick={() => {
+                          setActiveView('gis-earth');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'gis-earth'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-md'
+                            : 'bg-cyan-950/20 border-cyan-500/40 hover:border-cyan-400/60 hover:bg-cyan-950/30 text-cyan-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0 animate-pulse">🌍</span>
+                          <span>{language === 'hindi' ? 'GIS 3D अर्थ व भूगोल लैब' : 'GIS 3D Earth Geography'}</span>
+                        </div>
+                        <span className="text-[9px] bg-cyan-400 text-slate-950 px-1.5 py-0.5 rounded font-black">3D</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
                           setActiveView('neural-map');
                           if (window.innerWidth < 1024) setSidebarOpen(false);
                         }}
@@ -6939,8 +7006,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
                       </div>
 
-                      {/* ROW 1: CORE DAILY LEARNING (WIDE CLEAN CARDS) */}
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 w-full text-left mt-3 mb-3">
+                      {/* 8 CLEAN ACTION CARDS (2-COLUMN GRID MATCHING USER SPECIFICATION) */}
+                      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full text-left mt-3 mb-3">
+                        {/* ROW 1: Card 1 - Current Affairs */}
                         <button
                           onClick={() => setActiveView('current-affairs')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-indigo-950/50 border border-indigo-500/50 hover:border-indigo-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-indigo-500/20 active:scale-98"
@@ -6958,6 +7026,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                         </button>
 
+                        {/* ROW 1: Card 2 - Group Quiz Battle */}
                         <button
                           onClick={() => setActiveView('group-quiz')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/50 to-slate-900 border-2 border-emerald-400/60 hover:border-emerald-300 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98 ring-1 ring-emerald-400/30"
@@ -6975,7 +7044,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             </div>
                           </div>
                         </button>
-                        
+
+                        {/* ROW 2: Card 3 - AI Mnemonics */}
                         <button
                           onClick={() => setActiveView('mnemonics')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/80 via-yellow-950/50 to-slate-900 border border-amber-500/50 hover:border-amber-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
@@ -6993,6 +7063,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                         </button>
 
+                        {/* ROW 2: Card 4 - Science Lab */}
                         <button
                           onClick={() => setActiveView('science-lab')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-cyan-950/80 via-blue-950/50 to-slate-900 border border-cyan-500/50 hover:border-cyan-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-cyan-500/20 active:scale-98"
@@ -7010,6 +7081,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                         </button>
 
+                        {/* ROW 3: Card 5 - Daily Goals */}
                         <button
                           onClick={() => setActiveView('goals')}
                           className="p-2 sm:p-2.5 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-indigo-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
@@ -7027,23 +7099,26 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                         </button>
 
+                        {/* ROW 3: Card 6 - YELLOW CIRCLE: COMPETITIVE EXAM HUB (MOCK & PYQ) */}
                         <button
-                          onClick={() => setActiveView('quiz')}
-                          className="p-2 sm:p-2.5 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-sm active:scale-98"
+                          onClick={() => setIsCompetitiveExamModalOpen(true)}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-950/80 via-teal-950/60 to-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-emerald-500/20 active:scale-98"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 text-base">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 text-base">
                             📝
                           </div>
                           <div className="overflow-hidden">
-                            <div className="text-xs font-bold text-slate-200 group-hover:text-emerald-300 truncate">
-                              {language === 'hindi' ? 'लाइव PYQ क्विज़' : 'PYQ Mock Quiz'}
+                            <div className="text-xs font-black text-emerald-200 group-hover:text-emerald-100 truncate flex items-center gap-1">
+                              <span>{language === 'hindi' ? 'प्रतियोगी परीक्षा' : 'Competitive Exams'}</span>
+                              <span className="text-[8px] bg-emerald-400 text-slate-950 px-1 rounded font-black">PYQ & MOCK</span>
                             </div>
-                            <div className="text-[9px] text-slate-400 truncate">
-                              {language === 'hindi' ? 'TCS iON टेस्ट पैटर्न' : 'TCS iON Exam Mode'}
+                            <div className="text-[9px] text-emerald-300/80 truncate">
+                              {language === 'hindi' ? 'TCS iON टेस्ट व PYQ बैंक' : 'TCS iON & PYQ Vault'}
                             </div>
                           </div>
                         </button>
-                        
+
+                        {/* ROW 4: Card 7 - Time-Travel Simulator */}
                         <button
                           onClick={() => setActiveView('time-travel')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
@@ -7060,8 +7135,26 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             </div>
                           </div>
                         </button>
-                      </div>
 
+                        {/* ROW 4: Card 8 - RED CIRCLE: BOARD EXAM (10TH & 12TH CHAPTER-WISE SINGLE TEST) */}
+                        <button
+                          onClick={() => setIsBoardExamModalOpen(true)}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/80 via-orange-950/50 to-slate-900 border-2 border-amber-500/60 hover:border-amber-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-base">
+                            🎓
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-black text-amber-200 group-hover:text-amber-100 truncate flex items-center gap-1">
+                              <span>{language === 'hindi' ? 'बोर्ड परीक्षा' : 'Board Exam'}</span>
+                              <span className="text-[8px] bg-amber-400 text-slate-950 px-1 rounded font-black">10th & 12th</span>
+                            </div>
+                            <div className="text-[9px] text-amber-300/80 truncate">
+                              {language === 'hindi' ? 'चैप्टर व विषय-वार टेस्ट' : 'Chapter Tests & NCERT'}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
                       {/* ROW 2: OTHER UTILITIES (SQUARE BUTTONS) */}
                       <div className="grid grid-cols-4 gap-2 sm:gap-3 w-full text-center mb-2">
                         <button
@@ -7981,6 +8074,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   showToast={showToast}
                   language={language}
                   onBack={() => setActiveView('chat')}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: GIS & 3D EARTH GEOGRAPHY LAB */}
+          {activeView === 'gis-earth' && (
+            <ErrorBoundary fallbackTitle="GIS & 3D Earth Geography Lab" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <GisInteractiveEarthVisualizer
+                  showToast={showToast}
+                  language={language}
+                  onAskAiDoubt={(topic) => {
+                    handleSendChat(`कृपया भूगोल के इस टॉपिक को विस्तार से समझाएं: ${topic}`);
+                  }}
                 />
               </div>
             </ErrorBoundary>
@@ -9466,6 +9574,139 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       )}
 
       {/* ALL EXAMS SYLLABUS DIRECTORY MODAL */}
+      {/* 🎓 BOARD EXAM CHAPTER-WISE TESTS MODAL */}
+      {isBoardExamModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-950 border border-amber-500/40 rounded-3xl p-4 sm:p-6 shadow-2xl">
+            <button
+              onClick={() => setIsBoardExamModalOpen(false)}
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm transition-all border border-slate-700 cursor-pointer"
+            >
+              ✕
+            </button>
+            <BoardExamSingleTestBox
+              language={language}
+              onStartBoardTest={(test: BoardChapterTest) => {
+                setIsBoardExamModalOpen(false);
+                handleStartRetestFromMistakes(test.questions, `${test.classGrade} - ${test.chapter}`);
+                setActiveView('quiz');
+                showToast(language === 'hindi' ? `📝 ${test.chapter} का सिंगल टेस्ट शुरू हुआ!` : `📝 ${test.chapter} test started!`, 'success');
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 🏆 COMPETITIVE EXAM HUB MODAL (SINGLE MOCK, PYQ VAULT, GROUP BATTLE) */}
+      {isCompetitiveExamModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl text-left space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl">
+                  🏆
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    {language === 'hindi' ? 'प्रतियोगी परीक्षा हब (Competitive Exams)' : 'Competitive Exam Hub'}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    {language === 'hindi' ? 'SSC, Railway, BPSC, Police व State Exams' : 'SSC, Railway, BPSC, Police & State Exams'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsCompetitiveExamModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm transition-all border border-slate-700 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* Option 1: Mock Test with TCS iON Timer */}
+              <button
+                onClick={() => {
+                  setIsCompetitiveExamModalOpen(false);
+                  setActiveView('quiz');
+                }}
+                className="p-4 bg-slate-900/90 hover:bg-slate-800 border border-indigo-500/40 hover:border-indigo-400 rounded-2xl flex flex-col justify-between text-left group cursor-pointer transition-all shadow-md active:scale-98"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                    ⏱️
+                  </div>
+                  <div>
+                    <div className="text-sm font-black text-white group-hover:text-indigo-300">
+                      {language === 'hindi' ? 'सिंगल मॉक टेस्ट' : 'Single Mock Test'}
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      {language === 'hindi' ? 'TCS टाइमर, नेगेटिव मार्किंग व लाइव रिजल्ट' : 'Timed exam simulation'}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-indigo-400 group-hover:text-indigo-300 flex items-center gap-1">
+                  {language === 'hindi' ? 'मॉक टेस्ट शुरू करें ➔' : 'Start Mock Test ➔'}
+                </span>
+              </button>
+
+              {/* Option 2: Unlimited PYQ Vault */}
+              <button
+                onClick={() => {
+                  setIsCompetitiveExamModalOpen(false);
+                  setActiveView('pyq-vault');
+                }}
+                className="p-4 bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 rounded-2xl flex flex-col justify-between text-left group cursor-pointer transition-all shadow-md active:scale-98"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                    📚
+                  </div>
+                  <div>
+                    <div className="text-sm font-black text-white group-hover:text-cyan-300">
+                      {language === 'hindi' ? 'अनलिमिटेड PYQ वॉल्ट' : 'Unlimited PYQ Vault'}
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      {language === 'hindi' ? '2019-2025 टॉपिक-वार प्रश्न बैंक' : '2019-2025 question bank'}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-cyan-400 group-hover:text-cyan-300 flex items-center gap-1">
+                  {language === 'hindi' ? 'PYQ बैंक खोलें ➔' : 'Open PYQ Vault ➔'}
+                </span>
+              </button>
+
+              {/* Option 3: Live Group Quiz Battle */}
+              <button
+                onClick={() => {
+                  setIsCompetitiveExamModalOpen(false);
+                  setActiveView('group-quiz');
+                }}
+                className="sm:col-span-2 p-3.5 bg-slate-900/90 hover:bg-slate-800 border border-emerald-500/40 hover:border-emerald-400 rounded-2xl flex items-center justify-between text-left group cursor-pointer transition-all shadow-md active:scale-98"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+                    ⚔️
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-black text-white group-hover:text-emerald-300 flex items-center gap-2">
+                      <span>{language === 'hindi' ? 'लाइव ग्रुप क्विज़ बैटल' : 'Live Group Quiz Battle'}</span>
+                      <span className="text-[9px] bg-emerald-400 text-slate-950 px-1.5 py-0.5 rounded font-black">VOICE & RANKS</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {language === 'hindi' ? 'लाइव वॉइस स्पीकर व ऑल-इंडिया लीडरबोर्ड' : 'Compete live with peers'}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-emerald-400 group-hover:text-emerald-300 shrink-0">
+                  {language === 'hindi' ? 'ज्वाइन करें ➔' : 'Join ➔'}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <AllExamsSyllabusModal
         isOpen={isAllExamsSyllabusOpen}
         onClose={() => setIsAllExamsSyllabusOpen(false)}
@@ -10016,7 +10257,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         isOpen={isNotificationCenterOpen}
         onClose={() => setIsNotificationCenterOpen(false)}
         onNavigateToView={(view) => {
-          if (view === 'pyq-vault' || view === 'current-affairs' || view === 'qr-scanner' || view === 'quiz' || view === 'chat' || view === 'steno' || view === 'study-plan' || view === 'sarkari-result' || view === 'notes-ocr') {
+          if (view === 'pyq-vault' || view === 'current-affairs' || view === 'qr-scanner' || view === 'quiz' || view === 'group-quiz' || view === 'chat' || view === 'steno' || view === 'study-plan' || view === 'sarkari-result' || view === 'notes-ocr' || view === 'exam-mode') {
             setActiveView(view as any);
           }
         }}

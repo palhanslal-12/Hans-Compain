@@ -8,11 +8,15 @@ export interface Message {
 }
 
 export interface QuizQuestion {
+  id?: string;
   question: string;
   options: string[];
   answerIndex: number;
+  correctIndex?: number;
   explanation: string;
   hint?: string;
+  subject?: string;
+  topic?: string;
   difficulty?: 'standard' | 'moderate' | 'hard' | 'extreme';
 }
 
@@ -116,6 +120,10 @@ export interface GroupQuizRoom {
   title: string;
   subject: string;
   category: string;
+  examType?: 'board' | 'competitive';
+  boardClass?: string;
+  isUnlimitedMode?: boolean;
+  customQuestionPrompt?: string;
   hostId: string;
   hostName: string;
   status: 'lobby' | 'countdown' | 'in-progress' | 'question-review' | 'podium-finished';

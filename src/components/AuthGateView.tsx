@@ -1,3 +1,4 @@
+import { AiPublicRulesModal } from './AiPublicRulesModal';
 import React, { useState, useEffect } from 'react';
 import { Lock, Mail, Phone, User, Eye, EyeOff, ShieldCheck, Sparkles, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { HansCompainLogo } from './HansCompainLogo';
@@ -46,6 +47,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
   const [loginOtpTimer, setLoginOtpTimer] = useState(0);
   const [loginOtpHint, setLoginOtpHint] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   // OTP Timers
   useEffect(() => {
@@ -495,10 +497,27 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
           </div>
         )}
 
-        <div className="pt-3 border-t border-slate-200 text-center text-[11px] text-slate-400 space-y-1">
+        <div className="pt-3 border-t border-slate-200 text-center text-[11px] text-slate-400 space-y-1.5">
+          <div>
+            By accessing Hans Compain, you agree to our{" "}
+            <button
+              type="button"
+              onClick={() => setIsTermsOpen(true)}
+              className="text-emerald-600 hover:text-emerald-700 font-bold underline bg-transparent border-none cursor-pointer"
+            >
+              Terms & Conditions (नियम व शर्तें)
+            </button>
+          </div>
           <div>Secure OTP & SHA-256 Authentication Guard</div>
           <div className="font-bold text-slate-600">Hans Compain Academic Ecosystem • LEARN • ASK • GROW</div>
         </div>
+
+        {/* Terms & Conditions Modal */}
+        <AiPublicRulesModal
+          isOpen={isTermsOpen}
+          onClose={() => setIsTermsOpen(false)}
+          language="hindi"
+        />
 
       </div>
     </div>
