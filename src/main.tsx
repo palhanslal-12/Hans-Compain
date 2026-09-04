@@ -46,15 +46,39 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 ऐप में अस्थायी डेटा लोड समस्या आई है। रिफ्रेश बटन दबाकर फिर से शुरू करें।
               </p>
             </div>
-            <button
-              onClick={() => {
-                localStorage.removeItem('hansai-saved-chats');
-                window.location.reload();
-              }}
-              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold rounded-xl text-xs transition-all shadow-lg cursor-pointer border-none"
-            >
-              🔄 Reload App / ऐप रिफ्रेश करें
-            </button>
+            <div className="flex flex-col gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.reload();
+                }}
+                className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold rounded-xl text-xs transition-all shadow-lg cursor-pointer border-none"
+              >
+                🔄 Reload App / ऐप रिफ्रेश करें
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    const keys = [
+                      'hansai-saved-chats',
+                      'hansai-chat-messages',
+                      'hansai-mistake-notebook',
+                      'hansai-saved-quizzes',
+                      'hansai-active-quiz-draft',
+                      'hansai-syllabus-trackers',
+                      'hansai_usage',
+                      'hanscompain_intro_seen'
+                    ];
+                    keys.forEach((k) => localStorage.getItem(k) && localStorage.removeItem(k));
+                  } catch {}
+                  window.location.reload();
+                }}
+                className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-xl text-xs transition-all border border-amber-500/30 cursor-pointer"
+              >
+                🧹 Reset Corrupt Cache & Reload / कैश साफ़ कर रीलोड करें
+              </button>
+            </div>
           </div>
         </div>
       );

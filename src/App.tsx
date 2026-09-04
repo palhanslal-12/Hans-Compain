@@ -596,6 +596,7 @@ export default function App() {
   const [isAuthRegisterOpen, setIsAuthRegisterOpen] = useState(false);
   const [isAuthLoginOpen, setIsAuthLoginOpen] = useState(false);
   const [isAuthForgotOpen, setIsAuthForgotOpen] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   // Helper for Export PDF using real jsPDF + html2canvas file generator with full Unicode/Hindi support
   const handleExportPdf = async (title: string, elementId?: string, rawText?: string) => {
@@ -663,7 +664,7 @@ export default function App() {
 
   // Translate helper
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    return translations[language]?.[key] || translations['english']?.[key] || key;
   };
 
   // Hans Compain Intro Splash Animation & Feature Walkthrough (Disabled)
@@ -2964,8 +2965,12 @@ export default function App() {
 
   // Mistake Revision Notebook state
   const [mistakeNotebook, setMistakeNotebook] = useState<MistakeNotebookItem[]>(() => {
-    const saved = localStorage.getItem('hansai-mistake-notebook');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('hansai-mistake-notebook');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   const [userQuizAnswers, setUserQuizAnswers] = useState<Record<number, number>>({});
@@ -3123,14 +3128,20 @@ export default function App() {
   // Interactive Quiz Tabs: 'syllabus' | 'saved' | 'mistakes'
   const [activeQuizTab, setActiveQuizTab] = useState<'syllabus' | 'saved' | 'mistakes'>('syllabus');
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuizRecord[]>(() => {
-    const saved = localStorage.getItem('hansai-saved-quizzes');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('hansai-saved-quizzes');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   // Syllabus Revision and Utility Trackers state
   const [syllabusTrackers, setSyllabusTrackers] = useState<Array<{ id: string; exam: string; subject: string; topic: string; done: boolean; notes: boolean; quiz: boolean }>>(() => {
-    const saved = localStorage.getItem('hansai-syllabus-trackers');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem('hansai-syllabus-trackers');
+      if (saved) return JSON.parse(saved);
+    } catch {}
     return [
       { id: 'track-1', exam: 'SSC CGL', subject: 'Quantitative Aptitude', topic: 'Percentage & Interest (प्रतिशत और ब्याज)', done: true, notes: true, quiz: false },
       { id: 'track-2', exam: 'SSC CGL', subject: 'General Awareness', topic: 'Indian Constitution Articles (महत्वपूर्ण अनुच्छेद)', done: false, notes: false, quiz: false },
@@ -5217,7 +5228,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
   const handleSendChat = async (textToSend?: string) => {
     // Daily 10-Query Limit Check
     const today = new Date().toISOString().slice(0, 10);
-    let usage = JSON.parse(localStorage.getItem('hansai_usage') || '{"date":"","count":0}');
+    let usage = { date: today, count: 0 };
+    try {
+      const raw = localStorage.getItem('hansai_usage');
+      if (raw) usage = JSON.parse(raw);
+    } catch {}
     if (usage.date !== today) {
       usage = { date: today, count: 0 };
     }
@@ -5380,6 +5395,19 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       });
 
       if (!res.ok) {
+        if (res.status === 429) {
+          const rateData = await res.json().catch(() => ({}));
+          const rateReply = rateData.reply || rateData.message || "⚠️ **500+ छात्र कॉलेज शील्ड सक्रिय:** कृपया 30 सेकंड बाद पुनः प्रश्न पूछें ताकि सभी सहपाठियों को बिना सर्वर क्रैश के समान स्पीड मिल सके। तब तक आप ऑफ़लाइन नोट्स पढ़ सकते हैं! 📚🛡️";
+          const assistantMsg: Message = {
+            id: `reply-${Date.now()}`,
+            role: 'assistant',
+            content: rateReply,
+            timestamp: new Date()
+          };
+          setChatMessages(prev => [...prev, assistantMsg]);
+          setIsChatLoading(false);
+          return;
+        }
         throw new Error("Unable to contact assistant server.");
       }
 
@@ -7836,21 +7864,23 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
           {/* VIEW: ACADEMIC QUIZ GENERATOR & PYQ STUDIO (ADDA247 / TCS ION PATTERN) */}
           {activeView === 'quiz' && (
-            <div className="p-3 sm:p-6 w-full">
-              <AcademicQuizStudio
-                language={language}
-                showToast={showToast}
-                onExportPdf={(title, elementId, rawText) => {
-                  generateStudyNotesPdf({
-                    title: title || 'Academic Test Solution',
-                    content: rawText || '',
-                    language: language === 'hindi' ? 'hindi' : 'english'
-                  });
-                }}
-                mistakeNotebook={mistakeNotebook}
-                onAddToMistakeNotebook={(item) => handleSaveMistakeToNotebook(item)}
-              />
-            </div>
+            <ErrorBoundary fallbackTitle="Academic Quiz Studio" onReset={() => setActiveView('chat')}>
+              <div className="p-3 sm:p-6 w-full">
+                <AcademicQuizStudio
+                  language={language}
+                  showToast={showToast}
+                  onExportPdf={(title, elementId, rawText) => {
+                    generateStudyNotesPdf({
+                      title: title || 'Academic Test Solution',
+                      content: rawText || '',
+                      language: language === 'hindi' ? 'hindi' : 'english'
+                    });
+                  }}
+                  mistakeNotebook={mistakeNotebook}
+                  onAddToMistakeNotebook={(item) => handleSaveMistakeToNotebook(item)}
+                />
+              </div>
+            </ErrorBoundary>
           )}
 
           {/* VIEW: UNLIMITED PREVIOUS YEAR QUESTIONS (PYQ) VAULT */}
@@ -8663,6 +8693,22 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     {t('verifyProceed')}
                   </button>
                 </form>
+              </div>
+
+              {/* Direct Terms and Conditions footer notice on login / registration */}
+              <div className="pt-2 border-t border-slate-800 text-center text-[10px] text-slate-400">
+                लॉग इन अथवा पंजीकरण करने पर आप हमारे{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLoginModalOpen(false);
+                    setIsTermsModalOpen(true);
+                  }}
+                  className="text-indigo-400 hover:text-indigo-300 font-bold underline bg-transparent border-none cursor-pointer"
+                >
+                  नियम व शर्तें (Terms & Conditions)
+                </button>{" "}
+                तथा गोपनीयता नीति से सहमत होते हैं।
               </div>
 
             </div>
@@ -9744,6 +9790,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         user={user}
         setUser={setUser}
         showToast={showToast}
+      />
+
+      {/* AI PUBLIC RULES & TERMS MODAL */}
+      <AiPublicRulesModal
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+        language={language}
       />
 
       {/* HANS COMPAIN ADVANCED SHARE LINK MODAL */}

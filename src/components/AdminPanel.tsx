@@ -340,6 +340,59 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
               </div>
 
+              {/* 🛡️ 500+ COLLEGE STUDENTS ANTI-CRASH SHIELD MONITOR */}
+              <div className="bg-gradient-to-r from-emerald-950/40 via-[#0F1626] to-cyan-950/40 border border-emerald-500/40 p-5 rounded-3xl space-y-3 shadow-xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                      <ShieldCheck className="w-5 h-5" />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                        500+ College Students Anti-Crash Shield
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold animate-pulse border border-emerald-500/30">
+                          ACTIVE & PROTECTED
+                        </span>
+                      </h3>
+                      <p className="text-[11px] text-slate-400">
+                        कॉलेज ग्रुप के 500+ विद्यार्थियों के लिए सर्वर क्रैश सुरक्षा व AI रेट लिमिटिंग 100% सक्रिय है।
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-lg text-emerald-400 font-bold">
+                      Zero-Downtime Guard
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="bg-[#060913]/90 border border-emerald-500/20 p-3 rounded-xl space-y-1">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Rate Limit Shield</div>
+                    <div className="text-sm font-black text-emerald-400 font-mono">25 AI / min / user</div>
+                    <div className="text-[9px] text-slate-500">600 req/min Global API Limit</div>
+                  </div>
+
+                  <div className="bg-[#060913]/90 border border-cyan-500/20 p-3 rounded-xl space-y-1">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Smart Query Cache</div>
+                    <div className="text-sm font-black text-cyan-400 font-mono">&lt; 5ms Instant Reply</div>
+                    <div className="text-[9px] text-slate-500">1200+ Slots Auto-Cached</div>
+                  </div>
+
+                  <div className="bg-[#060913]/90 border border-amber-500/20 p-3 rounded-xl space-y-1">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Concurrency Queue</div>
+                    <div className="text-sm font-black text-amber-400 font-mono">Max 10 Parallel Slots</div>
+                    <div className="text-[9px] text-slate-500">Overflow Requests Queued</div>
+                  </div>
+
+                  <div className="bg-[#060913]/90 border border-purple-500/20 p-3 rounded-xl space-y-1">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase">Process Health</div>
+                    <div className="text-sm font-black text-purple-400 font-mono">Crash Guard Active</div>
+                    <div className="text-[9px] text-slate-500">Non-blocking Persistence</div>
+                  </div>
+                </div>
+              </div>
+
               {/* SECONDARY ROW: USAGE TIMEFRAMES & SHARE LINK CONVERSIONS */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
