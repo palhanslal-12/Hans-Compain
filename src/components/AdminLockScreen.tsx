@@ -57,11 +57,13 @@ export const AdminLockScreen: React.FC<AdminLockScreenProps> = ({
     if (isLockedOut) return;
 
     const input = passwordInput.trim();
+    const savedCustomPass = typeof window !== 'undefined' ? localStorage.getItem('hansai_admin_custom_pwd') : null;
     const validPasswords = [
       adminPasswordSecret,
+      savedCustomPass,
       'Chhangur#@8084',
       'Chhangur@8084'
-    ];
+    ].filter(Boolean);
 
     if (validPasswords.includes(input)) {
       setErrorMsg('');
@@ -130,8 +132,8 @@ export const AdminLockScreen: React.FC<AdminLockScreenProps> = ({
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
             {isHindi 
-              ? "सुरक्षा सूचना: केवल ईमेल लॉग-इन से एडमिन एक्सेस नहीं मिलता। ओनर कंसोल खोलने के लिए सुरक्षित पासवर्ड (Chhangur#@8084) दर्ज करें।"
-              : "Security Guard: Email login alone does NOT grant Admin privileges. Enter the master admin password to open owner console."}
+              ? "सुरक्षा सूचना: केवल ईमेल लॉग-इन से एडमिन एक्सेस नहीं मिलता। ओनर कंसोल खोलने के लिए अपना मास्टर एडमिन पासवर्ड दर्ज करें।"
+              : "Security Guard: Email login alone does NOT grant Admin privileges. Enter your master admin password to open owner console."}
           </p>
         </div>
       </div>
@@ -182,7 +184,7 @@ export const AdminLockScreen: React.FC<AdminLockScreenProps> = ({
                 setPasswordInput(e.target.value);
                 if (errorMsg) setErrorMsg('');
               }}
-              placeholder={isHindi ? "पासवर्ड (जैसे: Chhangur#@8084)" : "Enter Admin Password"}
+              placeholder={isHindi ? "मास्टर पासवर्ड दर्ज करें (••••••••••••)" : "Enter Master Password (••••••••••••)"}
               className={`w-full text-sm py-3.5 pl-4 pr-11 bg-[#04070F] border ${
                 errorMsg ? 'border-rose-500 text-rose-200' : 'border-amber-500/40 text-amber-300 focus:border-amber-400'
               } rounded-2xl font-mono tracking-wider outline-none transition-all shadow-inner`}

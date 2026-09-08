@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { RotateCcw, ArrowLeft } from 'lucide-react';
+import { dispatchOwnerAlert } from '../utils/ownerAlertService';
 
 interface Props {
   children: ReactNode;
@@ -28,6 +29,17 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("HansAI Component Crash Caught:", error, errorInfo);
+    try {
+      dispatchOwnerAlert(
+        'problem',
+        `⚠️ UI Crash in ${this.props.fallbackTitle || 'Component'}`,
+        `Error: ${error?.message || 'Unknown runtime error'}. Stack: ${error?.stack?.slice(0, 200) || 'N/A'}`,
+        'critical',
+        { fallbackTitle: this.props.fallbackTitle, errorInfo }
+      );
+    } catch (e) {
+      // Ignore
+    }
   }
 
   private handleReset = () => {

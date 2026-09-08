@@ -322,6 +322,14 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
   const [isSpeakerOn, setIsSpeakerOn] = useState<boolean>(true);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [isFullScreenStage, setIsFullScreenStage] = useState<boolean>(false);
+  const [recentRoomCodes, setRecentRoomCodes] = useState<string[]>(() => {
+    try {
+      const s = localStorage.getItem('hansai_recent_rooms');
+      return s ? JSON.parse(s) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
   // In-Game state
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -799,23 +807,54 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
 
     setRoom(newRoom);
     await saveGroupQuizRoomToFirestore(newRoom);
+
+    // Save to local cache and update recent rooms list
+    try {
+      localStorage.setItem(`hansai_group_room_${newRoomCode}`, JSON.stringify(newRoom));
+      const recentsStr = localStorage.getItem('hansai_recent_rooms');
+      const recents: string[] = recentsStr ? JSON.parse(recentsStr) : [];
+      if (!recents.includes(newRoomCode)) {
+        const updated = [newRoomCode, ...recents].slice(0, 5);
+        localStorage.setItem('hansai_recent_rooms', JSON.stringify(updated));
+        setRecentRoomCodes(updated);
+      }
+    } catch (e) {}
+
     showToast(isHindi ? `रूम तैयार! कोड: ${newRoomCode}` : `Room Created! Code: ${newRoomCode}`, 'success');
     announceVoice(isHindi 
       ? `ग्रुप क्विज रूम कोड ${newRoomCode} तैयार है! ${isUnlimited ? 'अनलिमिटेड लाइव राउंड्स' : `${targetCount} प्रश्न`} लोड किए गए हैं।` 
       : `Group Quiz Room ${newRoomCode} is ready! ${isUnlimited ? 'Unlimited live rounds' : `${targetCount} questions`} loaded.`);
   };
 
-  // Join Room via Code
+  // Join Room via Code (Supports direct 4-digit number or HANS-XXXX without needing any links!)
   const handleJoinRoom = async () => {
-    const code = roomCodeInput.trim().toUpperCase();
+    let code = roomCodeInput.trim().toUpperCase();
     if (!code) {
       showToast(isHindi ? 'कृपया रूम कोड दर्ज करें' : 'Please enter a valid room code', 'warn');
       return;
     }
 
-    const existingRoom = await getGroupQuizRoomFromFirestore(code);
+    // Auto-normalize if student entered only 4 digits or missed the hyphen
+    if (/^\d{4}$/.test(code)) {
+      code = `HANS-${code}`;
+    } else if (/^HANS\d{4}$/.test(code)) {
+      code = code.replace('HANS', 'HANS-');
+    }
+
+    let existingRoom = await getGroupQuizRoomFromFirestore(code);
+    
+    // Fallback to local device cache if Firestore is in offline mode
     if (!existingRoom) {
-      showToast(isHindi ? 'रूम नहीं मिला! कृपया सही कोड दर्ज करें।' : 'Room not found! Please check the code.', 'error');
+      try {
+        const localSaved = localStorage.getItem(`hansai_group_room_${code}`);
+        if (localSaved) {
+          existingRoom = JSON.parse(localSaved);
+        }
+      } catch (e) {}
+    }
+
+    if (!existingRoom) {
+      showToast(isHindi ? `रूम "${code}" नहीं मिला! कृपया सही 4 या 8-अंकीय कोड दर्ज करें।` : `Room "${code}" not found! Please check the code.`, 'error');
       return;
     }
 
@@ -845,7 +884,20 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
 
     setRoom(updatedRoom);
     await saveGroupQuizRoomToFirestore(updatedRoom);
-    showToast(isHindi ? `आप रूम ${code} में जुड़ गए हैं!` : `Joined Room ${code}!`, 'success');
+    
+    // Save to recents
+    try {
+      localStorage.setItem(`hansai_group_room_${code}`, JSON.stringify(updatedRoom));
+      const recentsStr = localStorage.getItem('hansai_recent_rooms');
+      const recents: string[] = recentsStr ? JSON.parse(recentsStr) : [];
+      if (!recents.includes(code)) {
+        const updated = [code, ...recents].slice(0, 5);
+        localStorage.setItem('hansai_recent_rooms', JSON.stringify(updated));
+        setRecentRoomCodes(updated);
+      }
+    } catch (e) {}
+
+    showToast(isHindi ? `आप रूम ${code} में सीधे जुड़ गए हैं!` : `Joined Room ${code}!`, 'success');
     announceVoice(isHindi ? `${playerName}, आप लाइव ग्रुप क्विज़ में शामिल हो चुके हैं!` : `Welcome to the Group Quiz, ${playerName}!`);
   };
 
@@ -1957,12 +2009,17 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                 {!room && (
                   <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
                     <div className="border-b border-slate-800 pb-3">
-                      <h2 className="text-base font-black text-white flex items-center gap-2">
-                        <Users className="w-5 h-5 text-emerald-400" />
-                        <span>{isHindi ? 'रूम कोड से जुड़ें (Join Room)' : 'Join Room with Code'}</span>
-                      </h2>
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-base font-black text-white flex items-center gap-2">
+                          <Users className="w-5 h-5 text-emerald-400" />
+                          <span>{isHindi ? 'रूम कोड से जुड़ें (Join Room)' : 'Join Room with Code'}</span>
+                        </h2>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          {isHindi ? 'बिना लिंक के सीधा प्रवेश' : 'No Link Needed'}
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-400">
-                        {isHindi ? 'दोस्त द्वारा शेयर किया गया कोड दर्ज कर सीधे लाइव मुकाबले में शामिल हों' : 'Enter the room code shared by your friend to join live'}
+                        {isHindi ? 'दोस्त का 4-अंकीय कोड (जैसे 8921) या HANS-8921 डालकर बिना किसी लिंक के तुरंत मुकाबला शुरू करें।' : 'Enter your friend’s 4-digit number (e.g. 8921) or HANS-8921 to join live immediately.'}
                       </p>
                     </div>
 
@@ -1971,7 +2028,7 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                         type="text"
                         value={roomCodeInput}
                         onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                        placeholder="e.g. HANS-8921"
+                        placeholder="उदा. 8921 या HANS-8921"
                         maxLength={9}
                         className="w-full px-4 py-3 bg-slate-950 border-2 border-slate-700 focus:border-emerald-500 rounded-xl text-center text-base sm:text-lg font-mono font-black text-white tracking-widest focus:outline-none transition-colors"
                       />
@@ -1983,6 +2040,31 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                         <Play className="w-4 h-4" />
                         <span>{isHindi ? 'क्विज़ रूम में शामिल हों' : 'Join Room Now'}</span>
                       </button>
+
+                      {/* Recent Room Chips for 1-Click Joining without link */}
+                      {recentRoomCodes.length > 0 && (
+                        <div className="pt-2 border-t border-slate-800/80">
+                          <span className="text-[10px] font-semibold text-slate-400 block mb-1.5">
+                            {isHindi ? '⚡ हाल के लाइव रूम्स (1-क्लिक में जुड़ें):' : '⚡ Recent Live Rooms (Tap to fill):'}
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {recentRoomCodes.map((c) => (
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => setRoomCodeInput(c)}
+                                className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all ${
+                                  roomCodeInput === c 
+                                    ? 'bg-emerald-600 text-white border-emerald-400 shadow-sm' 
+                                    : 'bg-slate-950 hover:bg-slate-800 text-emerald-300 border-slate-700 hover:border-emerald-500/60'
+                                }`}
+                              >
+                                {c}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

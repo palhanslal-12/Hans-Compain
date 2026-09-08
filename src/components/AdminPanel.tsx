@@ -992,11 +992,59 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           {/* 6. 🧩 FEATURES */}
           {adminActiveTab === 'features' && (
             <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4 animate-fade-in">
-              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">
-                🧩 Module Feature Flags
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">
+                    🧩 Master Feature Flags & Access Control
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    एडमिन द्वारा किसी भी मॉड्यूल को एक क्लिक में चालू (ON) या बंद (OFF) करें।
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setFeatureFlags((prev: any) => {
+                        const updated = { ...prev };
+                        Object.keys(updated).forEach(k => { updated[k] = true; });
+                        addAdminAuditLog("Admin Enabled All Feature Modules", "Feature Flags");
+                        showToast("सभी फीचर्स सक्रिय (ALL ENABLED) कर दिए गए! 🟢", "success");
+                        return updated;
+                      });
+                    }}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all border-none"
+                  >
+                    ⚡ Enable All
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFeatureFlags((prev: any) => {
+                        const updated = { ...prev, music: false, rap: false, timeTravel: false, soul: false };
+                        addAdminAuditLog("Admin Activated Exam-Focus Mode", "Feature Flags");
+                        showToast("परीक्षा-फोकस मोड सक्रिय (Non-core disabled) 🎯", "info");
+                        return updated;
+                      });
+                    }}
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold cursor-pointer transition-all border border-slate-700"
+                  >
+                    🎯 Exam Focus Mode
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
+                  { key: 'tokenSaver', label: '⚡ Token Saver / AI Concise Mode', desc: 'संक्षिप्त व सटीक उत्तर देकर टोकन बचत' },
+                  { key: 'boardExams', label: '🎓 Board Exam Single Tests', desc: '10वीं व 12वीं गणित, विज्ञान व बोर्ड टेस्ट' },
+                  { key: 'competitiveExams', label: '🏆 Competitive Exam Hub', desc: 'TCS iON PYQs, Mocks व स्पीड टेस्ट' },
+                  { key: 'steno', label: '✍️ Stenographer Hub', desc: 'शॉर्टहैंड डिक्टेशन, मानक/ऋषि स्पीड' },
+                  { key: 'groupQuiz', label: '⚔️ Live Group Battle', desc: 'छात्रों के बीच लाइव क्विज़ मुकाबला' },
+                  { key: 'scienceLab', label: '🔬 Virtual Science Lab', desc: 'प्रयोगशाला सिमुलेशन व फिजिक्स लैब' },
+                  { key: 'mnemonics', label: '💡 AI Mnemonics Generator', desc: 'स्मार्ट ट्रिक्स व मेमोरी हैक्स' },
+                  { key: 'currentAffairs', label: '📰 Daily Current Affairs 2026', desc: 'दैनिक राष्ट्रीय व अंतर्राष्ट्रीय GK' },
+                  { key: 'timeTravel', label: '⏳ Historical Time Travel', desc: 'ऐतिहासिक सिमुलेटर व पात्र संवाद' },
+                  { key: 'guestTrialMode', label: '🌐 Guest Trial Security', desc: 'बिना लॉगिन सीमित चैट/टेस्ट गार्ड' },
                   { key: 'sarkari', label: '📄 Sarkari Result Engine', desc: 'SSC & State Job Alerts' },
                   { key: 'music', label: '🎵 AI Study Music', desc: 'Concentration Music Synthesizer' },
                   { key: 'photoDoubt', label: '📸 Photo Doubt Solver', desc: 'OCR Question Solver' },
@@ -1007,12 +1055,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   { key: 'soul', label: '🧘 Soul Wellness', desc: 'Mindful Stress Control' },
                   { key: 'leaderboard', label: '🏆 Leaderboard', desc: 'Student Rankings & Badges' },
                 ].map((feat) => {
-                  const enabled = featureFlags[feat.key];
+                  const enabled = featureFlags[feat.key] !== false;
                   return (
                     <div key={feat.key} className="p-3.5 bg-[#060913] border border-slate-800 rounded-2xl flex items-center justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-bold text-white">{feat.label}</div>
-                        <div className="text-[10px] text-slate-400">{feat.desc}</div>
+                      <div className="overflow-hidden">
+                        <div className="text-xs font-bold text-white truncate">{feat.label}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{feat.desc}</div>
                       </div>
                       <button
                         onClick={() => {
@@ -1023,8 +1071,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             return updated;
                           });
                         }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer border-none ${
-                          enabled ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer border-none transition-all ${
+                          enabled ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-950/40' : 'bg-slate-800 text-slate-400'
                         }`}
                       >
                         {enabled ? 'ON' : 'OFF'}
@@ -1234,10 +1282,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <button
                   onClick={() => {
                     if (!newAdminPasswordInput.trim()) return;
-                    setAdminPasswordSecret(newAdminPasswordInput.trim());
+                    const cleanPwd = newAdminPasswordInput.trim();
+                    setAdminPasswordSecret(cleanPwd);
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('hansai_admin_custom_pwd', cleanPwd);
+                    }
                     setNewAdminPasswordInput('');
                     addAdminAuditLog("Updated Admin Password", "Security");
-                    showToast("Admin Password Updated Successfully! 🔐", "success");
+                    showToast("Admin Password Updated & Secured! 🔐", "success");
                   }}
                   className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl cursor-pointer border-none"
                 >

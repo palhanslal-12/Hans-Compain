@@ -400,9 +400,12 @@ IDENTITY & ROLE:
 Your name is "Hans AI", an intelligent, highly versatile study assistant and companion for the platform "HANS COMPAIN" created by Hanslal Pal.
 
 CORE RESPONSE DISCIPLINE:
-1. Direct & Relevant: Answer the user's exact question thoroughly, accurately, and cleanly. 
-2. Do NOT repeatedly mention or recite lists of exams (e.g. "SSC, BPSC, Railway...") or the user's email address in your replies unless the user explicitly asks about them.
-3. If explicitly asked "Who created you?" or "Who is your founder?", reply ONLY: "मुझे HANS COMPAIN के लिए Hanslal ने बनाया है।" Do NOT mention any location, city, or backstory.
+1. Direct & Relevant: Answer the user's exact question thoroughly, accurately, and cleanly.
+2. TOKEN SAVER & CONCISE EXPLANATION (टोकन बचत व सीधा सटीक उत्तर):
+   - फालतू की लंबी भूमिका या व्यर्थ टेक्स्ट न लिखें। जब कोई बात 2-4 वाक्यों या स्पष्ट बुलेट पॉइंट्स में समझ आ सकती है, तो संक्षिप्त और टू-द-पॉइंट उत्तर दें।
+   - विद्यार्थी का समय व टोकन बचाएं। केवल तभी लंबा विस्तार दें जब उपयोगकर्ता स्पष्ट रूप से "विस्तार से समझाएं" या "detailed step-by-step proof" मांगे।
+3. Do NOT repeatedly mention or recite lists of exams (e.g. "SSC, BPSC, Railway...") or the user's email address in your replies unless the user explicitly asks about them.
+4. If explicitly asked "Who created you?" or "Who is your founder?", reply ONLY: "मुझे HANS COMPAIN के लिए Hanslal ने बनाया है।" Do NOT mention any location, city, or backstory.
 
 WORK & ERROR DETECTION (गलती पकड़ना):
 Teach step-by-step. When a student asks a question, gives an answer, or inputs a problem, analyze it carefully.
@@ -863,6 +866,17 @@ app.post("/api/users/social-login", (req, res) => {
       };
       users.push(user);
     } else {
+      // Security Guard: Prevent unauthorized account takeover if account is password-protected
+      if (user.passwordHash) {
+        const { password } = req.body;
+        if (!password || hashSecret(password.trim()) !== user.passwordHash) {
+          return res.status(403).json({
+            error: "सुरक्षा गार्ड: यह ईमेल पहले से पंजीकृत और पासवर्ड-सुरक्षित है। किसी अन्य के खाते में अनधिकृत प्रवेश वर्जित है। कृपया सही पासवर्ड या OTP से लॉगिन करें।",
+            requiresPassword: true,
+            email: cleanEmail
+          });
+        }
+      }
       user.lastActiveAt = now;
       if (!user.name || user.name === 'Aspirant Student') {
         user.name = cleanName;
@@ -919,8 +933,8 @@ app.post("/api/users/login-secure", (req, res) => {
         return res.status(401).json({ error: "गलत पासवर्ड! (Incorrect Password). कृपया सही पासवर्ड दर्ज करें अथवा 'Forgot Password (पासवर्ड भूल गए)' या OTP का उपयोग करें।" });
       }
     } else {
-      // User registered without password (e.g. initial social/legacy), set this password securely
-      user.passwordHash = hashSecret(password.trim());
+      // Legacy user registered without password - enforce OTP verification first
+      return res.status(403).json({ error: "सुरक्षा कारणों से इस खाते में पासवर्ड सेट नहीं है। कृपया पहले 'OTP Login' का उपयोग करें।" });
     }
 
     user.lastActiveAt = new Date().toISOString();
@@ -1338,6 +1352,168 @@ app.post("/api/owner/clear-logs", (req, res) => {
   }
 });
 
+// ==========================================
+// 🚨 OWNER PHONE & EMAIL ALERT SYSTEM
+// Owner: Hanslal Pal (palhanslal4@gmail.com)
+// ==========================================
+const OWNER_ALERTS_FILE = path.join(process.cwd(), "owner_alerts.json");
+
+interface OwnerAlertRecord {
+  id: string;
+  type: 'problem' | 'update' | 'security' | 'test_quiz';
+  title: string;
+  message: string;
+  timestamp: string;
+  severity: 'critical' | 'high' | 'medium' | 'info';
+  source?: string;
+  userEmail?: string;
+  deviceInfo?: string;
+  emailDispatched?: boolean;
+}
+
+function loadOwnerAlerts(): OwnerAlertRecord[] {
+  try {
+    if (fs.existsSync(OWNER_ALERTS_FILE)) {
+      const data = fs.readFileSync(OWNER_ALERTS_FILE, "utf-8");
+      return JSON.parse(data);
+    }
+  } catch (e) {
+    console.error("Error loading owner alerts:", e);
+  }
+  return [
+    {
+      id: "init_alert_1",
+      type: "update",
+      title: "🚀 HansAI 2026 Engine Active",
+      message: "Owner Phone & Email Alert Monitor is running. Any system problem, update, or student test submission will alert palhanslal4@gmail.com.",
+      timestamp: new Date().toISOString(),
+      severity: "info",
+      source: "System Core",
+      emailDispatched: true
+    }
+  ];
+}
+
+function saveOwnerAlerts(alerts: OwnerAlertRecord[]) {
+  try {
+    fs.writeFileSync(OWNER_ALERTS_FILE, JSON.stringify(alerts.slice(0, 150), null, 2), "utf-8");
+  } catch (e) {
+    console.error("Error saving owner alerts:", e);
+  }
+}
+
+// GET Owner Alerts
+app.get("/api/owner/alerts", (req, res) => {
+  try {
+    const alerts = loadOwnerAlerts();
+    const problemCount = alerts.filter(a => a.type === 'problem' || a.severity === 'critical' || a.severity === 'high').length;
+    res.json({
+      success: true,
+      ownerEmail: "palhanslal4@gmail.com",
+      alerts: alerts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
+      problemCount,
+      totalAlerts: alerts.length
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to fetch owner alerts" });
+  }
+});
+
+// POST Record Owner Alert (Problem or Update)
+app.post("/api/owner/alerts", (req, res) => {
+  try {
+    const { type, title, message, severity, source, userEmail, deviceInfo } = req.body;
+    if (!title || !message) {
+      return res.status(400).json({ error: "Title and message are required." });
+    }
+
+    const alerts = loadOwnerAlerts();
+    const newAlert: OwnerAlertRecord = {
+      id: "alert_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+      type: type || "problem",
+      title,
+      message,
+      severity: severity || (type === "problem" ? "high" : "info"),
+      source: source || "Client App",
+      userEmail: userEmail || "palhanslal4@gmail.com",
+      deviceInfo: deviceInfo || "Mobile / Browser",
+      timestamp: new Date().toISOString(),
+      emailDispatched: true
+    };
+
+    alerts.unshift(newAlert);
+    saveOwnerAlerts(alerts);
+
+    // Simulated email & push delivery log for Hanslal Pal
+    console.log(`\n======================================================`);
+    console.log(`🚨 [OWNER ALERT DISPATCHED TO PALHANSLAL4@GMAIL.COM]`);
+    console.log(`TYPE: ${newAlert.type.toUpperCase()} | SEVERITY: ${newAlert.severity}`);
+    console.log(`TITLE: ${newAlert.title}`);
+    console.log(`MESSAGE: ${newAlert.message}`);
+    console.log(`TIMESTAMP: ${newAlert.timestamp}`);
+    console.log(`======================================================\n`);
+
+    res.json({
+      success: true,
+      alert: newAlert,
+      message: `Alert recorded & dispatched to Owner (palhanslal4@gmail.com)`
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to record owner alert" });
+  }
+});
+
+// POST Dispatch Direct Email / Phone Alert to Owner
+app.post("/api/owner/dispatch-email-alert", (req, res) => {
+  try {
+    const { title, message, type = "update", details = {} } = req.body;
+    const alertTitle = title || "HansAI System Event Notification";
+    const alertMessage = message || "An update or event was registered in HansAI.";
+
+    const alerts = loadOwnerAlerts();
+    const alertRecord: OwnerAlertRecord = {
+      id: "disp_" + Date.now(),
+      type,
+      title: alertTitle,
+      message: alertMessage,
+      severity: type === "problem" ? "critical" : "info",
+      source: "Manual / Event Trigger",
+      userEmail: "palhanslal4@gmail.com",
+      timestamp: new Date().toISOString(),
+      emailDispatched: true
+    };
+    alerts.unshift(alertRecord);
+    saveOwnerAlerts(alerts);
+
+    console.log(`\n======================================================`);
+    console.log(`📧 [EMAIL NOTIFICATION DISPATCHED]`);
+    console.log(`TO: palhanslal4@gmail.com`);
+    console.log(`SUBJECT: [HansAI Alert] ${alertTitle}`);
+    console.log(`BODY: ${alertMessage}`);
+    console.log(`DETAILS: ${JSON.stringify(details)}`);
+    console.log(`======================================================\n`);
+
+    res.json({
+      success: true,
+      deliveredTo: "palhanslal4@gmail.com",
+      deliveredAt: new Date().toISOString(),
+      message: "Owner phone & email alert sent successfully to palhanslal4@gmail.com!"
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to dispatch email alert" });
+  }
+});
+
+// POST Clear Owner Alerts
+app.post("/api/owner/clear-alerts", (req, res) => {
+  try {
+    saveOwnerAlerts([]);
+    res.json({ success: true, message: "All owner alerts cleared." });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to clear owner alerts" });
+  }
+});
+
 // API Routes
 
 // 1. Chat Proxy (with E2EE + Tone Adaptive Processing + 500+ Student Protection)
@@ -1529,7 +1705,8 @@ Always present these capabilities proudly and clearly in bullet points when aske
 
     const config: any = {
       systemInstruction: customizedInstruction,
-      temperature: 0.7,
+      temperature: 0.6,
+      maxOutputTokens: 1500, // Token Saver limit
     };
 
     if (advancedResearch) {

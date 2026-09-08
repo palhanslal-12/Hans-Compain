@@ -146,6 +146,7 @@ import { SarkariResultEligibilityHub } from './components/SarkariResultEligibili
 import { DailyStreakIndicator, recordDailyPracticeActivity } from './components/DailyStreakIndicator';
 import { QuickSaveNotesModal } from './components/QuickSaveNotesModal';
 import { UserProfileModal } from './components/UserProfileModal';
+import { StudentGoalOnboardingModal, StudentGoalProfile } from './components/StudentGoalOnboardingModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { generateStudyNotesPdf } from './utils/pdfGenerator';
 import {
@@ -687,6 +688,7 @@ export default function App() {
   const [isAllExamsSyllabusOpen, setIsAllExamsSyllabusOpen] = useState<boolean>(false);
   const [isBoardExamModalOpen, setIsBoardExamModalOpen] = useState<boolean>(false);
   const [isCompetitiveExamModalOpen, setIsCompetitiveExamModalOpen] = useState<boolean>(false);
+  const [quizForcedStream, setQuizForcedStream] = useState<'board' | 'competitive' | undefined>(undefined);
   const [isAiRulesModalOpen, setIsAiRulesModalOpen] = useState<boolean>(false);
   const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
   const [isDiagnosticsModalOpen, setIsDiagnosticsModalOpen] = useState<boolean>(false);
@@ -694,6 +696,40 @@ export default function App() {
   const [feedbackInitialContext, setFeedbackInitialContext] = useState<string>('HansAI Chat & Assistant');
   const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState<boolean>(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState<boolean>(false);
+
+  // Student Goal Onboarding Profile (Subject, Class, Board / Target Exam)
+  const [studentGoalProfile, setStudentGoalProfile] = useState<StudentGoalProfile | null>(() => {
+    try {
+      const saved = localStorage.getItem('hansai_student_goal_profile');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState<boolean>(() => {
+    try {
+      return !localStorage.getItem('hansai_student_goal_profile');
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const handleSaveStudentGoalProfile = (profile: StudentGoalProfile) => {
+    setStudentGoalProfile(profile);
+    try {
+      localStorage.setItem('hansai_student_goal_profile', JSON.stringify(profile));
+    } catch (e) {}
+    setIsOnboardingModalOpen(false);
+
+    if (profile.stream === 'board') {
+      const grade = profile.boardDetails?.classGrade || 'Class 10th';
+      const subj = profile.boardDetails?.primarySubject || 'Mathematics';
+      showToast(language === 'hindi' ? `🎯 लक्ष्य सेट: ${grade} (${subj})! आपके अनुसार टेस्ट तैयार हैं!` : `🎯 Goal Set: ${grade} (${subj})! Tests configured for you!`, 'success');
+    } else {
+      const examName = profile.competitiveDetails?.examName || 'Competitive Exam';
+      showToast(language === 'hindi' ? `🎯 लक्ष्य सेट: ${examName}! ऑल द बेस्ट!` : `🎯 Target Exam: ${examName}! All the best!`, 'success');
+    }
+  };
 
   // Desktop / Browser Push Notifications Settings State
   const [browserNotificationsEnabled, setBrowserNotificationsEnabled] = useState<boolean>(() => {
@@ -1064,89 +1100,74 @@ export default function App() {
       const lastNotifDate = localStorage.getItem('hansai_last_daily_notif_date');
 
       if (lastNotifDate !== todayDateStr) {
-        const DAILY_CA_TOPICS = [
+        const DAILY_5_SUBJECT_QUIZZES = [
           { 
-            examName: "[SSC CGL & Railway NTPC 2026]",
-            topic: "Geography, Environment & National Parks",
-            title: "🌱 [SSC & Railway 2026] Daily Quiz: Geography & Environment", 
-            desc: "Recent environmental treaties, biosphere reserves, and national park updates you must know for SSC CGL & RRB.",
-            category: "competitive"
+            examName: "[Daily Quiz] भूगोल एवं पर्यावरण (Geography Special)",
+            topic: "Geography, Environment & Rivers",
+            title: "🌍 [भूगोल दैनिक क्विज़] भारत की नदियाँ, पर्वत एवं राष्ट्रीय उद्यान", 
+            desc: "भूगोल और पर्यावरण के 5 महत्वपूर्ण पिछले वर्षों के प्रश्न। 5 मिनट में अपनी तैयारी परखें!",
+            category: "geography"
           },
           { 
-            examName: "[UPSC CSE & State PSC 2026]",
-            topic: "Economy, Union Budget & Banking Systems",
-            title: "📊 [UPSC & State PSC] Current Affairs: Economy & Union Budget 2026", 
-            desc: "Test your high-yield conceptual mastery on budget allocations, fiscal deficit, and economic surveys.",
-            category: "competitive"
+            examName: "[Daily Speed Test] गणित एवं क्वांट (Math & Quant)",
+            topic: "Mathematics & Quantitative Aptitude",
+            title: "📐 [गणित स्पीड टेस्ट] प्रतिशत, लाभ-हानि व चक्रवृद्धि ब्याज शॉर्टकट", 
+            desc: "SSC, रेलवे और पुलिस परीक्षा में बार-बार पूछे जाने वाले गणित के चुनिंदा 5 सवाल।",
+            category: "math"
           },
           { 
-            examName: "[Defence & Police Exams 2026]",
-            topic: "Science, Space Tech & ISRO Missions",
-            title: "🚀 [Defence / Police / CDS] Daily Quiz: Space Tech & ISRO Missions", 
-            desc: "Practice questions based on NISAR, Chandrayaan, Gaganyaan, and advanced missile defense systems.",
-            category: "competitive"
+            examName: "[Daily Quiz] सामान्य हिन्दी व्याकरण (General Hindi)",
+            topic: "General Hindi Grammar & Sandhi",
+            title: "✍️ [हिन्दी स्पेशल टेस्ट] संधि, समास, मुहावरे एवं शुद्ध वर्तनी", 
+            desc: "दरोगा, पुलिस कांस्टेबल, RO/ARO व बोर्ड परीक्षा हेतु सामान्य हिन्दी के 5 उच्च-अंक वाले प्रश्न।",
+            category: "hindi"
           },
           { 
-            examName: "[All India Competitive Exams]",
-            topic: "Sports, Honours & National Awards 2026",
-            title: "🏅 [National Level] Daily Practice: Sports, Honours & Awards 2026", 
-            desc: "Who won what? Attempt this quick 5-min speed test on prestigious Padma awards, Grand Slams & Khel Ratna.",
-            category: "competitive"
+            examName: "[Daily Challenge] तर्कशक्ति (Reasoning Special)",
+            topic: "Reasoning & Mental Ability",
+            title: "🧠 [तर्कशक्ति चैलेंज] नंबर सीरीज़, एनालॉजी एवं कोडिंग-डिकोडिंग", 
+            desc: "दिमागी कसरत और स्पीड एक्यूरेसी के लिए रीजनिंग के 5 सटीक अभ्यास प्रश्न।",
+            category: "reasoning"
           },
           { 
-            examName: "[SSC, Railway & State Judiciary]",
-            topic: "Indian Polity, Articles & Constitutional Amendments",
-            title: "⚖️ [Polity Special] Quick Quiz: Constitutional Articles & Amendments", 
-            desc: "Revise crucial fundamental rights, DPSP, and high-frequency constitutional amendments in 5 minutes.",
-            category: "competitive"
-          },
-          { 
-            examName: "[Banking IBPS PO, Clerk & SBI]",
-            topic: "Banking Awareness, Monetary Policy & New Appointments",
-            title: "👔 [Banking & Economy] Appointments, RBI Guidelines & Financial Awareness", 
-            desc: "Important national/international appointments, repo rates, and banking terms frequently asked in exams.",
-            category: "competitive"
-          },
-          { 
-            examName: "[10th & 12th Board Science Special]",
-            topic: "Class 10th & 12th Core Science & Physics Concepts",
-            title: "🎓 [Board Exams 2026] 10th/12th Science & Foundation Quiz", 
-            desc: "Core concepts of optics, electricity, chemical reactions, and genetics for board examination revision.",
-            category: "board"
+            examName: "[Daily Practice] English Language & Grammar",
+            topic: "English Language & Vocab",
+            title: "📖 [English Speed Test] Spotting Errors, Voice & Vocab",
+            desc: "Daily 5-minute English refresher with high-yield grammatical rules and exam vocabulary.",
+            category: "english"
           }
         ];
 
-        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
-        const selectedTopic = DAILY_CA_TOPICS[dayOfYear % DAILY_CA_TOPICS.length];
-
-        const newNotif = {
-          id: `daily-notif-${Date.now()}`,
+        const newNotifs = DAILY_5_SUBJECT_QUIZZES.map((item, idx) => ({
+          id: `daily-notif-${todayDateStr}-${idx}-${Date.now()}`,
           type: 'exam_alert',
-          title: selectedTopic.title,
-          message: selectedTopic.desc,
-          timestamp: 'Just now',
+          title: item.title,
+          message: item.desc,
+          timestamp: 'Today',
           isRead: false,
-          badge: 'NEW UPDATE',
+          badge: 'DAILY 5 QUIZ',
           actionLabel: 'Attempt Now →',
           actionTarget: 'quiz',
-          examName: selectedTopic.examName,
-          topic: selectedTopic.topic,
-          category: selectedTopic.category
-        };
+          examName: item.examName,
+          topic: item.topic,
+          category: item.category
+        }));
+
         // Save to localStorage
         try {
           const savedNotifsStr = localStorage.getItem('hansai_notifications_v1');
           let savedNotifs = savedNotifsStr ? JSON.parse(savedNotifsStr) : [];
-          savedNotifs = [newNotif, ...savedNotifs];
+          // Filter out older daily notifs if any to keep list fresh and prevent duplicates
+          savedNotifs = [...newNotifs, ...savedNotifs.filter((n: any) => !n.id?.startsWith(`daily-notif-${todayDateStr}`))];
           localStorage.setItem('hansai_notifications_v1', JSON.stringify(savedNotifs));
         } catch (e) {
-          console.error("Failed to save daily notification", e);
+          console.error("Failed to save daily notifications", e);
         }
 
-        // Trigger browser push notification if permitted
+        // Trigger browser push notification for the first highlight if permitted
         if (Notification.permission === "granted") {
-          new Notification(selectedTopic.title, {
-            body: selectedTopic.desc,
+          new Notification("🎯 आज के 5 विषयवार दैनिक क्विज़ तैयार हैं!", {
+            body: "भूगोल, गणित, हिन्दी, रीजनिंग व इंग्लिश के 5-5 मिनट के क्विज़ टेस्ट दें।",
             icon: '/icon.png',
           });
         }
@@ -7034,8 +7055,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </button>
                       </div>
 
-                      {/* 8 CLEAN ACTION CARDS (2-COLUMN GRID MATCHING USER SPECIFICATION) */}
-                      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full text-left mt-3 mb-3">
+                      {/* 8 CLEAN ACTION CARDS (RESPONSIVE: 2-COL ON MOBILE, 4-COL ON LAPTOPS FOR INSTANT FULL VISIBILITY) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-2.5 w-full text-left mt-3 mb-3">
                         {/* ROW 1: Card 1 - Current Affairs */}
                         <button
                           onClick={() => setActiveView('current-affairs')}
@@ -7869,6 +7890,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <AcademicQuizStudio
                   language={language}
                   showToast={showToast}
+                  studentGoalProfile={studentGoalProfile}
+                  forcedStream={quizForcedStream || studentGoalProfile?.stream || undefined}
+                  onOpenGoalSelector={() => setIsOnboardingModalOpen(true)}
                   onExportPdf={(title, elementId, rawText) => {
                     generateStudyNotesPdf({
                       title: title || 'Academic Test Solution',
@@ -7878,6 +7902,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   }}
                   mistakeNotebook={mistakeNotebook}
                   onAddToMistakeNotebook={(item) => handleSaveMistakeToNotebook(item)}
+                  onRetestMistakes={(questions, title) => handleStartRetestFromMistakes(questions, title)}
                 />
               </div>
             </ErrorBoundary>
@@ -9619,6 +9644,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         </div>
       )}
 
+      {/* 🎯 STUDENT GOAL ONBOARDING MODAL (Class, Subject, Board / Competitive Exam) */}
+      <StudentGoalOnboardingModal
+        isOpen={isOnboardingModalOpen}
+        onClose={() => setIsOnboardingModalOpen(false)}
+        onSaveProfile={handleSaveStudentGoalProfile}
+        initialProfile={studentGoalProfile}
+        language={language}
+      />
+
       {/* ALL EXAMS SYLLABUS DIRECTORY MODAL */}
       {/* 🎓 BOARD EXAM CHAPTER-WISE TESTS MODAL */}
       {isBoardExamModalOpen && (
@@ -9634,6 +9668,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               language={language}
               onStartBoardTest={(test: BoardChapterTest) => {
                 setIsBoardExamModalOpen(false);
+                setQuizForcedStream('board');
                 handleStartRetestFromMistakes(test.questions, `${test.classGrade} - ${test.chapter}`);
                 setActiveView('quiz');
                 showToast(language === 'hindi' ? `📝 ${test.chapter} का सिंगल टेस्ट शुरू हुआ!` : `📝 ${test.chapter} test started!`, 'success');
@@ -9674,6 +9709,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setIsCompetitiveExamModalOpen(false);
+                  setQuizForcedStream('competitive');
                   setActiveView('quiz');
                 }}
                 className="p-4 bg-slate-900/90 hover:bg-slate-800 border border-indigo-500/40 hover:border-indigo-400 rounded-2xl flex flex-col justify-between text-left group cursor-pointer transition-all shadow-md active:scale-98"

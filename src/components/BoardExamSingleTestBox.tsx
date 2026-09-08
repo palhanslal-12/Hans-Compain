@@ -166,6 +166,55 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
       }
     ]
   },
+  // CLASS 10 - SOCIAL SCIENCE - GEOGRAPHY (समकालीन भारत - भूगोल)
+  {
+    id: 'board-10-sst-geo-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 10th',
+    subject: 'Social Science (सामाजिक विज्ञान)',
+    chapter: 'भूगोल: संसाधन एवं विकास, मृदा, वन एवं जल संरक्षण (NCERT)',
+    totalQuestions: 5,
+    timeMinutes: 8,
+    descriptionHi: 'संसाधनों का वर्गीकरण, काली/जलोढ़ मृदा, जल संचयन एवं चिपको आंदोलन।',
+    descriptionEn: 'Resources and development, soil types, water conservation and forests.',
+    questions: [
+      {
+        question: 'लौह अयस्क किस प्रकार का प्राकृतिक संसाधन है?',
+        options: ['अनवीकरण योग्य (Non-renewable)', 'नवीकरण योग्य (Renewable)', 'जैव संसाधन', 'प्रवाह संसाधन'],
+        answerIndex: 0,
+        explanation: 'लौह अयस्क एक खनिज संसाधन है जिसका निर्माण भूगर्भ में लाखों वर्षों के भूवैज्ञानिक प्रक्रम से होता है। यह एक बार समाप्त होने पर पुनः तुरंत नहीं बनता, अतः यह अनवीकरण योग्य संसाधन है।',
+        hint: 'जिसका भण्डार सीमित होता है।'
+      },
+      {
+        question: 'पंजाब और हरियाणा में अत्यधिक कृषि विस्तार के कारण भूमि निम्नीकरण (Land Degradation) का मुख्य कारण क्या है?',
+        options: ['अति सिंचाई (Over-irrigation से लवणीयता)', 'अति पशुचारण', 'गहन खनन कार्य', 'वनों की कटाई'],
+        answerIndex: 0,
+        explanation: 'पंजाब, हरियाणा और पश्चिमी उत्तर प्रदेश में नलकूपों द्वारा अत्यधिक सिंचाई (Over-irrigation) के कारण जलक्रांतता (Waterlogging) उत्पन्न होती है, जिससे मिट्टी में लवणता और क्षारीयता बढ़ जाती है।',
+        hint: 'हरित क्रांति के दौरान ट्यूबवेल से अधिक पानी देना।'
+      },
+      {
+        question: 'कपास (Cotton) की उत्तम पैदावार के लिए सर्वाधिक उपयुक्त "काली मृदा" (Black Soil) भारत के किस क्षेत्र में पाई जाती है?',
+        options: ['दक्कन ट्रैप (महाराष्ट्र एवं गुजरात)', 'थार मरुस्थल (राजस्थान)', 'गंगा का मैदान (उत्तर प्रदेश)', 'ब्रह्मपुत्र घाटी (असम)'],
+        answerIndex: 0,
+        explanation: 'काली मृदा बेसाल्ट लावा चट्टानों के टूटने से बनती है और मुख्य रूप से महाराष्ट्र, गुजरात तथा पश्चिमी मध्य प्रदेश (दक्कन पठार) में पाई जाती है। इसे रेगुर मृदा भी कहते हैं।',
+        hint: 'कपास उत्पादन के लिए अग्रणी राज्य।'
+      },
+      {
+        question: 'भारत में सदियों पुरानी प्रसिद्ध "बांस ड्रिप सिंचाई प्रणाली" (Bamboo Drip Irrigation) किस पूर्वोत्तर राज्य में प्रचलित है?',
+        options: ['मेघालय', 'असम', 'त्रिपुरा', 'मणिपुर'],
+        answerIndex: 0,
+        explanation: 'मेघालय में किसान बांस के पाइपों की सहायता से झरनों के पानी को गुरुत्वाकर्षण द्वारा नीचे खेतों तक लाते हैं और पौधों की जड़ों पर बूंद-बूंद टपकाते हैं।',
+        hint: 'पूर्वोत्तर का बादलों का घर।'
+      },
+      {
+        question: 'उत्तराखंड के चमोली जिले में 1970 के दशक में हिमालयी वनों को कटने से बचाने के लिए प्रसिद्ध "चिपको आंदोलन" का नेतृत्व किसने किया था?',
+        options: ['सुंदरलाल बहुगुणा एवं गौरा देवी', 'मेधा पाटकर', 'डॉ. वर्गीज कुरियन', 'सलीम अली'],
+        answerIndex: 0,
+        explanation: 'सुंदरलाल बहुगुणा, चंडी प्रसाद भट्ट और गौरा देवी के नेतृत्व में ग्रामीणों (विशेषकर महिलाओं) ने पेड़ों को गले लगाकर उन्हें कुल्हाड़ियों से कटने से बचाया था।',
+        hint: 'प्रसिद्ध पर्यावरणविद जिन्होंने हिमालय के जंगलों की रक्षा की।'
+      }
+    ]
+  },
   // CLASS 12 - PHYSICS - ELECTROSTATICS & CURRENT
   {
     id: 'board-12-phy-ch1',
@@ -261,6 +310,251 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
         answerIndex: 0,
         explanation: 'हेनरी नियम के अनुसार स्थिर ताप पर किसी द्रव में गैस की विलेयता गैस के आंशिक दाब के समानुपाती होती है (सोडा वाटर बोतल का सिद्धांत)।',
         hint: 'सोडा वाटर एवं गोताखोरों की ऑक्सीजन सिलेंडर की कार्यविधि।'
+      }
+    ]
+  },
+  // CLASS 10 - MATHEMATICS - CHAPTER 1 (REAL NUMBERS)
+  {
+    id: 'board-10-math-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 10th',
+    subject: 'Mathematics (गणित)',
+    chapter: 'अध्याय 1: वास्तविक संख्याएं (Real Numbers)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'अंकगणित की आधारभूत प्रमेय, HCF × LCM = a × b, अभाज्य गुणनखंडन एवं अपरिमेय संख्याएं।',
+    descriptionEn: 'Fundamental Theorem of Arithmetic, HCF-LCM relation, irrationality proof & prime factorization.',
+    questions: [
+      {
+        question: 'यदि दो धनात्मक पूर्णांकों a और b के लिए HCF(a, b) = 12 और a × b = 1800 है, तो उनका LCM(a, b) क्या होगा?',
+        options: ['150', '120', '180', '200'],
+        answerIndex: 0,
+        explanation: 'सूत्र: HCF(a, b) × LCM(a, b) = a × b। इसलिए LCM = 1800 / 12 = 150।',
+        hint: 'दो संख्याओं का गुणनफल = म.स. × ल.स.'
+      },
+      {
+        question: 'निम्नलिखित में से कौन सी संख्या एक अपरिमेय संख्या (Irrational Number) है?',
+        options: ['√3 + 2', '√16', '3.141414...', '22/7'],
+        answerIndex: 0,
+        explanation: '√3 एक अपरिमेय संख्या है, अतः किसी अपरिमेय संख्या में परिमेय संख्या जोड़ने पर प्राप्त योग (√3 + 2) भी अपरिमेय होता है। √16 = 4 परिमेय है, 22/7 परिमेय है, तथा 3.1414... आवर्ती दशमलव (परिमेय) है।',
+        hint: 'अपरिमेय + परिमेय = अपरिमेय।'
+      },
+      {
+        question: 'संख्या 144 के अभाज्य गुणनखंड (Prime Factorization) में 2 की घात (Exponent of 2) कितनी होगी?',
+        options: ['4 (2⁴ × 3²)', '2', '3', '5'],
+        answerIndex: 0,
+        explanation: '144 = 2 × 2 × 2 × 2 × 3 × 3 = 2⁴ × 3²। अतः 2 की घात 4 है।',
+        hint: '144 = 16 × 9 = 2⁴ × 3²।'
+      },
+      {
+        question: 'किसी परिमेय संख्या p/q का दशमलव प्रसार सांत (Terminating) होने के लिए q के अभाज्य गुणनखंड का रूप कैसा होना चाहिए?',
+        options: ['2ⁿ · 5ᵐ (जहाँ n, m ऋणेतर पूर्णांक हैं)', 'केवल 3ⁿ के रूप का', '2ⁿ · 7ᵐ के रूप का', 'केवल 10ⁿ के रूप का'],
+        answerIndex: 0,
+        explanation: 'प्रमेय के अनुसार किसी परिमेय संख्या p/q का दशमलव प्रसार तभी सांत होता है जब हर q का अभाज्य गुणनखंड केवल 2 और 5 की घातों (2ⁿ · 5ᵐ) के रूप में हो।',
+        hint: 'हर में केवल 2 या 5 अथवा दोनों के गुणनखंड होने चाहिए।'
+      },
+      {
+        question: 'यदि n एक प्राकृतिक संख्या है, तो 6ⁿ का अंतिम अंक (Unit Digit) कभी भी किस अंक पर समाप्त नहीं हो सकता?',
+        options: ['0 (शून्य)', '6', '1', '2'],
+        answerIndex: 0,
+        explanation: 'शून्य पर समाप्त होने के लिए संख्या के अभाज्य गुणनखंड में 2 और 5 दोनों का होना अनिवार्य है। चूंकि 6ⁿ = (2 × 3)ⁿ में 5 का कोई गुणनखंड नहीं है, अतः यह कभी 0 पर समाप्त नहीं हो सकती।',
+        hint: '6 की किसी भी घात का इकाई अंक हमेशा 6 होता है, कभी 0 नहीं हो सकता।'
+      }
+    ]
+  },
+  // CLASS 10 - MATHEMATICS - CHAPTER 4 (QUADRATIC EQUATIONS)
+  {
+    id: 'board-10-math-ch4',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 10th',
+    subject: 'Mathematics (गणित)',
+    chapter: 'अध्याय 4: द्विघात समीकरण (Quadratic Equations)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'विविक्तकर (Discriminant), मूलों की प्रकृति (Nature of Roots), द्विघाती सूत्र एवं गुणनखंड विधि।',
+    descriptionEn: 'Discriminant D = b² - 4ac, Nature of roots, Quadratic formula & factorization.',
+    questions: [
+      {
+        question: 'द्विघात समीकरण 2x² - 4x + 3 = 0 का विविक्तकर (Discriminant, D) क्या होगा और इसके मूलों की प्रकृति क्या होगी?',
+        options: ['D = -8 (कोई वास्तविक मूल नहीं)', 'D = 8 (दो भिन्न वास्तविक मूल)', 'D = 0 (दो बराबर मूल)', 'D = -16 (काल्पनिक)'],
+        answerIndex: 0,
+        explanation: 'D = b² - 4ac = (-4)² - 4(2)(3) = 16 - 24 = -8। चूंकि D < 0 है, अतः समीकरण का कोई वास्तविक मूल अस्तित्व में नहीं है।',
+        hint: 'D = b² - 4ac में मान रखें।'
+      },
+      {
+        question: 'यदि समीकरण kx² - 6x + 1 = 0 के दोनों मूल बराबर (Equal Roots) हैं, तो k का मान क्या होगा?',
+        options: ['k = 9', 'k = 6', 'k = 3', 'k = 12'],
+        answerIndex: 0,
+        explanation: 'बराबर मूलों के लिए D = b² - 4ac = 0 होता है। (-6)² - 4(k)(1) = 0 ➔ 36 - 4k = 0 ➔ 4k = 36 ➔ k = 9।',
+        hint: 'D = 0 रखें।'
+      },
+      {
+        question: 'द्विघात समीकरण ax² + bx + c = 0 के मूलों का योगफल (Sum of Roots) किसके बराबर होता है?',
+        options: ['-b / a', 'c / a', 'b / a', '-c / a'],
+        answerIndex: 0,
+        explanation: 'यदि मूल α और β हैं, तो मूलों का योगफल α + β = -b/a तथा गुणनफल α·β = c/a होता है।',
+        hint: 'ऋण x का गुणांक / x² का गुणांक।'
+      },
+      {
+        question: 'समीकरण x² - 5x + 6 = 0 के मूल (Roots) क्या होंगे?',
+        options: ['2 और 3', '-2 और -3', '1 और 6', '-1 और -6'],
+        answerIndex: 0,
+        explanation: 'x² - 5x + 6 = (x - 2)(x - 3) = 0 ➔ x = 2 अथवा x = 3। दोनों मूल धनात्मक हैं।',
+        hint: 'गुणा करने पर 6 और जोड़ने पर -5 आना चाहिए।'
+      },
+      {
+        question: 'द्विघाती सूत्र (श्रीधराचार्य सूत्र) निम्नलिखित में से कौन सा है?',
+        options: ['x = (-b ± √(b² - 4ac)) / (2a)', 'x = (-b ± √(b² + 4ac)) / (2a)', 'x = (b ± √(b² - 4ac)) / (2a)', 'x = (-b ± √(b² - 4ac)) / a'],
+        answerIndex: 0,
+        explanation: 'श्रीधराचार्य द्विघाती सूत्र: x = [-b ± √(b² - 4ac)] / (2a) होता है।',
+        hint: 'हर में 2a और अंश में -b ± √D।'
+      }
+    ]
+  },
+  // CLASS 10 - MATHEMATICS - CHAPTER 8 (TRIGONOMETRY)
+  {
+    id: 'board-10-math-ch8',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 10th',
+    subject: 'Mathematics (गणित)',
+    chapter: 'अध्याय 8: त्रिकोणमिति का परिचय (Introduction to Trigonometry)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'त्रिकोणमितीय अनुपात, विशिष्ट कोणों के मान (0°, 30°, 45°, 60°, 90°) एवं सर्वसमिकाएं।',
+    descriptionEn: 'Trigonometric ratios, values of standard angles & Pythagorean identities.',
+    questions: [
+      {
+        question: 'यदि sin θ = 3/5 है, तो tan θ का मान क्या होगा?',
+        options: ['3/4', '4/3', '4/5', '5/3'],
+        answerIndex: 0,
+        explanation: 'लम्ब = 3, कर्ण = 5 ➔ आधार = √(5² - 3²) = √16 = 4। अतः tan θ = लम्ब / आधार = 3/4।',
+        hint: 'पाइथागोरस त्रिक (3, 4, 5)।'
+      },
+      {
+        question: 'त्रिकोणमितीय व्यंजक (sin² 30° + cos² 30°) का मान किसके बराबर होता है?',
+        options: ['1', '0', '1/2', '2'],
+        answerIndex: 0,
+        explanation: 'सर्वसमिका sin² θ + cos² θ = 1 प्रत्येक θ के लिए सत्य है। (1/2)² + (√3/2)² = 1/4 + 3/4 = 4/4 = 1।',
+        hint: 'मूलभूत पाइथागोरस सर्वसमिका।'
+      },
+      {
+        question: 'व्यंजक (sec² θ - tan² θ) का मान क्या होगा?',
+        options: ['1', '-1', '0', 'sec θ'],
+        answerIndex: 0,
+        explanation: 'त्रिकोणमितीय सर्वसमिका: 1 + tan² θ = sec² θ ➔ sec² θ - tan² θ = 1।',
+        hint: '1 + tan² θ = sec² θ।'
+      },
+      {
+        question: 'यदि tan 2A = cot (A - 18°) है जहाँ 2A एक न्यून कोण है, तो A का मान क्या होगा?',
+        options: ['36°', '24°', '18°', '45°'],
+        answerIndex: 0,
+        explanation: 'tan 2A = cot (90° - 2A) ➔ 90° - 2A = A - 18° ➔ 3A = 108° ➔ A = 36°।',
+        hint: 'tan θ = cot (90° - θ)।'
+      },
+      {
+        question: 'cos 60° और sin 30° के मानों का गुणनफल क्या होगा?',
+        options: ['1/4', '1/2', '3/4', '1'],
+        answerIndex: 0,
+        explanation: 'cos 60° = 1/2 और sin 30° = 1/2। गुणनफल = 1/2 × 1/2 = 1/4।',
+        hint: 'दोनों का मान 1/2 होता है।'
+      }
+    ]
+  },
+  // CLASS 12 - MATHEMATICS - UNIT 3 (MATRICES & DETERMINANTS)
+  {
+    id: 'board-12-math-ch3',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    subject: 'Mathematics (गणित)',
+    chapter: 'इकाई 3: आव्यूह एवं सारणिक (Matrices & Determinants)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'सममित व विषम-सममित आव्यूह, सारणिक के प्रगुण, सहखंडज (Adjoint) एवं व्युत्क्रम आव्यूह।',
+    descriptionEn: 'Symmetric/Skew-symmetric matrices, Adjoint, Inverses A⁻¹ = adj(A)/|A| & Determinant properties.',
+    questions: [
+      {
+        question: 'यदि A एक 3 × 3 कोटि का वर्ग आव्यूह है और |A| = 5 है, तो |adj(A)| का मान क्या होगा?',
+        options: ['25 (|A|ⁿ⁻¹ = 5² = 25)', '5', '125', '1/5'],
+        answerIndex: 0,
+        explanation: 'प्रमेय के अनुसार यदि A कोटि n का वर्ग आव्यूह है, तो |adj(A)| = |A|ⁿ⁻¹। यहाँ n = 3, अतः |adj(A)| = |A|³⁻¹ = 5² = 25।',
+        hint: '|adj(A)| = |A|ⁿ⁻¹।'
+      },
+      {
+        question: 'एक विषम-सममित आव्यूह (Skew-Symmetric Matrix) के मुख्य विकर्ण (Principal Diagonal) के सभी अवयव सदैव क्या होते हैं?',
+        options: ['शून्य (Zero)', '1 (इकाई)', 'समान धनात्मक', 'अपरिभाषित'],
+        answerIndex: 0,
+        explanation: 'विषम-सममित आव्यूह में a_ij = -a_ji होता है। विकर्ण अवयवों के लिए i = j ➔ a_ii = -a_ii ➔ 2a_ii = 0 ➔ a_ii = 0।',
+        hint: 'मुख्य विकर्ण के सारे तत्व हमेशा 0 होते हैं।'
+      },
+      {
+        question: 'किसी व्युत्क्रमणीय वर्ग आव्यूह A के लिए इसका व्युत्क्रम A⁻¹ ज्ञात करने का सही सूत्र क्या है?',
+        options: ['A⁻¹ = adj(A) / |A| (जहाँ |A| ≠ 0)', 'A⁻¹ = |A| · adj(A)', 'A⁻¹ = adj(A) / |A|²', 'A⁻¹ = Aᵀ / |A|'],
+        answerIndex: 0,
+        explanation: 'A · adj(A) = |A| · I ➔ A⁻¹ = [1 / |A|] · adj(A), बशर्ते |A| ≠ 0 (अव्युत्क्रमणीय न हो)।',
+        hint: 'एडजॉइंट भागे डिटरमिनेंट।'
+      },
+      {
+        question: 'यदि A और B समान कोटि के व्युत्क्रमणीय आव्यूह हैं, तो (AB)⁻¹ किसके बराबर होता है?',
+        options: ['B⁻¹ A⁻¹ (रिवर्सल लॉ)', 'A⁻¹ B⁻¹', 'AB', 'B A'],
+        answerIndex: 0,
+        explanation: 'आव्यूह व्युत्क्रम में रिवर्सल नियम (Reversal Law) लागू होता है: (AB)⁻¹ = B⁻¹ · A⁻¹।',
+        hint: 'उलटे क्रम में खुलता है।'
+      },
+      {
+        question: 'यदि सारणिक की किसी पंक्ति या स्तंभ के सभी अवयव शून्य हों, तो उस सारणिक का मान क्या होगा?',
+        options: ['0 (शून्य)', '1', 'अपरिभाषित', 'अपरिवर्तित'],
+        answerIndex: 0,
+        explanation: 'यदि किसी सारणिक की किसी भी एक पंक्ति या स्तंभ के सभी अवयव शून्य हों, तो उसका प्रसरण (expansion) करने पर मान सदैव शून्य प्राप्त होता है।',
+        hint: 'शून्य पंक्ति होने पर मान शून्य होता है।'
+      }
+    ]
+  },
+  // CLASS 12 - MATHEMATICS - UNIT 5 (CONTINUITY & DIFFERENTIATION)
+  {
+    id: 'board-12-math-ch5',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    subject: 'Mathematics (गणित)',
+    chapter: 'इकाई 5: सांतत्य तथा अवकलनीयता (Continuity & Differentiability)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'फलन का सांतत्य (Continuity), श्रृंखला नियम (Chain Rule), लॉगरिदमिक अवकलन एवं द्वितीय कोटि अवकलज।',
+    descriptionEn: 'Continuity test, Chain rule, Logarithmic differentiation & Second order derivatives.',
+    questions: [
+      {
+        question: 'd/dx [sin(x²)] का अवकलज (Derivative) क्या होगा?',
+        options: ['2x cos(x²)', 'cos(x²)', '2x sin(x²)', '-2x cos(x²)'],
+        answerIndex: 0,
+        explanation: 'श्रृंखला नियम (Chain rule) द्वारा: d/dx [sin(u)] = cos(u) · du/dx। यहाँ u = x², अतः cos(x²) · 2x = 2x cos(x²)।',
+        hint: 'पहले sin का फिर अंदर वाले x² का अवकलन।'
+      },
+      {
+        question: 'फलन f(x) = |x| बिन्दु x = 0 पर:',
+        options: ['सतत है किन्तु अवकलनीय नहीं है (Continuous but not differentiable)', 'सतत एवं अवकलनीय दोनों है', 'न सतत है न अवकलनीय', 'अपरिभाषित है'],
+        answerIndex: 0,
+        explanation: 'x = 0 पर LHL = RHL = f(0) = 0 है, अतः यह सतत है। किन्तु वाम हस्त अवकलज (-1) और दक्षिण हस्त अवकलज (+1) बराबर नहीं हैं, अतः यह अवकलनीय नहीं है (नोकदार बिन्दु)।',
+        hint: 'मोड फंक्शन 0 पर सतत होता है लेकिन कोना बनने के कारण अवकलनीय नहीं होता।'
+      },
+      {
+        question: 'यदि y = e^(ax) है, तो इसका n-वां अवकलज (n-th Derivative, y_n) क्या होगा?',
+        options: ['aⁿ e^(ax)', 'a e^(ax)', 'n a e^(ax)', 'e^(aⁿx)'],
+        answerIndex: 0,
+        explanation: 'y₁ = a e^(ax), y₂ = a² e^(ax), ..., y_n = aⁿ e^(ax)।',
+        hint: 'प्रत्येक अवकलन पर a गुणांक बाहर आता है।'
+      },
+      {
+        question: 'd/dx [log(sec x + tan x)] का मान किसके बराबर होता है?',
+        options: ['sec x', 'tan x', 'sec² x', 'sec x + tan x'],
+        answerIndex: 0,
+        explanation: '1/(sec x + tan x) · (sec x tan x + sec² x) = [sec x (tan x + sec x)] / (sec x + tan x) = sec x।',
+        hint: 'मानक अवकलन सूत्र।'
+      },
+      {
+        question: 'फलन f(x) के बिन्दु x = c पर सतत (Continuous) होने की आवश्यक शर्त क्या है?',
+        options: ['lim (x➔c) f(x) = f(c)', 'lim (x➔c) f(x) = 0', 'f\'(c) = 0', 'f(c) > 0'],
+        answerIndex: 0,
+        explanation: 'सांतत्य की परिभाषा: LHL = RHL = f(c) अर्थात् सीमा का मान उस बिन्दु पर फलन के मान के बराबर होना चाहिए।',
+        hint: 'लिमिट = फलन का मान।'
       }
     ]
   }
@@ -363,7 +657,7 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
           </>
         ) : (
           <>
-            {['Physics', 'Chemistry', 'Biology'].map(s => (
+            {['Mathematics', 'Physics', 'Chemistry', 'Biology'].map(s => (
               <button
                 key={s}
                 onClick={() => setSelectedSubjectFilter(s)}

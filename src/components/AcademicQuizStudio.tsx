@@ -8,12 +8,16 @@ import {
   CheckSquare
 } from 'lucide-react';
 import { QuizQuestion, MistakeNotebookItem, BookmarkedQuestionItem } from '../types';
+import { TestPerformanceScorecard } from './TestPerformanceScorecard';
+import { CURATED_BOARD_EXAM_TESTS } from './BoardExamSingleTestBox';
+import { StudentGoalProfile } from './StudentGoalOnboardingModal';
+import { dispatchOwnerAlert } from '../utils/ownerAlertService';
 
 export interface PYQExamRecord {
   id: string;
   examName: string;
   examCode: string;
-  category: 'reasoning' | 'ssc' | 'railway' | 'bpsc' | 'police' | 'banking' | 'teaching' | 'general';
+  category: 'board' | 'reasoning' | 'math' | 'english' | 'hindi' | 'history' | 'geography' | 'polity' | 'science' | 'economy' | 'current_affairs' | 'ssc' | 'railway' | 'bpsc' | 'police' | 'banking' | 'teaching' | 'general';
   year: string;
   dateStr: string;
   shift: string;
@@ -32,7 +36,27 @@ interface AcademicQuizStudioProps {
   mistakeNotebook: MistakeNotebookItem[];
   onAddToMistakeNotebook: (mistake: MistakeNotebookItem) => void;
   onRetestMistakes?: (questions: QuizQuestion[], title: string) => void;
+  studentGoalProfile?: StudentGoalProfile | null;
+  onOpenGoalSelector?: () => void;
+  forcedStream?: 'board' | 'competitive';
 }
+
+// Curated Pure Board Exam Tests Transformed into Real Exam Records
+const BOARD_PYQ_RECORDS: PYQExamRecord[] = CURATED_BOARD_EXAM_TESTS.map(b => ({
+  id: b.id,
+  examName: `${b.classGrade} Board: ${b.chapter}`,
+  examCode: `BOARD-${b.classGrade.replace(/\s+/g, '')}-${b.id}`,
+  category: 'board',
+  year: '2025-26 Board Pattern',
+  dateStr: 'Annual Board Exam Series',
+  shift: `${b.classGrade} Single Chapter Test`,
+  subject: b.subject,
+  totalQuestions: b.totalQuestions,
+  timeMinutes: b.timeMinutes,
+  marksPerQuestion: 2.0,
+  negativeMarks: 0.0,
+  questions: b.questions
+}));
 
 // Curated Real PYQ Exam Database (With Exact TCS/Adda247 Exam Formats & Timing)
 const CURATED_PYQ_DATA: PYQExamRecord[] = [
@@ -351,6 +375,450 @@ const CURATED_PYQ_DATA: PYQExamRecord[] = [
         hint: "Point of time के लिए 'since' लगता है।"
       }
     ]
+  },
+  {
+    id: "pyq-ssc-rrb-geography-2024",
+    examName: "Indian & World Geography Special (भूगोल, नदियाँ एवं राष्ट्रीय उद्यान TCS PYQ)",
+    examCode: "SSC-RRB-GEO-2024",
+    category: "geography",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "TCS Pattern Tier 1 & 2",
+    subject: "Geography, Environment & National Parks",
+    totalQuestions: 8,
+    timeMinutes: 8,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "निम्नलिखित में से कौन-सी प्रायद्वीपीय नदी (Peninsular River) भ्रंश घाटी (Rift Valley) से होकर पश्चिम की ओर बहती है और अरब सागर में गिरते हुए डेल्टा के बजाय ज्वारनदमुख (Estuary) बनाती है?",
+        options: ["नर्मदा नदी (Narmada)", "गोदावरी नदी (Godavari)", "कृष्णा नदी (Krishna)", "महानदी (Mahanadi)"],
+        answerIndex: 0,
+        explanation: "नर्मदा और ताप्ती नदियाँ विंध्याचल एवं सतपुड़ा पर्वत श्रेणियों के बीच भ्रंश घाटी (Rift Valley) से होकर बहती हैं। ये नदियाँ पश्चिम की ओर बहकर खंभात की खाड़ी (अरब सागर) में गिरती हैं और गाद के अभाव तथा तीव्र ढाल के कारण डेल्टा नहीं बल्कि एश्चुअरी (ज्वारनदमुख) बनाती हैं।\n🎯 याद रखने की ट्रिक (Mnemonic): 'समानता' (साबरमती, माही, नर्मदा, ताप्ती - ये चारों नदियाँ पश्चिम की ओर बहती हैं)।",
+        hint: "विंध्याचल और सतपुड़ा के मध्य अमरकंटक से निकलने वाली नदी।"
+      },
+      {
+        question: "पृथ्वी के वायुमंडल की किस परत में 'ओजोन परत' (Ozone Layer) पाई जाती है, जो सूर्य से आने वाली हानिकारक पराबैंगनी (UV) किरणों को अवशोषित कर धरातल की रक्षा करती है?",
+        options: ["समताप मंडल (Stratosphere)", "क्षोभमंडल (Troposphere)", "मध्यमंडल (Mesosphere)", "आयनमंडल (Ionosphere)"],
+        answerIndex: 0,
+        explanation: "ओजोन परत (O₃) समताप मंडल (Stratosphere) के निचले हिस्से में लगभग 15 से 35 किमी की ऊंचाई पर स्थित है।\n⚠️ TCS Trap Alert: क्षोभमंडल में समस्त मौसमी घटनाएं (बादल, वर्षा) होती हैं, जबकि समताप मंडल शांत रहने के कारण जेट विमान उड़ाने और ओजोन सुरक्षा परत के लिए आदर्श होता है।",
+        hint: "जिस मंडल में तापमान समान रहता है और मौसमी हलचलें नहीं होतीं।"
+      },
+      {
+        question: "दक्कन के पठार (लावा क्षेत्र) पर पाई जाने वाली किस मिट्टी को 'रेगुर मिट्टी' (Regur Soil) या 'स्वतः जुताई वाली मिट्टी' कहा जाता है, जो कपास (Cotton) की खेती के लिए सर्वोत्तम मानी जाती है?",
+        options: ["काली मिट्टी (Black Soil)", "जलोढ़ मिट्टी (Alluvial Soil)", "लाल एवं पीली मिट्टी", "लैटेराइट मिट्टी"],
+        answerIndex: 0,
+        explanation: "काली मिट्टी बेसाल्टिक लावा चट्टानों के अपक्षय (Weathering) से बनती है। इसमें अत्यधिक महीन क्ले कण होने के कारण जल-धारण क्षमता (Moisture retention) सर्वाधिक होती है। ग्रीष्म ऋतु में इसमें गहरी दरारें पड़ जाती हैं, जिससे वायु का संचार होता है; इसलिए इसे 'स्वतः जुताई वाली मिट्टी' भी कहा जाता है।",
+        hint: "महाराष्ट्र और गुजरात में कपास उत्पादन के लिए प्रसिद्ध मृदा।"
+      },
+      {
+        question: "भारत का प्रथम राष्ट्रीय उद्यान (First National Park of India) कौन-सा है, जिसे 1936 में 'हेली नेशनल पार्क' के रूप में स्थापित किया गया था और 1973 में 'प्रोजेक्ट टाइगर' भी यहीं से शुरू हुआ था?",
+        options: ["जिम कॉर्बेट राष्ट्रीय उद्यान (उत्तराखंड)", "काजीरंगा राष्ट्रीय उद्यान (असम)", "सुंदरबन राष्ट्रीय उद्यान (पश्चिम बंगाल)", "कान्हा राष्ट्रीय उद्यान (मध्य प्रदेश)"],
+        answerIndex: 0,
+        explanation: "जिम कॉर्बेट राष्ट्रीय उद्यान (उत्तराखंड के नैनीताल/पौड़ी गढ़वाल जिले में) भारत का पहला राष्ट्रीय उद्यान है (1936 में हेली नेशनल पार्क)। 1973 में बाघ संरक्षण हेतु 'प्रोजेक्ट टाइगर' का शुभारंभ भी यहीं से किया गया था।\n📌 अतिरिक्त तथ्य: काजीरंगा एक सींग वाले गैंडे के लिए और सुंदरबन मैंग्रोव व रॉयल बंगाल टाइगर के लिए विख्यात है।",
+        hint: "उत्तराखंड के नैनीताल में स्थित भारत का पहला टाइगर रिजर्व।"
+      },
+      {
+        question: "सामरिक रूप से महत्वपूर्ण 'जोजिला दर्रा' (Zoji La Pass) भारत के किस क्षेत्र में स्थित है, जो श्रीनगर को सड़क मार्ग द्वारा लेह (लद्दाख) से जोड़ता है?",
+        options: ["लद्दाख / जम्मू-कश्मीर (महान हिमालय)", "सिक्किम (नाथू ला)", "अरुणाचल प्रदेश (बोमडिला)", "हिमाचल प्रदेश (रोहतांग)"],
+        answerIndex: 0,
+        explanation: "जोजिला दर्रा महान हिमालय श्रेणी (Great Himalayas) में लगभग 11,575 फीट की ऊंचाई पर स्थित है। यह राष्ट्रीय राजमार्ग 1D (NH-1D) के जरिए कश्मीर घाटी (श्रीनगर) को कारगिल व लेह से जोड़ता है।\n🎯 प्रमुख दर्रे परीक्षा सूची: नाथू ला (सिक्किम), शिपकी ला (हिमाचल प्रदेश), लिपुलेख (उत्तराखंड)।",
+        hint: "श्रीनगर से लेह-लद्दाख जाने वाला मुख्य हिमालयी दर्रा।"
+      },
+      {
+        question: "भारत में वार्षिक वर्षा का लगभग 75% से अधिक भाग किस मानसून प्रणाली द्वारा प्राप्त होता है, जो जून के प्रथम सप्ताह में केरल तट से टकराता है?",
+        options: ["दक्षिण-पश्चिम मानसून (South-West Monsoon)", "उत्तर-पूर्वी मानसून (लौटता मानसून)", "पश्चिमी विक्षोभ (Western Disturbances)", "स्थानीय चक्रवाती हवाएं"],
+        answerIndex: 0,
+        explanation: "ग्रीष्म ऋतु में भारत के उत्तर-पश्चिम मैदान व तिब्बत के पठार पर निम्न वायुदाब (Low Pressure) बनने से हिंद महासागर की नमी युक्त हवाएं दक्षिण-पश्चिम दिशा से भारत में प्रवेश करती हैं। यह अरब सागर शाखा और बंगाल की खाड़ी शाखा में बंटकर देश के 75%+ भाग में मुख्य मानसूनी वर्षा कराता है।",
+        hint: "जून से सितंबर के दौरान केरल से शुरू होने वाला मुख्य ग्रीष्मकालीन मानसून।"
+      },
+      {
+        question: "खनिज संपदा (कोयला, लौह अयस्क, अभ्रक, बॉक्साइट) की प्रचुरता के कारण किस भारतीय पठारी क्षेत्र को 'भारत का रूर' (Ruhr of India) कहा जाता है?",
+        options: ["छोटानागपुर का पठार (Chota Nagpur Plateau)", "मालवा का पठार", "दक्कन का ट्रैप", "मेघालय (शिलांग) का पठार"],
+        answerIndex: 0,
+        explanation: "जर्मनी के खनिज-समृद्ध 'रूर घाटी' की तर्ज पर झारखंड, पश्चिम बंगाल व ओडिशा में विस्तृत छोटानागपुर पठार को 'भारत का रूर' कहा जाता है। भारत का अधिकांश प्राइम कोकिंग कोल दामोदर नदी घाटी क्षेत्र में ही संचित है।",
+        hint: "झारखंड और दामोदर नदी घाटी का खनिज-समृद्ध पठार।"
+      },
+      {
+        question: "कर्क रेखा (23°30' N अक्षांश) भारत के 8 राज्यों से होकर गुजरती है। निम्नलिखित में से किस राज्य से होकर कर्क रेखा नहीं गुजरती है?",
+        options: ["ओडिशा (Odisha)", "गुजरात (Gujarat)", "मध्य प्रदेश (Madhya Pradesh)", "त्रिपुरा (Tripura)"],
+        answerIndex: 0,
+        explanation: "कर्क रेखा भारत के 8 राज्यों से गुजरती है: गुजरात, राजस्थान, मध्य प्रदेश, छत्तीसगढ़, झारखंड, पश्चिम बंगाल, त्रिपुरा और मिजोरम। यह ओडिशा, बिहार या उत्तर प्रदेश से होकर नहीं गुजरती है।\n🎯 याद रखने की प्रसिद्ध ट्रिक: 'मित्र पर गमछा झार' (मि-मिजोरम, त्र-त्रिपुरा, प-प.बंगाल, र-राजस्थान, ग-गुजरात, म-म.प्र., छा-छत्तीसगढ़, झार-झारखंड)।",
+        hint: "'मित्र पर गमछा झार' ट्रिक का स्मरण करें।"
+      }
+    ]
+  },
+  {
+    id: "pyq-polity-constitution-2024",
+    examName: "Indian Polity & Constitution Special (संविधान, मूल अधिकार एवं संशोधन)",
+    examCode: "SSC-POLITY-2024",
+    category: "polity",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "TCS Pattern",
+    subject: "Indian Polity, Articles & Constitutional Amendments",
+    totalQuestions: 5,
+    timeMinutes: 5,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "भारतीय संविधान का कौन-सा अनुच्छेद 'प्राण एवं दैहिक स्वतंत्रता के संरक्षण' (Protection of Life and Personal Liberty) से संबंधित है?",
+        options: ["अनुच्छेद 21 (Article 21)", "अनुच्छेद 19", "अनुच्छेद 14", "अनुच्छेद 25"],
+        answerIndex: 0,
+        explanation: "अनुच्छेद 21 घोषित करता है कि विधि द्वारा स्थापित प्रक्रिया के अतिरिक्त किसी भी व्यक्ति को उसके जीवन या दैहिक स्वतंत्रता से वंचित नहीं किया जाएगा। मेनका गांधी वाद (1978) के बाद इसमें निजता का अधिकार, स्वच्छ पर्यावरण, आजीविका व विदेश यात्रा का अधिकार भी शामिल माना गया।",
+        hint: "मेनका गांधी वाद (1978) से संबंधित मूल अधिकार।"
+      },
+      {
+        question: "भारतीय संविधान के नीति निर्देशक तत्वों (DPSP) के अंतर्गत 'समान नागरिक संहिता' (Uniform Civil Code - UCC) किस अनुच्छेद में वर्णित है?",
+        options: ["अनुच्छेद 44 (Article 44)", "अनुच्छेद 40", "अनुच्छेद 48", "अनुच्छेद 50"],
+        answerIndex: 0,
+        explanation: "अनुच्छेद 44 के तहत राज्य भारत के संपूर्ण राज्यक्षेत्र में नागरिकों के लिए एक समान नागरिक संहिता (UCC) सुनिश्चित करने का प्रयास करेगा। गोवा में यह पुर्तगाली सिविल कोड के रूप में लागू रहा है और हाल ही में उत्तराखंड विधानसभा ने भी यूसीसी विधेयक पारित किया है।",
+        hint: "'चार और चार' समान अंक हैं, अतः समान नागरिक संहिता।"
+      },
+      {
+        question: "किस ऐतिहासिक संविधान संशोधन अधिनियम को 'लघु संविधान' (Mini Constitution) कहा जाता है, जिसके द्वारा प्रस्तावना में 'समाजवादी, पंथनिरपेक्ष और अखंडता' शब्द जोड़े गए थे?",
+        options: ["42वां संविधान संशोधन अधिनियम, 1976", "44वां संविधान संशोधन, 1978", "86वां संविधान संशोधन, 2002", "73वां संविधान संशोधन, 1992"],
+        answerIndex: 0,
+        explanation: "42वें संविधान संशोधन अधिनियम (1976) को सरदार स्वर्ण सिंह समिति की सिफारिशों पर लाया गया था। इसके द्वारा प्रस्तावना में संशोधन, मूल कर्तव्यों (भाग IVA) को जोड़ना, तथा 5 विषयों को राज्य सूची से समवर्ती सूची में स्थानांतरित किया गया था।",
+        hint: "1976 में इंदिरा गांधी सरकार द्वारा पारित संशोधन।"
+      },
+      {
+        question: "डॉ. भीमराव अंबेडकर ने भारतीय संविधान के किस अनुच्छेद को 'संविधान का हृदय और आत्मा' (Heart and Soul of the Constitution) कहा था?",
+        options: ["अनुच्छेद 32 (संवैधानिक उपचारों का अधिकार)", "अनुच्छेद 14 (विधि के समक्ष समता)", "अनुच्छेद 21 (प्राण व दैहिक स्वतंत्रता)", "प्रस्तावना (Preamble)"],
+        answerIndex: 0,
+        explanation: "अनुच्छेद 32 के तहत मूल अधिकारों के प्रवर्तन के लिए नागरिक सीधे सर्वोच्च न्यायालय (Supreme Court) जा सकते हैं। सुप्रीम कोर्ट को 5 प्रकार की रिट (Habeas Corpus, Mandamus, Prohibition, Quo-Warranto, Certiorari) जारी करने की शक्ति है।",
+        hint: "सर्वोच्च न्यायालय द्वारा 5 प्रकार की रिट जारी करने का अधिकार।"
+      },
+      {
+        question: "भारतीय संविधान में 11वां मूल कर्तव्य (6-14 वर्ष के बच्चों को शिक्षा के अवसर उपलब्ध कराना) किस संविधान संशोधन द्वारा जोड़ा गया?",
+        options: ["86वां संविधान संशोधन, 2002", "42वां संविधान संशोधन, 1976", "44वां संविधान संशोधन, 1978", "91वां संविधान संशोधन, 2003"],
+        answerIndex: 0,
+        explanation: "86वें संविधान संशोधन 2002 द्वारा अनुच्छेद 21A (शिक्षा का मूल अधिकार) जोड़ा गया, नीति निर्देशक तत्व अनुच्छेद 45 में बदलाव किया गया, तथा अनुच्छेद 51A(k) के तहत माता-पिता/अभिभावक का 11वां मूल कर्तव्य जोड़ा गया।",
+        hint: "2002 का शिक्षा अधिकार संशोधन।"
+      }
+    ]
+  },
+  {
+    id: "pyq-science-space-isro-2024",
+    examName: "General Science, Space Tech & ISRO Missions (विज्ञान एवं अंतरिक्ष प्रौद्योगिकी)",
+    examCode: "DEF-SCIENCE-2024",
+    category: "science",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "TCS Pattern",
+    subject: "Science, Space Tech & ISRO Missions",
+    totalQuestions: 5,
+    timeMinutes: 5,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "इसरो (ISRO) द्वारा 23 अगस्त 2023 को चंद्रमा के दक्षिणी ध्रुव पर सफलतापूर्वक उतारे गए चंद्रयान-3 के लैंडिंग स्थल को क्या नाम दिया गया है?",
+        options: ["शिव शक्ति पॉइंट (Shiv Shakti Point)", "तिरंगा पॉइंट", "जवाहर पॉइंट", "अटल पॉइंट"],
+        answerIndex: 0,
+        explanation: "चंद्रयान-3 के विक्रम लैंडर ने 23 अगस्त 2023 को चंद्रमा के दक्षिणी ध्रुव पर सॉफ्ट लैंडिंग की। प्रधानमंत्री ने इस लैंडिंग स्थल को 'शिव शक्ति पॉइंट' नाम दिया और प्रतिवर्ष 23 अगस्त को 'राष्ट्रीय अंतरिक्ष दिवस' (National Space Day) घोषित किया। चंद्रयान-2 के पदचिह्न स्थल को 'तिरंगा पॉइंट' कहा जाता है।",
+        hint: "23 अगस्त को राष्ट्रीय अंतरिक्ष दिवस इसी ऐतिहासिक उपलब्धि पर घोषित किया गया।"
+      },
+      {
+        question: "सूर्य के वायुमंडल (कोरोना एवं क्रोमोस्फीयर) का विस्तृत अध्ययन करने के लिए इसरो द्वारा प्रक्षेपित भारत के पहले सौर मिशन का क्या नाम है?",
+        options: ["आदित्य-L1 (Aditya-L1)", "भास्कर-1", "सूर्ययान", "हेलियोस-3"],
+        answerIndex: 0,
+        explanation: "आदित्य-L1 को 2 सितंबर 2023 को PSLV-C57 द्वारा पृथ्वी से लगभग 15 लाख किमी दूर स्थित लैग्रेंज बिंदु 1 (L1) के हेलो ऑर्बिट में स्थापित किया गया, जहां से सूर्य बिना किसी ग्रहण के लगातार दिखाई देता है।",
+        hint: "L1 बिंदु पर स्थित पहला भारतीय सौर वेधशाला मिशन।"
+      },
+      {
+        question: "'प्रकाश वर्ष' (Light Year) निम्नलिखित में से किस भौतिक राशि का मात्रक है?",
+        options: ["खगोलीय दूरी (Astronomical Distance)", "समय (Time)", "प्रकाश की तीव्रता", "गति/वेग (Speed)"],
+        answerIndex: 0,
+        explanation: "⚠️ TCS Trap: नाम में 'वर्ष' होने के कारण कई छात्र इसे समय का मात्रक मान बैठते हैं, जबकि प्रकाश वर्ष दूरी का मात्रक है। प्रकाश द्वारा निर्वात में एक वर्ष में तय की गई दूरी (लगभग 9.46 × 10¹⁵ मीटर) को एक प्रकाश वर्ष कहा जाता है।",
+        hint: "तारों और आकाशगंगाओं के बीच की दूरी मापने की इकाई।"
+      },
+      {
+        question: "सूर्य तथा तारों में ऊर्जा का निरंतर विशाल स्रोत कौन-सी भौतिक-रासायनिक अभिक्रिया है?",
+        options: ["नाभिकीय संलयन (Nuclear Fusion)", "नाभिकीय विखंडन (Nuclear Fission)", "रासायनिक दहन", "रेडियोधर्मी क्षय"],
+        answerIndex: 0,
+        explanation: "सूर्य के कोर में अत्यधिक उच्च ताप और दाब पर हाइड्रोजन के हल्के नाभिक मिलकर हीलियम नाभिक बनाते हैं (नाभिकीय संलयन)। इस द्रव्यमान क्षय से आइंस्टीन के समीकरण E = mc² के अनुसार विशाल ऊर्जा उत्सर्जित होती है।",
+        hint: "चार हाइड्रोजन नाभिक मिलकर एक हीलियम नाभिक का निर्माण करते हैं।"
+      },
+      {
+        question: "मानव शरीर में रक्त का थक्का (Blood Clotting) जमने के लिए किस विटामिन की अनिवार्य आवश्यकता होती है?",
+        options: ["विटामिन K (Phylloquinone)", "विटामिन C", "विटामिन A", "विटामिन E"],
+        answerIndex: 0,
+        explanation: "विटामिन K यकृत में प्रोथ्रोम्बिन और अन्य रक्त का थक्का बनाने वाले कारकों के संश्लेषण के लिए आवश्यक होता है। इसकी कमी से चोट लगने पर रक्त बहना बंद नहीं होता (Hemorrhage)।",
+        hint: "फिलोक्विनोन (Phylloquinone) रासायनिक नाम वाला विटामिन।"
+      }
+    ]
+  },
+  {
+    id: "pyq-math-quant-2024",
+    examName: "Quantitative Aptitude Special (गणित एवं संख्यात्मक अभियोग्यता TCS CGL/CHSL PYQ)",
+    examCode: "SSC-MATH-2024",
+    category: "math",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "TCS Pattern",
+    subject: "Mathematics & Quantitative Aptitude",
+    totalQuestions: 5,
+    timeMinutes: 7,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "किसी वस्तु को ₹720 में बेचने पर एक दुकानदार को 20% का लाभ होता है। यदि वह 10% की हानि पर बेचना चाहे, तो उस वस्तु का विक्रय मूल्य (Selling Price) क्या होना चाहिए?",
+        options: ["₹540", "₹600", "₹560", "₹580"],
+        answerIndex: 0,
+        explanation: "हल चरण:\n1. क्रय मूल्य (Cost Price) = 720 ÷ (1 + 0.20) = 720 ÷ 1.2 = ₹600।\n2. 10% हानि पर विक्रय मूल्य = क्रय मूल्य × (1 - 0.10) = 600 × 0.90 = ₹540।",
+        hint: "पहले वस्तु का क्रय मूल्य (Cost Price) ज्ञात करें।"
+      },
+      {
+        question: "A किसी कार्य को 12 दिनों में और B उसी कार्य को 18 दिनों में पूरा कर सकता है। यदि वे दोनों एक साथ मिलकर कार्य करें, तो संपूर्ण कार्य कितने दिनों में समाप्त होगा?",
+        options: ["7.2 दिन (36/5 दिन)", "6 दिन", "8 दिन", "9 दिन"],
+        answerIndex: 0,
+        explanation: "1. 12 और 18 का ल.स. (LCM) = 36 इकाई कुल कार्य।\n2. A की कार्यक्षमता = 36 ÷ 12 = 3 इकाई/दिन।\n3. B की कार्यक्षमता = 36 ÷ 18 = 2 इकाई/दिन।\n4. दोनों की संयुक्त कार्यक्षमता = 3 + 2 = 5 इकाई/दिन।\n5. कुल समय = 36 ÷ 5 = 7.2 दिन।",
+        hint: "कुल कार्य को LCM विधि से 36 मानकर हल करें।"
+      },
+      {
+        question: "₹5,000 की मूल राशि पर 10% वार्षिक चक्रवृद्धि ब्याज की दर से 2 वर्ष के चक्रवृद्धि ब्याज (CI) और साधारण ब्याज (SI) का अंतर कितना होगा?",
+        options: ["₹50", "₹100", "₹25", "₹75"],
+        answerIndex: 0,
+        explanation: "2 वर्ष के लिए CI और SI के अंतर का सीधा सूत्र:\nअंतर (D) = P × (R/100)²\nD = 5000 × (10/100)² = 5000 × (1/100) = ₹50।",
+        hint: "सूत्र: D = P × (R/100)² का प्रयोग करें।"
+      },
+      {
+        question: "150 मीटर लंबी एक रेलगाड़ी 54 किमी/घंटा की गति से दौड़ रही है। वह 250 मीटर लंबे एक प्लेटफॉर्म को पार करने में कितना समय लेगी?",
+        options: ["26.67 सेकंड (80/3 सेकंड)", "20 सेकंड", "30 सेकंड", "24 सेकंड"],
+        answerIndex: 0,
+        explanation: "1. गति को मीटर/सेकंड में बदलें: 54 × (5/18) = 15 मीटर/सेकंड।\n2. कुल दूरी = ट्रेन की लंबाई + प्लेटफॉर्म की लंबाई = 150 + 250 = 400 मीटर।\n3. समय = कुल दूरी ÷ चाल = 400 ÷ 15 = 80/3 सेकंड = 26.67 सेकंड।",
+        hint: "चाल को 5/18 से गुणा कर m/s में बदलें और दोनों लंबाइयों को जोड़ें।"
+      },
+      {
+        question: "एक समबाहु त्रिभुज (Equilateral Triangle) की प्रत्येक भुजा की लंबाई 6 सेमी है। इस त्रिभुज का क्षेत्रफल (Area) कितना होगा?",
+        options: ["9√3 सेमी²", "18√3 सेमी²", "36 सेमी²", "12√3 सेमी²"],
+        answerIndex: 0,
+        explanation: "समबाहु त्रिभुज का क्षेत्रफल = (√3 / 4) × a²\n= (√3 / 4) × (6)² = (√3 / 4) × 36 = 9√3 सेमी²।",
+        hint: "समबाहु त्रिभुज का क्षेत्रफल = (√3 / 4) × भुजा²।"
+      }
+    ]
+  },
+  {
+    id: "pyq-english-ssc-2024",
+    examName: "General English Special (Grammar, Vocab, Idioms & Spotting Error TCS PYQ)",
+    examCode: "SSC-ENG-2024",
+    category: "english",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "TCS Pattern",
+    subject: "General English & Grammar",
+    totalQuestions: 5,
+    timeMinutes: 5,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "Select the sentence with the correct Passive Voice conversion:\n'The chef prepared a sumptuous four-course dinner for the foreign delegates.'",
+        options: [
+          "A sumptuous four-course dinner was prepared by the chef for the foreign delegates.",
+          "A sumptuous four-course dinner has been prepared by the chef.",
+          "A sumptuous four-course dinner is prepared by the chef.",
+          "The foreign delegates were preparing a sumptuous four-course dinner."
+        ],
+        answerIndex: 0,
+        explanation: "Simple Past Tense (prepared) changes into 'was/were + V3 (prepared)' in passive voice. The direct object 'A sumptuous four-course dinner' becomes the new subject.",
+        hint: "Simple past passive rule: was/were + V3."
+      },
+      {
+        question: "Select the most appropriate meaning of the idiom: 'Hit the nail on the head'",
+        options: [
+          "To describe exactly what is causing a situation or problem",
+          "To cause physical injury during carpentry work",
+          "To miss an important deadline repeatedly",
+          "To blame an innocent person for a mistake"
+        ],
+        answerIndex: 0,
+        explanation: "'To hit the nail on the head' means to state or do exactly the right thing or accurately pinpoint the exact reason/cause of an issue.",
+        hint: "सटीक बात कहना या सही कारण पकड़ना।"
+      },
+      {
+        question: "Identify the segment that contains a grammatical error:\n'Neither the principal nor the teachers (A) / was present in (B) / the annual convocation ceremony (C) / yesterday. (D)'",
+        options: ["was present in (Segment B)", "Neither the principal nor the teachers (Segment A)", "the annual convocation ceremony (Segment C)", "yesterday (Segment D)"],
+        answerIndex: 0,
+        explanation: "Subject-Verb Agreement Rule: When two subjects are joined by 'neither... nor', the verb agrees with the subject closest to it. Here, the closer subject is plural ('teachers'), so plural verb 'were present' must be used instead of 'was present'.",
+        hint: "Neither... nor में वर्ब पास वाले कर्ता (teachers) के अनुसार आती है।"
+      },
+      {
+        question: "Select the most appropriate ANTONYM of the given word: 'BENEVOLENT'",
+        options: ["Malevolent", "Compassionate", "Generous", "Altruistic"],
+        answerIndex: 0,
+        explanation: "'Benevolent' means well-meaning, kindly and charitable. Its exact antonym is 'Malevolent' (having or showing a wish to do evil to others; द्वेषी या दुष्ट). Compassionate, Generous and Altruistic are synonyms.",
+        hint: "Bene = Good, Mal = Evil/Bad."
+      },
+      {
+        question: "Choose the correct indirect form:\nRahul said to me, 'I have completed my research project today.'",
+        options: [
+          "Rahul told me that he had completed his research project that day.",
+          "Rahul told me that I have completed my research project today.",
+          "Rahul said that he has completed his research project yesterday.",
+          "Rahul asked me if he completed his research project."
+        ],
+        answerIndex: 0,
+        explanation: "Rules for Indirect Speech:\n1. 'said to' changes to 'told'.\n2. Present Perfect (have completed) changes to Past Perfect (had completed).\n3. 1st person pronoun 'I' changes to 'he'.\n4. 'today' changes to 'that day'.",
+        hint: "have completed → had completed; today → that day."
+      }
+    ]
+  },
+  {
+    id: "pyq-hindi-vyakaran-2024",
+    examName: "General Hindi Special (सामान्य हिन्दी व्याकरण, संधि, समास, मुहावरे एवं वर्तनी शुद्धता)",
+    examCode: "HINDI-VYAKARAN-2024",
+    category: "hindi",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "Police / RO-ARO / Board Pattern",
+    subject: "General Hindi Grammar (सामान्य हिन्दी)",
+    totalQuestions: 5,
+    timeMinutes: 5,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "'सूर्योदय' शब्द का सही संधि-विच्छेद और संधि का नाम क्या है?",
+        options: ["सूर्य + उदय (गुण स्वर संधि)", "सूर्य + दय (दीर्घ संधि)", "सूर्यो + दय (वृद्धि संधि)", "सूर्य + उदय (यण संधि)"],
+        answerIndex: 0,
+        explanation: "सूर्य (अ) + उदय (उ) = सूर्योदय (ओ)। जब 'अ' या 'आ' के बाद 'इ/ई', 'उ/ऊ' या 'ऋ' आए तो क्रमशः 'ए', 'ओ', 'अर्' हो जाता है; इसे 'गुण स्वर संधि' कहते हैं।",
+        hint: "अ + उ मिलकर 'ओ' बनता है (गुण संधि)।"
+      },
+      {
+        question: "'यथाशक्ति' शब्द में कौन-सा समास है?",
+        options: ["अव्ययीभाव समास", "तत्पुरुष समास", "द्विगु समास", "कर्मधारय समास"],
+        answerIndex: 0,
+        explanation: "'यथाशक्ति' का विग्रह है 'शक्ति के अनुसार'। जिस समास का पहला पद अव्यय (यथा) और प्रधान हो, उसे 'अव्ययीभाव समास' कहते हैं।",
+        hint: "पहला पद 'यथा' एक अव्यय (उपसर्गवत) है।"
+      },
+      {
+        question: "निम्नलिखित में से शुद्ध वर्तनी (Correct Spelling) वाला शब्द चुनिए:",
+        options: ["उज्ज्वल", "उज्वल", "उज्जवल", "उजज्वल"],
+        answerIndex: 0,
+        explanation: "उत् + ज्वल = उज्ज्वल। इसमें व्यंजन संधि के नियमानुसार दो बार आधा 'ज' (ज्ज्व) आता है। अतः 'उज्ज्वल' ही शुद्ध वर्तनी है।",
+        hint: "इसमें दो बार आधा 'ज' आता है (उत् + ज्वल)।"
+      },
+      {
+        question: "काव्य शास्त्र में 'शोक' किस रस का स्थायी भाव (Permanent Emotion) है?",
+        options: ["करुण रस", "रौद्र रस", "शांत रस", "वीर रस"],
+        answerIndex: 0,
+        explanation: "करुण रस का स्थायी भाव 'शोक' होता है। रौद्र का क्रोध, शांत का निर्वेद/शम, और वीर रस का स्थायी भाव उत्साह होता है।",
+        hint: "दुख या वियोग की स्थिति का रस।"
+      },
+      {
+        question: "'आँखों में धूल झोंकना' मुहावरे का सही और सटीक अर्थ क्या है?",
+        options: ["धोखा देना", "आँखों में मिट्टी डालना", "नजरअंदाज करना", "लज्जित होना"],
+        answerIndex: 0,
+        explanation: "'आँखों में धूल झोंकना' का अर्थ है किसी को चालाकी से चकमा या धोखा देना।",
+        hint: "चकमा देना या धोखा देना।"
+      }
+    ]
+  },
+  {
+    id: "pyq-history-modern-2024",
+    examName: "Indian History & National Movement Special (इतिहास एवं राष्ट्रीय आन्दोलन TCS PYQ)",
+    examCode: "SSC-HIST-2024",
+    category: "history",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "TCS Pattern",
+    subject: "Indian History & Modern Movement",
+    totalQuestions: 5,
+    timeMinutes: 5,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "हड़प्पा सभ्यता का प्रसिद्ध 'विशाल स्नानागार' (The Great Bath) किस पुरातात्विक स्थल से उत्खनन में प्राप्त हुआ था?",
+        options: ["मोहनजोदड़ो (Mohenjo-daro)", "हड़प्पा (Harappa)", "लोथल (Lothal)", "कालीबंगा (Kalibangan)"],
+        answerIndex: 0,
+        explanation: "विशाल स्नानागार और विशाल अन्नागार (Great Granary) दोनों पाकिस्तान के सिंध प्रांत में सिंधु नदी के तट पर स्थित मोहनजोदड़ो से प्राप्त हुए थे, जिसकी खोज राखालदास बनर्जी ने 1922 में की थी।",
+        hint: "राखालदास बनर्जी द्वारा 1922 में खोजा गया सिंध का प्रमुख स्थल।"
+      },
+      {
+        question: "मौर्य सम्राट अशोक के अधिकांश शिलालेख एवं स्तंभ अभिलेख किस लिपि (Script) में उत्कीर्ण पाए गए हैं?",
+        options: ["ब्राह्मी लिपि (Brahmi Script)", "खरोष्ठी लिपि", "ग्रीक-अरामाइक लिपि", "देवनागरी लिपि"],
+        answerIndex: 0,
+        explanation: "सम्राट अशोक के अधिकांश प्राकृत भाषा के अभिलेख 'ब्राह्मी लिपि' में लिखे गए हैं, जिसे 1837 में जेम्स प्रिंसेप ने सर्वप्रथम पढ़ने में सफलता प्राप्त की थी। पश्चिमोत्तर भारत में खरोष्ठी लिपि का प्रयोग हुआ था।",
+        hint: "जेम्स प्रिंसेप ने 1837 में सबसे पहले इसी लिपि को पढ़ा था।"
+      },
+      {
+        question: "महात्मा गांधी ने किस ऐतिहासिक राष्ट्रीय जन-आंदोलन के दौरान भारतीयों को 'करो या मरो' (Do or Die) का मंत्र दिया था?",
+        options: ["भारत छोड़ो आंदोलन (1942)", "असहयोग आंदोलन (1920)", "सविनय अवज्ञा आंदोलन (1930)", "चंपारण सत्याग्रह (1917)"],
+        answerIndex: 0,
+        explanation: "8 अगस्त 1942 को बंबई के ऐतिहासिक ग्वालिया टैंक मैदान (अगस्त क्रांति मैदान) से भारत छोड़ो प्रस्ताव पारित करते हुए गांधीजी ने देशवासियों को 'करो या मरो' का प्रसिद्ध नारा दिया था।",
+        hint: "अगस्त क्रांति 1942 का ऐतिहासिक आंदोलन।"
+      },
+      {
+        question: "वर्ष 1905 में 'बंगाल विभाजन' (Partition of Bengal) की घोषणा किस ब्रिटिश वायसराय द्वारा की गई थी?",
+        options: ["लॉर्ड कर्जन (Lord Curzon)", "लॉर्ड डलहौजी", "लॉर्ड रिपन", "लॉर्ड चेम्सफोर्ड"],
+        answerIndex: 0,
+        explanation: "लॉर्ड कर्जन ने फूट डालो और राज करो की नीति के तहत 20 जुलाई 1905 को बंगाल विभाजन की घोषणा की (जो 16 अक्टूबर 1905 को प्रभावी हुआ)। इसके विरोध में ऐतिहासिक 'स्वदेशी और बहिष्कार आंदोलन' प्रारंभ हुआ।",
+        hint: "फूट डालो और राज करो की नीति अपनाने वाला वायसराय।"
+      },
+      {
+        question: "1857 के प्रथम स्वतंत्रता संग्राम के दौरान दिल्ली में विद्रोही सैनिकों का वास्तविक सैन्य नेतृत्व किसने संभाला था?",
+        options: ["जनरल बख्त खान (General Bakht Khan)", "बहादुर शाह जफर द्वितीय", "तात्या टोपे", "मौलवी अहमदुल्ला"],
+        answerIndex: 0,
+        explanation: "यद्यपि 82 वर्षीय मुगल सम्राट बहादुर शाह जफर प्रतीकात्मक सम्राट थे, परंतु बरेली से आए विद्रोही सैनिकों के प्रमुख जनरल बख्त खान ने दिल्ली में वास्तविक सैन्य कमान और कोर्ट ऑफ एडमिनिस्ट्रेशन का संचालन किया था।",
+        hint: "बरेली से आकर विद्रोही सेना का संचालन करने वाले सेनानायक।"
+      }
+    ]
+  },
+  {
+    id: "pyq-economy-budget-2024",
+    examName: "Indian Economy & Union Budget Special (भारतीय अर्थव्यवस्था, मौद्रिक नीति एवं बजट)",
+    examCode: "SSC-ECON-2024",
+    category: "economy",
+    year: "2024-2026",
+    dateStr: "Daily Practice Special",
+    shift: "TCS Pattern",
+    subject: "Indian Economy, Budget & Banking System",
+    totalQuestions: 5,
+    timeMinutes: 5,
+    marksPerQuestion: 2.0,
+    negativeMarks: 0.5,
+    questions: [
+      {
+        question: "भारत में मुद्रास्फीति नियंत्रण एवं ब्याज दरों के लिए 'मौद्रिक नीति' (Monetary Policy) का निर्धारण और क्रियान्वयन कौन करता है?",
+        options: ["भारतीय रिजर्व बैंक (RBI) की मौद्रिक नीति समिति (MPC)", "वित्त मंत्रालय (Ministry of Finance)", "नीति आयोग (NITI Aayog)", "भारतीय प्रतिभूति एवं विनिमय बोर्ड (SEBI)"],
+        answerIndex: 0,
+        explanation: "RBI अधिनियम की धारा 45ZB के तहत 6 सदस्यीय मौद्रिक नीति समिति (MPC) रेपो रेट, रिवर्स रेपो रेट और मुद्रास्फीति लक्ष्य (4% ± 2%) तय करने हेतु उत्तरदायी है। गवर्नर RBI इसके पदेन अध्यक्ष होते हैं।",
+        hint: "देश का केंद्रीय बैंक (Central Bank)।"
+      },
+      {
+        question: "जिस ब्याज दर पर भारतीय रिजर्व बैंक (RBI) अन्य वाणिज्यिक बैंकों को उनकी अल्पकालिक नकदी आवश्यकताओं के लिए ऋण प्रदान करता है, उसे क्या कहते हैं?",
+        options: ["रेपो दर (Repo Rate)", "रिवर्स रेपो दर (Reverse Repo Rate)", "बैंक दर (Bank Rate)", "वैधानिक तरलता अनुपात (SLR)"],
+        answerIndex: 0,
+        explanation: "रेपो दर (Repurchase Option Rate) वह दर है जिस पर RBI कमर्शियल बैंकों को सरकारी प्रतिभूतियों के बदले अल्पकालिक ऋण देता है। जब बैंक RBI के पास अपनी अधिशेष नकदी जमा करते हैं, तो उसे 'रिवर्स रेपो दर' कहा जाता है।",
+        hint: "Repurchase Option Rate."
+      },
+      {
+        question: "केंद्रीय बजट में सरकार के कुल व्यय और कुल प्राप्तियों (उधार छोड़कर) के बीच के अंतर को क्या कहा जाता है?",
+        options: ["राजकोषीय घाटा (Fiscal Deficit)", "राजस्व घाटा (Revenue Deficit)", "प्राथमिक घाटा (Primary Deficit)", "मुद्रीकृत घाटा"],
+        answerIndex: 0,
+        explanation: "राजकोषीय घाटा = कुल व्यय - (राजस्व प्राप्तियां + गैर-ऋण पूंजीगत प्राप्तियां)। यह सरकार द्वारा एक वित्तीय वर्ष में लिए जाने वाले कुल शुद्ध उधार को दर्शाता है।",
+        hint: "सरकार द्वारा लिया जाने वाला कुल ऋण घाटा।"
+      },
+      {
+        question: "भारत में 65 वर्ष पुराने योजना आयोग (Planning Commission) को प्रतिस्थापित कर 'नीति आयोग' (NITI Aayog) का गठन कब किया गया?",
+        options: ["1 जनवरी 2015", "15 अगस्त 2014", "1 जुलाई 2017", "26 जनवरी 2016"],
+        answerIndex: 0,
+        explanation: "1 जनवरी 2015 को केंद्रीय मंत्रिमंडल के प्रस्ताव द्वारा NITI (National Institution for Transforming India) आयोग का गठन किया गया। इसके पदेन अध्यक्ष देश के प्रधानमंत्री होते हैं।",
+        hint: "साल 2015 के नववर्ष के पहले दिन।"
+      },
+      {
+        question: "निम्नलिखित में से कौन-सी आर्थिक गतिविधि अर्थव्यवस्था के 'प्राथमिक क्षेत्र' (Primary Sector) के अंतर्गत सम्मिलित है?",
+        options: ["कृषि, वानिकी एवं मत्स्य पालन", "ऑटोमोबाइल विनिर्माण", "बैंकिंग एवं वित्तीय सेवाएं", "सॉफ्टवेयर विकास"],
+        answerIndex: 0,
+        explanation: "प्राकृतिक संसाधनों के सीधे दोहन से जुड़ी गतिविधियां जैसे कृषि, खनन, वानिकी और पशुपालन 'प्राथमिक क्षेत्र' के अंतर्गत आती हैं। विनिर्माण द्वितीयक क्षेत्र और सेवाएं तृतीयक क्षेत्र में आती हैं।",
+        hint: "प्राकृतिक संसाधनों से सीधे जुड़ी गतिविधियां।"
+      }
+    ]
   }
 ];
 
@@ -360,13 +828,32 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
   onExportPdf,
   mistakeNotebook,
   onAddToMistakeNotebook,
-  onRetestMistakes
+  onRetestMistakes,
+  studentGoalProfile,
+  onOpenGoalSelector,
+  forcedStream
 }) => {
   const isHindi = language === 'hindi';
 
   // Navigation Sub-tabs: 'pyq' | 'practice' | 'custom' | 'mistakes' | 'bookmarks'
   const [activeTab, setActiveTab] = useState<'pyq' | 'practice' | 'custom' | 'mistakes' | 'bookmarks'>('pyq');
   
+  // Active Exam Stream: 'board' | 'competitive' (Default according to confirmed student profile or forced stream)
+  const [selectedStream, setSelectedStream] = useState<'board' | 'competitive'>(() => {
+    if (forcedStream) return forcedStream;
+    if (studentGoalProfile?.stream) return studentGoalProfile.stream;
+    return 'competitive';
+  });
+
+  // Sync stream when forcedStream or studentGoalProfile changes
+  useEffect(() => {
+    if (forcedStream) {
+      setSelectedStream(forcedStream);
+    } else if (studentGoalProfile?.stream) {
+      setSelectedStream(studentGoalProfile.stream);
+    }
+  }, [forcedStream, studentGoalProfile?.stream]);
+
   // Bookmarked Questions State (Persisted in localStorage)
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<BookmarkedQuestionItem[]>(() => {
     try {
@@ -449,9 +936,16 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
   const [isPaletteDrawerOpen, setIsPaletteDrawerOpen] = useState<boolean>(false);
   const [isPauseModalOpen, setIsPauseModalOpen] = useState<boolean>(false);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [reportReason, setReportReason] = useState<string>('');
   const [pyqCategoryFilter, setPyqCategoryFilter] = useState<string>('all');
+
+  // Anti-Cheating & Proctoring Surveillance System (App-switch / Tab-switch / AI Cheat Prevention)
+  const [tabSwitchCount, setTabSwitchCount] = useState<number>(0);
+  const [isAntiCheatWarningOpen, setIsAntiCheatWarningOpen] = useState<boolean>(false);
+  const [antiCheatDisqualified, setAntiCheatDisqualified] = useState<boolean>(false);
+  const [antiCheatReason, setAntiCheatReason] = useState<string>('');
 
   // Custom AI Quiz Generation State
   const [customSubject, setCustomSubject] = useState<string>('Reasoning & Logical Aptitude');
@@ -482,6 +976,52 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     };
   }, [activeTestMode, isTestSubmitted, isTimerPaused, timeRemainingSeconds]);
 
+  // Anti-Cheating Surveillance: Detects app-switching, tab switching, and window blur
+  // (Prevents students from opening another app or using ChatGPT/Gemini to cheat)
+  useEffect(() => {
+    if (!activeTestMode || isTestSubmitted) return;
+
+    const triggerCheatingStrike = () => {
+      // Don't trigger if user is just clicking internal test modals
+      if (isPauseModalOpen || isSubmitModalOpen || isReportModalOpen) return;
+
+      if (tabSwitchCount === 0) {
+        // Strike 1: Warning Modal & Pause
+        setTabSwitchCount(1);
+        setIsTimerPaused(true);
+        setIsAntiCheatWarningOpen(true);
+        if (typeof navigator !== 'undefined' && (navigator as any).vibrate) {
+          try { (navigator as any).vibrate([200, 100, 200]); } catch {}
+        }
+        showToast("⚠️ चेतावनी 1/2: परीक्षा के दौरान अन्य ऐप या टैब खोलना सख्त वर्जित है!", "error");
+      } else if (tabSwitchCount >= 1) {
+        // Strike 2: Disqualify and Auto-Submit Test Immediately
+        setTabSwitchCount(prev => prev + 1);
+        setIsAntiCheatWarningOpen(false);
+        const reason = "सुरक्षा नियम उल्लंघन: परीक्षा के दौरान दूसरी बार स्क्रीन छोड़ने (अन्य ऐप/सर्च/टैब खोलने) के कारण टेस्ट स्वतः बंद व सबमिट कर दिया गया है।";
+        handleSubmitTest(true, reason);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        triggerCheatingStrike();
+      }
+    };
+
+    const handleWindowBlur = () => {
+      triggerCheatingStrike();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, [activeTestMode, isTestSubmitted, tabSwitchCount, isPauseModalOpen, isSubmitModalOpen, isReportModalOpen]);
+
   // Start a PYQ Test
   const handleStartPYQTest = (pyq: PYQExamRecord) => {
     setTestQuestions(pyq.questions);
@@ -497,6 +1037,10 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     setUserAnswers({});
     setMarkedForReview({});
     setCurrentQIndex(0);
+    setTabSwitchCount(0);
+    setIsAntiCheatWarningOpen(false);
+    setAntiCheatDisqualified(false);
+    setAntiCheatReason('');
     setTimeRemainingSeconds(pyq.timeMinutes * 60);
     setIsTestSubmitted(false);
     setTestResult(null);
@@ -504,50 +1048,196 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     showToast(`📝 ${pyq.examName} टेस्ट शुरू! समय: ${pyq.timeMinutes} मिनट`, 'info');
   };
 
+  // Dedicated subject fallback ensuring exact topic questions are served
+  const getSubjectFallbackQuestions = (topic: string): QuizQuestion[] => {
+    const t = (topic || '').toLowerCase();
+    if (t.includes('math') || t.includes('गणित') || t.includes('quant') || t.includes('arithmetic') || t.includes('percentage') || t.includes('profit')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'math')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('english') || t.includes('अंग्रेजी') || t.includes('grammar') || t.includes('vocab') || t.includes('idiom')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'english')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('hindi') || t.includes('हिन्दी') || t.includes('व्याकरण') || t.includes('संधि') || t.includes('समास') || t.includes('मुहावरे')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'hindi')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('history') || t.includes('इतिहास') || t.includes('सत्याग्रह') || t.includes('हड़प्पा') || t.includes('गांधी')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'history')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('economy') || t.includes('अर्थव्यवस्था') || t.includes('budget') || t.includes('बजट') || t.includes('rbi') || t.includes('banking')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'economy')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('polity') || t.includes('संविधान') || t.includes('constitution') || t.includes('अनुच्छेद')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'polity')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('science') || t.includes('विज्ञान') || t.includes('space') || t.includes('isro') || t.includes('physics') || t.includes('chemistry') || t.includes('biology')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'science')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('reasoning') || t.includes('तर्कशक्ति') || t.includes('analogy')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'reasoning')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    if (t.includes('geography') || t.includes('भूगोल') || t.includes('environment') || t.includes('नदी') || t.includes('पर्वत')) {
+      return CURATED_PYQ_DATA.find(p => p.category === 'geography')?.questions || CURATED_PYQ_DATA[0].questions;
+    }
+    return CURATED_PYQ_DATA.find(p => p.category === 'geography')?.questions || CURATED_PYQ_DATA[0].questions;
+  };
+
+  // Start dynamic quiz for notification/deep link topic
+  const handleStartDynamicTopicQuiz = async (topicName: string, titleName: string) => {
+    setIsGeneratingCustom(true);
+    setCurrentTestTitle(titleName);
+    setCurrentExamMeta({
+      name: titleName,
+      subject: topicName,
+      date: new Date().toLocaleDateString('hi-IN'),
+      shift: 'Live Exam Practice',
+      marksPerQ: 2.0,
+      negMark: 0.5
+    });
+    setUserAnswers({});
+    setMarkedForReview({});
+    setCurrentQIndex(0);
+    setTabSwitchCount(0);
+    setIsAntiCheatWarningOpen(false);
+    setAntiCheatDisqualified(false);
+    setAntiCheatReason('');
+    setIsTestSubmitted(false);
+    setTestResult(null);
+    setActiveTestMode(true);
+    showToast(`⏳ ${topicName} के ताज़ा प्रश्न तैयार हो रहे हैं...`, 'info');
+
+    try {
+      const res = await fetch('/api/quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: topicName,
+          difficulty: 'Intermediate',
+          count: 5,
+          language: isHindi ? 'hindi' : 'english'
+        })
+      });
+      const data = await res.json();
+      const quizList = data.quizzes || data.quiz || [];
+      if (quizList.length > 0) {
+        setTestQuestions(quizList);
+        setTimeRemainingSeconds(quizList.length * 60);
+        showToast(`📝 ${titleName} लाइव शुरू!`, 'success');
+      } else {
+        // Safe subject-specific fallback ensuring exact topic alignment
+        const safeQuestions = getSubjectFallbackQuestions(topicName);
+        setTestQuestions(safeQuestions);
+        setTimeRemainingSeconds(safeQuestions.length * 60);
+      }
+    } catch (err) {
+      const safeQuestions = getSubjectFallbackQuestions(topicName);
+      setTestQuestions(safeQuestions);
+      setTimeRemainingSeconds(safeQuestions.length * 60);
+    } finally {
+      setIsGeneratingCustom(false);
+    }
+  };
+
   // Launch pre-selected quiz payload from notification or deep link
-  const launchPreselectedQuiz = (payload: { examName?: string; topic?: string; category?: string; description?: string }) => {
+  const launchPreselectedQuiz = (payload: { 
+    examName?: string; 
+    topic?: string; 
+    category?: string; 
+    description?: string;
+    questions?: QuizQuestion[];
+    marksPerQ?: number;
+    negMark?: number;
+    timeMinutes?: number;
+  }) => {
     if (!payload) return;
+
+    // Reset anti-cheating flags
+    setTabSwitchCount(0);
+    setIsAntiCheatWarningOpen(false);
+    setAntiCheatDisqualified(false);
+    setAntiCheatReason('');
+
+    // Direct questions provided (e.g. from Board Exam box, Mistake Retest, or custom generator)
+    if (payload.questions && Array.isArray(payload.questions) && payload.questions.length > 0) {
+      const qCount = payload.questions.length;
+      const testTitle = payload.examName || payload.topic || 'Special Practice Test';
+      const testSubj = payload.topic || (payload.category === 'board' ? 'Board Exam' : 'Competitive Exam');
+      const timeMin = payload.timeMinutes || Math.max(3, qCount * 2);
+      const marksPerQ = payload.marksPerQ ?? 2.0;
+      const negMark = payload.negMark ?? (payload.category === 'board' ? 0.0 : 0.5);
+
+      setTestQuestions(payload.questions);
+      setCurrentTestTitle(testTitle);
+      setCurrentExamMeta({
+        name: testTitle,
+        subject: testSubj,
+        date: new Date().toLocaleDateString('hi-IN'),
+        shift: payload.category === 'board' ? 'Board Chapter Single Test' : 'Live Practice Shift',
+        marksPerQ,
+        negMark
+      });
+      setUserAnswers({});
+      setMarkedForReview({});
+      setCurrentQIndex(0);
+      setTimeRemainingSeconds(timeMin * 60);
+      setIsTestSubmitted(false);
+      setTestResult(null);
+      setActiveTestMode(true);
+      showToast(`📝 ${testTitle} शुरू! (${qCount} प्रश्न, ${timeMin} मिनट)`, 'success');
+      return;
+    }
+
     const query = ((payload.examName || '') + ' ' + (payload.topic || '')).toLowerCase();
     
-    // Find matching pre-curated test to save tokens and start instantly
-    const match = CURATED_PYQ_DATA.find(p => 
+    // Find matching pre-curated test across competitive and board records
+    const allRecords = [...BOARD_PYQ_RECORDS, ...CURATED_PYQ_DATA];
+    
+    // Check 1: Exact substring match in examName, subject or category
+    let match = allRecords.find(p => 
       p.examName.toLowerCase().includes(query) || 
       p.subject.toLowerCase().includes(query) ||
       (p.category && query.includes(p.category.toLowerCase()))
     );
+
+    // Check 2: Specialized Topic Keyword Routing (Ensures every subject strictly opens its exact questions!)
+    if (!match) {
+      if (query.includes('math') || query.includes('गणित') || query.includes('quant') || query.includes('aptitude') || query.includes('arithmetic') || query.includes('percentage') || query.includes('algebra') || query.includes('profit') || query.includes('ब्याज')) {
+        match = allRecords.find(p => p.category === 'math' || p.subject.toLowerCase().includes('math') || p.subject.toLowerCase().includes('गणित'));
+      } else if (query.includes('english') || query.includes('अंग्रेजी') || query.includes('grammar') || query.includes('vocab') || query.includes('idiom') || query.includes('comprehension')) {
+        match = allRecords.find(p => p.category === 'english' || p.subject.toLowerCase().includes('english'));
+      } else if (query.includes('hindi') || query.includes('हिन्दी') || query.includes('व्याकरण') || query.includes('संधि') || query.includes('समास') || query.includes('मुहावरे') || query.includes('वर्तनी')) {
+        match = allRecords.find(p => p.category === 'hindi' || p.subject.toLowerCase().includes('hindi') || p.subject.toLowerCase().includes('हिन्दी'));
+      } else if (query.includes('history') || query.includes('इतिहास') || query.includes('सत्याग्रह') || query.includes('हड़प्पा') || query.includes('गांधी') || query.includes('विभाजन')) {
+        match = allRecords.find(p => p.category === 'history' || p.subject.toLowerCase().includes('history') || p.subject.toLowerCase().includes('इतिहास'));
+      } else if (query.includes('economy') || query.includes('अर्थव्यवस्था') || query.includes('budget') || query.includes('बजट') || query.includes('rbi') || query.includes('banking') || query.includes('रेपो')) {
+        match = allRecords.find(p => p.category === 'economy' || p.subject.toLowerCase().includes('economy') || p.subject.toLowerCase().includes('budget'));
+      } else if (query.includes('geography') || query.includes('भूगोल') || query.includes('environment') || query.includes('national park') || query.includes('नदी') || query.includes('पर्वत') || query.includes('park') || query.includes('मानसून')) {
+        match = allRecords.find(p => p.category === 'geography' || p.subject.toLowerCase().includes('geography') || p.examName.toLowerCase().includes('भूगोल'));
+      } else if (query.includes('polity') || query.includes('constitution') || query.includes('संविधान') || query.includes('अनुच्छेद') || query.includes('article') || query.includes('amendment')) {
+        match = allRecords.find(p => p.category === 'polity' || p.subject.toLowerCase().includes('polity'));
+      } else if (query.includes('space') || query.includes('isro') || query.includes('science') || query.includes('विज्ञान') || query.includes('chandrayaan') || query.includes('aditya') || query.includes('physics') || query.includes('chemistry') || query.includes('biology')) {
+        match = allRecords.find(p => p.category === 'science' || p.subject.toLowerCase().includes('science'));
+      } else if (query.includes('reasoning') || query.includes('तर्कशक्ति') || query.includes('analogy') || query.includes('coding-decoding')) {
+        match = allRecords.find(p => p.category === 'reasoning');
+      } else if (query.includes('railway') || query.includes('rrb') || query.includes('ntpc')) {
+        match = allRecords.find(p => p.category === 'railway');
+      } else if (query.includes('bpsc') || query.includes('bihar')) {
+        match = allRecords.find(p => p.category === 'bpsc');
+      } else if (query.includes('police')) {
+        match = allRecords.find(p => p.category === 'police');
+      } else if (query.includes('ssc')) {
+        match = allRecords.find(p => p.category === 'ssc');
+      }
+    }
 
     if (match) {
       handleStartPYQTest(match);
       return;
     }
 
-    // Otherwise use default high-yield exam set or generate
-    const fallbackExam = CURATED_PYQ_DATA[0];
-    if (fallbackExam) {
-      const customExam = {
-        ...fallbackExam,
-        examName: payload.examName || `[Live Practice 2026] ${payload.topic || 'Daily Exam Quiz'}`,
-        subject: payload.topic || fallbackExam.subject,
-      };
-      setTestQuestions(customExam.questions);
-      setCurrentTestTitle(customExam.examName);
-      setCurrentExamMeta({
-        name: customExam.examName,
-        subject: customExam.subject,
-        date: new Date().toLocaleDateString('hi-IN'),
-        shift: 'Real-Time Attempt Shift',
-        marksPerQ: 2.0,
-        negMark: 0.5
-      });
-      setUserAnswers({});
-      setMarkedForReview({});
-      setCurrentQIndex(0);
-      setTimeRemainingSeconds(customExam.questions.length * 60);
-      setIsTestSubmitted(false);
-      setTestResult(null);
-      setActiveTestMode(true);
-      showToast(`📝 ${customExam.examName} टेस्ट लाइव शुरू!`, 'success');
-    }
+    // Check 3: If still not matched, dynamically generate live quiz on that specific topic (never fallback to Reasoning!)
+    const targetTopic = payload.topic || payload.examName || 'Daily Practice Test';
+    const targetTitle = payload.examName || `Live Quiz: ${targetTopic}`;
+    handleStartDynamicTopicQuiz(targetTopic, targetTitle);
   };
 
   // Check for auto-launch on mount and via CustomEvent
@@ -645,7 +1335,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
   };
 
   // Submit Test & Calculate Results
-  const handleSubmitTest = () => {
+  const handleSubmitTest = (isAntiCheat?: boolean | React.MouseEvent, customReason?: string) => {
     let correct = 0;
     let wrong = 0;
     let attempted = 0;
@@ -679,12 +1369,45 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
       score: Number(netScore.toFixed(2)),
       totalMarks,
       accuracy,
-      timeSpentSeconds: (currentExamMeta?.marksPerQ || 5) * 60 - timeRemainingSeconds
+      timeSpentSeconds: Math.max(10, (testQuestions.length * 60) - timeRemainingSeconds)
     };
+
+    const isDisqualified = typeof isAntiCheat === 'boolean' ? isAntiCheat : false;
+    if (isDisqualified) {
+      setAntiCheatDisqualified(true);
+      if (customReason) setAntiCheatReason(customReason);
+      showToast("🚫 सुरक्षा कारणों (स्क्रीन छोड़ने / अन्य ऐप खोलने) से टेस्ट स्वतः सबमिट हुआ!", "error");
+    } else {
+      showToast("🎉 टेस्ट सफलतापूर्वक सबमिट हुआ! स्कोरकार्ड नीचे देखें।", "success");
+    }
 
     setTestResult(resultSummary);
     setIsTestSubmitted(true);
-    showToast("🎉 टेस्ट पूरा हुआ! अपना स्कोरकार्ड और विस्तृत समाधान नीचे देखें।", "success");
+    setIsSubmitModalOpen(false);
+    setIsTimerPaused(false);
+
+    // Inform owner of test submission & performance
+    try {
+      fetch('/api/users/log-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Student',
+          email: 'student_quiz@hansai.app',
+          type: 'test_submitted',
+          query: `Test Submitted: ${currentTestTitle} (Score: ${netScore.toFixed(1)}/${totalMarks})`
+        })
+      }).catch(console.warn);
+
+      dispatchOwnerAlert(
+        'test_quiz',
+        `📝 Test Submitted: ${currentTestTitle}`,
+        `Quiz submitted successfully. Score: ${netScore.toFixed(1)}/${totalMarks} (${accuracy}% accuracy, ${correct} correct, ${wrong} wrong).`,
+        'info'
+      );
+    } catch (e) {
+      console.warn("Could not dispatch alert", e);
+    }
   };
 
   // Save specific question to Mistake Notebook
@@ -726,141 +1449,154 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     const notVisitedCount = testQuestions.length - answeredCount;
 
     return (
-      <div className="relative flex flex-col h-[calc(100vh-8.5rem)] max-h-[860px] w-full max-w-4xl mx-auto bg-[#070B14] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden text-slate-100 select-none animate-fadeIn">
+      <div className="fixed inset-0 z-50 flex flex-col h-screen w-screen max-w-full bg-[#070B14] shadow-2xl overflow-hidden text-slate-100 select-none animate-fadeIn">
         
-        {/* TOP HEADER: Red Pause Button | Subject Title & Crimson Time Left | [A अ] Lang & [≡] Menu */}
-        <div className="bg-[#0B101D] border-b border-slate-800/90 px-3 sm:px-5 py-3 flex items-center justify-between gap-3 shrink-0">
+        {/* COMPACT TOP HEADER: Pause | Subject & Question Counter | Timer | Language, Review, Palette */}
+        <div className="bg-[#0B101D] border-b border-slate-800/90 px-3 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between gap-2 shrink-0">
           
-          {/* Left: Red Rounded-Square Pause Button & Title/Time */}
-          <div className="flex items-center gap-3 min-w-0">
+          {/* Left: Sleek Pause/Exit & Title */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               type="button"
               onClick={() => {
                 setIsTimerPaused(true);
                 setIsPauseModalOpen(true);
               }}
-              className="w-10 h-10 rounded-2xl bg-[#FF3B47] hover:bg-[#E02E3A] text-white flex items-center justify-center shadow-lg shadow-rose-900/30 transition-all active:scale-95 cursor-pointer shrink-0"
-              title="Pause Test"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 shadow-sm"
+              title="Pause Test / टेस्ट रोकें"
             >
-              <Pause className="w-5 h-5 fill-white text-white" />
+              <Pause className="w-4 h-4 fill-white text-white" />
             </button>
 
             <div className="min-w-0">
-              <h2 className="text-sm sm:text-base font-black text-white truncate leading-tight">
-                {currentExamMeta?.subject || currentTestTitle}
+              <h2 className="text-xs sm:text-sm font-black text-white truncate leading-tight flex items-center gap-1.5">
+                <span>{currentExamMeta?.subject || currentTestTitle}</span>
+                <span className="text-[10px] text-slate-400 font-normal hidden sm:inline">• Q {currentQIndex + 1}/{testQuestions.length}</span>
               </h2>
-              <div className="text-xs sm:text-sm font-semibold text-slate-400 flex items-center gap-1.5 mt-0.5">
-                <span>Total Time left:</span>
-                <span className="text-[#FF3B47] font-extrabold font-mono text-sm sm:text-base">
-                  {formatTime(timeRemainingSeconds)}
-                </span>
-              </div>
             </div>
           </div>
 
-          {/* Right: Language Switcher [A अ] & Menu Palette [≡] */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Language Switcher Button */}
+          {/* Center: Crimson Live Timer with Clock & Anti-Cheat Proctoring Indicator */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-slate-900 border border-rose-500/40 text-white shadow-inner">
+              <Clock className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+              <span className="text-xs sm:text-sm font-black font-mono text-rose-400">
+                {formatTime(timeRemainingSeconds)}
+              </span>
+            </div>
+
+            {/* Anti-Cheating Live Surveillance Badge */}
+            <div 
+              className={`hidden xs:flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl border text-[10px] sm:text-xs font-bold transition-all ${
+                tabSwitchCount === 0 
+                  ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300' 
+                  : 'bg-rose-950/90 border-rose-500 text-rose-300 animate-pulse ring-1 ring-rose-500/40'
+              }`}
+              title="एंटी-चीटिंग निगरानी: स्क्रीन छोड़ने / दूसरा ऐप खोलने पर अधिकतम 1 चेतावनी, 2 स्ट्राइक पर टेस्ट स्वतः बंद!"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">सुरक्षा:</span>
+              <span className="font-mono">{tabSwitchCount}/2 स्ट्राइक</span>
+            </div>
+          </div>
+
+          {/* Right: Quick actions: Language, Review Star, Palette Menu */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Language Switcher */}
             <button
               type="button"
               onClick={() => {
                 setQuestionLang(prev => prev === 'hi' ? 'en' : 'hi');
                 showToast(questionLang === 'hi' ? 'Language: English' : 'भाषा: हिन्दी', 'info');
               }}
-              className="h-10 px-3 rounded-2xl bg-slate-900 border border-slate-700/80 hover:border-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+              className="h-8 px-2 sm:px-2.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-indigo-500 text-white font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
               title="भाषा बदलें / Toggle Language"
             >
-              <Languages className="w-4 h-4 text-indigo-400" />
-              <span className="font-extrabold">{questionLang === 'hi' ? 'अ (Hindi)' : 'A (English)'}</span>
+              <Languages className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="font-extrabold">{questionLang === 'hi' ? 'अ' : 'En'}</span>
             </button>
 
-            {/* Menu Palette Button [≡] */}
+            {/* Review Star Toggle */}
+            <button
+              type="button"
+              onClick={handleToggleReview}
+              className={`h-8 px-2 sm:px-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border ${
+                isReviewed 
+                  ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-sm' 
+                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+              }`}
+              title="Mark for Review (समीक्षा हेतु चिह्नित करें)"
+            >
+              <Star className={`w-3.5 h-3.5 ${isReviewed ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
+              <span className="hidden sm:inline">{isReviewed ? 'Reviewed' : 'Review'}</span>
+            </button>
+
+            {/* Palette Drawer Button [≡] */}
             <button
               type="button"
               onClick={() => setIsPaletteDrawerOpen(true)}
-              className="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-700/80 hover:border-amber-500 text-white flex items-center justify-center transition-colors cursor-pointer shadow-sm"
-              title="Question Palette (प्रश्नावली)"
+              className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-amber-500 text-white flex items-center justify-center transition-colors cursor-pointer shadow-sm"
+              title="Question Palette (प्रश्नावली तालिका)"
             >
-              <Menu className="w-5 h-5 text-slate-300" />
+              <Menu className="w-4 h-4 text-slate-300" />
             </button>
           </div>
         </div>
 
-        {/* SUBHEADER: Pill Question Type Badge & Review ☆ Button */}
-        <div className="bg-[#090E1A] border-b border-slate-800/80 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-2 shrink-0">
-          <div className="px-3.5 py-1 rounded-full bg-slate-800/90 border border-slate-700/70 text-slate-300 text-xs font-semibold flex items-center gap-1.5 shadow-xs">
-            <CheckSquare className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Question Type : Multiple Choice</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleToggleReview}
-            className={`px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              isReviewed 
-                ? 'bg-amber-500/20 border border-amber-500 text-amber-300 shadow-sm' 
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Star className={`w-3.5 h-3.5 ${isReviewed ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
-            <span>Review {isReviewed ? '★' : '☆'}</span>
-          </button>
-        </div>
-
-        {/* MAIN BODY: Fitted Single-Screen Layout */}
-        <div className="flex-1 p-4 sm:p-6 flex flex-col justify-between overflow-y-auto">
-          
-          <div className="space-y-4">
+        {/* MAIN BODY: Fitted Single-Screen Layout with Full Vertical Space & Anti-Copy Protection */}
+        <div 
+          className="flex-1 p-3 sm:p-5 flex flex-col justify-between overflow-y-auto select-none"
+          onCopy={(e) => {
+            e.preventDefault();
+            showToast('⚠️ परीक्षा सुरक्षा: टेस्ट के दौरान प्रश्नों को कॉपी करना वर्जित है!', 'error');
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto w-full">
             {/* QUESTION NUMBER & MARKS ROW */}
             <div className="flex items-center justify-between">
-              {/* Question Badge & Title */}
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                <span className="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/50 text-indigo-300 font-black text-xs flex items-center justify-center">
                   {currentQIndex + 1}
-                </div>
-                <span className="text-base sm:text-lg font-black text-white tracking-wide">
-                  Question
+                </span>
+                <span className="text-xs sm:text-sm font-black text-slate-200">
+                  प्रश्न {currentQIndex + 1} / {testQuestions.length}
                 </span>
               </div>
 
-              {/* Marks Badges (+2.0 / -0.5) & Bookmark Action */}
-              <div className="flex items-center gap-2">
+              {/* Marks Badges & Bookmark */}
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => handleToggleBookmark(currentQ)}
-                  className={`px-3 py-1 rounded-lg border font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg border font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all ${
                     isQuestionBookmarked(currentQ?.question || '')
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 ring-1 ring-amber-400/30'
-                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-700'
                   }`}
-                  title="Bookmark Question for Later Revision"
+                  title="Bookmark"
                 >
-                  {isQuestionBookmarked(currentQ?.question || '') ? (
-                    <BookmarkCheck className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  ) : (
-                    <Bookmark className="w-3.5 h-3.5 text-slate-400" />
-                  )}
-                  <span className="hidden sm:inline">
-                    {isQuestionBookmarked(currentQ?.question || '') ? 'Bookmarked' : 'Bookmark'}
-                  </span>
+                  <Bookmark className={`w-3 h-3 ${isQuestionBookmarked(currentQ?.question || '') ? 'text-amber-400 fill-amber-400' : ''}`} />
+                  <span className="hidden sm:inline">Bookmark</span>
                 </button>
-
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-extrabold text-xs font-mono">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-bold text-[11px] font-mono">
                   +{currentExamMeta?.marksPerQ || 2.0}
                 </span>
-                <span className="px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-400 font-extrabold text-xs font-mono">
+                <span className="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/40 text-rose-400 font-bold text-[11px] font-mono">
                   -{currentExamMeta?.negMark || 0.5}
                 </span>
               </div>
             </div>
 
             {/* Question Statement */}
-            <div className="bg-[#0A101E] border border-slate-800/90 rounded-2xl p-4 sm:p-5 text-sm sm:text-base font-semibold leading-relaxed text-white whitespace-pre-line shadow-xs">
+            <div className="bg-[#0A101E] border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm md:text-base font-semibold leading-relaxed text-white whitespace-pre-line shadow-xs">
               {currentQ?.question}
             </div>
 
-            {/* 4 Interactive Options (A, B, C, D) */}
-            <div className="grid grid-cols-1 gap-3">
+            {/* 4 Interactive Options (A, B, C, D) with Comfortable Compact Height */}
+            <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
               {currentQ?.options.map((opt, oIdx) => {
                 const isSelected = selectedAns === oIdx;
                 const optionLetters = ['A', 'B', 'C', 'D'];
@@ -869,20 +1605,20 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                   <button
                     key={oIdx}
                     onClick={() => handleSelectOption(oIdx)}
-                    className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border text-sm sm:text-base font-medium transition-all flex items-center gap-3.5 cursor-pointer shadow-xs ${
+                    className={`w-full text-left p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer shadow-xs ${
                       isSelected
-                        ? 'bg-indigo-950/50 border-2 border-indigo-500 text-white ring-2 ring-indigo-500/30'
+                        ? 'bg-indigo-950/60 border-2 border-indigo-500 text-white ring-2 ring-indigo-500/30'
                         : 'bg-[#0E1526] hover:bg-slate-800/80 border-slate-800 text-slate-200'
                     }`}
                   >
-                    <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 transition-colors ${
-                      isSelected ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 border border-slate-700'
+                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
+                      isSelected ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-800 text-slate-300 border border-slate-700'
                     }`}>
-                      ({optionLetters[oIdx]})
+                      {optionLetters[oIdx]}
                     </span>
                     <span className="flex-1 leading-snug">{opt}</span>
                     {isSelected && (
-                      <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                      <div className="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
                         ✓
                       </div>
                     )}
@@ -891,55 +1627,125 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               })}
             </div>
           </div>
+        </div>
 
-          {/* BOTTOM CONTROLS: Top Row [Report] & [Clear Response] | Bottom Row Full Width [Save & Next] */}
-          <div className="pt-4 mt-4 border-t border-slate-800 space-y-3 shrink-0">
-            
-            {/* Top Action Row */}
-            <div className="flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={() => setIsReportModalOpen(true)}
-                className="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-900/90 hover:bg-rose-950/40 hover:border-rose-500/60 text-rose-400 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Flag className="w-3.5 h-3.5 text-rose-400" />
-                <span>Report</span>
-              </button>
+        {/* COMPACT SINGLE-ROW STICKY BOTTOM ACTION BAR (No Redundant Submit Button) */}
+        <div className="bg-[#0B101D] border-t border-slate-800 px-3 sm:px-6 py-2.5 shrink-0 flex items-center justify-between gap-2 z-20 shadow-2xl">
+          {/* Left: Previous */}
+          <button
+            type="button"
+            onClick={() => {
+              if (currentQIndex > 0) setCurrentQIndex(prev => prev - 1);
+            }}
+            disabled={currentQIndex === 0}
+            className="px-3 py-2 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>Previous</span>
+          </button>
 
-              <button
-                type="button"
-                onClick={handleClearResponse}
-                disabled={selectedAns === undefined}
-                className="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-900/90 hover:bg-slate-800 text-slate-300 font-bold text-xs transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <span>Clear Response</span>
-              </button>
-            </div>
-
-            {/* Bottom Full-Width Prominent Red/Coral Button */}
+          {/* Center: Clear Response & Report */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => {
-                if (currentQIndex < testQuestions.length - 1) {
-                  setCurrentQIndex(prev => prev + 1);
-                } else {
-                  if (window.confirm("क्या आप टेस्ट सबमिट करना चाहते हैं? (Are you sure you want to submit?)")) {
-                    handleSubmitTest();
-                  }
-                }
-              }}
-              className={`w-full py-4 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.99] cursor-pointer ${
-                currentQIndex < testQuestions.length - 1
-                  ? 'bg-[#FF3B47] hover:bg-[#E02E3A] text-white shadow-rose-900/40'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/40'
-              }`}
+              onClick={handleClearResponse}
+              disabled={selectedAns === undefined}
+              className="px-3 py-2 rounded-xl border border-slate-700 bg-slate-900/90 hover:bg-slate-800 text-slate-300 font-bold text-xs transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              <span>{currentQIndex < testQuestions.length - 1 ? 'Save & Next' : 'Submit Test (सबमिट करें)'}</span>
-              <ChevronRight className="w-4 h-4" />
+              <span>Clear</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsReportModalOpen(true)}
+              className="px-2.5 py-2 rounded-xl border border-slate-700/60 bg-slate-900/70 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+              title="Report Error / त्रुटि रिपोर्ट करें"
+            >
+              <Flag className="w-3.5 h-3.5" />
             </button>
           </div>
 
+          {/* Right: Primary Save & Next (Which becomes Submit on last question) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (currentQIndex < testQuestions.length - 1) {
+                setCurrentQIndex(prev => prev + 1);
+              } else {
+                setIsSubmitModalOpen(true);
+              }
+            }}
+            className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer ${
+              currentQIndex < testQuestions.length - 1
+                ? 'bg-[#FF3B47] hover:bg-[#E02E3A] text-white shadow-rose-950/40'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/40'
+            }`}
+          >
+            {currentQIndex < testQuestions.length - 1 ? (
+              <>
+                <span>Save & Next (अगला प्रश्न)</span>
+                <ChevronRight className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <CheckSquare className="w-4 h-4" />
+                <span>Submit Test (सबमिट करें)</span>
+              </>
+            )}
+          </button>
         </div>
+
+        {/* ========================================================= */}
+        {/* MODAL 0: SUBMIT CONFIRMATION MODAL (No window.confirm!) */}
+        {/* ========================================================= */}
+        {isSubmitModalOpen && (
+          <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fadeIn">
+            <div className="bg-[#0B101D] border border-emerald-500/40 rounded-3xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-md">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-black text-white">सबमिट की पुष्टि करें (Confirm Submission)</h3>
+                <p className="text-xs text-slate-400 mt-1">क्या आप वाकई अपना टेस्ट पूरा करके परिणाम देखना चाहते हैं?</p>
+              </div>
+
+              {/* Status summary */}
+              <div className="grid grid-cols-3 gap-2 text-xs bg-slate-900/80 border border-slate-800 rounded-2xl p-3">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">कुल प्रश्न</span>
+                  <strong className="text-white text-sm font-bold">{testQuestions.length}</strong>
+                </div>
+                <div>
+                  <span className="text-emerald-500 block text-[10px]">हल किए गए</span>
+                  <strong className="text-emerald-400 text-sm font-bold">{answeredCount}</strong>
+                </div>
+                <div>
+                  <span className="text-rose-500 block text-[10px]">छूटे हुए</span>
+                  <strong className="text-rose-400 text-sm font-bold">{notVisitedCount}</strong>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleSubmitTest()}
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <CheckSquare className="w-4 h-4" />
+                  <span>हाँ, टेस्ट सबमिट करें (Confirm Submit)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSubmitModalOpen(false)}
+                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
+                >
+                  नहीं, टेस्ट जारी रखें (Keep Answering)
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ========================================================= */}
         {/* MODAL 1: QUESTION PALETTE DRAWER SHEET (When clicking [≡]) */}
@@ -1073,15 +1879,13 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    if (window.confirm("क्या आप टेस्ट छोड़ना चाहते हैं?")) {
-                      setIsPauseModalOpen(false);
-                      setIsTimerPaused(false);
-                      setActiveTestMode(false);
-                    }
+                    setIsPauseModalOpen(false);
+                    setIsTimerPaused(false);
+                    setActiveTestMode(false);
                   }}
-                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-400 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
                 >
-                  Quit Test (बाहर निकलें)
+                  Quit Test (टेस्ट से बाहर निकलें)
                 </button>
               </div>
             </div>
@@ -1126,6 +1930,53 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
           </div>
         )}
 
+        {/* ========================================================= */}
+        {/* MODAL 4: ANTI-CHEATING STRIKE 1 WARNING MODAL             */}
+        {/* ========================================================= */}
+        {isAntiCheatWarningOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn">
+            <div className="bg-[#0D1322] border-2 border-rose-500/90 rounded-3xl max-w-md w-full p-6 text-slate-100 shadow-2xl shadow-rose-950/60 space-y-4 animate-scaleUp text-left">
+              <div className="w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 mx-auto">
+                <AlertTriangle className="w-8 h-8 text-rose-400 animate-bounce" />
+              </div>
+
+              <div className="text-center space-y-1.5">
+                <span className="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-black uppercase tracking-wider">
+                  ⚠️ अनुचित साधन चेतावनी (Strike 1 / 2)
+                </span>
+                <h3 className="text-lg font-black text-white">
+                  आपने परीक्षा स्क्रीन छोड़ दी थी!
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  हमारे एंटी-चीटिंग निगरानी तंत्र ने पाया कि आपने दूसरा ऐप या ब्राउज़र टैब खोला था। किसी भी AI टूल (जैसे ChatGPT, Gemini) या सर्च इंजन से नकल करने की अनुमति नहीं है।
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-rose-950/50 border border-rose-800/80 text-rose-200 text-xs font-semibold leading-relaxed space-y-1">
+                <p className="font-extrabold text-rose-300 flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  <span>अंतिम चेतावनी (Final Warning):</span>
+                </p>
+                <p>
+                  यदि आपने एक बार और स्क्रीन छोड़ी या दूसरा ऐप खोला, तो आपका टेस्ट <strong>तुरंत बंद और स्वतः सबमिट (Auto-Closed)</strong> हो जाएगा!
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAntiCheatWarningOpen(false);
+                  setIsTimerPaused(false);
+                  showToast("टेस्ट पुनः शुरू हुआ। कृपया स्क्रीन पर बने रहें!", "info");
+                }}
+                className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-lg shadow-rose-900/40 transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>नियम समझ गया, टेस्ट जारी रखें (Resume Test)</span>
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
     );
   }
@@ -1135,6 +1986,91 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
   // (Full Solutions & Explanations ONLY Shown Here)
   // ----------------------------------------------------
   if (activeTestMode && isTestSubmitted && testResult) {
+    return (
+      <div className="w-full max-w-5xl mx-auto py-2 space-y-4">
+        {antiCheatDisqualified && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-rose-950/90 border-2 border-rose-500/90 text-rose-200 flex items-start gap-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/25 border border-rose-500/50 flex items-center justify-center text-rose-400 shrink-0">
+              <ShieldAlert className="w-7 h-7" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="text-base sm:text-lg font-black text-white">
+                  🚫 अनुचित साधन / परीक्षा सुरक्षा उल्लंघन (Anti-Cheating Auto-Closed)
+                </h3>
+                <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider">
+                  Disqualified & Auto-Submitted
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-rose-200 mt-1.5 leading-relaxed font-medium">
+                {antiCheatReason || 'परीक्षा के दौरान दो बार अन्य ऐप या ब्राउज़र विंडो खोली गई। निष्पक्ष मूल्यांकन और AI सर्च से नकल रोकने के लिए आपका टेस्ट स्वतः समाप्त और सबमिट कर दिया गया है।'}
+              </p>
+              <div className="mt-3 pt-2.5 border-t border-rose-900/60 flex items-center gap-3 text-xs text-rose-300 font-bold">
+                <span>⚠️ दर्ज स्ट्राइक: <strong>{tabSwitchCount} / 2</strong></span>
+                <span>•</span>
+                <span>आपके द्वारा अब तक दर्ज उत्तरों के आधार पर स्कोरकार्ड नीचे तैयार किया गया है।</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <TestPerformanceScorecard
+          data={{
+            testTitle: currentTestTitle,
+            category: (currentExamMeta as any)?.category === 'board' ? 'board' : 'competitive',
+            boardName: (currentExamMeta as any)?.board || 'UP / CBSE / State Board',
+            classGrade: (currentExamMeta as any)?.classGrade,
+            subject: currentExamMeta?.subject || 'All Subjects',
+            score: testResult.score,
+            totalMarks: testResult.totalMarks,
+            totalQuestions: testResult.totalQuestions,
+            correct: testResult.correct,
+            wrong: testResult.wrong,
+            unattempted: testResult.unattempted,
+            accuracy: testResult.accuracy,
+            timeSpentSeconds: testResult.timeSpentSeconds || 280,
+            totalTimeMinutes: Math.round((testQuestions.length * 60) / 60),
+            negativeMarksPerWrong: currentExamMeta?.negMark || 0.5,
+            netNegativeMarks: Number((testResult.wrong * (currentExamMeta?.negMark || 0.5)).toFixed(1)),
+            questions: testQuestions,
+            userAnswers: userAnswers,
+            dateStr: currentExamMeta?.date || new Date().toLocaleDateString('hi-IN'),
+            userName: 'Student'
+          }}
+          onExit={() => {
+            setActiveTestMode(false);
+            setIsTestSubmitted(false);
+          }}
+          onReattempt={() => {
+            setUserAnswers({});
+            setMarkedForReview({});
+            setCurrentQIndex(0);
+            setTimeRemainingSeconds(testQuestions.length * 60);
+            setIsTestSubmitted(false);
+            setTestResult(null);
+            setActiveTestMode(true);
+            showToast("🔄 टेस्ट पुनः प्रारंभ हुआ! All the Best!", "info");
+          }}
+          onExportPdf={(title, elementId, rawText) => onExportPdf(title, elementId, rawText)}
+          showToast={showToast}
+          isQuestionBookmarked={(qText) => isQuestionBookmarked(qText)}
+          onToggleBookmark={(q) => handleToggleBookmark(q)}
+          onAddToMistakeNotebook={(item: any) => onAddToMistakeNotebook({
+            id: item.id || `mistake_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            question: item.question,
+            options: item.options || [],
+            correctAnswer: item.correctAnswer,
+            explanation: item.explanation || 'Revision solution note',
+            subject: item.subject || 'All Subjects',
+            topic: item.topic || 'Test Series',
+            timestamp: new Date().toISOString()
+          })}
+        />
+      </div>
+    );
+  }
+
+  if (false && activeTestMode && isTestSubmitted && testResult) {
     return (
       <div className="max-w-4xl mx-auto space-y-6 text-slate-100 animate-fadeIn p-2 sm:p-4">
         
@@ -1426,7 +2362,9 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
   // ----------------------------------------------------
   // RENDER 3: PRIMARY QUIZ HUB DASHBOARD (PYQ, PRACTICE SETS, CUSTOM AI GENERATOR)
   // ----------------------------------------------------
-  const filteredPYQs = CURATED_PYQ_DATA.filter(p => {
+  const targetExams = selectedStream === 'board' ? BOARD_PYQ_RECORDS : CURATED_PYQ_DATA;
+
+  const filteredPYQs = targetExams.filter(p => {
     const matchesSearch = 
       p.examName.toLowerCase().includes(searchFilter.toLowerCase()) ||
       p.subject.toLowerCase().includes(searchFilter.toLowerCase()) ||
@@ -1436,10 +2374,40 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
 
     const matchesCategory = 
       pyqCategoryFilter === 'all' ||
-      p.category === pyqCategoryFilter;
+      (selectedStream === 'board'
+        ? p.subject.toLowerCase().includes(pyqCategoryFilter.toLowerCase()) || p.examName.toLowerCase().includes(pyqCategoryFilter.toLowerCase())
+        : p.category === pyqCategoryFilter);
 
     return matchesSearch && matchesCategory;
   });
+
+  const boardCategories = [
+    { id: 'all', label: 'All Board Subjects (सभी विषय)' },
+    { id: 'science', label: '🧪 Science (विज्ञान)' },
+    { id: 'mathematics', label: '📐 Mathematics (गणित)' },
+    { id: 'social', label: '🌍 Social Science (सामाजिक विज्ञान)' },
+    { id: 'physics', label: '⚛️ Physics (भौतिकी)' },
+    { id: 'chemistry', label: '⚗️ Chemistry (रसायन विज्ञान)' },
+    { id: 'biology', label: '🧬 Biology (जीव विज्ञान)' },
+  ];
+
+  const competitiveCategories = [
+    { id: 'all', label: 'All Exams (सभी)' },
+    { id: 'math', label: '📐 Math & Quant (गणित)' },
+    { id: 'reasoning', label: '🧠 Reasoning (तर्कशक्ति)' },
+    { id: 'english', label: '📖 English Language' },
+    { id: 'hindi', label: '✍️ General Hindi (हिन्दी)' },
+    { id: 'geography', label: '🌍 Geography (भूगोल)' },
+    { id: 'polity', label: '⚖️ Indian Polity (संविधान)' },
+    { id: 'history', label: '🏛️ History (इतिहास)' },
+    { id: 'science', label: '🚀 Science & Space (विज्ञान)' },
+    { id: 'economy', label: '📊 Economy & Budget (अर्थव्यवस्था)' },
+    { id: 'ssc', label: '🏛️ SSC (CGL/CHSL/Steno)' },
+    { id: 'railway', label: '🚆 Railways RRB' },
+    { id: 'bpsc', label: '🎯 BPSC / State PSC' },
+    { id: 'police', label: '👮 Police & Defence' },
+    { id: 'banking', label: '💳 Banking & Teaching' }
+  ];
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 text-slate-100 text-left animate-fadeIn">
@@ -1567,13 +2535,46 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
           
           {/* Search Filter Box */}
           <div className="bg-[#0B101D] border border-slate-800 rounded-2xl p-4 space-y-3">
+            {/* Stream Header Badge: Pure Separation of Board & Competitive Streams */}
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2.5 border-b border-slate-800/80">
+              <div className="flex items-center gap-2">
+                {selectedStream === 'board' ? (
+                  <div className="px-3.5 py-1.5 rounded-xl font-black text-xs flex items-center gap-2 bg-amber-500/15 border border-amber-500/40 text-amber-300">
+                    <span>🎓 बोर्ड परीक्षा टेस्ट (Board Exam Tests)</span>
+                    <span className="text-[10px] text-slate-400 font-normal">कक्षा 9वीं, 10वीं, 11वीं, 12वीं चैप्टर टेस्ट</span>
+                  </div>
+                ) : (
+                  <div className="px-3.5 py-1.5 rounded-xl font-black text-xs flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/40 text-emerald-300">
+                    <span>🏛️ प्रतियोगी परीक्षा टेस्ट (Competitive Exam Tests)</span>
+                    <span className="text-[10px] text-slate-400 font-normal">SSC, Railway, Police, BPSC, Banking</span>
+                  </div>
+                )}
+              </div>
+
+              {onOpenGoalSelector && (
+                <button
+                  type="button"
+                  onClick={onOpenGoalSelector}
+                  className="text-[11px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1 cursor-pointer transition-all"
+                  title="लक्ष्य बदलें (Change Goal)"
+                >
+                  <span>🎯 {studentGoalProfile?.stream === 'board' ? `${studentGoalProfile.boardDetails?.classGrade || '10वीं'} बोर्ड` : (studentGoalProfile?.competitiveDetails?.examName || 'प्रतियोगी')}</span>
+                  <span className="text-[10px] text-slate-400 underline">(बदलें)</span>
+                </button>
+              )}
+            </div>
+
             <div className="flex items-center gap-2.5 bg-[#050814] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs">
               <Search className="w-4 h-4 text-amber-400 shrink-0" />
               <input
                 type="text"
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                placeholder="परीक्षा का नाम, विषय या वर्ष खोजें (उदा. SSC CGL, Reasoning, Railway NTPC, BPSC, Police)..."
+                placeholder={
+                  selectedStream === 'board'
+                    ? "बोर्ड विषय या अध्याय खोजें (उदा. Science, रासायनिक अभिक्रियाएं, गणित, विलोपन विधि, Physics)..."
+                    : "परीक्षा का नाम या विषय खोजें (उदा. SSC CGL, Reasoning, Railway NTPC, BPSC, Police)..."
+                }
                 className="bg-transparent text-white placeholder-slate-500 focus:outline-none w-full text-xs"
               />
               {searchFilter && (
@@ -1587,17 +2588,9 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               )}
             </div>
 
-            {/* Category Filter Chips */}
+            {/* Stream Specific Category Filter Chips */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin text-xs">
-              {[
-                { id: 'all', label: 'All Exams (सभी)' },
-                { id: 'reasoning', label: '🧠 Reasoning Special' },
-                { id: 'ssc', label: '🏛️ SSC (CGL/CHSL/Steno)' },
-                { id: 'railway', label: '🚆 Railways RRB' },
-                { id: 'bpsc', label: '🎯 BPSC / State PSC' },
-                { id: 'police', label: '👮 Police & Defence' },
-                { id: 'banking', label: '💳 Banking & Teaching' }
-              ].map((cat) => (
+              {(selectedStream === 'board' ? boardCategories : competitiveCategories).map((cat) => (
                 <button
                   key={cat.id}
                   type="button"
