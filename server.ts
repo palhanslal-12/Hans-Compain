@@ -46,6 +46,7 @@ const LOGS_FILE = path.join(DATA_DIR, "activity_logs.json");
 
 interface RegisteredUser {
   id: string;
+  userId?: string;
   name: string;
   email: string;
   phone?: string;
@@ -91,13 +92,28 @@ const SEED_LOGS: ActivityLog[] = [
 let cachedUsers: RegisteredUser[] | null = null;
 let userSaveTimer: NodeJS.Timeout | null = null;
 
+function generateDefaultUserId(name: string, email: string): string {
+  if (email === 'palhanslal4@gmail.com') return 'hanslal_pal';
+  const cleanName = (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const prefix = cleanName ? (cleanName.length > 8 ? cleanName.slice(0, 8) : cleanName) : 'student';
+  const randomSuffix = Math.floor(100 + Math.random() * 900);
+  return `hans_${prefix}${randomSuffix}`;
+}
+
 function loadUsers(): RegisteredUser[] {
   if (cachedUsers) return cachedUsers;
   try {
     if (fs.existsSync(USERS_FILE)) {
       const data = JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
       if (Array.isArray(data)) {
-        cachedUsers = data.filter((u: RegisteredUser) => u && u.email && !FAKE_EMAILS.includes(u.email.toLowerCase()));
+        cachedUsers = data
+          .filter((u: RegisteredUser) => u && u.email && !FAKE_EMAILS.includes(u.email.toLowerCase()))
+          .map((u: RegisteredUser) => {
+            if (!u.userId) {
+              u.userId = generateDefaultUserId(u.name, u.email);
+            }
+            return u;
+          });
         return cachedUsers;
       }
     }
@@ -590,10 +606,10 @@ app.post("/api/ota/config", (req, res) => {
   }
 });
 
-// User Registration Route (Mandatory Name, Phone/Email, Password)
+// User Registration Route (Mandatory Name, Phone/Email, Password, Unique User ID)
 app.post("/api/users/register", (req, res) => {
   try {
-    const { name, email, phone, password, securityQuestion, securityAnswer } = req.body;
+    const { name, email, phone, password, userId, securityQuestion, securityAnswer } = req.body;
     if (!name || (!email && !phone)) {
       return res.status(400).json({ error: "Name and Mobile Number / Email are required." });
     }
@@ -602,6 +618,26 @@ app.post("/api/users/register", (req, res) => {
     const cleanEmail = email ? String(email).trim().toLowerCase() : (cleanPhone ? `${cleanPhone}@student.hansai.in` : "");
 
     let users = loadUsers();
+
+    // Check custom userId if provided
+    let cleanUserId = userId ? String(userId).trim().toLowerCase().replace(/[^a-z0-9_]/g, '') : "";
+    if (cleanUserId) {
+      if (cleanUserId.length < 3 || cleanUserId.length > 25) {
+        return res.status(400).json({ error: "यूजर आईडी 3 से 25 अक्षरों की होनी चाहिए (अक्षर, संख्या व अंडरस्कोर)।" });
+      }
+      const isTaken = users.some(u => u.userId && u.userId.toLowerCase() === cleanUserId && u.email !== cleanEmail && u.phone !== cleanPhone);
+      if (isTaken) {
+        return res.status(400).json({ error: `यूजर आईडी "${cleanUserId}" पहले से उपयोग में है! कृपया कोई अन्य User ID चुनें।` });
+      }
+    } else {
+      cleanUserId = generateDefaultUserId(cleanName, cleanEmail);
+      // Ensure unique
+      let suffix = 1;
+      while (users.some(u => u.userId?.toLowerCase() === cleanUserId.toLowerCase())) {
+        cleanUserId = `${generateDefaultUserId(cleanName, cleanEmail)}_${suffix++}`;
+      }
+    }
+
     let userIndex = users.findIndex(u => (cleanEmail && u.email === cleanEmail) || (cleanPhone && u.phone === cleanPhone));
 
     const now = new Date().toISOString();
@@ -620,12 +656,14 @@ app.post("/api/users/register", (req, res) => {
       users[userIndex].name = cleanName;
       if (cleanPhone) users[userIndex].phone = cleanPhone;
       users[userIndex].lastActiveAt = now;
+      if (cleanUserId) users[userIndex].userId = cleanUserId;
       if (password) users[userIndex].passwordHash = passwordHash;
       if (securityQuestion) users[userIndex].securityQuestion = securityQuestion;
       if (securityAnswer) users[userIndex].securityAnswerHash = securityAnswerHash;
     } else {
       const newUser: RegisteredUser = {
         id: "usr_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+        userId: cleanUserId,
         name: cleanName,
         email: cleanEmail,
         phone: cleanPhone || undefined,
@@ -640,6 +678,8 @@ app.post("/api/users/register", (req, res) => {
     }
     saveUsers(users);
 
+    const registeredFinalUser = users[userIndex >= 0 ? userIndex : users.length - 1];
+
     // Also log login activity
     let logs = loadLogs();
     logs.push({
@@ -647,7 +687,7 @@ app.post("/api/users/register", (req, res) => {
       userName: cleanName,
       userEmail: cleanEmail,
       type: "login",
-      query: `User Registered (${cleanPhone ? `Phone: +91-${cleanPhone}` : `Email: ${cleanEmail}`})`,
+      query: `User Registered (${cleanPhone ? `Phone: +91-${cleanPhone}` : `Email: ${cleanEmail}`} | UserID: ${cleanUserId})`,
       timestamp: now
     });
     saveLogs(logs);
@@ -656,10 +696,12 @@ app.post("/api/users/register", (req, res) => {
       success: true, 
       message: "Registration successful / पंजीकरण सफल!", 
       user: { 
+        id: registeredFinalUser.id,
+        userId: registeredFinalUser.userId,
         name: cleanName, 
         email: cleanEmail,
         phone: cleanPhone,
-        hasPassword: !!(users[userIndex >= 0 ? userIndex : users.length - 1].passwordHash)
+        hasPassword: !!(registeredFinalUser.passwordHash)
       } 
     });
   } catch (err: any) {
@@ -910,22 +952,28 @@ app.post("/api/users/social-login", (req, res) => {
   }
 });
 
-// Secure User Login Endpoint
+// Secure User Login Endpoint (Accepts User ID, Email, or Mobile + Password)
 app.post("/api/users/login-secure", (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !isValidEmailFormat(email)) {
-      return res.status(400).json({ error: "कृपया एक वैध ईमेल पता दर्ज करें (Valid email format required)." });
+    const { email, identifier, userId, password } = req.body;
+    const rawTarget = String(identifier || email || userId || '').trim().toLowerCase();
+    if (!rawTarget) {
+      return res.status(400).json({ error: "कृपया यूजर आईडी, ईमेल या मोबाइल नंबर दर्ज करें (User ID, Email, or Mobile required)." });
     }
     if (!password || String(password).trim().length < 1) {
       return res.status(400).json({ error: "पासवर्ड दर्ज करना अनिवार्य है (Password is required)." });
     }
-    const cleanEmail = String(email).trim().toLowerCase();
+
+    const cleanPhone = rawTarget.replace(/\D/g, '').slice(-10);
     let users = loadUsers();
-    const user = users.find(u => u.email === cleanEmail);
+    const user = users.find(u => 
+      (u.userId && u.userId.toLowerCase() === rawTarget) ||
+      (u.email && u.email.toLowerCase() === rawTarget) ||
+      (cleanPhone.length === 10 && u.phone && u.phone.replace(/\D/g, '').slice(-10) === cleanPhone)
+    );
 
     if (!user) {
-      return res.status(404).json({ error: "इस ईमेल से कोई खाता पंजीकृत नहीं है। कृपया पहले रजिस्टर करें या 6-Digit OTP लॉगिन का उपयोग करें।" });
+      return res.status(404).json({ error: `उपयोगकर्ता "${rawTarget}" नहीं मिला। कृपया अपना User ID या ईमेल सही दर्ज करें अथवा नया खाता रजिस्टर करें।` });
     }
 
     if (user.passwordHash) {
@@ -937,6 +985,9 @@ app.post("/api/users/login-secure", (req, res) => {
       return res.status(403).json({ error: "सुरक्षा कारणों से इस खाते में पासवर्ड सेट नहीं है। कृपया पहले 'OTP Login' का उपयोग करें।" });
     }
 
+    if (!user.userId) {
+      user.userId = generateDefaultUserId(user.name, user.email);
+    }
     user.lastActiveAt = new Date().toISOString();
     saveUsers(users);
 
@@ -945,9 +996,9 @@ app.post("/api/users/login-secure", (req, res) => {
     logs.push({
       id: "log_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
       userName: user.name,
-      userEmail: cleanEmail,
+      userEmail: user.email,
       type: "login",
-      query: `User Logged In (${user.name})`,
+      query: `User Logged In (${user.name} | UserID: ${user.userId})`,
       timestamp: user.lastActiveAt
     });
     saveLogs(logs);
@@ -957,13 +1008,69 @@ app.post("/api/users/login-secure", (req, res) => {
       message: "Authentication successful!",
       user: {
         id: user.id,
+        userId: user.userId,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         securityQuestion: user.securityQuestion
       }
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Login failed." });
+  }
+});
+
+// Update / Change User ID Endpoint (Allows student to customize their User ID)
+app.post("/api/users/update-userid", (req, res) => {
+  try {
+    const { email, currentUserId, newUserId } = req.body;
+    if (!newUserId) {
+      return res.status(400).json({ error: "नया यूजर आईडी दर्ज करना अनिवार्य है (New User ID is required)." });
+    }
+    const cleanNewUserId = String(newUserId).trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (cleanNewUserId.length < 3 || cleanNewUserId.length > 25) {
+      return res.status(400).json({ error: "यूजर आईडी 3 से 25 अक्षरों की होनी चाहिए (केवल अंग्रेजी अक्षर, संख्या एवं अंडरस्कोर _ मान्य हैं)।" });
+    }
+
+    let users = loadUsers();
+    // Check if newUserId is taken by someone else
+    const isTaken = users.some(u => 
+      u.userId && 
+      u.userId.toLowerCase() === cleanNewUserId && 
+      (!email || u.email?.toLowerCase() !== email.toLowerCase())
+    );
+    if (isTaken) {
+      return res.status(400).json({ error: `यूजर आईडी "${cleanNewUserId}" पहले से किसी अन्य छात्र द्वारा उपयोग में है। कृपया कोई अन्य नाम चुनें।` });
+    }
+
+    // Find user
+    const userIndex = users.findIndex(u => 
+      (email && u.email?.toLowerCase() === email.toLowerCase()) ||
+      (currentUserId && u.userId?.toLowerCase() === currentUserId.toLowerCase())
+    );
+
+    if (userIndex === -1) {
+      return res.status(404).json({ error: "उपयोगकर्ता खाता नहीं मिला।" });
+    }
+
+    users[userIndex].userId = cleanNewUserId;
+    users[userIndex].lastActiveAt = new Date().toISOString();
+    saveUsers(users);
+
+    res.json({
+      success: true,
+      message: "यूजर आईडी सफलतापूर्वक बदल दी गई! अब आप इस नए User ID से भी लॉगिन कर सकते हैं।",
+      userId: cleanNewUserId,
+      user: {
+        id: users[userIndex].id,
+        userId: cleanNewUserId,
+        name: users[userIndex].name,
+        email: users[userIndex].email,
+        phone: users[userIndex].phone
+      }
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to update User ID" });
   }
 });
 

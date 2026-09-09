@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import QRCode from 'react-qr-code';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { 
   Users, Volume2, VolumeX, Trophy, Clock, CheckCircle2, XCircle, 
   Sparkles, Play, Plus, ArrowRight, Share2, Copy, Check, RefreshCw, 
@@ -15,7 +17,8 @@ import {
   subscribeGroupQuizRoomFromFirestore,
   getGroupQuizRoomFromFirestore,
   saveExamLeaderboardEntryToFirestore,
-  getExamLeaderboardFromFirestore
+  getExamLeaderboardFromFirestore,
+  findPublicGroupQuizRoom
 } from '../lib/firebase';
 import { getAppShareUrl, shareViaWhatsApp, shareViaTelegram, copyToClipboard } from '../utils/shareUtils';
 
@@ -308,8 +311,10 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
   // Room State
   const [room, setRoom] = useState<GroupQuizRoom | null>(null);
   const [roomCodeInput, setRoomCodeInput] = useState('');
+  const [customRoomCode, setCustomRoomCode] = useState('');
   const [playerName, setPlayerName] = useState(() => user?.name || user?.email?.split('@')[0] || userName || 'Student Aspirant');
   const [playerId] = useState(() => 'usr_' + Math.random().toString(36).substring(2, 9));
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   // Exam Selection: Competitive Exam vs Board Exam
   const [examType, setExamType] = useState<'competitive' | 'board'>('competitive');
@@ -473,6 +478,24 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
       setIsLoadingLeaderboard(false);
     }
   };
+  useEffect(() => {
+    let scanner: any = null;
+    if (isScannerOpen) {
+      setTimeout(() => {
+        try {
+          scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+          scanner.render((decodedText: string) => {
+            setRoomCodeInput(decodedText.trim().toUpperCase());
+            setIsScannerOpen(false);
+            showToast(isHindi ? `QR कोड स्कैन हुआ: ${decodedText}` : `Scanned: ${decodedText}`, "success");
+            if (scanner) scanner.clear().catch(console.error);
+          }, () => {});
+        } catch (e) {}
+      }, 100);
+    }
+    return () => { if (scanner) scanner.clear().catch(console.error); };
+  }, [isScannerOpen]);
+
 
   // Real-time Firestore sync listener for active Room
   useEffect(() => {
@@ -760,7 +783,13 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
       console.warn("Using offline verified question bank:", e);
     }
 
-    const newRoomCode = 'HANS-' + Math.floor(1000 + Math.random() * 9000);
+    const cleanCustomCode = customRoomCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    let newRoomCode = '';
+    if (cleanCustomCode) {
+      newRoomCode = cleanCustomCode.startsWith('HANS-') ? cleanCustomCode : `HANS-${cleanCustomCode}`;
+    } else {
+      newRoomCode = 'HANS-' + Math.floor(1000 + Math.random() * 9000);
+    }
     
     const hostParticipant: GroupQuizParticipant = {
       id: playerId,
@@ -802,7 +831,8 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
       participants: initialParticipants,
       speakerEnabled: isSpeakerOn,
       voiceLanguage: isHindi ? 'hindi' : 'english',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      isPublic: true // Public by default to allow strangers to join
     };
 
     setRoom(newRoom);
@@ -824,6 +854,54 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
     announceVoice(isHindi 
       ? `ग्रुप क्विज रूम कोड ${newRoomCode} तैयार है! ${isUnlimited ? 'अनलिमिटेड लाइव राउंड्स' : `${targetCount} प्रश्न`} लोड किए गए हैं।` 
       : `Group Quiz Room ${newRoomCode} is ready! ${isUnlimited ? 'Unlimited live rounds' : `${targetCount} questions`} loaded.`);
+  };
+
+  // Join Random Public Room
+  const handleFindRandomMatch = async () => {
+    setIsGeneratingVoiceQ(true);
+    try {
+      const publicRoom = await findPublicGroupQuizRoom();
+      
+      if (publicRoom) {
+        // Join existing public room
+        setRoomCodeInput(publicRoom.id);
+        
+        const me: GroupQuizParticipant = {
+          id: playerId,
+          name: playerName.trim() || 'Student Aspirant',
+          avatar: '👨‍🎓',
+          score: 0,
+          correctCount: 0,
+          wrongCount: 0,
+          unattemptedCount: 0,
+          totalTimeSeconds: 0,
+          isHost: false,
+          isReady: true,
+          answers: {}
+        };
+        const updatedParticipants = {
+          ...publicRoom.participants,
+          [playerId]: me
+        };
+        const updatedRoom = {
+          ...publicRoom,
+          participants: updatedParticipants
+        };
+        
+        setRoom(updatedRoom);
+        await saveGroupQuizRoomToFirestore(updatedRoom);
+        showToast(isHindi ? `पब्लिक रूम में शामिल हो गए! (${publicRoom.id})` : `Joined Public Room! (${publicRoom.id})`, 'success');
+      } else {
+        // No public room available, create a new one automatically
+        showToast(isHindi ? 'कोई ओपन रूम नहीं मिला। नया पब्लिक रूम बना रहे हैं...' : 'No open room found. Creating a new public room...', 'info');
+        setCustomRoomCode(''); // Clear custom code to auto-generate
+        await handleCreateRoom();
+      }
+    } catch (e) {
+      showToast('Error finding match.', 'error');
+    } finally {
+      setIsGeneratingVoiceQ(false);
+    }
   };
 
   // Join Room via Code (Supports direct 4-digit number or HANS-XXXX without needing any links!)
@@ -1244,105 +1322,77 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
   return (
     <div className={`w-full ${isFullScreenStage ? 'fixed inset-0 z-50 bg-slate-950 overflow-y-auto p-4 sm:p-8' : 'max-w-6xl mx-auto p-2 sm:p-4'} space-y-6 animate-fade-in text-slate-100`}>
       
-      {/* TOP HEADER: BLUE & GREEN LIGHT PALETTE */}
-      <div className="bg-slate-900/90 border-2 border-blue-500/30 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-teal-500 to-emerald-500 flex items-center justify-center text-white shadow-xl shadow-blue-500/20 shrink-0">
-            <Users className="w-7 h-7 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
-                LIVE MULTIPLAYER & UNLIMITED BATTLES
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">
-                VOICE ANNOUNCER 🔊
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
-                🎤 बोलकर प्रश्न बनाएं
-              </span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
-              {isHindi ? '👥 लाइव क्विज़ बैटल — बोर्ड व प्रतियोगी परीक्षाएं' : '👥 Live Quiz Battle — Board & Competitive Exams'}
-            </h1>
-            <p className="text-xs text-slate-300 mt-0.5">
-              {isHindi 
-                ? 'कक्षा 10वीं/12वीं बोर्ड व प्रतियोगी परीक्षाओं के अलग सिलेबस, अनलिमिटेड प्रश्न व बोलकर प्रश्न बनाने की सुविधा!' 
-                : 'Distinct streams for Board & Competitive exams, unlimited questions, and speak-to-generate features!'}
-            </p>
-          </div>
-        </div>
-
-        {/* CONTROLS: SPEAK-TO-QUESTION, FULL-SCREEN, SPEAKER & TABS */}
-        <div className="flex items-center gap-2 self-stretch md:self-auto justify-end flex-wrap">
-          {/* VOICE INPUT BUTTON */}
-          <button
-            onClick={() => setIsVoiceModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white shadow-lg shadow-orange-950/40 active:scale-95"
-            title="Speak your question / बोलकर प्रश्न बनाएं"
-          >
-            <Mic className="w-4 h-4 animate-bounce" />
-            <span>{isHindi ? 'बोलकर पूछें' : 'Speak Question'}</span>
-          </button>
-
-          {/* FULL SCREEN TOGGLE */}
-          <button
-            onClick={() => setIsFullScreenStage(!isFullScreenStage)}
-            className={`p-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-              isFullScreenStage ? 'bg-blue-600 text-white border-blue-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
-            }`}
-            title="Toggle Stage Fullscreen Mode"
-          >
-            {isFullScreenStage ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
-
+      {/* TOP COMPACT HEADER */}
+      <div className="bg-slate-950 border-b border-red-500/30 px-3 py-2 flex items-center justify-between gap-2 shadow-sm rounded-t-xl">
+        <div className="flex items-center gap-2">
           {onBackToHome && !isFullScreenStage && (
             <button
               onClick={onBackToHome}
-              className="px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all shrink-0"
               title="Back to Home / होम पर वापस"
             >
-              <span>←</span>
-              <span>{isHindi ? 'होम' : 'Home'}</span>
+              ←
             </button>
           )}
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-red-600 to-purple-600 flex items-center justify-center text-white shrink-0">
+            <Users className="w-4 h-4" />
+          </div>
+          <h1 className="text-sm font-black text-white hidden sm:block">
+            {isHindi ? 'लाइव बैटल' : 'Live Battle'}
+          </h1>
+        </div>
 
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {/* TABS */}
+          <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 mr-2">
+            <button
+              onClick={() => setActiveTab('battle')}
+              className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-bold transition-all ${
+                activeTab === 'battle' ? 'bg-red-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {isHindi ? '⚔️ बैटल' : '⚔️ Battle'}
+            </button>
+            <button
+              onClick={() => setActiveTab('leaderboard')}
+              className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-bold transition-all ${
+                activeTab === 'leaderboard' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {isHindi ? '🏆 रैंक' : '🏆 Rank'}
+            </button>
+          </div>
+
+          <button
+            onClick={() => setIsVoiceModalOpen(true)}
+            className="h-8 px-2.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-amber-600 hover:bg-amber-500 text-white transition-all"
+            title="Speak Question"
+          >
+            <Mic className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{isHindi ? 'पूछें' : 'Ask'}</span>
+          </button>
+          
           <button
             onClick={() => {
               const next = !isSpeakerOn;
               setIsSpeakerOn(next);
               if (!next) stopAllSpeech();
-              showToast(next ? 'स्पीकर चालू (Voice Announcer ON)' : 'स्पीकर म्यूट (Voice Announcer OFF)', 'info');
             }}
-            className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer border ${
-              isSpeakerOn 
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-md shadow-emerald-950/40' 
-                : 'bg-slate-800 text-slate-400 border-slate-700'
+            className={`h-8 w-8 flex items-center justify-center rounded-lg transition-all ${
+              isSpeakerOn ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
             }`}
-            title="Toggle Voice Speaker"
           >
-            {isSpeakerOn ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
-            <span>{isSpeakerOn ? (isHindi ? 'स्पीकर ON' : 'Speaker ON') : (isHindi ? 'स्पीकर OFF' : 'Muted')}</span>
+            {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
 
-          <div className="flex bg-slate-800/80 p-1 rounded-xl border border-slate-700">
-            <button
-              onClick={() => setActiveTab('battle')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'battle' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {isHindi ? '⚔️ लाइव बैटल' : '⚔️ Live Battle'}
-            </button>
-            <button
-              onClick={() => setActiveTab('leaderboard')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'leaderboard' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {isHindi ? '🏆 रैंक तालिका' : '🏆 Rank Leaderboard'}
-            </button>
-          </div>
+          <button
+            onClick={() => setIsFullScreenStage(!isFullScreenStage)}
+            className={`h-8 w-8 flex items-center justify-center rounded-lg transition-all ${
+              isFullScreenStage ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            {isFullScreenStage ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
@@ -1748,20 +1798,12 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
               {/* LEFT (7 COLS): HOST / CREATE NEW ROOM */}
-              <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-5">
-                <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                      <Plus className="w-5 h-5 text-blue-400" />
-                      <span>{isHindi ? 'नया लाइव क्विज़ रूम बनाएं' : 'Host Live Quiz Battle'}</span>
-                    </h2>
-                    <p className="text-xs text-slate-400">
-                      {isHindi ? 'बोर्ड या प्रतियोगी परीक्षा चुनें, अनलिमिटेड प्रश्न व लाइव मुकाबला शुरू करें' : 'Select Board or Competitive exam stream with unlimited questions'}
-                    </p>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-xl bg-blue-500/20 text-blue-300 font-black text-[10px]">
-                    HOST SETUP
-                  </span>
+              <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div className="border-b border-slate-800 pb-2 flex items-center justify-between">
+                  <h2 className="text-sm font-black text-white flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-blue-400" />
+                    <span>{isHindi ? 'नया रूम बनाएं (Host)' : 'Host Live Quiz'}</span>
+                  </h2>
                 </div>
 
                 {/* 1.1 EXAM STREAM SELECTOR (BOARD EXAM VS COMPETITIVE EXAM) */}
@@ -1990,6 +2032,24 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                   </div>
                 </div>
 
+                {/* Custom Room Code Box */}
+                <div className="pt-2 border-t border-slate-800/80 mt-2">
+                  <label className="text-xs font-bold text-slate-300 block mb-2">
+                    {isHindi ? 'अपना खुद का 4-अंकीय कोड बनाएं (वैकल्पिक):' : 'Create your own 4-digit code (Optional):'}
+                  </label>
+                  <input
+                    type="text"
+                    value={customRoomCode}
+                    onChange={(e) => setCustomRoomCode(e.target.value.toUpperCase())}
+                    placeholder="उदा. 4321"
+                    maxLength={10}
+                    className="w-full px-4 py-3 bg-slate-950 border-2 border-slate-700 focus:border-blue-500 rounded-xl text-center text-sm font-mono font-black text-white tracking-widest focus:outline-none transition-colors"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1 text-center">
+                    {isHindi ? '(खाली छोड़ने पर अपने आप कोड बन जाएगा)' : '(Leave blank to auto-generate)'}
+                  </p>
+                </div>
+
                 {/* CREATE ACTION BUTTONS */}
                 <div className="pt-2">
                   <button
@@ -2024,14 +2084,24 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={roomCodeInput}
-                        onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                        placeholder="उदा. 8921 या HANS-8921"
-                        maxLength={9}
-                        className="w-full px-4 py-3 bg-slate-950 border-2 border-slate-700 focus:border-emerald-500 rounded-xl text-center text-base sm:text-lg font-mono font-black text-white tracking-widest focus:outline-none transition-colors"
-                      />
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={roomCodeInput}
+                          onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
+                          placeholder="उदा. 8921 या HANS-8921"
+                          maxLength={9}
+                          className="flex-1 px-4 py-3 bg-slate-950 border-2 border-slate-700 focus:border-emerald-500 rounded-xl text-center text-base sm:text-lg font-mono font-black text-white tracking-widest focus:outline-none transition-colors"
+                        />
+                        <button
+                          onClick={() => setIsScannerOpen(true)}
+                          className="w-14 shrink-0 bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 flex flex-col items-center justify-center rounded-xl transition-colors"
+                          title="Scan QR Code"
+                        >
+                          <QrCode className="w-6 h-6 text-emerald-400" />
+                          <span className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Scan</span>
+                        </button>
+                      </div>
                       <button
                         onClick={handleJoinRoom}
                         disabled={!roomCodeInput.trim()}
@@ -2039,6 +2109,16 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                       >
                         <Play className="w-4 h-4" />
                         <span>{isHindi ? 'क्विज़ रूम में शामिल हों' : 'Join Room Now'}</span>
+                      </button>
+
+                      {/* Find Match Button */}
+                      <button
+                        onClick={handleFindRandomMatch}
+                        disabled={isGeneratingVoiceQ}
+                        className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-purple-900/40 flex items-center justify-center gap-2 cursor-pointer mt-3 active:scale-95 transition-all"
+                      >
+                        <Zap className="w-4 h-4" />
+                        <span>{isHindi ? 'किसी भी अनजान छात्र के साथ खेलें (Find Match)' : 'Play with a Random Aspirant'}</span>
                       </button>
 
                       {/* Recent Room Chips for 1-Click Joining without link */}
@@ -2071,50 +2151,54 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
 
                 {/* CONNECTED LOBBY MEMBERS (WHEN ROOM IS OPEN) */}
                 {room && room.status === 'lobby' && (
-                  <div className="bg-slate-900/90 border-2 border-emerald-500/40 rounded-3xl p-5 shadow-2xl space-y-4">
-                    <div className="border-b border-slate-800 pb-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                            ROOM ACTIVE {room.isUnlimitedMode ? '• ♾️ UNLIMITED' : ''}
-                          </span>
-                          <h3 className="text-xl font-black text-white font-mono mt-1">
-                            {room.id}
-                          </h3>
+                  <div className="bg-slate-950/95 border-2 border-emerald-500/40 rounded-3xl p-5 shadow-2xl space-y-4">
+                    <div className="border-b border-slate-800 pb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                              ROOM ACTIVE {room.isUnlimitedMode ? '• ♾️ UNLIMITED' : ''}
+                            </span>
+                            <h3 className="text-xl sm:text-2xl font-black text-white font-mono mt-1">
+                              {room.id}
+                            </h3>
+                          </div>
+                          
+                          <div className="flex items-center gap-1.5 md:hidden">
+                            <button
+                              onClick={handleCopyShareLink}
+                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+                            >
+                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{isCopied ? (isHindi ? 'कॉपी!' : 'Copied!') : (isHindi ? 'लिंक' : 'Link')}</span>
+                            </button>
+                          </div>
                         </div>
-                        
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={handleWhatsAppShare}
-                            title="Share on WhatsApp"
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            <span>WhatsApp</span>
-                          </button>
-                          <button
-                            onClick={handleTelegramShare}
-                            title="Share on Telegram"
-                            className="p-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl transition-all cursor-pointer shadow-md"
-                          >
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={handleCopyShareLink}
-                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
-                          >
-                            {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                            <span>{isCopied ? (isHindi ? 'कॉपी!' : 'Copied!') : (isHindi ? 'लिंक' : 'Link')}</span>
-                          </button>
-                        </div>
+
+                        {/* Share Prompt */}
+                        <p className="text-[11px] text-emerald-300/90 mt-2 bg-emerald-950/40 p-2 rounded-xl border border-emerald-500/20 max-w-sm">
+                          {isHindi 
+                            ? '📲 अपने दोस्तों को WhatsApp या Telegram पर लिंक भेजें — वे सीधे आपके रूम में लाइव जुड़कर मुकाबला करेंगे!' 
+                            : '📲 Share the link with friends on WhatsApp or Telegram to invite them to this battle!'}
+                        </p>
                       </div>
 
-                      {/* Share Prompt */}
-                      <p className="text-[11px] text-emerald-300/90 mt-2 bg-emerald-950/40 p-2 rounded-xl border border-emerald-500/20">
-                        {isHindi 
-                          ? '📲 अपने दोस्तों को WhatsApp या Telegram पर लिंक भेजें — वे सीधे आपके रूम में लाइव जुड़कर मुकाबला करेंगे!' 
-                          : '📲 Share the link with friends on WhatsApp or Telegram to invite them to this battle!'}
-                      </p>
+                      <div className="flex items-center gap-2 bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                        <button
+                          onClick={handleWhatsAppShare}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer shadow-md"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          <span>{isHindi ? 'WhatsApp पर शेयर करें' : 'Share on WhatsApp'}</span>
+                        </button>
+                        <button
+                          onClick={handleCopyShareLink}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer shadow-md"
+                        >
+                          <Copy className="w-4 h-4" />
+                          <span>{isHindi ? 'लिंक कॉपी करें' : 'Copy Link'}</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* CONNECTED MEMBERS LIST */}
@@ -2175,11 +2259,11 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
             <div className="space-y-5 max-w-4xl mx-auto">
               
               {/* TOP HUD: QUESTION NUMBER, TIME CIRCLE, UNLIMITED BADGE, MY SCORE */}
-              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl flex items-center justify-between gap-4 flex-wrap">
+              <div className="bg-slate-950/95 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl flex items-center justify-between gap-4 flex-wrap">
                 
                 {/* QUESTION COUNTER */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center font-black text-blue-300 font-mono text-sm">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-red-500/50 flex items-center justify-center font-black text-blue-300 font-mono text-sm">
                     Q{room.currentQuestionIndex + 1}
                   </div>
                   <div>
@@ -2241,7 +2325,7 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                 if (!currentQ) return null;
 
                 return (
-                  <div className="bg-slate-900/90 border-2 border-blue-500/30 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
+                  <div className="bg-slate-950/95 border-2 border-red-500/50 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
                     
                     {/* QUESTION TEXT */}
                     <div className="space-y-2">
@@ -2467,7 +2551,7 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
 
               {/* PERSONAL SCORECARD */}
               {myParticipant && (
-                <div className="bg-slate-900/90 border-2 border-blue-500/40 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+                <div className="bg-slate-950/95 border-2 border-blue-500/40 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-300 font-black text-lg">
@@ -2538,6 +2622,35 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* QR SCANNER MODAL */}
+      {isScannerOpen && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-emerald-500/30 rounded-3xl p-5 sm:p-6 w-full max-w-sm shadow-2xl relative">
+            <button
+              onClick={() => setIsScannerOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-black text-white">
+                {isHindi ? 'क्यूआर कोड स्कैन करें' : 'Scan QR Code'}
+              </h3>
+              <p className="text-xs text-slate-400">
+                {isHindi ? 'अपने दोस्त के फोन में दिखा हुआ QR कोड स्कैन करें' : 'Scan the QR code shown on your friend\'s phone'}
+              </p>
+              
+              <div className="bg-black/50 rounded-2xl overflow-hidden border-2 border-emerald-500/20 w-full h-64 mx-auto relative flex items-center justify-center">
+                <div id="qr-reader" className="w-full h-full object-cover"></div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

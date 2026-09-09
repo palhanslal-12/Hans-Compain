@@ -17,8 +17,10 @@ import {
 } from 'lucide-react';
 
 export interface UserProfileData {
+  id?: string;
   name: string;
   email: string;
+  userId?: string;
   avatarUrl?: string;
   targetExam?: string;
   role?: string;
@@ -29,7 +31,7 @@ interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: UserProfileData | null;
-  onSaveProfile: (updatedData: { name: string; avatarUrl: string; targetExam: string }) => void;
+  onSaveProfile: (updatedData: { name: string; avatarUrl: string; targetExam: string; userId?: string }) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
   language?: string;
 }
@@ -135,6 +137,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200'
   );
   const [targetExam, setTargetExam] = useState(user?.targetExam || 'SSC Stenographer Grade C & D');
+  const [userIdInput, setUserIdInput] = useState(user?.userId || '');
+  const [isUpdatingUserId, setIsUpdatingUserId] = useState(false);
+  const [userIdStatus, setUserIdStatus] = useState<{ msg: string; type: 'success' | 'error' | '' }>({ msg: '', type: '' });
   const [customUrlInput, setCustomUrlInput] = useState('');
   const [showUrlField, setShowUrlField] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
@@ -146,10 +151,71 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setName(user?.name || 'Scholar Student');
       setAvatarUrl(user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200');
       setTargetExam(user?.targetExam || 'SSC Stenographer Grade C & D');
+      setUserIdInput(user?.userId || '');
+      setUserIdStatus({ msg: '', type: '' });
     }
   }, [isOpen, user]);
 
   if (!isOpen) return null;
+
+  // Handle Changing / Customizing User ID
+  const handleUpdateUserId = async () => {
+    const clean = userIdInput.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (clean.length < 3 || clean.length > 25) {
+      setUserIdStatus({
+        msg: language === 'hindi' ? 'यूजर आईडी 3 से 25 अक्षरों की होनी चाहिए (a-z, 0-9, _)' : 'User ID must be 3-25 characters (letters, numbers, _).',
+        type: 'error'
+      });
+      return;
+    }
+    setIsUpdatingUserId(true);
+    setUserIdStatus({ msg: '', type: '' });
+    try {
+      const res = await fetch('/api/users/update-userid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user?.email,
+          currentUserId: user?.userId,
+          newUserId: clean
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update User ID');
+      }
+      setUserIdStatus({
+        msg: language === 'hindi' ? `✓ यूजर आईडी "@${clean}" सफलतापूर्वक बदल दी गई!` : `✓ User ID updated to @${clean}!`,
+        type: 'success'
+      });
+      showToast(language === 'hindi' ? `यूजर आईडी बदली गई: @${clean}` : `User ID changed: @${clean}`, 'success');
+
+      // Update local storage session
+      try {
+        const stored = localStorage.getItem('hansai-user-session');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          parsed.userId = clean;
+          localStorage.setItem('hansai-user-session', JSON.stringify(parsed));
+        }
+      } catch (e) {}
+
+      onSaveProfile({
+        name,
+        avatarUrl,
+        targetExam,
+        userId: clean
+      });
+    } catch (err: any) {
+      setUserIdStatus({
+        msg: err.message || 'Error updating User ID',
+        type: 'error'
+      });
+      showToast(err.message || 'Error updating User ID', 'error');
+    } finally {
+      setIsUpdatingUserId(false);
+    }
+  };
 
   // Handle local file upload from camera or device gallery
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,7 +298,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onSaveProfile({
       name: cleanName,
       avatarUrl: cleanAvatar,
-      targetExam: targetExam
+      targetExam: targetExam,
+      userId: userIdInput.trim().toLowerCase() || user?.userId
     });
 
     showToast(
@@ -482,6 +549,57 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 />
                 <User className="w-4 h-4 text-indigo-400 absolute left-3 top-3" />
               </div>
+            </div>
+
+            {/* User ID / Handle Input (Customizable) */}
+            <div className="space-y-1.5 p-3 bg-[#080D1C] border border-emerald-500/30 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-black text-white flex items-center gap-1.5">
+                  <span className="text-emerald-400">🆔</span>
+                  <span>{language === 'hindi' ? 'यूज़र आईडी (User ID - लॉगिन व मुकाबला पहचान):' : 'User ID (Login & Battle Handle):'}</span>
+                </label>
+                <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                  {language === 'hindi' ? 'कस्टमाइज़ करें' : 'Customizable'}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-2.5 text-emerald-400 font-mono font-black text-sm select-none">@</span>
+                  <input
+                    type="text"
+                    value={userIdInput}
+                    onChange={(e) => {
+                      setUserIdInput(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+                      setUserIdStatus({ msg: '', type: '' });
+                    }}
+                    maxLength={25}
+                    placeholder="उदा. rohit_cgl24"
+                    className="w-full text-xs sm:text-sm py-2.5 pl-8 pr-3 bg-[#050812] border border-slate-700 focus:border-emerald-500 rounded-xl text-emerald-300 font-mono font-bold outline-none transition-colors"
+                    id="profile-userid-input"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleUpdateUserId}
+                  disabled={isUpdatingUserId || !userIdInput.trim() || userIdInput.trim() === (user?.userId || '')}
+                  className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white text-xs font-black rounded-xl border-none cursor-pointer transition-all shrink-0 flex items-center gap-1 shadow-sm"
+                >
+                  {isUpdatingUserId ? 'सेव...' : (language === 'hindi' ? 'यूजर ID बदलें' : 'Save ID')}
+                </button>
+              </div>
+
+              {userIdStatus.msg && (
+                <p className={`text-[11px] font-semibold mt-1 ${userIdStatus.type === 'error' ? 'text-rose-400' : 'text-emerald-400'}`}>
+                  {userIdStatus.msg}
+                </p>
+              )}
+
+              <p className="text-[10px] text-slate-400">
+                {language === 'hindi' 
+                  ? '💡 अब आप ईमेल के अलावा सीधे इस यूजर आईडी और अपने पासवर्ड से भी लॉगिन कर सकते हैं।' 
+                  : '💡 You can login using either this User ID or Email with your password.'}
+              </p>
             </div>
 
             {/* Target Exam Selector */}

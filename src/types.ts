@@ -135,6 +135,7 @@ export interface GroupQuizRoom {
   speakerEnabled: boolean;
   voiceLanguage: 'hindi' | 'english';
   createdAt: string;
+  isPublic?: boolean;
 }
 
 export interface ExamPracticeLeaderboardEntry {

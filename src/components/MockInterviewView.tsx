@@ -499,36 +499,27 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
     <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#03060E] text-slate-100 min-h-full">
       <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* Top Header Banner */}
-        <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-[#0A0E1A] border border-indigo-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-xs uppercase tracking-wider mb-1">
-              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-              <span>AI Personality & Mock Interview Simulator</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              <span>🎙️</span>
-              <span>{isHindi ? "एआई मॉक इंटरव्यू एवं व्यक्तित्व परीक्षण" : "AI Mock Interview & Viva Simulator"}</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-              {isHindi 
-                ? "UPSC, SSC, बैंकिंग और राज्य लोक सेवा आयोग के लिए रीयल-टाइम इंटरव्यू बोर्ड सिमुलेशन, वॉयस उत्तर और AI स्कोरकार्ड।"
-                : "Real-time AI Interview Board simulation for UPSC, Banking, SSC & Defense with voice input and in-depth performance analytics."}
-            </p>
-          </div>
+         {/* Minimal Clean Header Bar */}
+         <div className="flex items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+           <div>
+             <h1 className="text-base font-black text-white flex items-center gap-2">
+               <span>🎙️</span>
+               <span>{isHindi ? "एआई मॉक इंटरव्यू एवं व्यक्तित्व परीक्षण" : "AI Mock Interview & Viva Simulator"}</span>
+             </h1>
+             <p className="text-xs text-slate-400 mt-0.5">
+               {isHindi ? "UPSC, SSC व बैंकिंग बोर्ड इंटरव्यू सिमुलेशन" : "UPSC, SSC & Banking viva board simulation"}
+             </p>
+           </div>
 
-          {interviewState === 'in_progress' && (
-            <div className="flex items-center gap-3 bg-indigo-950/80 border border-indigo-500/40 px-3.5 py-2 rounded-2xl shrink-0">
-              <Clock className="w-4 h-4 text-amber-400 animate-spin" />
-              <div className="text-right font-mono">
-                <div className="text-[10px] text-slate-400 font-bold uppercase">Time Elapsed</div>
-                <div className="text-sm font-black text-white">
-                  {Math.floor(timerSeconds / 60)}:{(timerSeconds % 60).toString().padStart(2, '0')}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+           {interviewState === 'in_progress' && (
+             <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl shrink-0 font-mono">
+               <span className="text-[10px] text-slate-400 uppercase">Time</span>
+               <span className="text-xs font-bold text-white">
+                 {Math.floor(timerSeconds / 60)}:{(timerSeconds % 60).toString().padStart(2, '0')}
+               </span>
+             </div>
+           )}
+         </div>
 
         {/* Live Audio & Language Control Panel */}
         <div className="bg-[#090D1A] border border-indigo-500/20 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-lg">

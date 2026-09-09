@@ -1462,7 +1462,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 setIsTimerPaused(true);
                 setIsPauseModalOpen(true);
               }}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 shadow-sm"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-600/80 hover:bg-cyan-600 text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 shadow-sm"
               title="Pause Test / टेस्ट रोकें"
             >
               <Pause className="w-4 h-4 fill-white text-white" />
@@ -1478,9 +1478,9 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
 
           {/* Center: Crimson Live Timer with Clock & Anti-Cheat Proctoring Indicator */}
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-slate-900 border border-rose-500/40 text-white shadow-inner">
-              <Clock className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
-              <span className="text-xs sm:text-sm font-black font-mono text-rose-400">
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-slate-900 border border-cyan-500/50 text-white shadow-inner">
+              <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+              <span className="text-xs sm:text-sm font-black font-mono text-cyan-400">
                 {formatTime(timeRemainingSeconds)}
               </span>
             </div>
@@ -1584,7 +1584,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-bold text-[11px] font-mono">
                   +{currentExamMeta?.marksPerQ || 2.0}
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/40 text-rose-400 font-bold text-[11px] font-mono">
+                <span className="px-2 py-0.5 rounded-md bg-rose-500/15 border border-cyan-500/50 text-cyan-400 font-bold text-[11px] font-mono">
                   -{currentExamMeta?.negMark || 0.5}
                 </span>
               </div>
@@ -1657,7 +1657,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             <button
               type="button"
               onClick={() => setIsReportModalOpen(true)}
-              className="px-2.5 py-2 rounded-xl border border-slate-700/60 bg-slate-900/70 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2.5 py-2 rounded-xl border border-slate-700/60 bg-slate-900/70 hover:bg-rose-950/40 text-slate-400 hover:text-cyan-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
               title="Report Error / त्रुटि रिपोर्ट करें"
             >
               <Flag className="w-3.5 h-3.5" />
@@ -1721,7 +1721,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 </div>
                 <div>
                   <span className="text-rose-500 block text-[10px]">छूटे हुए</span>
-                  <strong className="text-rose-400 text-sm font-bold">{notVisitedCount}</strong>
+                  <strong className="text-cyan-400 text-sm font-bold">{notVisitedCount}</strong>
                 </div>
               </div>
 
@@ -1855,7 +1855,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-around text-xs">
                 <div>
                   <span className="text-slate-500 block">शेष समय:</span>
-                  <strong className="text-rose-400 text-sm font-mono">{formatTime(timeRemainingSeconds)}</strong>
+                  <strong className="text-cyan-400 text-sm font-mono">{formatTime(timeRemainingSeconds)}</strong>
                 </div>
                 <div className="h-6 w-px bg-slate-800"></div>
                 <div>
@@ -1900,7 +1900,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             <div className="bg-[#0B101D] border border-slate-800 rounded-3xl p-5 max-w-md w-full space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <h4 className="font-extrabold text-white text-sm flex items-center gap-2">
-                  <Flag className="w-4 h-4 text-rose-400" />
+                  <Flag className="w-4 h-4 text-cyan-400" />
                   <span>Report Question {currentQIndex + 1}</span>
                 </h4>
                 <button onClick={() => setIsReportModalOpen(false)} className="text-slate-400 hover:text-white">
@@ -1936,12 +1936,12 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
         {isAntiCheatWarningOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn">
             <div className="bg-[#0D1322] border-2 border-rose-500/90 rounded-3xl max-w-md w-full p-6 text-slate-100 shadow-2xl shadow-rose-950/60 space-y-4 animate-scaleUp text-left">
-              <div className="w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 mx-auto">
-                <AlertTriangle className="w-8 h-8 text-rose-400 animate-bounce" />
+              <div className="w-14 h-14 rounded-2xl bg-rose-500/20 border border-cyan-500/50 flex items-center justify-center text-cyan-400 mx-auto">
+                <AlertTriangle className="w-8 h-8 text-cyan-400 animate-bounce" />
               </div>
 
               <div className="text-center space-y-1.5">
-                <span className="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-black uppercase tracking-wider">
+                <span className="px-3 py-1 rounded-full bg-rose-500/20 border border-cyan-500/50 text-rose-300 text-xs font-black uppercase tracking-wider">
                   ⚠️ अनुचित साधन चेतावनी (Strike 1 / 2)
                 </span>
                 <h3 className="text-lg font-black text-white">
@@ -1954,7 +1954,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
 
               <div className="p-3.5 rounded-2xl bg-rose-950/50 border border-rose-800/80 text-rose-200 text-xs font-semibold leading-relaxed space-y-1">
                 <p className="font-extrabold text-rose-300 flex items-center gap-1.5">
-                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  <ShieldAlert className="w-4 h-4 text-cyan-400" />
                   <span>अंतिम चेतावनी (Final Warning):</span>
                 </p>
                 <p>
@@ -1969,7 +1969,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                   setIsTimerPaused(false);
                   showToast("टेस्ट पुनः शुरू हुआ। कृपया स्क्रीन पर बने रहें!", "info");
                 }}
-                className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-lg shadow-rose-900/40 transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-2xl bg-cyan-600 hover:bg-rose-500 text-white font-black text-sm shadow-lg shadow-rose-900/40 transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>नियम समझ गया, टेस्ट जारी रखें (Resume Test)</span>
               </button>
@@ -1990,7 +1990,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
       <div className="w-full max-w-5xl mx-auto py-2 space-y-4">
         {antiCheatDisqualified && (
           <div className="p-4 sm:p-5 rounded-3xl bg-rose-950/90 border-2 border-rose-500/90 text-rose-200 flex items-start gap-4 shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/25 border border-rose-500/50 flex items-center justify-center text-rose-400 shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/25 border border-rose-500/50 flex items-center justify-center text-cyan-400 shrink-0">
               <ShieldAlert className="w-7 h-7" />
             </div>
             <div className="flex-1 min-w-0">
@@ -1998,7 +1998,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 <h3 className="text-base sm:text-lg font-black text-white">
                   🚫 अनुचित साधन / परीक्षा सुरक्षा उल्लंघन (Anti-Cheating Auto-Closed)
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 rounded-full bg-cyan-600 text-white text-[10px] font-black uppercase tracking-wider">
                   Disqualified & Auto-Submitted
                 </span>
               </div>
@@ -2137,7 +2137,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             </div>
 
             <div className="p-3.5 bg-rose-950/30 border border-rose-500/30 rounded-xl text-center space-y-1">
-              <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider">Wrong (गलत)</span>
+              <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">Wrong (गलत)</span>
               <div className="text-xl sm:text-2xl font-black text-rose-300 font-mono">
                 {testResult.wrong} <span className="text-xs text-slate-400 font-normal">/ {testResult.totalQuestions}</span>
               </div>
@@ -2200,7 +2200,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               </div>
 
               {/* Quadrant 4: Slow & Wrong */}
-              <div className="p-3 bg-rose-950/20 border border-rose-500/40 rounded-xl space-y-1">
+              <div className="p-3 bg-rose-950/20 border border-cyan-500/50 rounded-xl space-y-1">
                 <div className="flex items-center justify-between font-bold text-rose-300">
                   <span className="flex items-center gap-1.5">🛑 Q4: Slow & Wrong (कांसेप्ट गैप)</span>
                   <span className="text-sm font-mono font-black">{Math.max(0, testResult.wrong - Math.round(testResult.wrong * 0.6))} Qs</span>
@@ -2238,7 +2238,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                     ? 'border-slate-800' 
                     : isCorrect 
                     ? 'border-emerald-500/40 bg-emerald-950/10' 
-                    : 'border-rose-500/40 bg-rose-950/10'
+                    : 'border-cyan-500/50 bg-rose-950/10'
                 }`}
               >
                 {/* Question Header & Status Badge */}
@@ -2252,7 +2252,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                         <Check className="w-3 h-3" /> Correct (+{currentExamMeta?.marksPerQ || 2})
                       </span>
                     ) : isAttempted ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold text-[11px] flex items-center gap-1">
+                      <span className="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-cyan-500/50 font-bold text-[11px] flex items-center gap-1">
                         <X className="w-3 h-3" /> Incorrect (-{currentExamMeta?.negMark || 0.5})
                       </span>
                     ) : (
@@ -2329,7 +2329,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                           </span>
                         )}
                         {isUserChoice && !isRightOption && (
-                          <span className="text-[11px] text-rose-400 font-semibold bg-rose-500/20 px-2 py-0.5 rounded">
+                          <span className="text-[11px] text-cyan-400 font-semibold bg-rose-500/20 px-2 py-0.5 rounded">
                             ✗ Your Choice
                           </span>
                         )}
@@ -2465,8 +2465,8 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             </p>
           </div>
           <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
-            <div className="text-xs font-black text-rose-400 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center font-mono font-bold text-[10px]">3</span>
+            <div className="text-xs font-black text-cyan-400 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-rose-500/10 text-cyan-400 flex items-center justify-center font-mono font-bold text-[10px]">3</span>
               <span>{isHindi ? "गलतियाँ सुधारें (Mistake Diary)" : "Master Your Mistakes"}</span>
             </div>
             <p className="text-[11px] text-slate-300 leading-relaxed">
@@ -2508,11 +2508,11 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
           onClick={() => setActiveTab('mistakes')}
           className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'mistakes'
-              ? 'border-rose-500 text-rose-400'
+              ? 'border-rose-500 text-cyan-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <BookOpen className="w-4 h-4 text-rose-400" />
+          <BookOpen className="w-4 h-4 text-cyan-400" />
           <span>📓 Mistake Diary ({mistakeNotebook.length})</span>
         </button>
 
@@ -2695,7 +2695,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 {/* Card Footer: Marks & Start Exam Button */}
                 <div className="pt-3 border-t border-slate-850 flex items-center justify-between gap-2">
                   <div className="text-[11px] text-slate-400 font-mono">
-                    <span className="text-emerald-400 font-bold">+{pyq.marksPerQuestion}</span> / <span className="text-rose-400 font-bold">-{pyq.negativeMarks}</span> Neg
+                    <span className="text-emerald-400 font-bold">+{pyq.marksPerQuestion}</span> / <span className="text-cyan-400 font-bold">-{pyq.negativeMarks}</span> Neg
                   </div>
 
                   <button
@@ -2855,7 +2855,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h3 className="font-extrabold text-white text-base flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-rose-400" />
+                <BookOpen className="w-4 h-4 text-cyan-400" />
                 <span>मिस्टेक नोटबुक (गलती रजिस्टर)</span>
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -2888,7 +2888,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                   setTestResult(null);
                   setActiveTestMode(true);
                 }}
-                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-colors"
+                className="px-3.5 py-1.5 bg-cyan-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-colors"
               >
                 Re-Test All Mistakes ({mistakeNotebook.length})
               </button>
@@ -2909,7 +2909,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 <div key={item.id || idx} className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2 text-xs">
                   <div className="flex items-center justify-between text-[11px] text-slate-400">
                     <span className="font-bold text-slate-300">#{idx + 1} • {item.subject || 'General'}</span>
-                    <span className="text-rose-400 font-semibold">{item.timestamp}</span>
+                    <span className="text-cyan-400 font-semibold">{item.timestamp}</span>
                   </div>
                   <p className="font-semibold text-white">{item.question}</p>
                   <div className="p-2.5 bg-[#050814] rounded-lg border border-slate-850 text-slate-300">

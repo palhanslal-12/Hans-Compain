@@ -100,6 +100,7 @@ import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { UnlimitedPyqVaultView } from './components/UnlimitedPyqVaultView';
 import { CurrentAffairsHubView } from './components/CurrentAffairsHubView';
 import { SmartQrNotesScannerView } from './components/SmartQrNotesScannerView';
+import { EduReelsView } from './components/EduReelsView';
 import { LiveGroupQuizStudio } from './components/LiveGroupQuizStudio';
 import { AcademicQuizStudio } from './components/AcademicQuizStudio';
 import { Message, QuizQuestion, SavedQuizRecord, MistakeNotebookItem, BusinessCalculation, BusinessResult } from './types';
@@ -570,6 +571,7 @@ export default function App() {
     | 'qr-scanner'
     | 'group-quiz'
     | 'gis-earth'
+    | 'edu-reels'
   >('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
@@ -951,7 +953,7 @@ export default function App() {
     const saved = localStorage.getItem('hansai_guest_prompt_count');
     return saved ? parseInt(saved, 10) : 0;
   });
-  const [user, setUser] = useState<{ email: string; name: string; role?: string; avatarUrl?: string; targetExam?: string } | null>(() => {
+  const [user, setUser] = useState<{ email: string; name: string; userId?: string; role?: string; avatarUrl?: string; targetExam?: string } | null>(() => {
     const saved = localStorage.getItem('hansai-user-session');
     if (saved) {
       try {
@@ -1710,7 +1712,7 @@ export default function App() {
     }
   };
 
-  const handleSaveProfile = async (updatedData: { name: string; avatarUrl: string; targetExam: string }) => {
+  const handleSaveProfile = async (updatedData: { name: string; avatarUrl: string; targetExam: string; userId?: string }) => {
     if (!user) return;
     const newUserObj = { ...user, ...updatedData };
     setUser(newUserObj);
@@ -6129,22 +6131,62 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             )}
 
             {user ? (
-              <button
-                onClick={() => {
-                  localStorage.removeItem('hansai-user-session');
-                  setUser(null);
-                  setIsHeaderMenuOpen(false);
-                  showToast(language === 'hindi' ? "सफलतापूर्वक लॉगआउट किया गया! 👋" : "Successfully Logged Out! 👋", "info");
-                  setActiveView('chat');
-                }}
-                className="w-full p-2.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 rounded-xl text-rose-300 flex items-center justify-between transition-all"
-              >
-                <div className="flex items-center gap-2">
-                  <span>🚪</span>
-                  <span>Logout ({user.email})</span>
+              <div className="space-y-2 pt-1 border-t border-slate-800">
+                <div className="p-3 bg-slate-900/90 border border-slate-700/80 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 truncate">
+                      <div className="w-8 h-8 rounded-full bg-emerald-600/30 border border-emerald-500/40 flex items-center justify-center text-sm font-bold text-emerald-300 shrink-0">
+                        {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
+                      </div>
+                      <div className="truncate">
+                        <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                        <p className="text-[10px] text-slate-400 font-mono truncate">{user.email}</p>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      STUDENT
+                    </span>
+                  </div>
+
+                  {/* User ID display with Change User ID button */}
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-semibold">यूजर आईडी (User ID):</span>
+                      <span className="font-mono font-bold text-emerald-400 text-xs">
+                        @{user.userId || 'hans_student'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsUserProfileModalOpen(true);
+                        setIsHeaderMenuOpen(false);
+                      }}
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-white border border-slate-700 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+                      title="अपना यूजर आईडी या प्रोफ़ाइल बदलें"
+                    >
+                      <User className="w-3 h-3 text-emerald-400" />
+                      <span>बदलें (Change ID)</span>
+                    </button>
+                  </div>
                 </div>
-                <span className="text-[10px]">Exit</span>
-              </button>
+
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('hansai-user-session');
+                    setUser(null);
+                    setIsHeaderMenuOpen(false);
+                    showToast(language === 'hindi' ? "सफलतापूर्वक लॉगआउट किया गया! 👋" : "Successfully Logged Out! 👋", "info");
+                    setActiveView('chat');
+                  }}
+                  className="w-full p-2.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 rounded-xl text-rose-300 flex items-center justify-between transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>🚪</span>
+                    <span>Logout ({user.userId ? `@${user.userId}` : user.email})</span>
+                  </div>
+                  <span className="text-[10px]">Exit</span>
+                </button>
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <button
@@ -6407,6 +6449,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           <span>{language === 'hindi' ? 'दैनिक करेंट अफेयर्स (Daily CA)' : 'Daily Current Affairs'}</span>
                         </div>
                         <span className="text-[9px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded font-black">DAILY</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveView('edu-reels' as any);
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'edu-reels'
+                            ? 'bg-fuchsia-500/15 border-fuchsia-500/60 text-fuchsia-200'
+                            : 'bg-fuchsia-950/10 border-fuchsia-500/35 hover:border-fuchsia-400/50 hover:bg-fuchsia-950/20 text-fuchsia-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📱</span>
+                          <span>{language === 'hindi' ? 'एजु-रील्स (Edu Shorts)' : 'Edu-Reels (Shorts)'}</span>
+                        </div>
+                        <span className="text-[9px] bg-fuchsia-500 text-slate-950 px-2 py-0.5 rounded font-black animate-pulse">NEW</span>
                       </button>
 
                       <button
@@ -7946,6 +8006,15 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     showToast(topic + ' का लाइव टेस्ट लोड किया जा रहा है...', 'info');
                   }}
                 />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: EDU REELS */}
+          {activeView === 'edu-reels' && (
+            <ErrorBoundary fallbackTitle="Edu Shorts" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-lg mx-auto h-[calc(100vh-4rem)] sm:h-[85vh] animate-fade-in shadow-2xl rounded-none sm:rounded-3xl overflow-hidden mt-0 sm:mt-4">
+                <EduReelsView language={language} />
               </div>
             </ErrorBoundary>
           )}

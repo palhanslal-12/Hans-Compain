@@ -608,29 +608,14 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
       <div className="w-full px-4 sm:px-8 py-6 text-slate-100 space-y-6">
         
         {/* HEADER BAR */}
-        <div className="bg-gradient-to-r from-purple-950/80 via-slate-900 to-amber-950/80 border border-purple-500/30 p-5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/20 shrink-0">
-              <Compass className="w-6 h-6 animate-spin-slow" />
+        <div className="bg-[#0D1527] border-b border-indigo-500/30 px-3 py-2 flex items-center justify-between gap-2 shadow-sm rounded-t-xl">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-indigo-600 flex items-center justify-center text-white shrink-0">
+              <Compass className="w-4 h-4 animate-spin-slow" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-500/30">
-                  AI TIME MACHINE
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-bold border border-indigo-500/30">
-                  🎙️ Gender-Aware Voice ({selectedEra.gender === 'female' ? 'Female' : 'Male'})
-                </span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight mt-1">
-                {language === 'hindi' ? '⏳ AI काल-यात्रा एवं इतिहास सिमुलेटर' : '⏳ AI Historical & Constitutional Time-Travel Simulator'}
-              </h1>
-              <p className="text-xs text-slate-300 mt-0.5">
-                {language === 'hindi'
-                  ? 'डॉ. बी.आर. आंबेडकर, गांधीजी, रानी लक्ष्मीबाई या किसी भी ऐतिहासिक व्यक्ति से उनकी मूल आवाज़ में बात करें व परीक्षा के मुख्य बिंदु सीखें!'
-                  : 'Debate constitutional and historical decisions with real AI personas in authentic male/female voices!'}
-              </p>
-            </div>
+            <h1 className="text-sm font-black text-white hidden sm:block">
+              {language === 'hindi' ? '⏳ काल-यात्रा' : '⏳ Time Travel'}
+            </h1>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -658,8 +643,8 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
             onChange={(e) => setSearchPersonaQuery(e.target.value)}
             placeholder={
               language === 'hindi'
-                ? "किसी भी महान व्यक्तित्व को खोजें (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Netaji Bose, Sarojini Naidu)..."
-                : "Search any great person (e.g. Dr. B.R. Ambedkar, Bhagat Singh, Netaji Bose, Sarojini Naidu)..."
+                ? "यहाँ किसी भी महापुरुष का नाम टाइप करें (उदा. महाराणा प्रताप)..."
+                : "Type any historical person (e.g. Einstein)..."
             }
             className="flex-1 bg-transparent text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none px-2 py-1.5 font-semibold"
             disabled={isSearchingPersona}

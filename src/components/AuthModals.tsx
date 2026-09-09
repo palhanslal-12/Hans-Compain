@@ -45,6 +45,8 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
 }) => {
   // Register state matching the exact UI specification (NO invite code!)
   const [regName, setRegName] = useState("");
+  const [regUserId, setRegUserId] = useState("");
+  const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [regPhone, setRegPhone] = useState("");
@@ -159,13 +161,17 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
         }
       }
 
+      const cleanUserId = regUserId.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const cleanEmail = regEmail.trim().toLowerCase() || `${cleanPhone}@student.hansai.in`;
+
       const res = await fetch('/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: regName.trim(),
+          userId: cleanUserId || undefined,
           phone: cleanPhone,
-          email: `${cleanPhone}@student.hansai.in`,
+          email: cleanEmail,
           password: regPassword.trim()
         })
       });
@@ -180,12 +186,13 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
         throw new Error(data.error || "Registration failed");
       }
 
+      const assignedUserId = data.user?.userId || cleanUserId || `student_${cleanPhone.slice(-4)}`;
       const displayName = getCleanDisplayName(regName.trim(), cleanPhone);
-      const uObj = { name: displayName, email: `${cleanPhone}@student.hansai.in`, phone: cleanPhone, role: 'student' };
+      const uObj = { name: displayName, userId: assignedUserId, email: data.user?.email || cleanEmail, phone: cleanPhone, role: 'student' };
       setUser(uObj);
       localStorage.setItem('hansai-user-session', JSON.stringify(uObj));
       onCloseRegister();
-      showToast(`Welcome to Hans Compain, ${displayName}! Account Created Successfully. 🚀`, "success");
+      showToast(`🎉 खाता तैयार है! आपकी यूजर आईडी: @${assignedUserId} है। अब आप यूजर आईडी या ईमेल व पासवर्ड से कभी भी लॉगिन कर सकते हैं।`, "success");
     } catch (err: any) {
       showToast(err.message || "Registration failed. Please try again.", "warn");
     } finally {
@@ -264,13 +271,24 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
         const res = await fetch('/api/users/login-secure', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail, password: loginPassword.trim() })
+          body: JSON.stringify({
+            identifier: rawTarget,
+            email: cleanEmail,
+            userId: rawTarget.toLowerCase().replace(/[^a-z0-9_]/g, ''),
+            password: loginPassword.trim()
+          })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Invalid credentials. Check password or use OTP login.");
 
         const displayName = getCleanDisplayName(data.user?.name, rawTarget);
-        const uObj = { name: displayName, email: data.user?.email || cleanEmail, phone: data.user?.phone, role: 'student' };
+        const uObj = {
+          name: displayName,
+          userId: data.user?.userId,
+          email: data.user?.email || cleanEmail,
+          phone: data.user?.phone,
+          role: 'student'
+        };
         setUser(uObj);
         localStorage.setItem('hansai-user-session', JSON.stringify(uObj));
         onCloseLogin();
@@ -448,6 +466,37 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
                   placeholder="अपना पूरा नाम दर्ज करें (Full Name)"
                   className="w-full text-sm font-medium text-slate-800 placeholder:text-slate-400 bg-transparent border-none outline-none"
                   required
+                />
+              </div>
+
+              {/* Field: User ID (Customizable identifier) */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-2.5 shadow-xs focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                  <span className="text-sm font-black text-emerald-600 font-mono select-none">@</span>
+                  <input
+                    type="text"
+                    value={regUserId}
+                    onChange={(e) => setRegUserId(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                    placeholder="यूज़र आईडी चुनें (उदा. rohit_ias24)"
+                    maxLength={25}
+                    className="w-full text-sm font-semibold text-slate-800 placeholder:text-slate-400 bg-transparent border-none outline-none font-mono"
+                  />
+                  <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-bold uppercase shrink-0">User ID</span>
+                </div>
+                <p className="text-[11px] text-slate-500 px-1">
+                  (लॉगिन के लिए यूजर आईडी। खाली छोड़ने पर स्वतः बनेगी, कभी भी बदल सकते हैं)
+                </p>
+              </div>
+
+              {/* Field: Email (Optional) */}
+              <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-2.5 shadow-xs focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                <Mail className="w-5 h-5 text-emerald-600 shrink-0" />
+                <input
+                  type="email"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  placeholder="ईमेल दर्ज करें (वैकल्पिक / Optional Email)"
+                  className="w-full text-sm font-medium text-slate-800 placeholder:text-slate-400 bg-transparent border-none outline-none font-mono"
                 />
               </div>
 
@@ -656,17 +705,22 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
             {/* Login Form */}
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               
-              {/* Identifier: Mobile or Email */}
-              <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-xs focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                <Phone className="w-5 h-5 text-emerald-600 shrink-0" />
-                <input
-                  type="text"
-                  value={loginIdentifier}
-                  onChange={(e) => setLoginIdentifier(e.target.value)}
-                  placeholder="मोबाइल नंबर या ईमेल दर्ज करें"
-                  className="w-full text-sm font-medium text-slate-800 placeholder:text-slate-400 bg-transparent border-none outline-none font-mono"
-                  required
-                />
+              {/* Identifier: User ID or Email or Mobile */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-xs focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                  <User className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <input
+                    type="text"
+                    value={loginIdentifier}
+                    onChange={(e) => setLoginIdentifier(e.target.value)}
+                    placeholder="यूज़र आईडी / ईमेल / मोबाइल नंबर"
+                    className="w-full text-sm font-medium text-slate-800 placeholder:text-slate-400 bg-transparent border-none outline-none font-mono"
+                    required
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 px-1">
+                  💡 आप अपनी <strong>User ID (जैसे rohit_cgl24)</strong> या <strong>ईमेल</strong> और पासवर्ड से लॉगिन कर सकते हैं।
+                </p>
               </div>
 
               {/* Mode 1: Password Input */}

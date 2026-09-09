@@ -729,113 +729,41 @@ Include:
   return (
     <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 bg-[#0a0f1d] text-slate-100 space-y-6">
       
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-cyan-950 border border-cyan-500/30 rounded-3xl p-5 sm:p-8 relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl text-left">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
-                DAILY CURRENT AFFAIRS & DEEP ARTICLES 2026
-              </span>
-              <span className="px-2.5 py-0.5 bg-slate-800/80 text-slate-300 rounded-full text-xs font-semibold">
-                {isHindi ? 'दैनिक आर्टिकल व डाउट सॉल्वर' : 'Daily Articles & Doubt Solver'}
-              </span>
-              {isLoadingLive ? (
-                <span className="px-2.5 py-0.5 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-bold flex items-center gap-1.5 animate-pulse">
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
-                  <span>{isHindi ? 'लाइव सिंक हो रहा है...' : 'Syncing live news...'}</span>
-                </span>
-              ) : (
-                <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{isHindi ? 'ऑटो सिस्टम: सक्रिय और नवीनतम' : 'Auto System: Active & Updated'}</span>
-                </span>
-              )}
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              {isHindi ? 'दैनिक समसामयिकी, आर्टिकल हब व लाइव डाउट' : 'Daily Current Affairs, Article Hub & Live AI Doubts'}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              {isHindi 
-                ? 'किसी भी विषय को समाचार पत्र के विस्तृत आर्टिकल की तरह पढ़ें, वहीं तुरंत AI से डाउट पूछें और लाइव टेस्ट दें।'
-                : 'Read any current topic like a full deep-dive newspaper article, ask instant doubts to AI right inside, and practice exam MCQs.'}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => setCustomTopicModalOpen(true)}
-              className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-lg shadow-cyan-500/20 flex items-center gap-1.5 cursor-pointer transition-all border-none"
-            >
-              <Sparkles className="w-4 h-4 text-slate-950" />
-              <span>{isHindi ? '+ किसी भी टॉपिक का आर्टिकल बनाएं' : '+ Generate Custom Topic'}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (onStartQuiz) onStartQuiz("Current Affairs 2026 Daily Master Quiz");
-                else showToast(isHindi ? "क्विज़ लोड किया जा रहा है..." : "Loading quiz...", "info");
-              }}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center gap-1.5 cursor-pointer transition-all border-none"
-            >
-              <Flame className="w-4 h-4 text-amber-300" />
-              <span>{isHindi ? 'आज का टेस्ट (10 Qs)' : 'Daily Test'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}
-              className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs rounded-2xl cursor-pointer transition-all"
-            >
-              {lang === 'hi' ? '🇮🇳 हिंदी' : '🌐 English'}
-            </button>
-          </div>
+      {/* Minimal Clean Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+        <div>
+          <h1 className="text-lg font-black text-white">
+            {isHindi ? 'दैनिक समसामयिकी व आर्टिकल हब' : 'Current Affairs & Article Hub'}
+          </h1>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {isHindi ? 'विस्तृत आर्टिकल, एआई डाउट सॉल्वर और परीक्षा अभ्यास' : 'Deep dive articles, AI doubts & exam practice'}
+          </p>
         </div>
-      </div>
 
-      {/* Premium Current Affairs Walkthrough Steps Guide */}
-      <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-4 sm:p-5 space-y-3">
-        <h2 className="text-xs font-black text-indigo-300 uppercase tracking-widest flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
-          <span>{isHindi ? "📚 दैनिक समसामयिकी गाइड: पढ़ने के 3 आसान कदम (3 Easy Steps)" : "📚 Current Affairs Guide: 3 Steps to Excel"}</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
-            <div className="text-xs font-black text-indigo-300 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-indigo-500/10 text-indigo-300 flex items-center justify-center font-mono font-bold text-[10px]">1</span>
-              <span>{isHindi ? "आर्टिकल का चयन करें (Select Article)" : "Choose & Read"}</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              {isHindi 
-                ? "नीचे दी गई सूची में से किसी भी ज्वलंत राष्ट्रीय या अंतर्राष्ट्रीय आर्टिकल पर क्लिक करके उसका पूर्ण विश्लेषण, बैकग्राउंड और प्रासंगिकता पढ़ें।"
-                : "Select any critical national, economy, or tech topic from the curated list to read detailed, point-wise expert articles."}
-            </p>
-          </div>
-          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
-            <div className="text-xs font-black text-cyan-400 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-mono font-bold text-[10px]">2</span>
-              <span>{isHindi ? "डाउट पूछें व स्पीच सुनें (Ask Doubts & Speech)" : "Ask AI Doubts & Audio"}</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              {isHindi 
-                ? "आर्टिकल के अंदर 'एआई डाउट असिस्टेंट' बॉक्स में टाइप करके या बोलकर कोई भी प्रश्न पूछें। हेडफ़ोन आइकन दबाकर पूरे आर्टिकल को एआई स्वर में सुनें।"
-                : "Type or use voice inputs to clarify complex terms with the live AI Doubt Box. Tap the Speaker icon to listen to the entire article."}
-            </p>
-          </div>
-          <div className="bg-slate-900/50 p-3.5 border border-slate-800/80 rounded-xl space-y-1.5">
-            <div className="text-xs font-black text-emerald-400 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-mono font-bold text-[10px]">3</span>
-              <span>{isHindi ? "लाइव टेस्ट व मुख्य परीक्षा (Mains Practice)" : "Daily Test & Mains Drills"}</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              {isHindi 
-                ? "आर्टिकल के अंत में दिए गए 'टारगेटेड MCQ' टेस्ट को हल करें और अपनी व्याख्या देखें। साथ ही मुख्य परीक्षा (Mains) का प्रश्न लिखकर प्रैक्टिस करें।"
-                : "Take the quick interactive MCQ drill at the bottom of the article to test your retention and view in-depth expert solutions."}
-            </p>
-          </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setCustomTopicModalOpen(true)}
+            className="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isHindi ? 'आर्टिकल बनाएं' : 'New Article'}</span>
+          </button>
+          <button
+            onClick={() => {
+              if (onStartQuiz) onStartQuiz("Current Affairs 2026 Daily Master Quiz");
+              else showToast(isHindi ? "क्विज़ लोड किया जा रहा है..." : "Loading quiz...", "info");
+            }}
+            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <Flame className="w-3.5 h-3.5 text-amber-300" />
+            <span>{isHindi ? 'आज का टेस्ट' : 'Daily Test'}</span>
+          </button>
+          <button
+            onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}
+            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl cursor-pointer border border-slate-700"
+          >
+            {lang === 'hi' ? 'हिंदी' : 'English'}
+          </button>
         </div>
       </div>
 

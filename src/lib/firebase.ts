@@ -730,16 +730,34 @@ export async function addReviewToFirestore(review: {
 }
 
 /**
- * Save or Update Group Quiz Room in Firestore
+ * Save or Update Group Quiz Room in Firestore (supports both 4-digit code and HANS-XXXX)
  */
 export async function saveGroupQuizRoomToFirestore(room: any): Promise<boolean> {
   if (!room || !room.id) return false;
   try {
-    const roomRef = doc(db, 'group_quizzes', room.id);
-    await setDoc(roomRef, {
+    const rawId = String(room.id).trim().toUpperCase();
+    const clean4Digit = rawId.replace(/^HANS-/, '');
+    const hansCode = rawId.startsWith('HANS-') ? rawId : `HANS-${rawId}`;
+
+    const dataToSave = {
       ...room,
+      id: hansCode,
+      code4Digit: clean4Digit,
       updatedAt: new Date().toISOString()
-    }, { merge: true });
+    };
+
+    const roomRef1 = doc(db, 'group_quizzes', hansCode);
+    await setDoc(roomRef1, dataToSave, { merge: true });
+
+    // Also write alias doc under clean 4-digit code if different for lightning-fast 4-digit queries
+    if (clean4Digit && clean4Digit !== hansCode) {
+      try {
+        const roomRef2 = doc(db, 'group_quizzes', clean4Digit);
+        await setDoc(roomRef2, dataToSave, { merge: true });
+      } catch (e) {
+        // non-blocking
+      }
+    }
     return true;
   } catch (err) {
     console.warn("Notice: Firestore group quiz save:", err);
@@ -756,7 +774,9 @@ export function subscribeGroupQuizRoomFromFirestore(
 ): () => void {
   if (!roomId) return () => {};
   try {
-    const roomRef = doc(db, 'group_quizzes', roomId);
+    const rawId = String(roomId).trim().toUpperCase();
+    const hansCode = rawId.startsWith('HANS-') ? rawId : `HANS-${rawId}`;
+    const roomRef = doc(db, 'group_quizzes', hansCode);
     const unsubscribe = onSnapshot(roomRef, (snapshot) => {
       if (snapshot.exists()) {
         onUpdate(snapshot.data());
@@ -774,16 +794,31 @@ export function subscribeGroupQuizRoomFromFirestore(
 }
 
 /**
- * Fetch Group Quiz Room once from Firestore
+ * Fetch Group Quiz Room once from Firestore (checks both raw code and HANS- prefixed code)
  */
 export async function getGroupQuizRoomFromFirestore(roomId: string): Promise<any | null> {
   if (!roomId) return null;
   try {
-    const roomRef = doc(db, 'group_quizzes', roomId);
+    const rawId = String(roomId).trim().toUpperCase();
+    const hansCode = rawId.startsWith('HANS-') ? rawId : `HANS-${rawId}`;
+    const clean4Digit = rawId.replace(/^HANS-/, '');
+
+    // Try hansCode first
+    const roomRef = doc(db, 'group_quizzes', hansCode);
     const snapshot = await getDoc(roomRef);
     if (snapshot.exists()) {
       return snapshot.data();
     }
+
+    // Fallback: try clean 4-digit code
+    if (clean4Digit && clean4Digit !== hansCode) {
+      const altRef = doc(db, 'group_quizzes', clean4Digit);
+      const altSnap = await getDoc(altRef);
+      if (altSnap.exists()) {
+        return altSnap.data();
+      }
+    }
+
     return null;
   } catch (err) {
     console.warn("Notice fetching group quiz room:", err);
@@ -825,6 +860,29 @@ export async function getExamLeaderboardFromFirestore(limitCount: number = 20): 
   } catch (err) {
     console.warn("Notice fetching exam leaderboard:", err);
     return [];
+  }
+}
+
+/**
+ * Find an open public Group Quiz Room
+ */
+export async function findPublicGroupQuizRoom(): Promise<any | null> {
+  try {
+    const quizzesRef = collection(db, 'group_quizzes');
+    // Note: this query requires a composite index in Firestore for status and isPublic
+    const q = query(quizzesRef, where('status', '==', 'lobby'), where('isPublic', '==', true), limit(5));
+    const snapshot = await getDocs(q);
+    const openRooms: any[] = [];
+    snapshot.forEach(docSnap => openRooms.push(docSnap.data()));
+    
+    if (openRooms.length > 0) {
+      // Return random open room
+      return openRooms[Math.floor(Math.random() * openRooms.length)];
+    }
+    return null;
+  } catch (err) {
+    console.warn("Notice: Finding public group quiz room:", err);
+    return null;
   }
 }
 
