@@ -573,7 +573,7 @@ export default function App() {
     | 'gis-earth'
     | 'edu-reels'
   >('chat');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
   const [isCreatorDrawerOpen, setIsCreatorDrawerOpen] = useState(false);
   const [isAcademicHubOpen, setIsAcademicHubOpen] = useState(false);
@@ -9735,6 +9735,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </button>
             <BoardExamSingleTestBox
               language={language}
+              studentGoalProfile={studentGoalProfile}
+              onOpenBoardSelector={() => {
+                setIsBoardExamModalOpen(false);
+                setIsOnboardingModalOpen(true);
+              }}
               onStartBoardTest={(test: BoardChapterTest) => {
                 setIsBoardExamModalOpen(false);
                 setQuizForcedStream('board');

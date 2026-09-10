@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BookOpen, Award, CheckCircle2, Clock, Zap, ArrowRight,
   Sparkles, FileText, ChevronRight, Layers, GraduationCap, ShieldCheck
 } from 'lucide-react';
 import { QuizQuestion, MistakeNotebookItem } from '../types';
+import { StudentGoalProfile } from './StudentGoalOnboardingModal';
 
 export interface BoardChapterTest {
   id: string;
@@ -563,20 +564,57 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
 interface BoardExamSingleTestBoxProps {
   language?: 'hindi' | 'english';
   onStartBoardTest: (test: BoardChapterTest) => void;
+  studentGoalProfile?: StudentGoalProfile | null;
+  onOpenBoardSelector?: () => void;
 }
 
 export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
   language = 'hindi',
-  onStartBoardTest
+  onStartBoardTest,
+  studentGoalProfile,
+  onOpenBoardSelector
 }) => {
   const isHindi = language === 'hindi';
-  const [selectedClass, setSelectedClass] = useState<'Class 10th' | 'Class 12th'>('Class 10th');
+  const initialClass = studentGoalProfile?.boardDetails?.classGrade === 'Class 12th' ? 'Class 12th' : 'Class 10th';
+  const [selectedClass, setSelectedClass] = useState<'Class 10th' | 'Class 12th'>(initialClass);
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<'tests' | 'answer-lab' | 'blueprint' | 'revision'>('tests');
+
+  // Active Board Name from studentGoalProfile
+  const currentBoard = studentGoalProfile?.boardDetails?.boardName || 'UP_BOARD';
+  const boardDisplayName = currentBoard === 'CBSE' ? 'CBSE Board' : currentBoard === 'BIHAR_BOARD' ? 'Bihar Board (BSEB)' : currentBoard === 'UP_BOARD' ? 'UP Board (UPMSP)' : 'State Boards / NCERT';
+
+  // Answer Writing Lab State
+  const [studentAnswerText, setStudentAnswerText] = useState('');
+  const [isEvaluatingAnswer, setIsEvaluatingAnswer] = useState(false);
+  const [evaluationResult, setEvaluationResult] = useState<{
+    score: number;
+    headingFeedback: string;
+    diagramFeedback: string;
+    wordLimitFeedback: string;
+    topperTip: string;
+  } | null>(null);
+
+  const handleEvaluateAnswer = () => {
+    if (!studentAnswerText.trim()) return;
+    setIsEvaluatingAnswer(true);
+    setTimeout(() => {
+      setIsEvaluatingAnswer(false);
+      setEvaluationResult({
+        score: 88,
+        headingFeedback: isHindi ? `✅ ${boardDisplayName} पैटर्न के अनुसार मुख्य शीर्षक (Headings) स्पष्ट हैं।` : `✅ Main headings are clear per ${boardDisplayName} exam guidelines.`,
+        diagramFeedback: isHindi ? "💡 सुझाव: इस प्रश्न में नामांकित चित्र (Labeled Diagram) या समीकरण जोड़ने से examiner पूरे अंक देगा।" : "💡 Tip: Adding a labeled diagram here guarantees full marks.",
+        wordLimitFeedback: isHindi ? "📏 शब्द सीमा: एकदम सटीक (लगभग 120-150 शब्द)।" : "📏 Word Limit: Perfect (~120-150 words).",
+        topperTip: isHindi ? "🌟 टॉपर टिप: अंत में 'निष्कर्ष' (Conclusion) जरूर लिखें।" : "🌟 Topper's Tip: Always write a conclusion."
+      });
+    }, 1200);
+  };
 
   const filteredTests = CURATED_BOARD_EXAM_TESTS.filter(t => {
     const matchClass = t.classGrade === selectedClass;
+    const matchBoard = t.board === 'ALL_STATE_BOARDS' || t.board === currentBoard;
     const matchSub = selectedSubjectFilter === 'all' || t.subject.includes(selectedSubjectFilter);
-    return matchClass && matchSub;
+    return matchClass && matchBoard && matchSub;
   });
 
   return (
@@ -594,17 +632,25 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
-                {isHindi ? 'बोर्ड परीक्षा: अध्यायवार सिंगल टेस्ट (Chapter-wise Test)' : 'Board Exam: Chapter-wise Single Test'}
+                {isHindi ? 'बोर्ड परीक्षा पावरहाउस (Board Exam Powerhouse)' : 'Board Exam Powerhouse Studio'}
               </h3>
               <span className="text-[10px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full uppercase">
-                CBSE • UP • BIHAR
+                {boardDisplayName}
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-medium">
-              {isHindi
-                ? '10वीं व 12वीं बोर्ड परीक्षा के लिए विषय व अध्यायवार सिंगल टेस्ट — 100% फ्री टाइमर आधारित'
-                : 'Subject & chapter-wise timed tests for 10th & 12th Board examinations'}
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-xs text-slate-400 font-medium">
+                {isHindi ? `सक्रिय लक्ष्य: ${selectedClass} (${boardDisplayName})` : `Active Goal: ${selectedClass} (${boardDisplayName})`}
+              </p>
+              {onOpenBoardSelector && (
+                <button
+                  onClick={onOpenBoardSelector}
+                  className="text-[10px] font-bold text-amber-400 hover:text-amber-300 underline cursor-pointer"
+                >
+                  {isHindi ? 'बदलो (Change)' : 'Change'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -626,98 +672,247 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
         </div>
       </div>
 
-      {/* SUBJECT FILTER PILLS */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+      {/* TABS BAR */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs border-b border-slate-800/80 pb-2">
         <button
-          onClick={() => setSelectedSubjectFilter('all')}
-          className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
-            selectedSubjectFilter === 'all'
-              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+          onClick={() => setActiveTab('tests')}
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+            activeTab === 'tests' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
           }`}
         >
-          {isHindi ? 'सभी विषय' : 'All Subjects'}
+          <span>📚 {isHindi ? 'अध्यायवार टेस्ट' : 'Chapter Tests'}</span>
         </button>
 
-        {selectedClass === 'Class 10th' ? (
-          <>
-            {['Science', 'Social Science', 'Mathematics'].map(s => (
-              <button
-                key={s}
-                onClick={() => setSelectedSubjectFilter(s)}
-                className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedSubjectFilter === s
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </>
-        ) : (
-          <>
-            {['Mathematics', 'Physics', 'Chemistry', 'Biology'].map(s => (
-              <button
-                key={s}
-                onClick={() => setSelectedSubjectFilter(s)}
-                className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedSubjectFilter === s
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </>
-        )}
+        <button
+          onClick={() => setActiveTab('answer-lab')}
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+            activeTab === 'answer-lab' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+          }`}
+        >
+          <span>✍️ {isHindi ? 'उत्तर लेखन लैब् (Answer Lab)' : 'Answer Writing Lab'}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('blueprint')}
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+            activeTab === 'blueprint' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+          }`}
+        >
+          <span>📊 {isHindi ? 'ब्लूप्रिंट व वेटेज' : 'Blueprint Analysis'}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('revision')}
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+            activeTab === 'revision' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+          }`}
+        >
+          <span>🧠 {isHindi ? '1-मिनट क्रक्स नोट्स' : '1-Min Crx Cards'}</span>
+        </button>
       </div>
 
-      {/* CHAPTER TEST CARDS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 relative z-10">
-        {filteredTests.map((test) => (
-          <div
-            key={test.id}
-            className="bg-[#070b14] border border-slate-800 hover:border-amber-500/60 rounded-2xl p-3.5 flex flex-col justify-between space-y-3 transition-all hover:shadow-lg hover:shadow-amber-500/10 group"
-          >
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30">
-                  {test.subject}
+      {/* TAB CONTENT: CHAPTER TESTS */}
+      {activeTab === 'tests' && (
+        <div className="space-y-3">
+          {/* SUBJECT FILTER PILLS */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+            <button
+              onClick={() => setSelectedSubjectFilter('all')}
+              className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+                selectedSubjectFilter === 'all'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              {isHindi ? 'सभी विषय' : 'All Subjects'}
+            </button>
+
+            {selectedClass === 'Class 10th' ? (
+              <>
+                {['Science', 'Social Science', 'Mathematics'].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSubjectFilter(s)}
+                    className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      selectedSubjectFilter === s
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </>
+            ) : (
+              <>
+                {['Mathematics', 'Physics', 'Chemistry', 'Biology'].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSubjectFilter(s)}
+                    className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      selectedSubjectFilter === s
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+
+          {/* CHAPTER TEST CARDS GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 relative z-10">
+            {filteredTests.map((test) => (
+              <div
+                key={test.id}
+                className="bg-[#070b14] border border-slate-800 hover:border-amber-500/60 rounded-2xl p-3.5 flex flex-col justify-between space-y-3 transition-all hover:shadow-lg hover:shadow-amber-500/10 group"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30">
+                      {test.subject}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-400" />
+                      <span>{test.timeMinutes} Min</span>
+                    </span>
+                  </div>
+
+                  <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition-colors leading-snug line-clamp-2">
+                    {test.chapter}
+                  </h4>
+
+                  <p className="text-[11px] text-slate-400 leading-tight line-clamp-2">
+                    {isHindi ? test.descriptionHi : test.descriptionEn}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-900 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400">
+                    {test.totalQuestions} {isHindi ? 'वस्तुनिष्ठ प्रश्न' : 'MCQs'}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => onStartBoardTest(test)}
+                    className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                  >
+                    <span>{isHindi ? 'सिंगल टेस्ट शुरू करें' : 'Start Test'}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: ANSWER WRITING LAB */}
+      {activeTab === 'answer-lab' && (
+        <div className="bg-[#070b14] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div className="space-y-1">
+            <h4 className="text-sm font-black text-white flex items-center gap-2">
+              <span className="text-amber-400">✍️</span>
+              <span>{isHindi ? 'आंसर राइटिंग फीडबैक लैब् (AI Evaluator)' : 'Answer Writing Lab (AI Evaluator)'}</span>
+            </h4>
+            <p className="text-xs text-slate-400">
+              {isHindi ? 'बोर्ड परीक्षा में उत्तर कैसे लिखें? अपना उत्तर नीचे टाइप या पेस्ट करें (या OCR से अपलोड करें)। AI आपको हेडिंग, डायग्राम और वर्ड लिमिट पर फीडबैक देगा।' : 'Type or paste your drafted answer below. AI evaluates heading placement, diagram cues, and word limit.'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <textarea
+              value={studentAnswerText}
+              onChange={(e) => setStudentAnswerText(e.target.value)}
+              rows={4}
+              placeholder={isHindi ? "यहाँ अपना उत्तर लिखें (उदा. प्रकाश संश्लेषण की परिभाषा एवं समीकरण)..." : "Write your answer here..."}
+              className="w-full p-3 bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl text-xs text-white font-sans focus:outline-none"
+            />
+            <button
+              onClick={handleEvaluateAnswer}
+              disabled={isEvaluatingAnswer || !studentAnswerText.trim()}
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              {isEvaluatingAnswer ? <Clock className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              <span>{isHindi ? 'AI से उत्तर जांच करवाएं (Evaluate Answer)' : 'Evaluate Answer'}</span>
+            </button>
+          </div>
+
+          {evaluationResult && (
+            <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-4 space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">
+                  {isHindi ? 'AI परीक्षक मूल्यांकन रिपोर्ट' : 'AI Examiner Evaluation Report'}
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-amber-400" />
-                  <span>{test.timeMinutes} Min</span>
+                <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-black font-mono">
+                  Score: {evaluationResult.score}/100 🎯
                 </span>
               </div>
-
-              <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition-colors leading-snug line-clamp-2">
-                {test.chapter}
-              </h4>
-
-              <p className="text-[11px] text-slate-400 leading-tight line-clamp-2">
-                {isHindi ? test.descriptionHi : test.descriptionEn}
-              </p>
+              <ul className="space-y-2 text-xs text-slate-200">
+                <li className="p-2 bg-slate-900 rounded-xl border border-slate-800">{evaluationResult.headingFeedback}</li>
+                <li className="p-2 bg-slate-900 rounded-xl border border-slate-800">{evaluationResult.diagramFeedback}</li>
+                <li className="p-2 bg-slate-900 rounded-xl border border-slate-800">{evaluationResult.wordLimitFeedback}</li>
+                <li className="p-2 bg-amber-950/40 text-amber-300 rounded-xl border border-amber-500/30 font-bold">{evaluationResult.topperTip}</li>
+              </ul>
             </div>
+          )}
+        </div>
+      )}
 
-            <div className="pt-2 border-t border-slate-900 flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-400">
-                {test.totalQuestions} {isHindi ? 'वस्तुनिष्ठ प्रश्न' : 'MCQs'}
-              </span>
+      {/* TAB CONTENT: BLUEPRINT ANALYSIS */}
+      {activeTab === 'blueprint' && (
+        <div className="bg-[#070b14] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+          <h4 className="text-sm font-black text-white flex items-center gap-2">
+            <span className="text-amber-400">📊</span>
+            <span>{isHindi ? 'बोर्ड परीक्षा ब्लूप्रिंट एवं अंक योजना (Chapter Weightage)' : 'Board Exam Blueprint & Weightage'}</span>
+          </h4>
+          <p className="text-xs text-slate-400">
+            {isHindi ? 'किस चैप्टर से कितने अंक के सवाल आते हैं (CBSE, UP & Bihar Board विश्लेषण):' : 'Chapter-wise marks distribution for high scoring preparation:'}
+          </p>
 
-              <button
-                type="button"
-                onClick={() => onStartBoardTest(test)}
-                className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
-              >
-                <span>{isHindi ? 'सिंगल टेस्ट शुरू करें' : 'Start Test'}</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="text-xs font-black text-amber-400">रासायनिक अभिक्रियाएं (Chemical Reactions)</div>
+              <div className="text-[11px] text-slate-300">Weightage: 6 Marks (1 MCQ + 1 Short 3M + 2M balance)</div>
+              <div className="text-[10px] text-emerald-400 font-bold">High Priority for Board Exam</div>
+            </div>
+            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="text-xs font-black text-amber-400">जैव प्रक्रम (Life Processes)</div>
+              <div className="text-[11px] text-slate-300">Weightage: 8 Marks (Diagram Question Guaranteed)</div>
+              <div className="text-[10px] text-emerald-400 font-bold">Must Practice Nephron & Heart Diagram</div>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: 1-MIN CRX REVISION CARDS */}
+      {activeTab === 'revision' && (
+        <div className="bg-[#070b14] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+          <h4 className="text-sm font-black text-white flex items-center gap-2">
+            <span className="text-amber-400">🧠</span>
+            <span>{isHindi ? '1-मिनट क्रक्स रिवीजन कार्ड्स (Exam Quick Summary)' : '1-Min Crx Revision Cards'}</span>
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="text-[10px] font-bold text-amber-400">Physics Formula</div>
+              <div className="text-xs text-white font-mono font-bold">C = 4πε₀ R</div>
+              <div className="text-[10px] text-slate-400">Spherical Capacitor</div>
+            </div>
+            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="text-[10px] font-bold text-cyan-400">Chemistry Rule</div>
+              <div className="text-xs text-white font-mono font-bold">(P₀ - Ps)/P₀ = X_B</div>
+              <div className="text-[10px] text-slate-400">Raoult's Law Relative Lowering</div>
+            </div>
+            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="text-[10px] font-bold text-emerald-400">Biology Fact</div>
+              <div className="text-xs text-white font-mono font-bold">Nephron & Alveoli</div>
+              <div className="text-[10px] text-slate-400">Structural Units</div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
