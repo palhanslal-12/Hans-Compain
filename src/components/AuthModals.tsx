@@ -732,7 +732,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
                       type={showLoginPassword ? "text" : "password"}
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="••••••••••"
+                      placeholder="पासवर्ड दर्ज करें / Enter Password"
                       className="w-full text-sm font-medium text-slate-800 placeholder:text-slate-400 bg-transparent border-none outline-none font-mono"
                       required
                     />

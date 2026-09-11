@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { speakText, stopAllSpeech } from './utils/speechUtils';
+import { playSuccessChime } from './utils/audio';
 import { 
   Sprout, 
   TrendingUp, 
@@ -3708,6 +3709,7 @@ export default function App() {
         timestamp: new Date().toISOString()
       };
       setActivityLogs(prev => [logItem, ...prev]);
+      playSuccessChime();
 
       // AUTO-SAVE COMPLETE QUIZ RECORD IN REPOSITORY & LOCALSTORAGE
       const autoSavedRecord: SavedQuizRecord = {
@@ -4053,6 +4055,7 @@ export default function App() {
       const willBeDone = target ? !target.done : false;
       
       if (willBeDone) {
+        playSuccessChime();
         // Trigger amazing confetti particles!
         const chars = ['✨', '🏆', '⭐', '🎈', '🎉', '🦢', '🌟', '💫', '🔥'];
         const list: any[] = [];
@@ -5698,6 +5701,20 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             onNavigateToView={(view) => setActiveView(view)} 
           />
 
+          {/* 🎯 Quick Board / Exam Goal Pill Button */}
+          <button
+            onClick={() => setIsOnboardingModalOpen(true)}
+            className="px-2.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 cursor-pointer transition-all border border-blue-400/30"
+            title="क्लिक करके अपना बोर्ड या प्रतियोगी परीक्षा लक्ष्य बदलें"
+          >
+            <span>🎯</span>
+            <span className="max-w-[120px] sm:max-w-[150px] truncate">
+              {studentGoalProfile?.stream === 'board' 
+                ? `${studentGoalProfile.boardDetails?.classGrade || '10th'} • ${studentGoalProfile.boardDetails?.boardName || 'Board'}`
+                : studentGoalProfile?.competitiveDetails?.examName || 'Target Exam'}
+            </span>
+          </button>
+
           {/* Quick Return to Chat button if inside sub-view */}
           {activeView !== 'chat' && (
             <button
@@ -6032,40 +6049,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </span>
             </button>
 
-            {/* Upcoming Roadmap Modal (Speed Reply, Current Affairs, QR Scanner) */}
-            <button
-              onClick={() => {
-                setIsRoadmapModalOpen(true);
-                setIsHeaderMenuOpen(false);
-              }}
-              className="w-full p-2.5 bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 hover:from-cyan-900 hover:to-indigo-900 border border-cyan-500/50 rounded-xl text-cyan-200 flex items-center justify-between transition-all cursor-pointer text-left"
-            >
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-cyan-400 shrink-0 animate-pulse" />
-                <span className="font-bold">{language === 'hindi' ? '🚀 आगामी योजनाएं (Speed Reply / QR)' : '🚀 Upcoming Features & Roadmap'}</span>
-              </div>
-              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded font-mono">
-                Plans 🚀
-              </span>
-            </button>
-
-            {/* AI Assistant Help Guide (Explains every feature to avoid confusion) */}
-            <button
-              onClick={() => {
-                setIsHelpGuideOpen(true);
-                setIsHeaderMenuOpen(false);
-              }}
-              className="w-full p-2.5 bg-gradient-to-r from-indigo-950/80 to-purple-950/80 hover:from-indigo-900 hover:to-purple-900 border border-indigo-500/50 rounded-xl text-indigo-200 flex items-center justify-between transition-all cursor-pointer text-left"
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
-                <span className="font-bold">{language === 'hindi' ? '🤖 A8 AI सहायता चैट सिस्टम' : '🤖 A8 AI Help & Chat Assistant'}</span>
-              </div>
-              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono">
-                A8 Chat ✨
-              </span>
-            </button>
-
             {/* 🔍 HansAI Auto-Problem Diagnostics & Owner Alert */}
             <button
               onClick={() => {
@@ -6080,25 +6063,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </div>
               <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono">
                 Auto Scan ⚡
-              </span>
-            </button>
-
-            {/* Public AI Rules & Safety Guidelines (Clean single entry) */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsAiRulesModalOpen(true);
-                setIsHeaderMenuOpen(false);
-              }}
-              className="w-full p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 rounded-xl text-xs font-bold flex items-center justify-between transition-all shadow-sm cursor-pointer text-left"
-              title="Public AI Usage Rules, Governance & Fair Use Guidelines"
-            >
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>{language === 'hindi' ? '⚖️ पब्लिक AI उपयोग नियम व निर्देश' : '⚖️ Public AI Usage Rules & Guidelines'}</span>
-              </div>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono">
-                Rules 🛡️
               </span>
             </button>
 
@@ -6321,21 +6285,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       if (window.innerWidth < 1024) setSidebarOpen(false);
                     }}
                   />
-
-                  {/* Top Tour & Overview Control Button */}
-                  <button
-                    onClick={() => {
-                      setShowStartupIntro(true);
-                      if (window.innerWidth < 1024) setSidebarOpen(false);
-                    }}
-                    className="w-full py-2 px-3 bg-gradient-to-r from-purple-900/40 to-indigo-950/40 hover:from-purple-900/60 hover:to-indigo-900/60 text-purple-200 hover:text-white rounded-2xl font-bold text-xs flex items-center justify-between transition-all border border-purple-500/30 cursor-pointer active:scale-[0.99]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                      <span>{language === 'hindi' ? "हंस कंप्लेन फीचर्स एनिमेटेड टूर ✨" : "HANS COMPAIN Features Animated Tour ✨"}</span>
-                    </div>
-                    <span className="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded font-mono">Overview</span>
-                  </button>
 
                   {/* New Chat Button */}
                   <button
@@ -7227,7 +7176,26 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                         </button>
 
-                        {/* ROW 4: Card 7 - Time-Travel Simulator */}
+                        {/* ROW 4: Card 7 - Daily 1-Min Micro-Revision & Flashcards (Option 4) */}
+                        <button
+                          onClick={() => setActiveView('flashcards')}
+                          className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/90 via-orange-950/60 to-slate-900 border-2 border-amber-500/80 hover:border-amber-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98 animate-pulse"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-base">
+                            ⚡
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-black text-amber-200 group-hover:text-amber-100 truncate flex items-center gap-1">
+                              <span>{language === 'hindi' ? '1-मिनट रीकैप & फ्लैशकार्ड्स' : '1-Min Micro-Revision'}</span>
+                              <span className="text-[8px] bg-amber-400 text-slate-950 px-1 rounded font-black">NEW</span>
+                            </div>
+                            <div className="text-[9px] text-amber-300/80 truncate">
+                              {language === 'hindi' ? 'दैनिक त्वरित रीकैप व रिवीजन' : 'Daily Quick Recall & Deck'}
+                            </div>
+                          </div>
+                        </button>
+
+                        {/* ROW 4: Card 8 - Time-Travel Simulator */}
                         <button
                           onClick={() => setActiveView('time-travel')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"

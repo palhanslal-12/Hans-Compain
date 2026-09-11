@@ -184,7 +184,7 @@ export const AdminLockScreen: React.FC<AdminLockScreenProps> = ({
                 setPasswordInput(e.target.value);
                 if (errorMsg) setErrorMsg('');
               }}
-              placeholder={isHindi ? "मास्टर पासवर्ड दर्ज करें (••••••••••••)" : "Enter Master Password (••••••••••••)"}
+              placeholder={isHindi ? "मास्टर पासवर्ड दर्ज करें..." : "Enter Master Password..."}
               className={`w-full text-sm py-3.5 pl-4 pr-11 bg-[#04070F] border ${
                 errorMsg ? 'border-rose-500 text-rose-200' : 'border-amber-500/40 text-amber-300 focus:border-amber-400'
               } rounded-2xl font-mono tracking-wider outline-none transition-all shadow-inner`}

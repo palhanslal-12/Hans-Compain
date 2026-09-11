@@ -479,7 +479,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
                       type={showLoginPassword ? "text" : "password"}
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="••••••••••"
+                      placeholder="पासवर्ड दर्ज करें / Enter Password"
                       className="w-full text-sm font-medium text-slate-800 placeholder:text-slate-400 bg-transparent border-none outline-none font-mono"
                       required
                     />
@@ -559,7 +559,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
               onClick={() => setIsTermsOpen(true)}
               className="text-emerald-600 hover:text-emerald-700 font-bold underline bg-transparent border-none cursor-pointer"
             >
-              Terms & Conditions (नियम व शर्तें)
+              Public AI Usage Rules & Guidelines (पब्लिक AI उपयोग नियम व निर्देश)
             </button>
           </div>
           <div>Secure OTP & SHA-256 Authentication Guard</div>

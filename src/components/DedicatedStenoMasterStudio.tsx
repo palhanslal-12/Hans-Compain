@@ -1185,6 +1185,21 @@ interface DictationPassage {
 
 const DICTATION_PASSAGES: DictationPassage[] = [
   {
+    id: 'dict-0',
+    title: 'Beginner Basics: Vowels & Simple Words (60 WPM)',
+    wpm: 60,
+    durationSeconds: 120,
+    wordCount: 120,
+    category: 'Beginner Drills',
+    textHindi: 'यह एक अभ्यास डिक्टेशन है। इसमें छोटे और सरल वाक्यों का प्रयोग किया गया है। राम घर जाता है। हम सब पढ़ते हैं। आप कैसे हो। यह बहुत अच्छी बात है। जब हम धीरे-धीरे लिखते हैं, तो हमारी एक्यूरेसी बढ़ती है।',
+    textEnglish: 'This is a practice dictation. It uses short and simple sentences. Ram goes home. We all read. How are you. This is a very good thing. When we write slowly, our accuracy improves.',
+    shorthandTips: [
+      'Focus on drawing correct stroke angles.',
+      'Do not rush, keep the vowels properly placed.',
+      'Practice straight strokes like P, B, T, D.'
+    ]
+  },
+  {
     id: 'dict-1',
     title: 'SSC Stenographer Grade D Mock Test (80 WPM)',
     wpm: 80,
@@ -1293,11 +1308,34 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
   // Dictation Player & Audio Synthesizer State
   const [selectedPassage, setSelectedPassage] = useState<DictationPassage>(DICTATION_PASSAGES[0]);
   const [isPlayingDictation, setIsPlayingDictation] = useState(false);
-  const [dictationWpmMultiplier, setDictationWpmMultiplier] = useState<number>(1.0); // 0.8x, 1.0x, 1.2x
+  const [targetWpm, setTargetWpm] = useState<number>(80); // 0.8x, 1.0x, 1.2x
   const [dictationElapsed, setDictationElapsed] = useState<number>(0);
   const [showPassageText, setShowPassageText] = useState(false);
   const [customDictationText, setCustomDictationText] = useState('');
   const [isCustomTextMode, setIsCustomTextMode] = useState(false);
+
+  // Manual Timer State
+  const [manualTimerElapsed, setManualTimerElapsed] = useState(0);
+  const [isManualTimerRunning, setIsManualTimerRunning] = useState(false);
+  const manualTimerRef = useRef<any>(null);
+
+  const toggleManualTimer = () => {
+    if (isManualTimerRunning) {
+      if (manualTimerRef.current) clearInterval(manualTimerRef.current);
+      setIsManualTimerRunning(false);
+    } else {
+      setIsManualTimerRunning(true);
+      manualTimerRef.current = setInterval(() => {
+        setManualTimerElapsed(prev => prev + 1);
+      }, 1000);
+    }
+  };
+
+  const resetManualTimer = () => {
+    if (manualTimerRef.current) clearInterval(manualTimerRef.current);
+    setIsManualTimerRunning(false);
+    setManualTimerElapsed(0);
+  };
 
   // Custom Audio File Upload State (.mp3 / .wav / .m4a)
   const [uploadedAudioSrc, setUploadedAudioSrc] = useState<string | null>(null);
@@ -1407,22 +1445,19 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
   }, [activeTab]);
 
   // EXACT Coordinate Mapping to prevent cursor/drawing offset anywhere across full canvas width
-  const getCanvasCoords = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>, canvas: HTMLCanvasElement) => {
+  const getCanvasCoords = (e: React.PointerEvent<HTMLCanvasElement>, canvas: HTMLCanvasElement) => {
     const rect = canvas.getBoundingClientRect();
-    const clientX = ('touches' in e) ? (e.touches[0] ? e.touches[0].clientX : 0) : e.clientX;
-    const clientY = ('touches' in e) ? (e.touches[0] ? e.touches[0].clientY : 0) : e.clientY;
-
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
     return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
     };
   };
 
   const handleStartDrawing = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+    e: React.PointerEvent<HTMLCanvasElement>,
     canvas: HTMLCanvasElement | null
   ) => {
     if (!canvas) return;
@@ -1444,14 +1479,16 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.strokeStyle = isEraser ? '#060B16' : strokeColor;
-    ctx.lineWidth = isEraser ? 18 : canvasStrokeWidth;
+    // Optional stylus pressure support
+    const pressureMult = (e.pointerType === 'pen' && e.pressure > 0) ? Math.max(0.3, e.pressure * 1.5) : 1;
+    ctx.lineWidth = isEraser ? 18 : canvasStrokeWidth * pressureMult;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     setIsDrawing(true);
   };
 
   const handleDraw = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+    e: React.PointerEvent<HTMLCanvasElement>,
     canvas: HTMLCanvasElement | null
   ) => {
     if (!isDrawing || !canvas) return;
@@ -1493,7 +1530,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
       const image = canvas.toDataURL('image/png');
       const title = isCustomTextMode && customDictationText.trim()
         ? (customDictationText.trim().slice(0, 32) + '...')
-        : `${selectedPassage.title} (${Math.round(selectedPassage.wpm * dictationWpmMultiplier)} WPM)`;
+        : `${selectedPassage.title} (${targetWpm} WPM)`;
 
       const newSheet: SavedStenoSheet = {
         id: `steno-sheet-${Date.now()}`,
@@ -1506,7 +1543,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
           minute: '2-digit'
         }),
         dataUrl: image,
-        wpm: Math.round(selectedPassage.wpm * dictationWpmMultiplier),
+        wpm: targetWpm,
         category: selectedPassage.category,
         passageTitle: selectedPassage.title
       };
@@ -1605,7 +1642,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
     // Calculate speech rate based on WPM
-    const currentWpm = isCustomTextMode ? 80 * dictationWpmMultiplier : selectedPassage.wpm * dictationWpmMultiplier;
+    const currentWpm = targetWpm;
     const baseRate = currentWpm / 110;
     utterance.rate = Math.min(2.0, Math.max(0.5, baseRate));
     utterance.pitch = 1.0;
@@ -2002,6 +2039,14 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
       {activeTab === 'pad' && (
         <div className="space-y-4">
           
+          {/* Stylus Tip Banner */}
+          <div className="bg-gradient-to-r from-emerald-950/40 via-teal-950/40 to-emerald-950/40 border border-emerald-500/30 p-3 rounded-2xl flex items-center justify-center gap-2 animate-fade-in text-center shadow-lg">
+            <PenTool className="w-4 h-4 text-emerald-400 shrink-0" />
+            <p className="text-[11px] sm:text-xs text-emerald-100 font-medium">
+              <strong className="text-emerald-300">💡 प्रो टिप (Pro Tip):</strong> बेहतरीन शॉर्टहैंड स्पीड और एक्यूरेसी के लिए उंगली (Finger) के बजाय <strong className="text-white bg-emerald-500/20 px-1 rounded">Touch Stylus (Pen)</strong> का इस्तेमाल करें! लैपटॉप या टैबलेट पर यह एकदम डायरी जैसा अनुभव देगा।
+            </p>
+          </div>
+
           {/* Top Audio Dictation & File Upload Control Console */}
           <div className="bg-[#0A0F1D] border-2 border-amber-500/40 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4">
             
@@ -2050,23 +2095,23 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
                 </button>
               </div>
 
-              {/* Speed Multipliers (WPM) */}
+              {/* Speed Target (WPM) */}
               <div className="flex items-center gap-1 bg-[#060A14] p-1.5 rounded-2xl border border-slate-800 self-start lg:self-auto">
                 <span className="text-[10px] font-bold text-slate-400 px-2">गति:</span>
                 {[
-                  { mult: 0.75, label: '60 WPM (धीमी)' },
-                  { mult: 1.0, label: '80-100 WPM (सामान्य)' },
-                  { mult: 1.25, label: '120 WPM (तेज)' },
-                  { mult: 1.4, label: '140 WPM (सुपर स्पीड)' }
+                  { wpm: 60, label: '60 WPM' },
+                  { wpm: 80, label: '80 WPM' },
+                  { wpm: 100, label: '100 WPM' },
+                  { wpm: 120, label: '120 WPM' }
                 ].map(spd => (
                   <button
-                    key={spd.mult}
+                    key={spd.wpm}
                     onClick={() => {
-                      setDictationWpmMultiplier(spd.mult);
+                      setTargetWpm(spd.wpm);
                       showToast(`डिक्टेशन गति: ${spd.label}`, "info");
                     }}
                     className={`px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition-all cursor-pointer ${
-                      dictationWpmMultiplier === spd.mult
+                      targetWpm === spd.wpm
                         ? 'bg-amber-500 text-slate-950 shadow-sm'
                         : 'text-slate-400 hover:text-white'
                     }`}
@@ -2148,7 +2193,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
                           {passage.category}
                         </span>
                         <span className="text-xs font-black text-amber-300">
-                          {Math.round(passage.wpm * dictationWpmMultiplier)} WPM
+                          {Math.round(passage.wpm * targetWpm)} WPM
                         </span>
                       </div>
                       <div className="text-xs font-bold text-white line-clamp-1">{passage.title}</div>
@@ -2205,7 +2250,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
                 <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
                   <span>⏱️ समय: <strong className="text-emerald-400">{dictationElapsed}s</strong></span>
                   <span>•</span>
-                  <span>गति: <strong className="text-amber-400">{Math.round(selectedPassage.wpm * dictationWpmMultiplier)} WPM</strong></span>
+                  <span>गति: <strong className="text-amber-400">{targetWpm} WPM</strong></span>
                 </div>
               </div>
 
@@ -2308,6 +2353,19 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
                   ))}
                 </div>
 
+                {/* Manual Timer Stopwatch */}
+                <div className="flex items-center gap-1.5 bg-[#060A14] px-3 py-1.5 rounded-xl border border-slate-800">
+                  <div className="text-xs font-mono font-bold text-emerald-400 w-10 text-center">
+                    {Math.floor(manualTimerElapsed / 60)}:{(manualTimerElapsed % 60).toString().padStart(2, '0')}
+                  </div>
+                  <button onClick={toggleManualTimer} className="p-1 text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer" title="Start/Pause Timer">
+                    {isManualTimerRunning ? <Pause className="w-3.5 h-3.5 text-amber-400" /> : <Play className="w-3.5 h-3.5" />}
+                  </button>
+                  <button onClick={resetManualTimer} className="p-1 text-slate-300 hover:text-rose-400 transition-colors cursor-pointer" title="Reset Timer">
+                    <Square className="w-3 h-3" />
+                  </button>
+                </div>
+
                 {/* Actions: Undo, Clear, Save in Steno Pad */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <button
@@ -2354,13 +2412,10 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
             <div className="relative rounded-2xl overflow-hidden border-2 border-slate-800 shadow-2xl bg-[#060B16]">
               <canvas
                 ref={mainCanvasRef}
-                onMouseDown={(e) => handleStartDrawing(e, mainCanvasRef.current)}
-                onMouseMove={(e) => handleDraw(e, mainCanvasRef.current)}
-                onMouseUp={handleStopDrawing}
-                onMouseLeave={handleStopDrawing}
-                onTouchStart={(e) => handleStartDrawing(e, mainCanvasRef.current)}
-                onTouchMove={(e) => handleDraw(e, mainCanvasRef.current)}
-                onTouchEnd={handleStopDrawing}
+                onPointerDown={(e) => handleStartDrawing(e, mainCanvasRef.current)}
+                onPointerMove={(e) => handleDraw(e, mainCanvasRef.current)}
+                onPointerUp={handleStopDrawing}
+                onPointerLeave={handleStopDrawing}
                 className="w-full h-[520px] cursor-crosshair touch-none"
               />
             </div>
@@ -2752,13 +2807,10 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
               <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-inner bg-[#060B16]">
                 <canvas
                   ref={miniCanvasRef}
-                  onMouseDown={(e) => handleStartDrawing(e, miniCanvasRef.current)}
-                  onMouseMove={(e) => handleDraw(e, miniCanvasRef.current)}
-                  onMouseUp={handleStopDrawing}
-                  onMouseLeave={handleStopDrawing}
-                  onTouchStart={(e) => handleStartDrawing(e, miniCanvasRef.current)}
-                  onTouchMove={(e) => handleDraw(e, miniCanvasRef.current)}
-                  onTouchEnd={handleStopDrawing}
+                  onPointerDown={(e) => handleStartDrawing(e, miniCanvasRef.current)}
+                  onPointerMove={(e) => handleDraw(e, miniCanvasRef.current)}
+                  onPointerUp={handleStopDrawing}
+                  onPointerLeave={handleStopDrawing}
                   className="w-full h-[220px] cursor-crosshair touch-none"
                 />
               </div>
@@ -3028,7 +3080,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
                       </span>
                       <span className="text-xs font-black text-amber-400 flex items-center gap-1">
                         <Flame className="w-3.5 h-3.5 text-amber-500" />
-                        {Math.round(passage.wpm * dictationWpmMultiplier)} WPM
+                        {Math.round(passage.wpm * targetWpm)} WPM
                       </span>
                     </div>
 
@@ -3057,7 +3109,7 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
                 </span>
                 <h3 className="text-lg font-black text-white">{selectedPassage.title}</h3>
                 <div className="flex items-center justify-center gap-3 text-xs font-mono text-slate-400">
-                  <span>Speed: <strong className="text-amber-400">{Math.round(selectedPassage.wpm * dictationWpmMultiplier)} WPM</strong></span>
+                  <span>Speed: <strong className="text-amber-400">{targetWpm} WPM</strong></span>
                   <span>•</span>
                   <span>Timer: <strong className="text-emerald-400">{dictationElapsed}s</strong></span>
                 </div>

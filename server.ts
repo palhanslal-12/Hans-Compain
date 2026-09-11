@@ -313,11 +313,11 @@ function getGenAI() {
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
   // Use gemini-3.7-flash as preferred primary fast model for maximum quality and speed
-  const isOutdatedOrInvalid = !primaryModel || primaryModel.includes("2.5") || primaryModel.includes("1.5") || primaryModel.includes("2.0");
+  const isOutdatedOrInvalid = !primaryModel || primaryModel.includes("2.5");
   const requested = isOutdatedOrInvalid ? "gemini-3.7-flash" : primaryModel;
   
-  // High-availability fallback sequence of valid models
-  const fallbackSequence = [requested, "gemini-3.7-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"];
+  // High-availability fallback sequence of valid models including 1.5-flash and flash-lite
+  const fallbackSequence = [requested, "gemini-3.7-flash", "gemini-3.1-flash-lite", "gemini-1.5-flash", "gemini-flash-latest"];
   const uniqueModels = Array.from(new Set(fallbackSequence.filter(Boolean)));
 
   let lastError: any = null;
@@ -335,8 +335,11 @@ async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string
       const isHighDemandOrUnavailable = errMsg.includes("503") || errMsg.includes("high demand") || errMsg.includes("UNAVAILABLE") || errMsg.includes("overloaded");
       const isRateLimited = errMsg.includes("429") || errMsg.includes("Resource has been exhausted") || errMsg.includes("rate limit") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED");
       
-      console.log(`[Gemini SDK] Note: Model '${currentModel}' active load switch (${isHighDemandOrUnavailable ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : 'Busy'}). Switching to ${uniqueModels[uniqueModels.indexOf(currentModel) + 1] || 'next fallback'}...`);
+      console.log(`[Gemini SDK] Note: Model '${currentModel}' active load switch (${isHighDemandOrUnavailable ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : 'Busy'}). Switching to next model...`);
       
+      // Wait a short backoff before trying next model
+      await new Promise(resolve => setTimeout(resolve, 300 + Math.floor(Math.random() * 300)));
+
       // If search tool was attached and caused rate limiting, try a quick attempt without search tool
       if (isRateLimited && options.config?.tools?.some((t: any) => t.googleSearch)) {
         try {
@@ -351,11 +354,6 @@ async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string
         } catch (innerErr) {
           // continue fallback sequence
         }
-      }
-
-      if (!isHighDemandOrUnavailable && !isRateLimited) {
-        // For general transient network issues, do one quick jitter delay before trying next model
-        await new Promise(resolve => setTimeout(resolve, 200 + Math.floor(Math.random() * 200)));
       }
     }
   }
@@ -3600,6 +3598,63 @@ app.get('/sitemap.xml', (req, res) => {
     <priority>1.0</priority>
   </url>
 </urlset>`);
+});
+
+app.post("/api/ai/assessment-engine", aiRateLimiter, async (req, res) => {
+  try {
+    const { board_or_exam, class: classGrade, stream, subject, topic, mode, exclude_question_ids } = req.body;
+    const ai = getGenAI();
+
+    const prompt = `You are the Master AI Content & Assessment Engine for an advanced Indian EdTech Platform supporting Class 10th/12th Board Exams, NEET, JEE, Nursing, and State Exams.
+Generate 5 fresh, high-quality, syllabus-compliant multiple-choice questions (MCQs) for:
+- Board/Exam: ${board_or_exam || 'CBSE / Board'}
+- Class: ${classGrade || '12th'}
+- Stream: ${stream || 'Science'}
+- Subject: ${subject || 'Physics'}
+- Topic/Chapter: ${topic || 'General'}
+- Mode: ${mode || 'Quiz'}
+- Exclude Question IDs: ${JSON.stringify(exclude_question_ids || [])}
+
+OUTPUT RULES:
+- Output MUST be valid JSON only.
+- Questions must align strictly with the latest NCERT and Exam Pattern.
+- Provide step-by-step explanations with NCERT/Standard Reference for every question.
+- Format mathematical and chemical formulas using clear LaTeX markup.
+
+JSON RESPONSE FORMAT (Strictly match this structure):
+{
+  "status": "success",
+  "exam_context": "Target: ${board_or_exam || 'Board'} | Subject: ${subject || 'Subject'}",
+  "questions": [
+    {
+      "id": "q_" + Math.random().toString(36).substring(2, 9),
+      "question_text": "Question content here...",
+      "difficulty_level": "Board / NEET / JEE Level",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_option_index": 0,
+      "explanation": "Detailed explanation with NCERT chapter/page mapping.",
+      "tags": ["NCERT", "PYQ-2024", "High-Weightage"]
+    }
+  ]
+}`;
+
+    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json"
+      }
+    });
+
+    const text = response.text();
+    const data = JSON.parse(text || "{}");
+    res.json(data);
+  } catch (err: any) {
+    console.error("Assessment Engine Error:", err);
+    res.status(500).json({
+      status: "error",
+      message: err?.message || "Failed to generate assessment questions"
+    });
+  }
 });
 
 // Start routing & server/vite split

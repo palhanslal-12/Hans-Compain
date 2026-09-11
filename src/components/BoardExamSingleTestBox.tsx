@@ -634,9 +634,6 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
               <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
                 {isHindi ? 'बोर्ड परीक्षा पावरहाउस (Board Exam Powerhouse)' : 'Board Exam Powerhouse Studio'}
               </h3>
-              <span className="text-[10px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full uppercase">
-                {boardDisplayName}
-              </span>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <p className="text-xs text-slate-400 font-medium">
@@ -673,7 +670,7 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
       </div>
 
       {/* TABS BAR */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs border-b border-slate-800/80 pb-2">
+      <div className="flex flex-wrap items-center gap-2 text-xs border-b border-slate-800/80 pb-2">
         <button
           onClick={() => setActiveTab('tests')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
@@ -711,11 +708,39 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
         </button>
       </div>
 
+      {/* ACTIVE STUDENT GOAL & TEST MODE SUMMARY BANNER */}
+      {studentGoalProfile && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-amber-200">
+            <span className="text-base">🎯</span>
+            <div>
+              <span className="font-bold">{isHindi ? 'सक्रिय लक्ष्य:' : 'Active Goal:'}</span>{' '}
+              <span className="font-black text-amber-300">
+                {studentGoalProfile.stream === 'board'
+                  ? `${studentGoalProfile.boardDetails?.classGrade || '10th'} • ${studentGoalProfile.boardDetails?.boardName === 'ALL_STATE_BOARDS' ? studentGoalProfile.boardDetails?.specificStateBoard : studentGoalProfile.boardDetails?.boardName || 'CBSE'} • ${studentGoalProfile.boardDetails?.primarySubject || 'General'}`
+                  : studentGoalProfile.competitiveDetails?.examName}
+              </span>
+              <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase">
+                Mode: {studentGoalProfile.selectedMode || 'quiz'}
+              </span>
+            </div>
+          </div>
+          {onOpenBoardSelector && (
+            <button
+              onClick={onOpenBoardSelector}
+              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-black text-xs transition-all shadow-md shrink-0 cursor-pointer flex items-center gap-1"
+            >
+              <span>⚙️ {isHindi ? 'बोर्ड / मोड बदलें' : 'Change Board & Mode'}</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* TAB CONTENT: CHAPTER TESTS */}
       {activeTab === 'tests' && (
         <div className="space-y-3">
           {/* SUBJECT FILTER PILLS */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             <button
               onClick={() => setSelectedSubjectFilter('all')}
               className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
@@ -729,7 +754,7 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
 
             {selectedClass === 'Class 10th' ? (
               <>
-                {['Science', 'Social Science', 'Mathematics'].map(s => (
+                {['Science (विज्ञान)', 'Mathematics (गणित)', 'Social Science (सामाजिक विज्ञान)', 'Hindi (हिन्दी)', 'English (अंग्रेजी)', 'Sanskrit (संस्कृत)'].map(s => (
                   <button
                     key={s}
                     onClick={() => setSelectedSubjectFilter(s)}
@@ -745,7 +770,7 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
               </>
             ) : (
               <>
-                {['Mathematics', 'Physics', 'Chemistry', 'Biology'].map(s => (
+                {['Physics (भौतिकी)', 'Chemistry (रसायन विज्ञान)', 'Mathematics (गणित)', 'Biology (जीव विज्ञान)', 'Accountancy', 'Business Studies', 'Economics', 'History (इतिहास)', 'Political Science (राजनीति शास्त्र)', 'Geography (भूगोल)', 'Hindi', 'English'].map(s => (
                   <button
                     key={s}
                     onClick={() => setSelectedSubjectFilter(s)}
