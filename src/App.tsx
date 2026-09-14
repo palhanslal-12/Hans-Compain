@@ -394,120 +394,20 @@ const QuantumSwanLogo = ({
   containerClassName?: string;
   showBrandText?: boolean;
 }) => {
-  const svgLogo = (
-    <svg 
-      viewBox="0 0 220 220" 
-      className={`${className} transition-transform duration-500 hover:scale-105`} 
-      xmlns="http://www.w3.org/2000/svg" 
-      id="hans-compain-official-logo"
-    >
-      <defs>
-        {/* Blue 3D Gradients for H & Swan */}
-        <linearGradient id="hcBlueGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#2563EB" />
-          <stop offset="50%" stopColor="#0284C7" />
-          <stop offset="100%" stopColor="#1E3A8A" />
-        </linearGradient>
-        <linearGradient id="hcBlueGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#38BDF8" />
-          <stop offset="60%" stopColor="#1D4ED8" />
-          <stop offset="100%" stopColor="#0F172A" />
-        </linearGradient>
-        {/* Green Gradients for Book Pages & Feather Wing */}
-        <linearGradient id="hcGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4ADE80" />
-          <stop offset="50%" stopColor="#22C55E" />
-          <stop offset="100%" stopColor="#15803D" />
-        </linearGradient>
-        {/* Soft Drop Shadow Filter */}
-        <filter id="hcLogoDropShadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#0284C7" floodOpacity="0.2" />
-        </filter>
-      </defs>
-
-      <g filter="url(#hcLogoDropShadow)">
-        {/* Left vertical bar of H */}
-        <path
-          d="M 52 38 L 72 38 L 72 135 L 52 135 Z"
-          fill="url(#hcBlueGrad1)"
-        />
-
-        {/* Right vertical bar of H */}
-        <path
-          d="M 148 38 L 168 38 L 168 135 L 148 135 Z"
-          fill="url(#hcBlueGrad1)"
-        />
-
-        {/* Swan Neck & Head sweeping gracefully across */}
-        <path
-          d="M 68 112 C 68 65 112 45 130 62 C 140 71 132 88 120 82 C 108 76 88 85 88 108 L 148 108 L 148 124 L 68 124 Z"
-          fill="url(#hcBlueGrad2)"
-        />
-        {/* Swan Beak */}
-        <path d="M 130 62 L 138 65 L 130 69 Z" fill="#F59E0B" />
-        {/* Swan Eye */}
-        <circle cx="123" cy="62" r="2" fill="#FFFFFF" />
-
-        {/* Green Open Book Wings on Right side of H */}
-        <g id="green-book-feathers">
-          <path
-            d="M 148 65 Q 188 50 198 82 Q 168 92 148 108 Z"
-            fill="url(#hcGreenGrad)"
-          />
-          <path
-            d="M 148 78 Q 180 68 190 95 Q 164 100 148 115 Z"
-            fill="#16A34A"
-            opacity="0.95"
-          />
-          <path
-            d="M 148 92 Q 172 85 180 106 Q 160 110 148 122 Z"
-            fill="#4ADE80"
-          />
-        </g>
-
-        {/* Brand Typography: HANS */}
-        {showBrandText && (
-          <>
-            <text
-              x="110"
-              y="170"
-              textAnchor="middle"
-              fill="#0284C7"
-              fontSize="34"
-              fontWeight="900"
-              fontFamily="system-ui, -apple-system, sans-serif"
-              letterSpacing="3"
-            >
-              HANS
-            </text>
-
-            {/* Sub-brand Typography: — COMPAIN — */}
-            <line x1="22" y1="188" x2="52" y2="188" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" />
-            <text
-              x="110"
-              y="192"
-              textAnchor="middle"
-              fill="#16A34A"
-              fontSize="14"
-              fontWeight="800"
-              fontFamily="system-ui, -apple-system, sans-serif"
-              letterSpacing="3"
-            >
-              COMPAIN
-            </text>
-            <line x1="168" y1="188" x2="198" y2="188" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" />
-          </>
-        )}
-      </g>
-    </svg>
+  const imgLogo = (
+    <img 
+      src="/logo.png" 
+      alt="Hans Compain Logo" 
+      className={`${className} transition-transform duration-500 hover:scale-105 object-contain`} 
+    />
   );
 
-  if (!showLightBg) return svgLogo;
+  if (!showLightBg) return imgLogo;
 
   return (
     <div className={`relative inline-flex items-center justify-center p-2 sm:p-2.5 bg-white border border-slate-200/90 rounded-2xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 shrink-0 ${containerClassName}`}>
       <div className="relative z-10 flex items-center justify-center">
-        {svgLogo}
+        {imgLogo}
       </div>
     </div>
   );
@@ -7094,7 +6994,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                           <div className="overflow-hidden">
                             <div className="text-xs font-black text-emerald-200 group-hover:text-emerald-100 truncate flex items-center gap-1">
-                              <span>{language === 'hindi' ? 'ग्रुप क्विज़ बैटल' : 'Live Group Battle'}</span>
+                              <span>{language === 'hindi' ? 'लाइव ग्रुप क्विज़ बैटल' : 'Live Group Battle'}</span>
                               <span className="text-[8px] bg-emerald-400 text-slate-950 px-1 rounded font-black">NEW</span>
                             </div>
                             <div className="text-[9px] text-emerald-300/80 truncate">

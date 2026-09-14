@@ -1,4 +1,5 @@
-import React from 'react';
+const fs = require('fs');
+let code = `import React from 'react';
 
 export interface HansCompainLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -26,8 +27,8 @@ export const HansCompainLogo: React.FC<HansCompainLogoProps> = ({
   const currentStyle = sizeStyles[size] || sizeStyles.md;
 
   return (
-    <div className={`inline-flex items-center justify-center ${className}`}>
-      <div className={`relative flex-shrink-0 ${currentStyle.img} group cursor-pointer transition-all duration-300 hover:scale-[1.05]`}>
+    <div className={\`inline-flex items-center justify-center \${className}\`}>
+      <div className={\`relative flex-shrink-0 \${currentStyle.img} group cursor-pointer transition-all duration-300 hover:scale-[1.05]\`}>
         <img
           src="/logo.png"
           alt="Hans Compain Logo"
@@ -37,3 +38,5 @@ export const HansCompainLogo: React.FC<HansCompainLogoProps> = ({
     </div>
   );
 };
+`;
+fs.writeFileSync('src/components/HansCompainLogo.tsx', code);

@@ -158,7 +158,7 @@ export const StartupIntroSplash: React.FC<StartupIntroSplashProps> = ({
           <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center animate-bounce duration-1000">
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-full blur-xl" />
             <img 
-              src="/logo.svg" 
+              src="/logo.png" 
               alt="Hans Compain Logo" 
               className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(34,197,94,0.35)]" 
             />
