@@ -115,6 +115,7 @@ import { PhotoDoubtView } from './components/PhotoDoubtView';
 import { SecurityHubView } from './components/SecurityHubView';
 import { AuthModals } from './components/AuthModals';
 import { AuthGateView } from './components/AuthGateView';
+import { WelcomeOnboardingModal } from './components/WelcomeOnboardingModal';
 import { MusicStudioView } from './components/MusicStudioView';
 import { ArticleVoiceReader } from './components/ArticleVoiceReader';
 import { FileConverterView } from './components/FileConverterView';
@@ -854,6 +855,7 @@ export default function App() {
     const saved = localStorage.getItem('hansai_guest_prompt_count');
     return saved ? parseInt(saved, 10) : 0;
   });
+  const [showWelcomeProfile, setShowWelcomeProfile] = useState(false);
   const [user, setUser] = useState<{ email: string; name: string; userId?: string; role?: string; avatarUrl?: string; targetExam?: string } | null>(() => {
     const saved = localStorage.getItem('hansai-user-session');
     if (saved) {
@@ -2867,7 +2869,7 @@ export default function App() {
   const [quizLevel, setQuizLevel] = useState('Class 10th / Competitive');
   const [quizDifficulty, setQuizDifficulty] = useState<'standard' | 'moderate' | 'hard' | 'extreme'>('standard');
   const [quizQuestionCount, setQuizQuestionCount] = useState<number>(5);
-  const [studentName, setStudentName] = useState('Aspirant Student');
+  const [studentName, setStudentName] = useState('Aspirant User');
   const [studentRoll, setStudentRoll] = useState('HS-2026-8809');
   const [positiveMarkVal, setPositiveMarkVal] = useState(2.0);
   const [negativeMarkVal, setNegativeMarkVal] = useState(0.5);
@@ -2977,7 +2979,7 @@ export default function App() {
         <div class="card-type">OFFICIAL CHAPTER SCORECARD & A1 CERTIFICATE</div>
       </div>
       <div class="meta-grid">
-        <div class="meta-item"><strong>Student Name / विद्यार्थी का नाम</strong><span>${studentName}</span></div>
+        <div class="meta-item"><strong>User Name / उपयोगकर्ता का नाम</strong><span>${studentName}</span></div>
         <div class="meta-item"><strong>Roll / Reg Number</strong><span>${studentRoll}</span></div>
         <div class="meta-item"><strong>Chapter / Subject / अध्याय</strong><span>${quizSubject}</span></div>
         <div class="meta-item"><strong>Level / Target Exam</strong><span>${quizLevel}</span></div>
@@ -3620,7 +3622,7 @@ export default function App() {
         timestamp: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }),
         score: correctQ,
         total: quizzes.length,
-        studentName: studentName || 'Aspirant Student',
+        studentName: studentName || 'Aspirant User',
         studentRoll: studentRoll || 'HS-2026-8809',
         positiveMarks: parseFloat(posMarks.toFixed(1)),
         negativeMarks: parseFloat(negMarks.toFixed(1)),
@@ -3695,7 +3697,7 @@ export default function App() {
       timestamp: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }),
       score: correctQ,
       total: quizzes.length,
-      studentName: studentName || 'Aspirant Student',
+      studentName: studentName || 'Aspirant User',
       studentRoll: studentRoll || 'HS-2026-8809',
       positiveMarks: parseFloat(posMarks.toFixed(1)),
       negativeMarks: parseFloat(negMarks.toFixed(1)),
@@ -7844,7 +7846,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   showToast={showToast}
                   language={language}
                   user={user}
-                  userName={user?.name || 'Student Aspirant'}
+                  userName={user?.name || 'User Aspirant'}
                   userEmail={user?.email || ''}
                   onAddToMistakeNotebook={(item) => handleSaveMistakeToNotebook(item)}
                   onStartCustomTest={(questions, title) => {
@@ -8564,7 +8566,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   className="w-full py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer border-none"
                 >
                   <Lock className="w-4 h-4" />
-                  <span>Student Sign In (Password / OTP) 🔐</span>
+                  <span>User Sign In (Password / OTP) 🔐</span>
                 </button>
 
                 <button
@@ -8588,7 +8590,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
                     const email = (formData.get('email') as string || '').trim().toLowerCase();
-                    const name = (formData.get('name') as string || '').trim() || 'Scholar Student';
+                    const name = (formData.get('name') as string || '').trim() || 'Scholar User';
 
                     if (!email || !email.includes('@')) {
                       showToast("कृपया एक वैध ईमेल दर्ज करें।", "warn");
@@ -8624,7 +8626,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         name,
                         email,
                         type: 'login',
-                        query: `Student Logged In (${name})`
+                        query: `User Logged In (${name})`
                       })
                     }).catch(console.warn);
                     

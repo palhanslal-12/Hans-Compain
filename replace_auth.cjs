@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+
+let code = `import React, { useState, useEffect } from 'react';
 import { Lock, Mail, Phone, User, Eye, EyeOff, ShieldCheck, Sparkles, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { AiPublicRulesModal } from './AiPublicRulesModal';
 import { HansCompainLogo } from './HansCompainLogo';
@@ -72,7 +74,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
     try {
       const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
       setRegOtpHint(mockOtp);
-      showToast(`OTP ${mockOtp} sent to ${regPhone}`, "info");
+      showToast(\`OTP \${mockOtp} sent to \${regPhone}\`, "info");
       setRegOtpTimer(30);
     } catch (e) {
       showToast("Error sending OTP", "warn");
@@ -90,7 +92,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
     try {
       const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
       setLoginOtpHint(mockOtp);
-      showToast(`OTP ${mockOtp} sent to ${loginIdentifier}`, "info");
+      showToast(\`OTP \${mockOtp} sent to \${loginIdentifier}\`, "info");
       setLoginOtpTimer(30);
     } catch (e) {
       showToast("Error sending OTP", "warn");
@@ -137,7 +139,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
       
       const displayName = getCleanDisplayName(regName, regEmail || regPhone);
       setUser({ name: displayName, email: data.user?.email || regEmail || regPhone, phone: regPhone });
-      showToast(`Welcome, ${displayName}! Registration successful.`, "success");
+      showToast(\`Welcome, \${displayName}! Registration successful.\`, "success");
     } catch (err: any) {
       if (regOtpHint && regOtp === regOtpHint) {
          const displayName = getCleanDisplayName(regName, regEmail || regPhone);
@@ -182,7 +184,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
 
       const displayName = getCleanDisplayName(data.user?.name, data.user?.email || loginIdentifier);
       setUser({ name: displayName, email: data.user?.email || loginIdentifier, phone: data.user?.phone });
-      showToast(`Welcome back, ${displayName}!`, "success");
+      showToast(\`Welcome back, \${displayName}!\`, "success");
     } catch (err: any) {
       if (loginMode === 'otp' && loginOtpHint && loginOtp === loginOtpHint) {
          const displayName = getCleanDisplayName(undefined, loginIdentifier);
@@ -220,21 +222,21 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
           <div className="flex p-1 bg-slate-100/80 rounded-2xl">
             <button
               onClick={() => setActiveTab('login')}
-              className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${
+              className={\`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all \${
                 activeTab === 'login'
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-700"
-              }`}
+              }\`}
             >
               Sign In
             </button>
             <button
               onClick={() => setActiveTab('register')}
-              className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${
+              className={\`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all \${
                 activeTab === 'register'
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-700"
-              }`}
+              }\`}
             >
               Register
             </button>
@@ -320,7 +322,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
                     type="tel"
                     maxLength={10}
                     value={regPhone}
-                    onChange={(e) => setRegPhone(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => setRegPhone(e.target.value.replace(/\\D/g, ''))}
                     placeholder="Mobile Number (10 Digits)"
                     className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono"
                     required
@@ -336,7 +338,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
                       type="text"
                       maxLength={6}
                       value={regOtp}
-                      onChange={(e) => setRegOtp(e.target.value.replace(/\D/g, ''))}
+                      onChange={(e) => setRegOtp(e.target.value.replace(/\\D/g, ''))}
                       placeholder="6-Digit OTP"
                       className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold tracking-widest text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono"
                     />
@@ -347,7 +349,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
                     onClick={handleSendRegOtp}
                     className="px-5 py-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   >
-                    {isSendingRegOtp ? "Sending..." : regOtpTimer > 0 ? `Wait ${regOtpTimer}s` : "Get OTP"}
+                    {isSendingRegOtp ? "Sending..." : regOtpTimer > 0 ? \`Wait \${regOtpTimer}s\` : "Get OTP"}
                   </button>
                 </div>
                 {regOtpHint && (
@@ -388,18 +390,18 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
                   <button
                     type="button"
                     onClick={() => setLoginMode('password')}
-                    className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all border ${
+                    className={\`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all border \${
                       loginMode === 'password' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-transparent border-slate-200 text-slate-500 hover:bg-slate-50'
-                    }`}
+                    }\`}
                   >
                     Use Password
                   </button>
                   <button
                     type="button"
                     onClick={() => setLoginMode('otp')}
-                    className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all border ${
+                    className={\`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all border \${
                       loginMode === 'otp' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-transparent border-slate-200 text-slate-500 hover:bg-slate-50'
-                    }`}
+                    }\`}
                   >
                     Login via OTP
                   </button>
@@ -449,7 +451,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
                         type="text"
                         maxLength={6}
                         value={loginOtp}
-                        onChange={(e) => setLoginOtp(e.target.value.replace(/\D/g, ''))}
+                        onChange={(e) => setLoginOtp(e.target.value.replace(/\\D/g, ''))}
                         placeholder="6-Digit OTP"
                         className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold tracking-widest text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-mono"
                       />
@@ -460,7 +462,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
                       onClick={handleSendLoginOtp}
                       className="px-5 py-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
-                      {isSendingLoginOtp ? "Sending..." : loginOtpTimer > 0 ? `Wait ${loginOtpTimer}s` : "Get OTP"}
+                      {isSendingLoginOtp ? "Sending..." : loginOtpTimer > 0 ? \`Wait \${loginOtpTimer}s\` : "Get OTP"}
                     </button>
                   </div>
                 )}
@@ -495,3 +497,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ setUser, showToast, 
     </div>
   );
 };
+`;
+
+fs.writeFileSync('src/components/AuthGateView.tsx', code);
+console.log("Replaced AuthGateView.tsx");
