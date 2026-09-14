@@ -92,7 +92,8 @@ import {
   CheckCircle2,
   Lightbulb,
   AlertTriangle,
-  Star
+  Star,
+  Settings,
 } from 'lucide-react';
 import { INDIAN_LANGUAGES } from './utils/speechUtils';
 import { FiveStarFeedbackModal } from './components/FiveStarFeedbackModal';
@@ -5549,26 +5550,13 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         screenColorMode === 'eco_gray' ? 'bg-[#F1F3F5]/90 border-slate-200' :
         'bg-[#03132B]/90 border-cyan-500/30'
       }`}>
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
-            onClick={() => {
-              setFeedbackInitialContext('HansAI Main Platform & App');
-              setIsFiveStarFeedbackOpen(true);
-            }}
-            className="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 hover:text-amber-400 rounded-xl text-[10px] sm:text-xs font-extrabold flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
-            title="Give 5-Star Feedback"
+            onClick={() => setSidebarOpen(true)}
+            className="p-1.5 hover:bg-slate-800/80 rounded-xl transition-all cursor-pointer"
+            title="Open terminal sidebar"
           >
-            <span className="hidden sm:inline">⭐ Feedback</span>
-            <span className="sm:hidden">⭐ Feed</span>
-          </button>
-          
-          <button
-            onClick={() => setIsFeedbackOpen(true)}
-            className="px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 hover:text-emerald-400 rounded-xl text-[10px] sm:text-xs font-extrabold flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
-            title="Write a User Review"
-          >
-            <span className="hidden sm:inline">📝 User Review</span>
-            <span className="sm:hidden">📝 Review</span>
+            <Menu className="w-5 h-5 text-indigo-400" />
           </button>
           
           {/* Back Arrow Button (Visible in sub-views OR active chat) */}
@@ -5587,15 +5575,32 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <ArrowLeft className="w-4 h-4 text-sky-300" />
             </button>
           )}
-
+          
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => { setActiveView('chat'); startNewChat(); }}>
-            {/* Hans Compain Clean Vector Branding */}
             <HansCompainLogo size="sm" showSubtitle={true} />
           </div>
         </div>
 
-        {/* Header Right Actions - Responsive Mobile Options Menu */}
+        {/* Header Right Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button
+            onClick={() => {
+              setFeedbackInitialContext('HansAI Main Platform & App');
+              setIsFiveStarFeedbackOpen(true);
+            }}
+            className="hidden lg:flex px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 hover:text-amber-400 rounded-xl text-[10px] sm:text-xs font-extrabold items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
+            title="Give 5-Star Feedback"
+          >
+            <span className="hidden sm:inline">⭐ Feedback</span><span className="sm:hidden">⭐</span>
+          </button>
+          
+          <button
+            onClick={() => setIsFeedbackOpen(true)}
+            className="hidden lg:flex px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 hover:text-emerald-400 rounded-xl text-[10px] sm:text-xs font-extrabold items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
+            title="Write a User Review"
+          >
+            <span className="hidden sm:inline">📝 User Review</span><span className="sm:hidden">📝</span>
+          </button>
 
           {/* 🔔 LIVE NOTIFICATION CENTER BELL BUTTON IN HEADER */}
           <button
@@ -5619,11 +5624,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           {/* 🎯 Quick Board / Exam Goal Pill Button */}
           <button
             onClick={() => setIsOnboardingModalOpen(true)}
-            className="px-2.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 cursor-pointer transition-all border border-blue-400/30"
+            className="hidden sm:flex px-2.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-md items-center gap-1.5 cursor-pointer transition-all border border-blue-400/30 shrink-0"
             title="क्लिक करके अपना बोर्ड या प्रतियोगी परीक्षा लक्ष्य बदलें"
           >
             <span>🎯</span>
-            <span className="max-w-[120px] sm:max-w-[150px] truncate">
+            <span className="max-w-[120px] truncate">
               {studentGoalProfile?.stream === 'board' 
                 ? `${studentGoalProfile.boardDetails?.classGrade || '10th'} • ${studentGoalProfile.boardDetails?.boardName || 'Board'}`
                 : studentGoalProfile?.competitiveDetails?.examName || 'Target Exam'}
@@ -5634,28 +5639,27 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           {activeView !== 'chat' && (
             <button
               onClick={() => setActiveView('chat')}
-              className="px-2 py-1.5 bg-indigo-650 hover:bg-indigo-600 rounded-xl text-[10px] font-extrabold text-white flex items-center gap-1 transition-all cursor-pointer shadow-md"
+              className="px-2 py-1.5 bg-indigo-650 hover:bg-indigo-600 rounded-xl text-[10px] font-extrabold text-white flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
             >
               <Cpu className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Home Chat</span>
             </button>
           )}
 
-
-          {/* Main Quick Options / Settings Button (Made small, discreet & low-profile as requested) */}
+          {/* Main Quick Options / Settings Button (Exact Right Place) */}
           <button
             onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
-            className="p-1 px-1.5 text-xs text-slate-500 hover:text-slate-200 hover:bg-slate-800/40 rounded-lg transition-all cursor-pointer bg-transparent border-none opacity-40 hover:opacity-100"
-            title="Header Options & Theme Switcher"
+            className="p-1.5 sm:p-2 text-slate-400 hover:text-white bg-slate-800/40 hover:bg-slate-700/60 border border-slate-700/50 hover:border-slate-500/50 rounded-xl transition-all cursor-pointer flex items-center justify-center shadow-sm shrink-0"
+            title="App Settings & Theme Options"
           >
-            <span>⚙️</span>
+            <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
           {/* User Avatar */}
           {user && (
             <button
               onClick={() => setIsUserProfileModalOpen(true)}
-              className="hidden sm:block cursor-pointer hover:opacity-80 transition-opacity border-none bg-transparent p-0 relative group"
+              className="hidden sm:block cursor-pointer hover:opacity-80 transition-opacity border-none bg-transparent p-0 relative group shrink-0"
               title="Edit Profile"
             >
               <img 
