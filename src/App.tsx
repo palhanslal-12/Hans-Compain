@@ -5579,8 +5579,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           )}
 
           {/* Brand Logo */}
-          <div className="flex items-center gap-1 sm:gap-2 cursor-pointer" onClick={() => { setActiveView('chat'); startNewChat(); }}>
-            <HansCompainLogo size="sm" showSubtitle={true} />
+          <div className="flex items-center gap-1 sm:gap-2 cursor-pointer shrink-1 overflow-hidden" onClick={() => { setActiveView('chat'); startNewChat(); }}>
+            <HansCompainLogo size="xs" showSubtitle={false} className="sm:hidden" />
+            <HansCompainLogo size="sm" showSubtitle={true} className="hidden sm:inline-flex" />
           </div>
 
           {/* 5-Star Feedback & User Review Buttons */}
@@ -5605,7 +5606,19 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         </div>
 
         {/* Header Right Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* ⚙️ PROMINENT APP SETTINGS & CLASS GOAL BUTTON (PRIMARY ACTION TOP RIGHT) */}
+          <button
+            onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
+            className="px-2 sm:px-2.5 py-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 border-2 border-cyan-300/80 text-white rounded-xl text-xs font-black flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shadow-lg shrink-0 active:scale-95"
+            title="एप सेटिंग्स, थीम व कक्षा चुनें (App Settings & Class Goal)"
+          >
+            <Settings className="w-4 h-4 text-yellow-300 animate-spin-slow shrink-0" />
+            <span className="text-[11px] sm:text-xs font-black tracking-wide text-white">
+              {language === 'hindi' ? 'सेटिंग्स' : 'Settings'}
+            </span>
+          </button>
+
           {/* 🔔 Notification Bell */}
           <button
             onClick={() => setIsNotificationCenterOpen(true)}
@@ -5635,18 +5648,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <span className="hidden sm:inline">Home Chat</span>
             </button>
           )}
-
-          {/* ⚙️ ALWAYS VISIBLE PROMINENT APP SETTINGS BUTTON (TOP RIGHT) */}
-          <button
-            onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
-            className="px-2.5 py-1.5 bg-gradient-to-r from-indigo-900/90 to-slate-900/90 hover:from-indigo-800 hover:to-slate-800 border-2 border-indigo-400/60 hover:border-indigo-300 text-white rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-lg shrink-0 animate-pulse-subtle"
-            title="एप सेटिंग्स, थीम व कक्षा चुनें (App Settings & Options)"
-          >
-            <Settings className="w-4 h-4 text-cyan-300 animate-spin-slow shrink-0" />
-            <span className="text-xs font-black tracking-wide text-cyan-200">
-              {language === 'hindi' ? 'सेटिंग्स' : 'Settings'}
-            </span>
-          </button>
 
           {/* 🚪 DIRECT LOGOUT BUTTON (Visible on Header when user is logged in) */}
           {user ? (
@@ -5956,6 +5957,63 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* 💬 WHATSAPP STATUS MAKER & ❓ HELP ASSISTANT IN SETTINGS */}
+          <div className="space-y-2 pt-2 border-t border-slate-800 text-xs font-bold">
+            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider block">
+              💬 {language === "hindi" ? "व्हाट्सएप स्टेटस व ऐप हेल्प सपोर्ट:" : "WhatsApp Status & App Help Assistant:"}
+            </span>
+
+            {/* WhatsApp Status Creator Option */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsSharePosterOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-emerald-950/90 via-teal-950/90 to-slate-900 border border-emerald-500/50 rounded-xl text-emerald-300 flex items-center justify-between transition-all cursor-pointer text-left shadow-md hover:border-emerald-400"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">💬</span>
+                <div>
+                  <div className="font-extrabold text-white text-xs">
+                    {language === "hindi" ? "व्हाट्सएप स्टेटस पोस्टर व डिज़ाइनर" : "WhatsApp Status Maker & Designer"}
+                  </div>
+                  <div className="text-[9px] text-emerald-300/80 font-medium">
+                    {language === "hindi" ? "कस्टम मोटिवेशन टेक्स्ट व कार्ड्स बनाकर शेयर करें (+50 Coins)" : "Design custom status card & text (+50 Coins)"}
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono font-extrabold">
+                STATUS 📲
+              </span>
+            </button>
+
+            {/* App Help & Feature AI Assistant Option */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsHelpGuideOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-indigo-950/90 via-purple-950/90 to-slate-900 border border-indigo-500/50 rounded-xl text-indigo-200 flex items-center justify-between transition-all cursor-pointer text-left shadow-md hover:border-indigo-400"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">❓</span>
+                <div>
+                  <div className="font-extrabold text-white text-xs">
+                    {language === "hindi" ? "ऐप सहायता व एआई फ़ीचर्स गाइड" : "App Help & Feature Guide Assistant"}
+                  </div>
+                  <div className="text-[9px] text-indigo-300/80 font-medium">
+                    {language === "hindi" ? "सवाल लिखें/खोजें या समस्या का स्टेप-बाई-स्टेप हल पाएं" : "Type/search doubts about app features & tools"}
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.5 rounded font-mono font-extrabold">
+                HELP 🤖
+              </span>
+            </button>
           </div>
 
           {/* 🛠️ TOOLS, ROADMAP & FEEDBACK */}
@@ -6331,6 +6389,21 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       <span>{language === 'hindi' ? "+ नया चैट शुरू करें" : "+ New Chat"}</span>
                     </div>
                     <span className="text-[9px] bg-indigo-900/80 px-1.5 py-0.5 rounded text-indigo-200 font-mono">ChatGPT-Style</span>
+                  </button>
+
+                  {/* ⚙️ SIDEBAR PROMINENT APP SETTINGS & CLASS GOAL BUTTON */}
+                  <button
+                    onClick={() => {
+                      setIsHeaderMenuOpen(true);
+                      if (window.innerWidth < 1024) setSidebarOpen(false);
+                    }}
+                    className="w-full py-2.5 px-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 border border-cyan-400/50 text-white rounded-xl text-xs font-black flex items-center justify-between transition-all shadow-md cursor-pointer active:scale-98"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Settings className="w-4 h-4 text-amber-300 animate-spin-slow" />
+                      <span>{language === 'hindi' ? "⚙️ एप सेटिंग्स व क्लास/बोर्ड बदलें" : "⚙️ App Settings & Class Goal"}</span>
+                    </div>
+                    <span className="text-[9px] bg-white/20 text-white font-mono px-1.5 py-0.5 rounded">⚙️</span>
                   </button>
 
                   {/* Public AI Rules Modal Button */}
@@ -6870,6 +6943,76 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                   {/* Quick Spacer */}
                   <div className="pt-1" />
+
+                  {/* 🌐 OFFICIAL SOCIAL MEDIA & APP DOWNLOAD COMMUNITY LINKS */}
+                  <div className="space-y-2 pt-2 border-t border-slate-850">
+                    <span className="text-[10px] font-extrabold text-cyan-400 uppercase tracking-wider px-1 flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <span>📲</span>
+                        <span>{language === "hindi" ? "एप डाउनलोड व सोशल कम्युनिटी" : "App & Official Community"}</span>
+                      </span>
+                      <span className="text-[9px] bg-cyan-950/80 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.2 rounded">Official</span>
+                    </span>
+
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {/* APK Download Button */}
+                      <button
+                        onClick={() => {
+                          showToast(language === "hindi" ? "📥 HANS COMPAIN .APK डाउनलोड शुरू हो रहा है..." : "📥 Downloading HANS COMPAIN .APK...", "info");
+                          showToast(language === "hindi" ? "✅ ऐप इन्स्टॉल करने के लिए Add to Home Screen या PWA विकल्प भी चुनें!" : "✅ Tap Add to Home Screen to install app on Mobile!", "success");
+                        }}
+                        className="p-2 bg-gradient-to-r from-emerald-950/90 to-teal-950/90 hover:from-emerald-900 hover:to-teal-900 border border-emerald-500/40 text-emerald-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                      >
+                        <span className="text-xs">📲</span>
+                        <span>{language === "hindi" ? "APK डाउनलोड" : "Download APK"}</span>
+                      </button>
+
+                      {/* WhatsApp Channel */}
+                      <a
+                        href="https://whatsapp.com"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2 bg-gradient-to-r from-green-950/90 to-emerald-950/90 hover:from-green-900 hover:to-emerald-900 border border-green-500/40 text-green-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 no-underline"
+                      >
+                        <span className="text-xs">💬</span>
+                        <span>{language === "hindi" ? "व्हाट्सएप ग्रुप" : "WhatsApp Group"}</span>
+                      </a>
+
+                      {/* YouTube Official Channel */}
+                      <a
+                        href="https://youtube.com"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2 bg-gradient-to-r from-rose-950/90 to-red-950/90 hover:from-rose-900 hover:to-red-900 border border-rose-500/40 text-rose-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 no-underline"
+                      >
+                        <span className="text-xs">📺</span>
+                        <span>{language === "hindi" ? "यूट्यूब चैनल" : "YouTube Channel"}</span>
+                      </a>
+
+                      {/* Share App +50 Coins Button */}
+                      <button
+                        onClick={() => {
+                          const currentCoins = parseInt(localStorage.getItem("hansai-user-coins") || "350", 10);
+                          const newCoins = currentCoins + 50;
+                          localStorage.setItem("hansai-user-coins", newCoins.toString());
+                          if (navigator.share) {
+                            navigator.share({
+                              title: "HANS COMPAIN - Shorthand & Study App",
+                              text: "🚀 HANS COMPAIN ऐप से अपनी आशुलिपि (Stenography) व बोर्ड परीक्षा की तैयारी करें!",
+                              url: window.location.href,
+                            }).catch(() => {});
+                          } else {
+                            navigator.clipboard.writeText(window.location.href);
+                          }
+                          showToast(language === "hindi" ? "🎉 ऐप शेयर किया गया! +50 हंस कॉइंस मिले! (कुल: 🪙 " + newCoins + ")" : "🎉 Shared! +50 Hans Coins added!", "success");
+                        }}
+                        className="p-2 bg-gradient-to-r from-amber-950/90 to-yellow-950/90 hover:from-amber-900 hover:to-yellow-900 border border-amber-500/40 text-amber-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                      >
+                        <span className="text-xs">🪙</span>
+                        <span>{language === "hindi" ? "शेयर (+50 Coins)" : "Share (+50 Coins)"}</span>
+                      </button>
+                    </div>
+                  </div>
 
                   {/* Creator & Academic Hub Drawer Toggles */}
                   <div className="space-y-1.5 pt-2 border-t border-slate-850">
@@ -9206,19 +9349,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   const dynamicShareUrl = getAppShareUrl();
                   const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${customPosterQuote}"\n- _${customPosterAuthor}_\n\n📲 *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
                   
+                  const currentCoins = parseInt(localStorage.getItem("hansai-user-coins") || "350", 10);
+                  const newCoins = currentCoins + 50;
+                  localStorage.setItem("hansai-user-coins", newCoins.toString());
+
                   if (navigator.share) {
                     navigator.share({
-                      title: 'HANS COMPAIN Daily Status Badge',
+                      title: "HANS COMPAIN Daily Status Badge",
                       text: shareText,
                       url: dynamicShareUrl
                     }).then(() => {
-                      showToast("Shared successfully! 🎉", "success");
+                      showToast(language === "hindi" ? "🎉 व्हाट्सएप स्टेटस शेयर किया गया! +50 हंस कॉइन्स मिले! (कुल: 🪙 " + newCoins + ")" : "Shared! +50 Hans Coins added!", "success");
                     }).catch(() => {
-                      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                      window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText), "_blank");
+                      showToast(language === "hindi" ? "🎉 व्हाट्सएप पर शेयर किया गया! +50 कॉइन्स मिले!" : "+50 Hans Coins Added!", "success");
                     });
                   } else {
-                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
-                    showToast("Opening WhatsApp Status Share... 💬", "info");
+                    window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText), "_blank");
+                    showToast(language === "hindi" ? "🎉 व्हाट्सएप स्टेटस शेयर किया गया! +50 हंस कॉइन्स मिले! (कुल: 🪙 " + newCoins + ")" : "Shared! +50 Hans Coins added!", "success");
                   }
                 }}
                 className="w-full py-2.5 bg-emerald-650 hover:bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-wider text-[11px] flex items-center justify-center gap-2 shadow-lg cursor-pointer border-none"
