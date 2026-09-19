@@ -315,12 +315,12 @@ function getGenAI() {
 
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
-  // Use gemini-3.7-flash as preferred primary fast model for maximum quality and speed
+  // Use gemini-2.5-flash as preferred primary fast model for maximum quality and speed
   const isOutdatedOrInvalid = !primaryModel || primaryModel.includes("2.5");
-  const requested = isOutdatedOrInvalid ? "gemini-3.7-flash" : primaryModel;
+  const requested = isOutdatedOrInvalid ? "gemini-2.5-flash" : primaryModel;
   
   // High-availability fallback sequence of valid models including 1.5-flash and flash-lite
-  const fallbackSequence = [requested, "gemini-3.7-flash", "gemini-3.1-flash-lite", "gemini-1.5-flash", "gemini-flash-latest"];
+  const fallbackSequence = [requested, "gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.5-flash", "gemini-flash-latest"];
   const uniqueModels = Array.from(new Set(fallbackSequence.filter(Boolean)));
 
   let lastError: any = null;
@@ -1832,7 +1832,7 @@ Always present these capabilities proudly and clearly in bullet points when aske
     const releaseSlot = await acquireAiSlot();
     let response: any;
     try {
-      response = await generateContentWithFallback(ai, model || "gemini-3.7-flash", {
+      response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
         contents: formattedContents,
         config: config
       });
@@ -1938,7 +1938,7 @@ Explain the correct answer step-by-step with clear exam rationale.`;
     const releaseSlot = await acquireAiSlot();
     let response: any;
     try {
-      response = await generateContentWithFallback(ai, model || "gemini-3.7-flash", {
+      response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -2178,7 +2178,7 @@ Requirements for each question:
 - explanation: Clear step-by-step rationale explaining why the correct answer is right.
 - hint: A 1-sentence quick clue or formula reminder.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2322,7 +2322,7 @@ Your task:
 
 Ensure all text is strictly in ${quizLang === "english" ? "clean English" : "natural Hindi (Devanagari)"}.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2435,7 +2435,7 @@ app.post("/api/research", async (req, res) => {
     - High-retention mnemonic tools or short tricks to memorize key components
     - Exactly 3 multiple-choice practice questions targeting this specific topic with detailed options and answers.`;
 
-    const response = await generateContentWithFallback(ai, model || "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2539,7 +2539,7 @@ app.post("/api/status-generate", async (req, res) => {
     If category is 'motivation', write a powerful 2-line motivational quote in Hindi/Hinglish.
     Ensure it is totally new, creative, elegant, and ready to share as a morning status! Do not repeat old generic quotes.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         systemInstruction: "You are the companion HansAI, writing beautiful, positive, and motivating daily WhatsApp status messages and poems for Indian students."
@@ -2580,7 +2580,7 @@ Generate exactly 5 nodes:
 - "x": integer percentage position on canvas (step 1: 50, step 2: 25, step 3: 75, step 4: 35, step 5: 50)
 - "y": integer percentage position on canvas (step 1: 15, step 2: 35, step 3: 55, step 4: 72, step 5: 88)`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2678,7 +2678,7 @@ Generate a valid JSON object matching this structure:
   ]
 }`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2781,7 +2781,7 @@ app.post("/api/news", async (req, res) => {
     Absolute prohibition of mixed language components or mechanical word-by-word copy translations. 
     Aspirants depend on this feed for real-world study; employ elite, fluid, natural, and professionally localized translation grammar.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -2880,7 +2880,7 @@ app.post("/api/study-plan", async (req, res) => {
     - weeklyPhases: 4 weekly phases detailing specific focus topics, practice mocks, and revision milestones
     - examTips: 3 strategic preparation tips in Hindi/Hinglish`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2969,7 +2969,7 @@ app.post("/api/flashcards", async (req, res) => {
     - back: Concise, precise answer or explanation (in Hindi/English)
     - category: subject tag`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -3341,7 +3341,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
     - mainsQuestionHi: Descriptive question in Hindi
     - mainsQuestionEn: Descriptive question in English`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -3436,7 +3436,7 @@ app.post("/api/ocr-solve", async (req, res) => {
     - solution: Detailed step-by-step solution in Hindi/English
     - practiceMcqs: Array of 3 MCQs (question, options [4], answerIndex, explanation)`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: [
         {
           role: "user",
@@ -3503,7 +3503,7 @@ app.post("/api/audio-transcribe", async (req, res) => {
     - summary: 3-5 bullet points of key takeaways
     - subjectTag: Main subject area detected`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: [
         {
           role: "user",
@@ -3648,7 +3648,7 @@ JSON RESPONSE FORMAT (Strictly match this structure):
   ]
 }`;
 
-    const response = await generateContentWithFallback(ai, "gemini-3.7-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json"
