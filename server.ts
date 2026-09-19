@@ -1629,7 +1629,7 @@ app.post("/api/chat", aiRateLimiter, async (req, res) => {
   let messages: any[] = [];
   let isEncrypted = false;
   try {
-    let { messages: reqMessages, message: singleMessage, systemInstruction: customSystemInstruction, model, image, images, imagePayload, advancedResearch, isEncrypted: reqIsEncrypted, userName, userEmail } = req.body;
+    let { messages: reqMessages, message: singleMessage, systemInstruction: customSystemInstruction, model, image, images, imagePayload, advancedResearch, isEncrypted: reqIsEncrypted, userName, userEmail, userRole } = req.body;
     messages = reqMessages;
     isEncrypted = reqIsEncrypted;
     
@@ -1737,6 +1737,13 @@ app.post("/api/chat", aiRateLimiter, async (req, res) => {
 
     // Dynamic Server-Side Tone Adaptive prompt construction
     let customizedInstruction = customSystemInstruction || otaConfig.systemInstruction;
+
+    // HANS COMPAIN Role-Based Adaptation Rules
+    if (userRole === 'steno_aspirant') {
+      customizedInstruction += "\n\nROLE ADAPTABILITY MANDATE (SSC STENOGRAPHER ASPIRANT): The user is a Stenographer aspirant. Focus heavily on English grammar rules, dictation speed tips (60-120 WPM), Pitman shorthand strokes/phrasal outlines, vocabulary, and TCS iON mock analysis.";
+    } else if (userRole === 'board_student') {
+      customizedInstruction += "\n\nROLE ADAPTABILITY MANDATE (BOARD STUDENT 10TH/12TH): The user is a Board exam student (10th or 12th). Focus on NCERT-aligned solutions, chapter summaries, key formula breakdowns, and structured subjective answer writing step-by-step.";
+    }
     
     if (emotion === "angry") {
       customizedInstruction += "\n\nCRITICAL EMOTION OVERRIDE (ANGRY/EGOISTIC STATE): The user is highly frustrated or angry. You must remain completely stable, neutral, polite, and helpful. Never replicate aggression, mock, argue, or use generic flatters. Propose structured objective logic to salvage the user's issue.";

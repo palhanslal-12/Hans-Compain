@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'palhanslal4@gmail.com' ||
+        (request.auth.token.keys().hasAll(['email']) && request.auth.token.email.matches('.*@hansai\\.admin'))
+      );
+    }
+
+    function isBattleParticipant() {
+      return isAuthenticated() && (
+        (request.resource != null && 'participants' in request.resource.data && request.auth.uid in request.resource.data.participants) ||
+        (resource != null && 'participants' in resource.data && request.auth.uid in resource.data.participants)
+      );
+    }
+
+    // 1. COLLECTION 'users/{userId}'
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+
+      match /{allSubcollections=**} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // 2. COLLECTIONS 'quizzes/{quizId}' & 'pyqs/{pyqId}'
+    match /quizzes/{quizId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /pyqs/{pyqId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // 3. COLLECTION 'quiz_battles/{battleId}'
+    match /quiz_battles/{battleId} {
+      allow create, read, update: if isBattleParticipant() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Additional Collections
+    match /activity_logs/{logId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow create, read: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow create, read: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
