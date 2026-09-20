@@ -1,1 +1,314 @@
-[]
+[
+  {
+    "id": "log_visit_1789889628012_v4lg",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://ais-dev-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app/]",
+    "timestamp": "2026-09-20T07:33:48.011Z"
+  },
+  {
+    "id": "log_visit_1789889628018_5hsc",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://ais-dev-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app/]",
+    "timestamp": "2026-09-20T07:33:48.018Z"
+  },
+  {
+    "id": "log_visit_1789890204489_hnbg",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T07:43:24.488Z"
+  },
+  {
+    "id": "log_visit_1789890204496_6hib",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T07:43:24.495Z"
+  },
+  {
+    "id": "log_visit_1789890222787_kpum",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T07:43:42.785Z"
+  },
+  {
+    "id": "log_visit_1789890222808_b7hb",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T07:43:42.808Z"
+  },
+  {
+    "id": "log_visit_1789890450849_1qx1",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789890450901_jqbag@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://ais-dev-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app/]",
+    "timestamp": "2026-09-20T07:47:30.849Z"
+  },
+  {
+    "id": "log_visit_1789890450909_iseq",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789890450901_jqbag@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://ais-dev-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app/]",
+    "timestamp": "2026-09-20T07:47:30.909Z"
+  },
+  {
+    "id": "log_visit_1789890673109_w9tv",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T07:51:13.109Z"
+  },
+  {
+    "id": "log_visit_1789890674580_3woh",
+    "userName": "Guest Visitor (📱 Mobile (Linux armv81))",
+    "userEmail": "v_1789889613788_2pr5s@hansai.visitor",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T07:51:14.580Z"
+  },
+  {
+    "id": "log_social_1789891151693",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "login",
+    "query": "Logged in via Google OAuth",
+    "timestamp": "2026-09-20T07:59:11.693Z"
+  },
+  {
+    "id": "log_1789892427305",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "login",
+    "query": "User Registered (Email: palhanslal4@gmail.com | UserID: hanslal_pal_1)",
+    "timestamp": "2026-09-20T08:20:27.304Z"
+  },
+  {
+    "id": "log_visit_1789892427454_llf1",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T08:20:27.454Z"
+  },
+  {
+    "id": "log_1789892427865",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "login",
+    "query": "User Registered (Email: palhanslal4@gmail.com | UserID: hanslal_pal)",
+    "timestamp": "2026-09-20T08:20:27.865Z"
+  },
+  {
+    "id": "log_visit_1789892428363_g3xe",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T08:20:28.363Z"
+  },
+  {
+    "id": "log_1789894220077",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "login",
+    "query": "User Registered (Email: palhanslal4@gmail.com | UserID: hanslal_pal_2)",
+    "timestamp": "2026-09-20T08:50:20.076Z"
+  },
+  {
+    "id": "log_visit_1789894220295_evqu",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T08:50:20.295Z"
+  },
+  {
+    "id": "log_1789894220711",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "login",
+    "query": "User Registered (Email: palhanslal4@gmail.com | UserID: hanslal_pal)",
+    "timestamp": "2026-09-20T08:50:20.711Z"
+  },
+  {
+    "id": "log_visit_1789894220886_14nk",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T08:50:20.886Z"
+  },
+  {
+    "id": "log_visit_1789894920529_a72p",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:02:00.528Z"
+  },
+  {
+    "id": "log_visit_1789894920952_rfmx",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:02:00.952Z"
+  },
+  {
+    "id": "log_visit_1789895910001_jt6l",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:18:30.000Z"
+  },
+  {
+    "id": "log_visit_1789895910975_v17i",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:18:30.975Z"
+  },
+  {
+    "id": "log_visit_1789895914957_vw4t",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:18:34.957Z"
+  },
+  {
+    "id": "log_visit_1789895914989_iwv1",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:18:34.989Z"
+  },
+  {
+    "id": "log_visit_1789895924235_7t8z",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:18:44.235Z"
+  },
+  {
+    "id": "log_visit_1789895924253_ngoq",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:18:44.253Z"
+  },
+  {
+    "id": "log_visit_1789896099185_n98m",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:21:39.185Z"
+  },
+  {
+    "id": "log_visit_1789896099193_ovu5",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T09:21:39.193Z"
+  },
+  {
+    "id": "log_visit_1789898993070_cojf",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:09:53.069Z"
+  },
+  {
+    "id": "log_visit_1789898993073_6zkk",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:09:53.073Z"
+  },
+  {
+    "id": "log_visit_1789899266100_f2og",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:14:26.099Z"
+  },
+  {
+    "id": "log_visit_1789899266114_1tfa",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:14:26.114Z"
+  },
+  {
+    "id": "log_visit_1789899366330_jf8j",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:16:06.330Z"
+  },
+  {
+    "id": "log_visit_1789899366344_95wb",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:16:06.344Z"
+  },
+  {
+    "id": "log_visit_1789899491666_ytpo",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:18:11.666Z"
+  },
+  {
+    "id": "log_visit_1789899491672_ewyk",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:18:11.672Z"
+  },
+  {
+    "id": "log_visit_1789899553101_9iz2",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:19:13.101Z"
+  },
+  {
+    "id": "log_visit_1789899553106_5ipw",
+    "userName": "HANSLAL PAL",
+    "userEmail": "palhanslal4@gmail.com",
+    "type": "visit",
+    "query": "App Link Opened / Page Visit (/) via 📱 Mobile (Linux armv81) [Ref: https://aistudio.google.com/]",
+    "timestamp": "2026-09-20T10:19:13.106Z"
+  }
+]
