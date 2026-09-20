@@ -395,7 +395,7 @@ const QuantumSwanLogo = ({
   showBrandText = true
 }: { 
   className?: string; 
-  showLightBg?: boolean;
+  showLightBg?: boolean; 
   showRainbow?: boolean;
   containerClassName?: string;
   showBrandText?: boolean;
@@ -404,25 +404,15 @@ const QuantumSwanLogo = ({
     <img 
       src="/logo.png" 
       alt="Hans Compain Official Logo" 
-      className={`${className} transition-all duration-500 hover:scale-105 object-contain bg-transparent opacity-85 hover:opacity-100 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]`} 
+      className={`${className} transition-all duration-300 hover:scale-105 object-contain bg-transparent opacity-95 hover:opacity-100 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]`} 
       loading="eager"
     />
   );
 
-  if (showRainbow) {
-    return (
-      <div className={`relative inline-flex items-center justify-center p-[2.5px] rounded-3xl bg-[conic-gradient(from_0deg,#ff0055,#ff8800,#ffee00,#00ff66,#00e5ff,#8800ff,#ff0077,#ff0055)] animate-spin-slow shadow-[0_0_30px_rgba(0,229,255,0.4)] shrink-0 ${containerClassName}`}>
-        <div className="relative z-10 p-2 bg-[#060B18] rounded-[22px] flex items-center justify-center">
-          {imgLogo}
-        </div>
-      </div>
-    );
-  }
-
-  if (!showLightBg) return imgLogo;
+  if (!showLightBg && !showRainbow) return imgLogo;
 
   return (
-    <div className={`relative inline-flex items-center justify-center p-1.5 bg-slate-900/40 border border-slate-700/50 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 shrink-0 ${containerClassName}`}>
+    <div className={`relative inline-flex items-center justify-center p-2 bg-slate-900/60 border border-slate-700/60 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 shrink-0 ${containerClassName}`}>
       <div className="relative z-10 flex items-center justify-center bg-transparent">
         {imgLogo}
       </div>
@@ -2361,13 +2351,14 @@ export default function App() {
     if (!queryText || !queryText.trim()) return;
 
     let cleanQuery = queryText
+      .replace(/^(hey|hello|ok|okay|hi|हे|हेलो|ओके|सुनो|नमस्ते)?\s*(compain|hans\s*compain|hans\s*ai|hansai|कम्पेन|हंस\s*कम्पेन|हंस\s*एआई|हंस)\b[,:\s]*/i, "")
       .replace(/^(ok|okay|hey|hello|ओपेन|ओके|ओक|ओपन)?\s*(open\s*ai|ai|hansai|ओपेन\s*एआई|ओके\s*एआई|ओक\s*एआई|ओपन\s*एआई)\b/i, "")
       .trim();
 
     if (!cleanQuery) cleanQuery = queryText;
 
     setVoiceAssistantStatus(`🤔 Thinking: "${cleanQuery}"`);
-    showToast(`🎙️ Hands-Free Query: "${cleanQuery}"`, "info");
+    showToast(`🎙️ Hands-Free Voice ("Hey Compain"): "${cleanQuery}"`, "info");
 
     await handleSendChat(cleanQuery);
   };
@@ -5725,7 +5716,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             onClick={() => { setActiveView('chat'); startNewChat(); }}
             title="HANS COMPAIN होम पेज"
           >
-            <HansCompainLogo size="xs" rainbow={true} opacity="opacity-90 group-hover:opacity-100" />
+            <HansCompainLogo size="xs" opacity="opacity-95 group-hover:opacity-100" />
             <div className="flex flex-col text-left leading-none min-w-0">
               <span className="font-black text-[11px] sm:text-sm tracking-wide text-white group-hover:text-cyan-200 transition-colors truncate">
                 HANS COMPAIN
@@ -5753,14 +5744,20 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </button>
           )}
 
-          {/* 🎙️ GEMINI LIVE STUDY HANDS-FREE ASSISTANT BUTTON */}
+          {/* 🎙️ HANDS-FREE VOICE ASSISTANT ("Hey Compain" / "Hello Hans AI") */}
           <button
-            onClick={() => setIsGeminiLiveOpen(true)}
-            className="relative px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-cyan-600 via-indigo-600 to-pink-600 hover:from-cyan-500 hover:to-pink-500 border border-cyan-300/60 rounded-xl text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-cyan-950/40 active:scale-95 cursor-pointer shrink-0 animate-pulse"
-            title="जेमिनी लाइव हैंड्स-फ्री स्टडी असिस्टेंट (Gemini Live Hands-Free Study)"
+            onClick={startVoiceAssistantMode}
+            className={`px-2.5 sm:px-3 py-1.5 border rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0 ${
+              isVoiceAssistantActive
+                ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 ring-1 ring-emerald-400/40 animate-pulse'
+                : 'bg-slate-900/80 hover:bg-slate-800 border-slate-700/80 text-slate-300'
+            }`}
+            title="हैंड्स-फ्री वॉयस असिस्टेंट ('Hey Compain' या 'Hello Hans AI' बोलें)"
           >
-            <Sparkles className="w-3.5 h-3.5 text-yellow-300 shrink-0" />
-            <span className="tracking-wide font-extrabold">Gemini Live</span>
+            <Mic className={`w-3.5 h-3.5 ${isVoiceAssistantActive ? 'text-emerald-400 animate-bounce' : 'text-slate-400'}`} />
+            <span className="hidden sm:inline">
+              {isVoiceAssistantActive ? (language === 'hindi' ? 'सुन रहा है...' : 'Listening...') : 'Hey Compain'}
+            </span>
           </button>
 
           {/* 🔔 Notification Bell */}
@@ -7354,9 +7351,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   {chatMessages.length === 0 ? (
                     <div className="flex-1 min-h-0 flex flex-col justify-between max-w-4xl mx-auto w-full py-2 px-3 sm:px-6 text-center animate-fade-in select-none overflow-y-auto sm:overflow-hidden scrollbar-none">
                       
-                      {/* Logo and Greeting - Official Logo with Rainbow Animation & Safe Margins */}
+                      {/* Logo and Greeting - Clean Official Logo with Refined Typography */}
                       <div className="flex flex-col items-center space-y-2 my-auto">
-                        <QuantumSwanLogo className="w-12 h-12 sm:w-14 sm:h-14" showRainbow={true} />
+                        <HansCompainLogo size="md" opacity="opacity-95 hover:opacity-100" />
                         <h2 className="text-lg sm:text-2xl font-black tracking-tight font-sans text-white px-2">
                           HANS COMPAIN - How can I help with Shorthand & Exams today?
                         </h2>
@@ -7366,41 +7363,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             : 'All-in-one AI education, exam prep & interactive science-memory lab'}
                         </p>
 
-                        {/* ✨ NEW GEMINI LIVE HANDS-FREE STUDY HERO BANNER */}
+                        {/* FEATURED STENOGRAPHER BANNER */}
                         <div className="w-full flex flex-col sm:flex-row gap-2 mt-1">
                           <button
-                            onClick={() => setIsGeminiLiveOpen(true)}
-                            className="flex-1 py-2.5 px-3 sm:px-4 rounded-2xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-pink-600 hover:from-cyan-500 hover:to-pink-500 border border-cyan-300/50 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-indigo-950/60 hover:shadow-cyan-500/30 flex items-center justify-between gap-2.5 transition-all cursor-pointer active:scale-[0.99] group"
+                            onClick={() => setActiveView('steno')}
+                            className="w-full py-2.5 px-3 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-700 via-indigo-700 to-sky-700 hover:from-sky-600 hover:to-indigo-600 border border-sky-400/40 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-indigo-950/60 flex items-center justify-between gap-2 transition-all cursor-pointer active:scale-[0.99] group"
                           >
-                            <div className="flex items-center gap-2">
-                              <span className="text-base group-hover:scale-110 transition-transform animate-pulse">🎙️</span>
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-lg group-hover:scale-110 transition-transform">✍️</span>
                               <div className="flex flex-col text-left">
                                 <span className="font-extrabold tracking-wide">
-                                  GEMINI LIVE STUDY • हैंड्स-फ्री बोलकर पढ़ाई व शॉर्टहैंड सीखें
+                                  ALL STENOGRAPHER • सम्पूर्ण आशुलिपि
                                 </span>
-                                <span className="text-[9px] text-cyan-200 font-medium hidden xs:block">
-                                  Google Gemini जैसी नेचुरल आवाज़, बिना हाथ लगाए अध्ययन व ओरल क्विज़
+                                <span className="text-[9px] text-sky-200 font-medium hidden xs:block">
+                                  {language === 'hindi' ? 'ऋषि, मानक, विशिष्ट प्रणाली व 80/100 WPM लाइव डिक्टेशन' : 'Rishi, Manak, Vishisht & 80/100 WPM Dictations'}
                                 </span>
                               </div>
                             </div>
-                            <span className="text-[10px] bg-white/20 text-white px-2.5 py-1 rounded-xl font-black uppercase tracking-normal shrink-0 flex items-center gap-1">
-                              <Sparkles className="w-3 h-3 text-yellow-300 animate-spin-slow" />
-                              START 🎙️
-                            </span>
-                          </button>
-
-                          {/* WIDE SKY-BLUE "ALL STENOGRAPHER" HERO BANNER */}
-                          <button
-                            onClick={() => setActiveView('steno')}
-                            className="py-2.5 px-3 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-600 via-cyan-500 to-sky-600 hover:from-sky-500 hover:to-cyan-400 border border-sky-300/40 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-900/40 hover:shadow-cyan-500/30 flex items-center justify-between gap-2 transition-all cursor-pointer active:scale-[0.99] group shrink-0"
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="text-base group-hover:scale-110 transition-transform">✍️</span>
-                              <span className="font-extrabold tracking-wide text-left">
-                                ALL STENOGRAPHER • सम्पूर्ण आशुलिपि
-                              </span>
-                            </div>
-                            <span className="text-[10px] bg-white/20 text-white px-2.5 py-0.5 rounded-full font-black uppercase tracking-normal shrink-0">
+                            <span className="text-[10px] bg-white/20 text-white px-3 py-1 rounded-xl font-black uppercase tracking-normal shrink-0 flex items-center gap-1">
                               OPEN
                             </span>
                           </button>

@@ -299,24 +299,51 @@ const aiRateLimiter = rateLimit({
 
 app.use("/api/", globalApiLimiter);
 
-// Lazy initialization helper for Gemini SDK to avoid crashes if API key is not present on boot
-let aiInstance: GoogleGenAI | null = null;
-function getGenAI() {
-  if (!aiInstance) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured. Please set it in the AI Studio Secrets panel.");
-    }
-    aiInstance = new GoogleGenAI({
-      apiKey: apiKey,
+// Lazy initialization helper with Multi-Key Rotation support for Gemini SDK
+function getApiKeyList(): string[] {
+  const keys: string[] = [];
+  if (process.env.GEMINI_API_KEY) keys.push(process.env.GEMINI_API_KEY);
+  if (process.env.GEMINI_API_KEYS) {
+    const splitKeys = process.env.GEMINI_API_KEYS.split(',').map(k => k.trim()).filter(Boolean);
+    keys.push(...splitKeys);
+  }
+  // Check index-based environment keys (GEMINI_API_KEY_1, GEMINI_API_KEY_2, etc.)
+  for (let i = 1; i <= 10; i++) {
+    const k = process.env[`GEMINI_API_KEY_${i}`];
+    if (k && k.trim()) keys.push(k.trim());
+  }
+  return Array.from(new Set(keys));
+}
+
+let activeKeyIndex = 0;
+const aiClientsMap = new Map<string, GoogleGenAI>();
+
+function getGenAI(forcedKey?: string): GoogleGenAI {
+  const allKeys = getApiKeyList();
+  if (allKeys.length === 0) {
+    throw new Error("GEMINI_API_KEY is not configured. Please set it in the AI Studio Secrets panel.");
+  }
+
+  const selectedKey = forcedKey || allKeys[activeKeyIndex % allKeys.length];
+  if (!aiClientsMap.has(selectedKey)) {
+    aiClientsMap.set(selectedKey, new GoogleGenAI({
+      apiKey: selectedKey,
       httpOptions: {
         headers: {
           'User-Agent': 'aistudio-build',
         }
       }
-    });
+    }));
   }
-  return aiInstance;
+  return aiClientsMap.get(selectedKey)!;
+}
+
+function rotateApiKey() {
+  const allKeys = getApiKeyList();
+  if (allKeys.length > 1) {
+    activeKeyIndex = (activeKeyIndex + 1) % allKeys.length;
+    console.log(`[Gemini API] Switched to active API Key index #${activeKeyIndex + 1}/${allKeys.length}`);
+  }
 }
 
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
@@ -328,30 +355,53 @@ const DEPRECATED_MODELS = new Set([
   'gemini-2.0-pro',
   'gemini-2.0-flash-thinking',
   'gemini-2.0-flash-lite',
+  'gemini-3.8-flash',
+  'gemini-flash-latest'
 ]);
 
 const VALID_FALLBACK_MODELS = [
-  'gemini-3.8-flash',
-  'gemini-flash-latest',
+  'gemini-2.5-flash',
   'gemini-3.1-flash-lite',
-  'gemini-2.5-flash'
+  'gemini-2.5-pro'
 ];
 
+// Circuit breaker to track model quota exhaustion and temporarily route traffic to healthy models
+const modelCooldownMap = new Map<string, number>();
+
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
-  // Normalize requested model
-  let requested = primaryModel ? String(primaryModel).trim() : 'gemini-3.8-flash';
-  if (DEPRECATED_MODELS.has(requested)) {
-    requested = 'gemini-3.8-flash';
+  const now = Date.now();
+
+  // Normalize requested model (default to gemini-2.5-flash)
+  let requested = primaryModel ? String(primaryModel).trim() : 'gemini-2.5-flash';
+  if (!requested || DEPRECATED_MODELS.has(requested)) {
+    requested = 'gemini-2.5-flash';
   }
 
-  // Build prioritized fallback sequence without duplicates or deprecated models
-  const rawSequence = [requested, ...VALID_FALLBACK_MODELS];
-  const candidateModels = Array.from(new Set(rawSequence.filter(m => m && !DEPRECATED_MODELS.has(m))));
+  // Filter models that are currently in quota cooldown (60 seconds cooldown)
+  const isCooledDown = (m: string) => {
+    const cooldownUntil = modelCooldownMap.get(m);
+    return cooldownUntil && cooldownUntil > now;
+  };
+
+  // Build prioritized fallback sequence: start with available non-cooled-down models first
+  const pool = ['gemini-2.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-pro', 'gemini-3.1-pro-preview'];
+  const healthyModels = pool.filter(m => !isCooledDown(m));
+  const coolingModels = pool.filter(m => isCooledDown(m));
+
+  let candidateModels = Array.from(new Set([
+    ...(healthyModels.includes(requested) ? [requested] : []),
+    ...healthyModels,
+    ...coolingModels
+  ]));
+
+  if (candidateModels.length === 0) {
+    candidateModels = ['gemini-3.1-flash-lite', 'gemini-2.5-flash'];
+  }
 
   let lastError: any = null;
 
   for (const currentModel of candidateModels) {
-    // Try up to 2 attempts per model for transient errors (e.g., 503 high demand or temporary network hiccup)
+    // Up to 2 attempts for transient 503 network hiccups
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const response = await ai.models.generateContent({
@@ -359,17 +409,17 @@ async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string
           contents: options.contents,
           config: options.config
         });
+        // Model worked successfully! Clear any previous cooldown
+        modelCooldownMap.delete(currentModel);
         return response;
       } catch (err: any) {
         lastError = err;
         const errMsg = err?.message || String(err);
         const is503HighDemand = errMsg.includes("503") || errMsg.includes("high demand") || errMsg.includes("UNAVAILABLE") || errMsg.includes("overloaded");
-        const is429RateLimit = errMsg.includes("429") || errMsg.includes("Resource has been exhausted") || errMsg.includes("rate limit") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED");
-        const isTransient = is503HighDemand || is429RateLimit || errMsg.includes("ECONNRESET") || errMsg.includes("ETIMEDOUT") || errMsg.includes("fetch failed");
+        const is429Quota = errMsg.includes("429") || errMsg.includes("Resource has been exhausted") || errMsg.includes("rate limit") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("exceeded your current quota");
+        const isTransient = is503HighDemand || errMsg.includes("ECONNRESET") || errMsg.includes("ETIMEDOUT") || errMsg.includes("fetch failed");
 
-        console.warn(`[Gemini API] Model '${currentModel}' attempt ${attempt} encountered: ${errMsg.slice(0, 150)}`);
-
-        // If tools (e.g. googleSearch) were attached and caused failure/rate limit, attempt stripping tools immediately
+        // If tools (e.g. googleSearch) were attached and caused failure or rate limit, attempt immediately without tools
         if (options.config?.tools?.length) {
           try {
             const configNoTools = { ...options.config };
@@ -380,25 +430,32 @@ async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string
               contents: options.contents,
               config: configNoTools
             });
+            modelCooldownMap.delete(currentModel);
             return resNoTools;
           } catch (innerErr) {
-            // continue with next attempt or fallback model
+            // continue fallback
           }
         }
 
-        // On 503 high demand or 429, don't wait too long if on attempt 2, jump to next model in sequence
-        if (attempt < 2 && isTransient) {
-          const backoffDelay = 300 * attempt + Math.floor(Math.random() * 200);
+        // On 429 quota exhaustion, rotate API key, put model in cooldown for 60s and immediately jump to next candidate model
+        if (is429Quota) {
+          rotateApiKey();
+          modelCooldownMap.set(currentModel, Date.now() + 60 * 1000);
+          break;
+        }
+
+        // On 503 high demand or network retry on attempt 1
+        if (attempt === 1 && isTransient) {
+          const backoffDelay = 250 + Math.floor(Math.random() * 200);
           await new Promise(resolve => setTimeout(resolve, backoffDelay));
         } else {
-          // Break attempt loop to move to next fallback model
           break;
         }
       }
     }
   }
 
-  // If all candidate models failed, re-throw lastError so route handler can serve local fallback reply
+  // If all candidate models failed, throw lastError so route handler can serve smart resilient fallback
   throw lastError;
 }
 
