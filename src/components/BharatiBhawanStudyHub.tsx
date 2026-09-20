@@ -492,6 +492,333 @@ const CLASS_10_SUBJECTS: SubjectData[] = [
   }
 ];
 
+const CLASS_9_SUBJECTS: SubjectData[] = [
+  {
+    id: 'maths-9',
+    nameHi: 'गणित (Class 9 Maths)',
+    nameEn: 'Class 9 Mathematics',
+    bookTitle: 'प्राथमिक गणित 9 (भारती भवन)',
+    author: 'प्रो. दास गुप्ता, प्रसाद एवं के. सी. सिन्हा पद्धति',
+    totalMarks: 100,
+    chapters: [
+      {
+        id: 'number-system-9',
+        number: 1,
+        titleHi: 'संख्या पद्धति (Number System)',
+        titleEn: 'Number System',
+        marksWeightage: 12,
+        difficulty: 'Easy',
+        estHours: 4,
+        summaryHi: 'परिमेय और अपरिमेय संख्याएं, संख्या रेखा पर निरूपण, हर का परिमेयकरण (Rationalization of Denominator), और घातांक नियम (Laws of Exponents)।',
+        keyFormulas: [
+          'x^(a) × x^(b) = x^(a+b)',
+          '1 / (√a - b) = (√a + b) / (a - b²)',
+          '(a^p)^q = a^(pq)'
+        ],
+        solvedExamples: [
+          {
+            question: '1 / (2 + √3) के हर का परिमेयकरण कीजिए।',
+            stepByStepSolution: [
+              'हर के विपरीत चिह्न (2 - √3) से अंश और हर में गुणा करने पर:',
+              '[1 × (2 - √3)] / [(2 + √3)(2 - √3)]',
+              '= (2 - √3) / (2² - (√3)²) = (2 - √3) / (4 - 3)',
+              '= (2 - √3) / 1 = 2 - √3',
+              'उत्तर: 2 - √3'
+            ],
+            boardYear: 'Class 9 Final Exam'
+          }
+        ],
+        practiceQuestions: [
+          {
+            q: 'निम्न में से कौन सी संख्या अपरिमेय है?',
+            options: ['√2', '√4', '0.25', '2/3'],
+            correctIndex: 0,
+            explanation: '√2 का दशमलव प्रसार अशांत और अनावर्ती है, इसलिए यह एक अपरिमेय संख्या है।'
+          }
+        ]
+      },
+      {
+        id: 'polynomials-9',
+        number: 2,
+        titleHi: 'बहुपद (Polynomials)',
+        titleEn: 'Polynomials',
+        marksWeightage: 15,
+        difficulty: 'Medium',
+        estHours: 5,
+        summaryHi: 'एक चर वाले बहुपद, बहुपद के शून्यक, शेषफल प्रमेय (Remainder Theorem), गुणनखंड प्रमेय (Factor Theorem), और बीजीय सर्वसमिकाएं।',
+        keyFormulas: [
+          '(a + b)³ = a³ + b³ + 3ab(a + b)',
+          '(a - b)³ = a³ - b³ - 3ab(a - b)',
+          'a³ + b³ + c³ - 3abc = (a + b + c)(a² + b² + c² - ab - bc - ca)'
+        ],
+        solvedExamples: [
+          {
+            question: 'यदि p(x) = x³ + 3x² + 3x + 1 को (x + 1) से भाग दिया जाए, तो शेषफल ज्ञात कीजिए।',
+            stepByStepSolution: [
+              'शेषफल प्रमेय के अनुसार, x + 1 = 0 => x = -1 रखने पर प्राप्त मान ही शेषफल होगा।',
+              'p(-1) = (-1)³ + 3(-1)² + 3(-1) + 1',
+              '= -1 + 3(1) - 3 + 1',
+              '= -1 + 3 - 3 + 1 = 0',
+              'उत्तर: शेषफल 0 है।'
+            ],
+            boardYear: 'Class 9 Mid-Term'
+          }
+        ],
+        practiceQuestions: [
+          {
+            q: 'बहुपद x⁵ - x⁴ + 3 की घात (Degree) क्या होगी?',
+            options: ['5', '4', '3', '1'],
+            correctIndex: 0,
+            explanation: 'बहुपद में चर की अधिकतम घात को बहुपद की घात कहते हैं। यहाँ अधिकतम घात 5 है।'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'physics-9',
+    nameHi: 'भौतिकी (Class 9 Physics)',
+    nameEn: 'Class 9 Physics',
+    bookTitle: 'प्राथमिक भौतिकी 9 (भारती भवन)',
+    author: 'भारती भवन पब्लिशर्स',
+    totalMarks: 100,
+    chapters: [
+      {
+        id: 'motion-9',
+        number: 1,
+        titleHi: 'गति (Motion)',
+        titleEn: 'Motion',
+        marksWeightage: 15,
+        difficulty: 'Medium',
+        estHours: 4,
+        summaryHi: 'दूरी और विस्थापन, चाल और वेग, त्वरण (Acceleration), गति के ग्राफीय प्रदर्शन और गति के तीन प्रमुख समीकरण।',
+        keyFormulas: [
+          'v = u + at',
+          's = ut + ½ at²',
+          'v² = u² + 2as',
+          'औसत चाल = कुल दूरी / कुल समय'
+        ],
+        solvedExamples: [
+          {
+            question: 'एक बस विराम अवस्था से चलना प्रारंभ करती है और 2 मिनट तक 0.1 m/s² के एकसमान त्वरण से चलती है। प्राप्त की गई चाल ज्ञात कीजिए।',
+            stepByStepSolution: [
+              'प्रारंभिक वेग u = 0 (विराम अवस्था)',
+              'त्वरण a = 0.1 m/s²',
+              'समय t = 2 मिनट = 2 × 60 = 120 सेकंड',
+              'प्रथम गति समीकरण से: v = u + at',
+              'v = 0 + (0.1 × 120) = 12 m/s',
+              'उत्तर: प्राप्त की गई चाल 12 m/s है।'
+            ],
+            boardYear: 'Class 9 Board Pattern'
+          }
+        ],
+        practiceQuestions: [
+          {
+            q: 'वेग में परिवर्तन की दर को क्या कहते हैं?',
+            options: ['त्वरण (Acceleration)', 'विस्थापन', 'चाल', 'बल'],
+            correctIndex: 0,
+            explanation: 'समय के साथ वेग में परिवर्तन की दर को त्वरण (Acceleration) कहते हैं।'
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const CLASS_11_SUBJECTS: SubjectData[] = [
+  {
+    id: 'maths-11',
+    nameHi: 'गणित (Class 11 Maths)',
+    nameEn: 'Class 11 Mathematics',
+    bookTitle: 'उच्चतर गणित 11 (भारती भवन)',
+    author: 'प्रो. दास गुप्ता एवं के. सी. सिन्हा पद्धति',
+    totalMarks: 100,
+    chapters: [
+      {
+        id: 'sets-11',
+        number: 1,
+        titleHi: 'समुच्चय (Sets)',
+        titleEn: 'Sets',
+        marksWeightage: 15,
+        difficulty: 'Easy',
+        estHours: 4,
+        summaryHi: 'समुच्चय का निरूपण (रोस्टर व समुच्चय निर्माण रूप), रिक्त, परिमित व अपरिमित समुच्चय, उपसमुच्चय, संघ (Union) व सर्वनिष्ठ (Intersection), वेन आरेख (Venn Diagrams)।',
+        keyFormulas: [
+          'n(A ∪ B) = n(A) + n(B) - n(A ∩ B)',
+          'A - B = {x : x ∈ A और x ∉ B}',
+          'De Morgan\'s Law: (A ∪ B)\' = A\' ∩ B\''
+        ],
+        solvedExamples: [
+          {
+            question: 'यदि A = {1, 2, 3, 4} और B = {3, 4, 5, 6} हो, तो A ∩ B और A ∪ B ज्ञात कीजिए।',
+            stepByStepSolution: [
+              'A ∩ B (सर्वनिष्ठ) = दोनों समुच्चयों में उभयनिष्ठ अवयव = {3, 4}',
+              'A ∪ B (संघ) = सभी अवयव बिना पुनरावृत्ति के = {1, 2, 3, 4, 5, 6}'
+            ],
+            boardYear: 'Class 11 Academic'
+          }
+        ],
+        practiceQuestions: [
+          {
+            q: 'एक रिक्त समुच्चय (Null Set) के उपसमुच्चयों की संख्या कितनी होती है?',
+            options: ['1', '0', '2', 'अनंत'],
+            correctIndex: 0,
+            explanation: 'रिक्त समुच्चय ∅ का केवल एक उपसमुच्चय (स्वयं ∅) होता है। सूत्र 2^n के अनुसार 2^0 = 1।'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'physics-11',
+    nameHi: 'भौतिकी (Class 11 Physics)',
+    nameEn: 'Class 11 Physics',
+    bookTitle: 'भौतिकी भाग 1 (भारती भवन Class 11)',
+    author: 'भारती भवन पब्लिशर्स',
+    totalMarks: 100,
+    chapters: [
+      {
+        id: 'vectors-11',
+        number: 1,
+        titleHi: 'सदिश विश्लेषण एवं गति (Vectors)',
+        titleEn: 'Vector Analysis',
+        marksWeightage: 12,
+        difficulty: 'Medium',
+        estHours: 5,
+        summaryHi: 'अदिश व सदिश राशियां, सदिशों का योग (त्रिभुज व समांतर चतुर्भुज नियम), सदिशों का अदिश गुणनफल (Dot Product) व सदिश गुणनफल (Cross Product), प्रक्षेप्य गति (Projectile Motion)।',
+        keyFormulas: [
+          'R = √(A² + B² + 2AB cosθ)',
+          'A · B = AB cosθ',
+          '|A × B| = AB sinθ'
+        ],
+        solvedExamples: [
+          {
+            question: 'दो सदिशों A = 2i + 3j व B = i - j का अदिश गुणनफल (Dot Product) ज्ञात कीजिए।',
+            stepByStepSolution: [
+              'A · B = (2i + 3j) · (i - j)',
+              '= 2(1) + 3(-1)',
+              '= 2 - 3 = -1',
+              'उत्तर: A · B = -1'
+            ],
+            boardYear: 'Class 11 Physics Board Base'
+          }
+        ],
+        practiceQuestions: [
+          {
+            q: 'निम्न में से कौन सी सदिश (Vector) राशि है?',
+            options: ['बल (Force)', 'कार्य (Work)', 'ऊर्जा (Energy)', 'तापमान'],
+            correctIndex: 0,
+            explanation: 'बल में परिमाण और दिशा दोनों होते हैं, अतः यह सदिश राशि है। अन्य अदिश हैं।'
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const CLASS_12_SUBJECTS: SubjectData[] = [
+  {
+    id: 'maths-12',
+    nameHi: 'गणित (Class 12 Maths)',
+    nameEn: 'Class 12 Mathematics',
+    bookTitle: 'उच्चतर गणित 12 (भारती भवन)',
+    author: 'डॉ. के. सी. सिन्हा एवं प्रो. दास गुप्ता',
+    totalMarks: 100,
+    chapters: [
+      {
+        id: 'matrices-12',
+        number: 1,
+        titleHi: 'आव्यूह एवं सारणिक (Matrices)',
+        titleEn: 'Matrices & Determinants',
+        marksWeightage: 15,
+        difficulty: 'Medium',
+        estHours: 5,
+        summaryHi: 'आव्यूह की परिभाषा, प्रकार, आव्यूहों का गुणनफल, सहखंडज (Adjoint) व व्युत्क्रम (Inverse) निकालना, सारणिक के गुणधर्म और रैखिक समीकरणों का आव्यूह विधि से हल।',
+        keyFormulas: [
+          'A × A⁻¹ = I',
+          'A⁻¹ = 1/|A| × adj(A)',
+          '|AB| = |A| × |B|'
+        ],
+        solvedExamples: [
+          {
+            question: 'यदि A एक 2×2 आव्यूह है और |A| = 5 है, तो |3A| का मान ज्ञात कीजिए।',
+            stepByStepSolution: [
+              'n×n आव्यूह के लिए सूत्र: |kA| = kⁿ |A|',
+              'यहाँ n = 2 और k = 3, अतः |3A| = 3² × |A|',
+              '|3A| = 9 × 5 = 45',
+              'उत्तर: 45'
+            ],
+            boardYear: 'BSEB 2024 / CBSE 2023'
+          }
+        ],
+        practiceQuestions: [
+          {
+            q: 'यदि आव्यूह A का व्युत्क्रम (Inverse) संभव हो, तो |A| का मान क्या होना चाहिए?',
+            options: ['|A| ≠ 0', '|A| = 0', '|A| = 1', '|A| < 0'],
+            correctIndex: 0,
+            explanation: 'व्युत्क्रमणीय आव्यूह (Invertible matrix) के लिए सारणिक का मान शून्य नहीं होना चाहिए (|A| ≠ 0)।'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'physics-12',
+    nameHi: 'भौतिकी (Class 12 Physics)',
+    nameEn: 'Class 12 Physics',
+    bookTitle: 'भौतिकी भाग 1 व 2 (कक्षा 12)',
+    author: 'भारती भवन पब्लिशर्स',
+    totalMarks: 100,
+    chapters: [
+      {
+        id: 'electrostatics-12',
+        number: 1,
+        titleHi: 'स्थिरवैद्युतिकी (Electrostatics)',
+        titleEn: 'Electrostatics',
+        marksWeightage: 15,
+        difficulty: 'High',
+        estHours: 6,
+        summaryHi: 'वैद्युत आवेश, कूलाँम का नियम, वैद्युत क्षेत्र की तीव्रता, वैद्युत द्विध्रुव (Dipole), गॉस का नियम तथा संधारित्र (Capacitor) की धारिता।',
+        keyFormulas: [
+          'F = 1 / (4πε₀) × (q₁q₂ / r²)',
+          'E = F / q',
+          'V = W / q',
+          'C = Q / V'
+        ],
+        solvedExamples: [
+          {
+            question: 'वायु में एक-दूसरे से 30 cm दूरी पर रखे दो छोटे आवेशित गोलों पर क्रमशः 2×10⁻⁷ C तथा 3×10⁻⁷ C आवेश हैं। उनके बीच बल ज्ञात कीजिए।',
+            stepByStepSolution: [
+              'दिया है: q₁ = 2×10⁻⁷ C, q₂ = 3×10⁻⁷ C, r = 30 cm = 0.3 m',
+              'कूलाँम नियम से: F = (9×10⁹) × (q₁q₂ / r²)',
+              'F = (9×10⁹) × (2×10⁻⁷ × 3×10⁻⁷) / (0.3)²',
+              'F = (9×10⁹) × (6×10⁻¹¼) / 0.09',
+              'F = (54×10⁻⁵) / 0.09 = 6×10⁻³ N (प्रतिकर्षण बल)',
+              'उत्तर: 6×10⁻³ N'
+            ],
+            boardYear: 'BSEB 2023'
+          }
+        ],
+        practiceQuestions: [
+          {
+            q: 'विद्युत क्षेत्र की तीव्रता का SI मात्रक क्या होता है?',
+            options: ['न्यूटन प्रति कूलॉम (N/C)', 'जूल प्रति कूलॉम', 'वोल्ट मीटर', 'एम्पियर मीटर'],
+            correctIndex: 0,
+            explanation: 'तीव्रता E = F / q होती है, अतः इसका मात्रक न्यूटन प्रति कूलॉम (N/C) होता है।'
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const SUBJECTS_BY_CLASS: Record<'9' | '10' | '11' | '12', SubjectData[]> = {
+  '9': CLASS_9_SUBJECTS,
+  '10': CLASS_10_SUBJECTS,
+  '11': CLASS_11_SUBJECTS,
+  '12': CLASS_12_SUBJECTS
+};
+
 export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
   onBack,
   onOpenTest,
@@ -508,6 +835,11 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
   const [selectedChapterId, setSelectedChapterId] = useState<string>('trigonometry');
   const [activeTab, setActiveTab] = useState<'study' | 'syllabus' | 'calculator' | 'quiz' | 'portal'>('study');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Get active subjects based on chosen class
+  const activeClassSubjects = useMemo(() => {
+    return SUBJECTS_BY_CLASS[selectedClass] || SUBJECTS_BY_CLASS['10'];
+  }, [selectedClass]);
 
   // 🔗 Persistent Linked Chapter Progress State
   const [completedChaptersMap, setCompletedChaptersMap] = useState<Record<string, boolean>>(() => {
@@ -561,11 +893,23 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
 
   // Active Subject & Chapter derivations
   const currentSubject = useMemo(() => {
-    return CLASS_10_SUBJECTS.find((s) => s.id === selectedSubjectId) || CLASS_10_SUBJECTS[0];
-  }, [selectedSubjectId]);
+    return activeClassSubjects.find((s) => s.id === selectedSubjectId) || activeClassSubjects[0];
+  }, [activeClassSubjects, selectedSubjectId]);
 
   const currentChapter = useMemo(() => {
-    return currentSubject.chapters.find((c) => c.id === selectedChapterId) || currentSubject.chapters[0];
+    return currentSubject.chapters.find((c) => c.id === selectedChapterId) || currentSubject.chapters[0] || {
+      id: 'placeholder',
+      number: 1,
+      titleHi: 'पाठ्यक्रम उपलब्ध नहीं',
+      titleEn: 'No Content Available',
+      marksWeightage: 0,
+      difficulty: 'Easy',
+      estHours: 0,
+      summaryHi: '',
+      keyFormulas: [],
+      solvedExamples: [],
+      practiceQuestions: []
+    };
   }, [currentSubject, selectedChapterId]);
 
   // Actual Completed Chapters for the Current Subject
@@ -687,7 +1031,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
 
   // Linked Actions: Ask AI Doubt
   const handleAskDoubtToAI = () => {
-    const doubtText = `भारती भवन कक्षा 10 (${currentSubject.nameHi}) के अध्याय '${currentChapter.titleHi}' के मुख्य सूत्र और कठिन प्रश्न मुझे सरल भाषा में समझाएं।`;
+    const doubtText = `भारती भवन कक्षा ${selectedClass} (${currentSubject.nameHi}) के अध्याय '${currentChapter.titleHi}' के मुख्य सूत्र और कठिन प्रश्न मुझे सरल भाषा में समझाएं।`;
     if (onOpenChatWithDoubt) {
       onOpenChatWithDoubt(doubtText);
       showToast?.(`🤖 AI ट्यूटर के साथ '${currentChapter.titleHi}' का अध्ययन सत्र शुरू!`, 'info');
@@ -695,9 +1039,23 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
   };
 
   const handleLaunchOfficialPortal = () => {
-    window.open('https://www.bharatibhawanpublishers.com/', '_blank', 'noopener,noreferrer');
-    if (showToast) {
-      showToast('भारती भवन आधिकारिक पोर्टल खोला जा रहा है... 📗', 'info');
+    const portalUrl = 'https://www.bharatibhawanpublishers.com/';
+    try {
+      window.open(portalUrl, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      console.error("Window open blocked:", e);
+    }
+    
+    // Copy URL to clipboard automatically as a robust fallback!
+    try {
+      navigator.clipboard.writeText(portalUrl);
+      if (showToast) {
+        showToast('पोर्टल लिंक क्लिपबोर्ड में कॉपी हो गया! यदि डायरेक्ट नहीं खुला, तो ब्राउज़र में पेस्ट करें। 📗', 'success');
+      }
+    } catch (err) {
+      if (showToast) {
+        showToast('भारती भवन आधिकारिक पोर्टल खोला जा रहा है... 📗', 'info');
+      }
     }
   };
 
@@ -725,7 +1083,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
                     भारती भवन डिजिटल अध्ययन केंद्र
                   </h1>
                   <span className="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded font-black uppercase">
-                    Class 10
+                    Class {selectedClass}
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 truncate max-w-xs sm:max-w-md">
@@ -761,9 +1119,13 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
                 key={cls}
                 onClick={() => {
                   setSelectedClass(cls);
-                  if (cls !== '10') {
-                    showToast?.(`कक्षा ${cls} का कंटेंट संकलित हो रहा है, कक्षा 10वीं का संपूर्ण पाठ्यक्रम उपलब्ध है।`, 'info');
-                  }
+                  const subjs = SUBJECTS_BY_CLASS[cls] || SUBJECTS_BY_CLASS['10'];
+                  const firstSubj = subjs[0];
+                  setSelectedSubjectId(firstSubj.id);
+                  setSelectedChapterId(firstSubj.chapters[0]?.id || '');
+                  setQuizSubmitted(false);
+                  setQuizAnswerState({});
+                  showToast?.(`कक्षा ${cls}वीं का पाठ्यक्रम सफलतापूर्वक लोड किया गया।`, 'success');
                 }}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
                   selectedClass === cls
@@ -778,7 +1140,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
 
           {/* Subject Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-            {CLASS_10_SUBJECTS.map((subj) => (
+            {activeClassSubjects.map((subj) => (
               <button
                 key={subj.id}
                 onClick={() => {
