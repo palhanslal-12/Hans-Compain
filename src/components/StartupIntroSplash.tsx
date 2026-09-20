@@ -153,15 +153,18 @@ export const StartupIntroSplash: React.FC<StartupIntroSplashProps> = ({
           <X className="w-3.5 h-3.5" />
         </button>
 
-        {/* LOGO & BRAND ANIMATION */}
+        {/* LOGO & BRAND ANIMATION WITH RAINBOW GLOW */}
         <div className="flex flex-col items-center justify-center pt-2 space-y-3">
-          <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center animate-bounce duration-1000">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-full blur-xl" />
-            <img 
-              src="/logo.png" 
-              alt="Hans Compain Logo" 
-              className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(34,197,94,0.35)]" 
-            />
+          <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center group">
+            {/* Multi-Color Rainbow Aura Glow */}
+            <div className="absolute -inset-1.5 rounded-3xl bg-[conic-gradient(from_0deg,#ff0055,#ff8800,#ffee00,#00ff66,#00e5ff,#8800ff,#ff0077,#ff0055)] animate-spin-slow opacity-85 blur-md" />
+            <div className="relative z-10 p-3 rounded-[22px] bg-[#060D1E] flex items-center justify-center shadow-2xl">
+              <img 
+                src="/logo.png" 
+                alt="Hans Compain Official Logo" 
+                className="w-20 h-20 sm:w-24 sm:h-24 object-contain filter drop-shadow-[0_0_15px_rgba(34,197,94,0.35)]" 
+              />
+            </div>
           </div>
 
           {/* Typography */}

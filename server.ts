@@ -65,15 +65,21 @@ interface RegisteredUser {
   isGuest?: boolean;
   visitorId?: string;
   ipAddress?: string;
+  lastView?: string;
+  lastViewTitle?: string;
 }
 
 interface ActivityLog {
   id: string;
   userName: string;
   userEmail: string;
-  type: string; // "chat" | "research" | "quiz" | "search" | "login" | "security" | "visit"
+  type: string; // "chat" | "research" | "quiz" | "search" | "login" | "security" | "visit" | "pageview"
   query: string;
   timestamp: string;
+  view?: string;
+  viewTitle?: string;
+  deviceInfo?: string;
+  ipAddress?: string;
 }
 
 function hashSecret(text: string): string {
@@ -1313,29 +1319,42 @@ app.post("/api/users/track-visitor", (req, res) => {
 // Log User Activity / Query / Search Route (For Owner Analytics)
 app.post("/api/users/log-activity", (req, res) => {
   try {
-    const { name, email, type, query } = req.body;
+    const { name, email, type, query, view, viewTitle, deviceInfo } = req.body;
     if (!email || !query) {
       return res.status(400).json({ error: "Email and query are required." });
     }
     const cleanEmail = String(email).trim().toLowerCase();
     const cleanName = (name || "Student").trim();
     const now = new Date().toISOString();
+    const rawIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1').toString().split(',')[0].trim();
+    const clientIp = rawIp === '::1' ? '127.0.0.1' : rawIp;
 
     let users = loadUsers();
     let user = users.find(u => u.email === cleanEmail);
     if (user) {
       user.lastActiveAt = now;
-      user.promptCount = (user.promptCount || 0) + 1;
+      if (type === 'chat' || type === 'research') {
+        user.promptCount = (user.promptCount || 0) + 1;
+      }
+      if (view) user.lastView = String(view);
+      if (viewTitle) user.lastViewTitle = String(viewTitle);
+      if (deviceInfo) user.deviceInfo = String(deviceInfo);
+      user.ipAddress = clientIp;
     } else {
-      users.push({
+      user = {
         id: "usr_" + Date.now(),
         name: cleanName,
         email: cleanEmail,
         registeredAt: now,
         lastActiveAt: now,
-        promptCount: 1,
-        isGuest: false
-      });
+        promptCount: (type === 'chat' || type === 'research') ? 1 : 0,
+        isGuest: cleanEmail.endsWith('@hansai.visitor'),
+        lastView: view ? String(view) : undefined,
+        lastViewTitle: viewTitle ? String(viewTitle) : undefined,
+        deviceInfo: deviceInfo ? String(deviceInfo) : undefined,
+        ipAddress: clientIp
+      };
+      users.push(user);
     }
     saveUsers(users);
 
@@ -1344,9 +1363,13 @@ app.post("/api/users/log-activity", (req, res) => {
       id: "log_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
       userName: user ? user.name : cleanName,
       userEmail: cleanEmail,
-      type: type || "chat",
+      type: type || "activity",
       query: sanitizeInput(String(query)),
-      timestamp: now
+      timestamp: now,
+      view: view ? String(view) : undefined,
+      viewTitle: viewTitle ? String(viewTitle) : undefined,
+      deviceInfo: deviceInfo ? String(deviceInfo) : (user?.deviceInfo || undefined),
+      ipAddress: clientIp
     });
     saveLogs(logs);
 
@@ -1364,13 +1387,21 @@ app.get("/api/owner/analytics", (req, res) => {
     const registeredCount = users.filter(u => !u.isGuest && !u.email.endsWith('@hansai.visitor')).length;
     const visitorCount = users.filter(u => u.isGuest || u.email.endsWith('@hansai.visitor')).length;
 
+    // Active in the last 30 minutes
+    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const liveVisitors = users
+      .filter(u => u.lastActiveAt >= thirtyMinAgo)
+      .sort((a, b) => new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime());
+
     res.json({
       users: users.sort((a, b) => new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime()),
       logs: logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
+      liveVisitors,
       totalUsers: users.length,
       registeredCount,
       visitorCount,
-      totalQueries: logs.filter(l => l.type !== "login" && l.type !== "visit").length,
+      totalQueries: logs.filter(l => l.type !== "login" && l.type !== "visit" && l.type !== "pageview").length,
+      totalPageviews: logs.filter(l => l.type === "pageview").length,
       shieldStats: {
         ...shieldStats,
         uptimeSeconds: Math.floor((Date.now() - shieldStats.startTime) / 1000),
@@ -1619,6 +1650,81 @@ app.post("/api/owner/clear-alerts", (req, res) => {
     res.json({ success: true, message: "All owner alerts cleared." });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to clear owner alerts" });
+  }
+});
+
+// 🎙️ Gemini Live Study Hands-Free Assistant API (Real-Time Spoken Study Partner)
+app.post("/api/gemini-live-study", aiRateLimiter, async (req, res) => {
+  try {
+    const { query, mode = 'general', language = 'hindi', history = [] } = req.body;
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: "Query is required" });
+    }
+
+    const ai = getGenAI();
+
+    let modePrompt = "";
+    if (mode === 'shorthand') {
+      modePrompt = "You are an expert Hindi & English Shorthand (Stenography) Guru (Pitman, Rishi, and Manak systems). Teach stroke outlines, grammalogues, halving/doubling rules, contractions, and speed development tips.";
+    } else if (mode === 'quiz') {
+      modePrompt = "You are an interactive oral exam quiz master for competitive exams (SSC Stenographer, Railways, Police, State Exams). If evaluating user's answer, state clearly whether it was right or wrong in one sentence, then immediately ask ONE new interesting exam question and wait for the student's answer.";
+    } else if (mode === 'concept') {
+      modePrompt = "You are a concept explainer. Break down complex scientific, historical, or mathematical concepts into 2-3 crystal-clear sentences with an intuitive real-world analogy.";
+    } else {
+      modePrompt = "You are an all-round academic study mentor for competitive exams, board studies, and general knowledge.";
+    }
+
+    const systemInstruction = `You are Google Gemini Live Hands-Free Study Assistant for HANS COMPAIN students.
+${modePrompt}
+Language preference: ${language === 'hindi' ? 'Hindi or conversational Hinglish' : 'English'}.
+CRITICAL VOICE GUIDELINES:
+1. Your response will be SPOKEN ALOUD directly to the student via speech synthesis.
+2. Speak with natural conversational warmth, enthusiasm, clarity, and pacing—just like Google Gemini Live.
+3. DO NOT use markdown symbols, asterisks (*), bullet points (-), numbered lists (1. 2.), headers (###), backticks, or emojis. Write pure spoken sentences.
+4. Keep the response concise: strictly 2 to 4 spoken sentences (around 40-70 words), so the student can listen easily without fatigue.
+5. If the user asks for more detail, give clear, crisp spoken explanations.`;
+
+    const contents: any[] = [];
+    if (Array.isArray(history) && history.length > 0) {
+      for (const h of history.slice(-4)) {
+        if (h.role && h.text) {
+          contents.push({
+            role: h.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: String(h.text) }]
+          });
+        }
+      }
+    }
+    contents.push({
+      role: 'user',
+      parts: [{ text: query }]
+    });
+
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+      contents,
+      config: {
+        systemInstruction,
+        temperature: 0.7,
+        maxOutputTokens: 300,
+      }
+    });
+
+    let rawText = response.text || "";
+    let spokenText = rawText
+      .replace(/[*_#`~>\[\]\(\)]/g, '')
+      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    res.json({
+      spokenText,
+      displayText: rawText.trim(),
+      mode,
+      language
+    });
+  } catch (err: any) {
+    console.error("Gemini Live Study Error:", err);
+    res.status(500).json({ error: err.message || "Failed to process live study voice query" });
   }
 });
 
@@ -3655,7 +3761,7 @@ JSON RESPONSE FORMAT (Strictly match this structure):
       }
     });
 
-    const text = response.text();
+    const text = response.text;
     const data = JSON.parse(text || "{}");
     res.json(data);
   } catch (err: any) {

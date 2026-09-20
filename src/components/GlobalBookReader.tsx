@@ -420,7 +420,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
   const [selectedChapterIndex, setSelectedChapterIndex] = useState<number>(() => selectedBook?.lastOpenedChapterIndex || 0);
 
   // Active View Tabs inside Book Study Mode: 'library' | 'reader' | 'ai-assistant' | 'recall' | 'quiz' | 'revision' | 'notes' | 'analytics'
-  const [activeTab, setActiveTab] = useState<'library' | 'reader' | 'ai-assistant' | 'recall' | 'quiz' | 'revision' | 'notes' | 'analytics'>('reader');
+  const [activeTab, setActiveTab] = useState<'library' | 'reader' | 'ai-assistant' | 'recall' | 'quiz' | 'revision' | 'notes' | 'analytics'>('library');
 
   // Search & Filter state for Library
   const [searchQuery, setSearchQuery] = useState('');
@@ -1237,21 +1237,21 @@ Structure the response into:
       {/* 1. TOP HEADER & NAVIGATION BAR */}
       <div className="bg-[#0A0E1A]/95 border border-indigo-500/30 p-4 sm:p-5 rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shrink-0">
             <BookOpen className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black rounded-full uppercase tracking-wider">
-                📚 HANSAI BOOK STUDY MODE
+                📚 SMART DIGITAL LIBRARY
               </span>
               <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-mono rounded-md flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                AI Tutor Active
+                {books.length} Books Available
               </span>
             </div>
             <h1 className="text-lg sm:text-xl font-black text-white mt-0.5">
-              डिजिटल बुक स्टडी एवं पर्सनल लाइब्रेरी
+              स्मार्ट लाइब्रेरी (Smart Library)
             </h1>
           </div>
         </div>
@@ -1260,22 +1260,22 @@ Structure the response into:
         <div className="flex flex-wrap items-center gap-1.5 bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl w-full md:w-auto overflow-x-auto">
           <button
             onClick={() => setActiveTab('library')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'library' ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
             <BookMarked className="w-4 h-4" />
-            <span>My Books ({books.length})</span>
+            <span>All Books ({books.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('reader')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'reader' ? 'bg-indigo-600 text-white font-black shadow-md' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
             <Eye className="w-4 h-4" />
-            <span>Book Reader</span>
+            <span>Reader {selectedBook ? `• ${selectedBook.title.slice(0, 14)}...` : ''}</span>
           </button>
 
           <button
@@ -1285,7 +1285,7 @@ Structure the response into:
             }`}
           >
             <Brain className="w-4 h-4 text-amber-400" />
-            <span>AI Assistant</span>
+            <span>AI Tutor</span>
           </button>
 
           <button
@@ -1315,7 +1315,7 @@ Structure the response into:
             }`}
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Smart Revision</span>
+            <span>Revision</span>
           </button>
 
           <button
@@ -1325,7 +1325,7 @@ Structure the response into:
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>Notes & Highlights</span>
+            <span>Notes</span>
           </button>
 
           {onBackToChat && (
@@ -1381,106 +1381,32 @@ Structure the response into:
         </div>
       )}
 
-      {/* ==================== TAB 1: MY BOOKS LIBRARY ==================== */}
+      {/* ==================== TAB 1: ALL BOOKS / SMART LIBRARY ==================== */}
       {activeTab === 'library' && (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-5 animate-fade-in">
           
-          {/* CONTINUE READING HERO BANNER */}
-          {selectedBook && (
-            <div className="bg-gradient-to-r from-indigo-950/80 via-[#0A0E1A] to-slate-900 border-2 border-amber-500/40 p-5 sm:p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
-              <div className="space-y-2 z-10">
-                <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-black rounded-full uppercase tracking-wider inline-flex items-center gap-1">
-                  📖 Continue Reading
+          {/* TOP SEARCH BAR & AVAILABLE BOOKS BANNER (DIRECT & PROMINENT) */}
+          <div className="bg-[#0C1328] border border-indigo-500/30 p-4 sm:p-5 rounded-3xl shadow-xl space-y-4">
+            
+            {/* Header Title & Available Book Counter */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                    <span>📚 उपलब्ध पुस्तकें (Available Books)</span>
+                  </h2>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  लाइब्रेरी में कुल <span className="font-black text-amber-400">{books.length}</span> मानक पुस्तकें उपलब्ध हैं • कोई भी पुस्तक खोजें या AI से तुरंत पढ़ें
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold rounded-full flex items-center gap-1.5 shadow-sm">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{filteredBooks.length} Available to Read</span>
                 </span>
-                <h2 className="text-xl sm:text-2xl font-black text-white">{selectedBook.title}</h2>
-                <p className="text-xs text-slate-300">{selectedBook.author} • {selectedBook.category}</p>
-                
-                {/* Progress bar */}
-                <div className="w-full max-w-md space-y-1 pt-1">
-                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-                    <span>Chapter {selectedChapterIndex + 1} of {selectedBook.chapters.length}</span>
-                    <span className="text-amber-400 font-bold">{Math.round(((selectedChapterIndex + 1) / selectedBook.chapters.length) * 100)}% Complete</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
-                    <div
-                      className="h-full bg-gradient-to-r from-amber-500 to-indigo-500 transition-all"
-                      style={{ width: `${((selectedChapterIndex + 1) / selectedBook.chapters.length) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 z-10 w-full md:w-auto">
-                <button
-                  onClick={() => setActiveTab('reader')}
-                  className="w-full md:w-auto px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Play className="w-4 h-4 fill-current" />
-                  <span>Continue Reading →</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* SEARCH, SORT & UPLOAD TOOLBAR */}
-          <div className="bg-[#0F172A] border border-slate-800 p-4 rounded-3xl space-y-3">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              {/* Search Input with 1-Click Search Button */}
-              <div className="relative w-full sm:flex-1 flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3.5 top-3 w-4 h-4 text-indigo-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (searchQuery.trim()) {
-                          handleGenerateBookWithAI(searchQuery);
-                        }
-                      }
-                    }}
-                    placeholder="Search ANY book in the world (e.g. Godan, Atomic Habits, Wings of Fire, Class 10 NCERT)..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#050811] border border-slate-800 focus:border-indigo-500 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleGenerateBookWithAI(searchQuery)}
-                  disabled={isGeneratingAiBook || !searchQuery.trim()}
-                  className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                >
-                  {isGeneratingAiBook ? (
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-3.5 h-3.5" />
-                  )}
-                  <span>{isGeneratingAiBook ? 'Opening...' : 'Search & Read 📖'}</span>
-                </button>
-              </div>
-
-              {/* Filter & Sort Controls */}
-              <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-                <select
-                  value={filterCategory}
-                  onChange={(e: any) => setFilterCategory(e.target.value)}
-                  className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
-                >
-                  <option value="all">All Books</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-
-                <select
-                  value={sortBy}
-                  onChange={(e: any) => setSortBy(e.target.value)}
-                  className="bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none"
-                >
-                  <option value="recent">Sort by Recent</option>
-                  <option value="name">Sort by Title</option>
-                  <option value="progress">Sort by Progress</option>
-                </select>
 
                 {/* Upload Book Button */}
                 <input
@@ -1493,28 +1419,104 @@ Structure the response into:
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  className="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                 >
-                  {isUploading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                  <span>+ Upload PDF</span>
+                  {isUploading ? <Sparkles className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                  <span>+ PDF जोड़ें</span>
                 </button>
               </div>
             </div>
 
-            {/* Quick 1-Tap Trending Book Chips */}
-            <div className="flex items-center gap-1.5 flex-wrap pt-1 text-[10px]">
-              <span className="text-slate-500 font-bold uppercase tracking-wider">Popular Searches:</span>
+            {/* Direct & Prominent Search Input Bar */}
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-amber-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (searchQuery.trim()) {
+                        handleGenerateBookWithAI(searchQuery);
+                      }
+                    }
+                  }}
+                  placeholder="🔍 पुस्तक का नाम, लेखक या विषय खोजें (e.g. Godan, NCERT, Indian Polity, Atomic Habits, Class 10)..."
+                  className="w-full pl-10 pr-4 py-3 bg-[#060913] border border-slate-800 focus:border-amber-400 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none shadow-inner"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-3 text-slate-500 hover:text-slate-300 p-1 text-xs"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleGenerateBookWithAI(searchQuery)}
+                disabled={isGeneratingAiBook || !searchQuery.trim()}
+                className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+              >
+                {isGeneratingAiBook ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 fill-slate-950" />
+                )}
+                <span>{isGeneratingAiBook ? 'खोज रहे हैं...' : 'AI से खोजें व पढ़ें 📖'}</span>
+              </button>
+            </div>
+
+            {/* Category Filters & Sort Controls */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {[
+                  { id: 'all', label: `सभी पुस्तकें (${books.length})` },
+                  { id: 'in-progress', label: '📖 पढ़ रहे हैं (In Progress)' },
+                  { id: 'completed', label: '✅ पूर्ण (Completed)' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setFilterCategory(tab.id as any)}
+                    className={`px-3 py-1 rounded-xl font-bold transition-all text-xs cursor-pointer ${
+                      filterCategory === tab.id
+                        ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
+                        : 'bg-slate-900 border border-slate-800 text-slate-400 hover:bg-slate-800'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={sortBy}
+                  onChange={(e: any) => setSortBy(e.target.value)}
+                  className="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none"
+                >
+                  <option value="recent">हाल ही में खुली (Recent)</option>
+                  <option value="name">शीर्षक अनुसार (A-Z)</option>
+                  <option value="progress">प्रगति अनुसार (Progress)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Quick 1-Tap Popular Books */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-1 text-[11px] border-t border-slate-800/60">
+              <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">लोकप्रिय पुस्तकें:</span>
               {[
                 'गोदान (Godan)',
-                'गबन (Gaban)',
-                'Atomic Habits',
-                'Wings of Fire (अग्नि की उड़ान)',
-                'Rich Dad Poor Dad',
-                'चाणक्य नीति (Chanakya Niti)',
                 'Indian Polity (भारतीय राजव्यवस्था)',
+                'Atomic Habits',
                 'General Science NCERT',
-                'The Alchemist',
-                'Psychology of Money'
+                'Wings of Fire (अग्नि की उड़ान)',
+                'चाणक्य नीति (Chanakya Niti)',
+                'Rich Dad Poor Dad'
               ].map((bookTitle) => (
                 <button
                   key={bookTitle}
@@ -1523,13 +1525,50 @@ Structure the response into:
                     setSearchQuery(bookTitle);
                     handleGenerateBookWithAI(bookTitle);
                   }}
-                  className="px-2.5 py-1 bg-slate-900 hover:bg-indigo-950/80 hover:text-amber-300 text-slate-300 border border-slate-800 hover:border-indigo-500/40 rounded-lg transition-all cursor-pointer font-medium"
+                  className="px-2.5 py-0.5 bg-slate-900/90 hover:bg-indigo-950/80 hover:text-amber-300 text-slate-300 border border-slate-800 hover:border-indigo-500/40 rounded-lg transition-all cursor-pointer font-medium"
                 >
                   {bookTitle}
                 </button>
               ))}
             </div>
           </div>
+
+          {/* CONTINUE READING HERO BANNER (IF SELECTED) */}
+          {selectedBook && (
+            <div className="bg-gradient-to-r from-indigo-950/70 via-[#0A0E1A] to-slate-900 border border-indigo-500/30 p-4 sm:p-5 rounded-3xl shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
+              <div className="space-y-1.5 z-10">
+                <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black rounded-full uppercase tracking-wider inline-flex items-center gap-1">
+                  📖 अंतिम बार पढ़ी गई पुस्तक (Continue Reading)
+                </span>
+                <h3 className="text-base sm:text-xl font-black text-white">{selectedBook.title}</h3>
+                <p className="text-xs text-slate-400">{selectedBook.author} • {selectedBook.category}</p>
+                
+                {/* Progress bar */}
+                <div className="w-full max-w-sm space-y-1 pt-1">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                    <span>Chapter {selectedChapterIndex + 1} of {selectedBook.chapters.length}</span>
+                    <span className="text-amber-400 font-bold">{Math.round(((selectedChapterIndex + 1) / selectedBook.chapters.length) * 100)}% Complete</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-500 to-indigo-500 transition-all"
+                      style={{ width: `${((selectedChapterIndex + 1) / selectedBook.chapters.length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 z-10 w-full md:w-auto">
+                <button
+                  onClick={() => setActiveTab('reader')}
+                  className="w-full md:w-auto px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>पढ़ना जारी रखें →</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* BOOKS GRID */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

@@ -93,7 +93,6 @@ import {
   Lightbulb,
   AlertTriangle,
   Star,
-  Settings,
 } from 'lucide-react';
 import { INDIAN_LANGUAGES } from './utils/speechUtils';
 import { FiveStarFeedbackModal } from './components/FiveStarFeedbackModal';
@@ -151,6 +150,9 @@ import { DailyStreakIndicator, recordDailyPracticeActivity } from './components/
 import { QuickSaveNotesModal } from './components/QuickSaveNotesModal';
 import { UserProfileModal } from './components/UserProfileModal';
 import { StudentGoalOnboardingModal, StudentGoalProfile } from './components/StudentGoalOnboardingModal';
+import { AppInstallModal } from './components/AppInstallModal';
+import { GeminiLiveStudyAssistant } from './components/GeminiLiveStudyAssistant';
+import { BharatiBhawanStudyHub } from './components/BharatiBhawanStudyHub';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { generateStudyNotesPdf } from './utils/pdfGenerator';
 import {
@@ -387,28 +389,41 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
 
 const QuantumSwanLogo = ({ 
   className = "w-12 h-12 sm:w-14 sm:h-14", 
-  showLightBg = true,
+  showLightBg = false,
+  showRainbow = false,
   containerClassName = "",
   showBrandText = true
 }: { 
   className?: string; 
   showLightBg?: boolean;
+  showRainbow?: boolean;
   containerClassName?: string;
   showBrandText?: boolean;
 }) => {
   const imgLogo = (
     <img 
       src="/logo.png" 
-      alt="Hans Compain Logo" 
-      className={`${className} transition-transform duration-500 hover:scale-105 object-contain`} 
+      alt="Hans Compain Official Logo" 
+      className={`${className} transition-all duration-500 hover:scale-105 object-contain bg-transparent opacity-85 hover:opacity-100 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]`} 
+      loading="eager"
     />
   );
+
+  if (showRainbow) {
+    return (
+      <div className={`relative inline-flex items-center justify-center p-[2.5px] rounded-3xl bg-[conic-gradient(from_0deg,#ff0055,#ff8800,#ffee00,#00ff66,#00e5ff,#8800ff,#ff0077,#ff0055)] animate-spin-slow shadow-[0_0_30px_rgba(0,229,255,0.4)] shrink-0 ${containerClassName}`}>
+        <div className="relative z-10 p-2 bg-[#060B18] rounded-[22px] flex items-center justify-center">
+          {imgLogo}
+        </div>
+      </div>
+    );
+  }
 
   if (!showLightBg) return imgLogo;
 
   return (
-    <div className={`relative inline-flex items-center justify-center p-2 sm:p-2.5 bg-white border border-slate-200/90 rounded-2xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 shrink-0 ${containerClassName}`}>
-      <div className="relative z-10 flex items-center justify-center">
+    <div className={`relative inline-flex items-center justify-center p-1.5 bg-slate-900/40 border border-slate-700/50 rounded-2xl shadow-sm transition-all duration-300 hover:scale-105 shrink-0 ${containerClassName}`}>
+      <div className="relative z-10 flex items-center justify-center bg-transparent">
         {imgLogo}
       </div>
     </div>
@@ -475,6 +490,7 @@ export default function App() {
     | 'group-quiz'
     | 'gis-earth'
     | 'edu-reels'
+    | 'bharti-bhawan'
   >('chat');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
@@ -493,6 +509,9 @@ export default function App() {
   const isVoiceAssistantSpeakingRef = useRef<boolean>(false);
   const voiceAssistantSilenceTimerRef = useRef<any>(null);
   const voiceAssistantLastTranscriptRef = useRef<string>("");
+
+  // 🎙️ Gemini Live Hands-Free Study Assistant Modal State
+  const [isGeminiLiveOpen, setIsGeminiLiveOpen] = useState<boolean>(false);
 
   // History View Filter & Search State
   const [historyFilterCategory, setHistoryFilterCategory] = useState<'all' | 'chat' | 'session' | 'quiz' | 'timer' | 'note'>('all');
@@ -601,6 +620,38 @@ export default function App() {
   const [feedbackInitialContext, setFeedbackInitialContext] = useState<string>('HansAI Chat & Assistant');
   const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState<boolean>(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState<boolean>(false);
+  const [isAppInstallModalOpen, setIsAppInstallModalOpen] = useState<boolean>(false);
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<any>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState<boolean>(false);
+
+  // Setup PWA beforeinstallprompt handler
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredInstallPrompt(e);
+      (window as any).deferredPrompt = e;
+    };
+
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setDeferredInstallPrompt(null);
+      (window as any).deferredPrompt = null;
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    if (typeof window !== 'undefined') {
+      if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true) {
+        setIsAppInstalled(true);
+      }
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
 
   // Student Goal Onboarding Profile (Subject, Class, Board / Target Exam)
   const [studentGoalProfile, setStudentGoalProfile] = useState<StudentGoalProfile | null>(() => {
@@ -884,6 +935,30 @@ export default function App() {
       setIsOwnerPinModalOpen(true);
     }
   };
+
+  // PROTECTED VIEW NAVIGATION: Only 'chat' is accessible without login.
+  // If a guest attempts to access any other feature, automatically prompt the login modal.
+  const navigateToView = (targetView: string) => {
+    if (targetView !== 'chat' && targetView !== 'owner-dashboard' && !user) {
+      setIsAuthLoginOpen(true);
+      showToast(
+        language === 'hindi'
+          ? "🔒 इस फीचर का उपयोग करने के लिए कृपया पहले लॉगिन करें।"
+          : "🔒 Please login to access this feature.",
+        "warn"
+      );
+      return;
+    }
+    setActiveView(targetView as any);
+    if (window.innerWidth < 1024) setSidebarOpen(false);
+  };
+
+  // Automatic Login modal popup whenever guest user switches to any feature other than chat
+  useEffect(() => {
+    if (!user && activeView !== 'chat' && activeView !== 'owner-dashboard') {
+      setIsAuthLoginOpen(true);
+    }
+  }, [activeView, user]);
 
   const [registerFormName, setRegisterFormName] = useState("");
   const [registerFormEmail, setRegisterFormEmail] = useState("");
@@ -1223,7 +1298,7 @@ export default function App() {
         const urlParams = new URLSearchParams(window.location.search);
         const targetTab = urlParams.get('tab') || urlParams.get('view');
         if (targetTab) {
-          const validViews = ['chat', 'newsboard', 'research', 'quiz', 'group-quiz', 'pyq-vault', 'current-affairs', 'qr-scanner', 'leaderboard', 'process', 'calculator', 'rap', 'notes', 'timer', 'history', 'goals', 'map', 'soul', 'sarkari-result', 'owner-dashboard', 'feedback', 'planner', 'study-plan', 'flashcards', 'photo-doubt', 'security', 'book-reader', 'notes-ocr', 'photo-ocr', 'neural-map', 'time-travel', 'mnemonics', 'science-lab', 'steno', 'launch-hub', 'article-reader', 'file-converter', 'weather-alerts', 'affiliate-store', 'affiliate', 'mistake-notebook', 'mock-interview', 'performance-analytics'];
+          const validViews = ['chat', 'newsboard', 'research', 'quiz', 'group-quiz', 'pyq-vault', 'current-affairs', 'qr-scanner', 'leaderboard', 'process', 'calculator', 'rap', 'notes', 'timer', 'history', 'goals', 'map', 'soul', 'sarkari-result', 'owner-dashboard', 'feedback', 'planner', 'study-plan', 'flashcards', 'photo-doubt', 'security', 'book-reader', 'notes-ocr', 'photo-ocr', 'neural-map', 'time-travel', 'mnemonics', 'science-lab', 'steno', 'launch-hub', 'article-reader', 'file-converter', 'weather-alerts', 'affiliate-store', 'affiliate', 'mistake-notebook', 'mock-interview', 'performance-analytics', 'bharti-bhawan'];
           if (validViews.includes(targetTab)) {
             setActiveView(targetTab as any);
             showToast(`Opened shared workspace: ${targetTab.toUpperCase()}`, 'info');
@@ -1286,6 +1361,72 @@ export default function App() {
       console.warn("Could not process daily CA auto-notification", err);
     }
   }, []);
+
+  // 👁️ Live Visitor & Page Activity Tracker (Real-time update: कौन क्या देख रहा है)
+  useEffect(() => {
+    try {
+      const storedVisitorId = localStorage.getItem('hansai_visitor_id') || `v_${Date.now().toString(36)}`;
+      const storedEmail = localStorage.getItem('hansai_user_email') || (user?.email);
+      const storedName = localStorage.getItem('hansai_user_name') || (user as any)?.displayName || (user as any)?.name || (storedEmail ? storedEmail.split('@')[0] : 'Guest Aspirant');
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const deviceStr = isMobile ? '📱 Mobile' : '💻 Desktop';
+
+      const viewTitles: Record<string, string> = {
+        'chat': '🏠 होमपेज / AI चैट ट्यूटर',
+        'newsboard': '📰 डेली समसामयिकी व न्यूज बोर्ड',
+        'current-affairs': '📰 डेली करेंट अफेयर्स व समसामयिकी 2026',
+        'quizzes': '⚡ शैक्षणिक व प्रतियोगी क्विज़ अभ्यास',
+        'quiz': '⚡ शैक्षणिक क्विज़ टेस्ट',
+        'steno': '✍️ सम्पूर्ण आशुलिपि / शॉर्टहैंड (डिक्टेशन व आउटलाइन्स)',
+        'sarkari-result': '📋 सरकारी रिजल्ट, जॉब वेकेंसी व एडमिट कार्ड',
+        'study-notes': '📚 स्मार्ट स्टडी नोट्स व AI सारांश',
+        'notes': '📚 स्मार्ट स्टडी नोट्स व AI सारांश',
+        'calculator': '🧮 वैज्ञानिक व सांख्यिकी कैलकुलेटर',
+        'timer': '⏱️ फोकस पोमोडोरो स्टडी टाइमर',
+        'flashcards': '🗂️ फ्लैशकार्ड्स मेमोरी रिवीजन',
+        'photo-doubt': '📸 फोटो डाउट सॉल्वर',
+        'security': '🛡️ छात्र सुरक्षा व गोपनीयता हब',
+        'book-reader': '📖 NCERT व मानक बुक्स रीडर',
+        'global-reader': '🌍 ग्लोबल बुक्स लाइब्रेरी',
+        'notes-ocr': '📑 हस्तलिखित नोट्स OCR स्कैनर',
+        'pyq': '📖 विगत वर्ष प्रश्न पत्र (PYQ बैंक)',
+        'study-plan': '📅 व्यक्तिगत अध्ययन योजना (Study Plan)',
+        'music-studio': '🎵 फोकस स्टडी म्यूजिक व बाइनॉरल बीट्स',
+        'bharti-bhawan': '📗 भारती भवन बुक्स & अध्ययन केंद्र',
+        'owner-dashboard': '👑 HANS AI ओनर एडमिन कंसोल'
+      };
+
+      const pageTitle = viewTitles[activeView] || `सेक्शन: ${activeView}`;
+
+      // 1. Send pageview event to backend server
+      fetch('/api/users/log-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: storedVisitorId,
+          userName: storedName,
+          userEmail: storedEmail || `${storedVisitorId}@hansai.visitor`,
+          type: 'pageview',
+          view: activeView,
+          viewTitle: pageTitle,
+          query: `देख रहे हैं: ${pageTitle}`,
+          deviceInfo: deviceStr,
+          isGuest: !storedEmail
+        })
+      }).catch(() => {});
+
+      // 2. Also record in Firestore if available
+      logActivityToFirestore({
+        userName: storedName,
+        userEmail: storedEmail || `${storedVisitorId}@hansai.visitor`,
+        type: 'pageview',
+        query: `देख रहे हैं: ${pageTitle}`,
+        feature: pageTitle
+      }).catch(() => {});
+    } catch (e) {
+      console.warn("Live pageview logging failed", e);
+    }
+  }, [activeView, user?.email]);
 
   // Owner analytics state (for owner dashboard) with full RealOwnerAnalyticsData schema
   const [ownerAnalyticsData, setOwnerAnalyticsData] = useState<RealOwnerAnalyticsData>({
@@ -5544,14 +5685,14 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       )}
 
       {/* HEADER SECTION */}
-      <header className={`px-2 sm:px-6 h-14 sm:h-16 border-b flex items-center justify-between sticky top-0 z-40 backdrop-blur-md w-full max-w-full overflow-hidden ${
+      <header className={`px-2 sm:px-4 h-14 sm:h-16 border-b flex items-center justify-between sticky top-0 z-40 backdrop-blur-md w-full max-w-full overflow-x-clip ${
         screenColorMode === 'dark' ? 'bg-[#03060E]/90 border-slate-900' :
         screenColorMode === 'warm_yellow' ? 'bg-[#FAF6E9]/90 border-amber-900/10' :
         screenColorMode === 'eco_gray' ? 'bg-[#F1F3F5]/90 border-slate-200' :
         'bg-[#03132B]/90 border-cyan-500/30'
       }`}>
         {/* Header Left Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink min-w-0">
           {/* Main Sidebar Hamburger Toggle Menu Button */}
           <button
             onClick={() => setSidebarOpen(true)}
@@ -5578,45 +5719,48 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </button>
           )}
 
-          {/* Brand Logo */}
-          <div className="flex items-center gap-1 sm:gap-2 cursor-pointer shrink-1 overflow-hidden" onClick={() => { setActiveView('chat'); startNewChat(); }}>
-            <HansCompainLogo size="xs" showSubtitle={false} className="sm:hidden" />
-            <HansCompainLogo size="sm" showSubtitle={true} className="hidden sm:inline-flex" />
+          {/* Brand Logo (Original Logo with Rainbow Glow Animation) */}
+          <div 
+            className="flex items-center gap-1.5 sm:gap-2 cursor-pointer select-none group min-w-0 shrink" 
+            onClick={() => { setActiveView('chat'); startNewChat(); }}
+            title="HANS COMPAIN होम पेज"
+          >
+            <HansCompainLogo size="xs" rainbow={true} opacity="opacity-90 group-hover:opacity-100" />
+            <div className="flex flex-col text-left leading-none min-w-0">
+              <span className="font-black text-[11px] sm:text-sm tracking-wide text-white group-hover:text-cyan-200 transition-colors truncate">
+                HANS COMPAIN
+              </span>
+              <span className="text-[7px] sm:text-[9px] text-cyan-400/80 font-bold tracking-wider uppercase mt-0.5 hidden xs:inline truncate">
+                SHORTHAND & AI
+              </span>
+            </div>
           </div>
 
           {/* 5-Star Feedback & User Review Buttons */}
-          <button
-            onClick={() => {
-              setFeedbackInitialContext('HansAI Main Platform & App');
-              setIsFiveStarFeedbackOpen(true);
-            }}
-            className="hidden md:flex px-2 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 hover:text-amber-400 rounded-xl text-xs font-extrabold items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
-            title="Give 5-Star Feedback"
-          >
-            <span>⭐ Feedback</span>
-          </button>
-          
-          <button
-            onClick={() => setIsFeedbackOpen(true)}
-            className="hidden md:flex px-2 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 hover:text-emerald-400 rounded-xl text-xs font-extrabold items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
-            title="Write a User Review"
-          >
-            <span>📝 User Review</span>
-          </button>
         </div>
 
         {/* Header Right Actions */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-          {/* ⚙️ PROMINENT APP SETTINGS & CLASS GOAL BUTTON (PRIMARY ACTION TOP RIGHT) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Quick Return to Chat button if inside sub-view */}
+          {activeView !== 'chat' && (
+            <button
+              onClick={() => setActiveView('chat')}
+              className="px-2 sm:px-2.5 py-1.5 bg-sky-500/20 hover:bg-sky-500/35 border border-sky-400/40 text-sky-200 rounded-xl text-xs font-black flex items-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
+              title="होम चैट पर लौटें"
+            >
+              <Cpu className="w-3.5 h-3.5 text-sky-300" />
+              <span className="hidden sm:inline">Home Chat</span>
+            </button>
+          )}
+
+          {/* 🎙️ GEMINI LIVE STUDY HANDS-FREE ASSISTANT BUTTON */}
           <button
-            onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
-            className="px-2 sm:px-2.5 py-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 border-2 border-cyan-300/80 text-white rounded-xl text-xs font-black flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shadow-lg shrink-0 active:scale-95"
-            title="एप सेटिंग्स, थीम व कक्षा चुनें (App Settings & Class Goal)"
+            onClick={() => setIsGeminiLiveOpen(true)}
+            className="relative px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-cyan-600 via-indigo-600 to-pink-600 hover:from-cyan-500 hover:to-pink-500 border border-cyan-300/60 rounded-xl text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-cyan-950/40 active:scale-95 cursor-pointer shrink-0 animate-pulse"
+            title="जेमिनी लाइव हैंड्स-फ्री स्टडी असिस्टेंट (Gemini Live Hands-Free Study)"
           >
-            <Settings className="w-4 h-4 text-yellow-300 animate-spin-slow shrink-0" />
-            <span className="text-[11px] sm:text-xs font-black tracking-wide text-white">
-              {language === 'hindi' ? 'सेटिंग्स' : 'Settings'}
-            </span>
+            <Sparkles className="w-3.5 h-3.5 text-yellow-300 shrink-0" />
+            <span className="tracking-wide font-extrabold">Gemini Live</span>
           </button>
 
           {/* 🔔 Notification Bell */}
@@ -5630,71 +5774,6 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               3
             </span>
           </button>
-
-          {/* Quick Daily Streak Indicator */}
-          <DailyStreakIndicator 
-            variant="badge" 
-            language={language} 
-            onNavigateToView={(view) => setActiveView(view)} 
-          />
-
-          {/* Quick Return to Chat button if inside sub-view */}
-          {activeView !== 'chat' && (
-            <button
-              onClick={() => setActiveView('chat')}
-              className="px-2 py-1.5 bg-indigo-650 hover:bg-indigo-600 rounded-xl text-[10px] font-extrabold text-white flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
-            >
-              <Cpu className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Home Chat</span>
-            </button>
-          )}
-
-          {/* 🚪 DIRECT LOGOUT BUTTON (Visible on Header when user is logged in) */}
-          {user ? (
-            <button
-              onClick={() => {
-                localStorage.removeItem('hansai-user-session');
-                localStorage.removeItem('hansai-session-timestamp');
-                setUser(null);
-                setIsHeaderMenuOpen(false);
-                showToast(language === 'hindi' ? "सफलतापूर्वक लॉगआउट किया गया! 👋" : "Successfully Logged Out! 👋", "info");
-                setActiveView('chat');
-              }}
-              className="p-1.5 sm:px-2.5 sm:py-1.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 text-rose-300 hover:text-white rounded-xl text-xs font-extrabold flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
-              title="अकाउंट लॉगआउट करें (Logout)"
-            >
-              <LogOut className="w-3.5 h-3.5 text-rose-400" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsAuthLoginOpen(true)}
-              className="p-1.5 sm:px-2.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-550 text-white rounded-xl text-xs font-extrabold flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
-              title="लॉगइन करें (Login)"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Login</span>
-            </button>
-          )}
-
-          {/* User Profile Avatar */}
-          {user && (
-            <button
-              onClick={() => setIsUserProfileModalOpen(true)}
-              className="cursor-pointer hover:opacity-80 transition-opacity border-none bg-transparent p-0 relative group shrink-0"
-              title="प्रोफ़ाइल बदलें (Edit Profile)"
-            >
-              <img 
-                src={user.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100"} 
-                alt={user.name} 
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-indigo-500/40 shadow-sm object-cover"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <User className="w-3.5 h-3.5 text-white" />
-              </div>
-            </button>
-          )}
         </div>
       </header>
 
@@ -6014,6 +6093,32 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 HELP 🤖
               </span>
             </button>
+
+            {/* 🎙️ GEMINI LIVE STUDY HANDS-FREE ASSISTANT */}
+            <button
+              onClick={() => {
+                setIsGeminiLiveOpen(true);
+                setIsHeaderMenuOpen(false);
+              }}
+              className="w-full p-2.5 bg-gradient-to-r from-cyan-950/90 via-indigo-950/90 to-pink-950/90 hover:from-cyan-900 hover:to-indigo-900 border border-cyan-400/50 rounded-xl text-cyan-200 flex items-center justify-between transition-all cursor-pointer text-left shadow-md group"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-cyan-300 animate-spin-slow" />
+                </div>
+                <div>
+                  <div className="font-extrabold text-white text-xs">
+                    {language === "hindi" ? "🎙️ जेमिनी लाइव (हैंड्स-फ्री स्टडी)" : "🎙️ Gemini Live (Hands-Free Study)"}
+                  </div>
+                  <div className="text-[9px] text-cyan-300/80 font-medium">
+                    {language === "hindi" ? "Google Gemini जैसी नेचुरल आवाज़, बोलकर सवाल-जवाब" : "Hands-free voice tutor with Gemini natural voice"}
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded font-mono font-extrabold animate-pulse">
+                LIVE 🎙️
+              </span>
+            </button>
           </div>
 
           {/* 🛠️ TOOLS, ROADMAP & FEEDBACK */}
@@ -6098,28 +6203,25 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </span>
 
               {/* Direct APK / PWA App Download */}
-              <a
-                href="/hans-compain.apk"
-                download="Hans_Compain_App.apk"
-                onClick={(e) => {
-                  // Fallback PWA prompt if APK not hosted locally
-                  if ('deferredPrompt' in window && (window as any).deferredPrompt) {
-                    (window as any).deferredPrompt.prompt();
-                  } else {
-                    showToast(language === 'hindi' ? '📲 ऐप डाउनलोड/इंस्टॉल प्रक्रिया शुरू हो रही है...' : '📲 Starting App Download/Installation...', 'info');
-                  }
+              <button
+                type="button"
+                onClick={() => {
                   setIsHeaderMenuOpen(false);
+                  if (deferredInstallPrompt) {
+                    deferredInstallPrompt.prompt().catch(() => {});
+                  }
+                  setIsAppInstallModalOpen(true);
                 }}
                 className="w-full p-2.5 bg-gradient-to-r from-emerald-950/80 to-teal-950/80 hover:from-emerald-900 hover:to-teal-900 border border-emerald-500/50 rounded-xl text-emerald-200 flex items-center justify-between transition-all cursor-pointer text-left"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-sm">📲</span>
-                  <span className="font-bold">{language === 'hindi' ? 'Android APK / App इंस्टॉल करें' : 'Install Android App (.APK / PWA)'}</span>
+                  <span className="font-bold">{language === 'hindi' ? 'Android APK / App स्क्रीन पर इंस्टॉल करें' : 'Install Android App on Screen'}</span>
                 </div>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono">
-                  FREE
+                  {isAppInstalled ? 'INSTALLED ✅' : 'INSTALL ⚡'}
                 </span>
-              </a>
+              </button>
 
               {/* YouTube Channel Link */}
               <a
@@ -6661,9 +6763,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         </div>
                       </button>
 
+                      {/* 📚 SMART DIGITAL LIBRARY (स्मार्ट लाइब्रेरी) */}
                       <button
                         onClick={() => {
-                          setActiveView('book-reader');
+                          navigateToView('book-reader');
                           if (window.innerWidth < 1024) setSidebarOpen(false);
                         }}
                         className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
@@ -6674,9 +6777,47 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       >
                         <div className="flex items-center gap-2.5">
                           <span className="text-sm shrink-0">📚</span>
-                          <span>{language === 'hindi' ? 'डिजिटल बुक रीडर' : 'Digital Book Reader'}</span>
+                          <span>{language === 'hindi' ? 'स्मार्ट लाइब्रेरी' : 'Smart Library'}</span>
                         </div>
-                        <span className="text-[9px] bg-violet-600 text-white px-2 py-0.5 rounded font-black">HOT 🔥</span>
+                        <span className="text-[9px] bg-violet-600 text-white px-2 py-0.5 rounded font-black">BOOKS 📖</span>
+                      </button>
+
+                      {/* 📗 BHARATI BHAWAN SMART DIGITAL STUDY HUB */}
+                      <button
+                        onClick={() => {
+                          setActiveView('bharti-bhawan');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'bharti-bhawan'
+                            ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 shadow-md'
+                            : 'bg-emerald-950/20 border-emerald-500/40 hover:border-emerald-400/60 hover:bg-emerald-950/30 text-emerald-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📗</span>
+                          <span>{language === 'hindi' ? 'भारती भवन बुक्स & टेस्ट कैलकुलेटर' : 'Bharati Bhawan Books & Calc'}</span>
+                        </div>
+                        <span className="text-[9px] bg-emerald-400 text-slate-950 px-1.5 py-0.5 rounded font-black">STUDY</span>
+                      </button>
+
+                      {/* ⚡ 1-MIN RECAP & FLASHCARDS (MOVED TO SIDEBAR AS REQUESTED) */}
+                      <button
+                        onClick={() => {
+                          setActiveView('flashcards');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'flashcards'
+                            ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-md'
+                            : 'bg-amber-950/20 border-amber-500/40 hover:border-amber-400/60 hover:bg-amber-950/30 text-amber-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">⚡</span>
+                          <span>{language === 'hindi' ? '1-मिनट रीकैप & फ्लैशकार्ड्स' : '1-Min Micro-Revision & Cards'}</span>
+                        </div>
+                        <span className="text-[9px] bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded font-black">QUICK</span>
                       </button>
 
                       <button
@@ -6958,13 +7099,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       {/* APK Download Button */}
                       <button
                         onClick={() => {
-                          showToast(language === "hindi" ? "📥 HANS COMPAIN .APK डाउनलोड शुरू हो रहा है..." : "📥 Downloading HANS COMPAIN .APK...", "info");
-                          showToast(language === "hindi" ? "✅ ऐप इन्स्टॉल करने के लिए Add to Home Screen या PWA विकल्प भी चुनें!" : "✅ Tap Add to Home Screen to install app on Mobile!", "success");
+                          setSidebarOpen(false);
+                          if (deferredInstallPrompt) {
+                            deferredInstallPrompt.prompt().catch(() => {});
+                          }
+                          setIsAppInstallModalOpen(true);
                         }}
                         className="p-2 bg-gradient-to-r from-emerald-950/90 to-teal-950/90 hover:from-emerald-900 hover:to-teal-900 border border-emerald-500/40 text-emerald-300 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
                       >
                         <span className="text-xs">📲</span>
-                        <span>{language === "hindi" ? "APK डाउनलोड" : "Download APK"}</span>
+                        <span>{language === "hindi" ? "APK / ऐप इंस्टॉल" : "Install App"}</span>
                       </button>
 
                       {/* WhatsApp Channel */}
@@ -7208,12 +7352,12 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   
                   {/* NEW CHAT WELCOME STATE (Clean A4 / Single-Screen No-Scroll Viewport Layout) */}
                   {chatMessages.length === 0 ? (
-                    <div className="flex-1 min-h-0 flex flex-col justify-between max-w-5xl mx-auto w-full py-1 px-1 text-center animate-fade-in select-none overflow-y-auto sm:overflow-hidden scrollbar-none">
+                    <div className="flex-1 min-h-0 flex flex-col justify-between max-w-4xl mx-auto w-full py-2 px-3 sm:px-6 text-center animate-fade-in select-none overflow-y-auto sm:overflow-hidden scrollbar-none">
                       
-                      {/* Logo and Greeting - Prominent & Sleek */}
-                      <div className="flex flex-col items-center space-y-1 my-auto">
-                        <QuantumSwanLogo className="w-12 h-12 sm:w-14 sm:h-14" showLightBg={true} />
-                        <h2 className="text-xl sm:text-2xl font-black tracking-tight font-sans text-white">
+                      {/* Logo and Greeting - Official Logo with Rainbow Animation & Safe Margins */}
+                      <div className="flex flex-col items-center space-y-2 my-auto">
+                        <QuantumSwanLogo className="w-12 h-12 sm:w-14 sm:h-14" showRainbow={true} />
+                        <h2 className="text-lg sm:text-2xl font-black tracking-tight font-sans text-white px-2">
                           HANS COMPAIN - How can I help with Shorthand & Exams today?
                         </h2>
                         <p className="text-xs text-slate-400 font-medium hidden sm:block">
@@ -7222,25 +7366,49 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                             : 'All-in-one AI education, exam prep & interactive science-memory lab'}
                         </p>
 
-                        {/* WIDE SKY-BLUE "ALL STENOGRAPHER" HERO BANNER */}
-                        <button
-                          onClick={() => setActiveView('steno')}
-                          className="mt-2 w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-sky-600 via-cyan-500 to-sky-600 hover:from-sky-500 hover:to-cyan-400 border border-sky-300/40 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-900/40 hover:shadow-cyan-500/30 flex items-center justify-between gap-2.5 transition-all cursor-pointer active:scale-[0.99] group"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-base group-hover:scale-110 transition-transform">✍️</span>
-                            <span className="font-extrabold tracking-wide text-left">
-                              ALL STENOGRAPHER • सम्पूर्ण आशुलिपि (ऋषि, मानक, पिटमैन) व डिक्टेशन
+                        {/* ✨ NEW GEMINI LIVE HANDS-FREE STUDY HERO BANNER */}
+                        <div className="w-full flex flex-col sm:flex-row gap-2 mt-1">
+                          <button
+                            onClick={() => setIsGeminiLiveOpen(true)}
+                            className="flex-1 py-2.5 px-3 sm:px-4 rounded-2xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-pink-600 hover:from-cyan-500 hover:to-pink-500 border border-cyan-300/50 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-indigo-950/60 hover:shadow-cyan-500/30 flex items-center justify-between gap-2.5 transition-all cursor-pointer active:scale-[0.99] group"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-base group-hover:scale-110 transition-transform animate-pulse">🎙️</span>
+                              <div className="flex flex-col text-left">
+                                <span className="font-extrabold tracking-wide">
+                                  GEMINI LIVE STUDY • हैंड्स-फ्री बोलकर पढ़ाई व शॉर्टहैंड सीखें
+                                </span>
+                                <span className="text-[9px] text-cyan-200 font-medium hidden xs:block">
+                                  Google Gemini जैसी नेचुरल आवाज़, बिना हाथ लगाए अध्ययन व ओरल क्विज़
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-[10px] bg-white/20 text-white px-2.5 py-1 rounded-xl font-black uppercase tracking-normal shrink-0 flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-yellow-300 animate-spin-slow" />
+                              START 🎙️
                             </span>
-                          </div>
-                          <span className="text-[10px] bg-white/20 text-white px-2.5 py-0.5 rounded-full font-black uppercase tracking-normal shrink-0">
-                            OPEN
-                          </span>
-                        </button>
+                          </button>
+
+                          {/* WIDE SKY-BLUE "ALL STENOGRAPHER" HERO BANNER */}
+                          <button
+                            onClick={() => setActiveView('steno')}
+                            className="py-2.5 px-3 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-600 via-cyan-500 to-sky-600 hover:from-sky-500 hover:to-cyan-400 border border-sky-300/40 text-white font-black text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-900/40 hover:shadow-cyan-500/30 flex items-center justify-between gap-2 transition-all cursor-pointer active:scale-[0.99] group shrink-0"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-base group-hover:scale-110 transition-transform">✍️</span>
+                              <span className="font-extrabold tracking-wide text-left">
+                                ALL STENOGRAPHER • सम्पूर्ण आशुलिपि
+                              </span>
+                            </div>
+                            <span className="text-[10px] bg-white/20 text-white px-2.5 py-0.5 rounded-full font-black uppercase tracking-normal shrink-0">
+                              OPEN
+                            </span>
+                          </button>
+                        </div>
                       </div>
 
-                      {/* 8 CLEAN ACTION CARDS (RESPONSIVE: 2-COL ON MOBILE, 4-COL ON LAPTOPS FOR INSTANT FULL VISIBILITY) */}
-                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-2.5 w-full text-left mt-3 mb-3">
+                      {/* 8 CLEAN ACTION CARDS (SAFE PADDING SO NO CARD IS HALF HIDDEN AT CORNERS) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2.5 sm:gap-3 w-full text-left mt-2.5 mb-2.5 px-0.5">
                         {/* ROW 1: Card 1 - Current Affairs */}
                         <button
                           onClick={() => setActiveView('current-affairs')}
@@ -7351,26 +7519,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           </div>
                         </button>
 
-                        {/* ROW 4: Card 7 - Daily 1-Min Micro-Revision & Flashcards (Option 4) */}
-                        <button
-                          onClick={() => setActiveView('flashcards')}
-                          className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-950/90 via-orange-950/60 to-slate-900 border-2 border-amber-500/80 hover:border-amber-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-amber-500/20 active:scale-98 animate-pulse"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-base">
-                            ⚡
-                          </div>
-                          <div className="overflow-hidden">
-                            <div className="text-xs font-black text-amber-200 group-hover:text-amber-100 truncate flex items-center gap-1">
-                              <span>{language === 'hindi' ? '1-मिनट रीकैप & फ्लैशकार्ड्स' : '1-Min Micro-Revision'}</span>
-                              <span className="text-[8px] bg-amber-400 text-slate-950 px-1 rounded font-black">NEW</span>
-                            </div>
-                            <div className="text-[9px] text-amber-300/80 truncate">
-                              {language === 'hindi' ? 'दैनिक त्वरित रीकैप व रिवीजन' : 'Daily Quick Recall & Deck'}
-                            </div>
-                          </div>
-                        </button>
-
-                        {/* ROW 4: Card 8 - Time-Travel Simulator */}
+                        {/* ROW 4: Card 7 - Time-Travel Simulator */}
                         <button
                           onClick={() => setActiveView('time-travel')}
                           className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-950/80 via-indigo-950/50 to-slate-900 border border-purple-500/50 hover:border-purple-400 rounded-xl flex items-center gap-2.5 group cursor-pointer transition-all shadow-md hover:shadow-purple-500/20 active:scale-98"
@@ -8024,6 +8173,33 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           </div>
       )}
 
+          {/* AUTH GATE FOR GUEST USERS (ONLY CHAT IS ACCESSIBLE WITHOUT LOGIN) */}
+          {activeView !== 'chat' && activeView !== 'owner-dashboard' && !user && (
+            <div className="w-full max-w-3xl mx-auto min-h-[calc(100vh-8rem)] p-3 sm:p-6 animate-fade-in flex flex-col justify-center">
+              <div className="mb-4 bg-gradient-to-r from-amber-500/15 via-slate-900 to-indigo-500/15 border border-amber-500/30 text-amber-200 px-4 py-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm font-bold shadow-xl backdrop-blur-md">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl">🔒</span>
+                  <span>
+                    {language === 'hindi'
+                      ? 'इस फीचर का उपयोग करने के लिए लॉगिन आवश्यक है (केवल चैट गेस्ट के लिए उपलब्ध है)।'
+                      : 'Login is required to access this feature (Only Chat is open for guests).'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setActiveView('chat')}
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0"
+                >
+                  {language === 'hindi' ? '← चैट पर जाएं' : '← Return to Chat'}
+                </button>
+              </div>
+              <AuthGateView
+                setUser={setUser}
+                showToast={showToast}
+                onOpenForgot={() => setIsAuthForgotOpen(true)}
+              />
+            </div>
+          )}
+
           {/* VIEW: OWNER DASHBOARD & ADMIN PANEL */}
           {activeView === 'owner-dashboard' && (
             <ErrorBoundary fallbackTitle="Owner Admin Dashboard" onReset={() => setActiveView('chat')}>
@@ -8269,6 +8445,26 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   onBackToChat={() => setActiveView('chat')}
                   showToast={showToast}
                   language={language}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* VIEW: BHARATI BHAWAN SMART DIGITAL STUDY HUB */}
+          {activeView === 'bharti-bhawan' && (
+            <ErrorBoundary fallbackTitle="Bharati Bhawan Study Hub" onReset={() => setActiveView('chat')}>
+              <div className="w-full min-h-[calc(100vh-4rem)] animate-fade-in">
+                <BharatiBhawanStudyHub
+                  onBack={() => setActiveView('chat')}
+                  language={language}
+                  showToast={showToast}
+                  onOpenMistakeNotebook={() => setActiveView('mistake-notebook')}
+                  onOpenDailyGoals={() => setActiveView('goals')}
+                  onOpenStudyPlan={() => setActiveView('study-plan')}
+                  onOpenChatWithDoubt={(doubt) => {
+                    setActiveView('chat');
+                    setChatInput(doubt);
+                  }}
                 />
               </div>
             </ErrorBoundary>
@@ -9140,7 +9336,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <div className="px-2 text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Primary Core Workspace</div>
               {[
                 { id: 'chat', title: 'AI Study Chat Workspace', desc: 'Concept explainer & studies', icon: '💬', badge: 'ACTIVECORE' },
-                { id: 'book-reader', title: 'Global Digital Library & Book Reader', desc: 'कोई भी बुक खोजें व पढ़ें (Highlight & Voice)', icon: '📚', badge: 'BOOKS' },
+                { id: 'book-reader', title: 'Smart Library (स्मार्ट लाइब्रेरी)', desc: 'उपलब्ध पुस्तकें खोजें व पढ़ें (Search & AI Study)', icon: '📚', badge: 'LIBRARY' },
+                { id: 'bharti-bhawan', title: 'Bharati Bhawan Books & Hub', desc: 'भारती भवन पाठ्यपुस्तकें, सिलेबस व टेस्ट कैलकुलेटर', icon: '📗', badge: 'STUDY' },
                 { id: 'sarkari-result', title: 'Sarkari Result & Job Portal', desc: 'सरकारी नौकरी व रिजल्ट अपडेट', icon: '📄', badge: 'SARKARI' },
                 { id: 'research', title: 'Deep Research AI', desc: 'डीप रिसर्च मोड', icon: '🚀', badge: 'LIVE WEB' },
                 { id: 'timer', title: 'My Projects & Audio Recorder', desc: 'मेरे प्रोजेक्ट्स एवं रिकॉर्डर', icon: '🎙️', badge: 'PROJECTS' },
@@ -9152,7 +9349,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveView(item.id as any);
+                    navigateToView(item.id as any);
                     setSidebarOpen(false);
                     showToast(`${item.title} Activated / चालू`, "success");
                   }}
@@ -9186,7 +9383,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveView(item.id as any);
+                    navigateToView(item.id as any);
                     setSidebarOpen(false);
                     showToast(`${item.title} Activated / चालू`, "success");
                   }}
@@ -9826,13 +10023,39 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 </button>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={handleLaunchNCERT}
+                  className="w-full p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-300 font-bold cursor-pointer transition-all"
+                >
+                  <span className="flex items-center gap-2">📘 NCERT Official Portal</span>
+                  <span className="text-cyan-400 text-xs">Open ↗</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAppLauncherOpen(false);
+                    setActiveView('bharti-bhawan');
+                  }}
+                  className="w-full p-2.5 bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-500/50 rounded-xl flex items-center justify-between text-xs text-emerald-200 font-bold cursor-pointer transition-all"
+                >
+                  <span className="flex items-center gap-2">📗 भारती भवन (In-App Study)</span>
+                  <span className="text-emerald-400 text-xs">अध्ययन करें →</span>
+                </button>
+              </div>
+
               <button
                 type="button"
-                onClick={handleLaunchNCERT}
-                className="w-full p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-300 font-bold cursor-pointer transition-all"
+                onClick={() => {
+                  window.open("https://www.bharatibhawanpublishers.com/", "_blank", "noopener,noreferrer");
+                  showToast("भारती भवन आधिकारिक पोर्टल खोला जा रहा है... 📗", "info");
+                }}
+                className="w-full p-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-xl flex items-center justify-between text-[11px] text-slate-300 font-medium cursor-pointer transition-all"
               >
-                <span className="flex items-center gap-2">📘 NCERT & ePathshala Official Books Portal</span>
-                <span className="text-cyan-400 text-xs">Open Site ↗</span>
+                <span className="flex items-center gap-2">🔗 भारती भवन आधिकारिक वेब पोर्टल (Bharati Bhawan Portal)</span>
+                <span className="text-cyan-400 text-xs">वेबसाइट ↗</span>
               </button>
             </div>
 
@@ -10611,6 +10834,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         user={user}
         onSaveProfile={handleSaveProfile}
         showToast={showToast}
+        language={language}
+      />
+
+      {/* 📲 ANDROID APP SCREEN INSTALL MODAL */}
+      <AppInstallModal
+        isOpen={isAppInstallModalOpen}
+        onClose={() => setIsAppInstallModalOpen(false)}
+        deferredPrompt={deferredInstallPrompt}
+        language={language}
+        onInstallSuccess={() => {
+          showToast(language === 'hindi' ? '🎉 ऐप सफलता से आपकी मोबाइल स्क्रीन पर जुड़ गया!' : '🎉 App added to your mobile screen successfully!', 'success');
+        }}
+      />
+
+      {/* 🎙️ GEMINI LIVE STUDY HANDS-FREE ASSISTANT MODAL */}
+      <GeminiLiveStudyAssistant
+        isOpen={isGeminiLiveOpen}
+        onClose={() => setIsGeminiLiveOpen(false)}
         language={language}
       />
 

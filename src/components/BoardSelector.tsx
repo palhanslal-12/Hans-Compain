@@ -21,7 +21,7 @@ export const BoardSelector: React.FC<BoardSelectorProps> = ({
 }) => {
   const isHindi = language === 'hindi';
 
-  const [selectedBoard, setSelectedBoard] = useState<'CBSE' | 'UP_BOARD' | 'BIHAR_BOARD' | 'ALL_STATE_BOARDS'>(
+  const [selectedBoard, setSelectedBoard] = useState<'CBSE' | 'UP_BOARD' | 'BIHAR_BOARD' | 'ALL_STATE_BOARDS' | 'ICSE'>(
     currentProfile?.boardDetails?.boardName || 'UP_BOARD'
   );
   const [selectedClass, setSelectedClass] = useState<'Class 9th' | 'Class 10th' | 'Class 11th' | 'Class 12th'>(

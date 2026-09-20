@@ -20,12 +20,15 @@ import {
   Layers,
   Database,
   Calendar,
-  Sparkles
+  Sparkles,
+  Eye,
+  Radio
 } from 'lucide-react';
 import { RealOwnerAnalyticsData } from '../lib/firebase';
 
 export type AdminTabType =
   | 'dashboard'
+  | 'live_feed'
   | 'users'
   | 'conversations'
   | 'ai_models'
@@ -135,6 +138,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const activeMonth = ownerAnalyticsData.activeMonth ?? 0;
   const usersList = Array.isArray(ownerAnalyticsData.users) ? ownerAnalyticsData.users : [];
   const logsList = Array.isArray(ownerAnalyticsData.logs) ? ownerAnalyticsData.logs : [];
+  const liveVisitorsList = Array.isArray((ownerAnalyticsData as any).liveVisitors) && (ownerAnalyticsData as any).liveVisitors.length > 0
+    ? (ownerAnalyticsData as any).liveVisitors
+    : usersList.filter((u: any) => {
+        if (!u.lastActiveAt) return false;
+        const diff = Date.now() - new Date(u.lastActiveAt).getTime();
+        return !isNaN(diff) && diff <= 30 * 60 * 1000;
+      });
   
   const featureUsage = Array.isArray(ownerAnalyticsData.featureUsage) ? ownerAnalyticsData.featureUsage : [
     { feature: 'AI Study Assistant', count: logsList.filter((l: any) => l.type === 'chat').length || 1, percent: 45 },
@@ -259,6 +269,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <div className="space-y-1 max-h-[70vh] overflow-y-auto pr-1">
             {[
               { id: 'dashboard', label: '📊 Dashboard', desc: 'Real Firestore Metrics & Active Users' },
+              { id: 'live_feed', label: '👁️ कौन क्या देख रहा है (Live)', desc: 'Real-Time Active Visitors & Pages' },
               { id: 'users', label: '👥 Users & Registrations', desc: 'Verified Students & Visitors' },
               { id: 'analytics', label: '📈 Usage & Feature Counts', desc: 'Feature Ranks & Daily/Weekly Stats' },
               { id: 'conversations', label: '💬 Prompts & Activity Logs', desc: 'AI Queries & Feature Logs' },
@@ -338,6 +349,71 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <span className="text-2xl font-black text-pink-400 block font-mono">{totalQueries}</span>
                   <span className="text-[9px] text-slate-400 block">Logged AI & Feature Actions</span>
                 </div>
+              </div>
+
+              {/* 👁️ LIVE VISITOR & CURRENT ACTIVITY MONITOR (कौन क्या देख रहा है) */}
+              <div className="bg-gradient-to-r from-blue-950/40 via-[#0F1626] to-indigo-950/40 border border-blue-500/40 p-5 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-2 rounded-xl bg-blue-500/20 text-cyan-300">
+                      <Eye className="w-5 h-5" />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                        <span>{isHindi ? '👁️ लाइव विज़िटर मॉनिटर: कौन क्या देख रहा है' : '👁️ Live Visitors: Real-Time Activity Monitor'}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold animate-pulse border border-emerald-500/30">
+                          {liveVisitorsList.length} Active Now
+                        </span>
+                      </h3>
+                      <p className="text-[11px] text-slate-400">
+                        {isHindi ? 'अभी ऐप में कौन-कौन से छात्र सक्रिय हैं और वे किस सेक्शन का अध्ययन कर रहे हैं:' : 'Current active students and the exact sections they are browsing:'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setAdminActiveTab('live_feed')}
+                    className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+                  >
+                    <span>{isHindi ? 'विस्तृत लाइव फीड खोलें' : 'Detailed Live Feed'}</span>
+                    <span>→</span>
+                  </button>
+                </div>
+
+                {liveVisitorsList.length === 0 ? (
+                  <div className="p-4 bg-[#060913]/60 rounded-2xl border border-slate-800/80 text-center text-xs text-slate-400">
+                    {isHindi ? 'वर्तमान में कोई सक्रिय विज़िटर नहीं है (पिछले 30 मिनट में)। जैसे ही कोई लिंक खोलेगा, उनका लाइव पेज यहाँ दिखेगा।' : 'No active visitors in the last 30 minutes. Real-time updates appear instantly when someone visits.'}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {liveVisitorsList.slice(0, 6).map((visitor: any, idx: number) => {
+                      const timeDiffMin = Math.max(0, Math.floor((Date.now() - new Date(visitor.lastActiveAt).getTime()) / 60000));
+                      const timeText = timeDiffMin === 0 ? (isHindi ? 'अभी-अभी (Active Now)' : 'Just now') : (isHindi ? `${timeDiffMin} मिनट पहले` : `${timeDiffMin}m ago`);
+                      return (
+                        <div key={visitor.id || idx} className="p-3 bg-[#060913]/90 border border-indigo-500/20 rounded-2xl space-y-2 hover:border-cyan-500/40 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 truncate">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                              <span className="text-xs font-bold text-white truncate">{visitor.name || 'Guest Aspirant'}</span>
+                            </div>
+                            <span className="text-[9px] font-mono text-emerald-400 font-bold px-1.5 py-0.5 bg-emerald-500/10 rounded">
+                              {timeText}
+                            </span>
+                          </div>
+                          <div className="text-[11px] p-2 bg-[#0C1220] border border-slate-850 rounded-xl text-slate-300">
+                            <span className="text-[9px] text-slate-500 block uppercase font-bold">{isHindi ? 'अभी देख रहे हैं:' : 'Currently Viewing:'}</span>
+                            <span className="text-cyan-300 font-bold line-clamp-1">
+                              {visitor.lastViewTitle || (visitor.lastView ? `सेक्शन: ${visitor.lastView}` : '🏠 होमपेज / AI चैट ट्यूटर')}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                            <span>{visitor.deviceInfo || '📱 Device'}</span>
+                            <span>{visitor.ipAddress ? `IP: ${visitor.ipAddress.slice(0, 12)}` : 'IP Logged'}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* 🛡️ 500+ COLLEGE STUDENTS ANTI-CRASH SHIELD MONITOR */}
@@ -607,7 +683,243 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           )}
 
-          {/* 2. 👥 USERS & REGISTRATIONS DIRECTORY */}
+          {/* 1.5 👁️ LIVE FEED: कौन क्या देख रहा है (REAL-TIME VISITOR & PAGE ACTIVITY MONITOR) */}
+          {adminActiveTab === 'live_feed' && (
+            <div className="space-y-6 animate-fade-in">
+              {/* Header Card */}
+              <div className="bg-gradient-to-r from-blue-950/60 via-[#0F1626] to-indigo-950/60 border border-blue-500/40 p-5 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                      <Eye className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+                        <span>{isHindi ? '👁️ लाइव विज़िटर मॉनिटर: कौन क्या देख रहा है' : '👁️ Real-Time Visitor & Live Activity Feed'}</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold animate-pulse border border-emerald-500/30 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                          LIVE TRACKER
+                        </span>
+                      </h2>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {isHindi 
+                          ? 'यहाँ आप सीधे देख सकते हैं कि कौन सा विज़िटर/छात्र किस पेज पर है, क्या खोल रहा है और क्या सर्च कर रहा है।' 
+                          : 'Monitor in real time who is accessing your app, what sections they are studying, and their search queries.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={fetchOwnerAnalytics}
+                      disabled={isOwnerAnalyticsLoading}
+                      className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md active:scale-95"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isOwnerAnalyticsLoading ? 'animate-spin' : ''}`} />
+                      <span>{isOwnerAnalyticsLoading ? (isHindi ? 'लाइव सिंक हो रहा...' : 'Syncing...') : (isHindi ? '🔄 रिफ्रेश लाइव डेटा' : '🔄 Refresh Live Data')}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3 Quick Metric Badges */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3.5 bg-[#060913]/90 border border-cyan-500/30 rounded-2xl">
+                    <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider block">
+                      {isHindi ? '🟢 अभी सक्रिय छात्र (Active Now)' : '🟢 Active Now (Last 30m)'}
+                    </span>
+                    <div className="text-2xl font-black text-white font-mono mt-1">
+                      {liveVisitorsList.length} <span className="text-xs text-emerald-400 font-sans font-bold">Online</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400">पिछले 30 मिनट में सक्रिय</span>
+                  </div>
+
+                  <div className="p-3.5 bg-[#060913]/90 border border-indigo-500/30 rounded-2xl">
+                    <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider block">
+                      {isHindi ? '📄 कुल पृष्ठ दृश्य (Total Pageviews)' : '📄 Total Pageviews'}
+                    </span>
+                    <div className="text-2xl font-black text-white font-mono mt-1">
+                      {logsList.filter((l: any) => l.type === 'pageview').length || logsList.length}
+                    </div>
+                    <span className="text-[10px] text-slate-400">ट्रैक किए गए सेक्शन दृश्य</span>
+                  </div>
+
+                  <div className="p-3.5 bg-[#060913]/90 border border-amber-500/30 rounded-2xl">
+                    <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">
+                      {isHindi ? '👥 कुल छात्र व विज़िटर्स' : '👥 Total Visitors'}
+                    </span>
+                    <div className="text-2xl font-black text-white font-mono mt-1">
+                      {totalUsers}
+                    </div>
+                    <span className="text-[10px] text-slate-400">{registeredCount} रजिस्टर्ड / {visitorCount} गेस्ट</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION A: Currently Active Students (Online Right Now) */}
+              <div className="bg-[#0F1626]/80 border border-slate-800 p-5 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
+                    <span>{isHindi ? 'अभी कौन क्या देख रहा है (Currently Active Students & Visitors)' : 'Live Active Visitors'}</span>
+                    <span className="text-xs font-mono text-emerald-400 font-bold">({liveVisitorsList.length})</span>
+                  </h3>
+                  <span className="text-[10px] text-slate-400">स्वचालित ट्रैकिंग सक्षम है (Auto-Tracking Enabled)</span>
+                </div>
+
+                {liveVisitorsList.length === 0 ? (
+                  <div className="p-8 bg-[#060913]/60 rounded-2xl border border-slate-800/80 text-center space-y-2">
+                    <Eye className="w-8 h-8 text-slate-600 mx-auto" />
+                    <p className="text-xs text-slate-400">
+                      {isHindi ? 'वर्तमान में कोई सक्रिय विज़िटर नहीं है (पिछले 30 मिनट में)। जैसे ही कोई लिंक पर क्लिक करके ऐप खोलेगा, उनका लाइव पेज यहाँ प्रदर्शित होगा।' : 'No active visitors in the last 30 minutes.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                    {liveVisitorsList.map((visitor: any, idx: number) => {
+                      const timeDiffMin = Math.max(0, Math.floor((Date.now() - new Date(visitor.lastActiveAt).getTime()) / 60000));
+                      const isNow = timeDiffMin === 0;
+                      return (
+                        <div key={visitor.id || idx} className="p-4 bg-[#060913] border border-slate-800 hover:border-cyan-500/50 rounded-2xl space-y-3 transition-all">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="relative shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-md">
+                                  {(visitor.name || 'G')[0].toUpperCase()}
+                                </div>
+                                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border border-black rounded-full animate-ping" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold text-white truncate">{visitor.name || 'Guest Aspirant'}</div>
+                                <div className="text-[10px] text-slate-400 truncate font-mono">{visitor.email || 'guest@hansai.visitor'}</div>
+                              </div>
+                            </div>
+                            <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${isNow ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse' : 'bg-slate-800 text-slate-300'}`}>
+                              {isNow ? (isHindi ? '🟢 अभी-अभी' : '🟢 Online') : (isHindi ? `${timeDiffMin}m पहले` : `${timeDiffMin}m ago`)}
+                            </span>
+                          </div>
+
+                          <div className="p-2.5 bg-[#0C1220] border border-cyan-500/30 rounded-xl space-y-1">
+                            <span className="text-[9px] text-cyan-400 uppercase font-black tracking-wider block">
+                              {isHindi ? '📍 वर्तमान में देख रहे हैं:' : '📍 Currently Viewing:'}
+                            </span>
+                            <div className="text-xs font-bold text-white leading-snug">
+                              {visitor.lastViewTitle || (visitor.lastView ? `सेक्शन: ${visitor.lastView}` : '🏠 होमपेज / AI चैट ट्यूटर')}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-850">
+                            <span className="font-medium">{visitor.deviceInfo || '📱 Mobile/Desktop'}</span>
+                            <span className="font-mono text-slate-500">{visitor.ipAddress ? `IP: ${visitor.ipAddress}` : 'IP Stored'}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION B: Chronological Live Activity Stream (विज़िटर द्वारा की गई हर गतिविधि) */}
+              <div className="bg-[#0F1626]/80 border border-slate-800 p-5 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-indigo-400" />
+                      <span>{isHindi ? '📜 लाइव एक्टिविटी स्ट्रीम (Live Action Timeline)' : 'Live Action Stream'}</span>
+                      <span className="text-xs font-mono text-indigo-400 font-bold">({logsList.length} Events)</span>
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      {isHindi ? 'छात्रों द्वारा खोले गए पेज, क्विज़ प्रयास, शॉर्टहैंड अभ्यास और AI प्रश्न:' : 'Detailed chronological log of what visitors searched, viewed, or studied:'}
+                    </p>
+                  </div>
+
+                  {/* Search and Filter */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="relative">
+                      <Search className="w-3 h-3 text-slate-500 absolute left-2.5 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder={isHindi ? "नाम, पेज या सर्च खोजें..." : "Search logs..."}
+                        value={ownerLogSearchQuery}
+                        onChange={(e) => setOwnerLogSearchQuery(e.target.value)}
+                        className="pl-7 pr-2.5 py-1.5 bg-[#060913] border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-48"
+                      />
+                    </div>
+                    <select
+                      value={ownerLogTypeFilter}
+                      onChange={(e) => setOwnerLogTypeFilter(e.target.value)}
+                      className="px-2.5 py-1.5 bg-[#060913] border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="all">{isHindi ? 'सभी एक्टिविटी' : 'All Types'}</option>
+                      <option value="pageview">{isHindi ? '📄 पेज दृश्य (Pageviews)' : 'Pageviews'}</option>
+                      <option value="chat">{isHindi ? '💬 AI चैट' : 'AI Chats'}</option>
+                      <option value="steno">{isHindi ? '✍️ आशुलिपि' : 'Shorthand'}</option>
+                      <option value="quiz">{isHindi ? '⚡ क्विज़' : 'Quizzes'}</option>
+                      <option value="login">{isHindi ? '🔑 लॉगिन' : 'Logins'}</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Stream Items List */}
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+                  {logsList
+                    .filter((log: any) => {
+                      if (ownerLogTypeFilter !== 'all') {
+                        if (ownerLogTypeFilter === 'pageview' && log.type !== 'pageview') return false;
+                        if (ownerLogTypeFilter === 'chat' && log.type !== 'chat') return false;
+                        if (ownerLogTypeFilter === 'quiz' && log.type !== 'quiz') return false;
+                        if (ownerLogTypeFilter === 'login' && log.type !== 'login') return false;
+                        if (ownerLogTypeFilter === 'steno' && !log.query?.includes('आशुलिपि') && !log.query?.includes('steno')) return false;
+                      }
+                      if (ownerLogSearchQuery.trim()) {
+                        const q = ownerLogSearchQuery.toLowerCase();
+                        const matchName = (log.userName || '').toLowerCase().includes(q);
+                        const matchEmail = (log.userEmail || '').toLowerCase().includes(q);
+                        const matchQuery = (log.query || '').toLowerCase().includes(q);
+                        const matchTitle = (log.viewTitle || '').toLowerCase().includes(q);
+                        return matchName || matchEmail || matchQuery || matchTitle;
+                      }
+                      return true;
+                    })
+                    .slice(0, 50)
+                    .map((log: any, idx: number) => {
+                      const isPageview = log.type === 'pageview';
+                      return (
+                        <div key={log.id || idx} className="p-3 bg-[#060913] border border-slate-850 hover:border-slate-750 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors">
+                          <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+                            <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 ${
+                              isPageview ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30' :
+                              log.type === 'chat' ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30' :
+                              log.type === 'quiz' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' :
+                              'bg-purple-500/15 text-purple-300 border border-purple-500/30'
+                            }`}>
+                              {isPageview ? 'PAGE' : (log.type || 'LOG')}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-bold text-white">{log.userName || 'Student'}</span>
+                                <span className="text-[10px] text-slate-500 font-mono">({log.userEmail || 'guest'})</span>
+                              </div>
+                              <div className="text-xs text-slate-300 mt-0.5 break-words font-medium">
+                                {log.query}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 shrink-0 text-right">
+                            <span className="text-[10px] font-mono text-slate-400">
+                              {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
+                            <span className="text-[9px] text-slate-600 font-mono">
+                              {new Date(log.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
+          )}
           {adminActiveTab === 'users' && (
             <div className="bg-[#0F1626]/60 border border-slate-800 p-5 rounded-3xl space-y-4 animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
@@ -644,7 +956,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <table className="w-full text-left border-collapse text-xs">
                   <thead className="sticky top-0 bg-[#0B0F1B] z-10">
                     <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-bold">
-                      <th className="py-2.5 px-3">Student Name</th>
+                      <th className="py-2.5 px-3">Student Name & Last Viewed Page</th>
                       <th className="py-2.5 px-3">Email / ID</th>
                       <th className="py-2.5 px-3">Status & Type</th>
                       <th className="py-2.5 px-3">Referral Source</th>
@@ -679,9 +991,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         const isOnline = Date.now() - new Date(u.lastActiveAt).getTime() < 10 * 60 * 1000;
                         return (
                           <tr key={u.id} className="hover:bg-slate-800/30">
-                            <td className="py-2.5 px-3 text-slate-100 font-bold flex items-center gap-1.5">
-                              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
-                              <span>{u.name || 'Student Aspirant'}</span>
+                            <td className="py-2.5 px-3 text-slate-100 font-bold">
+                              <div className="flex items-center gap-1.5">
+                                <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                                <span className="truncate">{u.name || 'Student Aspirant'}</span>
+                              </div>
+                              {u.lastViewTitle && (
+                                <div className="text-[10px] text-cyan-400 font-normal mt-0.5 line-clamp-1 flex items-center gap-1">
+                                  <span className="text-slate-500 font-mono">पेज:</span>
+                                  <span className="truncate">{u.lastViewTitle}</span>
+                                </div>
+                              )}
                             </td>
                             <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px]">{u.email}</td>
                             <td className="py-2.5 px-3">

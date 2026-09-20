@@ -265,6 +265,7 @@ export interface RealOwnerAnalyticsData {
     monthly: number;
     chartData: { date: string; count: number }[];
   };
+  liveVisitors?: any[];
   users: any[];
   logs: any[];
   feedbacks: any[];
@@ -335,7 +336,10 @@ export async function fetchRealOwnerAnalytics(): Promise<RealOwnerAnalyticsData>
               referralSource: su.referralSource || 'Direct',
               registeredAt: su.registeredAt || su.firstSeen || new Date().toISOString(),
               lastActiveAt: su.lastActiveAt || su.firstSeen || new Date().toISOString(),
-              promptCount: su.promptCount || 0
+              promptCount: su.promptCount || 0,
+              lastView: su.lastView,
+              lastViewTitle: su.lastViewTitle,
+              ipAddress: su.ipAddress
             });
             existingEmails.add(su.email.toLowerCase());
           }
@@ -356,7 +360,11 @@ export async function fetchRealOwnerAnalytics(): Promise<RealOwnerAnalyticsData>
               status: 'success',
               errorDetails: '',
               referral: 'Direct',
-              timestamp: sl.timestamp || new Date().toISOString()
+              timestamp: sl.timestamp || new Date().toISOString(),
+              view: sl.view,
+              viewTitle: sl.viewTitle,
+              deviceInfo: sl.deviceInfo,
+              ipAddress: sl.ipAddress
             });
             existingLogIds.add(sl.id);
           }
@@ -385,7 +393,10 @@ export async function fetchRealOwnerAnalytics(): Promise<RealOwnerAnalyticsData>
     registeredAt: u.registeredAt || u.createdAt || new Date().toISOString(),
     lastActiveAt: u.lastActiveAt || u.registeredAt || new Date().toISOString(),
     promptCount: u.promptCount || 0,
-    firstSeen: u.registeredAt || u.lastActiveAt || new Date().toISOString()
+    firstSeen: u.registeredAt || u.lastActiveAt || new Date().toISOString(),
+    lastView: u.lastView,
+    lastViewTitle: u.lastViewTitle,
+    ipAddress: u.ipAddress
   }));
 
   const registeredUsers = normalizedUsers.filter(u => !u.isGuest && !u.email.endsWith('@hansai.visitor'));
@@ -533,6 +544,10 @@ export async function fetchRealOwnerAnalytics(): Promise<RealOwnerAnalyticsData>
       monthly: monthlyLogsCount,
       chartData
     },
+    liveVisitors: normalizedUsers.filter(u => {
+      const diff = now - new Date(u.lastActiveAt).getTime();
+      return !isNaN(diff) && diff <= 30 * 60 * 1000;
+    }).sort((a, b) => new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime()),
     users: normalizedUsers.sort((a, b) => new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime()),
     logs: rawLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
     feedbacks: rawFeedbacks

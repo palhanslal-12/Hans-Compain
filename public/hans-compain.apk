@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANS COMPAIN AI App</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #03060E;
+      color: #F1F5F9;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      background: #070D1D;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      border-radius: 28px;
+      padding: 28px 24px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+    .icon {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 16px;
+      border-radius: 20px;
+      background: #0F172A;
+      border: 1px solid rgba(6, 182, 212, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 0.5px;
+    }
+    p {
+      font-size: 13px;
+      color: #94A3B8;
+      line-height: 1.6;
+      margin: 0 0 20px 0;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #059669, #0D9488);
+      color: #FFFFFF;
+      text-decoration: none;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+      border: none;
+    }
+    .guide-box {
+      margin-top: 20px;
+      padding: 14px;
+      background: #0B132B;
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: 14px;
+      font-size: 11px;
+      color: #38BDF8;
+      text-align: left;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📲</div>
+    <h2>HANS COMPAIN OFFICIAL APP</h2>
+    <p>
+      ऐप शुरू करने के लिए नीचे दिए गए बटन पर टैप करें। मोबाइल की मुख्य स्क्रीन पर ऐप आइकन लगाने के लिए Chrome मेनू (3 डॉट्स) में जाकर <b>"Install app"</b> या <b>"Add to Home screen"</b> चुनें।
+    </p>
+    <button class="btn" onclick="openHansApp()">
+      🚀 ऐप खोलें (Open Live App)
+    </button>
+    <div class="guide-box">
+      <b>💡 स्क्रीन पर ऐप कैसे जोड़ें:</b><br/>
+      1. ब्राउज़र में ऊपर <b>⋮ (3 डॉट्स)</b> दबाएं<br/>
+      2. <b>'Install app'</b> या <b>'Add to Home screen'</b> चुनें<br/>
+      3. ऐप सीधे मोबाइल स्क्रीन पर आ जाएगा!
+    </div>
+  </div>
+  <script>
+    function openHansApp() {
+      if (window.location.origin && window.location.origin.startsWith('http')) {
+        window.location.href = window.location.origin + '/';
+      } else {
+        window.location.href = '/';
+      }
+    }
+    // Auto-redirect if opened inside an active HTTP session
+    if (window.location.origin && window.location.origin.startsWith('http') && window.location.pathname.includes('.apk')) {
+      setTimeout(function() {
+        window.location.href = window.location.origin + '/';
+      }, 500);
+    }
+  </script>
+</body>
+</html>

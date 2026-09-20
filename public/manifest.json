@@ -1,6 +1,14 @@
 {
+  "id": "/",
   "short_name": "HANS COMPAIN",
   "name": "HANS COMPAIN - Shorthand & AI Learning Platform",
+  "description": "HANS COMPAIN AI Learning Platform for Hindi & English Shorthand, PYQ Quizzes, Science Formula Lab, and Academic Study Tools.",
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#070D1D",
+  "theme_color": "#070D1D",
+  "display": "standalone",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/favicon-48x48.png",
@@ -18,23 +26,25 @@
       "src": "/icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     },
     {
       "src": "/logo.png",
-      "type": "image/svg+xml",
-      "sizes": "any"
+      "type": "image/png",
+      "sizes": "640x640",
+      "purpose": "any"
     }
-  ],
-  "start_url": "/",
-  "background_color": "#070D1D",
-  "theme_color": "#070D1D",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }
