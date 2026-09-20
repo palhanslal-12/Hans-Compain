@@ -320,52 +320,85 @@ function getGenAI() {
 }
 
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
+const DEPRECATED_MODELS = new Set([
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
+  'gemini-pro',
+  'gemini-2.0-flash',
+  'gemini-2.0-pro',
+  'gemini-2.0-flash-thinking',
+  'gemini-2.0-flash-lite',
+]);
+
+const VALID_FALLBACK_MODELS = [
+  'gemini-3.8-flash',
+  'gemini-flash-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-2.5-flash'
+];
+
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
-  // Use gemini-2.5-flash as preferred primary fast model for maximum quality and speed
-  const isOutdatedOrInvalid = !primaryModel || primaryModel.includes("2.5");
-  const requested = isOutdatedOrInvalid ? "gemini-2.5-flash" : primaryModel;
-  
-  // High-availability fallback sequence of valid models including 1.5-flash and flash-lite
-  const fallbackSequence = [requested, "gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.5-flash", "gemini-flash-latest"];
-  const uniqueModels = Array.from(new Set(fallbackSequence.filter(Boolean)));
+  // Normalize requested model
+  let requested = primaryModel ? String(primaryModel).trim() : 'gemini-3.8-flash';
+  if (DEPRECATED_MODELS.has(requested)) {
+    requested = 'gemini-3.8-flash';
+  }
+
+  // Build prioritized fallback sequence without duplicates or deprecated models
+  const rawSequence = [requested, ...VALID_FALLBACK_MODELS];
+  const candidateModels = Array.from(new Set(rawSequence.filter(m => m && !DEPRECATED_MODELS.has(m))));
 
   let lastError: any = null;
-  for (const currentModel of uniqueModels) {
-    try {
-      const response = await ai.models.generateContent({
-        model: currentModel,
-        contents: options.contents,
-        config: options.config
-      });
-      return response;
-    } catch (err: any) {
-      lastError = err;
-      const errMsg = err?.message || String(err);
-      const isHighDemandOrUnavailable = errMsg.includes("503") || errMsg.includes("high demand") || errMsg.includes("UNAVAILABLE") || errMsg.includes("overloaded");
-      const isRateLimited = errMsg.includes("429") || errMsg.includes("Resource has been exhausted") || errMsg.includes("rate limit") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED");
-      
-      console.log(`[Gemini SDK] Note: Model '${currentModel}' active load switch (${isHighDemandOrUnavailable ? '503 High Demand' : isRateLimited ? '429 Rate Limit' : 'Busy'}). Switching to next model...`);
-      
-      // Wait a short backoff before trying next model
-      await new Promise(resolve => setTimeout(resolve, 300 + Math.floor(Math.random() * 300)));
 
-      // If search tool was attached and caused rate limiting, try a quick attempt without search tool
-      if (isRateLimited && options.config?.tools?.some((t: any) => t.googleSearch)) {
-        try {
-          const configNoSearch = { ...options.config };
-          delete configNoSearch.tools;
-          const fallbackRes = await ai.models.generateContent({
-            model: "gemini-3.1-flash-lite",
-            contents: options.contents,
-            config: configNoSearch
-          });
-          return fallbackRes;
-        } catch (innerErr) {
-          // continue fallback sequence
+  for (const currentModel of candidateModels) {
+    // Try up to 2 attempts per model for transient errors (e.g., 503 high demand or temporary network hiccup)
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const response = await ai.models.generateContent({
+          model: currentModel,
+          contents: options.contents,
+          config: options.config
+        });
+        return response;
+      } catch (err: any) {
+        lastError = err;
+        const errMsg = err?.message || String(err);
+        const is503HighDemand = errMsg.includes("503") || errMsg.includes("high demand") || errMsg.includes("UNAVAILABLE") || errMsg.includes("overloaded");
+        const is429RateLimit = errMsg.includes("429") || errMsg.includes("Resource has been exhausted") || errMsg.includes("rate limit") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED");
+        const isTransient = is503HighDemand || is429RateLimit || errMsg.includes("ECONNRESET") || errMsg.includes("ETIMEDOUT") || errMsg.includes("fetch failed");
+
+        console.warn(`[Gemini API] Model '${currentModel}' attempt ${attempt} encountered: ${errMsg.slice(0, 150)}`);
+
+        // If tools (e.g. googleSearch) were attached and caused failure/rate limit, attempt stripping tools immediately
+        if (options.config?.tools?.length) {
+          try {
+            const configNoTools = { ...options.config };
+            delete configNoTools.tools;
+            delete configNoTools.toolConfig;
+            const resNoTools = await ai.models.generateContent({
+              model: currentModel,
+              contents: options.contents,
+              config: configNoTools
+            });
+            return resNoTools;
+          } catch (innerErr) {
+            // continue with next attempt or fallback model
+          }
+        }
+
+        // On 503 high demand or 429, don't wait too long if on attempt 2, jump to next model in sequence
+        if (attempt < 2 && isTransient) {
+          const backoffDelay = 300 * attempt + Math.floor(Math.random() * 200);
+          await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        } else {
+          // Break attempt loop to move to next fallback model
+          break;
         }
       }
     }
   }
+
+  // If all candidate models failed, re-throw lastError so route handler can serve local fallback reply
   throw lastError;
 }
 

@@ -1245,9 +1245,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     }}
                     className="w-full text-xs py-2.5 px-3 bg-[#060913] border border-slate-800 rounded-xl text-amber-300 font-mono focus:outline-none focus:border-amber-500"
                   >
-                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended - Fast & Accurate)</option>
-                    <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Reasoning)</option>
-                    <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite (Lightweight)</option>
+                    <option value="gemini-3.8-flash">Gemini 3.8 Flash (Ultra Fast & Smart)</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Standard)</option>
+                    <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Lightweight)</option>
+                    <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Deep Reasoning)</option>
                   </select>
                 </div>
 

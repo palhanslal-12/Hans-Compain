@@ -536,6 +536,20 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
     });
   };
 
+  const handleSetCompletedChaptersCount = (count: number) => {
+    const targetCount = Math.max(0, Math.min(count, currentSubject.chapters.length));
+    setCompletedChaptersMap((prev) => {
+      const updated = { ...prev };
+      currentSubject.chapters.forEach((chap, idx) => {
+        updated[chap.id] = idx < targetCount;
+      });
+      try {
+        localStorage.setItem('hansai-completed-chapters', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
   // 🧮 Smart Preparation Calculator State ("क्या, कैसे और कब करें")
   const [targetScorePercent, setTargetScorePercent] = useState<number>(90);
   const [daysRemaining, setDaysRemaining] = useState<number>(45);
@@ -1250,7 +1264,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
                   <div className="flex justify-between text-xs font-bold">
                     <span className="text-slate-300">पहले से तैयार अध्याय (Chapters):</span>
                     <span className="text-indigo-300 font-mono text-sm">
-                      {completedChaptersCount} / {calcMetrics.totalChapters}
+                      {currentSubjectCompletedCount} / {calcMetrics.totalChapters}
                     </span>
                   </div>
                   <input
@@ -1258,8 +1272,8 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
                     min="0"
                     max={calcMetrics.totalChapters}
                     step="1"
-                    value={completedChaptersCount}
-                    onChange={(e) => setCompletedChaptersCount(Number(e.target.value))}
+                    value={currentSubjectCompletedCount}
+                    onChange={(e) => handleSetCompletedChaptersCount(Number(e.target.value))}
                     className="w-full accent-indigo-500 cursor-pointer"
                   />
                 </div>
