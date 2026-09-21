@@ -672,6 +672,27 @@ export const UnlimitedPyqVaultView: React.FC<UnlimitedPyqVaultViewProps> = ({
     }
   };
 
+  const touchStartXRef = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartXRef.current - touchEndX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        handleNextQuestion();
+      } else {
+        handlePrevQuestion();
+      }
+    }
+    touchStartXRef.current = null;
+  };
+
   const toggleBookmark = (id: string) => {
     if (bookmarkedIds.includes(id)) {
       setBookmarkedIds(bookmarkedIds.filter(b => b !== id));
@@ -991,7 +1012,11 @@ export const UnlimitedPyqVaultView: React.FC<UnlimitedPyqVaultViewProps> = ({
           ) : (
             /* Main Question Card */
             <div className="lg:col-span-8 space-y-4">
-              <div className="bg-slate-900/90 border border-slate-800 rounded-md p-5 sm:p-7 space-y-6 shadow-xl relative">
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className="bg-slate-900/90 border border-slate-800 rounded-md p-5 sm:p-7 space-y-6 shadow-xl relative"
+              >
                 {/* Question Meta Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                   <div className="flex items-center gap-2 flex-wrap">

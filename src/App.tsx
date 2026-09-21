@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import { speakText, stopAllSpeech } from './utils/speechUtils';
 import { playSuccessChime } from './utils/audio';
 import { 
@@ -8667,11 +8668,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       id: `goal-${Date.now()}`,
                       text,
                       done: false,
-                      category
+                      category,
+                      notes: ''
                     };
                     setDailyGoals(prev => [newG, ...prev]);
                   }}
                   onDeleteGoal={handleDeleteGoal}
+                  onUpdateGoalNotes={(id, notes) => {
+                    setDailyGoals(prev => prev.map(g => g.id === id ? { ...g, notes } : g));
+                  }}
+                  onTriggerGoalAlert={triggerDailyReminder}
                   onClearCompleted={() => {
                     setDailyGoals(prev => prev.filter(g => !g.done));
                     showToast(language === 'hindi' ? '🧹 पूर्ण किए गए लक्ष्य हटा दिए गए।' : '🧹 Completed goals cleared.', 'info');

@@ -23,6 +23,7 @@ export interface DailyGoalItem {
   text: string;
   done: boolean;
   category: string;
+  notes?: string;
 }
 
 interface DailyGoalsViewProps {
@@ -30,6 +31,8 @@ interface DailyGoalsViewProps {
   onToggleGoal: (id: string) => void;
   onAddGoal: (text: string, category: string) => void;
   onDeleteGoal: (id: string) => void;
+  onUpdateGoalNotes?: (id: string, notes: string) => void;
+  onTriggerGoalAlert?: () => void;
   onClearCompleted?: () => void;
   language?: string;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
@@ -183,6 +186,8 @@ export const DailyGoalsView: React.FC<DailyGoalsViewProps> = ({
   onToggleGoal,
   onAddGoal,
   onDeleteGoal,
+  onUpdateGoalNotes,
+  onTriggerGoalAlert,
   onClearCompleted,
   language = 'hindi',
   showToast,
@@ -197,6 +202,7 @@ export const DailyGoalsView: React.FC<DailyGoalsViewProps> = ({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedNotesIds, setExpandedNotesIds] = useState<Record<string, boolean>>({});
 
   const completedCount = goals.filter(g => g.done).length;
   const totalCount = goals.length;
@@ -294,8 +300,19 @@ export const DailyGoalsView: React.FC<DailyGoalsViewProps> = ({
             </p>
           </div>
 
-          {/* Share & Clear buttons */}
+          {/* Share, Alert & Clear buttons */}
           <div className="flex items-center gap-2 shrink-0">
+            {onTriggerGoalAlert && (
+              <button
+                onClick={onTriggerGoalAlert}
+                className="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Trigger Goal Alert & Reminder"
+              >
+                <Bell className="w-3.5 h-3.5 text-amber-400" />
+                <span>{language === 'hindi' ? '🚨 लक्ष्य चेतावनी' : '🚨 Trigger Alert'}</span>
+              </button>
+            )}
+
             <button
               onClick={handleShareGoals}
               className="px-3.5 py-2 rounded-xl bg-[#141E38] hover:bg-indigo-900/60 border border-indigo-500/30 text-indigo-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
@@ -645,11 +662,12 @@ export const DailyGoalsView: React.FC<DailyGoalsViewProps> = ({
         ) : (
           filteredGoals.map((goal) => {
             const catStyle = getCategoryStyle(goal.category);
+            const isNotesExpanded = expandedNotesIds[goal.id] || Boolean(goal.notes && goal.notes.trim().length > 0);
 
             return (
               <div
                 key={goal.id}
-                className={`group relative flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 text-left ${
+                className={`group relative flex flex-col p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 text-left ${
                   catStyle.accentBorder
                 } border-l-4 ${
                   goal.done
@@ -658,62 +676,106 @@ export const DailyGoalsView: React.FC<DailyGoalsViewProps> = ({
                 }`}
                 id={`goal-item-${goal.id}`}
               >
-                {/* Left check and text */}
-                <div 
-                  className="flex items-start sm:items-center gap-3 flex-1 min-w-0 cursor-pointer pr-3"
-                  onClick={() => onToggleGoal(goal.id)}
-                >
-                  <button
-                    type="button"
-                    className="mt-0.5 sm:mt-0 p-0.5 text-slate-400 hover:text-indigo-400 transition-colors bg-transparent border-none cursor-pointer shrink-0"
-                    aria-label={goal.done ? "Mark Incomplete" : "Mark Complete"}
+                <div className="flex items-center justify-between w-full">
+                  {/* Left check and text */}
+                  <div 
+                    className="flex items-start sm:items-center gap-3 flex-1 min-w-0 cursor-pointer pr-3"
+                    onClick={() => onToggleGoal(goal.id)}
                   >
-                    {goal.done ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 fill-emerald-500/20" />
-                    ) : (
-                      <Circle className="w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors" />
-                    )}
-                  </button>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-                    {/* Category Unique Color Badge */}
-                    <span 
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border shrink-0 ${
-                        catStyle.badgeBg
-                      } ${catStyle.badgeText} ${catStyle.badgeBorder}`}
-                      title={catStyle.description}
+                    <button
+                      type="button"
+                      className="mt-0.5 sm:mt-0 p-0.5 text-slate-400 hover:text-indigo-400 transition-colors bg-transparent border-none cursor-pointer shrink-0"
+                      aria-label={goal.done ? "Mark Incomplete" : "Mark Complete"}
                     >
-                      <span>{catStyle.icon}</span>
-                      <span>{catStyle.label}</span>
-                    </span>
+                      {goal.done ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400 fill-emerald-500/20" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors" />
+                      )}
+                    </button>
 
-                    {/* Goal Text */}
-                    <span className={`text-xs sm:text-sm font-semibold transition-all break-words ${
-                      goal.done 
-                        ? 'line-through text-slate-500 font-normal' 
-                        : 'text-slate-100 group-hover:text-white'
-                    }`}>
-                      {goal.text}
-                    </span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+                      {/* Category Unique Color Badge */}
+                      <span 
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border shrink-0 ${
+                          catStyle.badgeBg
+                        } ${catStyle.badgeText} ${catStyle.badgeBorder}`}
+                        title={catStyle.description}
+                      >
+                        <span>{catStyle.icon}</span>
+                        <span>{catStyle.label}</span>
+                      </span>
+
+                      {/* Goal Text */}
+                      <span className={`text-xs sm:text-sm font-semibold transition-all break-words ${
+                        goal.done 
+                          ? 'line-through text-slate-500 font-normal' 
+                          : 'text-slate-100 group-hover:text-white'
+                      }`}>
+                        {goal.text}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right Actions */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedNotesIds(prev => ({ ...prev, [goal.id]: !prev[goal.id] }));
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border ${
+                        goal.notes && goal.notes.trim()
+                          ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                          : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                      }`}
+                      title="Toggle Goal Notes"
+                      id={`toggle-notes-${goal.id}`}
+                    >
+                      <span>📝</span>
+                      <span className="hidden sm:inline">{goal.notes ? 'नोट्स' : '+ नोट्स'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteGoal(goal.id);
+                        showToast(language === 'hindi' ? '🗑️ लक्ष्य हटा दिया गया।' : '🗑️ Goal deleted.', 'info');
+                      }}
+                      className="p-1.5 text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all bg-transparent border-none cursor-pointer"
+                      title="Delete Goal"
+                      id={`delete-goal-${goal.id}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Right Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteGoal(goal.id);
-                      showToast(language === 'hindi' ? '🗑️ लक्ष्य हटा दिया गया।' : '🗑️ Goal deleted.', 'info');
-                    }}
-                    className="p-1.5 text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all bg-transparent border-none cursor-pointer"
-                    title="Delete Goal"
-                    id={`delete-goal-${goal.id}`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                {/* Collapsible Detail View / Notes Editor */}
+                {(expandedNotesIds[goal.id] || (goal.notes && goal.notes.trim().length > 0)) && (
+                  <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1">
+                        <span>📝</span>
+                        <span>{language === 'hindi' ? 'लक्ष्य विवरण व नोट्स (Task Organization Notes)' : 'Goal Organization Notes'}</span>
+                      </span>
+                      <span className="text-[10px] text-slate-500">Auto-saves</span>
+                    </div>
+                    <textarea
+                      value={goal.notes || ''}
+                      onChange={(e) => {
+                        if (onUpdateGoalNotes) {
+                          onUpdateGoalNotes(goal.id, e.target.value);
+                        }
+                      }}
+                      placeholder={language === 'hindi' ? "यहाँ अपने अध्ययन के नोट्स, महत्वपूर्ण सूत्र या स्टेप्स लिखें..." : "Add organization notes, key formulas, or sub-tasks here..."}
+                      className="w-full text-xs p-2.5 bg-[#070A12] border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-y min-h-[60px]"
+                      rows={2}
+                    />
+                  </div>
+                )}
               </div>
             );
           })
