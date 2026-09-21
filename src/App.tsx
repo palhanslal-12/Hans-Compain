@@ -148,6 +148,7 @@ import { SystemDiagnosticsModal } from './components/SystemDiagnosticsModal';
 import { SarkariResultEligibilityHub } from './components/SarkariResultEligibilityHub';
 import { DailyStreakIndicator, recordDailyPracticeActivity } from './components/DailyStreakIndicator';
 import { QuickSaveNotesModal } from './components/QuickSaveNotesModal';
+import { RetentionAlertsDashboard } from './components/RetentionAlertsDashboard';
 import { UserProfileModal } from './components/UserProfileModal';
 import { StudentGoalOnboardingModal, StudentGoalProfile } from './components/StudentGoalOnboardingModal';
 import { AppInstallModal } from './components/AppInstallModal';
@@ -481,6 +482,7 @@ export default function App() {
     | 'gis-earth'
     | 'edu-reels'
     | 'bharti-bhawan'
+    | 'retention-alerts'
   >('chat');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
@@ -6693,6 +6695,24 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                       <button
                         onClick={() => {
+                          setActiveView('retention-alerts');
+                          if (window.innerWidth < 1024) setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-left border cursor-pointer active:scale-[0.99] ${
+                          (activeView as string) === 'retention-alerts'
+                            ? 'bg-indigo-600/15 border-indigo-500/60 text-indigo-200'
+                            : 'bg-indigo-950/10 border-indigo-505/35 hover:border-indigo-400/50 hover:bg-indigo-950/20 text-indigo-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-sm shrink-0">📧</span>
+                          <span>{language === 'hindi' ? 'ऑटो ईमेल व स्टडी अलर्ट्स' : 'Study Email Alerts'}</span>
+                        </div>
+                        <span className="text-[9px] bg-indigo-600 text-white px-2 py-0.5 rounded font-black animate-pulse">ALERTS</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
                           setActiveView('study-plan');
                           if (window.innerWidth < 1024) setSidebarOpen(false);
                         }}
@@ -8668,6 +8688,22 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </ErrorBoundary>
           )}
 
+          {/* VIEW: HANS AI RETENTION ALERTS & REMINDERS */}
+          {activeView === 'retention-alerts' && (
+            <ErrorBoundary fallbackTitle="Retention Alerts" onReset={() => setActiveView('chat')}>
+              <div className="w-full max-w-7xl mx-auto min-h-[calc(100vh-8rem)] p-2 sm:p-6 animate-fade-in">
+                <RetentionAlertsDashboard
+                  user={user}
+                  onUpdateUser={(updated) => {
+                    setUser(prev => prev ? { ...prev, ...updated } : { name: updated.name, email: updated.email });
+                  }}
+                  showToast={showToast}
+                  language={language}
+                />
+              </div>
+            </ErrorBoundary>
+          )}
+
       
         </div>
 {/* SETTINGS MODAL DIALOG */}
@@ -9356,6 +9392,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               {[
                 { id: 'goals', title: 'Daily Study Goals', desc: 'दैनिक पढ़ाई के लक्ष्य', icon: '🎯' },
                 { id: 'flashcards', title: 'Interactive AI Flashcards', desc: 'दैनिक वोकैबलरी व फ्लैशकार्ड अभ्यास', icon: '🎴' },
+                { id: 'retention-alerts', title: '📧 Study Email Alerts', desc: 'ऑटोमेटिक अपडेट व दैनिक ईमेल रिमाइंडर्स', icon: '📧' },
                 { id: 'affiliate-store', title: 'Affiliate Book Store', desc: 'बेस्ट बुक्स और परीक्षा सामग्री स्टोर', icon: '🛒' },
                 { id: 'rap', title: 'Motivational Rap Recitals', desc: 'गीत संगीत मोटिवेशन', icon: '📜' },
                 { id: 'calculator', title: 'Scientific Calculator', desc: 'वैज्ञानिक गणक यंत्र', icon: '🧮' },

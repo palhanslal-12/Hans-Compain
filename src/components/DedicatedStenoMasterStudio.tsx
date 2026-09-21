@@ -9,6 +9,7 @@ import {
   Bookmark, BookmarkCheck, Save, FolderOpen, FileCheck, History
 } from 'lucide-react';
 import { saveStenoRecordToCloud } from '../lib/firebase';
+import { speakText, stopAllSpeech } from '../utils/speechUtils';
 
 export interface SavedStenoSheet {
   id: string;
@@ -1621,59 +1622,55 @@ export const DedicatedStenoMasterStudio: React.FC<DedicatedStenoMasterStudioProp
   // Audio Speech Dictation Synthesizer
   const handleToggleDictation = () => {
     if (isPlayingDictation) {
-      window.speechSynthesis.cancel();
+      stopAllSpeech();
       setIsPlayingDictation(false);
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
       showToast("Dictation paused ⏸️", "info");
       return;
     }
 
-    if (!('speechSynthesis' in window)) {
-      showToast("Speech synthesis not supported in this browser.", "warn");
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
     const textToSpeak = isCustomTextMode && customDictationText.trim()
       ? customDictationText.trim()
       : (language === 'hindi' ? selectedPassage.textHindi : selectedPassage.textEnglish);
 
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    if (!textToSpeak) {
+      showToast("No content available to dictate", "warn");
+      return;
+    }
 
     // Calculate speech rate based on WPM
     const currentWpm = targetWpm;
     const baseRate = currentWpm / 110;
-    utterance.rate = Math.min(2.0, Math.max(0.5, baseRate));
-    utterance.pitch = 1.0;
-    utterance.lang = language === 'hindi' ? 'hi-IN' : 'en-US';
+    const rate = Math.min(2.0, Math.max(0.5, baseRate));
 
-    utterance.onstart = () => {
-      setIsPlayingDictation(true);
-      setDictationElapsed(0);
-      timerIntervalRef.current = setInterval(() => {
-        setDictationElapsed(prev => prev + 1);
-      }, 1000);
-      showToast(`🎙️ Dictation active at ~${Math.round(currentWpm)} WPM! Keep writing!`, "success");
-    };
-
-    utterance.onend = () => {
-      setIsPlayingDictation(false);
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-      showToast("✅ Dictation completed! Proceed to transcribe on pad or test tab.", "success");
-    };
-
-    utterance.onerror = () => {
-      setIsPlayingDictation(false);
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    };
-
-    speechUtteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
+    speakText(textToSpeak, {
+      lang: language === 'hindi' ? 'hi-IN' : 'en-US',
+      rate: rate,
+      pitch: 1.0,
+      gender: 'male',
+      onStart: () => {
+        setIsPlayingDictation(true);
+        setDictationElapsed(0);
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = setInterval(() => {
+          setDictationElapsed(prev => prev + 1);
+        }, 1000);
+        showToast(`🎙️ Dictation active at ~${Math.round(currentWpm)} WPM! Keep writing!`, "success");
+      },
+      onEnd: () => {
+        setIsPlayingDictation(false);
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        showToast("✅ Dictation completed! Proceed to transcribe on pad or test tab.", "success");
+      },
+      onError: () => {
+        setIsPlayingDictation(false);
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      }
+    });
   };
 
   const handleStopDictation = () => {
-    window.speechSynthesis.cancel();
+    stopAllSpeech();
     setIsPlayingDictation(false);
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     setDictationElapsed(0);

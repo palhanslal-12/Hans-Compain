@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { speakText, stopAllSpeech } from '../utils/speechUtils';
 import { 
   Sparkles, 
   Mic, 
@@ -116,63 +117,43 @@ export const GeminiLiveStudyAssistant: React.FC<GeminiLiveStudyAssistantProps> =
 
   // Speak response using Gemini-like speech synthesis
   const speakSpokenText = (textToSpeak: string) => {
-    if (!('speechSynthesis' in window)) return;
-
-    window.speechSynthesis.cancel();
+    stopAllSpeech();
     isSpeakingRef.current = true;
     setIsSpeaking(true);
     setStatusMessage(language === 'hindi' ? '🔊 जेमिनी बोल रहा है... (Gemini Speaking)' : '🔊 Gemini Speaking...');
 
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    
-    // Select best available Google / Natural voice
-    const voices = window.speechSynthesis.getVoices();
-    let preferredVoice: SpeechSynthesisVoice | null = null;
-
-    if (language === 'hindi') {
-      preferredVoice = voices.find(v => 
-        (v.lang.includes('hi') || v.lang.includes('IN')) && 
-        (voiceGender === 'female' ? v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Kalpana') : v.name.includes('Male') || v.name.includes('Rishi'))
-      ) || voices.find(v => v.lang.includes('hi')) || null;
-    } else {
-      preferredVoice = voices.find(v => 
-        v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Jenny')
-      ) || null;
-    }
-
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
-    // Set natural Gemini-like pitch and cadence
-    utterance.pitch = voiceGender === 'female' ? 1.05 : 0.95;
-    utterance.rate = 0.98; // Warm conversational pacing
-
-    utterance.onend = () => {
-      isSpeakingRef.current = false;
-      setIsSpeaking(false);
-      
-      // Auto resume listening for continuous hands-free dialogue!
-      if (isComponentActiveRef.current && !isPausedRef.current) {
-        setStatusMessage(language === 'hindi' ? '🎙️ सुन रहा हूँ... आप बोलिए' : '🎙️ Listening... speak now');
-        playChime(660, 0.08); // Ready chime
-        setTimeout(() => {
-          if (isComponentActiveRef.current && !isPausedRef.current && !isSpeakingRef.current) {
-            startListening();
-          }
-        }, 300);
+    speakText(textToSpeak, {
+      lang: language === 'hindi' ? 'hi-IN' : 'en-US',
+      gender: voiceGender,
+      rate: 0.98,
+      pitch: voiceGender === 'female' ? 1.05 : 0.95,
+      onStart: () => {
+        isSpeakingRef.current = true;
+        setIsSpeaking(true);
+      },
+      onEnd: () => {
+        isSpeakingRef.current = false;
+        setIsSpeaking(false);
+        
+        // Auto resume listening for continuous hands-free dialogue!
+        if (isComponentActiveRef.current && !isPausedRef.current) {
+          setStatusMessage(language === 'hindi' ? '🎙️ सुन रहा हूँ... आप बोलिए' : '🎙️ Listening... speak now');
+          playChime(660, 0.08); // Ready chime
+          setTimeout(() => {
+            if (isComponentActiveRef.current && !isPausedRef.current && !isSpeakingRef.current) {
+              startListening();
+            }
+          }, 300);
+        }
+      },
+      onError: () => {
+        isSpeakingRef.current = false;
+        setIsSpeaking(false);
+        if (isComponentActiveRef.current && !isPausedRef.current) {
+          startListening();
+        }
       }
-    };
-
-    utterance.onerror = () => {
-      isSpeakingRef.current = false;
-      setIsSpeaking(false);
-      if (isComponentActiveRef.current && !isPausedRef.current) {
-        startListening();
-      }
-    };
-
-    window.speechSynthesis.speak(utterance);
+    });
   };
 
   // Query Backend Gemini Live Study endpoint

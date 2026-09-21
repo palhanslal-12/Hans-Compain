@@ -3,6 +3,7 @@
 
 let currentAudioPlayer: HTMLAudioElement | null = null;
 let currentSpeechSessionId = 0;
+let currentWatchdog: any = null;
 
 export interface IndianLanguageOption {
   code: string;
@@ -96,6 +97,11 @@ export const cleanTextForSpeech = (rawText: string): string => {
 export const stopAllSpeech = () => {
   // Invalidate any active speech session so ongoing or queued callbacks abort immediately
   currentSpeechSessionId++;
+
+  if (currentWatchdog) {
+    clearTimeout(currentWatchdog);
+    currentWatchdog = null;
+  }
 
   if (typeof window !== 'undefined') {
     if ('speechSynthesis' in window) {
@@ -241,7 +247,38 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
 
       let hasEnded = false;
 
+      // Safety watchdog for Chrome/Safari speechSynthesis stalls
+      if (currentWatchdog) clearTimeout(currentWatchdog);
+      
+      const watchdogTimeout = setTimeout(() => {
+        if (hasEnded || sessionId !== currentSpeechSessionId) return;
+        console.warn("SpeechSynthesis got stuck before starting or during playback, forcing server-side HD Audio TTS");
+        hasEnded = true;
+        try {
+          window.speechSynthesis.cancel();
+        } catch (e) {}
+        playAudioTTS();
+      }, 2200); // 2.2s threshold to start or speak a small chunk
+
+      utterance.onstart = () => {
+        clearTimeout(watchdogTimeout);
+        if (sessionId !== currentSpeechSessionId) return;
+        const wordsCount = chunk.split(/\s+/).length;
+        const estimateDurationMs = Math.max(3500, (wordsCount * 60000) / (activeRate * 150) + 1500);
+        
+        if (currentWatchdog) clearTimeout(currentWatchdog);
+        currentWatchdog = setTimeout(() => {
+          if (hasEnded || sessionId !== currentSpeechSessionId) return;
+          console.warn("SpeechSynthesis active chunk speaking too long, proceeding to next");
+          hasEnded = true;
+          currentChunkIdx++;
+          speakWebChunk();
+        }, estimateDurationMs);
+      };
+
       utterance.onend = () => {
+        clearTimeout(watchdogTimeout);
+        if (currentWatchdog) clearTimeout(currentWatchdog);
         if (hasEnded || sessionId !== currentSpeechSessionId) return;
         hasEnded = true;
         currentChunkIdx++;
@@ -249,6 +286,8 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       };
 
       utterance.onerror = (e: any) => {
+        clearTimeout(watchdogTimeout);
+        if (currentWatchdog) clearTimeout(currentWatchdog);
         if (hasEnded || sessionId !== currentSpeechSessionId) return;
         hasEnded = true;
 
@@ -264,6 +303,8 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       try {
         window.speechSynthesis.speak(utterance);
       } catch (e) {
+        clearTimeout(watchdogTimeout);
+        if (currentWatchdog) clearTimeout(currentWatchdog);
         if (sessionId === currentSpeechSessionId) {
           playAudioTTS();
         }

@@ -3,7 +3,8 @@ import {
   Newspaper, Calendar, Sparkles, Zap, Award, Search, BookOpen, 
   Volume2, VolumeX, Share2, ArrowRight, CheckCircle2, Bookmark, 
   Flame, Target, MessageSquare, Send, Mic, MicOff, X, 
-  HelpCircle, RefreshCw, ChevronRight, Lightbulb, FileText, Check
+  HelpCircle, RefreshCw, ChevronRight, Lightbulb, FileText, Check,
+  Printer
 } from 'lucide-react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
 
@@ -390,6 +391,175 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     },
     mainsQuestionHi: 'प्रश्न: पीएम सूर्य घर योजना भारत के ऊर्जा सुरक्षा और शुद्ध शून्य उत्सर्जन (Net Zero 2070) लक्ष्य को प्राप्त करने में किस प्रकार मददगार हो सकती है? चर्चा कीजिए। (200 शब्द)',
     mainsQuestionEn: 'Question: Discuss the significance of PM Surya Ghar Yojana in fostering energy self-reliance and achieving India\'s Net Zero 2070 climate commitments. (200 words)'
+  },
+  {
+    id: 'ca-7',
+    category: 'Science & Tech',
+    titleHi: 'इसरो (ISRO) का आदित्य-L1 (Aditya-L1) सूर्य मिशन: हेलो ऑर्बिट और सौर तूफानों का सफल वैज्ञानिक विश्लेषण',
+    titleEn: 'ISRO Aditya-L1 Solar Mission: Continuous Corona & Solar Wind Profiling at Lagrange Point L1',
+    summaryHi: 'भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) के पहले समर्पित सौर मिशन "आदित्य-L1" ने सूर्य-पृथ्वी प्रणाली के प्रथम लैग्रेंजियन बिंदु (L1) के चारों ओर अपनी हेलो कक्षा (Halo Orbit) में रहते हुए कोरोनल मास इजेक्शन (CME) और सौर ज्वालाओं का ऐतिहासिक डेटा जारी किया है।',
+    summaryEn: 'ISRO’s premiere solar observatory, Aditya-L1, stationed in a halo orbit around the Sun-Earth Lagrangian Point L1 (1.5 million km from Earth), has transmitted crucial raw datasets analyzing solar magnetic storms and Coronal Mass Ejections (CMEs).',
+    date: '20 सितम्बर 2026',
+    readTime: '5 मिनट',
+    examRelevance: 'UPSC CSE (GS-3 Space Technology), SSC CGL, NDA/CDS, State PSCs, Railway Exams',
+    keyFact: 'सूर्य-पृथ्वी प्रणाली में कुल 5 लैग्रेंज बिंदु (L1 से L5) हैं, जहाँ गुरुत्वाकर्षण और सेंट्रीफ्यूगल बल संतुलित होते हैं।',
+    tag: 'Space & Solar Science',
+
+    backgroundHi: 'आदित्य-L1 को पीएसएलवी-C57 (PSLV-C57) रॉकेट द्वारा 2 सितंबर 2023 को प्रक्षेपित किया गया था। यह पृथ्वी से लगभग 15 लाख किलोमीटर दूर L1 बिंदु पर स्थित है। इस बिंदु का मुख्य लाभ यह है कि यहाँ से बिना किसी ग्रहण या बाधा के सूर्य पर लगातार चौबीसों घंटे नजर रखी जा सकती है।',
+    backgroundEn: 'Launched on September 2, 2023, aboard the PSLV-C57 workhorse, Aditya-L1 was inserted into a periodic halo orbit around Lagrange Point 1 (L1). Stationing at L1 grants an uninterrupted, continuous view of the solar disc without any planetary occultation or eclipses.',
+
+    deepAnalysisHi: [
+      'L1 बिंदु क्या है?: यह अंतरिक्ष में वह स्थान है जहाँ दो विशाल खगोलीय पिंडों (सूर्य और पृथ्वी) के गुरुत्वाकर्षण बल आपस में संतुलित हो जाते हैं, जिससे उपग्रह को अपनी स्थिति बनाए रखने के लिए न्यूनतम ईंधन की आवश्यकता होती है।',
+      'प्रमुख पेलोड (Payloads): मिशन में 7 मुख्य वैज्ञानिक उपकरण हैं, जिनमें VELC (विजिबल एमिशन लाइन coronaग्राफ) और SUIT (सोलर अल्ट्रावायलेट इमेजिंग टेलीस्कोप) प्रमुख हैं।',
+      'कोरोना हीटिंग समस्या: सूर्य की बाहरी सतह का तापमान केवल 6,000°C है, जबकि उसके बाहरी वायुमंडल (Corona) का तापमान लाखों डिग्री सेल्सियस तक पहुँच जाता है। आदित्य-L1 इस अनसुलझे रहस्य का अध्ययन कर रहा है।'
+    ],
+    deepAnalysisEn: [
+      'What is L1 Point?: A gravitationally stable parking spot in space where the combined gravitational pull of the Sun and Earth matches the centrifugal force required for a spacecraft to move with them, minimizing orbit-maintenance fuel consumption.',
+      'Scientific Payloads: Carries 7 specialized payloads; 4 are remote sensing instruments (e.g. VELC, SUIT) mapping the solar disc, and 3 are in-situ instruments (e.g., ASPEX, PAPA) tracking local solar winds.',
+      'The Coronal Heating Paradox: The sun’s surface (photosphere) sits at ~6,000 K, yet its outermost atmosphere (corona) mysteriously surges to over 1,000,000 K. Aditya-L1 is collecting spectroscopic telemetry to resolve this thermodynamic anomaly.'
+    ],
+
+    keyProvisionsHi: [
+      'VELC पेलोड: यह प्रतिदिन सूर्य की 1,440 से अधिक तस्वीरें भेजकर सूर्य के चुंबकीय क्षेत्र और कोरोनल हीटिंग का विश्लेषण करता है।',
+      'सौर पवनें और अंतरिक्ष मौसम: सौर फ्लेयर्स पृथ्वी पर उपग्रह संचार, जीपीएस ग्रिड, और बिजली प्रणालियों को बाधित कर सकती हैं। आदित्य-L1 सौर तूफानों की सटीक पूर्व-चेतावनी देने में सक्षम है।',
+      'हेलो ऑर्बिट की स्थिरता: अंतरिक्ष यान को पृथ्वी से लगभग 110 दिनों की यात्रा के बाद L1 हेलो ऑर्बिट में सुरक्षित रूप से स्थापित किया गया था।'
+    ],
+    keyProvisionsEn: [
+      'VELC Payload: Operates at sub-angstrom resolution, transmitting over 1,440 images daily to inspect magnetized plasma and CME initiation vectors.',
+      'Solar Wind & Space Weather: High-energy solar flares can disable global communications, electrical power grids, and GPS satellites. Aditya-L1 provides crucial real-time space weather warning telemetry.',
+      'Halo Orbit Insertion: Executed flawlessly after a 110-day deep space cruise spanning roughly 1.5 million kilometers.'
+    ],
+
+    examImpactHi: 'लैग्रेंज बिंदु (Lagrange Points), सूर्य की संरचना (Photosphere, Chromosphere, Corona), पेलोड के नाम, प्रक्षेपण रॉकेट (PSLV-C57) और भारत के प्रथम सौर मिशन से जुड़े प्रश्न सभी प्रतियोगी परीक्षाओं में पूछे जाते हैं।',
+    examImpactEn: 'High-yield prelims concept: Lagrange points dynamics, solar layers, PSLV flight numbers, and electromagnetic spectrum bands. Mains focus: India’s space infrastructure safety and solar physics milestones.',
+
+    mcq: {
+      questionHi: 'इसरो द्वारा प्रक्षेपित "आदित्य-L1" मिशन को सूर्य-पृथ्वी प्रणाली के प्रथम लैग्रेंज बिंदु पर स्थापित किया गया है। यह बिंदु पृथ्वी से लगभग कितनी दूरी पर स्थित है?',
+      questionEn: 'The Sun-Earth Lagrangian Point 1 (L1), where ISRO\'s Aditya-L1 spacecraft is stationed, is located at approximately what distance from the Earth?',
+      optionsHi: ['3,84,000 किलोमीटर', '15 लाख किलोमीटर (1.5 Million km)', '1.5 करोड़ किलोमीटर', '150 लाख किलोमीटर'],
+      optionsEn: ['3,84,000 kilometers', '1.5 Million kilometers (15 Lakh km)', '15 Million kilometers', '150 Million kilometers'],
+      correctIndex: 1,
+      explanationHi: 'लैग्रेंज बिंदु 1 (L1) पृथ्वी से लगभग 15 लाख किलोमीटर (1.5 मिलियन किमी) की दूरी पर स्थित है, जो पृथ्वी-सूर्य की कुल दूरी का लगभग 1% है।',
+      explanationEn: 'The L1 point is located approximately 1.5 million kilometers from Earth, which represents roughly 1% of the total distance between the Earth and the Sun.'
+    },
+    mainsQuestionHi: 'प्रश्न: लैग्रेंज बिंदु (Lagrange Points) से आप क्या समझते हैं? आदित्य-L1 मिशन के वैज्ञानिक उद्देश्यों और इसके महत्व पर प्रकाश डालिए। (250 शब्द)',
+    mainsQuestionEn: 'Question: What do you understand by Lagrangian Points? Discuss the primary scientific objectives and strategic significance of India\'s Aditya-L1 mission. (250 words)'
+  },
+  {
+    id: 'ca-8',
+    category: 'Economy & Banking',
+    titleHi: 'e-RUPI वाउचर और सेंट्रल बैंक डिजिटल करेंसी (CBDC) में अंतर: भारत में डिजिटल भुगतान का नया युग',
+    titleEn: 'e-RUPI Digital Voucher vs CBDC Digital Rupee: High-Yield Functional Comparison & Monetary Impact',
+    summaryHi: 'वित्तीय समावेशन को बढ़ावा देने के लिए भारत सरकार की दो प्रमुख डिजिटल पहल - "e-RUPI" कूपन वाउचर प्रणाली और भारतीय रिजर्व बैंक (RBI) द्वारा जारी "डिजिटल रुपया (CBDC)" दोनों देश की कैशलेस अर्थव्यवस्था को नई गति दे रहे हैं।',
+    summaryEn: 'An essential conceptual guide highlighting the structural and regulatory differences between National Payments Corporation of India’s (NPCI) beneficiary-targeted e-RUPI voucher and Reserve Bank of India’s (RBI) sovereign digital currency (CBDC-R).',
+    date: '19 सितम्बर 2026',
+    readTime: '4.5 मिनट',
+    examRelevance: 'UPSC CSE (GS-3 Indian Economy), RBI Grade B, SBI PO, IBPS, SSC CGL',
+    keyFact: 'e-RUPI एक उद्देश्य-विशिष्ट (Purpose-Specific) डिजिटल कूपन है, जबकि CBDC एक पूर्ण सॉवरेन कानूनी निविदा (Legal Tender) है।',
+    tag: 'Financial Technology',
+
+    backgroundHi: 'e-RUPI को अगस्त 2021 में राष्ट्रीय भुगतान निगम (NPCI) द्वारा वित्तीय सेवाओं के रिसाव-मुक्त (Leakage-proof) वितरण के लिए लॉन्च किया गया था। दूसरी ओर, RBI ने 2022 में डिजिटल रुपया (Central Bank Digital Currency) लॉन्च किया, जो भौतिक मुद्रा का डिजिटल प्रतिरूप है।',
+    backgroundEn: 'Developed by NPCI, e-RUPI was launched in August 2021 as a cashless, contactless, target-oriented voucher system. In contrast, RBI’s retail Central Bank Digital Currency (e₹-R) represents the digital form of paper notes, acting as direct fiat currency.',
+
+    deepAnalysisHi: [
+      'e-RUPI क्या है?: यह एक पूर्व-भुगतान (Pre-paid) डिजिटल वाउचर है जो एसएमएस (SMS) या क्यूआर कोड (QR Code) के रूप में लाभार्थी को मिलता है। इसके लिए बैंक खाते या स्मार्टफोन की आवश्यकता नहीं होती। इसका उपयोग केवल उसी कार्य के लिए हो सकता है जिसके लिए इसे जारी किया गया है (जैसे उर्वरक सब्सिडी या कोविड टीकाकरण)।',
+      'CBDC (डिजिटल रुपया) क्या है?: यह भारत की आधिकारिक डिजिटल मुद्रा है। यह ब्लॉकचेन या डिस्ट्रीब्यूटेड लेजर तकनीक (DLT) पर आधारित है। इसे आप किसी भी लेन-देन के लिए डिजिटल कैश के रूप में खर्च कर सकते हैं (यह उद्देश्य-विशिष्ट नहीं है)।',
+      'वित्तीय संसंपन्नता और सुरक्षा: CBDC केंद्रीय बैंक की सीधी देनदारी है, जिससे वाणिज्यिक बैंकों की विफलता की स्थिति में भी पैसा सुरक्षित रहता है।'
+    ],
+    deepAnalysisEn: [
+      'Understanding e-RUPI: It is a purpose-specific prepaid SMS/QR-based electronic voucher. It does not require a bank account, internet banking, or a smartphone to redeem. The fund is tied directly to the service (e.g., vaccine drive, fertilizer subsidy, school fees).',
+      'Understanding CBDC (Central Bank Digital Currency): It is a broad-use digital fiat currency backed by Distributed Ledger Technology (DLT). It operates exactly like physical paper cash, allowing peer-to-peer and peer-to-merchant transfers for any purpose.',
+      'Sovereign Protection: CBDC is a direct claim on the central bank, insulating the public from commercial bank credit and insolvency risks.'
+    ],
+
+    keyProvisionsHi: [
+      'e-RUPI का संचालन: NPCI द्वारा यूपीआई (UPI) प्लेटफॉर्म के माध्यम से किया जाता है।',
+      'e-RUPI की सीमा: प्रति वाउचर अधिकतम सीमा ₹1,00,000 है और इसे एक से अधिक बार भुनाया जा सकता है (मल्टी-रिडेम्पशन)।',
+      'CBDC की विशेषताएं: इसमें ब्याज नहीं मिलता (Non-interest bearing), जिससे पारंपरिक बैंक जमा प्रभावित न हों।'
+    ],
+    keyProvisionsEn: [
+      'e-RUPI Infrastructure: Powered by the National Payments Corporation of India (NPCI) on the robust UPI payment rails.',
+      'e-RUPI Cap limits: The monetary cap per voucher was elevated to ₹1,00,000, supporting multi-time redemptions.',
+      'CBDC Operational design: Designed as non-interest bearing to prevent bank disintermediation and panic outflows during financial stress.'
+    ],
+
+    examImpactHi: 'प्रतियोगी परीक्षाओं में फिएट मनी, लीगल टेंडर, e-RUPI की कार्यप्रणाली, और ब्लॉकचेन आधारित केंद्रीय बैंक डिजिटल मुद्रा (CBDC) के आर्थिक प्रभावों पर बहुत प्रश्न आ रहे हैं।',
+    examImpactEn: 'Frequent topic in Financial Markets, RBI monetary systems, digital public infrastructure, and direct benefit transfers (DBT).',
+
+    mcq: {
+      questionHi: 'e-RUPI डिजिटल भुगतान समाधान के संदर्भ में निम्नलिखित में से कौन सा कथन सही है?',
+      questionEn: 'With reference to the e-RUPI digital payment solution, which of the following statements is correct?',
+      optionsHi: [
+        'यह एक क्रिप्टोकरेंसी है जिसे कोई भी माइन कर सकता है',
+        'यह एक उद्देश्य-विशिष्ट (Purpose-specific) और लाभार्थी-विशिष्ट डिजिटल वाउचर प्रणाली है',
+        'इसे केवल क्रेडिट कार्ड धारक ही उपयोग कर सकते हैं',
+        'इसके लिए हाई-स्पीड इंटरनेट और स्मार्टफोन अनिवार्य है'
+      ],
+      optionsEn: [
+        'It is a decentralized cryptocurrency that can be mined globally',
+        'It is a purpose-specific and beneficiary-specific contactless prepaid digital voucher system',
+        'It is strictly limited to commercial credit card holders',
+        'It mandatory requires high-speed internet and high-end smartphones'
+      ],
+      correctIndex: 1,
+      explanationHi: 'e-RUPI एक प्रीपेड संपर्क रहित वाउचर है जिसे केवल उस विशिष्ट कार्य के लिए ही भुनाया जा सकता है जिसके लिए इसे जारी किया गया है। इसके लिए इंटरनेट या बैंक खाता अनिवार्य नहीं है।',
+      explanationEn: 'e-RUPI is a target-specific and purpose-specific digital voucher requiring zero internet or bank account access for redemption.'
+    },
+    mainsQuestionHi: 'प्रश्न: e-RUPI और केंद्रीय बैंक डिजिटल मुद्रा (CBDC) किस प्रकार सरकारी कल्याणकारी योजनाओं में लीकेज को रोकने और भारत को डिजिटल अर्थव्यवस्था बनाने में सहायक हैं? विश्लेषण कीजिए। (250 शब्द)',
+    mainsQuestionEn: 'Question: Analyze how e-RUPI vouchers and CBDC (Digital Rupee) can optimize the leakproof delivery of welfare subsidies while shaping India\'s sovereign digital currency leadership. (250 words)'
+  },
+  {
+    id: 'ca-9',
+    category: 'Science & Tech',
+    titleHi: 'इसरो (ISRO) गगनयान (Gaganyaan) और चंद्रयान-4 (Chandrayaan-4) मिशन: भारत का महत्वाकांक्षी अंतरिक्ष रोडमैप',
+    titleEn: 'ISRO Future Space Roadmap: Accelerating Gaganyaan Human Spaceflight & Chandrayaan-4 Sample Return Mission',
+    summaryHi: 'केंद्रीय मंत्रिमंडल ने भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) के दो सबसे बड़े आगामी मिशनों - गगनयान (मानवयुक्त अंतरिक्ष उड़ान) और चंद्रयान-4 (चंद्रमा से मिट्टी के नमूने वापस लाने का मिशन) के लिए अतिरिक्त बजटीय आवंटन और कड़े समय-सारणी को मंजूरी दी है।',
+    summaryEn: 'Union Cabinet has expanded structural funding for ISRO\'s dual flagship space endeavors: the Gaganyaan Human Spaceflight program (sending Indian astronauts to a 400km Low Earth Orbit) and the complex multi-module Chandrayaan-4 lunar sample return mission.',
+    date: '18 सितम्बर 2026',
+    readTime: '5.5 मिनट',
+    examRelevance: 'UPSC CSE (GS-3 Space & Tech), Defense Services CDS/NDA, SSC CGL Mains, State SI',
+    keyFact: 'गगनयान भारत का पहला मानवयुक्त अंतरिक्ष मिशन है। चंद्रयान-4 का लक्ष्य चंद्रमा की सतह से 2-3 किलोग्राम मिट्टी वापस पृथ्वी पर सुरक्षित लाना है।',
+    tag: 'Space Exploration Technology',
+
+    backgroundHi: 'चंद्रयान-3 की ऐतिहासिक सफलता (चंद्रमा के दक्षिणी ध्रुव पर सॉफ्ट लैंडिंग) के बाद भारत अब अंतरिक्ष अन्वेषण के अगले चरण में है। भारत ने 2035 तक अपना खुद का "भारतीय अंतरिक्ष स्टेशन" (BAS) स्थापित करने और 2040 तक चंद्रमा पर भारतीय अंतरिक्ष यात्री को उतारने का लक्ष्य रखा है।',
+    backgroundEn: 'Building on the historic soft-landing success of Chandrayaan-3, ISRO is executing a progressive deep space roadmap, which targets establishing the Bharatiya Antariksha Station (BAS) by 2035 and putting an Indian on the moon by 2040.',
+
+    deepAnalysisHi: [
+      'गगनयान मिशन: इसके तहत 3 अंतरिक्ष यात्रियों (गगननॉट्स) के दल को 3 दिनों के लिए 400 किमी की पृथ्वी की निचली कक्षा (LEO) में भेजा जाएगा और हिंद महासागर में सुरक्षित वापस उतारा जाएगा। मिशन के लिए LVM3 रॉकेट को मानव-रेटेड (Human-Rated LVM3) बनाया गया है।',
+      'व्योममित्र (Vyommitra): यह इसरो द्वारा विकसित एक महिला हाफ-ह्यूमनॉइड रोबोट (Half-Humanoid Robot) है, जो वास्तविक मानव मिशन से पहले मानवरहित गगनयान उड़ानों में प्रणालियों की निगरानी के लिए भेजी जाएगी।',
+      'चंद्रयान-4 (चंद्र नमूना वापसी): यह एक अत्यधिक जटिल मिशन होगा जिसमें डॉकिंग और अनडॉकिंग (अंतरिक्ष में दो यानों का आपस में जुड़ना और अलग होना) शामिल है। इसमें कुल 5 मॉड्यूल होंगे।'
+    ],
+    deepAnalysisEn: [
+      'Gaganyaan Architecture: Designed to carry a 3-member crew to a 400 km Low Earth Orbit (LEO) for a 3-day duration, followed by a precision splashdown in the Indian Ocean. Launching on a human-rated LVM3 (HLVM3) rocket.',
+      'Vyommitra Humanoid: A female half-humanoid robot engineered by ISRO to fly onboard uncrewed test flights. She will mimic crew duties, monitor capsule environment parameters, and read life support gauges.',
+      'Chandrayaan-4 Sample Return: A highly intricate multi-stage launch involving orbital docking and undocking maneuvers. It will comprise five structural modules (Ascender, Descender, Transfer, Re-entry, and Propulsion) to retrieve 2-3 kg of lunar soil.'
+    ],
+
+    keyProvisionsHi: [
+      'गगननॉट्स का प्रशिक्षण: अंतरिक्ष यात्रियों (विंग कमांडर प्रशांत नायर, अजीत कृष्णन, अंगद प्रताप और विंग कमांडर शुभांशु शुक्ला) का प्रशिक्षण रूस के यूरी गागरिन कॉस्मोनॉट ट्रेनिंग सेंटर और नासा (NASA) के सहयोग से हुआ है।',
+      'चंद्रयान-4 के चरण: 1) प्रक्षेपण और चंद्रमा पर लैंडिंग, 2) नमूने एकत्र करना, 3) चंद्र सतह से लिफ्ट-ऑफ (Ascender द्वारा), 4) चंद्र कक्षा में ट्रांसफर मॉड्यूल से डॉकिंग, 5) पृथ्वी पर सुरक्षित वापसी।',
+      'अंतरिक्ष मलबे की रोकथाम: मिशनों में मलबे को न्यूनतम करने के लिए डिकॉमिशनिंग मानकों का पालन किया जा रहा है।'
+    ],
+    keyProvisionsEn: [
+      'Gagannaut Training: Chosen Indian Air Force test pilots (Prashanth Nair, Ajit Krishnan, Angad Pratap, Shubhanshu Shukla) completed rigorous aerospace training at Yuri Gagarin Center (Russia) and NASA’s Johnson Space Center.',
+      'Chandrayaan-4 Stages: 1) Precision lunar landing, 2) Sample collection via robotic arm, 3) Lunar liftoff via ascent vehicle, 4) Autonomous docking with transfer module in lunar orbit, 5) Safe Earth atmospheric reentry.',
+      'Orbital Debris Mitigation: Designing upper stages to cleanly de-orbit, complying with Inter-Agency Space Debris Coordination Committee guidelines.'
+    ],
+
+    examImpactHi: 'गगनयान के क्रू मॉड्यूल, एस्केप सिस्टम, हाफ-ह्यूमनॉइड व्योममित्र, चंद्रयान-4 की कार्यप्रणाली, और भारत के दीर्घकालिक अंतरिक्ष स्टेशन (BAS) के लक्ष्यों पर आधारित प्रश्न रक्षा एवं विज्ञान खंडों के लिए अत्यंत महत्वपूर्ण हैं।',
+    examImpactEn: 'Crucial for Aerospace Engineering topics, space agency collaboration, launcher classifications, and lunar sample return stages.',
+
+    mcq: {
+      questionHi: 'इसरो के "गगनयान" मिशन के अंतर्गत अंतरिक्ष में भेजी जाने वाली अर्ध-मानवरूपी (Half-humanoid) रोबोट का नाम क्या है?',
+      questionEn: 'What is the name of the female half-humanoid robot developed by ISRO for the uncrewed flight test under the Gaganyaan mission?',
+      optionsHi: ['मित्र (Mitra)', 'व्योममित्र (Vyommitra)', 'गगनचित्रा (Gaganchitra)', 'शारदा (Sharda)'],
+      optionsEn: ['Mitra', 'Vyommitra', 'Gaganchitra', 'Sharda'],
+      correctIndex: 1,
+      explanationHi: 'इसरो ने "व्योममित्र" नामक एक हाफ-ह्यूमनॉइड रोबोट विकसित किया है। यह अंतरिक्ष यात्रियों की तरह केबिन पर्यावरण की निगरानी करने और जमीन पर वैज्ञानिकों से बात करने में सक्षम है।',
+      explanationEn: 'ISRO developed "Vyommitra" (literally friend in space), a female-looking half-humanoid robot designed to validate crew safety and environment controls before the crewed mission.'
+    },
+    mainsQuestionHi: 'प्रश्न: चंद्रयान-4 मिशन चंद्रयान-3 की तुलना में तकनीकी रूप से किस प्रकार अधिक जटिल और चुनौतीपूर्ण है? समझाइए। (200 शब्द)',
+    mainsQuestionEn: 'Question: How is the Chandrayaan-4 sample return mission technologically more complex and challenging than the Chandrayaan-3 landing mission? Elaborate. (200 words)'
   }
 ];
 
@@ -410,9 +580,10 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
   const [selectedMcqAnswer, setSelectedMcqAnswer] = useState<number | null>(null);
   const [showMcqExplanation, setShowMcqExplanation] = useState<boolean>(false);
 
-  // Article Reader UX: Dynamic Font Scaling & On-Demand AI Doubt Drawer
+  // Article Reader UX: Dynamic Font Scaling, On-Demand AI Doubt Drawer, and PIB Official Page Mode
   const [fontSizeLevel, setFontSizeLevel] = useState<'normal' | 'large' | 'xlarge'>('large');
   const [isDoubtDrawerOpen, setIsDoubtDrawerOpen] = useState<boolean>(false);
+  const [pibMode, setPibMode] = useState<boolean>(true); // Let's default to true since they requested it!
 
   // In-line AI Doubt / Chat inside the Article Modal
   const [articleDoubtMessages, setArticleDoubtMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string; time: string }>>([]);
@@ -440,11 +611,7 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
 
   const getFallbackArticles = (isHi: boolean): DetailedArticleItem[] => {
     return ARTICLES_DATABASE.map((item, idx) => {
-      let offset = 0;
-      if (idx === 0) offset = 0;
-      else if (idx === 1 || idx === 2) offset = 1;
-      else if (idx === 3 || idx === 4) offset = 2;
-      else offset = 3;
+      const offset = Math.min(Math.floor(idx / 2), 4);
       return {
         ...item,
         date: getRelativeDateString(offset, isHi)
@@ -884,303 +1051,492 @@ Include:
       </div>
 
       {/* FULL DEEP-DIVE ARTICLE MODAL & IN-LINE AI DOUBT TUTOR */}
-      {selectedArticle && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-fade-in text-left">
-          <div className="bg-[#0b101e] border border-slate-700 w-full max-w-5xl max-h-[92vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
-            
-            {/* Modal Top Bar */}
-            <div className="px-5 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-full text-xs font-bold">
-                  {selectedArticle.category}
-                </span>
-                <span className="text-xs text-slate-300 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-                  {selectedArticle.date}
-                </span>
-                <span className="text-xs text-slate-400">• {selectedArticle.readTime} read</span>
-              </div>
+      {selectedArticle && (() => {
+        // Local helper for PIB Ministry label
+        const getMinistryLabel = (category: string, isHi: boolean) => {
+          switch (category) {
+            case 'Science & Tech':
+              return isHi ? 'विज्ञान और प्रौद्योगिकी मंत्रालय' : 'Ministry of Science & Technology';
+            case 'Economy & Banking':
+              return isHi ? 'वित्त मंत्रालय' : 'Ministry of Finance';
+            case 'Schemes & Governance':
+              return isHi ? 'नवीन और नवीकरणीय ऊर्जा मंत्रालय / योजना मंत्रालय' : 'Ministry of New & Renewable Energy / Ministry of Planning';
+            case 'National':
+              return isHi ? 'गृह मंत्रालय' : 'Ministry of Home Affairs';
+            case 'International':
+              return isHi ? 'विदेश मंत्रालय' : 'Ministry of External Affairs';
+            default:
+              return isHi ? 'पत्र सूचना कार्यालय (PIB)' : 'Press Information Bureau (PIB)';
+          }
+        };
 
-              {/* Toolbar Controls: Font Size Scaler, Audio, Doubt Drawer Toggle, Bookmark, Close */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Dynamic Font Size Scaler */}
-                <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl p-1 gap-1">
-                  <span className="text-[10px] text-slate-400 font-bold px-1 hidden sm:inline">फॉन्ट:</span>
+        const ministryName = getMinistryLabel(selectedArticle.category, lang === 'hi');
+        const releaseId = `20658${selectedArticle.id.replace(/\D/g, '') || '9'}`;
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-fade-in text-left">
+            <div className={`w-full max-w-5xl max-h-[92vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${
+              pibMode 
+                ? 'bg-[#fcfbf9] text-slate-900 border border-amber-800/20' 
+                : 'bg-[#0b101e] text-slate-100 border border-slate-700'
+            }`}>
+              
+              {/* Modal Top Bar - Houses Toolbar & Mode Switcher */}
+              <div className={`px-4 sm:px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b transition-all duration-300 ${
+                pibMode ? 'bg-[#f4f1ea] border-slate-300' : 'bg-slate-900 border-slate-800'
+              }`}>
+                {/* Mode Switcher: Standard vs PIB Style */}
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setFontSizeLevel('normal')}
-                    className={`px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      fontSizeLevel === 'normal'
-                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    onClick={() => setPibMode(true)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                      pibMode
+                        ? 'bg-amber-600 text-white shadow-md'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                     }`}
-                    title="Normal Font (15px)"
                   >
-                    A-
+                    <span>🇮🇳 PIB Release View</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFontSizeLevel('large')}
-                    className={`px-2.5 py-1 rounded-lg text-sm font-black transition-all cursor-pointer ${
-                      fontSizeLevel === 'large'
-                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    onClick={() => setPibMode(false)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      !pibMode
+                        ? 'bg-cyan-500 text-slate-950 shadow-md'
+                        : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                     }`}
-                    title="Large Font (18px - Default)"
                   >
-                    A
+                    <span>💻 Dark App View</span>
                   </button>
+                </div>
+
+                {/* Toolbar Controls: Font Size Scaler, Audio, Doubt Drawer Toggle, Bookmark, Close */}
+                <div className="flex items-center gap-2 flex-wrap ml-auto md:ml-0">
+                  {/* Print Release button */}
                   <button
-                    type="button"
-                    onClick={() => setFontSizeLevel('xlarge')}
-                    className={`px-2.5 py-1 rounded-lg text-base font-black transition-all cursor-pointer ${
-                      fontSizeLevel === 'xlarge'
-                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    onClick={() => window.print()}
+                    className={`p-2 rounded-xl border cursor-pointer transition-all ${
+                      pibMode 
+                        ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300' 
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
                     }`}
-                    title="Extra Large Font (21px)"
+                    title={isHindi ? "प्रिंट / PDF सेव करें" : "Print PIB Release"}
                   >
-                    A+
+                    <Printer className="w-4 h-4" />
                   </button>
-                </div>
 
-                {/* AI Doubt Toggle Button (Only opens when user explicitly asks!) */}
-                <button
-                  type="button"
-                  onClick={() => setIsDoubtDrawerOpen(!isDoubtDrawerOpen)}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-md ${
-                    isDoubtDrawerOpen
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-400'
-                      : 'bg-gradient-to-r from-cyan-950 to-blue-950 hover:from-cyan-900 hover:to-blue-900 text-cyan-300 border-cyan-500/50'
-                  }`}
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{isDoubtDrawerOpen ? (isHindi ? 'डाउट पैनल बंद करें' : 'Close Doubt') : (isHindi ? '💬 AI से सवाल पूछें' : '💬 Ask AI Doubt')}</span>
-                </button>
-
-                {/* Audio Reader */}
-                <button
-                  onClick={() => handleSpeak(
-                    lang === 'hi' 
-                      ? `${selectedArticle.titleHi}. मुख्य सारांश: ${selectedArticle.summaryHi}. पृष्ठभूमि: ${selectedArticle.backgroundHi}. परीक्षा महत्व: ${selectedArticle.examImpactHi}`
-                      : `${selectedArticle.titleEn}. Summary: ${selectedArticle.summaryEn}. Background: ${selectedArticle.backgroundEn}. Exam Significance: ${selectedArticle.examImpactEn}`,
-                    selectedArticle.id
-                  )}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    isPlayingAudio === selectedArticle.id
-                      ? 'bg-amber-500 text-slate-950 border-amber-400'
-                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                  }`}
-                >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>{isPlayingAudio === selectedArticle.id ? (isHindi ? 'रोकें' : 'Stop') : (isHindi ? 'सुनें' : 'Listen')}</span>
-                </button>
-
-                <button
-                  onClick={() => toggleBookmark(selectedArticle.id)}
-                  className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl cursor-pointer"
-                  title="Bookmark"
-                >
-                  <Bookmark className={`w-4 h-4 ${bookmarkedIds.includes(selectedArticle.id) ? 'fill-cyan-400 text-cyan-400' : ''}`} />
-                </button>
-
-                <button
-                  onClick={() => {
-                    stopAllSpeech();
-                    setSelectedArticle(null);
-                    setIsDoubtDrawerOpen(false);
-                  }}
-                  className="p-2 bg-slate-800 hover:bg-red-500 hover:text-white text-slate-400 border border-slate-700 rounded-xl cursor-pointer transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body - Dedicated Reading Canvas with Optional Slide-Over AI Doubt Panel */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 relative">
-              <div className={`mx-auto transition-all duration-300 ${isDoubtDrawerOpen ? 'max-w-3xl' : 'max-w-4xl'} space-y-6`}>
-                
-                {/* Article Header Title */}
-                <div className="space-y-3 border-b border-slate-800 pb-5">
-                  <h2 className={`font-black text-white leading-snug tracking-tight ${
-                    fontSizeLevel === 'normal' ? 'text-xl sm:text-2xl' : fontSizeLevel === 'xlarge' ? 'text-2xl sm:text-4xl' : 'text-2xl sm:text-3xl'
+                  {/* Dynamic Font Size Scaler */}
+                  <div className={`flex items-center border rounded-xl p-1 gap-1 ${
+                    pibMode ? 'bg-white border-slate-300' : 'bg-slate-950 border-slate-800'
                   }`}>
-                    {lang === 'hi' ? selectedArticle.titleHi : selectedArticle.titleEn}
-                  </h2>
-                  <div className="text-xs sm:text-sm font-mono text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 p-3 rounded-2xl flex items-center gap-2">
-                    🎯 <strong>{isHindi ? 'परीक्षा उपयोगिता (Target Exams):' : 'Exam Focus:'}</strong> {selectedArticle.examRelevance}
-                  </div>
-                </div>
-
-                {/* Section 1: Executive Summary */}
-                <div className="space-y-2.5">
-                  <h3 className="text-sm sm:text-base font-black text-amber-400 flex items-center gap-2 uppercase tracking-wider">
-                    <FileText className="w-4 h-4 text-amber-400" />
-                    {isHindi ? '1. मुख्य सारांश (Executive Summary)' : '1. Executive Summary'}
-                  </h3>
-                  <p className={`text-slate-100 font-normal bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-inner ${
-                    fontSizeLevel === 'normal' ? 'text-sm leading-relaxed' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl leading-loose' : 'text-base sm:text-lg leading-relaxed'
-                  }`}>
-                    {lang === 'hi' ? selectedArticle.summaryHi : selectedArticle.summaryEn}
-                  </p>
-                </div>
-
-                {/* Section 2: Genesis & Historical Background */}
-                <div className="space-y-2.5">
-                  <h3 className="text-sm sm:text-base font-black text-cyan-400 flex items-center gap-2 uppercase tracking-wider">
-                    <Lightbulb className="w-4 h-4 text-cyan-400" />
-                    {isHindi ? '2. पृष्ठभूमि व ऐतिहासिक संदर्भ (Background & Genesis)' : '2. Background & Genesis'}
-                  </h3>
-                  <p className={`text-slate-200 font-normal bg-slate-900/60 border border-slate-800 p-5 rounded-2xl leading-relaxed ${
-                    fontSizeLevel === 'normal' ? 'text-sm leading-relaxed' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl leading-loose' : 'text-base sm:text-lg leading-relaxed'
-                  }`}>
-                    {lang === 'hi' ? selectedArticle.backgroundHi : selectedArticle.backgroundEn}
-                  </p>
-                </div>
-
-                {/* Section 3: Deep Technical Analysis */}
-                <div className="space-y-2.5">
-                  <h3 className="text-sm sm:text-base font-black text-emerald-400 flex items-center gap-2 uppercase tracking-wider">
-                    <Zap className="w-4 h-4 text-emerald-400" />
-                    {isHindi ? '3. विस्तृत आयाम व मुख्य बिंदु (In-Depth Dimensions)' : '3. In-Depth Dimensions'}
-                  </h3>
-                  <div className="space-y-3 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
-                    {(lang === 'hi' ? selectedArticle.deepAnalysisHi : selectedArticle.deepAnalysisEn).map((pt, i) => (
-                      <div key={i} className={`flex items-start gap-3 text-slate-100 ${
-                        fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
-                      }`}>
-                        <Check className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{pt}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Section 4: Key Policy Provisions */}
-                <div className="space-y-2.5">
-                  <h3 className="text-sm sm:text-base font-black text-indigo-400 flex items-center gap-2 uppercase tracking-wider">
-                    <Award className="w-4 h-4 text-indigo-400" />
-                    {isHindi ? '4. प्रमुख नीतिगत प्रावधान (Key Provisions & Data)' : '4. Key Provisions & Data'}
-                  </h3>
-                  <div className="space-y-3 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl">
-                    {(lang === 'hi' ? selectedArticle.keyProvisionsHi : selectedArticle.keyProvisionsEn).map((prov, i) => (
-                      <div key={i} className={`flex items-start gap-3 text-slate-200 ${
-                        fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
-                      }`}>
-                        <span className="w-2 h-2 rounded-full bg-indigo-400 shrink-0 mt-2" />
-                        <span>{prov}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Section 5: High-Yield Fact Box */}
-                <div className="bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-2 border-amber-500/50 p-5 rounded-2xl space-y-2 shadow-lg">
-                  <div className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2 uppercase tracking-wider">
-                    <Target className="w-5 h-5 text-amber-400" />
-                    <span>{isHindi ? 'हाई-यील्ड एग्जाम फैक्ट (High-Yield Exam Fact):' : 'High-Yield Exam Fact:'}</span>
-                  </div>
-                  <p className={`font-bold text-white ${
-                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-                  }`}>{selectedArticle.keyFact}</p>
-                </div>
-
-                {/* Section 6: Interactive Practice MCQ */}
-                <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs sm:text-sm font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <HelpCircle className="w-4 h-4" />
-                      {isHindi ? 'अभ्यास प्रश्न (Interactive Practice MCQ)' : 'Practice MCQ'}
+                    <span className={`text-[10px] font-bold px-1 hidden sm:inline ${pibMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                      {isHindi ? 'फॉन्ट:' : 'Size:'}
                     </span>
-                    <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-bold">Prelims Level</span>
+                    <button
+                      type="button"
+                      onClick={() => setFontSizeLevel('normal')}
+                      className={`px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        fontSizeLevel === 'normal'
+                          ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                          : pibMode ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                      }`}
+                      title="Normal Font"
+                    >
+                      A-
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFontSizeLevel('large')}
+                      className={`px-2.5 py-1 rounded-lg text-sm font-black transition-all cursor-pointer ${
+                        fontSizeLevel === 'large'
+                          ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                          : pibMode ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                      }`}
+                      title="Large Font"
+                    >
+                      A
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFontSizeLevel('xlarge')}
+                      className={`px-2.5 py-1 rounded-lg text-base font-black transition-all cursor-pointer ${
+                        fontSizeLevel === 'xlarge'
+                          ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                          : pibMode ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                      }`}
+                      title="Extra Large Font"
+                    >
+                      A+
+                    </button>
                   </div>
 
-                  <p className={`font-bold text-white ${
-                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-                  }`}>
-                    {lang === 'hi' ? selectedArticle.mcq.questionHi : selectedArticle.mcq.questionEn}
-                  </p>
-
-                  <div className="space-y-2.5">
-                    {(lang === 'hi' ? selectedArticle.mcq.optionsHi : selectedArticle.mcq.optionsEn).map((opt, idx) => {
-                      const isSelected = selectedMcqAnswer === idx;
-                      const isCorrect = idx === selectedArticle.mcq.correctIndex;
-                      let btnClass = "bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700";
-                      
-                      if (selectedMcqAnswer !== null) {
-                        if (isCorrect) {
-                          btnClass = "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-bold shadow-md shadow-emerald-950/50";
-                        } else if (isSelected) {
-                          btnClass = "bg-rose-950/80 border-rose-500 text-rose-100";
-                        }
-                      }
-
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            setSelectedMcqAnswer(idx);
-                            setShowMcqExplanation(true);
-                            if (idx === selectedArticle.mcq.correctIndex) {
-                              showToast(isHindi ? "सही उत्तर! 🎉 शाबाश!" : "Correct Answer! 🎉", "success");
-                            } else {
-                              showToast(isHindi ? "गलत उत्तर! व्याख्या देखें।" : "Incorrect! Check explanation.", "warn");
-                            }
-                          }}
-                          className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
-                        >
-                          <span>{String.fromCharCode(65 + idx)}. {opt}</span>
-                          {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {showMcqExplanation && (
-                    <div className="p-4 bg-emerald-950/40 border border-emerald-500/40 rounded-xl text-sm sm:text-base text-emerald-100 space-y-1.5 animate-fade-in">
-                      <strong className="block text-emerald-300 font-bold">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
-                      <p>{lang === 'hi' ? selectedArticle.mcq.explanationHi : selectedArticle.mcq.explanationEn}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Section 7: Mains Descriptive Model Question */}
-                <div className="bg-indigo-950/40 border border-indigo-500/40 p-5 rounded-2xl space-y-2.5">
-                  <span className="text-xs sm:text-sm font-black text-indigo-300 uppercase tracking-wider block">
-                    ✍️ {isHindi ? 'मुख्य परीक्षा संभावित प्रश्न (Mains Analytical Question):' : 'Mains Analytical Question:'}
-                  </span>
-                  <p className={`text-slate-100 font-medium leading-relaxed italic ${
-                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-                  }`}>
-                    "{lang === 'hi' ? selectedArticle.mainsQuestionHi : selectedArticle.mainsQuestionEn}"
-                  </p>
-                </div>
-
-                {/* Footer Action Bar: Trigger AI Doubt or Return */}
-                <div className="pt-4 pb-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-800">
+                  {/* AI Doubt Toggle Button */}
                   <button
                     type="button"
-                    onClick={() => setIsDoubtDrawerOpen(true)}
-                    className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-black text-sm rounded-2xl shadow-lg shadow-cyan-950/50 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+                    onClick={() => setIsDoubtDrawerOpen(!isDoubtDrawerOpen)}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-md ${
+                      isDoubtDrawerOpen
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-400'
+                        : 'bg-gradient-to-r from-cyan-950 to-blue-950 text-cyan-300 border-cyan-500/50 hover:from-cyan-900 hover:to-blue-900'
+                    }`}
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span>{isHindi ? '💬 इस आर्टिकल पर HansAI से डाउट पूछें' : '💬 Ask HansAI Doubt on this Article'}</span>
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                    <span>{isDoubtDrawerOpen ? (isHindi ? 'डाउट बंद' : 'Close Doubt') : (isHindi ? '💬 AI डाउट' : '💬 Ask AI')}</span>
+                  </button>
+
+                  {/* Audio Reader */}
+                  <button
+                    onClick={() => handleSpeak(
+                      lang === 'hi' 
+                        ? `${selectedArticle.titleHi}. मुख्य सारांश: ${selectedArticle.summaryHi}. पृष्ठभूमि: ${selectedArticle.backgroundHi}. परीक्षा महत्व: ${selectedArticle.examImpactHi}`
+                        : `${selectedArticle.titleEn}. Summary: ${selectedArticle.summaryEn}. Background: ${selectedArticle.backgroundEn}. Exam Significance: ${selectedArticle.examImpactEn}`,
+                      selectedArticle.id
+                    )}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      isPlayingAudio === selectedArticle.id
+                        ? 'bg-amber-500 text-slate-950 border-amber-400'
+                        : pibMode ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                    }`}
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>{isPlayingAudio === selectedArticle.id ? (isHindi ? 'रोकें' : 'Stop') : (isHindi ? 'सुनें' : 'Listen')}</span>
                   </button>
 
                   <button
-                    type="button"
+                    onClick={() => toggleBookmark(selectedArticle.id)}
+                    className={`p-2 border rounded-xl cursor-pointer transition-colors ${
+                      pibMode ? 'bg-white hover:bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
+                    }`}
+                    title="Bookmark"
+                  >
+                    <Bookmark className={`w-4 h-4 ${bookmarkedIds.includes(selectedArticle.id) ? 'fill-cyan-500 text-cyan-500' : ''}`} />
+                  </button>
+
+                  {/* Toggle Bilingual Language (English/Hindi) inside the modal */}
+                  <button
+                    onClick={() => setLang(prev => prev === 'hi' ? 'en' : 'hi')}
+                    className={`px-2.5 py-1.5 border rounded-xl font-bold text-xs cursor-pointer ${
+                      pibMode ? 'bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900' : 'bg-indigo-950/80 hover:bg-indigo-900 border-indigo-500/40 text-indigo-200'
+                    }`}
+                    title="Toggle Language"
+                  >
+                    {lang === 'hi' ? 'English Translate' : 'हिन्दी अनुवाद'}
+                  </button>
+
+                  <button
                     onClick={() => {
                       stopAllSpeech();
                       setSelectedArticle(null);
                       setIsDoubtDrawerOpen(false);
                     }}
-                    className="w-full sm:w-auto px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm rounded-2xl cursor-pointer"
+                    className="p-2 bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-xl cursor-pointer transition-colors"
                   >
-                    {isHindi ? 'वापस करंट अफेयर्स सूची पर जाएं' : 'Back to Current Affairs List'}
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
+              </div>
 
+              {/* Modal Body - Dynamic Styles based on pibMode */}
+              <div className={`flex-1 overflow-y-auto p-4 sm:p-8 relative transition-colors duration-300 ${
+                pibMode ? 'bg-[#fcfbf9] text-slate-900' : 'bg-[#0a0f1d] text-slate-100'
+              }`}>
+                <div className={`mx-auto transition-all duration-300 ${isDoubtDrawerOpen ? 'max-w-3xl' : 'max-w-4xl'} space-y-6`}>
+                  
+                  {/* AUTHENTIC PIB BANNER WRAPPER */}
+                  {pibMode && (
+                    <div className="border-b-2 border-slate-900/15 pb-4 space-y-3 print:block">
+                      {/* Tricolor Accent Ribbon */}
+                      <div className="flex h-1.5 w-full">
+                        <div className="bg-[#FF9933] flex-1"></div>
+                        <div className="bg-white flex-1"></div>
+                        <div className="bg-[#138808] flex-1"></div>
+                      </div>
+                      
+                      {/* PIB Delhi Header Title */}
+                      <div className="flex flex-col items-center text-center py-2">
+                        <div className="text-xs font-bold tracking-widest text-[#FF9933] font-sans">
+                          सत्यमेव जयते
+                        </div>
+                        <h1 className="font-serif text-lg sm:text-2xl font-extrabold tracking-tight text-slate-900 mt-1 uppercase">
+                          {lang === 'hi' ? 'पत्र सूचना कार्यालय' : 'Press Information Bureau'}
+                        </h1>
+                        <p className="text-[10px] sm:text-xs font-sans tracking-widest text-slate-600 font-semibold uppercase">
+                          {lang === 'hi' ? 'भारत सरकार' : 'Government of India'}
+                        </p>
+                      </div>
+
+                      {/* Ministry and Post Details */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] sm:text-xs font-mono text-slate-700 bg-slate-100/80 p-3 rounded-xl border border-slate-200">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
+                          <span className="font-bold">{ministryName}</span>
+                        </div>
+                        <div className="flex flex-col sm:items-end">
+                          <span>{isHindi ? 'स्थान: नई दिल्ली' : 'Posted On: Delhi'}</span>
+                          <span className="text-slate-500">{selectedArticle.date}</span>
+                          <span className="text-amber-700 font-bold">Release ID: {releaseId}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Standard Non-PIB Header Banner */}
+                  {!pibMode && (
+                    <div className="space-y-3 border-b border-slate-800 pb-5">
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full text-xs font-bold">
+                          {selectedArticle.category}
+                        </span>
+                        <span className="text-xs text-slate-400 font-medium">Posted on: {selectedArticle.date}</span>
+                      </div>
+                      <div className="text-xs sm:text-sm font-mono text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 p-3 rounded-2xl flex items-center gap-2">
+                        🎯 <strong>{isHindi ? 'परीक्षा उपयोगिता (Target Exams):' : 'Exam Focus:'}</strong> {selectedArticle.examRelevance}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Article Main Headline (Serif style for PIB, Bold Sans for App style) */}
+                  <div className="space-y-2">
+                    <h2 className={`leading-snug tracking-tight text-slate-900 ${
+                      pibMode 
+                        ? 'font-serif font-black text-[#111c24] border-b border-slate-300 pb-4' 
+                        : 'font-black text-white'
+                    } ${
+                      fontSizeLevel === 'normal' ? 'text-xl sm:text-2xl' : fontSizeLevel === 'xlarge' ? 'text-2xl sm:text-4xl' : 'text-2xl sm:text-3xl'
+                    }`}>
+                      {lang === 'hi' ? selectedArticle.titleHi : selectedArticle.titleEn}
+                    </h2>
+                    {pibMode && (
+                      <div className="text-xs font-sans text-slate-600 italic">
+                        🎯 {isHindi ? 'विशेष परीक्षा विश्लेषण सामग्री (IAS/SSC हेतु उपयोगी)' : 'Optimized Exam Brief for IAS, SSC & State Services'}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Section 1: Executive Summary */}
+                  <div className="space-y-2.5">
+                    <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
+                      pibMode ? 'text-amber-800' : 'text-amber-400'
+                    }`}>
+                      <FileText className="w-4 h-4" />
+                      {isHindi ? '1. मुख्य सारांश (Executive Summary)' : '1. Executive Summary'}
+                    </h3>
+                    <p className={`font-normal rounded-2xl shadow-sm border ${
+                      pibMode 
+                        ? 'text-slate-800 bg-amber-500/5 border-amber-900/10 p-5 font-serif' 
+                        : 'text-slate-100 bg-[#0e1628] border-slate-800 p-5 shadow-inner'
+                    } ${
+                      fontSizeLevel === 'normal' ? 'text-sm leading-relaxed' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl leading-loose' : 'text-base sm:text-lg leading-relaxed'
+                    }`}>
+                      {lang === 'hi' ? selectedArticle.summaryHi : selectedArticle.summaryEn}
+                    </p>
+                  </div>
+
+                  {/* Section 2: Genesis & Historical Background */}
+                  <div className="space-y-2.5">
+                    <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
+                      pibMode ? 'text-blue-800' : 'text-cyan-400'
+                    }`}>
+                      <Lightbulb className="w-4 h-4" />
+                      {isHindi ? '2. पृष्ठभूमि व ऐतिहासिक संदर्भ (Background & Genesis)' : '2. Background & Genesis'}
+                    </h3>
+                    <p className={`font-normal rounded-2xl border ${
+                      pibMode 
+                        ? 'text-slate-800 bg-[#f4f3ef] border-slate-300 p-5 font-serif' 
+                        : 'text-slate-200 bg-slate-900/60 border-slate-800 p-5'
+                    } ${
+                      fontSizeLevel === 'normal' ? 'text-sm leading-relaxed' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl leading-loose' : 'text-base sm:text-lg leading-relaxed'
+                    }`}>
+                      {lang === 'hi' ? selectedArticle.backgroundHi : selectedArticle.backgroundEn}
+                    </p>
+                  </div>
+
+                  {/* Section 3: Deep Technical Analysis */}
+                  <div className="space-y-2.5">
+                    <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
+                      pibMode ? 'text-emerald-800' : 'text-emerald-400'
+                    }`}>
+                      <Zap className="w-4 h-4" />
+                      {isHindi ? '3. विस्तृत आयाम व मुख्य बिंदु (In-Depth Dimensions)' : '3. In-Depth Dimensions'}
+                    </h3>
+                    <div className={`space-y-3 rounded-2xl border ${
+                      pibMode ? 'bg-[#f6fbf8] border-emerald-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
+                    }`}>
+                      {(lang === 'hi' ? selectedArticle.deepAnalysisHi : selectedArticle.deepAnalysisEn).map((pt, i) => (
+                        <div key={i} className={`flex items-start gap-3 ${
+                          pibMode ? 'text-slate-800' : 'text-slate-100'
+                        } ${
+                          fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                        }`}>
+                          <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                          <span className={pibMode ? 'font-serif' : ''}>{pt}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Section 4: Key Policy Provisions */}
+                  <div className="space-y-2.5">
+                    <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
+                      pibMode ? 'text-indigo-800' : 'text-indigo-400'
+                    }`}>
+                      <Award className="w-4 h-4" />
+                      {isHindi ? '4. प्रमुख नीतिगत प्रावधान (Key Provisions & Data)' : '4. Key Provisions & Data'}
+                    </h3>
+                    <div className={`space-y-3 rounded-2xl border ${
+                      pibMode ? 'bg-[#f7f6fc] border-indigo-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
+                    }`}>
+                      {(lang === 'hi' ? selectedArticle.keyProvisionsHi : selectedArticle.keyProvisionsEn).map((prov, i) => (
+                        <div key={i} className={`flex items-start gap-3 ${
+                          pibMode ? 'text-slate-800' : 'text-slate-200'
+                        } ${
+                          fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                        }`}>
+                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-2 ${pibMode ? 'bg-indigo-600' : 'bg-indigo-400'}`} />
+                          <span className={pibMode ? 'font-serif' : ''}>{prov}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Section 5: High-Yield Fact Box */}
+                  <div className={`border-2 p-5 rounded-2xl space-y-2 shadow-sm ${
+                    pibMode 
+                      ? 'bg-[#fffbeb] border-amber-500/40 text-amber-900' 
+                      : 'bg-[#18120c] border-amber-500/50 text-white'
+                  }`}>
+                    <div className={`text-xs sm:text-sm font-black flex items-center gap-2 uppercase tracking-wider ${
+                      pibMode ? 'text-amber-800' : 'text-amber-300'
+                    }`}>
+                      <Target className="w-5 h-5 text-amber-500" />
+                      <span>{isHindi ? 'हाई-यील्ड एग्जाम फैक्ट (High-Yield Exam Fact):' : 'High-Yield Exam Fact:'}</span>
+                    </div>
+                    <p className={`font-bold ${
+                      fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                    } ${pibMode ? 'font-serif' : ''}`}>{selectedArticle.keyFact}</p>
+                  </div>
+
+                  {/* Section 6: Interactive Practice MCQ */}
+                  <div className={`border p-6 rounded-2xl space-y-4 shadow-md ${
+                    pibMode ? 'bg-white border-slate-300 text-slate-800' : 'bg-[#0f1524] border-slate-800 text-white'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-1.5 ${
+                        pibMode ? 'text-cyan-800' : 'text-cyan-400'
+                      }`}>
+                        <HelpCircle className="w-4 h-4" />
+                        {isHindi ? 'अभ्यास प्रश्न (Interactive Practice MCQ)' : 'Practice MCQ'}
+                      </span>
+                      <span className={`text-xs px-2.5 py-1 rounded-md font-bold ${
+                        pibMode ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'
+                      }`}>Prelims Level</span>
+                    </div>
+
+                    <p className={`font-bold ${
+                      fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                    } ${pibMode ? 'font-serif' : ''}`}>
+                      {lang === 'hi' ? selectedArticle.mcq.questionHi : selectedArticle.mcq.questionEn}
+                    </p>
+
+                    <div className="space-y-2.5">
+                      {(lang === 'hi' ? selectedArticle.mcq.optionsHi : selectedArticle.mcq.optionsEn).map((opt, idx) => {
+                        const isSelected = selectedMcqAnswer === idx;
+                        const isCorrect = idx === selectedArticle.mcq.correctIndex;
+                        let btnClass = pibMode 
+                          ? "bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100" 
+                          : "bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700";
+                        
+                        if (selectedMcqAnswer !== null) {
+                          if (isCorrect) {
+                            btnClass = pibMode
+                              ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold"
+                              : "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-bold shadow-md shadow-emerald-950/50";
+                          } else if (isSelected) {
+                            btnClass = pibMode
+                              ? "bg-rose-50 border-rose-400 text-rose-800"
+                              : "bg-rose-950/80 border-rose-500 text-rose-100";
+                          }
+                        }
+
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setSelectedMcqAnswer(idx);
+                              setShowMcqExplanation(true);
+                              if (idx === selectedArticle.mcq.correctIndex) {
+                                showToast(isHindi ? "सही उत्तर! 🎉 शाबाश!" : "Correct Answer! 🎉", "success");
+                              } else {
+                                showToast(isHindi ? "गलत उत्तर! व्याख्या देखें।" : "Incorrect! Check explanation.", "warn");
+                              }
+                            }}
+                            className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
+                          >
+                            <span className={pibMode ? 'font-serif' : ''}>{String.fromCharCode(65 + idx)}. {opt}</span>
+                            {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {showMcqExplanation && (
+                      <div className={`p-4 rounded-xl text-sm sm:text-base space-y-1.5 animate-fade-in border ${
+                        pibMode 
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
+                          : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-100'
+                      }`}>
+                        <strong className="block text-emerald-700 font-bold">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
+                        <p className={pibMode ? 'font-serif' : ''}>{lang === 'hi' ? selectedArticle.mcq.explanationHi : selectedArticle.mcq.explanationEn}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Section 7: Mains Descriptive Model Question */}
+                  <div className={`border p-5 rounded-2xl space-y-2.5 ${
+                    pibMode ? 'bg-[#f5f7fa] border-slate-300 text-slate-800' : 'bg-indigo-950/40 border-indigo-500/40 text-slate-100'
+                  }`}>
+                    <span className={`text-xs sm:text-sm font-black uppercase tracking-wider block ${
+                      pibMode ? 'text-indigo-800' : 'text-indigo-300'
+                    }`}>
+                      ✍️ {isHindi ? 'मुख्य परीक्षा संभावित प्रश्न (Mains Analytical Question):' : 'Mains Analytical Question:'}
+                    </span>
+                    <p className={`font-medium leading-relaxed italic ${
+                      fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                    } ${pibMode ? 'font-serif' : ''}`}>
+                      "{lang === 'hi' ? selectedArticle.mainsQuestionHi : selectedArticle.mainsQuestionEn}"
+                    </p>
+                  </div>
+
+                  {/* Footer Action Bar: Trigger AI Doubt or Return */}
+                  <div className={`pt-6 pb-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t ${
+                    pibMode ? 'border-slate-300' : 'border-slate-800'
+                  }`}>
+                    <button
+                      type="button"
+                      onClick={() => setIsDoubtDrawerOpen(true)}
+                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-black text-sm rounded-2xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>{isHindi ? '💬 इस आर्टिकल पर HansAI से डाउट पूछें' : '💬 Ask HansAI Doubt on this Article'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        stopAllSpeech();
+                        setSelectedArticle(null);
+                        setIsDoubtDrawerOpen(false);
+                      }}
+                      className={`w-full sm:w-auto px-5 py-3 font-bold text-sm rounded-2xl cursor-pointer ${
+                        pibMode ? 'bg-slate-200 hover:bg-slate-300 text-slate-700' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                      }`}
+                    >
+                      {isHindi ? 'वापस करंट अफेयर्स सूची पर जाएं' : 'Back to Current Affairs List'}
+                    </button>
+                  </div>
+
+                </div>
               </div>
 
               {/* ON-DEMAND SLIDE-OVER AI DOUBT DRAWER */}
@@ -1315,10 +1671,9 @@ Include:
               )}
 
             </div>
-
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* CUSTOM TOPIC GENERATOR MODAL */}
       {customTopicModalOpen && (

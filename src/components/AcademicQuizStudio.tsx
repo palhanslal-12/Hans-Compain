@@ -1449,10 +1449,10 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     const notVisitedCount = testQuestions.length - answeredCount;
 
     return (
-      <div className="fixed inset-0 z-50 flex flex-col h-screen w-screen max-w-full bg-[#070B14] shadow-2xl overflow-hidden text-slate-100 select-none animate-fadeIn">
+      <div className="fixed inset-0 z-50 flex flex-col h-screen h-[100dvh] max-h-[100dvh] w-screen max-w-full bg-[#F1F5F9] shadow-2xl overflow-hidden text-slate-900 select-none animate-fadeIn pb-safe">
         
         {/* COMPACT TOP HEADER: Pause | Subject & Question Counter | Timer | Language, Review, Palette */}
-        <div className="bg-[#0B101D] border-b border-slate-800/90 px-3 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between gap-2 shrink-0">
+        <div className="bg-white border-b border-slate-200 px-3 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between gap-2 shrink-0 shadow-xs">
           
           {/* Left: Sleek Pause/Exit & Title */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -1462,25 +1462,25 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 setIsTimerPaused(true);
                 setIsPauseModalOpen(true);
               }}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-600/80 hover:bg-cyan-600 text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 shadow-sm"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs"
               title="Pause Test / टेस्ट रोकें"
             >
-              <Pause className="w-4 h-4 fill-white text-white" />
+              <Pause className="w-4 h-4 fill-slate-700 text-slate-700" />
             </button>
-
+ 
             <div className="min-w-0">
-              <h2 className="text-xs sm:text-sm font-black text-white truncate leading-tight flex items-center gap-1.5">
+              <h2 className="text-xs sm:text-sm font-black text-slate-800 truncate leading-tight flex items-center gap-1.5">
                 <span>{currentExamMeta?.subject || currentTestTitle}</span>
-                <span className="text-[10px] text-slate-400 font-normal hidden sm:inline">• Q {currentQIndex + 1}/{testQuestions.length}</span>
+                <span className="text-[10px] text-slate-500 font-normal hidden sm:inline">• Q {currentQIndex + 1}/{testQuestions.length}</span>
               </h2>
             </div>
           </div>
 
           {/* Center: Crimson Live Timer with Clock & Anti-Cheat Proctoring Indicator */}
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-slate-900 border border-cyan-500/50 text-white shadow-inner">
-              <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              <span className="text-xs sm:text-sm font-black font-mono text-cyan-400">
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 shadow-xs">
+              <Clock className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+              <span className="text-xs sm:text-sm font-black font-mono text-rose-600">
                 {formatTime(timeRemainingSeconds)}
               </span>
             </div>
@@ -1489,8 +1489,8 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             <div 
               className={`hidden xs:flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl border text-[10px] sm:text-xs font-bold transition-all ${
                 tabSwitchCount === 0 
-                  ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300' 
-                  : 'bg-rose-950/90 border-rose-500 text-rose-300 animate-pulse ring-1 ring-rose-500/40'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+                  : 'bg-rose-100 border-rose-300 text-rose-700 animate-pulse ring-1 ring-rose-400/40'
               }`}
               title="एंटी-चीटिंग निगरानी: स्क्रीन छोड़ने / दूसरा ऐप खोलने पर अधिकतम 1 चेतावनी, 2 स्ट्राइक पर टेस्ट स्वतः बंद!"
             >
@@ -1509,10 +1509,10 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                 setQuestionLang(prev => prev === 'hi' ? 'en' : 'hi');
                 showToast(questionLang === 'hi' ? 'Language: English' : 'भाषा: हिन्दी', 'info');
               }}
-              className="h-8 px-2 sm:px-2.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-indigo-500 text-white font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
+              className="h-8 px-2 sm:px-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-500 text-slate-700 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
               title="भाषा बदलें / Toggle Language"
             >
-              <Languages className="w-3.5 h-3.5 text-indigo-400" />
+              <Languages className="w-3.5 h-3.5 text-indigo-500" />
               <span className="font-extrabold">{questionLang === 'hi' ? 'अ' : 'En'}</span>
             </button>
 
@@ -1522,12 +1522,12 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               onClick={handleToggleReview}
               className={`h-8 px-2 sm:px-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border ${
                 isReviewed 
-                  ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-sm' 
-                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+                  ? 'bg-amber-100 border-amber-400 text-amber-800 shadow-xs' 
+                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800'
               }`}
               title="Mark for Review (समीक्षा हेतु चिह्नित करें)"
             >
-              <Star className={`w-3.5 h-3.5 ${isReviewed ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
+              <Star className={`w-3.5 h-3.5 ${isReviewed ? 'fill-amber-500 text-amber-500' : 'text-slate-500'}`} />
               <span className="hidden sm:inline">{isReviewed ? 'Reviewed' : 'Review'}</span>
             </button>
 
@@ -1535,17 +1535,17 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             <button
               type="button"
               onClick={() => setIsPaletteDrawerOpen(true)}
-              className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-amber-500 text-white flex items-center justify-center transition-colors cursor-pointer shadow-sm"
+              className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-500 text-slate-700 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
               title="Question Palette (प्रश्नावली तालिका)"
             >
-              <Menu className="w-4 h-4 text-slate-300" />
+              <Menu className="w-4 h-4 text-slate-600" />
             </button>
           </div>
         </div>
 
         {/* MAIN BODY: Fitted Single-Screen Layout with Full Vertical Space & Anti-Copy Protection */}
         <div 
-          className="flex-1 p-3 sm:p-5 flex flex-col justify-between overflow-y-auto select-none"
+          className="flex-1 min-h-0 p-2.5 sm:p-5 flex flex-col justify-start sm:justify-between overflow-y-auto select-none"
           onCopy={(e) => {
             e.preventDefault();
             showToast('⚠️ परीक्षा सुरक्षा: टेस्ट के दौरान प्रश्नों को कॉपी करना वर्जित है!', 'error');
@@ -1554,14 +1554,14 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             e.preventDefault();
           }}
         >
-          <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto w-full">
+          <div className="space-y-2.5 sm:space-y-4 max-w-4xl mx-auto w-full">
             {/* QUESTION NUMBER & MARKS ROW */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/50 text-indigo-300 font-black text-xs flex items-center justify-center">
+                <span className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 font-black text-xs flex items-center justify-center shadow-xs">
                   {currentQIndex + 1}
                 </span>
-                <span className="text-xs sm:text-sm font-black text-slate-200">
+                <span className="text-xs sm:text-sm font-black text-slate-800">
                   प्रश्न {currentQIndex + 1} / {testQuestions.length}
                 </span>
               </div>
@@ -1573,30 +1573,30 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                   onClick={() => handleToggleBookmark(currentQ)}
                   className={`px-2.5 py-1 rounded-lg border font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all ${
                     isQuestionBookmarked(currentQ?.question || '')
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 ring-1 ring-amber-400/30'
-                      : 'bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-700'
+                      ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-xs'
+                      : 'bg-white hover:bg-slate-100 text-slate-600 border-slate-200'
                   }`}
                   title="Bookmark"
                 >
-                  <Bookmark className={`w-3 h-3 ${isQuestionBookmarked(currentQ?.question || '') ? 'text-amber-400 fill-amber-400' : ''}`} />
+                  <Bookmark className={`w-3 h-3 ${isQuestionBookmarked(currentQ?.question || '') ? 'text-amber-600 fill-amber-500' : ''}`} />
                   <span className="hidden sm:inline">Bookmark</span>
                 </button>
-                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-bold text-[11px] font-mono">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-[11px] font-mono">
                   +{currentExamMeta?.marksPerQ || 2.0}
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-rose-500/15 border border-cyan-500/50 text-cyan-400 font-bold text-[11px] font-mono">
+                <span className="px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 font-bold text-[11px] font-mono">
                   -{currentExamMeta?.negMark || 0.5}
                 </span>
               </div>
             </div>
 
-            {/* Question Statement */}
-            <div className="bg-[#0A101E] border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm md:text-base font-semibold leading-relaxed text-white whitespace-pre-line shadow-xs">
+            {/* Question Statement - ENHANCED LARGER FONTS & LIGHT PAPER WHITE BG */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 text-sm sm:text-base md:text-lg lg:text-xl font-bold leading-relaxed text-slate-900 whitespace-pre-line shadow-xs">
               {currentQ?.question}
             </div>
 
-            {/* 4 Interactive Options (A, B, C, D) with Comfortable Compact Height */}
-            <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
+            {/* 4 Interactive Options (A, B, C, D) with Comfortable Compact Height & LARGER READABLE FONTS */}
+            <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
               {currentQ?.options.map((opt, oIdx) => {
                 const isSelected = selectedAns === oIdx;
                 const optionLetters = ['A', 'B', 'C', 'D'];
@@ -1605,20 +1605,20 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                   <button
                     key={oIdx}
                     onClick={() => handleSelectOption(oIdx)}
-                    className={`w-full text-left p-2.5 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer shadow-xs ${
+                    className={`w-full text-left p-3.5 sm:p-4 rounded-xl border text-sm sm:text-base font-bold transition-all flex items-center gap-3.5 cursor-pointer shadow-xs ${
                       isSelected
-                        ? 'bg-indigo-950/60 border-2 border-indigo-500 text-white ring-2 ring-indigo-500/30'
-                        : 'bg-[#0E1526] hover:bg-slate-800/80 border-slate-800 text-slate-200'
+                        ? 'bg-indigo-50 border-2 border-indigo-600 text-indigo-950 ring-2 ring-indigo-500/20'
+                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
                     }`}
                   >
-                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
-                      isSelected ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-800 text-slate-300 border border-slate-700'
+                    <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm shrink-0 transition-colors ${
+                      isSelected ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 border border-slate-200'
                     }`}>
                       {optionLetters[oIdx]}
                     </span>
                     <span className="flex-1 leading-snug">{opt}</span>
                     {isSelected && (
-                      <div className="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                      <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-black shrink-0">
                         ✓
                       </div>
                     )}
@@ -1630,7 +1630,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
         </div>
 
         {/* COMPACT SINGLE-ROW STICKY BOTTOM ACTION BAR (No Redundant Submit Button) */}
-        <div className="bg-[#0B101D] border-t border-slate-800 px-3 sm:px-6 py-2.5 shrink-0 flex items-center justify-between gap-2 z-20 shadow-2xl">
+        <div className="bg-white border-t border-slate-200 px-3 sm:px-6 py-3 pb-4.5 sm:py-2.5 sm:pb-2.5 shrink-0 flex items-center justify-between gap-2 z-20 shadow-lg">
           {/* Left: Previous */}
           <button
             type="button"
@@ -1638,7 +1638,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               if (currentQIndex > 0) setCurrentQIndex(prev => prev - 1);
             }}
             disabled={currentQIndex === 0}
-            className="px-3 py-2 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Previous</span>
@@ -1650,14 +1650,14 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               type="button"
               onClick={handleClearResponse}
               disabled={selectedAns === undefined}
-              className="px-3 py-2 rounded-xl border border-slate-700 bg-slate-900/90 hover:bg-slate-800 text-slate-300 font-bold text-xs transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <span>Clear</span>
             </button>
             <button
               type="button"
               onClick={() => setIsReportModalOpen(true)}
-              className="px-2.5 py-2 rounded-xl border border-slate-700/60 bg-slate-900/70 hover:bg-rose-950/40 text-slate-400 hover:text-cyan-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
               title="Report Error / त्रुटि रिपोर्ट करें"
             >
               <Flag className="w-3.5 h-3.5" />

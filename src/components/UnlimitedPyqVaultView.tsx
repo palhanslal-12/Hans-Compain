@@ -349,6 +349,162 @@ export const UnlimitedPyqVaultView: React.FC<UnlimitedPyqVaultViewProps> = ({
   const [extraGeneratedQuestions, setExtraGeneratedQuestions] = useState<ComprehensivePYQ[]>([]);
   const [isSavingScore, setIsSavingScore] = useState<boolean>(false);
 
+  // Exam Mode Timer State
+  const [timerEnabled, setTimerEnabled] = useState<boolean>(true); // Enabled by default for a robust learning helper!
+  const [timerDuration, setTimerDuration] = useState<number>(60); // default 60 mins (SSC CGL)
+  const [timerRemaining, setTimerRemaining] = useState<number>(3600); // 3600 seconds
+  const [timerIsActive, setTimerIsActive] = useState<boolean>(false);
+  const [selectedExamTimer, setSelectedExamTimer] = useState<string>('SSC CGL');
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // New gamified exam parameters requested by user
+  const [attemptedQuestions, setAttemptedQuestions] = useState<{
+    question: ComprehensivePYQ;
+    userSelectedIdx: number;
+    isCorrect: boolean;
+  }[]>([]);
+  const [showSolutionsSheet, setShowSolutionsSheet] = useState<boolean>(false);
+  const [pausesRemaining, setPausesRemaining] = useState<number>(2); // Max 2 pauses allowed per test session
+  const [timerTargetQuestions, setTimerTargetQuestions] = useState<number>(100); // Standard question limits (CGL:100, NTPC:120, UPSC:100, Bank:80)
+
+  useEffect(() => {
+    if (timerIsActive && timerRemaining > 0) {
+      timerIntervalRef.current = setInterval(() => {
+        setTimerRemaining(prev => {
+          if (prev <= 1) {
+            if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+            setTimerIsActive(false);
+            setShowSolutionsSheet(true); // Automatically show solutions sheet when time runs out!
+            showToast(lang === 'hi' ? "⏳ परीक्षा का समय समाप्त हो गया है! विस्तृत हल पत्रक नीचे देखें।" : "⏳ Exam Time's Up! Detailed solution sheet is loaded below.", "error");
+            
+            // Pleasant alarm chime
+            try {
+              const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const osc = audioCtx.createOscillator();
+              const gain = audioCtx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+              osc.connect(gain);
+              gain.connect(audioCtx.destination);
+              gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+              osc.start();
+              osc.stop(audioCtx.currentTime + 1.2);
+            } catch {}
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    }
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
+  }, [timerIsActive, timerRemaining, lang]);
+
+  const handleTogglePauseTimer = () => {
+    if (!timerIsActive) {
+      // Resuming is always free of limits
+      setTimerIsActive(true);
+      showToast(lang === 'hi' ? "▶️ परीक्षा फिर से चालू हो गई!" : "▶️ Exam resumed!", "success");
+    } else {
+      // Pausing decrements pausesRemaining
+      if (pausesRemaining <= 0) {
+        showToast(
+          lang === 'hi' 
+            ? "⚠️ पॉज़ सीमा समाप्त! अब आप परीक्षा टाइमर को नहीं रोक सकते।" 
+            : "⚠️ Pause limit reached! You cannot pause the timer anymore.", 
+          "error"
+        );
+        return;
+      }
+      setPausesRemaining(prev => {
+        const next = prev - 1;
+        setTimerIsActive(false);
+        showToast(
+          lang === 'hi' 
+            ? `⏸️ परीक्षा रोकी गई। आपके पास ${next} पॉज़ शेष हैं।` 
+            : `⏸️ Exam paused. ${next} pauses remaining.`, 
+          "warn"
+        );
+        return next;
+      });
+    }
+  };
+
+  const handleSelectExamTimer = (examName: string, minutes: number) => {
+    setSelectedExamTimer(examName);
+    setTimerDuration(minutes);
+    setTimerRemaining(minutes * 60);
+    setTimerIsActive(true); // Auto start for great UX!
+    setTimerEnabled(true);
+    setPausesRemaining(2); // Reset pauses back to 2
+    setAttemptedQuestions([]); // Reset attempts
+    setShowSolutionsSheet(false); // Hide the solutions sheet
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setShowExplanation(false);
+    setScoreStats({ correct: 0, wrong: 0, total: 0 });
+
+    // Set standard question limits according to standard competitive exams
+    let qCount = 100;
+    if (examName === 'SSC CGL') qCount = 100;
+    else if (examName === 'Railway NTPC') qCount = 120;
+    else if (examName === 'UPSC / SI') qCount = 100;
+    else if (examName === 'Banking PO') qCount = 80;
+    setTimerTargetQuestions(qCount);
+
+    showToast(
+      lang === 'hi' 
+        ? `⏱️ ${examName} परीक्षा के अनुसार ${minutes} मिनट और ${qCount} प्रश्नों का मॉक टेस्ट सेट किया गया!` 
+        : `⏱️ Mock Test set for ${examName} (${minutes}m, ${qCount} Qs)!`, 
+      "success"
+    );
+  };
+
+  const triggerReminderNotification = (questionText: string) => {
+    const truncatedText = questionText.length > 55 ? questionText.slice(0, 55) + '...' : questionText;
+    const notificationMessage = `अरे सुनो! 🔔 किसी ने कहा है: "इस महत्वपूर्ण प्रश्न को एक बार फिर से देख लो, तुमने इसमें गलती की थी!"\n🔍 प्रश्न: "${truncatedText}"`;
+    
+    // 1. Dispatch into local storage list
+    try {
+      const raw = localStorage.getItem('hansai_notifications_v1');
+      const existingNotifs = raw ? JSON.parse(raw) : [];
+      
+      const newNotif = {
+        id: `pyq-mistake-reminder-${Date.now()}`,
+        type: 'reminder',
+        title: '📌 PYQ गलती सुधार रिमाइन्डर (Someone Reminded You!)',
+        message: notificationMessage,
+        timestamp: 'अभी-अभी (Just now)',
+        isRead: false,
+        actionLabel: 'गलती रजिस्टर खोलें',
+        actionTarget: 'mistake-notebook',
+        badge: 'REMINDER'
+      };
+      
+      const updated = [newNotif, ...existingNotifs].slice(0, 30);
+      localStorage.setItem('hansai_notifications_v1', JSON.stringify(updated));
+      window.dispatchEvent(new Event('hansai-notif-update'));
+    } catch (e) {
+      console.warn("Could not save reminder notification to storage", e);
+    }
+
+    // 2. Browser native push notification
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification('📌 सुनो, एक महत्वपूर्ण याद दिलाना है!', {
+          body: `किसी ने कहा है: "यह PYQ एक बार ज़रूर देख लो!"`,
+          icon: '/favicon.ico',
+          tag: `pyq-mistake-reminder-${Date.now()}`
+        });
+      } catch (err) {
+        console.warn("Native browser notification failed", err);
+      }
+    }
+  };
+
   // Leaderboard & Live Results State
   const [sharedResults, setSharedResults] = useState<ExamPracticeLeaderboardEntry[]>([]);
   const [isLoadingResults, setIsLoadingResults] = useState<boolean>(false);
@@ -451,6 +607,17 @@ export const UnlimitedPyqVaultView: React.FC<UnlimitedPyqVaultViewProps> = ({
     setShowExplanation(true);
 
     const isCorrect = idx === currentQ.answerIndex;
+    
+    // Save to attempted list for final comprehensive summary sheet
+    setAttemptedQuestions(prev => {
+      if (prev.some(a => a.question.id === currentQ.id)) return prev;
+      return [...prev, {
+        question: currentQ,
+        userSelectedIdx: idx,
+        isCorrect
+      }];
+    });
+
     setScoreStats(prev => ({
       correct: prev.correct + (isCorrect ? 1 : 0),
       wrong: prev.wrong + (isCorrect ? 0 : 1),
@@ -474,6 +641,9 @@ export const UnlimitedPyqVaultView: React.FC<UnlimitedPyqVaultViewProps> = ({
           topic: currentQ.topic
         });
       }
+      
+      // Trigger user-customized notification reminder
+      triggerReminderNotification(lang === 'hi' ? currentQ.questionHi : currentQ.questionEn);
     }
   };
 
@@ -673,131 +843,438 @@ export const UnlimitedPyqVaultView: React.FC<UnlimitedPyqVaultViewProps> = ({
       {/* TAB 1: ENDLESS PRACTICE MODE */}
       {activeTab === 'endless' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Main Question Card */}
-          <div className="lg:col-span-8 space-y-4">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-md p-5 sm:p-7 space-y-6 shadow-xl relative">
-              {/* Question Meta Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-sm text-xs font-bold">
-                    🏛️ {currentQ.exam} ({currentQ.year})
-                  </span>
-                  <span className="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-semibold">
-                    {currentQ.subject}
-                  </span>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Shift: {currentQ.shift}
-                  </span>
+          {showSolutionsSheet ? (
+            /* HUGE STUDY GUIDE & DETAILED SOLUTIONS SHEET requested by user */
+            <div className="lg:col-span-8 space-y-6 animate-fade-in">
+              <div className="bg-slate-900 border border-slate-800 rounded-md p-5 sm:p-7 space-y-6 shadow-xl relative">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4 flex-wrap gap-3">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-amber-400" />
+                      <span>📊 परीक्षा परिणाम एवं वृहद हल पत्रक</span>
+                    </h2>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      {lang === 'hi' 
+                        ? `इस परीक्षा सत्र में आपने ${attemptedQuestions.length} प्रश्नों को हल किया। नीचे सभी प्रश्नों के विस्तृत हल व्याख्यात्मक देखें:`
+                        : `You answered ${attemptedQuestions.length} questions in this session. Full solutions are detailed below:`}
+                    </p>
+                  </div>
+
+                  {/* PDF Export Button */}
+                  <button
+                    onClick={() => {
+                      if (onExportPdf) {
+                        onExportPdf(`Unlimited PYQ Solutions Report - ${selectedExamTimer}`);
+                        showToast(lang === 'hi' ? "📥 हल पत्रक पीडीएफ में निर्यात किया जा रहा है..." : "📥 Exporting solutions sheet to PDF...", "success");
+                      } else {
+                        showToast(lang === 'hi' ? "📥 पीडीएफ निर्यात शुरू हो रहा है..." : "📥 PDF export starting...", "info");
+                      }
+                    }}
+                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs rounded-sm cursor-pointer flex items-center gap-1.5 transition-all border-none shadow-lg shadow-rose-950/45"
+                  >
+                    <span>📥 PDF Export</span>
+                  </button>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-slate-400">
-                    Q: <b className="text-white">{currentIndex + 1}</b> / {filteredQuestions.length}+
-                  </span>
+                {/* Score Summary Metrics banner inside the sheet */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/85 p-4 border border-slate-800/60 rounded-sm">
+                  <div className="text-center">
+                    <span className="text-[10px] text-slate-500 font-bold block uppercase">{lang === 'hi' ? 'कुल प्रयास' : 'Attempted'}</span>
+                    <span className="text-base font-extrabold text-white">{attemptedQuestions.length}</span>
+                  </div>
+                  <div className="text-center border-l border-slate-800/85">
+                    <span className="text-[10px] text-emerald-500 font-bold block uppercase">{lang === 'hi' ? 'सही उत्तर' : 'Correct'}</span>
+                    <span className="text-base font-extrabold text-emerald-400">{attemptedQuestions.filter(a => a.isCorrect).length}</span>
+                  </div>
+                  <div className="text-center border-l border-slate-800/85">
+                    <span className="text-[10px] text-rose-500 font-bold block uppercase">{lang === 'hi' ? 'गलत उत्तर' : 'Incorrect'}</span>
+                    <span className="text-base font-extrabold text-rose-400">{attemptedQuestions.filter(a => !a.isCorrect).length}</span>
+                  </div>
+                  <div className="text-center border-l border-slate-800/85">
+                    <span className="text-[10px] text-amber-500 font-bold block uppercase">{lang === 'hi' ? 'कुल प्राप्तांक' : 'Net Score'}</span>
+                    <span className="text-base font-extrabold text-amber-300">
+                      {(attemptedQuestions.filter(a => a.isCorrect).length * 2 - attemptedQuestions.filter(a => !a.isCorrect).length * 0.5).toFixed(1)} M
+                    </span>
+                  </div>
+                </div>
+
+                {/* The List of solutions */}
+                <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin">
+                  {attemptedQuestions.map((attempt, index) => {
+                    const q = attempt.question;
+                    const qText = lang === 'hi' ? q.questionHi : q.questionEn;
+                    const opts = lang === 'hi' ? q.optionsHi : q.optionsEn;
+
+                    return (
+                      <div 
+                        key={q.id} 
+                        className={`p-4 border rounded-sm space-y-3 transition-all ${
+                          attempt.isCorrect 
+                            ? 'bg-emerald-950/10 border-emerald-500/20' 
+                            : 'bg-rose-950/10 border-rose-500/20'
+                        }`}
+                      >
+                        {/* Number and Meta */}
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                          <span>Q{index + 1}. {q.subject} ({q.topic})</span>
+                          <span className={`px-2 py-0.5 rounded-sm ${
+                            attempt.isCorrect 
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
+                              : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                          }`}>
+                            {attempt.isCorrect ? (lang === 'hi' ? 'सही (+2)' : 'Correct (+2)') : (lang === 'hi' ? 'गलत (-0.5)' : 'Incorrect (-0.5)')}
+                          </span>
+                        </div>
+
+                        {/* Question Text */}
+                        <p className="text-sm font-semibold text-white leading-relaxed">{qText}</p>
+
+                        {/* Options */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          {opts.map((opt, oIdx) => {
+                            const isCorrectIdx = oIdx === q.answerIndex;
+                            const isUserIdx = oIdx === attempt.userSelectedIdx;
+
+                            let optStyle = 'bg-slate-950 text-slate-400 border border-slate-800/60';
+                            if (isCorrectIdx) {
+                              optStyle = 'bg-emerald-500/20 text-emerald-300 border-2 border-emerald-500/50 font-semibold';
+                            } else if (isUserIdx && !attempt.isCorrect) {
+                              optStyle = 'bg-rose-500/20 text-rose-300 border-2 border-rose-500/50 font-semibold';
+                            }
+
+                            return (
+                              <div key={oIdx} className={`p-2.5 rounded-sm flex items-center justify-between ${optStyle}`}>
+                                <span>{opt}</span>
+                                {isCorrectIdx && <span className="text-[10px] bg-emerald-500 text-slate-950 px-1 py-0.2 rounded-sm font-black">✔️ Correct</span>}
+                                {isUserIdx && !attempt.isCorrect && <span className="text-[10px] bg-rose-500 text-white px-1 py-0.2 rounded-sm font-black">❌ Your Answer</span>}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Explanation block */}
+                        <div className="mt-3 p-3 bg-slate-950/60 border border-slate-800/80 rounded-sm space-y-1.5 text-xs">
+                          <div className="text-cyan-400 font-bold flex items-center gap-1">
+                            <span>💡 विस्तृत व्याख्या (Solution):</span>
+                          </div>
+                          <p className="text-slate-300 leading-relaxed whitespace-pre-wrap font-sans">
+                            {lang === 'hi' ? q.explanationHi : q.explanationEn}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Back to practice button inside solutions card */}
+                <div className="pt-4 border-t border-slate-800/80 flex justify-end gap-3">
                   <button
-                    onClick={() => toggleBookmark(currentQ.id)}
-                    className={`p-2 rounded-sm border transition-all cursor-pointer ${
-                      bookmarkedIds.includes(currentQ.id)
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                        : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-                    }`}
-                    title="Bookmark Question"
+                    onClick={() => {
+                      setShowSolutionsSheet(false);
+                      setAttemptedQuestions([]);
+                      setScoreStats({ correct: 0, wrong: 0, total: 0 });
+                      setCurrentIndex(0);
+                      setSelectedOption(null);
+                      setShowExplanation(false);
+                      setTimerRemaining(timerDuration * 60);
+                      setTimerIsActive(true);
+                      showToast(lang === 'hi' ? "🔄 नया परीक्षा सत्र शुरू किया गया!" : "🔄 New exam session started!", "success");
+                    }}
+                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-sm cursor-pointer transition-all border-none shadow-lg shadow-indigo-950/45"
                   >
-                    <Bookmark className="w-4 h-4" />
+                    🔄 पुनः परीक्षा दें (Restart Exam)
                   </button>
                 </div>
               </div>
-
-              {/* Question Text */}
-              <div className="space-y-3">
-                <div className="text-[11px] font-bold text-cyan-400 uppercase tracking-wide">
-                  Topic: {currentQ.topic}
-                </div>
-                <h2 className="text-base sm:text-lg font-bold text-white leading-relaxed whitespace-pre-wrap">
-                  {lang === 'hi' ? currentQ.questionHi : currentQ.questionEn}
-                </h2>
-              </div>
-
-              {/* Options */}
-              <div className="space-y-3 pt-2">
-                {(lang === 'hi' ? currentQ.optionsHi : currentQ.optionsEn).map((opt, idx) => {
-                  const isSelected = selectedOption === idx;
-                  const isCorrect = idx === currentQ.answerIndex;
-                  const hasAnswered = selectedOption !== null;
-
-                  let btnStyle = "bg-slate-950/80 border-slate-800 hover:border-slate-700 text-slate-200";
-                  if (hasAnswered) {
-                    if (isCorrect) {
-                      btnStyle = "bg-emerald-950/60 border-emerald-500/80 text-emerald-200 shadow-md shadow-emerald-950/40";
-                    } else if (isSelected && !isCorrect) {
-                      btnStyle = "bg-rose-950/60 border-rose-500/80 text-rose-200 shadow-md shadow-rose-950/40";
-                    } else {
-                      btnStyle = "bg-slate-950/40 border-slate-900 text-slate-500 opacity-60";
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelectOption(idx)}
-                      disabled={hasAnswered}
-                      className={`w-full p-4 rounded-sm border text-left text-xs sm:text-sm font-medium transition-all flex items-center justify-between gap-3 cursor-pointer ${btnStyle}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-sm bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-xs shrink-0">
-                          {String.fromCharCode(65 + idx)}
-                        </span>
-                        <span>{opt}</span>
-                      </div>
-
-                      {hasAnswered && isCorrect && (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                      )}
-                      {hasAnswered && isSelected && !isCorrect && (
-                        <X className="w-5 h-5 text-rose-400 shrink-0" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Explanation Box */}
-              {showExplanation && (
-                <div className="bg-[#070b14] border border-cyan-500/30 rounded-sm p-4 sm:p-5 space-y-2 animate-fade-in">
-                  <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span>विस्तृत व्याख्या व समाधान (Detailed Solution & Concept):</span>
+            </div>
+          ) : (
+            /* Main Question Card */
+            <div className="lg:col-span-8 space-y-4">
+              <div className="bg-slate-900/90 border border-slate-800 rounded-md p-5 sm:p-7 space-y-6 shadow-xl relative">
+                {/* Question Meta Header */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-sm text-xs font-bold">
+                      🏛️ {currentQ.exam} ({currentQ.year})
+                    </span>
+                    <span className="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-semibold">
+                      {currentQ.subject}
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">
+                      Shift: {currentQ.shift}
+                    </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans whitespace-pre-wrap">
-                    {lang === 'hi' ? currentQ.explanationHi : currentQ.explanationEn}
-                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-slate-400">
+                      Q: <b className="text-white">{currentIndex + 1}</b> / {timerEnabled ? timerTargetQuestions : `${filteredQuestions.length}+`}
+                    </span>
+                    <button
+                      onClick={() => toggleBookmark(currentQ.id)}
+                      className={`p-2 rounded-sm border transition-all cursor-pointer ${
+                        bookmarkedIds.includes(currentQ.id)
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                          : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                      }`}
+                      title="Bookmark Question"
+                    >
+                      <Bookmark className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              )}
 
-              {/* Navigation Controls */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-800">
-                <button
-                  onClick={handlePrevQuestion}
-                  disabled={currentIndex === 0}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 rounded-sm text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all border border-slate-700"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>पिछला प्रश्न</span>
-                </button>
+                {/* Question Text */}
+                <div className="space-y-3">
+                  <div className="text-[11px] font-bold text-cyan-400 uppercase tracking-wide">
+                    Topic: {currentQ.topic}
+                  </div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-relaxed whitespace-pre-wrap">
+                    {lang === 'hi' ? currentQ.questionHi : currentQ.questionEn}
+                  </h2>
+                </div>
 
-                <button
-                  onClick={handleNextQuestion}
-                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-sm text-xs font-black flex items-center gap-2 cursor-pointer transition-all shadow-lg shadow-indigo-600/30 border-none"
-                >
-                  <span>अगला प्रश्न (Next PYQ)</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                {/* Options */}
+                <div className="space-y-3 pt-2">
+                  {(lang === 'hi' ? currentQ.optionsHi : currentQ.optionsEn).map((opt, idx) => {
+                    const isSelected = selectedOption === idx;
+                    const isCorrect = idx === currentQ.answerIndex;
+                    const hasAnswered = selectedOption !== null;
+
+                    let btnStyle = "bg-slate-950/80 border-slate-800 hover:border-slate-700 text-slate-200";
+                    if (hasAnswered) {
+                      if (isCorrect) {
+                        btnStyle = "bg-emerald-950/60 border-emerald-500/80 text-emerald-200 shadow-md shadow-emerald-950/40";
+                      } else if (isSelected && !isCorrect) {
+                        btnStyle = "bg-rose-950/60 border-rose-500/80 text-rose-200 shadow-md shadow-rose-950/40";
+                      } else {
+                        btnStyle = "bg-slate-950/40 border-slate-900 text-slate-500 opacity-60";
+                      }
+                    }
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleSelectOption(idx)}
+                        disabled={hasAnswered}
+                        className={`w-full p-4 rounded-sm border text-left text-xs sm:text-sm font-medium transition-all flex items-center justify-between gap-3 cursor-pointer ${btnStyle}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="w-7 h-7 rounded-sm bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-xs shrink-0">
+                            {String.fromCharCode(65 + idx)}
+                          </span>
+                          <span>{opt}</span>
+                        </div>
+
+                        {hasAnswered && isCorrect && (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                        )}
+                        {hasAnswered && isSelected && !isCorrect && (
+                          <X className="w-5 h-5 text-rose-400 shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Explanation Box */}
+                {showExplanation && (
+                  <div className="bg-[#070b14] border border-cyan-500/30 rounded-sm p-4 sm:p-5 space-y-2 animate-fade-in">
+                    <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <span>विस्तृत व्याख्या व समाधान (Detailed Solution & Concept):</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans whitespace-pre-wrap">
+                      {lang === 'hi' ? currentQ.explanationHi : currentQ.explanationEn}
+                    </p>
+                  </div>
+                )}
+
+                {/* Navigation Controls */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+                  <button
+                    onClick={handlePrevQuestion}
+                    disabled={currentIndex === 0}
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 rounded-sm text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all border border-slate-700"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>पिछला प्रश्न</span>
+                  </button>
+
+                  <button
+                    onClick={handleNextQuestion}
+                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-sm text-xs font-black flex items-center gap-2 cursor-pointer transition-all shadow-lg shadow-indigo-600/30 border-none"
+                  >
+                    <span>अगला प्रश्न (Next PYQ)</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Right Sidebar: Stats & Quick Jump */}
           <div className="lg:col-span-4 space-y-4">
+            {/* ⏱️ COMPETITIVE EXAM TIMER CARD */}
+            {timerEnabled && (
+              <div className="bg-slate-900 border-2 border-indigo-500/60 rounded-md p-5 space-y-4 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
+                
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Clock className={`w-4 h-4 text-cyan-400 ${timerIsActive ? 'animate-pulse' : ''}`} />
+                    <span className="text-xs font-black text-slate-200 tracking-wide">
+                      {lang === 'hi' ? '⏱️ परीक्षा समय-तालिका (Exam Timer)' : '⏱️ Exam-Style Timer'}
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 rounded-full text-[10px] font-bold">
+                    {selectedExamTimer}
+                  </span>
+                </div>
+
+                {/* Big Countdown Display with Gamified Pause Tracker */}
+                <div className="text-center py-2.5 bg-slate-950 border border-slate-800/80 rounded-sm">
+                  <div className={`text-3xl font-black font-mono tracking-wider ${
+                    timerRemaining < 120 
+                      ? 'text-rose-500 animate-pulse' 
+                      : timerRemaining < 600 
+                      ? 'text-amber-400' 
+                      : 'text-cyan-400'
+                  }`}>
+                    {Math.floor(timerRemaining / 60).toString().padStart(2, '0')}:
+                    {(timerRemaining % 60).toString().padStart(2, '0')}
+                  </div>
+                  
+                  {/* Pauses Remaining Indicator requested by user */}
+                  <div className="text-[10px] text-slate-500 font-bold uppercase mt-1 flex items-center justify-center gap-1.5 flex-wrap">
+                    <span>{timerIsActive ? (lang === 'hi' ? '● परीक्षा चालू है' : '● Exam Running') : (lang === 'hi' ? '⏸️ रुका हुआ' : '⏸️ Paused')}</span>
+                    <span className="text-slate-800">|</span>
+                    <span className={`px-1.5 py-0.5 rounded-sm text-[9px] font-black tracking-wide ${
+                      pausesRemaining === 0 
+                        ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' 
+                        : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
+                    }`}>
+                      {lang === 'hi' ? `⏳ ${pausesRemaining} पॉज़ शेष` : `⏳ ${pausesRemaining} Pauses Left`}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Exam Selectors */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 block">
+                    {lang === 'hi' ? '🎯 परीक्षा प्रकार चुनें:' : '🎯 Select Target Exam Mode:'}
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      onClick={() => handleSelectExamTimer('SSC CGL', 60)}
+                      className={`px-2.5 py-1.5 rounded-sm border text-[11px] font-bold cursor-pointer transition-all border-none ${
+                        selectedExamTimer === 'SSC CGL'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      SSC CGL (60m)
+                    </button>
+                    <button
+                      onClick={() => handleSelectExamTimer('Railway NTPC', 90)}
+                      className={`px-2.5 py-1.5 rounded-sm border text-[11px] font-bold cursor-pointer transition-all border-none ${
+                        selectedExamTimer === 'Railway NTPC'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      RRB NTPC (90m)
+                    </button>
+                    <button
+                      onClick={() => handleSelectExamTimer('UPSC / SI', 120)}
+                      className={`px-2.5 py-1.5 rounded-sm border text-[11px] font-bold cursor-pointer transition-all border-none ${
+                        selectedExamTimer === 'UPSC / SI'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      UPSC/SI (120m)
+                    </button>
+                    <button
+                      onClick={() => handleSelectExamTimer('Banking PO', 45)}
+                      className={`px-2.5 py-1.5 rounded-sm border text-[11px] font-bold cursor-pointer transition-all border-none ${
+                        selectedExamTimer === 'Banking PO'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Bank PO (45m)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Controls */}
+                <div className="flex flex-col gap-2 pt-1">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleTogglePauseTimer}
+                      disabled={!timerIsActive && pausesRemaining <= 0}
+                      className={`flex-1 py-2 text-xs font-black rounded-sm border-none cursor-pointer flex items-center justify-center gap-1.5 transition-all disabled:opacity-45 disabled:cursor-not-allowed ${
+                        timerIsActive 
+                          ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md' 
+                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
+                      }`}
+                    >
+                      {timerIsActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                      <span>{timerIsActive ? (lang === 'hi' ? 'रोकें (Pause)' : 'Pause') : (lang === 'hi' ? 'शुरू करें (Start)' : 'Start')}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setTimerRemaining(timerDuration * 60);
+                        setTimerIsActive(false);
+                        setPausesRemaining(2);
+                        setAttemptedQuestions([]);
+                        setShowSolutionsSheet(false);
+                        showToast(lang === 'hi' ? "⏱️ टाइमर और पॉज़ लिमिट रीसेट किए गए" : "⏱️ Timer and pause limit reset", "info");
+                      }}
+                      className="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-sm cursor-pointer transition-all"
+                      title="Reset Timer"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* End Exam & Generate Solutions Report Button */}
+                  <button
+                    onClick={() => {
+                      if (attemptedQuestions.length === 0) {
+                        showToast(lang === 'hi' ? "⚠️ कृपया हल देखने से पहले कम से कम १ प्रश्न का उत्तर दें!" : "⚠️ Please answer at least 1 question before finishing!", "warn");
+                        return;
+                      }
+                      setTimerIsActive(false);
+                      setShowSolutionsSheet(true);
+                      showToast(lang === 'hi' ? "📊 परीक्षा समाप्त! विस्तृत हल पत्रक नीचे लोड किया गया है।" : "📊 Exam Finished! Comprehensive solutions sheet loaded below.", "success");
+                    }}
+                    className="w-full py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-[11px] font-black rounded-sm flex items-center justify-center gap-1 border-none cursor-pointer shadow-lg shadow-indigo-950/45"
+                  >
+                    <span>📊 समाप्त करें व हल देखें (Show Solutions)</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 💡 FREE MODE FALLBACK TOGGLE BUTTON */}
+            {!timerEnabled && (
+              <button
+                onClick={() => {
+                  setTimerEnabled(true);
+                  setTimerRemaining(timerDuration * 60);
+                  setTimerIsActive(true);
+                  showToast(lang === 'hi' ? "⏱️ परीक्षा टाइमर चालू किया गया!" : "⏱️ Exam timer enabled!", "success");
+                }}
+                className="w-full py-2.5 bg-slate-950 border border-dashed border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 text-xs font-bold rounded-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+              >
+                <Clock className="w-4 h-4 text-cyan-400" />
+                <span>{lang === 'hi' ? '⏱️ परीक्षा के अनुसार टाइमर चालू करें' : '⏱️ Enable Exam-Style Timer'}</span>
+              </button>
+            )}
+
             {/* Live Score Tracker */}
             <div className="bg-slate-900/90 border border-slate-800 rounded-md p-5 space-y-4">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
