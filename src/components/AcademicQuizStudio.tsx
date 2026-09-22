@@ -1224,8 +1224,8 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
         match = allRecords.find(p => p.category === 'bpsc');
       } else if (query.includes('police')) {
         match = allRecords.find(p => p.category === 'police');
-      } else if (query.includes('ssc')) {
-        match = allRecords.find(p => p.category === 'ssc');
+      } else if (query.includes('ssc') || query.includes('mts') || query.includes('cgl') || query.includes('chsl')) {
+        match = allRecords.find(p => p.category === 'ssc' || p.examName.toLowerCase().includes('ssc') || p.examName.toLowerCase().includes('mts'));
       }
     }
 

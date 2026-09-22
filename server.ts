@@ -2125,7 +2125,13 @@ app.post("/api/quiz", aiRateLimiter, async (req, res) => {
 - Explanations should be comprehensive and exam-oriented.`;
     }
 
-    const prompt = `Generate a high-yield, authentic educational quiz on "${subject}".
+    const isExamName = /ssc|mts|chsl|cgl|upsc|bpsc|rrb|ntpc|banking|ibps|police|si|nda|cds|tet|neet|jee/i.test(subject);
+    
+    const subjectInstruction = isExamName
+      ? `The topic "${subject}" is a competitive examination. Generate a balanced, official exam-pattern mock test paper containing multiple-choice questions from the core syllabus sections of ${subject} (such as General Awareness, Quantitative Aptitude, Logical Reasoning, and English Language). Do NOT output descriptive text explaining what ${subject} is; generate strictly actual exam MCQs with 4 options and detailed explanations.`
+      : `Generate a high-yield, authentic educational quiz on "${subject}".`;
+
+    const prompt = `${subjectInstruction}
 Total Questions: Exactly ${numQuestions} multiple-choice questions.
 ${difficultyInstruction}
 ${langInstruction}
