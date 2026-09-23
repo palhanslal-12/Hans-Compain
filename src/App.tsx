@@ -8333,8 +8333,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           {/* VIEW: EDU REELS */}
           {activeView === 'edu-reels' && (
             <ErrorBoundary fallbackTitle="Edu Shorts" onReset={() => setActiveView('chat')}>
-              <div className="w-full max-w-lg mx-auto h-[calc(100vh-4rem)] sm:h-[85vh] animate-fade-in shadow-2xl rounded-none sm:rounded-3xl overflow-hidden mt-0 sm:mt-4">
-                <EduReelsView language={language} />
+              <div className="w-full min-h-[calc(100vh-4rem)] animate-fade-in">
+                <EduReelsView language={language} studentGoalProfile={studentGoalProfile} />
               </div>
             </ErrorBoundary>
           )}
@@ -8452,7 +8452,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           )}
 
           {/* VIEW: BHARATI BHAWAN SMART DIGITAL STUDY HUB */}
-          {activeView === 'bharti-bhawan' && (
+          {((activeView as string) === 'bharti-bhawan' || (activeView as string) === 'bharati-bhawan' || (activeView as string) === 'bharatibhawan') && (
             <ErrorBoundary fallbackTitle="Bharati Bhawan Study Hub" onReset={() => setActiveView('chat')}>
               <div className="w-full min-h-[calc(100vh-4rem)] animate-fade-in">
                 <BharatiBhawanStudyHub

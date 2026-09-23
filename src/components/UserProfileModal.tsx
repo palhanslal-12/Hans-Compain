@@ -25,13 +25,28 @@ export interface UserProfileData {
   targetExam?: string;
   role?: string;
   phone?: string;
+  bio?: string;
+  classOrStream?: string;
+  boardOrState?: string;
+  locationState?: string;
+  city?: string;
+  targetYear?: string;
 }
 
 interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: UserProfileData | null;
-  onSaveProfile: (updatedData: { name: string; avatarUrl: string; targetExam: string; userId?: string }) => void;
+  onSaveProfile: (updatedData: { 
+    name: string; 
+    avatarUrl: string; 
+    targetExam: string; 
+    userId?: string;
+    bio?: string;
+    classOrStream?: string;
+    locationState?: string;
+    city?: string;
+  }) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
   language?: string;
 }
@@ -137,6 +152,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200'
   );
   const [targetExam, setTargetExam] = useState(user?.targetExam || 'SSC Stenographer Grade C & D');
+  const [bio, setBio] = useState(user?.bio || '');
+  const [classOrStream, setClassOrStream] = useState(user?.classOrStream || 'Class 10th (Matric)');
+  const [locationState, setLocationState] = useState(user?.locationState || 'Bihar');
+  const [city, setCity] = useState(user?.city || '');
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [userIdInput, setUserIdInput] = useState(user?.userId || '');
   const [isUpdatingUserId, setIsUpdatingUserId] = useState(false);
   const [userIdStatus, setUserIdStatus] = useState<{ msg: string; type: 'success' | 'error' | '' }>({ msg: '', type: '' });
@@ -151,10 +171,37 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setName(user?.name || 'Scholar Student');
       setAvatarUrl(user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200');
       setTargetExam(user?.targetExam || 'SSC Stenographer Grade C & D');
+      setBio(user?.bio || '');
+      setClassOrStream(user?.classOrStream || 'Class 10th (Matric)');
+      setLocationState(user?.locationState || 'Bihar');
+      setCity(user?.city || '');
       setUserIdInput(user?.userId || '');
       setUserIdStatus({ msg: '', type: '' });
     }
   }, [isOpen, user]);
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      showToast(language === 'hindi' ? 'जीपीएस आपके डिवाइस में उपलब्ध नहीं है।' : 'GPS Geolocation not available.', 'warn');
+      return;
+    }
+    setIsDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsDetectingLocation(false);
+        showToast(
+          language === 'hindi'
+            ? `📍 जीपीएस लोकेशन प्राप्त हुई (Lat: ${pos.coords.latitude.toFixed(2)}, Lon: ${pos.coords.longitude.toFixed(2)})`
+            : `📍 GPS Location captured (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`,
+          'success'
+        );
+      },
+      () => {
+        setIsDetectingLocation(false);
+        showToast(language === 'hindi' ? 'लोकेशन एक्सेस की अनुमति दें।' : 'Please allow location permission.', 'warn');
+      }
+    );
+  };
 
   if (!isOpen) return null;
 
@@ -299,7 +346,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       name: cleanName,
       avatarUrl: cleanAvatar,
       targetExam: targetExam,
-      userId: userIdInput.trim().toLowerCase() || user?.userId
+      userId: userIdInput.trim().toLowerCase() || user?.userId,
+      bio: bio.trim(),
+      classOrStream: classOrStream,
+      locationState: locationState,
+      city: city.trim()
     });
 
     showToast(
@@ -692,6 +743,113 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   ))}
                 </select>
                 <Target className="w-4 h-4 text-amber-400 absolute left-3 top-3 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* OPTIONAL ACADEMIC BIO-DATA & LOCATION SECTION */}
+            <div className="p-3.5 bg-gradient-to-br from-slate-900 to-[#0B1022] border border-indigo-500/30 rounded-2xl space-y-3.5">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-amber-400 font-bold text-sm">📝</span>
+                  <div>
+                    <h4 className="text-xs font-black text-white flex items-center gap-1.5">
+                      <span>{language === 'hindi' ? 'ऐच्छिक अकादमिक बायोडाटा (Optional Student Bio)' : 'Optional Student Academic Bio-Data'}</span>
+                      <span className="px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 text-[9px] font-bold">Optional</span>
+                    </h4>
+                    <p className="text-[10px] text-slate-400">
+                      {language === 'hindi' ? 'चाहे तो भरें, नहीं तो छोड़ सकते हैं।' : 'Fill if you wish to personalize your dashboard profile.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Class or Stream Dropdown */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300 block">
+                  {language === 'hindi' ? 'कक्षा या स्ट्रीम (Class / Stream Category):' : 'Class / Stream Category:'}
+                </label>
+                <select
+                  value={classOrStream}
+                  onChange={(e) => setClassOrStream(e.target.value)}
+                  className="w-full text-xs py-2 px-3 bg-[#050812] border border-slate-700 rounded-xl text-slate-200 font-medium focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="Class 10th (Matric)">Class 10th (Matric Board) 🎓</option>
+                  <option value="Class 12th Science">Class 12th (Inter - Science PCM/PCB) 🔬</option>
+                  <option value="Class 12th Arts">Class 12th (Inter - Arts) 📜</option>
+                  <option value="Class 12th Commerce">Class 12th (Inter - Commerce) 📊</option>
+                  <option value="SSC Stenographer">SSC Stenographer Grade C & D ✍️</option>
+                  <option value="SSC CGL / CHSL">SSC CGL / CHSL / MTS 🏛️</option>
+                  <option value="Railways NTPC">Railways NTPC & Group D 🚆</option>
+                  <option value="State Police / Sub-Inspector">State Police SI & Constable 👮</option>
+                </select>
+              </div>
+
+              {/* State & City Location Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-300 block">
+                    {language === 'hindi' ? 'राज्य (Home State):' : 'State / Union Territory:'}
+                  </label>
+                  <select
+                    value={locationState}
+                    onChange={(e) => setLocationState(e.target.value)}
+                    className="w-full text-xs py-2 px-3 bg-[#050812] border border-slate-700 rounded-xl text-slate-200 font-medium focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="Bihar">Bihar (बिहार)</option>
+                    <option value="Uttar Pradesh">Uttar Pradesh (उत्तर प्रदेश)</option>
+                    <option value="Madhya Pradesh">Madhya Pradesh (मध्य प्रदेश)</option>
+                    <option value="Delhi CBSE">Delhi NCR / CBSE National</option>
+                    <option value="Rajasthan">Rajasthan (राजस्थान)</option>
+                    <option value="Jharkhand">Jharkhand (झारखंड)</option>
+                    <option value="Uttarakhand">Uttarakhand (उत्तराखंड)</option>
+                    <option value="West Bengal">West Bengal (पश्चिम बंगाल)</option>
+                    <option value="Maharashtra">Maharashtra (महाराष्ट्र)</option>
+                    <option value="Other State">Other State / All India</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-300 block">
+                    {language === 'hindi' ? 'शहर / ज़िला (City / District):' : 'City / District:'}
+                  </label>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="उदा. पटना, लखनऊ, इंदौर..."
+                    className="w-full text-xs py-2 px-3 bg-[#050812] border border-slate-700 rounded-xl text-slate-200 font-medium focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              {/* GPS Auto Detect Location Button */}
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  type="button"
+                  onClick={handleDetectLocation}
+                  disabled={isDetectingLocation}
+                  className="px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>📍</span>
+                  <span>{isDetectingLocation ? 'जीपीएस डिटेक्ट हो रहा है...' : (language === 'hindi' ? 'जीपीएस ऑटो लोकेशन डिटेक्ट करें' : 'Detect GPS Location')}</span>
+                </button>
+                <span className="text-[10px] text-slate-400">
+                  {locationState}{city ? `, ${city}` : ''}
+                </span>
+              </div>
+
+              {/* Optional Short Goal / Bio */}
+              <div className="space-y-1 pt-1">
+                <label className="text-[11px] font-bold text-slate-300 block">
+                  {language === 'hindi' ? 'आपका लक्ष्य / बायो (Target Goal Note):' : 'Your Goal Note / Bio:'}
+                </label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={2}
+                  placeholder={language === 'hindi' ? "उदा. मुझे 2026 बोर्ड परीक्षा में 95%+ अंक लाकर टॉप करना है।" : "e.g., Aiming to score 95%+ in 2026 Board Exams."}
+                  className="w-full text-xs p-2.5 bg-[#050812] border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-sans"
+                />
               </div>
             </div>
           </form>

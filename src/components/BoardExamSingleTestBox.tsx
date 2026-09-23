@@ -8,9 +8,9 @@ import { StudentGoalProfile } from './StudentGoalOnboardingModal';
 
 export interface BoardChapterTest {
   id: string;
-  board: 'CBSE' | 'UP_BOARD' | 'BIHAR_BOARD' | 'ALL_STATE_BOARDS';
+  board: 'CBSE' | 'ICSE' | 'UP_BOARD' | 'BIHAR_BOARD' | 'ALL_STATE_BOARDS';
   classGrade: 'Class 10th' | 'Class 12th';
-  subject: 'Science (विज्ञान)' | 'Mathematics (गणित)' | 'Social Science (सामाजिक विज्ञान)' | 'Physics (भौतिकी)' | 'Chemistry (रसायन विज्ञान)' | 'Biology (जीव विज्ञान)';
+  subject: string;
   chapter: string;
   totalQuestions: number;
   timeMinutes: number;
@@ -610,6 +610,41 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
     }, 1200);
   };
 
+  const handleStartFullBoardMock = (questionCount: number = 100) => {
+    // Collect all available questions for the selected class grade
+    const classTests = CURATED_BOARD_EXAM_TESTS.filter(t => t.classGrade === selectedClass);
+    let poolOfQuestions: QuizQuestion[] = [];
+    classTests.forEach(test => {
+      poolOfQuestions.push(...test.questions);
+    });
+
+    if (poolOfQuestions.length === 0) {
+      poolOfQuestions = CURATED_BOARD_EXAM_TESTS.flatMap(t => t.questions);
+    }
+
+    let finalQuestions: QuizQuestion[] = [];
+    while (finalQuestions.length < questionCount && poolOfQuestions.length > 0) {
+      const remaining = questionCount - finalQuestions.length;
+      const shuffled = [...poolOfQuestions].sort(() => Math.random() - 0.5);
+      finalQuestions.push(...shuffled.slice(0, remaining));
+    }
+
+    const fullMockTest: BoardChapterTest = {
+      id: `board-full-mock-${selectedClass.toLowerCase().replace(/\s+/g, '-')}-${questionCount}-${Date.now()}`,
+      board: currentBoard,
+      classGrade: selectedClass,
+      subject: selectedSubjectFilter === 'all' ? 'All Subjects (संपूर्ण OMR मॉडल पेपर)' : selectedSubjectFilter,
+      chapter: `🎯 ${selectedClass} संपूर्ण ${questionCount} वस्तुनिष्ठ प्रश्न (Full Board OMR Exam)`,
+      totalQuestions: questionCount,
+      timeMinutes: questionCount >= 100 ? 195 : 90,
+      descriptionHi: `असली बोर्ड परीक्षा पद्धति (BSEB / UP / CBSE): 3 घंटे 15 मिनट, ${questionCount} वस्तुनिष्ठ प्रश्न, OMR शीट मोड और तत्काल अंक विश्लेषण।`,
+      descriptionEn: `Official Board Pattern: ${questionCount >= 100 ? '3h 15m' : '90m'}, ${questionCount} MCQs with instant score & chapter analysis.`,
+      questions: finalQuestions
+    };
+
+    onStartBoardTest(fullMockTest);
+  };
+
   const filteredTests = CURATED_BOARD_EXAM_TESTS.filter(t => {
     const matchClass = t.classGrade === selectedClass;
     const matchBoard = t.board === 'ALL_STATE_BOARDS' || t.board === currentBoard;
@@ -738,7 +773,71 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
 
       {/* TAB CONTENT: CHAPTER TESTS */}
       {activeTab === 'tests' && (
-        <div className="space-y-3">
+        <div className="space-y-4">
+
+          {/* OFFLINE BOARD EXAM DURATION & QUESTION PATTERN ANALYZER BAR */}
+          <div className="bg-gradient-to-r from-amber-950/60 via-slate-900 to-indigo-950/60 border border-amber-500/30 rounded-2xl p-3.5 space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400 font-extrabold text-sm">📄</span>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-white flex items-center gap-2">
+                    <span>{isHindi ? 'ऑफलाइन बोर्ड परीक्षा पैटर्न एवं समय विश्लेषक' : 'Offline Board Exam Pattern & Time Simulator'}</span>
+                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                      Real Exam Timing
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    {isHindi ? 'अपने बोर्ड के अनुसार समय और प्रश्न संरचना सेट करके अभ्यास करें:' : 'Choose your board to match official paper duration and question distribution:'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* BOARD PATTERN SPECIFICATION CARDS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+              <div className="p-2.5 rounded-xl bg-slate-950 border border-amber-500/20 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-amber-300">CBSE Board (10th/12th)</span>
+                  <span className="text-[10px] font-mono text-slate-400">3 Hours (180m)</span>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  Section A: 20 MCQs (1M) • Section B: 5 Short (2M) • Section C: 6 Short (3M) • Section D: 4 Long (5M) • Case Studies (4M).
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-950 border border-cyan-500/20 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-cyan-300">Bihar Board (BSEB)</span>
+                  <span className="text-[10px] font-mono text-slate-400">3 Hours 15m</span>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  Part A: 50% OMR MCQs (100 में से 50 प्रश्नों का उत्तर दें) • Part B: 30 अंक लघु उत्तरीय व 20 अंक दीर्घ उत्तरीय प्रश्न।
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/20 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-emerald-300">UP Board (10th/12th)</span>
+                  <span className="text-[10px] font-mono text-slate-400">3 Hours 15m</span>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  खण्ड 'अ': 20 OMR बहुविकल्पीय प्रश्न (1 घंटा) • खण्ड 'ब': 50 अंक का वर्णनात्मक लिखित प्रश्न-पत्र (2 घंटे 15 मिनट)।
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-950 border border-purple-500/20 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-purple-300">MP & State Boards</span>
+                  <span className="text-[10px] font-mono text-slate-400">3 Hours (180m)</span>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  30% वस्तुनिष्ठ प्रश्न (MCQs) + 70% विषयनिष्ठ लिखित प्रश्न। सभी स्टेट बोर्ड हेतु अद्यतन प्रश्न-बैंक।
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* SUBJECT FILTER PILLS */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <button
@@ -785,6 +884,50 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
                 ))}
               </>
             )}
+          </div>
+
+          {/* 🌟 100-QUESTION FULL BOARD OMR MODEL PAPER BANNER */}
+          <div className="bg-gradient-to-r from-amber-950/70 via-slate-900 to-indigo-950/80 border-2 border-amber-500/60 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3 relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-[10px] sm:text-[11px] border border-amber-500/40 tracking-wider">
+                    🔥 {isHindi ? '100 बहुविकल्पीय प्रश्न (OMR मोड)' : '100 OBJECTIVE MCQs (OMR MODE)'}
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+                    ⏱️ 3 घंटे 15 मिनट (Official)
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-black text-white">
+                  {selectedClass} {isHindi ? 'संपूर्ण 100 प्रश्नों का OMR मॉडल पेपर (Full Board Mock)' : 'Full 100-Question OMR Board Mock Paper'}
+                </h3>
+                <p className="text-xs text-slate-300 max-w-xl">
+                  {isHindi
+                    ? 'असली परीक्षा केंद्र की तरह 100 वस्तुनिष्ठ प्रश्न, ऑफिशियल बोर्ड टाइमर, OMR बबल फिलिंग और सबमिट करते ही तत्काल प्रतिशत व कमजोर विषयों का एनालिसिस।'
+                    : '100 board-level objective questions with 3h 15m official timer, OMR simulation, instant grading and weak-topic analysis.'}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => handleStartFullBoardMock(100)}
+                  className="flex-1 sm:flex-none px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
+                >
+                  <Zap className="w-4 h-4 fill-slate-950" />
+                  <span>{isHindi ? '100 प्रश्नों का टेस्ट शुरू करें (3h 15m)' : 'Start 100 Qs Test (3h 15m)'} 🚀</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleStartFullBoardMock(50)}
+                  className="px-3.5 py-3 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs rounded-xl border border-slate-700 cursor-pointer active:scale-95 transition-all"
+                  title="50 प्रश्नों का अभ्यास टेस्ट"
+                >
+                  <span>{isHindi ? '50 Qs अभ्यास (90 Min)' : '50 Qs Mini Mock'}</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* CHAPTER TEST CARDS GRID */}
