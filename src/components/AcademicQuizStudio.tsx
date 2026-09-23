@@ -1428,8 +1428,14 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     showToast("📓 प्रश्न मिस्टेक नोटबुक में सुरक्षित कर लिया गया!", "success");
   };
 
-  // Format Seconds to MM:SS
+  // Format Seconds to HH:MM:SS or MM:SS
   const formatTime = (secs: number) => {
+    if (secs >= 3600) {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
@@ -2400,7 +2406,51 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
   // ----------------------------------------------------
   const targetExams = selectedStream === 'board' ? BOARD_PYQ_RECORDS : CURATED_PYQ_DATA;
 
+  // Strict profile details
+  const studentBoardClass = studentGoalProfile?.boardDetails?.classGrade;
+  const studentSubStream = studentGoalProfile?.boardDetails?.subStream;
+
   const filteredPYQs = targetExams.filter(p => {
+    // 1. Strict Grade & Stream enforcement for Board Exams
+    if (selectedStream === 'board') {
+      if (studentBoardClass === 'Class 10th') {
+        // Exclude 12th tests strictly for 10th students
+        if (p.examName.includes('Class 12th') || p.shift.includes('Class 12th')) return false;
+      } else if (studentBoardClass === 'Class 12th') {
+        // Exclude 10th tests strictly for 12th students
+        if (p.examName.includes('Class 10th') || p.shift.includes('Class 10th')) return false;
+
+        // Strict sub-stream filtering for 12th students
+        if (studentSubStream === 'science_pcm') {
+          const isPcm = p.subject.includes('गणित') || p.subject.toLowerCase().includes('math') || 
+                        p.subject.includes('भौतिकी') || p.subject.toLowerCase().includes('physics') || 
+                        p.subject.includes('रसायन') || p.subject.toLowerCase().includes('chemistry');
+          if (!isPcm) return false;
+        } else if (studentSubStream === 'science_pcb') {
+          const isPcb = p.subject.includes('जीव विज्ञान') || p.subject.toLowerCase().includes('bio') || 
+                        p.subject.includes('भौतिकी') || p.subject.toLowerCase().includes('physics') || 
+                        p.subject.includes('रसायन') || p.subject.toLowerCase().includes('chemistry');
+          if (!isPcb) return false;
+        } else if (studentSubStream === 'commerce') {
+          const isComm = p.subject.includes('लेखाशास्त्र') || p.subject.toLowerCase().includes('account') || 
+                         p.subject.includes('व्यवसाय') || p.subject.toLowerCase().includes('business') || 
+                         p.subject.includes('अर्थशास्त्र') || p.subject.toLowerCase().includes('econom');
+          if (!isComm) return false;
+        } else if (studentSubStream === 'arts') {
+          const isArts = p.subject.includes('इतिहास') || p.subject.toLowerCase().includes('history') || 
+                         p.subject.includes('राजनीति') || p.subject.toLowerCase().includes('politi') || 
+                         p.subject.includes('भूगोल') || p.subject.toLowerCase().includes('geograph') || 
+                         p.subject.includes('अर्थशास्त्र') || p.subject.toLowerCase().includes('econom') ||
+                         p.subject.includes('समाजशास्त्र') || p.subject.toLowerCase().includes('sociolog') ||
+                         p.subject.includes('मनोविज्ञान') || p.subject.toLowerCase().includes('psycholog') ||
+                         p.subject.includes('हिन्दी') || p.subject.toLowerCase().includes('hindi') ||
+                         p.subject.includes('अंग्रेजी') || p.subject.toLowerCase().includes('english') ||
+                         p.subject.includes('संस्कृत') || p.subject.toLowerCase().includes('sanskrit');
+          if (!isArts) return false;
+        }
+      }
+    }
+
     const matchesSearch = 
       p.examName.toLowerCase().includes(searchFilter.toLowerCase()) ||
       p.subject.toLowerCase().includes(searchFilter.toLowerCase()) ||
@@ -2411,21 +2461,73 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     const matchesCategory = 
       pyqCategoryFilter === 'all' ||
       (selectedStream === 'board'
-        ? p.subject.toLowerCase().includes(pyqCategoryFilter.toLowerCase()) || p.examName.toLowerCase().includes(pyqCategoryFilter.toLowerCase())
+        ? p.subject.toLowerCase().includes(pyqCategoryFilter.toLowerCase()) || 
+          p.examName.toLowerCase().includes(pyqCategoryFilter.toLowerCase()) ||
+          (pyqCategoryFilter === 'science' && (p.subject.includes('विज्ञान') || p.subject.toLowerCase().includes('science'))) ||
+          (pyqCategoryFilter === 'mathematics' && (p.subject.includes('गणित') || p.subject.toLowerCase().includes('math'))) ||
+          (pyqCategoryFilter === 'social' && (p.subject.includes('सामाजिक') || p.subject.toLowerCase().includes('social'))) ||
+          (pyqCategoryFilter === 'hindi' && (p.subject.includes('हिन्दी') || p.subject.toLowerCase().includes('hindi'))) ||
+          (pyqCategoryFilter === 'english' && (p.subject.includes('अंग्रेजी') || p.subject.toLowerCase().includes('english'))) ||
+          (pyqCategoryFilter === 'sanskrit' && (p.subject.includes('संस्कृत') || p.subject.toLowerCase().includes('sanskrit'))) ||
+          (pyqCategoryFilter === 'physics' && (p.subject.includes('भौतिकी') || p.subject.toLowerCase().includes('physics'))) ||
+          (pyqCategoryFilter === 'chemistry' && (p.subject.includes('रसायन') || p.subject.toLowerCase().includes('chemistry'))) ||
+          (pyqCategoryFilter === 'biology' && (p.subject.includes('जीव विज्ञान') || p.subject.toLowerCase().includes('bio'))) ||
+          (pyqCategoryFilter === 'accountancy' && (p.subject.includes('लेखाशास्त्र') || p.subject.toLowerCase().includes('account'))) ||
+          (pyqCategoryFilter === 'business' && (p.subject.includes('व्यवसाय') || p.subject.toLowerCase().includes('business'))) ||
+          (pyqCategoryFilter === 'economics' && (p.subject.includes('अर्थशास्त्र') || p.subject.toLowerCase().includes('econom'))) ||
+          (pyqCategoryFilter === 'history' && (p.subject.includes('इतिहास') || p.subject.toLowerCase().includes('history'))) ||
+          (pyqCategoryFilter === 'political' && (p.subject.includes('राजनीति') || p.subject.toLowerCase().includes('politi'))) ||
+          (pyqCategoryFilter === 'geography' && (p.subject.includes('भूगोल') || p.subject.toLowerCase().includes('geograph'))) ||
+          (pyqCategoryFilter === 'sociology' && (p.subject.includes('समाजशास्त्र') || p.subject.toLowerCase().includes('sociolog'))) ||
+          (pyqCategoryFilter === 'psychology' && (p.subject.includes('मनोविज्ञान') || p.subject.toLowerCase().includes('psycholog')))
         : p.category === pyqCategoryFilter);
 
     return matchesSearch && matchesCategory;
   });
 
-  const boardCategories = [
-    { id: 'all', label: 'All Board Subjects (सभी विषय)' },
-    { id: 'science', label: '🧪 Science (विज्ञान)' },
-    { id: 'mathematics', label: '📐 Mathematics (गणित)' },
-    { id: 'social', label: '🌍 Social Science (सामाजिक विज्ञान)' },
-    { id: 'physics', label: '⚛️ Physics (भौतिकी)' },
-    { id: 'chemistry', label: '⚗️ Chemistry (रसायन विज्ञान)' },
-    { id: 'biology', label: '🧬 Biology (जीव विज्ञान)' },
-  ];
+  const boardCategories = studentBoardClass === 'Class 12th'
+    ? studentSubStream === 'commerce'
+      ? [
+          { id: 'all', label: 'All Subjects (सभी विषय)' },
+          { id: 'accountancy', label: '📊 Accountancy (लेखाशास्त्र)' },
+          { id: 'business', label: '💼 Business Studies (व्यवसाय अध्ययन)' },
+          { id: 'economics', label: '📈 Economics (अर्थशास्त्र)' },
+          { id: 'mathematics', label: '📐 Mathematics (गणित)' }
+        ]
+      : studentSubStream === 'arts'
+      ? [
+          { id: 'all', label: 'All Subjects (सभी विषय)' },
+          { id: 'history', label: '📜 History (इतिहास)' },
+          { id: 'political', label: '🏛️ Political Science (राजनीति शास्त्र)' },
+          { id: 'geography', label: '🌍 Geography (भूगोल)' },
+          { id: 'economics', label: '📈 Economics (अर्थशास्त्र)' },
+          { id: 'sociology', label: '👥 Sociology (समाजशास्त्र)' },
+          { id: 'psychology', label: '🧠 Psychology (मनोविज्ञान)' },
+          { id: 'hindi', label: '📖 Hindi (हिन्दी)' },
+          { id: 'english', label: '🔤 English (अंग्रेजी)' }
+        ]
+      : studentSubStream === 'science_pcb'
+      ? [
+          { id: 'all', label: 'All Subjects (सभी विषय)' },
+          { id: 'biology', label: '🧬 Biology (जीव विज्ञान)' },
+          { id: 'physics', label: '⚛️ Physics (भौतिकी)' },
+          { id: 'chemistry', label: '⚗️ Chemistry (रसायन विज्ञान)' }
+        ]
+      : [
+          { id: 'all', label: 'All Subjects (सभी विषय)' },
+          { id: 'mathematics', label: '📐 Mathematics (गणित)' },
+          { id: 'physics', label: '⚛️ Physics (भौतिकी)' },
+          { id: 'chemistry', label: '⚗️ Chemistry (रसायन विज्ञान)' }
+        ]
+    : [
+        { id: 'all', label: 'All Subjects (सभी विषय)' },
+        { id: 'science', label: '🧪 Science (विज्ञान)' },
+        { id: 'mathematics', label: '📐 Mathematics (गणित)' },
+        { id: 'social', label: '🌍 Social Science (सामाजिक विज्ञान)' },
+        { id: 'hindi', label: '📖 Hindi (हिन्दी)' },
+        { id: 'english', label: '🔤 English (अंग्रेजी)' },
+        { id: 'sanskrit', label: '🕉️ Sanskrit (संस्कृत)' }
+      ];
 
   const competitiveCategories = [
     { id: 'all', label: 'All Exams (सभी)' },

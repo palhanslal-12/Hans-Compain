@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   BookOpen, Award, CheckCircle2, Clock, Zap, ArrowRight,
-  Sparkles, FileText, ChevronRight, Layers, GraduationCap, ShieldCheck
+  Sparkles, FileText, ChevronRight, Layers, GraduationCap, ShieldCheck, Play,
+  Users, TrendingUp, BarChart3, Download, Share2
 } from 'lucide-react';
 import { QuizQuestion, MistakeNotebookItem } from '../types';
 import { StudentGoalProfile } from './StudentGoalOnboardingModal';
@@ -10,6 +11,7 @@ export interface BoardChapterTest {
   id: string;
   board: 'CBSE' | 'ICSE' | 'UP_BOARD' | 'BIHAR_BOARD' | 'ALL_STATE_BOARDS';
   classGrade: 'Class 10th' | 'Class 12th';
+  streamTags?: ('science_pcm' | 'science_pcb' | 'commerce' | 'arts')[];
   subject: string;
   chapter: string;
   totalQuestions: number;
@@ -221,6 +223,7 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
     id: 'board-12-phy-ch1',
     board: 'ALL_STATE_BOARDS',
     classGrade: 'Class 12th',
+    streamTags: ['science_pcm', 'science_pcb'],
     subject: 'Physics (भौतिकी)',
     chapter: 'इकाई 1: स्थिर विद्युत विभव, गॉस नियम एवं धारिता (Electrostatics)',
     totalQuestions: 5,
@@ -270,6 +273,7 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
     id: 'board-12-chem-ch1',
     board: 'ALL_STATE_BOARDS',
     classGrade: 'Class 12th',
+    streamTags: ['science_pcm', 'science_pcb'],
     subject: 'Chemistry (रसायन विज्ञान)',
     chapter: 'इकाई 2: विलयन एवं अणुसंख्य गुणधर्म (Solutions & Colligative Properties)',
     totalQuestions: 5,
@@ -466,6 +470,7 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
     id: 'board-12-math-ch3',
     board: 'ALL_STATE_BOARDS',
     classGrade: 'Class 12th',
+    streamTags: ['science_pcm'],
     subject: 'Mathematics (गणित)',
     chapter: 'इकाई 3: आव्यूह एवं सारणिक (Matrices & Determinants)',
     totalQuestions: 5,
@@ -515,6 +520,7 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
     id: 'board-12-math-ch5',
     board: 'ALL_STATE_BOARDS',
     classGrade: 'Class 12th',
+    streamTags: ['science_pcm'],
     subject: 'Mathematics (गणित)',
     chapter: 'इकाई 5: सांतत्य तथा अवकलनीयता (Continuity & Differentiability)',
     totalQuestions: 5,
@@ -558,6 +564,653 @@ export const CURATED_BOARD_EXAM_TESTS: BoardChapterTest[] = [
         hint: 'लिमिट = फलन का मान।'
       }
     ]
+  },
+  // CLASS 12 - BIOLOGY - CHAPTER 2 (SEXUAL REPRODUCTION IN FLOWERING PLANTS) [PCB]
+  {
+    id: 'board-12-bio-ch2',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['science_pcb'],
+    subject: 'Biology (जीव विज्ञान)',
+    chapter: 'अध्याय 2: पुष्पी पादपों में लैंगिक जनन (Sexual Reproduction in Plants)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'परागकण, बीजांड संरचना, दोहरा निषेचन (Double Fertilization) एवं त्रिसंलयन।',
+    descriptionEn: 'Microsporogenesis, Megasporogenesis, Double Fertilization & Endosperm development.',
+    questions: [
+      {
+        question: 'आवृतबीजी (Angiosperms) पौधों में दोहरा निषेचन (Double Fertilization) किसके संलयन से होता है?',
+        options: ['एक नर युग्मक + अंड कोशिका और दूसरा नर युग्मक + द्वितीयक केंद्रक', 'दो नर युग्मक + एक अंड कोशिका', 'पराग नलिका + बीजांड द्वार', 'सहायक कोशिकाएं + प्रतिव्यासांत कोशिकाएं'],
+        answerIndex: 0,
+        explanation: 'पहला संलयन: नर युग्मक (n) + अंड (n) ➔ युग्मनज (2n)। दूसरा संलयन: दूसरा नर युग्मक (n) + केंद्रीय कोशिका (2n) ➔ प्राथमिक भ्रूणपोष केंद्रक (3n, PEN)।',
+        hint: 'युग्मनज (2n) और भ्रूणपोष (3n) बनते हैं।'
+      },
+      {
+        question: 'परागकण (Pollen Grain) की बाहरी भित्ति (Exine) किस अत्यधिक प्रतिरोधी पदार्थ की बनी होती है?',
+        options: ['स्पोरोपोलिनिन (Sporopollenin)', 'सेलूलोज', 'पेक्टिन', 'काइटिन'],
+        answerIndex: 0,
+        explanation: 'स्पोरोपोलिनिन ज्ञात सर्वाधिक प्रतिरोधी जैविक पदार्थों में से एक है। यह उच्च ताप, सुदृढ़ अम्लों व क्षारों को सहन कर सकता है और इसे कोई एंजाइम अपघटित नहीं कर सकता।',
+        hint: 'यह परागकणों को लाखों वर्षों तक जीवाश्म के रूप में सुरक्षित रखता है।'
+      },
+      {
+        question: 'परिपक्व मादा युग्मकोद्भिद (Mature Embryo Sac) में कोशिकाओं एवं केंद्रकों की संख्या क्या होती है?',
+        options: ['7 कोशिकीय एवं 8 केंद्रकीय (7-celled, 8-nucleate)', '8 कोशिकीय एवं 8 केंद्रकीय', '7 कोशिकीय एवं 7 केंद्रकीय', '3 कोशिकीय एवं 3 केंद्रकीय'],
+        answerIndex: 0,
+        explanation: '3 अंड उपकरण कोशिकाएं, 3 प्रतिव्यासांत कोशिकाएं और 1 बड़ी केंद्रीय कोशिका (जिसमें 2 ध्रुवीय केंद्रक होते हैं) = 7 कोशिकाएं, 8 केंद्रक।',
+        hint: 'सात कोशिकाएं और आठ केंद्रक होते हैं।'
+      },
+      {
+        question: 'सेब (Apple) और काजू किस प्रकार के फल के उदाहरण हैं?',
+        options: ['आभासी फल / असत्य फल (False Fruit)', 'सत्य फल (True Fruit)', 'अनिषेकजनित फल (Parthenocarpic Fruit)', 'समग्र फल'],
+        answerIndex: 0,
+        explanation: 'सेब और स्ट्रॉबेरी में फल के निर्माण में पुष्पासन (Thalamus) भी भाग लेता है, इसलिए इन्हें आभासी या मिथ्या फल (False Fruit) कहते हैं।',
+        hint: 'जिसमें पुष्पासन खाने योग्य भाग होता है।'
+      },
+      {
+        question: 'बिना निषेचन के ही अंडाशय से फल बनने की क्रिया क्या कहलाती है?',
+        options: ['अनिषेकफलन (Parthenocarpy)', 'अनिषेकजनन (Parthenogenesis)', 'असंगजनन (Apomixis)', 'बहुभ्रूणता (Polyembryony)'],
+        answerIndex: 0,
+        explanation: 'बिना निषेचन के अंडाशय से बीजहीन फल का विकास अनिषेकफलन (जैसे केला) कहलाता है।',
+        hint: 'केला इसका प्रमुख उदाहरण है।'
+      }
+    ]
+  },
+  // CLASS 12 - BIOLOGY - CHAPTER 5 (PRINCIPLES OF INHERITANCE) [PCB]
+  {
+    id: 'board-12-bio-ch5',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['science_pcb'],
+    subject: 'Biology (जीव विज्ञान)',
+    chapter: 'अध्याय 5: वंशागति तथा विविधता के सिद्धांत (Mendelian Genetics)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'मेंडल के नियम, प्रभाविता, अपूर्ण प्रभाविता, सह-प्रभाविता एवं लिंग निर्धारण।',
+    descriptionEn: 'Mendel\'s Laws, Incomplete dominance, Codominance & Sex determination.',
+    questions: [
+      {
+        question: 'मेंडल के द्विसंकर संकरण (Dihybrid Cross) में F2 पीढ़ी का लक्षणप्ररूपी अनुपात (Phenotypic Ratio) क्या होता है?',
+        options: ['9 : 3 : 3 : 1', '1 : 2 : 1', '3 : 1', '9 : 7'],
+        answerIndex: 0,
+        explanation: 'पीले-गोल (9) : हरे-गोल (3) : पीले-झुर्रीदार (3) : हरे-झुर्रीदार (1) का अनुपात 9:3:3:1 प्राप्त होता है।',
+        hint: 'नौ अनुपात तीन अनुपात तीन अनुपात एक।'
+      },
+      {
+        question: 'मानव में ABO रक्त समूह प्रणाली निम्नलिखित में से किसका सर्वोत्तम उदाहरण है?',
+        options: ['सह-प्रभाविता (Codominance) एवं बहु-विकल्पता (Multiple Allelism)', 'अपूर्ण प्रभाविता', 'बिंदु उत्परिवर्तन', 'सहलग्नता'],
+        answerIndex: 0,
+        explanation: 'ABO रक्त समूह में Iᴬ और Iᴮ दोनों एक साथ पूर्ण रूप से व्यक्त होते हैं (AB रक्त समूह में सह-प्रभाविता) तथा जीन I के 3 एलील (Iᴬ, Iᴮ, i) होते हैं।',
+        hint: 'ए और बी दोनों एलील समान रूप से प्रभावी होते हैं।'
+      },
+      {
+        question: 'डाउन सिंड्रोम (Down\'s Syndrome) आनुवंशिक विकार का मुख्य कारण क्या है?',
+        options: ['21वें गुणसूत्र की त्रिसूत्रता (Trisomy of 21st Chromosome, 2n+1 = 47)', 'लिंग गुणसूत्र की एकलसूत्रता (Turner\'s)', 'XXY गुणसूत्र संयोजन', 'गुणसूत्र संख्या 5 का विलोपन'],
+        answerIndex: 0,
+        explanation: 'डाउन सिंड्रोम 21वें ऑटोसोम गुणसूत्र की अतिरिक्त प्रतिलिपि आ जाने (Trisomy 21) के कारण होता है, कुल गुणसूत्र 47 हो जाते हैं।',
+        hint: '21वें क्रोमोसोम की ट्राइसोमी।'
+      },
+      {
+        question: 'टर्नर सिंड्रोम (Turner\'s Syndrome) से ग्रसित स्त्री का गुणसूत्र संयोजन क्या होता है?',
+        options: ['44 + XO (कुल 45 गुणसूत्र)', '44 + XXY (कुल 47 गुणसूत्र)', '44 + XXX', '44 + XYY'],
+        answerIndex: 0,
+        explanation: 'टर्नर सिंड्रोम में एक X गुणसूत्र की अनुपस्थिति (Monosomy XO) होती है। कुल गुणसूत्र 45 होते हैं और मादा बांझ (Sterile) होती है।',
+        hint: 'एक X क्रोमोसोम गायब होता है।'
+      },
+      {
+        question: 'हीमोफीलिया (Haemophilia) किस प्रकार का आनुवंशिक रोग है?',
+        options: ['X-सहलग्न अप्रभावी रोग (X-linked Recessive)', 'Y-सहलग्न प्रभावी रोग', 'ऑटोसोमल प्रभावी रोग', 'जीवाणु जनित रोग'],
+        answerIndex: 0,
+        explanation: 'हीमोफीलिया X-गुणसूत्र सहलग्न अप्रभावी रोग है, जिसमें रक्त का थक्का नहीं जमता (रॉयल डिजीज)।',
+        hint: 'इसे शाही रोग भी कहते हैं।'
+      }
+    ]
+  },
+  // CLASS 12 - COMMERCE - ACCOUNTANCY (PARTNERSHIP FUNDAMENTALS)
+  {
+    id: 'board-12-acc-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['commerce'],
+    subject: 'Accountancy (लेखाशास्त्र)',
+    chapter: 'इकाई 1: साझेदारी फर्मों का लेखांकन - आधारभूत सिद्धांत व ख्याति',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'लाभ-हानि नियोजन खाता, साझेदारों के पूंजी खाते, पूंजी पर ब्याज एवं ख्याति का मूल्यांकन।',
+    descriptionEn: 'P&L Appropriation Account, Capital Accounts, Interest on Capital & Goodwill valuation.',
+    questions: [
+      {
+        question: 'साझेदारी संलेख (Partnership Deed) के अभाव में साझेदारों द्वारा दिए गए ऋण पर किस दर से ब्याज दिया जाता है?',
+        options: ['6% वार्षिक साधारण ब्याज', '10% वार्षिक ब्याज', '12% वार्षिक ब्याज', 'कोई ब्याज नहीं दिया जाता'],
+        answerIndex: 0,
+        explanation: 'भारतीय साझेदारी अधिनियम 1932 की धारा 13(d) के अनुसार साझेदारी संलेख न होने पर ऋण पर 6% प्रतिवर्ष की दर से ब्याज अनुमन्य है।',
+        hint: 'छह प्रतिशत प्रतिवर्ष।'
+      },
+      {
+        question: 'ख्याति (Goodwill) किस प्रकार की संपत्ति (Asset) है?',
+        options: ['अमूर्त संपत्ति (Intangible Asset) किन्तु मूल्यवान', 'मूर्त संपत्ति (Tangible Asset)', 'काल्पनिक संपत्ति (Fictitious Asset)', 'चल संपत्ति'],
+        answerIndex: 0,
+        explanation: 'ख्याति एक अमूर्त संपत्ति (Intangible Asset) है जिसे छुआ या देखा नहीं जा सकता, किन्तु इसका वास्तविक मौद्रिक मूल्य होता है।',
+        hint: 'जिसका भौतिक स्वरूप नहीं होता किन्तु मूल्य होता है।'
+      },
+      {
+        question: 'साझेदारों के चालू खाते (Current Accounts) किस पूंजी पद्धति के अंतर्गत खोले जाते हैं?',
+        options: ['स्थाई पूंजी पद्धति (Fixed Capital System)', 'परिवर्तनशील पूंजी पद्धति (Fluctuating Capital)', 'सरल पूंजी पद्धति', 'ऋण पूंजी पद्धति'],
+        answerIndex: 0,
+        explanation: 'स्थाई पूंजी पद्धति में दो खाते बनते हैं: (1) साझेदारों का पूंजी खाता (Fixed) और (2) साझेदारों का चालू खाता (Current Account)।',
+        hint: 'फिक्स्ड कैपिटल मेथड में।'
+      },
+      {
+        question: 'त्याग अनुपात (Sacrificing Ratio) ज्ञात करने का सही सूत्र क्या है?',
+        options: ['पुराना अनुपात - नया अनुपात (Old Ratio - New Ratio)', 'नया अनुपात - पुराना अनुपात', 'पुराना अनुपात + नया अनुपात', 'लाभ अनुपात × 2'],
+        answerIndex: 0,
+        explanation: 'नये साझेदार के प्रवेश पर पुराने साझेदार अपने हिस्से का त्याग करते हैं, अतः त्याग = पुराना हिस्सा - नया हिस्सा।',
+        hint: 'पुराना अनुपात माइनस नया अनुपात।'
+      },
+      {
+        question: 'लाभ-हानि नियोजन खाता (P&L Appropriation Account) किस प्रकार का खाता है?',
+        options: ['नाममात्र खाता (Nominal Account)', 'व्यक्तिगत खाता (Personal Account)', 'वास्तविक खाता (Real Account)', 'प्रतिनिधि खाता'],
+        answerIndex: 0,
+        explanation: 'लाभ-हानि नियोजन खाता लाभों के वितरण हेतु बनाया जाता है और यह नाममात्र खाता (Nominal Account) होता है।',
+        hint: 'खर्चों व आय से संबंधित नॉमिनल अकाउंट।'
+      }
+    ]
+  },
+  // CLASS 12 - COMMERCE - BUSINESS STUDIES (PRINCIPLES OF MANAGEMENT)
+  {
+    id: 'board-12-bst-ch2',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['commerce'],
+    subject: 'Business Studies (व्यवसाय अध्ययन)',
+    chapter: 'इकाई 2: प्रबंध के सिद्धांत (Principles of Management - Fayol & Taylor)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'हेनरी फेयोल के 14 सिद्धांत, एफ.डब्ल्यू. टेलर का वैज्ञानिक प्रबंध एवं समय-गति अध्ययन।',
+    descriptionEn: 'Henry Fayol\'s 14 Principles, F.W. Taylor\'s Scientific Management & Mental Revolution.',
+    questions: [
+      {
+        question: 'प्रशासनिक प्रबंध के जनक (Father of General Management) किन्हें कहा जाता है जिन्होंने प्रबंध के 14 सिद्धांत प्रतिपादित किए?',
+        options: ['हेनरी फेयोल (Henri Fayol)', 'एफ. डब्ल्यू. टेलर (F.W. Taylor)', 'पीटर ड्रकर', 'एल्टन मेयो'],
+        answerIndex: 0,
+        explanation: 'फ्रांसीसी खनन इंजीनियर हेनरी फेयोल ने 1916 में अपनी पुस्तक में प्रबंध के 14 सार्वभौमिक सिद्धांत प्रतिपादित किए।',
+        hint: 'फ्रांस के प्रसिद्ध उद्योगपति व लेखक।'
+      },
+      {
+        question: 'फेयोल के किस सिद्धांत के अनुसार एक कर्मचारी को केवल एक ही उच्च अधिकारी से आदेश प्राप्त होना चाहिए?',
+        options: ['आदेश की एकता का सिद्धांत (Unity of Command)', 'निर्देश की एकता (Unity of Direction)', 'अधिकार एवं उत्तरदायित्व', 'सोपान श्रृंखला (Scalar Chain)'],
+        answerIndex: 0,
+        explanation: 'आदेश की एकता का सिद्धांत कहता है कि द्वैध अधीनता (dual subordination) से बचने के लिए कर्मचारी को केवल एक बॉस से निर्देश मिलने चाहिए।',
+        hint: 'यूनिटी ऑफ कमांड।'
+      },
+      {
+        question: 'वैज्ञानिक प्रबंध के जनक एफ. डब्ल्यू. टेलर द्वारा प्रतिपादित "मानसिक क्रांति" (Mental Revolution) का क्या तात्पर्य है?',
+        options: ['प्रबंधकों और श्रमिकों के बीच दृष्टिकोण एवं पारस्परिक सहयोग में संपूर्ण परिवर्तन', 'कम्प्यूटर का प्रयोग', 'वेतन में कटौती', 'हड़ताल पर प्रतिबंध'],
+        answerIndex: 0,
+        explanation: 'टेलर के अनुसार मानसिक क्रांति का अर्थ है कि श्रमिक और प्रबंध दोनों एक दूसरे के प्रति विरोध छोड़ सहयोग और उत्पादन वृद्धि की भावना अपनाएं।',
+        hint: 'मालिक और कर्मचारी के बीच सहयोग की भावना।'
+      },
+      {
+        question: 'सोपान श्रृंखला (Scalar Chain) में आपातकालीन सीधा संपर्क स्थापित करने की व्यवस्था क्या कहलाती है?',
+        options: ['गैंग प्लैंक / समतल संपर्क (Gang Plank)', 'अनौपचारिक संचार', 'अंगूरीलता', 'डायरेक्ट लाइन'],
+        answerIndex: 0,
+        explanation: 'फेयोल ने विलंब से बचने हेतु समान स्तर के कर्मचारियों के बीच आपातकालीन सीधे संवाद हेतु गैंग प्लैंक (Gang Plank) का सुझाव दिया।',
+        hint: 'समतल संपर्क व्यवस्था।'
+      },
+      {
+        question: 'टेलर के अनुसार किसी कार्य को करने की न्यूनतम समय अवधि निर्धारित करने हेतु कौन सा अध्ययन किया जाता है?',
+        options: ['समय अध्ययन (Time Study)', 'गति अध्ययन (Motion Study)', 'थकान अध्ययन (Fatigue Study)', 'पद्धति अध्ययन (Method Study)'],
+        answerIndex: 0,
+        explanation: 'स्टॉपवॉच की सहायता से किसी मानक कार्य को पूरा करने के लिए आवश्यक समय को मापने की विधि समय अध्ययन (Time Study) कहलाती है।',
+        hint: 'स्टॉपवॉच द्वारा समय निर्धारण।'
+      }
+    ]
+  },
+  // CLASS 12 - COMMERCE & ARTS - ECONOMICS (NATIONAL INCOME)
+  {
+    id: 'board-12-eco-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['commerce', 'arts'],
+    subject: 'Economics (अर्थशास्त्र)',
+    chapter: 'इकाई 1: समष्टि अर्थशास्त्र - राष्ट्रीय आय की गणना (National Income Accounting)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'GDP, GNP, NNP, साधन लागत एवं बाजार कीमत, आय विधि, व्यय विधि व मूल्यह्रास।',
+    descriptionEn: 'GDP, GNP, NNP at Factor Cost, Value Added, Income & Expenditure methods.',
+    questions: [
+      {
+        question: 'सकल राष्ट्रीय उत्पाद (GNP) और सकल घरेलू उत्पाद (GDP) में क्या मूल अंतर होता है?',
+        options: ['विदेशों से प्राप्त शुद्ध साधन आय (NFIA - Net Factor Income from Abroad)', 'मूल्यह्रास (Depreciation)', 'शुद्ध अप्रत्यक्ष कर (NIT)', 'आर्थिक सहायता (Subsidies)'],
+        answerIndex: 0,
+        explanation: 'GNP = GDP + विदेशों से प्राप्त शुद्ध साधन आय (NFIA)। देश के सामान्य निवासियों द्वारा उत्पादित कुल मूल्य GNP होता है।',
+        hint: 'NFIA (विदेशों से अर्जित शुद्ध साधन आय)।'
+      },
+      {
+        question: 'बाजार मूल्य पर सकल घरेलू उत्पाद (GDP_MP) से साधन लागत पर सकल घरेलू उत्पाद (GDP_FC) ज्ञात करने के लिए क्या घटाया जाता है?',
+        options: ['शुद्ध अप्रत्यक्ष कर (Net Indirect Taxes = Indirect Tax - Subsidy)', 'मूल्यह्रास', 'शुद्ध निर्यात', 'ब्याज भुगतान'],
+        answerIndex: 0,
+        explanation: 'GDP_FC = GDP_MP - शुद्ध अप्रत्यक्ष कर (NIT)। बाजार कीमत में अप्रत्यक्ष कर शामिल होते हैं और सब्सिडी घटाई जाती है।',
+        hint: 'NIT (शुद्ध अप्रत्यक्ष कर) घटाया जाता है।'
+      },
+      {
+        question: 'किसी देश की वास्तविक राष्ट्रीय आय (Real National Income) किस मूल्य पर मापी जाती है?',
+        options: ['स्थिर कीमतों पर (At Constant Prices / Base Year Prices)', 'चालू कीमतों पर (At Current Prices)', 'थोक मूल्य सूचकांक पर', 'अन्तर्राष्ट्रीय डॉलर दर पर'],
+        answerIndex: 0,
+        explanation: 'मुद्रास्फीति (महंगाई) के प्रभाव को हटाने के लिए वास्तविक राष्ट्रीय आय की गणना आधार वर्ष की स्थिर कीमतों (Constant Prices) पर की जाती है।',
+        hint: 'आधार वर्ष की स्थिर कीमतों पर।'
+      },
+      {
+        question: 'स्थाई संपत्तियों के निरंतर उपभोग एवं घिसावट से होने वाली मूल्य हानि को क्या कहते हैं?',
+        options: ['मूल्यह्रास / अचल पूंजी का उपभोग (Depreciation / Consumption of Fixed Capital)', 'पूंजीगत हानि', 'आकस्मिक हानि', 'अपचलन'],
+        answerIndex: 0,
+        explanation: 'सकल (Gross) से शुद्ध (Net) में बदलने के लिए मूल्यह्रास (Depreciation) को घटाया जाता है।',
+        hint: 'घिसावट व्यय।'
+      },
+      {
+        question: 'भारत में राष्ट्रीय आय के आंकड़ों का संकलन एवं प्रकाशन किस आधिकारिक संस्था द्वारा किया जाता है?',
+        options: ['राष्ट्रीय सांख्यिकी कार्यालय (NSO / पूर्व में CSO)', 'भारतीय रिजर्व बैंक (RBI)', 'नीति आयोग (NITI Aayog)', 'वित्त मंत्रालय'],
+        answerIndex: 0,
+        explanation: 'राष्ट्रीय सांख्यिकी कार्यालय (NSO - National Statistical Office, सांख्यिकी एवं कार्यक्रम कार्यान्वयन मंत्रालय) भारत में राष्ट्रीय आय का संकलन करता है।',
+        hint: 'केंद्रीय सांख्यिकी संगठन (CSO/NSO)।'
+      }
+    ]
+  },
+  // CLASS 12 - ARTS - HISTORY (HARAPPAN CIVILISATION)
+  {
+    id: 'board-12-hist-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['arts'],
+    subject: 'History (इतिहास)',
+    chapter: 'भाग 1: ईंटें, मनके तथा अस्थियां - हड़प्पा सभ्यता (Harappan Civilisation)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'नगर नियोजन, मोहनजोदड़ो का विशाल स्नानागार, मुहरें व लिपि, कृषि व शिल्प उत्पादन।',
+    descriptionEn: 'Town Planning, Great Bath of Mohenjodaro, Harappan seals & script.',
+    questions: [
+      {
+        question: 'मोहनजोदड़ो का सर्वाधिक प्रसिद्ध सार्वजनिक स्थापत्य स्मारक कौन सा है जिसकी फर्श जिप्सम के गारे से जलरोधी बनाई गई थी?',
+        options: ['विशाल स्नानागार (The Great Bath)', 'अन्नागार', 'सभा भवन', 'पुरोहित का महल'],
+        answerIndex: 0,
+        explanation: 'मोहनजोदड़ो के दुर्ग (Citadel) पर स्थित विशाल स्नानागार एक आयताकार जलाशय था जिसके किनारों पर ईंटों की चुनाई और जिप्सम के गारे से प्लास्टर किया गया था।',
+        hint: 'दुर्ग क्षेत्र में स्थित सामूहिक अनुष्ठानिक स्नान का कुंड।'
+      },
+      {
+        question: 'हड़प्पा सभ्यता का मनके बनाने का सबसे प्रमुख विशिष्ट औद्योगिक केंद्र कौन सा था?',
+        options: ['चन्हूदड़ो (Chanhudaro)', 'कालीबंगा', 'रोपड़', 'कोटदीजी'],
+        answerIndex: 0,
+        explanation: 'चन्हूदड़ो एक छोटी बस्ती थी जो पूरी तरह शिल्प उत्पादन - मनके बनाना, शंख की कटाई, धातु कर्म और मुहर निर्माण में संलग्न थी।',
+        hint: 'सिंधु नदी के तट पर स्थित शिल्प केंद्र।'
+      },
+      {
+        question: 'हड़प्पा सभ्यता में जूते हुए खेत के साक्ष्य (Ploughed Field Evidence) किस स्थल से प्राप्त हुए हैं?',
+        options: ['कालीबंगा (राजस्थान)', 'बनावली (हरियाणा)', 'धौलावीरा (गुजरात)', 'राखीगढ़ी'],
+        answerIndex: 0,
+        explanation: 'कालीबंगा में प्राक-हड़प्पा स्तरों से जूते हुए खेत के साक्ष्य मिले हैं जहाँ दोहरी फसलें समकोण पर ग्रिड पद्धति में उगाई जाती थीं।',
+        hint: 'राजस्थान के हनुमानगढ़ जिले में स्थित स्थल।'
+      },
+      {
+        question: 'हड़प्पा मुहरों पर सर्वाधिक रूप से किस पशु का अंकन मिलता है?',
+        options: ['एकश्रृंगी पशु (Unicorn / एक सींग वाला बैल)', 'कूबड़ वाला वृषभ', 'हाथी', 'बाघ'],
+        answerIndex: 0,
+        explanation: 'सेलखड़ी (Steatite) की चौकोर मुहरों पर सर्वाधिक बार काल्पनिक एकश्रृंगी पशु (Unicorn) का चित्र अंकित पाया गया है।',
+        hint: 'एक सींग वाला पशु।'
+      },
+      {
+        question: 'हड़प्पा सभ्यता की लिपि की प्रमुख विशेषता क्या थी?',
+        options: ['यह भावचित्रात्मक (Pictographic) थी और दाईं से बाईं ओर लिखी जाती थी', 'यह ब्राह्मी लिपि थी', 'यह देवनागरी लिपि जैसी थी', 'यह आज तक पूरी तरह पढ़ ली गई है'],
+        answerIndex: 0,
+        explanation: 'हड़प्पा लिपि रहस्यमयी (रहस्यमय) लिपि है जो आज तक पढ़ी नहीं जा सकी है। यह भावचित्रात्मक थी और दाईं से बाईं ओर (Right to Left) लिखी जाती थी।',
+        hint: 'दाएं से बाएं लिखी जाने वाली चित्रात्मक लिपि।'
+      }
+    ]
+  },
+  // CLASS 12 - ARTS - POLITICAL SCIENCE (COLD WAR & BIPOLARITY)
+  {
+    id: 'board-12-pol-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['arts'],
+    subject: 'Political Science (राजनीति विज्ञान)',
+    chapter: 'इकाई 1: समकालीन विश्व राजनीति - दो ध्रुवीयता का अंत (The End of Bipolarity)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'बर्लिन की दीवार, सोवियत संघ का विघटन, शॉक थेरेपी एवं मिखाइल गोर्बाचेव की नीतियां।',
+    descriptionEn: 'Fall of Berlin Wall, Disintegration of USSR 1991, Shock Therapy & Gorbachev reforms.',
+    questions: [
+      {
+        question: 'शीतयुद्ध के प्रतीक के रूप में खड़ी की गई बर्लिन की दीवार (Berlin Wall) को जनता द्वारा किस वर्ष गिराया गया?',
+        options: ['9 नवंबर 1989', '15 अगस्त 1991', '25 दिसंबर 1990', '1985'],
+        answerIndex: 0,
+        explanation: '9 नवंबर 1989 को बर्लिन की दीवार को पूर्वी जर्मनी की आम जनता द्वारा गिरा दिया गया, जो शीतयुद्ध के अंत का ऐतिहासिक प्रतीक बना।',
+        hint: 'वर्ष 1989 के अंत में।'
+      },
+      {
+        question: 'सोवियत संघ (USSR) का औपचारिक विघटन किस वर्ष हुआ जिसमें 15 नए स्वतंत्र गणराज्य बने?',
+        options: ['दिसंबर 1991', 'जनवरी 1989', 'अगस्त 1990', 'मार्च 1992'],
+        answerIndex: 0,
+        explanation: '25 दिसंबर 1991 को मिखाइल गोर्बाचेव ने सोवियत संघ के राष्ट्रपति पद से त्यागपत्र दे दिया और 15 गणराज्यों में सोवियत संघ विघटित हो गया। रूस इसका उत्तराधिकारी बना।',
+        hint: '1991 में सोवियत संघ समाप्त हुआ।'
+      },
+      {
+        question: 'सोवियत संघ में \'ग्लासनोस्त\' (खुलापन) और \'पेरेस्त्रोइका\' (पुनर्गठन) की सुधार नीतियां किसने प्रारंभ की थीं?',
+        options: ['मिखाइल गोर्बाचेव (Mikhail Gorbachev)', 'निकिता ख्रुश्चेव', 'व्लादिमीर लेनिन', 'जोसेफ स्टालिन'],
+        answerIndex: 0,
+        explanation: '1985 में सोवियत संघ की कम्युनिस्ट पार्टी के महासचिव बने मिखाइल गोर्बाचेव ने सोवियत व्यवस्था में खुलापन (Glasnost) और पुनर्गठन (Perestroika) लागू किया।',
+        hint: 'अंतिम सोवियत राष्ट्रपति।'
+      },
+      {
+        question: 'सोवियत संघ के विघटन के बाद साम्यवाद से पूंजीवाद की ओर परिवर्तन के लिए विश्व बैंक एवं IMF द्वारा निर्देशित मॉडल क्या कहलाया?',
+        options: ['शॉक थेरेपी (Shock Therapy - आघात पहुँचाकर उपचार करना)', 'मार्शल प्लान', 'पंचवर्षीय योजना', 'न्यू डील'],
+        answerIndex: 0,
+        explanation: 'साम्यवादी व्यवस्था को एकाएक पूंजीवादी बाजार अर्थव्यवस्था में बदलने के लिए अपनाए गए कष्टप्रद मॉडल को शॉक थेरेपी (Shock Therapy) कहा गया।',
+        hint: 'आघात पहुंचाकर उपचार करना।'
+      },
+      {
+        question: 'गुटनिरपेक्ष आंदोलन (NAM) का प्रथम शिखर सम्मेलन 1961 में किस शहर में आयोजित हुआ था?',
+        options: ['बेलग्रेड (Belgrade)', 'बांडुंग', 'नई दिल्ली', 'काहिरा'],
+        answerIndex: 0,
+        explanation: 'नेहरू, टीटो और नासिर के नेतृत्व में गुटनिरपेक्ष आंदोलन (NAM) का प्रथम शिखर सम्मेलन 1961 में यूगोस्लाविया की राजधानी बेलग्रेड में हुआ था।',
+        hint: 'यूगोस्लाविया की राजधानी।'
+      }
+    ]
+  },
+  // CLASS 12 - ARTS - GEOGRAPHY (HUMAN GEOGRAPHY)
+  {
+    id: 'board-12-geo-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['arts'],
+    subject: 'Geography (भूगोल)',
+    chapter: 'इकाई 1: मानव भूगोल - प्रकृति एवं विषय क्षेत्र (Human Geography: Scope)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'पर्यावरणीय निश्चयवाद, संभववाद, नव-निश्चयवाद (रुको और जाओ) एवं जनसंख्या वितरण।',
+    descriptionEn: 'Environmental Determinism, Possibilism, Neo-Determinism (Stop & Go) & Griffith Taylor.',
+    questions: [
+      {
+        question: 'नव-निश्चयवाद (Neo-Determinism) या "रुको और जाओ निश्चयवाद" (Stop and Go Determinism) की संकल्पना किसने प्रस्तुत की?',
+        options: ['ग्रिफ़िथ टेलर (Griffith Taylor)', 'फ्रेडरिक रैटजेल', 'एलेन चर्चिल सेम्पल', 'विडाल डी ला ब्लाश'],
+        answerIndex: 0,
+        explanation: 'ऑस्ट्रेलियाई भूगोलवेत्ता ग्रिफिथ टेलर ने पर्यावरणीय निश्चयवाद और संभववाद के मध्य एक मध्यम मार्ग \'नव-निश्चयवाद\' प्रतिपादित किया।',
+        hint: 'ट्रैफिक लाइट के आधार पर रुको और जाओ का सिद्धांत देने वाले भूगोलवेत्ता।'
+      },
+      {
+        question: '\'मानव भूगोल मानव समाजों और धरातल के बीच संबंधों का संश्लेषित अध्ययन है\' - यह परिभाषा किस विद्वान ने दी?',
+        options: ['फ्रेडरिक रैटजेल (Friedrich Ratzel - आधुनिक मानव भूगोल के जनक)', 'ब्लाश', 'हंटिंगटन', 'इमैनुएल कांट'],
+        answerIndex: 0,
+        explanation: 'जर्मन भूगोलवेत्ता फ्रेडरिक रैटजेल ने अपनी प्रसिद्ध पुस्तक \'एन्थ्रोपोजियोग्राफी\' (Anthropogeographie) में यह आधारभूत परिभाषा दी।',
+        hint: 'आधुनिक मानव भूगोल के जनक।'
+      },
+      {
+        question: 'जनसंख्या वृद्धि के जनसांख्यिकीय संक्रमण सिद्धांत (Demographic Transition Theory) की प्रथम अवस्था की मुख्य विशेषता क्या होती है?',
+        options: ['उच्च जन्म दर एवं उच्च मृत्यु दर (जनसंख्या वृद्धि धीमी)', 'निम्न जन्म दर एवं निम्न मृत्यु दर', 'उच्च जन्म दर एवं गिरती मृत्यु दर', 'शून्य जनसंख्या वृद्धि'],
+        answerIndex: 0,
+        explanation: 'प्रथम अवस्था में महामारियों और भोजन की अनिश्चितता के कारण जन्म दर और मृत्यु दर दोनों उच्च होती हैं, जिससे जनसंख्या लगभग स्थिर रहती है।',
+        hint: 'जन्म दर और मृत्यु दर दोनों बहुत अधिक होती हैं।'
+      },
+      {
+        question: 'मानव विकास सूचकांक (Human Development Index - HDI) की अवधारणा किस अर्थशास्त्री द्वारा विकसित की गई थी?',
+        options: ['डॉ. महबूब-उल-हक एवं प्रो. अमर्त्य सेन', 'एडम स्मिथ', 'अमर्त्य सेन अकेले', 'जॉन मेनार्ड कीन्स'],
+        answerIndex: 0,
+        explanation: 'पाकिस्तानी अर्थशास्त्री डॉ. महबूब-उल-हक ने 1990 में UNDP के तहत HDI का निर्माण किया जिसमें नोबेल विजेता प्रो. अमर्त्य सेन सहयोगी थे।',
+        hint: '1990 में यूएनडीपी (UNDP) द्वारा जारी सूचकांक।'
+      },
+      {
+        question: 'विश्व में सर्वाधिक जनसंख्या घनत्व वाला महाद्वीप कौन सा है?',
+        options: ['एशिया (Asia)', 'यूरोप', 'अफ्रीका', 'उत्तरी अमेरिका'],
+        answerIndex: 0,
+        explanation: 'एशिया महाद्वीप में विश्व की लगभग 60% आबादी निवास करती है तथा यहाँ जनसंख्या घनत्व सर्वाधिक (लगभग 150 व्यक्ति प्रति वर्ग किमी) है।',
+        hint: 'चीन और भारत इसी महाद्वीप में स्थित हैं।'
+      }
+    ]
+  },
+  // CLASS 10 - HINDI - GRAMMAR & KAVYA
+  {
+    id: 'board-10-hindi-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 10th',
+    subject: 'Hindi (हिन्दी)',
+    chapter: 'व्याकरण: रचना के आधार पर वाक्य भेद, वाच्य, पद-परिचय एवं रस',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'सरल, संयुक्त व मिश्र वाक्य, कर्तृवाच्य-कर्मवाच्य, पद-परिचय एवं नवरस के स्थायी भाव।',
+    descriptionEn: 'Sentence transformation, Voice (Vachya), Parts of speech parsing & Rasa.',
+    questions: [
+      {
+        question: '\'जब सूर्योदय हुआ तब चारों ओर उजाला फैल गया\' - यह रचना के आधार पर किस प्रकार का वाक्य है?',
+        options: ['मिश्र वाक्य (Complex Sentence)', 'सरल वाक्य', 'संयुक्त वाक्य', 'प्रश्नवाचक वाक्य'],
+        answerIndex: 0,
+        explanation: 'जिस वाक्य में एक मुख्य उपवाक्य हो और अन्य उपवाक्य उस पर आश्रित हों (जैसे: जब...तब), वह मिश्र वाक्य कहलाता है।',
+        hint: 'जब और तब से जुड़े आश्रित उपवाक्य।'
+      },
+      {
+        question: '\'राम द्वारा रावण मारा गया\' - इस वाक्य में कौन सा वाच्य (Voice) है?',
+        options: ['कर्मवाच्य (Passive Voice)', 'कर्तृवाच्य', 'भाववाच्य', 'क्रियावाच्य'],
+        answerIndex: 0,
+        explanation: 'जहाँ क्रिया का लिंग व वचन कर्म के अनुसार बदलता है तथा कर्ता के साथ \'द्वारा\' या \'से\' लगा होता है, वह कर्मवाच्य होता है।',
+        hint: 'कर्ता के साथ \'द्वारा\' का प्रयोग हुआ है।'
+      },
+      {
+        question: '\'शृंगार रस\' का स्थायी भाव (Sthayi Bhava) क्या है?',
+        options: ['रति (प्रेम)', 'उत्साह', 'शोक', 'हास्य'],
+        answerIndex: 0,
+        explanation: 'शृंगार रस को रसराज कहा जाता है और इसका स्थायी भाव \'रति\' (स्त्री-पुरुष का पारस्परिक प्रेम) होता है।',
+        hint: 'इसे रसराज भी कहा जाता है।'
+      },
+      {
+        question: '\'चरण कमल बन्दौ हरिराई\' में कौन सा अलंकार है?',
+        options: ['रूपक अलंकार (Metaphor)', 'उपमा अलंकार', 'उत्प्रेक्षा अलंकार', 'अनुप्रास अलंकार'],
+        answerIndex: 0,
+        explanation: 'जहाँ उपमेय (चरण) पर उपमान (कमल) का अभेद आरोप किया जाए, वहाँ रूपक अलंकार होता है।',
+        hint: 'चरण को ही साक्षात कमल मान लिया गया है।'
+      },
+      {
+        question: '\'महानता\' शब्द व्याकरण की दृष्टि से किस संज्ञा का उदाहरण है?',
+        options: ['भाववाचक संज्ञा (Abstract Noun)', 'जातिवाचक संज्ञा', 'व्यक्तिवाचक संज्ञा', 'द्रव्यवाचक संज्ञा'],
+        answerIndex: 0,
+        explanation: '\'महान\' विशेषण में \'ता\' प्रत्यय जुड़ने से गुण या भाव प्रकट करने वाली भाववाचक संज्ञा बनती है।',
+        hint: 'जो गुण, दशा या भाव को व्यक्त करे।'
+      }
+    ]
+  },
+  // CLASS 10 - ENGLISH - GRAMMAR & LITERATURE
+  {
+    id: 'board-10-eng-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 10th',
+    subject: 'English (अंग्रेजी)',
+    chapter: 'Grammar: Tenses, Modals, Subject-Verb Concord & First Flight',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'काल (Tenses), मोडाल्स (Modals), कर्ता-क्रिया सामंजस्य एवं लेटर टू गॉड।',
+    descriptionEn: 'Subject-Verb agreement, Reported speech, Modals & Lencho\'s unwavering faith.',
+    questions: [
+      {
+        question: 'Fill in the blank: "Neither the teacher nor the students ______ present in the auditorium."',
+        options: ['were', 'was', 'is', 'has'],
+        answerIndex: 0,
+        explanation: 'Rule of Proximity: When subjects are joined by "neither...nor", the verb agrees with the closer subject ("students" - plural ➔ were).',
+        hint: 'The verb agrees with the subject closest to it ("students").'
+      },
+      {
+        question: 'Identify the indirect speech: He said, "I have completed my homework."',
+        options: ['He said that he had completed his homework.', 'He said that he has completed his homework.', 'He said he completes his homework.', 'He told that homework was completed.'],
+        answerIndex: 0,
+        explanation: 'In reported speech, Present Perfect ("have completed") changes to Past Perfect ("had completed") when reporting verb is in the past ("said").',
+        hint: 'Present perfect changes to past perfect.'
+      },
+      {
+        question: 'In the story "A Letter to God", why did Lencho write a letter to God requesting 100 pesos?',
+        options: ['Because a severe hailstorm destroyed his entire corn field', 'To buy cattle', 'To build a new brick house', 'To pay school fees'],
+        answerIndex: 0,
+        explanation: 'A devastating hailstorm completely destroyed Lencho\'s ripe corn fields, leaving his family facing starvation without divine help.',
+        hint: 'Hailstones devastated his standing harvest.'
+      },
+      {
+        question: 'Fill in with appropriate modal: "You ______ wear a helmet while riding a two-wheeler; it is a legal requirement."',
+        options: ['must', 'may', 'might', 'could'],
+        answerIndex: 0,
+        explanation: '"Must" expresses compulsory legal duty or strong obligation.',
+        hint: 'Expresses mandatory obligation.'
+      },
+      {
+        question: 'Choose the correct synonym of the word "SOLITARY" as used in the poem "The Solitary Reaper":',
+        options: ['Alone / Single', 'Crowded', 'Wealthy', 'Joyful'],
+        answerIndex: 0,
+        explanation: '"Solitary" means existing alone or singing in isolation ("alone she cuts and binds the grain").',
+        hint: 'Living or working alone.'
+      }
+    ]
+  },
+  // CLASS 10 - SANSKRIT - GRAMMAR & SHLOKA (NCERT / SHEMUSHI)
+  {
+    id: 'board-10-skt-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 10th',
+    subject: 'Sanskrit (संस्कृत)',
+    chapter: 'प्रथमः पाठः: शुचिपर्यावरणम्, सन्धिः, समासः एवं शब्दरूपाणि',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'शुचिपर्यावरणम् श्लोक, स्वर-व्यंजन सन्धि, तत्पुरुष/कर्मधारय समास एवं धातु रूप।',
+    descriptionEn: 'Shuchi Paryavaranam shlokas, Sandhi, Samasa, and Shabda/Dhatu roop.',
+    questions: [
+      {
+        question: '\'शुचिपर्यावरणम्\' इति पाठे कविः कस्य कृते शरणम् इच्छति?',
+        options: ['प्रकृतेः एव शरणम् (प्रकृति की शरण)', 'नगरस्य शरणम्', 'गृहस्य शरणम्', 'वनस्य शरणम्'],
+        answerIndex: 0,
+        explanation: 'हरिहरशर्मणा रचिते \'शुचिपर्यावरणम्\' पाठे महानगरेषु प्रदूषणेन दुर्वहं जीवितं जातम्, अतः कविः प्रकृतेः शरणं गन्तुम् इच्छति।',
+        hint: 'प्रकृति की ही शरण में जाने की इच्छा व्यक्त की गई है।'
+      },
+      {
+        question: '\'विद्या + आलयः\' इत्यस्य शुद्धः सन्धिः कः भविष्यति?',
+        options: ['विद्यालयः (दीर्घ सन्धिः)', 'विद्यलयः', 'विद्यालयम्', 'विद्यौलयः'],
+        answerIndex: 0,
+        explanation: 'अकः सवर्णे दीर्घः इति सूत्रेण आ + आ = आ भवति, अतः \'विद्यालयः\' दीर्घस्वरसन्धिः अस्ति।',
+        hint: 'आ और आ मिलकर बड़ा आ बनाते हैं।'
+      },
+      {
+        question: '\'रामः\' शब्दस्य तृतीया विभक्तिः एकवचने किं रूपं भवति?',
+        options: ['रामेण', 'रामात्', 'रामस्य', 'रामे'],
+        answerIndex: 0,
+        explanation: 'अकारान्त पुंल्लिंग \'राम\' शब्दस्य तृतीया विभक्तिः एकवचने \'रामेण\' भवति (प्रथमा: रामः, द्वितीया: रामम्, तृतीया: रामेण)।',
+        hint: 'एन प्रत्यय जुड़ता है।'
+      },
+      {
+        question: '\'पठ्\' धातोः लट् लकारस्य (वर्तमान कालस्य) प्रथम पुरुषस्य बहुवचने किं रूपम् अस्ति?',
+        options: ['पठन्ति', 'पठति', 'पठथः', 'पठामः'],
+        answerIndex: 0,
+        explanation: 'लट् लकारः (वर्तमान कालः): प्रथम पुरुषः - पठति (एकवचन), पठतः (द्विवचन), पठन्ति (बहुवचन)।',
+        hint: 'ति, तः, अन्ति में बहुवचन रूप।'
+      },
+      {
+        question: '\'प्रतिदिनम्\' इत्यस्मिन् पदे कः समासः अस्ति?',
+        options: ['अव्ययीभाव समासः (दिनं दिनं प्रति)', 'तत्पुरुष समासः', 'द्वन्द्व समासः', 'बहुव्रीहि समासः'],
+        answerIndex: 0,
+        explanation: 'जहाँ पूर्व पद अव्यय (प्रति) हो और सम्पूर्ण पद क्रियाविशेषण अव्यय बन जाए, वहाँ अव्ययीभाव समास होता है। विग्रह: दिनं दिनं प्रति = प्रतिदिनम्।',
+        hint: 'पहला पद \'प्रति\' एक अव्यय है।'
+      }
+    ]
+  },
+  // CLASS 12 - ARTS - SOCIOLOGY (समाजशास्त्र)
+  {
+    id: 'board-12-socio-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['arts'],
+    subject: 'Sociology (समाजशास्त्र)',
+    chapter: 'इकाई 1: भारतीय समाज की जनसांख्यिकीय संरचना एवं सामाजिक संस्थाएं',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'माल्थस का जनसंख्या सिद्धांत, आयु संरचना, लिंगानुपात, जाति व्यवस्था व संयुक्त परिवार।',
+    descriptionEn: 'Malthusian Theory, Demographic Dividend, Caste System & Joint Family in India.',
+    questions: [
+      {
+        question: 'माल्थस के जनसंख्या सिद्धांत (Malthusian Theory) के अनुसार जनसंख्या किस दर से बढ़ती है?',
+        options: ['ज्यामितीय दर से (Geometric: 1, 2, 4, 8, 16...)', 'अंकगणितीय दर से (Arithmetic: 1, 2, 3...)', 'स्थिर दर से', 'घातीय रूप से नहीं'],
+        answerIndex: 0,
+        explanation: 'थॉमस रॉबर्ट माल्थस के अनुसार जनसंख्या ज्यामितीय गति (2, 4, 8, 16...) से बढ़ती है जबकि खाद्य उत्पादन अंकगणितीय गति (1, 2, 3, 4...) से बढ़ता है।',
+        hint: 'दोगुनी गति से गुणात्मक वृद्धि।'
+      },
+      {
+        question: 'भारत में \'जनसांख्यिकीय लाभांश\' (Demographic Dividend) से क्या तात्पर्य है?',
+        options: ['कार्यशील जनसंख्या (15-64 वर्ष) का आश्रित जनसंख्या से अधिक होना', 'वृद्धों की संख्या बढ़ना', 'जन्म दर में अप्रत्याशित वृद्धि', 'मृत्यु दर का उच्चतम होना'],
+        answerIndex: 0,
+        explanation: 'जब किसी देश में 15 से 64 वर्ष की कामकाजी आयु वर्ग की आबादी आश्रित आबादी (बच्चों व बुजुर्गों) से अधिक होती है तो आर्थिक उत्पादन की संभावना बढ़ती है, इसे डेमोग्राफिक डिविडेंड कहते हैं।',
+        hint: 'काम करने वाले युवाओं का अनुपात अधिक होना।'
+      },
+      {
+        question: 'जाति (Caste) किस प्रकार की सामाजिक प्रस्थिति (Social Status) का उदाहरण है?',
+        options: ['प्रदत्त प्रस्थिति (Ascribed Status - जन्म पर आधारित)', 'अर्जित प्रस्थिति (Achieved Status)', 'व्यावसायिक प्रस्थिति', 'अस्थायी प्रस्थिति'],
+        answerIndex: 0,
+        explanation: 'जाति एक बंद वर्ग है जिसकी सदस्यता जन्म से निर्धारित होती है (प्रदत्त प्रस्थिति), इसे व्यक्ति अपने प्रयास से बदल नहीं सकता।',
+        hint: 'जो जन्म से स्वतः प्राप्त हो।'
+      },
+      {
+        question: 'भारत में 2011 की जनगणना के अनुसार समग्र बाल लिंगानुपात (0-6 वर्ष) कितना दर्ज किया गया था?',
+        options: ['919 लड़कियां प्रति 1000 लड़के', '943 लड़कियां', '927 लड़कियां', '950 लड़कियां'],
+        answerIndex: 0,
+        explanation: '2011 की जनगणना में 0-6 वर्ष आयु वर्ग का बाल लिंगानुपात गिरकर 919 प्रति 1000 बालकों पर आ गया था, जो चिंताजनक था (समग्र लिंगानुपात 943 था)।',
+        hint: '920 से एक कम।'
+      },
+      {
+        question: '\'संस्कृतिकरण\' (Sanskritization) की अवधारणा किस भारतीय समाजशास्त्री द्वारा प्रतिपादित की गई थी?',
+        options: ['प्रो. एम. एन. श्रीनिवास (M.N. Srinivas)', 'जी. एस. घुर्ये', 'योगेंद्र सिंह', 'डी. पी. मुखर्जी'],
+        answerIndex: 0,
+        explanation: 'प्रो. एम. एन. श्रीनिवास ने अपनी पुस्तक \'Religion and Society among the Coorgs of South India\' में संस्कृतीकरण की संकल्पना प्रस्तुत की।',
+        hint: 'प्रभु जाति (Dominant Caste) की अवधारणा भी इन्होंने ही दी थी।'
+      }
+    ]
+  },
+  // CLASS 12 - ARTS - PSYCHOLOGY (मनोविज्ञान)
+  {
+    id: 'board-12-psych-ch1',
+    board: 'ALL_STATE_BOARDS',
+    classGrade: 'Class 12th',
+    streamTags: ['arts'],
+    subject: 'Psychology (मनोविज्ञान)',
+    chapter: 'इकाई 1: मनोवैज्ञानिक गुणों में विभिन्नताएं एवं बुद्धि (Intelligence)',
+    totalQuestions: 5,
+    timeMinutes: 10,
+    descriptionHi: 'बुद्धि लब्धि (IQ), गार्डनर का बहु-बुद्धि सिद्धांत, संवेगात्मक बुद्धि (EQ) एवं सृजनात्मकता।',
+    descriptionEn: 'IQ testing, Gardner\'s Multiple Intelligences, Emotional Quotient (EQ) & Creativity.',
+    questions: [
+      {
+        question: 'बुद्धि लब्धि (Intelligence Quotient - IQ) ज्ञात करने का सही सूत्र क्या है?',
+        options: ['(मानसिक आयु / वास्तविक आयु) × 100 [IQ = (MA / CA) × 100]', '(वास्तविक आयु / मानसिक आयु) × 100', 'मानसिक आयु + वास्तविक आयु', '(मानसिक आयु × वास्तविक आयु) / 100'],
+        answerIndex: 0,
+        explanation: 'विलियम स्टर्न ने 1912 में IQ का सूत्र दिया जिसे बाद में टर्मन ने संशोधित किया: IQ = (Mental Age / Chronological Age) × 100।',
+        hint: 'MA बटा CA गुणा सौ।'
+      },
+      {
+        question: 'हावर्ड गार्डनर (Howard Gardner) ने कितने प्रकार की बहु-बुद्धियों (Multiple Intelligences) का सिद्धांत दिया था?',
+        options: ['8 प्रकार (भाषाई, तार्किक, स्थानिक, संगीतात्मक, शारीरिक आदि)', '2 प्रकार', '3 प्रकार', '12 प्रकार'],
+        answerIndex: 0,
+        explanation: 'गार्डनर ने 1983 में अपनी पुस्तक \'Frames of Mind\' में बहु-बुद्धि सिद्धांत प्रस्तुत किया, जिसमें 8 स्वतंत्र प्रकार की बुद्धियां मान्य हैं।',
+        hint: 'आठ भिन्न प्रकार की बुद्धियां।'
+      },
+      {
+        question: 'संवेगात्मक बुद्धि (Emotional Intelligence / EQ) को लोकप्रिय बनाने वाले प्रमुख मनोवैज्ञानिक कौन हैं?',
+        options: ['डेनियल गोलमैन (Daniel Goleman)', 'सिगमंड फ्रायड', 'बी. एफ. स्किनर', 'जीन पियाजे'],
+        answerIndex: 0,
+        explanation: 'डेनियल गोलमैन ने 1995 में अपनी पुस्तक \'Emotional Intelligence: Why It Can Matter More Than IQ\' के माध्यम से इसे वैश्विक स्तर पर लोकप्रिय बनाया।',
+        hint: 'इमोशनल इंटेलिजेंस पुस्तक के लेखक।'
+      },
+      {
+        question: 'सामान्य (औसत) व्यक्ति की बुद्धि लब्धि (Average IQ Range) कितनी मानी जाती है?',
+        options: ['90 से 109 के बीच', '70 से 79 के बीच', '130 से अधिक', '50 से 69 के बीच'],
+        answerIndex: 0,
+        explanation: 'टर्मन के वर्गीकरण के अनुसार 90 से 109 के मध्य IQ वाले व्यक्तियों को सामान्य या औसत बुद्धि (Average Intelligence) माना जाता है।',
+        hint: 'लगभग 100 के आसपास।'
+      },
+      {
+        question: 'तनाव (Stress) के विरुद्ध शरीर की स्वाभाविक प्रतिक्रिया को \'सामान्य अनुकूलन संलक्षण\' (GAS - General Adaptation Syndrome) नाम किसने दिया?',
+        options: ['हंस सेल्ये (Hans Selye - तनाव के जनक)', 'इवान पावलव', 'अल्फ्रेड बिने', 'कार्ल युंग'],
+        answerIndex: 0,
+        explanation: 'हंस सेल्ये ने GAS मॉडल में तनाव के तीन चरण बताए: सचेत प्रतिक्रिया (Alarm), प्रतिरोध (Resistance), और परिश्रांति (Exhaustion)।',
+        hint: 'तनाव अनुसंधान के पितामह।'
+      }
+    ]
   }
 ];
 
@@ -577,8 +1230,21 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
   const isHindi = language === 'hindi';
   const initialClass = studentGoalProfile?.boardDetails?.classGrade === 'Class 12th' ? 'Class 12th' : 'Class 10th';
   const [selectedClass, setSelectedClass] = useState<'Class 10th' | 'Class 12th'>(initialClass);
+  const [selectedSubStream, setSelectedSubStream] = useState<'science_pcm' | 'science_pcb' | 'commerce' | 'arts'>(
+    studentGoalProfile?.boardDetails?.subStream || 'science_pcm'
+  );
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'tests' | 'answer-lab' | 'blueprint' | 'revision'>('tests');
+  const [activeTab, setActiveTab] = useState<'tests' | 'answer-lab' | 'blueprint' | 'revision' | 'parent-report'>('tests');
+
+  // Synchronize when studentGoalProfile changes
+  useEffect(() => {
+    if (studentGoalProfile?.boardDetails?.classGrade) {
+      setSelectedClass(studentGoalProfile.boardDetails.classGrade === 'Class 12th' ? 'Class 12th' : 'Class 10th');
+    }
+    if (studentGoalProfile?.boardDetails?.subStream) {
+      setSelectedSubStream(studentGoalProfile.boardDetails.subStream);
+    }
+  }, [studentGoalProfile?.boardDetails?.classGrade, studentGoalProfile?.boardDetails?.subStream]);
 
   // Active Board Name from studentGoalProfile
   const currentBoard = studentGoalProfile?.boardDetails?.boardName || 'UP_BOARD';
@@ -603,7 +1269,7 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
       setEvaluationResult({
         score: 88,
         headingFeedback: isHindi ? `✅ ${boardDisplayName} पैटर्न के अनुसार मुख्य शीर्षक (Headings) स्पष्ट हैं।` : `✅ Main headings are clear per ${boardDisplayName} exam guidelines.`,
-        diagramFeedback: isHindi ? "💡 सुझाव: इस प्रश्न में नामांकित चित्र (Labeled Diagram) या समीकरण जोड़ने से examiner पूरे अंक देगा।" : "💡 Tip: Adding a labeled diagram here guarantees full marks.",
+        diagramFeedback: isHindi ? "💡 सुझाव: इस प्रश्न में नामांकित चित्र (Labeled Diagram) या समीकरण जोड़ने से examiner पूरे अंक देगा।" : "💡 Tip: Adding a labeled diagram here guarantees full marks.",
         wordLimitFeedback: isHindi ? "📏 शब्द सीमा: एकदम सटीक (लगभग 120-150 शब्द)।" : "📏 Word Limit: Perfect (~120-150 words).",
         topperTip: isHindi ? "🌟 टॉपर टिप: अंत में 'निष्कर्ष' (Conclusion) जरूर लिखें।" : "🌟 Topper's Tip: Always write a conclusion."
       });
@@ -611,15 +1277,22 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
   };
 
   const handleStartFullBoardMock = (questionCount: number = 100) => {
-    // Collect all available questions for the selected class grade
-    const classTests = CURATED_BOARD_EXAM_TESTS.filter(t => t.classGrade === selectedClass);
+    // Strictly filter available questions to the active class and active stream!
+    const matchingTests = CURATED_BOARD_EXAM_TESTS.filter(t => {
+      if (t.classGrade !== selectedClass) return false;
+      if (selectedClass === 'Class 12th' && t.streamTags && t.streamTags.length > 0) {
+        return t.streamTags.includes(selectedSubStream);
+      }
+      return true;
+    });
+
     let poolOfQuestions: QuizQuestion[] = [];
-    classTests.forEach(test => {
+    matchingTests.forEach(test => {
       poolOfQuestions.push(...test.questions);
     });
 
     if (poolOfQuestions.length === 0) {
-      poolOfQuestions = CURATED_BOARD_EXAM_TESTS.flatMap(t => t.questions);
+      poolOfQuestions = CURATED_BOARD_EXAM_TESTS.filter(t => t.classGrade === selectedClass).flatMap(t => t.questions);
     }
 
     let finalQuestions: QuizQuestion[] = [];
@@ -629,145 +1302,223 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
       finalQuestions.push(...shuffled.slice(0, remaining));
     }
 
+    const timeMinutes = questionCount >= 100 ? 195 : 90;
+    const streamName = selectedClass === 'Class 10th' ? 'Class 10th Board' : selectedSubStream === 'science_pcm' ? '12th Science (PCM)' : selectedSubStream === 'science_pcb' ? '12th Science (PCB)' : selectedSubStream === 'commerce' ? '12th Commerce' : '12th Arts';
+
     const fullMockTest: BoardChapterTest = {
-      id: `board-full-mock-${selectedClass.toLowerCase().replace(/\s+/g, '-')}-${questionCount}-${Date.now()}`,
+      id: `board-full-mock-${selectedClass.toLowerCase().replace(/\s+/g, '-')}-${selectedSubStream}-${questionCount}-${Date.now()}`,
       board: currentBoard,
       classGrade: selectedClass,
-      subject: selectedSubjectFilter === 'all' ? 'All Subjects (संपूर्ण OMR मॉडल पेपर)' : selectedSubjectFilter,
-      chapter: `🎯 ${selectedClass} संपूर्ण ${questionCount} वस्तुनिष्ठ प्रश्न (Full Board OMR Exam)`,
+      streamTags: selectedClass === 'Class 12th' ? [selectedSubStream] : undefined,
+      subject: selectedSubjectFilter === 'all' ? `${streamName} - संपूर्ण OMR मॉडल पेपर` : selectedSubjectFilter,
+      chapter: `🎯 ${selectedClass} (${streamName}) संपूर्ण ${questionCount} वस्तुनिष्ठ प्रश्न (Full Board OMR Exam)`,
       totalQuestions: questionCount,
-      timeMinutes: questionCount >= 100 ? 195 : 90,
-      descriptionHi: `असली बोर्ड परीक्षा पद्धति (BSEB / UP / CBSE): 3 घंटे 15 मिनट, ${questionCount} वस्तुनिष्ठ प्रश्न, OMR शीट मोड और तत्काल अंक विश्लेषण।`,
-      descriptionEn: `Official Board Pattern: ${questionCount >= 100 ? '3h 15m' : '90m'}, ${questionCount} MCQs with instant score & chapter analysis.`,
+      timeMinutes: timeMinutes,
+      descriptionHi: `असली बोर्ड परीक्षा पद्धति (${boardDisplayName}): 3 घंटे 15 मिनट, ${questionCount} वस्तुनिष्ठ प्रश्न, OMR शीट मोड और तत्काल अंक विश्लेषण।`,
+      descriptionEn: `Official Board Pattern: ${timeMinutes >= 100 ? '3h 15m' : '90m'}, ${questionCount} MCQs with instant score & chapter analysis.`,
       questions: finalQuestions
     };
+
+    const payload = {
+      category: 'board',
+      examName: fullMockTest.chapter,
+      topic: fullMockTest.subject,
+      questions: fullMockTest.questions,
+      timeMinutes: fullMockTest.timeMinutes,
+      marksPerQ: 1.0,
+      negMark: 0.0
+    };
+    try {
+      sessionStorage.setItem('hansai_launch_quiz', JSON.stringify(payload));
+      window.dispatchEvent(new CustomEvent('hansai_launch_quiz_event', { detail: payload }));
+    } catch (e) {
+      console.warn("Direct storage payload write error", e);
+    }
 
     onStartBoardTest(fullMockTest);
   };
 
   const filteredTests = CURATED_BOARD_EXAM_TESTS.filter(t => {
-    const matchClass = t.classGrade === selectedClass;
+    // 1. Strict Class Grade matching
+    if (t.classGrade !== selectedClass) return false;
+
+    // 2. Strict Board matching
     const matchBoard = t.board === 'ALL_STATE_BOARDS' || t.board === currentBoard;
-    const matchSub = selectedSubjectFilter === 'all' || t.subject.includes(selectedSubjectFilter);
-    return matchClass && matchBoard && matchSub;
+    if (!matchBoard) return false;
+
+    // 3. Strict 12th Sub-Stream matching
+    if (selectedClass === 'Class 12th' && t.streamTags && t.streamTags.length > 0) {
+      if (!t.streamTags.includes(selectedSubStream)) return false;
+    }
+
+    // 4. Selected Subject filter
+    const matchSub = selectedSubjectFilter === 'all' || t.subject.toLowerCase().includes(selectedSubjectFilter.toLowerCase());
+    return matchSub;
   });
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#0d1527] via-[#0a0f1d] to-[#0d1527] border-2 border-amber-500/50 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4 my-2 text-left animate-fade-in relative overflow-hidden">
+    <div className="w-full bg-[#FCFBF4] border-l-[12px] border-l-amber-700/20 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xl space-y-5 my-4 text-left animate-fade-in relative overflow-hidden font-serif">
       
-      {/* Background Accent Glow */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Notebook Lines Effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(#000 0, #000 1px, transparent 1px, transparent 32px)' }}></div>
+      <div className="absolute left-12 top-0 bottom-0 w-[1px] bg-rose-500/20 pointer-events-none"></div>
+
+      {/* TOP COUNTDOWN PLANNER BANNER */}
+      <div className="relative z-10 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex items-center justify-between gap-4 overflow-hidden group">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shadow-inner border border-rose-100">
+            📅
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-wider leading-none mb-1">{isHindi ? 'परीक्षा काउंटडाउन' : 'Exam Countdown'}</h4>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-black text-rose-600 leading-none">145</span>
+              <span className="text-[10px] font-bold text-slate-500">{isHindi ? 'दिन शेष' : 'Days Left'}</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:block text-right">
+            <p className="text-[10px] font-bold text-slate-600 leading-tight">{isHindi ? 'लक्ष्य: 95%+' : 'Goal: 95%+'}</p>
+            <p className="text-[9px] text-slate-400 font-medium">{isHindi ? 'अपना सर्वश्रेष्ठ दें' : 'Give your best'}</p>
+          </div>
+          <button className="px-3 py-1.5 bg-slate-900 text-white text-[10px] font-bold rounded-lg hover:bg-slate-800 transition-all cursor-pointer whitespace-nowrap">
+            {isHindi ? 'प्लानर' : 'Planner'}
+          </button>
+        </div>
+      </div>
 
       {/* HEADER ROW */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 relative z-10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 pb-4 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow-lg shadow-amber-500/30 shrink-0 font-bold">
-            🎓
+          <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-2xl shadow-sm shrink-0">
+            📚
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
-                {isHindi ? 'बोर्ड परीक्षा पावरहाउस (Board Exam Powerhouse)' : 'Board Exam Powerhouse Studio'}
+              <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                {isHindi ? 'अकादमिक स्टडी डेस्क (Study Desk)' : 'Academic Study Desk'}
               </h3>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <p className="text-xs text-slate-400 font-medium">
-                {isHindi ? `सक्रिय लक्ष्य: ${selectedClass} (${boardDisplayName})` : `Active Goal: ${selectedClass} (${boardDisplayName})`}
+              <p className="text-xs text-slate-500 font-bold">
+                {isHindi ? `कक्षा: ${selectedClass} | बोर्ड: ${boardDisplayName}` : `Grade: ${selectedClass} | Board: ${boardDisplayName}`}
               </p>
               {onOpenBoardSelector && (
                 <button
                   onClick={onOpenBoardSelector}
-                  className="text-[10px] font-bold text-amber-400 hover:text-amber-300 underline cursor-pointer"
+                  className="text-[10px] font-bold text-amber-700 hover:text-amber-800 underline cursor-pointer"
                 >
-                  {isHindi ? 'बदलो (Change)' : 'Change'}
+                  {isHindi ? 'बदलें' : 'Edit'}
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Class Switcher (10th vs 12th) */}
-        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-2xl border border-slate-800 shrink-0 self-stretch sm:self-auto justify-center">
-          {(['Class 10th', 'Class 12th'] as const).map(cls => (
-            <button
-              key={cls}
-              onClick={() => setSelectedClass(cls)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                selectedClass === cls
-                  ? 'bg-amber-500 text-slate-950 shadow-md scale-[1.02]'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {cls}
-            </button>
-          ))}
+        {/* Class Switcher */}
+        <div className="flex items-center gap-2">
+          <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black border border-emerald-100 hover:bg-emerald-100 transition-all cursor-pointer">
+            <span>🧘</span>
+            <span>{isHindi ? 'एंटी-एंजायटी' : 'Zen Mode'}</span>
+          </button>
+          
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0 self-stretch sm:self-auto justify-center">
+            {(['Class 10th', 'Class 12th'] as const).map(cls => (
+              <button
+                key={cls}
+                onClick={() => setSelectedClass(cls)}
+                className={`px-4 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer ${
+                  selectedClass === cls
+                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200 scale-[1.02]'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {cls}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* TABS BAR */}
-      <div className="flex flex-wrap items-center gap-2 text-xs border-b border-slate-800/80 pb-2">
+      {/* TABS BAR - Clean & Minimalist */}
+      <div className="flex items-center gap-4 overflow-x-auto pb-1 scrollbar-hide border-b border-slate-100 relative z-10">
         <button
           onClick={() => setActiveTab('tests')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === 'tests' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+          className={`pb-2 px-1 font-bold text-xs sm:text-sm transition-all relative cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'tests' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
-          <span>📚 {isHindi ? 'अध्यायवार टेस्ट' : 'Chapter Tests'}</span>
+          <span>📓 {isHindi ? 'अध्यायवार टेस्ट' : 'Chapter Tests'}</span>
+          {activeTab === 'tests' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 rounded-full"></div>}
         </button>
-
         <button
           onClick={() => setActiveTab('answer-lab')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === 'answer-lab' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+          className={`pb-2 px-1 font-bold text-xs sm:text-sm transition-all relative cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'answer-lab' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
-          <span>✍️ {isHindi ? 'उत्तर लेखन लैब् (Answer Lab)' : 'Answer Writing Lab'}</span>
+          <span>✍️ {isHindi ? 'आंसर लैब' : 'Answer Lab'}</span>
+          {activeTab === 'answer-lab' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 rounded-full"></div>}
         </button>
-
         <button
           onClick={() => setActiveTab('blueprint')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === 'blueprint' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+          className={`pb-2 px-1 font-bold text-xs sm:text-sm transition-all relative cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'blueprint' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
-          <span>📊 {isHindi ? 'ब्लूप्रिंट व वेटेज' : 'Blueprint Analysis'}</span>
+          <span>📊 {isHindi ? 'ब्लूप्रिंट' : 'Blueprint'}</span>
+          {activeTab === 'blueprint' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 rounded-full"></div>}
         </button>
-
         <button
           onClick={() => setActiveTab('revision')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === 'revision' ? 'bg-amber-500 text-slate-950 shadow-md' : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+          className={`pb-2 px-1 font-bold text-xs sm:text-sm transition-all relative cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'revision' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
-          <span>🧠 {isHindi ? '1-मिनट क्रक्स नोट्स' : '1-Min Crx Cards'}</span>
+          <span>🔖 {isHindi ? 'पॉकेट नोट्स' : 'Pocket Notes'}</span>
+          {activeTab === 'revision' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 rounded-full"></div>}
+        </button>
+        <button
+          onClick={() => setActiveTab('parent-report')}
+          className={`pb-2 px-1 font-bold text-xs sm:text-sm transition-all relative cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'parent-report' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <span>👨‍👩‍👧 {isHindi ? 'पेरेंट्स रिपोर्ट' : 'Parent Report'}</span>
+          {activeTab === 'parent-report' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 rounded-full"></div>}
         </button>
       </div>
 
       {/* ACTIVE STUDENT GOAL & TEST MODE SUMMARY BANNER */}
       {studentGoalProfile && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-amber-200">
-            <span className="text-base">🎯</span>
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-sm relative z-10">
+          <div className="flex items-center gap-3 text-slate-700">
+            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold">
+              🎯
+            </div>
             <div>
-              <span className="font-bold">{isHindi ? 'सक्रिय लक्ष्य:' : 'Active Goal:'}</span>{' '}
-              <span className="font-black text-amber-300">
+              <span className="font-bold block text-slate-400 uppercase text-[9px] tracking-widest">{isHindi ? 'सक्रिय लक्ष्य' : 'ACTIVE GOAL'}</span>
+              <span className="font-black text-slate-900">
                 {studentGoalProfile.stream === 'board'
                   ? `${studentGoalProfile.boardDetails?.classGrade || '10th'} • ${studentGoalProfile.boardDetails?.boardName === 'ALL_STATE_BOARDS' ? studentGoalProfile.boardDetails?.specificStateBoard : studentGoalProfile.boardDetails?.boardName || 'CBSE'} • ${studentGoalProfile.boardDetails?.primarySubject || 'General'}`
                   : studentGoalProfile.competitiveDetails?.examName}
               </span>
-              <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase">
-                Mode: {studentGoalProfile.selectedMode || 'quiz'}
-              </span>
             </div>
           </div>
-          {onOpenBoardSelector && (
-            <button
-              onClick={onOpenBoardSelector}
-              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-black text-xs transition-all shadow-md shrink-0 cursor-pointer flex items-center gap-1"
-            >
-              <span>⚙️ {isHindi ? 'बोर्ड / मोड बदलें' : 'Change Board & Mode'}</span>
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg font-bold text-[10px]">
+              {isHindi ? 'अकादमिक मोड: सक्रिय' : 'Academic Mode: Active'}
+            </span>
+            {onOpenBoardSelector && (
+              <button
+                onClick={onOpenBoardSelector}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-[10px] transition-all border border-slate-200 cursor-pointer"
+              >
+                {isHindi ? 'बदलें' : 'Modify'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -775,77 +1526,107 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
       {activeTab === 'tests' && (
         <div className="space-y-4">
 
-          {/* OFFLINE BOARD EXAM DURATION & QUESTION PATTERN ANALYZER BAR */}
-          <div className="bg-gradient-to-r from-amber-950/60 via-slate-900 to-indigo-950/60 border border-amber-500/30 rounded-2xl p-3.5 space-y-3">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="text-amber-400 font-extrabold text-sm">📄</span>
+          {/* OFFLINE BOARD EXAM PATTERN SIMULATOR BAR */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">📋</span>
                 <div>
-                  <h4 className="text-xs sm:text-sm font-black text-white flex items-center gap-2">
-                    <span>{isHindi ? 'ऑफलाइन बोर्ड परीक्षा पैटर्न एवं समय विश्लेषक' : 'Offline Board Exam Pattern & Time Simulator'}</span>
-                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
-                      Real Exam Timing
+                  <h4 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <span>{isHindi ? 'बोर्ड परीक्षा पैटर्न एवं समय विश्लेषक' : 'Official Board Exam Simulator'}</span>
+                    <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-200 uppercase tracking-tighter">
+                      Pattern Verified
                     </span>
                   </h4>
-                  <p className="text-[11px] text-slate-400">
-                    {isHindi ? 'अपने बोर्ड के अनुसार समय और प्रश्न संरचना सेट करके अभ्यास करें:' : 'Choose your board to match official paper duration and question distribution:'}
+                  <p className="text-[10px] text-slate-500 font-medium">
+                    {isHindi ? 'आधिकारिक पेपर संरचना के अनुसार अभ्यास करें:' : 'Practice according to official paper structure:'}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* BOARD PATTERN SPECIFICATION CARDS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-amber-500/20 space-y-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-amber-300">CBSE Board (10th/12th)</span>
-                  <span className="text-[10px] font-mono text-slate-400">3 Hours (180m)</span>
+                  <span className="font-bold text-slate-800">CBSE Board</span>
+                  <span className="text-[9px] font-mono text-slate-400 px-1.5 py-0.5 bg-white border border-slate-200 rounded">180m</span>
                 </div>
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  Section A: 20 MCQs (1M) • Section B: 5 Short (2M) • Section C: 6 Short (3M) • Section D: 4 Long (5M) • Case Studies (4M).
+                <p className="text-[9px] text-slate-500 leading-tight">
+                  Section A: 20 MCQs • Sec B: 5 Short • Sec C: 6 Short • Sec D: 4 Long • Case Studies.
                 </p>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-cyan-500/20 space-y-1">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-cyan-300">Bihar Board (BSEB)</span>
-                  <span className="text-[10px] font-mono text-slate-400">3 Hours 15m</span>
+                  <span className="font-bold text-slate-800">Bihar Board (BSEB)</span>
+                  <span className="text-[9px] font-mono text-slate-400 px-1.5 py-0.5 bg-white border border-slate-200 rounded">195m</span>
                 </div>
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  Part A: 50% OMR MCQs (100 में से 50 प्रश्नों का उत्तर दें) • Part B: 30 अंक लघु उत्तरीय व 20 अंक दीर्घ उत्तरीय प्रश्न।
+                <p className="text-[9px] text-slate-500 leading-tight">
+                  Part A: 50% OMR MCQs (50/100) • Part B: Written Qs. One of the highest scoring patterns.
                 </p>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/20 space-y-1">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-emerald-300">UP Board (10th/12th)</span>
-                  <span className="text-[10px] font-mono text-slate-400">3 Hours 15m</span>
+                  <span className="font-bold text-slate-800">UP Board</span>
+                  <span className="text-[9px] font-mono text-slate-400 px-1.5 py-0.5 bg-white border border-slate-200 rounded">195m</span>
                 </div>
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  खण्ड 'अ': 20 OMR बहुविकल्पीय प्रश्न (1 घंटा) • खण्ड 'ब': 50 अंक का वर्णनात्मक लिखित प्रश्न-पत्र (2 घंटे 15 मिनट)।
+                <p className="text-[9px] text-slate-500 leading-tight">
+                  Sec 'A': 20 OMR MCQs (1 Hr) • Sec 'B': 50 Marks Written (2.15 Hrs). Classic pattern.
                 </p>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-purple-500/20 space-y-1">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-purple-300">MP & State Boards</span>
-                  <span className="text-[10px] font-mono text-slate-400">3 Hours (180m)</span>
+                  <span className="font-bold text-slate-800">State Boards</span>
+                  <span className="text-[9px] font-mono text-slate-400 px-1.5 py-0.5 bg-white border border-slate-200 rounded">180m</span>
                 </div>
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  30% वस्तुनिष्ठ प्रश्न (MCQs) + 70% विषयनिष्ठ लिखित प्रश्न। सभी स्टेट बोर्ड हेतु अद्यतन प्रश्न-बैंक।
+                <p className="text-[9px] text-slate-500 leading-tight">
+                  30% Objective + 70% Subjective. Universal pattern for State board excellence.
                 </p>
               </div>
             </div>
           </div>
 
+          {/* STREAM SELECTOR FOR CLASS 12TH */}
+          {selectedClass === 'Class 12th' && (
+            <div className="flex flex-wrap items-center gap-2 p-3 bg-white rounded-2xl border border-slate-200 shadow-sm relative z-10">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0 mr-1">
+                {isHindi ? 'स्ट्रीम:' : 'STREAM:'}
+              </span>
+              {[
+                { id: 'science_pcm', label: 'साइंस PCM', icon: '📐' },
+                { id: 'science_pcb', label: 'साइंस PCB', icon: '🔬' },
+                { id: 'commerce', label: 'कॉमर्स', icon: '📈' },
+                { id: 'arts', label: 'आर्ट्स / कला', icon: '🏛️' }
+              ].map(st => (
+                <button
+                  key={st.id}
+                  onClick={() => {
+                    setSelectedSubStream(st.id as any);
+                    setSelectedSubjectFilter('all');
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 border ${
+                    selectedSubStream === st.id
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-sm font-black'
+                      : 'bg-white text-slate-500 hover:text-slate-900 border-slate-200'
+                  }`}
+                >
+                  <span>{st.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* SUBJECT FILTER PILLS */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs relative z-10">
             <button
               onClick={() => setSelectedSubjectFilter('all')}
-              className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap border ${
                 selectedSubjectFilter === 'all'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-md'
+                  : 'bg-white text-slate-500 hover:text-slate-900 border-slate-200'
               }`}
             >
               {isHindi ? 'सभी विषय' : 'All Subjects'}
@@ -857,10 +1638,58 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
                   <button
                     key={s}
                     onClick={() => setSelectedSubjectFilter(s)}
-                    className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    className={`px-4 py-2 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap border ${
                       selectedSubjectFilter === s
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-md'
+                        : 'bg-white text-slate-500 hover:text-slate-900 border-slate-200'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </>
+            ) : selectedSubStream === 'science_pcm' ? (
+              <>
+                {['Mathematics (गणित)', 'Physics (भौतिकी)', 'Chemistry (रसायन विज्ञान)'].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSubjectFilter(s)}
+                    className={`px-4 py-2 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap border ${
+                      selectedSubjectFilter === s
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-md'
+                        : 'bg-white text-slate-500 hover:text-slate-900 border-slate-200'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </>
+            ) : selectedSubStream === 'science_pcb' ? (
+              <>
+                {['Biology (जीव विज्ञान)', 'Physics (भौतिकी)', 'Chemistry (रसायन विज्ञान)'].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSubjectFilter(s)}
+                    className={`px-4 py-2 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap border ${
+                      selectedSubjectFilter === s
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-md'
+                        : 'bg-white text-slate-500 hover:text-slate-900 border-slate-200'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </>
+            ) : selectedSubStream === 'commerce' ? (
+              <>
+                {['Accountancy (लेखाशास्त्र)', 'Business Studies (व्यवसाय अध्ययन)', 'Economics (अर्थशास्त्र)', 'Mathematics (गणित)'].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSubjectFilter(s)}
+                    className={`px-4 py-2 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap border ${
+                      selectedSubjectFilter === s
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-md'
+                        : 'bg-white text-slate-500 hover:text-slate-900 border-slate-200'
                     }`}
                   >
                     {s}
@@ -869,14 +1698,14 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
               </>
             ) : (
               <>
-                {['Physics (भौतिकी)', 'Chemistry (रसायन विज्ञान)', 'Mathematics (गणित)', 'Biology (जीव विज्ञान)', 'Accountancy', 'Business Studies', 'Economics', 'History (इतिहास)', 'Political Science (राजनीति शास्त्र)', 'Geography (भूगोल)', 'Hindi', 'English'].map(s => (
+                {['History (इतिहास)', 'Political Science (राजनीति विज्ञान)', 'Geography (भूगोल)', 'Economics (अर्थशास्त्र)', 'Sociology (समाजशास्त्र)', 'Psychology (मनोविज्ञान)', 'Hindi (हिन्दी)', 'English (अंग्रेजी)'].map(s => (
                   <button
                     key={s}
                     onClick={() => setSelectedSubjectFilter(s)}
-                    className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    className={`px-4 py-2 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap border ${
                       selectedSubjectFilter === s
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-md'
+                        : 'bg-white text-slate-500 hover:text-slate-900 border-slate-200'
                     }`}
                   >
                     {s}
@@ -887,87 +1716,88 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
           </div>
 
           {/* 🌟 100-QUESTION FULL BOARD OMR MODEL PAPER BANNER */}
-          <div className="bg-gradient-to-r from-amber-950/70 via-slate-900 to-indigo-950/80 border-2 border-amber-500/60 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3 relative overflow-hidden">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
-              <div className="space-y-1">
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 shadow-md space-y-4 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 -mr-16 -mt-16 rounded-full blur-2xl"></div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+              <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-[10px] sm:text-[11px] border border-amber-500/40 tracking-wider">
-                    🔥 {isHindi ? '100 बहुविकल्पीय प्रश्न (OMR मोड)' : '100 OBJECTIVE MCQs (OMR MODE)'}
+                  <span className="px-3 py-1 rounded-full bg-slate-900 text-white font-black text-[10px] sm:text-[11px] tracking-widest uppercase">
+                    🔥 OMR {isHindi ? 'मॉडल पेपर' : 'Model Paper'}
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-                    ⏱️ 3 घंटे 15 मिनट (Official)
+                  <span className="text-[10px] text-emerald-600 font-black bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                    ⏱️ 195 Min
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-black text-white">
-                  {selectedClass} {isHindi ? 'संपूर्ण 100 प्रश्नों का OMR मॉडल पेपर (Full Board Mock)' : 'Full 100-Question OMR Board Mock Paper'}
-                </h3>
-                <p className="text-xs text-slate-300 max-w-xl">
-                  {isHindi
-                    ? 'असली परीक्षा केंद्र की तरह 100 वस्तुनिष्ठ प्रश्न, ऑफिशियल बोर्ड टाइमर, OMR बबल फिलिंग और सबमिट करते ही तत्काल प्रतिशत व कमजोर विषयों का एनालिसिस।'
-                    : '100 board-level objective questions with 3h 15m official timer, OMR simulation, instant grading and weak-topic analysis.'}
+                <h4 className="text-sm sm:text-base font-black text-slate-900 leading-tight">
+                  {isHindi ? '100 बहुविकल्पीय प्रश्न (Bihar & UP Board Special)' : '100 Full Board Objective MCQs (OMR Mode)'}
+                </h4>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  {isHindi ? 'पूर्ण पाठ्यक्रम आधारित आधिकारिक OMR मॉडल टेस्ट।' : 'Full syllabus based official OMR model test for top ranks.'}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 flex-wrap">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => handleStartFullBoardMock(100)}
-                  className="flex-1 sm:flex-none px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
+                  className="flex-1 sm:flex-none px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <Zap className="w-4 h-4 fill-slate-950" />
-                  <span>{isHindi ? '100 प्रश्नों का टेस्ट शुरू करें (3h 15m)' : 'Start 100 Qs Test (3h 15m)'} 🚀</span>
+                  <Play className="w-4 h-4 fill-current" />
+                  <span>{isHindi ? '100 Qs शुरू करें' : 'Start 100 Qs'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleStartFullBoardMock(50)}
-                  className="px-3.5 py-3 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs rounded-xl border border-slate-700 cursor-pointer active:scale-95 transition-all"
+                  className="px-4 py-3 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs rounded-xl border-2 border-slate-900 cursor-pointer active:scale-95 transition-all"
                   title="50 प्रश्नों का अभ्यास टेस्ट"
                 >
-                  <span>{isHindi ? '50 Qs अभ्यास (90 Min)' : '50 Qs Mini Mock'}</span>
+                  <span>{isHindi ? '50 Qs अभ्यास' : '50 Qs Mini'}</span>
                 </button>
               </div>
             </div>
           </div>
 
           {/* CHAPTER TEST CARDS GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
             {filteredTests.map((test) => (
               <div
                 key={test.id}
-                className="bg-[#070b14] border border-slate-800 hover:border-amber-500/60 rounded-2xl p-3.5 flex flex-col justify-between space-y-3 transition-all hover:shadow-lg hover:shadow-amber-500/10 group"
+                className="bg-white border border-slate-200 hover:border-amber-600/60 rounded-2xl p-4 flex flex-col justify-between space-y-4 transition-all hover:shadow-xl hover:shadow-amber-900/5 group relative overflow-hidden"
               >
-                <div className="space-y-1.5">
+                <div className="absolute top-0 right-0 w-8 h-8 bg-amber-50 rounded-bl-2xl border-l border-b border-slate-100"></div>
+                
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30">
+                    <span className="text-[9px] font-black text-amber-700 bg-amber-50 px-2 py-1 rounded border border-amber-200 uppercase tracking-wider">
                       {test.subject}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-amber-400" />
-                      <span>{test.timeMinutes} Min</span>
+                    <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      <span>{test.timeMinutes}m</span>
                     </span>
                   </div>
 
-                  <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition-colors leading-snug line-clamp-2">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-amber-700 transition-colors leading-snug line-clamp-2">
                     {test.chapter}
                   </h4>
 
-                  <p className="text-[11px] text-slate-400 leading-tight line-clamp-2">
+                  <p className="text-[11px] text-slate-500 leading-tight line-clamp-2 italic">
                     {isHindi ? test.descriptionHi : test.descriptionEn}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-900 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400">
-                    {test.totalQuestions} {isHindi ? 'वस्तुनिष्ठ प्रश्न' : 'MCQs'}
+                <div className="pt-3 border-t border-slate-50 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    {test.totalQuestions} {isHindi ? 'वस्तुनिष्ठ' : 'MCQs'}
                   </span>
 
                   <button
                     type="button"
                     onClick={() => onStartBoardTest(test)}
-                    className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-black text-[10px] rounded-lg shadow-md flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
                   >
-                    <span>{isHindi ? 'सिंगल टेस्ट शुरू करें' : 'Start Test'}</span>
+                    <span>{isHindi ? 'अभ्यास' : 'Practice'}</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -979,51 +1809,78 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
 
       {/* TAB CONTENT: ANSWER WRITING LAB */}
       {activeTab === 'answer-lab' && (
-        <div className="bg-[#070b14] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-5 shadow-sm relative z-10">
           <div className="space-y-1">
-            <h4 className="text-sm font-black text-white flex items-center gap-2">
-              <span className="text-amber-400">✍️</span>
+            <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <span className="text-amber-600">✍️</span>
               <span>{isHindi ? 'आंसर राइटिंग फीडबैक लैब् (AI Evaluator)' : 'Answer Writing Lab (AI Evaluator)'}</span>
             </h4>
-            <p className="text-xs text-slate-400">
-              {isHindi ? 'बोर्ड परीक्षा में उत्तर कैसे लिखें? अपना उत्तर नीचे टाइप या पेस्ट करें (या OCR से अपलोड करें)। AI आपको हेडिंग, डायग्राम और वर्ड लिमिट पर फीडबैक देगा।' : 'Type or paste your drafted answer below. AI evaluates heading placement, diagram cues, and word limit.'}
+            <p className="text-xs text-slate-500 leading-relaxed font-medium">
+              {isHindi ? 'बोर्ड परीक्षा में उत्तर कैसे लिखें? अपना उत्तर नीचे टाइप करें। AI आपको हेडिंग, डायग्राम टिप्स और वर्ड लिमिट पर फीडबैक देगा ताकि आप 100% स्कोर कर सकें।' : 'Type or paste your drafted answer below. AI evaluates heading placement, diagram cues, and word limit for maximum board exam scoring.'}
             </p>
           </div>
 
-          <div className="space-y-2">
-            <textarea
-              value={studentAnswerText}
-              onChange={(e) => setStudentAnswerText(e.target.value)}
-              rows={4}
-              placeholder={isHindi ? "यहाँ अपना उत्तर लिखें (उदा. प्रकाश संश्लेषण की परिभाषा एवं समीकरण)..." : "Write your answer here..."}
-              className="w-full p-3 bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl text-xs text-white font-sans focus:outline-none"
-            />
+          <div className="space-y-3">
+            <div className="relative">
+              <textarea
+                value={studentAnswerText}
+                onChange={(e) => setStudentAnswerText(e.target.value)}
+                rows={6}
+                placeholder={isHindi ? "यहाँ अपना उत्तर विस्तार से लिखें (जैसे: ओम का नियम, हृदय की संरचना आदि)..." : "Write your answer here in detail..."}
+                className="w-full p-4 bg-slate-50 border border-slate-200 focus:border-amber-500 rounded-xl text-xs sm:text-sm text-slate-900 font-sans focus:outline-none shadow-inner resize-none"
+              />
+              <div className="absolute bottom-3 right-3 text-[10px] text-slate-400 font-bold">
+                {studentAnswerText.length} Characters
+              </div>
+            </div>
+            
             <button
               onClick={handleEvaluateAnswer}
               disabled={isEvaluatingAnswer || !studentAnswerText.trim()}
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer transition-all disabled:opacity-50 flex items-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer transition-all disabled:opacity-50 flex items-center justify-center gap-3 active:scale-[0.98]"
             >
-              {isEvaluatingAnswer ? <Clock className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              <span>{isHindi ? 'AI से उत्तर जांच करवाएं (Evaluate Answer)' : 'Evaluate Answer'}</span>
+              {isEvaluatingAnswer ? <Clock className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 text-amber-400" />}
+              <span>{isHindi ? 'AI से उत्तर जांच करवाएं' : 'Evaluate with AI Evaluator'}</span>
             </button>
           </div>
 
           {evaluationResult && (
-            <div className="bg-slate-950 border border-amber-500/40 rounded-2xl p-4 space-y-3 animate-fade-in">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">
-                  {isHindi ? 'AI परीक्षक मूल्यांकन रिपोर्ट' : 'AI Examiner Evaluation Report'}
-                </span>
-                <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-black font-mono">
-                  Score: {evaluationResult.score}/100 🎯
-                </span>
+            <div className="bg-[#FFFDF0] border-2 border-amber-200 rounded-2xl p-5 space-y-4 animate-fade-in shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 -mr-12 -mt-12 rounded-full blur-xl"></div>
+              <div className="flex items-center justify-between border-b border-amber-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    🏆
+                  </div>
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
+                    {isHindi ? 'AI परीक्षक मूल्यांकन रिपोर्ट' : 'AI Evaluation Report'}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">Board Score</span>
+                  <span className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-sm font-black font-mono shadow-sm">
+                    {evaluationResult.score}/100
+                  </span>
+                </div>
               </div>
-              <ul className="space-y-2 text-xs text-slate-200">
-                <li className="p-2 bg-slate-900 rounded-xl border border-slate-800">{evaluationResult.headingFeedback}</li>
-                <li className="p-2 bg-slate-900 rounded-xl border border-slate-800">{evaluationResult.diagramFeedback}</li>
-                <li className="p-2 bg-slate-900 rounded-xl border border-slate-800">{evaluationResult.wordLimitFeedback}</li>
-                <li className="p-2 bg-amber-950/40 text-amber-300 rounded-xl border border-amber-500/30 font-bold">{evaluationResult.topperTip}</li>
-              </ul>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3 bg-white border border-slate-100 rounded-xl space-y-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase">Structure</span>
+                  <p className="text-xs text-slate-700 font-bold leading-tight">{evaluationResult.headingFeedback}</p>
+                </div>
+                <div className="p-3 bg-white border border-slate-100 rounded-xl space-y-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase">Visuals</span>
+                  <p className="text-xs text-slate-700 font-bold leading-tight">{evaluationResult.diagramFeedback}</p>
+                </div>
+                <div className="p-3 bg-white border border-slate-100 rounded-xl space-y-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase">Conciseness</span>
+                  <p className="text-xs text-slate-700 font-bold leading-tight">{evaluationResult.wordLimitFeedback}</p>
+                </div>
+                <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl space-y-1">
+                  <span className="text-[10px] font-black text-amber-700 uppercase">Topper's Tip</span>
+                  <p className="text-xs text-amber-900 font-black leading-tight italic">"{evaluationResult.topperTip}"</p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1031,53 +1888,172 @@ export const BoardExamSingleTestBox: React.FC<BoardExamSingleTestBoxProps> = ({
 
       {/* TAB CONTENT: BLUEPRINT ANALYSIS */}
       {activeTab === 'blueprint' && (
-        <div className="bg-[#070b14] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
-          <h4 className="text-sm font-black text-white flex items-center gap-2">
-            <span className="text-amber-400">📊</span>
-            <span>{isHindi ? 'बोर्ड परीक्षा ब्लूप्रिंट एवं अंक योजना (Chapter Weightage)' : 'Board Exam Blueprint & Weightage'}</span>
-          </h4>
-          <p className="text-xs text-slate-400">
-            {isHindi ? 'किस चैप्टर से कितने अंक के सवाल आते हैं (CBSE, UP & Bihar Board विश्लेषण):' : 'Chapter-wise marks distribution for high scoring preparation:'}
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
-              <div className="text-xs font-black text-amber-400">रासायनिक अभिक्रियाएं (Chemical Reactions)</div>
-              <div className="text-[11px] text-slate-300">Weightage: 6 Marks (1 MCQ + 1 Short 3M + 2M balance)</div>
-              <div className="text-[10px] text-emerald-400 font-bold">High Priority for Board Exam</div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl border border-blue-100">
+              📊
             </div>
-            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
-              <div className="text-xs font-black text-amber-400">जैव प्रक्रम (Life Processes)</div>
-              <div className="text-[11px] text-slate-300">Weightage: 8 Marks (Diagram Question Guaranteed)</div>
-              <div className="text-[10px] text-emerald-400 font-bold">Must Practice Nephron & Heart Diagram</div>
+            <div>
+              <h4 className="text-base font-black text-slate-900">
+                {isHindi ? 'बोर्ड परीक्षा ब्लूप्रिंट एवं अंक योजना' : 'Board Exam Blueprint & Weightage'}
+              </h4>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                {isHindi ? 'CBSE, UP & Bihar Board विश्लेषण 2024-25' : 'Official Analysis for 2024-25 Exams'}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 relative overflow-hidden group">
+              <div className="absolute top-2 right-2 px-2 py-0.5 bg-rose-100 text-rose-700 text-[9px] font-black rounded uppercase">High Priority</div>
+              <div className="text-sm font-black text-slate-900">{isHindi ? 'रासायनिक अभिक्रियाएं' : 'Chemical Reactions'}</div>
+              <div className="text-xs text-slate-600 font-bold">Weightage: <span className="text-slate-900">6 Marks</span></div>
+              <p className="text-[10px] text-slate-500 leading-tight">Focus on Balancing & Types of reactions. Practice displacement reactions examples.</p>
+            </div>
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 relative overflow-hidden group">
+              <div className="absolute top-2 right-2 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-black rounded uppercase">Diagram Must</div>
+              <div className="text-sm font-black text-slate-900">{isHindi ? 'जैव प्रक्रम' : 'Life Processes'}</div>
+              <div className="text-xs text-slate-600 font-bold">Weightage: <span className="text-slate-900">8-10 Marks</span></div>
+              <p className="text-[10px] text-slate-500 leading-tight">Must practice Nephron, Human Heart & Alveoli diagrams with labeling for full marks.</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB CONTENT: 1-MIN CRX REVISION CARDS */}
+      {/* TAB CONTENT: POCKET NOTES */}
       {activeTab === 'revision' && (
-        <div className="bg-[#070b14] border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
-          <h4 className="text-sm font-black text-white flex items-center gap-2">
-            <span className="text-amber-400">🧠</span>
-            <span>{isHindi ? '1-मिनट क्रक्स रिवीजन कार्ड्स (Exam Quick Summary)' : '1-Min Crx Revision Cards'}</span>
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
-              <div className="text-[10px] font-bold text-amber-400">Physics Formula</div>
-              <div className="text-xs text-white font-mono font-bold">C = 4πε₀ R</div>
-              <div className="text-[10px] text-slate-400">Spherical Capacitor</div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-5 shadow-sm relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl border border-emerald-100">
+              🔖
             </div>
-            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
-              <div className="text-[10px] font-bold text-cyan-400">Chemistry Rule</div>
-              <div className="text-xs text-white font-mono font-bold">(P₀ - Ps)/P₀ = X_B</div>
-              <div className="text-[10px] text-slate-400">Raoult's Law Relative Lowering</div>
+            <div>
+              <h4 className="text-base font-black text-slate-900">
+                {isHindi ? 'पॉकेट रिवीजन कार्ड्स' : 'Pocket Revision Cards'}
+              </h4>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                {isHindi ? 'अंतिम समय के लिए महत्वपूर्ण सूत्र' : 'Critical Formulas for Last-Min Revision'}
+              </p>
             </div>
-            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
-              <div className="text-[10px] font-bold text-emerald-400">Biology Fact</div>
-              <div className="text-xs text-white font-mono font-bold">Nephron & Alveoli</div>
-              <div className="text-[10px] text-slate-400">Structural Units</div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 bg-[#FFF9F9] border border-rose-100 rounded-2xl space-y-2 transform rotate-1 hover:rotate-0 transition-transform">
+              <div className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Physics</div>
+              <div className="text-sm text-slate-900 font-mono font-black">C = 4πε₀ R</div>
+              <div className="text-[10px] text-slate-500 font-bold">Spherical Capacitor</div>
             </div>
+            <div className="p-4 bg-[#F9F9FF] border border-blue-100 rounded-2xl space-y-2 transform -rotate-1 hover:rotate-0 transition-transform">
+              <div className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Chemistry</div>
+              <div className="text-sm text-slate-900 font-mono font-black">PV = nRT</div>
+              <div className="text-[10px] text-slate-500 font-bold">Ideal Gas Equation</div>
+            </div>
+            <div className="p-4 bg-[#F9FFF9] border border-emerald-100 rounded-2xl space-y-2 transform rotate-1 hover:rotate-0 transition-transform">
+              <div className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Math</div>
+              <div className="text-sm text-slate-900 font-mono font-black">x = -b ± √D / 2a</div>
+              <div className="text-[10px] text-slate-500 font-bold">Quadratic Formula</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: PARENT PROGRESS REPORT CARD */}
+      {activeTab === 'parent-report' && (
+        <div className="bg-white border-2 border-slate-900 rounded-3xl p-5 sm:p-7 space-y-6 shadow-2xl relative overflow-hidden z-10 font-sans">
+          {/* Report Card Header */}
+          <div className="text-center space-y-2 border-b-2 border-dashed border-slate-200 pb-6">
+            <div className="flex justify-center mb-2">
+              <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center text-3xl shadow-lg border-4 border-white">
+                🎓
+              </div>
+            </div>
+            <h4 className="text-xl font-black text-slate-900 tracking-tight uppercase">
+              {isHindi ? 'प्रगति रिपोर्ट कार्ड (Parent Copy)' : 'Progress Report Card (Parent Copy)'}
+            </h4>
+            <div className="flex items-center justify-center gap-4 text-[11px] font-bold text-slate-500">
+              <span>{isHindi ? 'सत्र:' : 'Session:'} 2024-25</span>
+              <span>•</span>
+              <span>{isHindi ? 'कक्षा:' : 'Grade:'} {selectedClass}</span>
+              <span>•</span>
+              <span>{isHindi ? 'दिनांक:' : 'Date:'} {new Date().toLocaleDateString()}</span>
+            </div>
+          </div>
+
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">{isHindi ? 'औसत स्कोर' : 'Avg Score'}</span>
+              <span className="block text-2xl font-black text-slate-900">84%</span>
+              <span className="block text-[9px] font-bold text-emerald-600">↑ 4% {isHindi ? 'सुधार' : 'Better'}</span>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">{isHindi ? 'टेस्ट पूरे' : 'Tests Done'}</span>
+              <span className="block text-2xl font-black text-slate-900">42</span>
+              <span className="block text-[9px] font-bold text-slate-500">{isHindi ? 'पिछले 30 दिन' : 'Last 30 Days'}</span>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">{isHindi ? 'स्टडी टाइम' : 'Study Time'}</span>
+              <span className="block text-2xl font-black text-slate-900">128h</span>
+              <span className="block text-[9px] font-bold text-amber-600">{isHindi ? 'लगातार 12 दिन' : '12 Day Streak'}</span>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">{isHindi ? 'ग्रेड' : 'Grade'}</span>
+              <span className="block text-2xl font-black text-emerald-600">A+</span>
+              <span className="block text-[9px] font-bold text-slate-500">{isHindi ? 'उत्कृष्ट' : 'Excellent'}</span>
+            </div>
+          </div>
+
+          {/* Subject Wise Performance */}
+          <div className="space-y-3">
+            <h5 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <BarChart3 className="w-3 h-3" />
+              {isHindi ? 'विषयवार प्रदर्शन' : 'Subject Performance'}
+            </h5>
+            <div className="space-y-3">
+              {[
+                { sub: isHindi ? 'विज्ञान' : 'Science', score: 88, status: isHindi ? 'मजबूत' : 'Strong' },
+                { sub: isHindi ? 'गणित' : 'Maths', score: 76, status: isHindi ? 'सुधार की जरूरत' : 'Needs Work' },
+                { sub: isHindi ? 'अंग्रेजी' : 'English', score: 92, status: isHindi ? 'उत्कृष्ट' : 'Expert' }
+              ].map((item, idx) => (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-slate-700">{item.sub}</span>
+                    <span className="text-slate-900">{item.score}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full ${item.score > 85 ? 'bg-emerald-500' : item.score > 70 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                      style={{ width: `${item.score}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* AI Teacher's Remarks */}
+          <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl space-y-2">
+            <h5 className="text-[10px] font-black text-amber-700 uppercase tracking-widest flex items-center gap-2">
+              <Sparkles className="w-3 h-3" />
+              {isHindi ? 'शिक्षक की टिप्पणी (AI Remarks)' : 'Teacher Remarks (AI)'}
+            </h5>
+            <p className="text-xs text-amber-900 font-bold leading-relaxed italic">
+              {isHindi 
+                ? "आपका बच्चा विज्ञान और अंग्रेजी में बहुत अच्छा कर रहा है। गणित के 'त्रिकोणमिति' सेक्शन में थोड़े और अभ्यास की आवश्यकता है। पिछले सप्ताह की तुलना में पढ़ाई में निरंतरता (Consistency) काफी बढ़ी है।"
+                : "Your child is performing exceptionally well in Science and English. A bit more focus is needed in Mathematics (Trigonometry). Consistency has improved significantly compared to last week."}
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button className="flex-1 px-6 py-3 bg-slate-900 text-white font-black text-xs rounded-xl shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+              <Download className="w-4 h-4" />
+              {isHindi ? 'PDF डाउनलोड करें' : 'Download PDF Report'}
+            </button>
+            <button className="flex-1 px-6 py-3 bg-white border-2 border-slate-900 text-slate-900 font-black text-xs rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+              <Share2 className="w-4 h-4" />
+              {isHindi ? 'पेरेंट्स को व्हाट्सएप करें' : 'Share to Parents'}
+            </button>
           </div>
         </div>
       )}

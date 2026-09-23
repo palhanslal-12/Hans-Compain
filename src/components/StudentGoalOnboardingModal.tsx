@@ -143,7 +143,7 @@ export const StudentGoalOnboardingModal: React.FC<StudentGoalOnboardingModalProp
       return ['Biology (जीव विज्ञान - वनस्पति एवं जंतु)', 'Physics (भौतिक विज्ञान)', 'Chemistry (रसायन विज्ञान)', 'English', 'Hindi'];
     }
     if (subStream === 'commerce') {
-      return ['Accountancy (लेखाशास्त्र)', 'Business Studies (व्यवसाय अध्ययन)', 'Economics (अर्थशास्त्र)', 'Entrepreneurship (उद्यमिता)', 'Mathematics (गणित)', 'English'];
+      return ['Accountancy (लेखाशास्त्र)', 'Business Studies (व्यवसाय अध्ययन)', 'Economics (अर्थशास्त्र)', 'Entrepreneurship (उद्यमिता)', 'Mathematics (गणित)', 'English', 'Hindi'];
     }
     // Arts / Humanities
     return [
@@ -151,9 +151,12 @@ export const StudentGoalOnboardingModal: React.FC<StudentGoalOnboardingModalProp
       'History (इतिहास)', 
       'Geography (भूगोल)', 
       'Economics (अर्थशास्त्र)', 
-      'Sociology / Psychology (समाजशास्त्र / मनोविज्ञान)', 
+      'Sociology (समाजशास्त्र)',
+      'Psychology (मनोविज्ञान)',
+      'Home Science (गृह विज्ञान)',
       'Hindi (हिन्दी)', 
-      'English (अंग्रेजी)'
+      'English (अंग्रेजी)',
+      'Sanskrit (संस्कृत)'
     ];
   };
 

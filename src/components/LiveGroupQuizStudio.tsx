@@ -21,6 +21,7 @@ import {
   findPublicGroupQuizRoom
 } from '../lib/firebase';
 import { getAppShareUrl, shareViaWhatsApp, shareViaTelegram, copyToClipboard } from '../utils/shareUtils';
+import { StudentGoalProfile } from './StudentGoalOnboardingModal';
 
 interface LiveGroupQuizStudioProps {
   language?: 'hindi' | 'english';
@@ -31,6 +32,7 @@ interface LiveGroupQuizStudioProps {
   userEmail?: string;
   user?: any;
   onBackToHome?: () => void;
+  studentGoalProfile?: StudentGoalProfile | null;
 }
 
 // Built-in Comprehensive Question Bank for Competitive & Board Exams
@@ -290,6 +292,79 @@ const QUESTION_BANK: Record<string, QuizQuestion[]> = {
       explanation: "जेम्स वाटसन और फ्रांसिस क्रिक ने डीएनए की द्विकुंडलीय संरचना का मॉडल प्रस्तुत किया था।",
       hint: "वाटसन और क्रिक मॉडल।"
     }
+  ],
+  board_12_maths: [
+    {
+      question: "अवकल समीकरण (Differential Eq) dy/dx = e^(x + y) का सामान्य हल क्या है?",
+      options: ["e^(-y) = -e^x + C", "e^y = e^x + C", "e^(-y) = e^x + C", "e^y = -e^x + C"],
+      answerIndex: 0,
+      explanation: "e^(-y) dy = e^x dx समाकलन करने पर: -e^(-y) = e^x + c' ⇒ e^(-y) = -e^x + C प्राप्त होता है।",
+      hint: "पदों का पृथक्करण विधि (Separation of Variables)।"
+    },
+    {
+      question: "यदि A और B समान कोटि के सममित आव्यूह (Symmetric Matrices) हैं, तो (AB - BA) क्या होगा?",
+      options: ["विषम-सममित आव्यूह (Skew-symmetric)", "सममित आव्यूह", "शून्य आव्यूह", "तत्समक आव्यूह"],
+      answerIndex: 0,
+      explanation: "(AB - BA)' = (AB)' - (BA)' = B'A' - A'B' = BA - AB = -(AB - BA)। अतः यह विषम-सममित आव्यूह है।",
+      hint: "आव्यूह के परिवर्त (Transpose) का गुणधर्म लगाएं।"
+    }
+  ],
+  board_12_commerce: [
+    {
+      question: "साझेदारी संलेख (Partnership Deed) के अभाव में साझेदारों द्वारा दिए गए ऋण पर कितने प्रतिशत ब्याज देय होता है?",
+      options: ["6% प्रति वर्ष", "10% प्रति वर्ष", "5% प्रति वर्ष", "कोई ब्याज नहीं"],
+      answerIndex: 0,
+      explanation: "भारतीय साझेदारी अधिनियम 1932 के अनुसार संलेख न होने पर ऋण पर 6% वार्षिक दर से ब्याज दिया जाता है।",
+      hint: "साझेदारी अधिनियम 1932 का अनिवार्य नियम।"
+    },
+    {
+      question: "वैज्ञानिक प्रबंध के जनक (Father of Scientific Management) किन्हें कहा जाता है?",
+      options: ["एफ. डब्ल्यू. टेलर (F.W. Taylor)", "हेनरी फेयोल", "पीटर ड्रकर", "मैक्स वेबर"],
+      answerIndex: 0,
+      explanation: "फ्रेडरिक विंसलो टेलर ने 'प्रिंसिपल्स ऑफ साइंटिफिक मैनेजमेंट' का प्रतिपादन किया था।",
+      hint: "समय और गति अध्ययन के प्रणेता।"
+    }
+  ],
+  board_12_arts: [
+    {
+      question: "शीत युद्ध (Cold War) का चरम बिंदु (High Point) किस संकट को माना जाता है?",
+      options: ["क्यूबा मिसाइल संकट (1962)", "बर्लिन संकट (1961)", "कोरियाई युद्ध (1950)", "वियतनाम युद्ध"],
+      answerIndex: 0,
+      explanation: "अक्टूबर 1962 में सोवियत संघ द्वारा क्यूबा में परमाणु मिसाइलें तैनात करने से विश्व तीसरे विश्व युद्ध के कगार पर आ गया था।",
+      hint: "अक्टूबर 1962 की घटना।"
+    },
+    {
+      question: "हड़प्पा सभ्यता के किस स्थल से जुते हुए खेत (Ploughed Field) के साक्ष्य प्राप्त हुए हैं?",
+      options: ["कालीबंगा (राजस्थान)", "लोथल", "मोहनजोदड़ो", "बनावली"],
+      answerIndex: 0,
+      explanation: "राजस्थान के हनुमानगढ़ जिले में स्थित कालीबंगा से प्राक्-हड़प्पा स्तर के जुते हुए खेत के साक्ष्य मिले हैं।",
+      hint: "घग्घर नदी के किनारे स्थित राजस्थान का स्थल।"
+    }
+  ],
+  board_10_hindi: [
+    {
+      question: "'नेताजी का चश्मा' पाठ में कैप्टन कौन था?",
+      options: ["एक चश्मे बेचने वाला देशभक्त लंगड़ा व्यक्ति", "सेना का एक सेवानिवृत्त सूबेदार", "पान वाला", "हालदार साहब का ड्राइवर"],
+      answerIndex: 0,
+      explanation: "कैप्टन एक गरीब, लंगड़ा चश्मे वाला था जो नेताजी की मूर्ति पर चश्मा लगाकर देशभक्ति प्रकट करता था।",
+      hint: "स्वयं प्रकाश द्वारा लिखित कहानी।"
+    },
+    {
+      question: "सूरदास के पदों में गोपियों ने 'उद्धव' के योग-संदेश की तुलना किससे की है?",
+      options: ["कड़वी ककड़ी (Bitter Gourd) से", "मीठे फल से", "अमृत से", "तीखे बाण से"],
+      answerIndex: 0,
+      explanation: "गोपियों ने उद्धव के योग संदेश को 'कड़वी ककड़ी' के समान अरुचिकर और व्यर्थ बताया।",
+      hint: "'हमारैं हरि हारिल की लकरी' पद।"
+    }
+  ],
+  board_10_english: [
+    {
+      question: "In 'A Letter to God', why did Lencho write a letter to God demanding 100 pesos?",
+      options: ["Because a severe hailstorm completely destroyed his ripe corn field", "To buy a new tractor", "To celebrate a festival", "To pay taxes"],
+      answerIndex: 0,
+      explanation: "A devastating hailstorm destroyed his entire ripe corn crops, leaving his family facing starvation.",
+      hint: "NCERT Class 10 First Flight Chapter 1."
+    }
   ]
 };
 
@@ -301,7 +376,8 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
   userName = 'My Aspirant',
   userEmail = '',
   user,
-  onBackToHome
+  onBackToHome,
+  studentGoalProfile
 }) => {
   const isHindi = language === 'hindi';
 
@@ -316,10 +392,52 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
   const [playerId] = useState(() => 'usr_' + Math.random().toString(36).substring(2, 9));
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
+  // User Goal Profile Detection
+  const profileStream = studentGoalProfile?.stream || 'competitive';
+  const profileClassGrade = studentGoalProfile?.boardDetails?.classGrade; // 'Class 10th' | 'Class 12th'
+  const profileSubStream = studentGoalProfile?.boardDetails?.subStream; // 'science_pcm' | 'science_pcb' | 'commerce' | 'arts'
+
+  const computeDefaultBoardClass = (): '10th' | '12th_pcm' | '12th_pcb' | '12th_commerce' | '12th_arts' => {
+    if (profileClassGrade === 'Class 12th') {
+      if (profileSubStream === 'science_pcb') return '12th_pcb';
+      if (profileSubStream === 'commerce') return '12th_commerce';
+      if (profileSubStream === 'arts') return '12th_arts';
+      return '12th_pcm';
+    }
+    return '10th';
+  };
+
   // Exam Selection: Competitive Exam vs Board Exam
-  const [examType, setExamType] = useState<'competitive' | 'board'>('competitive');
-  const [boardClass, setBoardClass] = useState<'10th' | '12th_science' | '12th_arts'>('10th');
-  const [selectedSubject, setSelectedSubject] = useState<string>('gk_polity');
+  const [examType, setExamType] = useState<'competitive' | 'board'>(() => (profileStream === 'board' ? 'board' : 'competitive'));
+  const [boardClass, setBoardClass] = useState<'10th' | '12th_pcm' | '12th_pcb' | '12th_commerce' | '12th_arts'>(computeDefaultBoardClass);
+  const [selectedSubject, setSelectedSubject] = useState<string>(() => {
+    if (profileStream === 'board') {
+      if (profileClassGrade === 'Class 12th') {
+        if (profileSubStream === 'science_pcb') return 'board_12_biology';
+        if (profileSubStream === 'commerce') return 'board_12_commerce';
+        if (profileSubStream === 'arts') return 'board_12_arts';
+        return 'board_12_physics';
+      }
+      return 'board_10_science';
+    }
+    return 'gk_polity';
+  });
+
+  // Keep synchronized when studentGoalProfile changes
+  useEffect(() => {
+    if (studentGoalProfile?.stream) {
+      setExamType(studentGoalProfile.stream);
+    }
+    if (studentGoalProfile?.boardDetails?.classGrade) {
+      const computed = computeDefaultBoardClass();
+      setBoardClass(computed);
+      if (computed === '10th') setSelectedSubject('board_10_science');
+      else if (computed === '12th_pcm') setSelectedSubject('board_12_physics');
+      else if (computed === '12th_pcb') setSelectedSubject('board_12_biology');
+      else if (computed === '12th_commerce') setSelectedSubject('board_12_commerce');
+      else if (computed === '12th_arts') setSelectedSubject('board_12_arts');
+    }
+  }, [studentGoalProfile?.stream, studentGoalProfile?.boardDetails?.classGrade, studentGoalProfile?.boardDetails?.subStream]);
   
   // Question Count & Unlimited Mode
   const [questionCountChoice, setQuestionCountChoice] = useState<number | 'unlimited'>(5);
@@ -375,10 +493,14 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
     } else {
       if (boardClass === '10th') {
         setSelectedSubject('board_10_science');
-      } else if (boardClass === '12th_science') {
+      } else if (boardClass === '12th_pcm') {
         setSelectedSubject('board_12_physics');
-      } else {
-        setSelectedSubject('board_10_sst');
+      } else if (boardClass === '12th_pcb') {
+        setSelectedSubject('board_12_biology');
+      } else if (boardClass === '12th_commerce') {
+        setSelectedSubject('board_12_commerce');
+      } else if (boardClass === '12th_arts') {
+        setSelectedSubject('board_12_arts');
       }
     }
   }, [examType, boardClass]);
@@ -1863,29 +1985,70 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                 {/* 1.2 BOARD CLASS PICKER (IF BOARD EXAM CHOSEN) */}
                 {examType === 'board' && (
                   <div className="space-y-1.5 p-3 bg-slate-950/60 border border-emerald-500/30 rounded-2xl">
-                    <label className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                      <GraduationCap className="w-3.5 h-3.5" />
-                      <span>{isHindi ? 'कक्षा व स्ट्रीम चुनें (Class & Stream):' : 'Select Class & Stream:'}</span>
+                    <label className="text-xs font-bold text-emerald-300 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <GraduationCap className="w-3.5 h-3.5" />
+                        <span>{isHindi ? 'कक्षा व स्ट्रीम चुनें (Class & Stream):' : 'Select Class & Stream:'}</span>
+                      </div>
+                      {profileClassGrade && (
+                        <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+                          {profileClassGrade}
+                        </span>
+                      )}
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: '10th', label: 'कक्षा 10वीं बोर्ड' },
-                        { id: '12th_science', label: '12वीं साइंस (PCM/PCB)' },
-                        { id: '12th_arts', label: '12वीं कला व कॉमर्स' }
-                      ].map(cls => (
+
+                    {/* Filter class buttons strictly based on student profile */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {profileClassGrade === 'Class 10th' ? (
                         <button
-                          key={cls.id}
                           type="button"
-                          onClick={() => setBoardClass(cls.id as any)}
-                          className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
-                            boardClass === cls.id
-                              ? 'bg-emerald-600 text-white border-emerald-400 shadow-md'
-                              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                          }`}
+                          onClick={() => setBoardClass('10th')}
+                          className="col-span-2 sm:col-span-4 py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center bg-emerald-600 text-white border-emerald-400 shadow-md flex items-center justify-center gap-2"
                         >
-                          {cls.label}
+                          <span>🎯 कक्षा 10वीं बोर्ड (Class 10th Board - All Subjects)</span>
                         </button>
-                      ))}
+                      ) : profileClassGrade === 'Class 12th' ? (
+                        [
+                          { id: '12th_pcm', label: '🧪 12वीं साइंस (PCM/Maths)' },
+                          { id: '12th_pcb', label: '🧬 12वीं साइंस (PCB/Bio)' },
+                          { id: '12th_commerce', label: '📊 12वीं कॉमर्स (Commerce)' },
+                          { id: '12th_arts', label: '🎨 12वीं आर्ट्स (Humanities)' }
+                        ].map(cls => (
+                          <button
+                            key={cls.id}
+                            type="button"
+                            onClick={() => setBoardClass(cls.id as any)}
+                            className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
+                              boardClass === cls.id
+                                ? 'bg-emerald-600 text-white border-emerald-400 shadow-md'
+                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {cls.label}
+                          </button>
+                        ))
+                      ) : (
+                        [
+                          { id: '10th', label: 'कक्षा 10वीं बोर्ड' },
+                          { id: '12th_pcm', label: '12वीं साइंस PCM' },
+                          { id: '12th_pcb', label: '12वीं साइंस PCB' },
+                          { id: '12th_commerce', label: '12वीं कॉमर्स' },
+                          { id: '12th_arts', label: '12वीं आर्ट्स' }
+                        ].map(cls => (
+                          <button
+                            key={cls.id}
+                            type="button"
+                            onClick={() => setBoardClass(cls.id as any)}
+                            className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
+                              boardClass === cls.id
+                                ? 'bg-emerald-600 text-white border-emerald-400 shadow-md'
+                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {cls.label}
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
@@ -1925,7 +2088,10 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                       {boardClass === '10th' && [
                         { id: 'board_10_science', label: '10th विज्ञान (Science)', icon: '🔬' },
                         { id: 'board_10_maths', label: '10th गणित (Maths)', icon: '📐' },
-                        { id: 'board_10_sst', label: '10th सामाजिक विज्ञान', icon: '🌍' }
+                        { id: 'board_10_sst', label: '10th सामाजिक विज्ञान', icon: '🌍' },
+                        { id: 'board_10_hindi', label: '10th हिन्दी (Hindi)', icon: '📖' },
+                        { id: 'board_10_english', label: '10th अंग्रेजी (English)', icon: '🔤' },
+                        { id: 'board_10_sanskrit', label: '10th संस्कृत (Sanskrit)', icon: '🕉️' }
                       ].map(subj => (
                         <button
                           key={subj.id}
@@ -1942,10 +2108,56 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                         </button>
                       ))}
 
-                      {boardClass === '12th_science' && [
+                      {boardClass === '12th_pcm' && [
+                        { id: 'board_12_maths', label: '12th गणित (Mathematics)', icon: '📐' },
                         { id: 'board_12_physics', label: '12th भौतिकी (Physics)', icon: '⚡' },
                         { id: 'board_12_chemistry', label: '12th रसायन (Chemistry)', icon: '🧪' },
-                        { id: 'board_12_biology', label: '12th जीव विज्ञान (Bio)', icon: '🧬' }
+                        { id: 'board_10_hindi', label: '12th हिन्दी (Hindi)', icon: '📖' },
+                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
+                      ].map(subj => (
+                        <button
+                          key={subj.id}
+                          type="button"
+                          onClick={() => setSelectedSubject(subj.id)}
+                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+                            selectedSubject === subj.id
+                              ? 'bg-emerald-600/20 border-emerald-500 text-white shadow'
+                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                          }`}
+                        >
+                          <span className="text-base">{subj.icon}</span>
+                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
+                        </button>
+                      ))}
+
+                      {boardClass === '12th_pcb' && [
+                        { id: 'board_12_biology', label: '12th जीव विज्ञान (Biology)', icon: '🧬' },
+                        { id: 'board_12_physics', label: '12th भौतिकी (Physics)', icon: '⚡' },
+                        { id: 'board_12_chemistry', label: '12th रसायन (Chemistry)', icon: '🧪' },
+                        { id: 'board_10_hindi', label: '12th हिन्दी (Hindi)', icon: '📖' },
+                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
+                      ].map(subj => (
+                        <button
+                          key={subj.id}
+                          type="button"
+                          onClick={() => setSelectedSubject(subj.id)}
+                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
+                            selectedSubject === subj.id
+                              ? 'bg-emerald-600/20 border-emerald-500 text-white shadow'
+                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                          }`}
+                        >
+                          <span className="text-base">{subj.icon}</span>
+                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
+                        </button>
+                      ))}
+
+                      {boardClass === '12th_commerce' && [
+                        { id: 'board_12_commerce', label: '12th लेखाशास्त्र (Accounts)', icon: '📊' },
+                        { id: 'board_12_business', label: '12th व्यवसाय (Business)', icon: '💼' },
+                        { id: 'gk_polity', label: '12th अर्थशास्त्र (Economics)', icon: '📈' },
+                        { id: 'board_12_maths', label: '12th गणित (Maths)', icon: '📐' },
+                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
                       ].map(subj => (
                         <button
                           key={subj.id}
@@ -1963,9 +2175,13 @@ export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
                       ))}
 
                       {boardClass === '12th_arts' && [
-                        { id: 'board_10_sst', label: '12th राजनीति विज्ञान', icon: '🏛️' },
-                        { id: 'history', label: '12th इतिहास व कला', icon: '📜' },
-                        { id: 'gk_polity', label: 'अर्थशास्त्र व सामान्य ज्ञान', icon: '📊' }
+                        { id: 'board_12_arts', label: '12th इतिहास (History)', icon: '📜' },
+                        { id: 'board_10_sst', label: '12th राजनीति (Polity)', icon: '🏛️' },
+                        { id: 'gk_polity', label: '12th भूगोल (Geography)', icon: '🌍' },
+                        { id: 'board_12_psychology', label: '12th मनोविज्ञान (Psych)', icon: '🧠' },
+                        { id: 'board_12_sociology', label: '12th समाजशास्त्र (Socio)', icon: '👥' },
+                        { id: 'board_10_hindi', label: '12th हिन्दी (Hindi)', icon: '📖' },
+                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
                       ].map(subj => (
                         <button
                           key={subj.id}

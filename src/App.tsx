@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
 import { speakText, stopAllSpeech } from './utils/speechUtils';
 import { playSuccessChime } from './utils/audio';
 import { 
@@ -3638,9 +3637,27 @@ export default function App() {
     setQuizTimeRemaining(initTimerSec);
     setQuizTotalTimeLimit(initTimerSec);
     setIsQuizTimerActive(quizTimerMode !== 'none');
+
+    // Also dispatch to AcademicQuizStudio with full question set & timer
+    const timeMinutes = Math.max(5, Math.round(questions.length * 1.5));
+    const payload = {
+      category: 'retest',
+      examName: testSubject,
+      topic: testSubject,
+      questions: questions,
+      timeMinutes: timeMinutes,
+      marksPerQ: 2.0,
+      negMark: 0.5
+    };
+    try {
+      sessionStorage.setItem('hansai_launch_quiz', JSON.stringify(payload));
+      window.dispatchEvent(new CustomEvent('hansai_launch_quiz_event', { detail: payload }));
+    } catch (e) {
+      console.warn("Could not dispatch quiz launch event", e);
+    }
     
     setActiveQuizTab('syllabus');
-    showToast(`🎯 Launching ${questions.length} Mistakes Targeted Retest!`, "success");
+    showToast(`🎯 Launching ${questions.length} Targeted Test!`, "success");
   };
 
   // 1-Click Level Up: Switch to Harder/Extreme Question on same chapter
@@ -8258,6 +8275,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   language={language === 'hindi' ? 'hindi' : 'english'}
                   showToast={showToast}
                   onBackToHome={() => setActiveView('chat')}
+                  studentGoalProfile={studentGoalProfile}
                 />
               </div>
             </ErrorBoundary>
@@ -8334,7 +8352,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           {activeView === 'edu-reels' && (
             <ErrorBoundary fallbackTitle="Edu Shorts" onReset={() => setActiveView('chat')}>
               <div className="w-full min-h-[calc(100vh-4rem)] animate-fade-in">
-                <EduReelsView language={language} studentGoalProfile={studentGoalProfile} />
+                <EduReelsView 
+                  language={language} 
+                  studentGoalProfile={studentGoalProfile}
+                  mistakeNotebook={mistakeNotebook}
+                  onStartRetestFromMistake={(questions, title) => handleStartRetestFromMistakes(questions, title)}
+                  onAskAiDoubt={(topic) => {
+                    setActiveView('chat');
+                    handleSendChat(`कृपया मुझे इस विषय पर विस्तार से समझाएं: ${topic}`);
+                  }}
+                />
               </div>
             </ErrorBoundary>
           )}
@@ -10119,11 +10146,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       {/* ALL EXAMS SYLLABUS DIRECTORY MODAL */}
       {/* 🎓 BOARD EXAM CHAPTER-WISE TESTS MODAL */}
       {isBoardExamModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-950 border border-amber-500/40 rounded-3xl p-4 sm:p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#F8F7F0] border-2 border-amber-700/20 rounded-3xl p-2 sm:p-4 shadow-2xl">
             <button
               onClick={() => setIsBoardExamModalOpen(false)}
-              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm transition-all border border-slate-700 cursor-pointer"
+              className="absolute top-6 right-6 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-400 hover:text-slate-900 flex items-center justify-center font-bold text-sm transition-all border border-slate-200 shadow-sm cursor-pointer"
             >
               ✕
             </button>
@@ -10137,9 +10164,26 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               onStartBoardTest={(test: BoardChapterTest) => {
                 setIsBoardExamModalOpen(false);
                 setQuizForcedStream('board');
+                
+                const payload = {
+                  category: 'board',
+                  examName: test.chapter,
+                  topic: test.subject,
+                  questions: test.questions,
+                  timeMinutes: test.timeMinutes,
+                  marksPerQ: 1.0,
+                  negMark: 0.0
+                };
+                try {
+                  sessionStorage.setItem('hansai_launch_quiz', JSON.stringify(payload));
+                  window.dispatchEvent(new CustomEvent('hansai_launch_quiz_event', { detail: payload }));
+                } catch (e) {
+                  console.warn("Board test dispatch error", e);
+                }
+
                 handleStartRetestFromMistakes(test.questions, `${test.classGrade} - ${test.chapter}`);
                 setActiveView('quiz');
-                showToast(language === 'hindi' ? `📝 ${test.chapter} का सिंगल टेस्ट शुरू हुआ!` : `📝 ${test.chapter} test started!`, 'success');
+                showToast(language === 'hindi' ? `📝 ${test.chapter} शुरू हुआ! (${test.questions.length} प्रश्न, ${test.timeMinutes} मिनट)` : `📝 ${test.chapter} test started!`, 'success');
               }}
             />
           </div>
