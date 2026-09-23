@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, Check, X, Bookmark, BookmarkCheck,
   Languages, FileText, Share2, Search, Filter, ShieldAlert, ArrowLeft,
   Pause, Play, Menu, Star, Flag, FileQuestion, SlidersHorizontal, AlertCircle,
-  CheckSquare
+  CheckSquare, BarChart2
 } from 'lucide-react';
 import { QuizQuestion, MistakeNotebookItem, BookmarkedQuestionItem } from '../types';
 import { TestPerformanceScorecard } from './TestPerformanceScorecard';
@@ -836,7 +836,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
   const isHindi = language === 'hindi';
 
   // Navigation Sub-tabs: 'pyq' | 'practice' | 'custom' | 'mistakes' | 'bookmarks'
-  const [activeTab, setActiveTab] = useState<'pyq' | 'practice' | 'custom' | 'mistakes' | 'bookmarks'>('pyq');
+  const [activeTab, setActiveTab] = useState<'pyq' | 'practice' | 'custom' | 'mistakes' | 'bookmarks' | 'parent-report'>('pyq');
   
   // Active Exam Stream: 'board' | 'competitive' (Default according to confirmed student profile or forced stream)
   const [selectedStream, setSelectedStream] = useState<'board' | 'competitive'>(() => {
@@ -1386,6 +1386,25 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     setIsSubmitModalOpen(false);
     setIsTimerPaused(false);
 
+    // Save to Local History for Parent Report
+    try {
+      const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+      history.unshift({
+        id: `res_${Date.now()}`,
+        title: currentTestTitle,
+        score: resultSummary.score,
+        totalMarks: resultSummary.totalMarks,
+        accuracy: resultSummary.accuracy,
+        date: new Date().toISOString(),
+        correct: resultSummary.correct,
+        wrong: resultSummary.wrong,
+        unattempted: resultSummary.unattempted
+      });
+      localStorage.setItem('hansai-test-history', JSON.stringify(history.slice(0, 50)));
+    } catch (e) {
+      console.warn("Could not save test history", e);
+    }
+
     // Inform owner of test submission & performance
     try {
       fetch('/api/users/log-activity', {
@@ -1455,7 +1474,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
     const notVisitedCount = testQuestions.length - answeredCount;
 
     return (
-      <div className="fixed inset-0 z-50 flex flex-col h-screen h-[100dvh] max-h-[100dvh] w-screen max-w-full bg-[#F1F5F9] shadow-2xl overflow-hidden text-slate-900 select-none animate-fadeIn pb-safe">
+      <div className="fixed inset-0 z-50 flex flex-col h-screen h-[100dvh] max-h-[100dvh] w-full max-w-full bg-[#F1F5F9] shadow-2xl overflow-hidden text-slate-900 select-none animate-fadeIn pb-safe">
         
         {/* COMPACT TOP HEADER: Pause | Subject & Question Counter | Timer | Language, Review, Palette */}
         <div className="bg-white border-b border-slate-200 px-3 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between gap-2 shrink-0 shadow-xs">
@@ -2574,53 +2593,65 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
       </div>
 
       {/* Main Sub-Navigation Tabs */}
-      <div className="flex border-b border-slate-800 gap-2">
+      <div className="flex border-b border-slate-800 gap-1 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent relative z-30 pointer-events-auto">
         <button
           onClick={() => setActiveTab('pyq')}
-          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap relative z-10 pointer-events-auto ${
             activeTab === 'pyq'
               ? 'border-amber-500 text-amber-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <Award className="w-4 h-4 text-amber-400" />
-          <span>📅 Previous Year Questions (PYQ)</span>
+          <span>📅 {language === 'hindi' ? 'लाइब्रेरी (Library)' : 'Library (PYQ)'}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('custom')}
-          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap relative z-10 pointer-events-auto ${
             activeTab === 'custom'
               ? 'border-indigo-500 text-indigo-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <Sparkles className="w-4 h-4 text-indigo-400" />
-          <span>✨ Custom AI Practice Sets</span>
+          <span>✨ {language === 'hindi' ? 'क्रिएटर (Creator)' : 'AI Creator'}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('parent-report')}
+          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap relative z-10 pointer-events-auto ${
+            activeTab === 'parent-report'
+              ? 'border-emerald-500 text-emerald-400'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <BarChart2 className="w-4 h-4 text-emerald-400" />
+          <span>📊 {language === 'hindi' ? 'पेरेंट रिपोर्ट (Parent Report)' : 'Parent Report'}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('mistakes')}
-          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap relative z-10 pointer-events-auto ${
             activeTab === 'mistakes'
               ? 'border-rose-500 text-cyan-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <BookOpen className="w-4 h-4 text-cyan-400" />
-          <span>📓 Mistake Diary ({mistakeNotebook.length})</span>
+          <span>📓 {language === 'hindi' ? 'गलतियाँ (Mistakes)' : 'Mistake Diary'} ({mistakeNotebook.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('bookmarks')}
-          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+          className={`pb-3 px-4 font-bold text-xs sm:text-sm border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap relative z-10 pointer-events-auto ${
             activeTab === 'bookmarks'
               ? 'border-yellow-400 text-yellow-300'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <Bookmark className="w-4 h-4 text-yellow-400" />
-          <span>🔖 Bookmarked Questions ({bookmarkedQuestions.length})</span>
+          <span>🔖 {language === 'hindi' ? 'बुकमार्क (Bookmarks)' : 'Bookmarks'} ({bookmarkedQuestions.length})</span>
         </button>
       </div>
 
@@ -3187,6 +3218,106 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* TAB 5: PARENT PROGRESS REPORT CARD */}
+      {activeTab === 'parent-report' && (
+        <div className="space-y-4">
+          <div className="bg-[#0B101D] border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-2xl relative overflow-hidden group animate-fadeIn">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <BarChart2 className="w-24 h-24 text-emerald-400 rotate-12" />
+            </div>
+
+            <div className="w-20 h-20 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
+              <Award className="w-10 h-10 text-emerald-400" />
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-xl sm:text-2xl font-black text-white">
+                {language === 'hindi' ? 'अभिभावक प्रगति रिपोर्ट कार्ड' : 'Parent Progress Report Card'}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+                {language === 'hindi' 
+                  ? 'अपने साप्ताहिक टेस्ट परिणामों और परफॉरमेंस की रिपोर्ट सीधे अपने माता-पिता के साथ शेयर करें।' 
+                  : 'Share your weekly test results and performance diagnostic report directly with your parents.'}
+              </p>
+            </div>
+
+            {/* Real Stats Grid from History */}
+            {(() => {
+              const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+              const totalTests = history.length;
+              const avgAccuracy = totalTests > 0 
+                ? Math.round(history.reduce((acc: number, h: any) => acc + h.accuracy, 0) / totalTests) 
+                : 0;
+              const totalCorrect = history.reduce((acc: number, h: any) => acc + (h.correct || 0), 0);
+              const growth = totalTests > 1 ? "+12%" : "N/A";
+
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4">
+                  <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl">
+                    <span className="text-[10px] text-slate-500 block uppercase font-black">{language === 'hindi' ? 'कुल टेस्ट' : 'Tests'}</span>
+                    <span className="text-lg font-bold text-white">{totalTests.toString().padStart(2, '0')}</span>
+                  </div>
+                  <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl">
+                    <span className="text-[10px] text-slate-500 block uppercase font-black">{language === 'hindi' ? 'औसत सटीकता' : 'Avg Accuracy'}</span>
+                    <span className="text-lg font-bold text-emerald-400">{avgAccuracy}%</span>
+                  </div>
+                  <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl">
+                    <span className="text-[10px] text-slate-500 block uppercase font-black">{language === 'hindi' ? 'कुल सही उत्तर' : 'Total Correct'}</span>
+                    <span className="text-lg font-bold text-indigo-400">{totalCorrect}</span>
+                  </div>
+                  <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl">
+                    <span className="text-[10px] text-slate-500 block uppercase font-black">{language === 'hindi' ? 'प्रगति' : 'Status'}</span>
+                    <span className="text-lg font-bold text-amber-400">{totalTests > 0 ? (avgAccuracy > 70 ? 'Excellent' : 'Good') : 'New'}</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+              <button
+                onClick={() => {
+                  const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+                  const totalTests = history.length;
+                  const avgAccuracy = totalTests > 0 
+                    ? Math.round(history.reduce((acc: number, h: any) => acc + h.accuracy, 0) / totalTests) 
+                    : 0;
+                  
+                  const shareText = language === 'hindi'
+                    ? `नमस्ते पापा/मम्मी, मैंने आज HansAI पर अपनी टेस्ट रिपोर्ट जनरेट की है। मेरा औसत स्कोर ${avgAccuracy}% रहा है और मैंने कुल ${totalTests} टेस्ट दिए हैं। प्रगति यहाँ देखें: https://hansai.app`
+                    : `Hi Mom/Dad, I generated my study progress report on HansAI today. My average accuracy is ${avgAccuracy}% across ${totalTests} tests. View details: https://hansai.app`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+                  showToast(language === 'hindi' ? 'रिपोर्ट व्हाट्सऐप पर शेयर की जा रही है!' : 'Report shared on WhatsApp!', 'success');
+                }}
+                className="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <Share2 className="w-5 h-5" />
+                <span>{language === 'hindi' ? 'रिपोर्ट पापा को शेयर करें' : 'Share Report with Dad'}</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+                  const totalTests = history.length;
+                  const avgAccuracy = totalTests > 0 
+                    ? Math.round(history.reduce((acc: number, h: any) => acc + h.accuracy, 0) / totalTests) 
+                    : 0;
+
+                  showToast(language === 'hindi' ? 'विस्तृत PDF रिपोर्ट डाउनलोड हो रही है...' : 'Downloading detailed PDF report...', 'info');
+                  onExportPdf("Parent-Progress-Report", "parent-report-card", 
+                    `PARENT PROGRESS REPORT CARD\nStudent: HansAI User\nDate: ${new Date().toLocaleDateString()}\nTests Attempted: ${totalTests}\nAverage Accuracy: ${avgAccuracy}%\n\nPerformance History:\n` +
+                    history.map((h: any, i: number) => `${i+1}. ${h.title}: ${h.score}/${h.totalMarks} (${h.accuracy}%)`).join('\n')
+                  );
+                }}
+                className="w-full sm:w-auto px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Download className="w-5 h-5" />
+                <span>{language === 'hindi' ? 'PDF रिपोर्ट डाउनलोड करें' : 'Download PDF Report'}</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

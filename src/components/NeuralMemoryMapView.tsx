@@ -344,8 +344,8 @@ export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showTo
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: `Generate a comprehensive exam study node for topic: "${q}". Provide in JSON format if possible or structured text with: Category, Key Points, Mnemonic, Deep Explanation in Hindi/English, Exam PYQ Alert, and 3 Highlights.`,
-          systemInstruction: `You are HansAI Neural Knowledge System. Generate a detailed study node for "${q}". Keep explanations 100% exam accurate with key articles, formulas, dates, or rules.`
+          message: `Generate a comprehensive exam study node for topic: "${q}" in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}. Provide in JSON format if possible or structured text with: Category, Key Points, Mnemonic, Deep Explanation in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}, Exam PYQ Alert, and 3 Highlights.`,
+          systemInstruction: `You are HansAI Neural Knowledge System. Generate a detailed study node for "${q}" strictly in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}. Keep explanations 100% exam accurate with key articles, formulas, dates, or rules.`
         })
       });
 
@@ -413,7 +413,7 @@ export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showTo
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           subject: node.subject,
-          quizLang: language === 'hindi' ? 'Hindi' : 'English'
+          language: language === 'hindi' ? 'hindi' : 'english'
         })
       });
 

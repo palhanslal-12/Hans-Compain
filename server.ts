@@ -1743,6 +1743,66 @@ app.post("/api/owner/clear-alerts", (req, res) => {
   }
 });
 
+// POST Student Feedback & Reviews (Dispatches email alert to owner palhanslal4@gmail.com)
+app.post("/api/reviews", (req, res) => {
+  try {
+    const { userName, userEmail, rating, comment, tag, context, timestamp } = req.body;
+    const alertTitle = `New Student Review & Rating (${rating} Stars)`;
+    const alertMessage = `Student ${userName || 'Anonymous'} (${userEmail || 'No Email'}) submitted a ${rating}-star review with comment: "${comment || 'No comment'}". Tag: ${tag || 'General'}, Context: ${context || 'App'}`;
+
+    const alerts = loadOwnerAlerts();
+    alerts.unshift({
+      id: "rev_" + Date.now(),
+      type: "feedback",
+      title: alertTitle,
+      message: alertMessage,
+      severity: rating <= 2 ? "critical" : "info",
+      source: "Student Feedback Modal",
+      userEmail: userEmail || "student@hansai.app",
+      timestamp: timestamp || new Date().toISOString(),
+      emailDispatched: true
+    });
+    saveOwnerAlerts(alerts);
+
+    const mailOptions = {
+      from: '"HANS COMPAIN AI" <' + (process.env.EMAIL_USER || 'support.hans.compain@gmail.com') + '>',
+      to: 'palhanslal4@gmail.com',
+      subject: `⭐ [HansAI Feedback] ${userName || 'Student'} rated ${rating}/5 Stars`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background: #0B1120; color: #fff;">
+          <h2 style="color: #F59E0B; margin-top: 0;">New Student Feedback & Rating 📨</h2>
+          <p style="color: #cbd5e1;"><strong>Student Name:</strong> ${userName || 'Anonymous'}</p>
+          <p style="color: #cbd5e1;"><strong>Student Email:</strong> ${userEmail || 'N/A'}</p>
+          <p style="color: #cbd5e1;"><strong>Rating:</strong> ${rating} / 5 Stars</p>
+          <p style="color: #cbd5e1;"><strong>Context / Feature:</strong> ${context || 'General'}</p>
+          <p style="color: #cbd5e1;"><strong>Tag:</strong> ${tag || 'N/A'}</p>
+          <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #f59e0b;">
+            <p style="margin: 0; color: #f8fafc; font-style: italic;">"${comment || 'No comment provided'}"</p>
+          </div>
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 20px;">© 2026 Hans Compain AI Platform by Hans Lal Pal</p>
+        </div>
+      `
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.warn("Could not email owner feedback alert:", err?.message);
+      } else {
+        console.log("Feedback email successfully dispatched to palhanslal4@gmail.com:", info?.messageId);
+      }
+    });
+
+    res.json({ success: true, message: "Feedback recorded & dispatched to owner successfully." });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to record feedback" });
+  }
+});
+
+app.post("/api/feedback", (req, res) => {
+  req.url = "/api/reviews";
+  return app._router.handle(req, res);
+});
+
 // 🎙️ Gemini Live Study Hands-Free Assistant API (Real-Time Spoken Study Partner)
 app.post("/api/gemini-live-study", aiRateLimiter, async (req, res) => {
   try {
@@ -2104,8 +2164,8 @@ app.post("/api/quiz", aiRateLimiter, async (req, res) => {
     const ai = getGenAI();
 
     const langInstruction = quizLang === "english"
-      ? "All questions, options, and explanations MUST be strictly in 100% clean, standard ENGLISH. Do NOT include any Hindi or Hinglish words."
-      : "All questions, options, and explanations MUST be strictly in 100% clean, standard HINDI. Do NOT include English translation slashes or dual language text.";
+      ? "CRITICAL LANGUAGE REQUIREMENT: EVERYTHING MUST BE IN 100% ENGLISH. All questions, options, and explanations MUST be strictly in clean, standard English. Do NOT include any Hindi or Hinglish words."
+      : "CRITICAL LANGUAGE REQUIREMENT: EVERYTHING MUST BE IN 100% HINDI (DEVANAGARI). All questions, options, and explanations MUST be strictly in standard Hindi. Do NOT include English translation slashes (e.g., 'प्रश्न / Question') or dual language text. Strictly NO English words or alphabets allowed in the output text unless they are proper nouns that cannot be translated. If the user asked for Hindi, do NOT provide any English.";
 
     let difficultyInstruction = "";
     if (normalizedDifficulty === "Beginner") {
@@ -2150,14 +2210,14 @@ Explain the correct answer step-by-step with clear exam rationale.`;
             items: {
               type: Type.OBJECT,
               properties: {
-                question: { type: Type.STRING, description: `The quiz question text strictly in ${quizLang}` },
+                question: { type: Type.STRING, description: `The quiz question text strictly in ${quizLang}. DO NOT USE OTHER LANGUAGES.` },
                 options: {
                   type: Type.ARRAY,
                   items: { type: Type.STRING },
-                  description: `Exactly 4 options strictly in ${quizLang}`
+                  description: `Exactly 4 options strictly in ${quizLang}. DO NOT USE OTHER LANGUAGES.`
                 },
                 answerIndex: { type: Type.INTEGER, description: "0-based index of the correct option (0 to 3)" },
-                explanation: { type: Type.STRING, description: `Detailed step-by-step explanation strictly in ${quizLang}` }
+                explanation: { type: Type.STRING, description: `Detailed step-by-step explanation strictly in ${quizLang}. DO NOT USE OTHER LANGUAGES.` }
               },
               required: ["question", "options", "answerIndex", "explanation"]
             }
@@ -2360,8 +2420,8 @@ Curriculum Focus: Competitive exam standard pattern, Previous Year Question (PYQ
     }
 
     const langInstruction = quizLang === "english"
-      ? "All questions, options, and explanations MUST be strictly in clean standard ENGLISH."
-      : "All questions, options, and explanations MUST be strictly in 100% clean, standard HINDI (Devanagari script).";
+      ? "CRITICAL LANGUAGE REQUIREMENT: EVERYTHING MUST BE IN 100% ENGLISH. All questions, options, and explanations MUST be strictly in clean standard English. ABSOLUTELY NO HINDI."
+      : "CRITICAL LANGUAGE REQUIREMENT: EVERYTHING MUST BE IN 100% HINDI (DEVANAGARI SCRIPT). All questions, options, and explanations MUST be strictly in standard Hindi. STRICTLY NO ENGLISH ALLOWED.";
 
     const excludeNotice = Array.isArray(excludeQuestions) && excludeQuestions.length > 0
       ? `Do NOT repeat or closely rephrase any of these previously used questions: ${JSON.stringify(excludeQuestions.slice(-15))}`
@@ -3966,8 +4026,8 @@ async function startServer() {
 
     // Explicitly serve robots.txt and sitemap.xml to ensure bots get correct headers
     app.get("/robots.txt", (req, res) => {
-      res.type("text/plain");
-      res.sendFile(path.join(distPath, "robots.txt"));
+      res.header("Content-Type", "text/plain");
+      res.send("User-agent: *\nDisallow:\n\nSitemap: https://hans-compain.onrender.com/sitemap.xml");
     });
     app.get("/sitemap.xml", (req, res) => {
       res.type("application/xml");

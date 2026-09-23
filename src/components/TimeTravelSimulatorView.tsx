@@ -19,8 +19,8 @@ export interface EraPersona {
   bgGradient: string;
   greeting: Record<'hindi' | 'english', string>;
   systemPersona: string;
-  examRelevance: string[];
-  whatIfScenarios: string[];
+  examRelevance: Record<'hindi' | 'english', string[]>;
+  whatIfScenarios: Record<'hindi' | 'english', string[]>;
 }
 
 export const ERAS: EraPersona[] = [
@@ -38,15 +38,28 @@ export const ERAS: EraPersona[] = [
       english: 'Greetings! I am Dr. B.R. Ambedkar. Today in 1949, our Constitution stands drafted. You may debate Article 32 (Heart and Soul of Constitution), Fundamental Rights, Directive Principles, or my role in drafting with me.'
     },
     systemPersona: 'You are Babasaheb Dr. B.R. Ambedkar in November 1949. You are Male. Speak with profound legal intellect, constitutional morality, and deep commitment to social equality. If asked about your role in Hindi (जैसे "मेरी भूमिका क्या रही है" या "Hindi me batao"), explain in rich, authentic, articulate Hindi about drafting the Indian Constitution, framing Fundamental Rights (Part III), Article 32 (Heart and Soul of Constitution), Hindu Code Bill, and uplifting depressed classes with education, agitation, and organization (शिक्षित बनो, संगठित रहो, संघर्ष करो).',
-    examRelevance: [
-      'UPSC / SSC CGL: Article 32 & Writs (Habeas Corpus, Mandamus, Quo Warranto, Certiorari, Prohibition)',
-      'Directive Principles of State Policy (Part IV) & Fundamental Rights (Part III)',
-      'Drafting Committee formed on 29 August 1947 with 7 members under Dr. Ambedkar'
-    ],
-    whatIfScenarios: [
-      'What if Article 32 had not been included in the Indian Constitution?',
-      'संविधान निर्माण में आपकी सबसे बड़ी चुनौतियाँ क्या थीं और प्रारूप समिति ने उन्हें कैसे हल किया?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / SSC CGL: अनुच्छेद 32 और रिट्स (Habeas Corpus, Mandamus, Quo Warranto, Certiorari, Prohibition)',
+        'राज्य के नीति निर्देशक तत्व (भाग IV) और मौलिक अधिकार (भाग III)',
+        '29 अगस्त 1947 को डॉ. अंबेडकर की अध्यक्षता में 7 सदस्यों वाली प्रारूप समिति का गठन'
+      ],
+      english: [
+        'UPSC / SSC CGL: Article 32 & Writs (Habeas Corpus, Mandamus, Quo Warranto, Certiorari, Prohibition)',
+        'Directive Principles of State Policy (Part IV) & Fundamental Rights (Part III)',
+        'Drafting Committee formed on 29 August 1947 with 7 members under Dr. Ambedkar'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर भारतीय संविधान में अनुच्छेद 32 को शामिल नहीं किया गया होता?',
+        'संविधान निर्माण में आपकी सबसे बड़ी चुनौतियाँ क्या थीं और प्रारूप समिति ने उन्हें कैसे हल किया?'
+      ],
+      english: [
+        'What if Article 32 had not been included in the Indian Constitution?',
+        'What were your biggest challenges during constitution drafting and how did the committee solve them?'
+      ]
+    }
   },
   {
     id: 'gandhi-1930',
@@ -62,15 +75,28 @@ export const ERAS: EraPersona[] = [
       english: 'Greetings, my friend! I am Mohandas Karamchand Gandhi. Having picked up a pinch of salt at Dandi, we have initiated the Civil Disobedience Movement. Speak to me about Ahimsa, Satyagraha, and Swadeshi.'
     },
     systemPersona: 'You are Mahatma Gandhi in April 1930 after the Dandi Salt March. You are Male. Speak with humility, peaceful wisdom, and unwavering moral conviction in pure Hindi or English.',
-    examRelevance: [
-      'SSC / Railway: Dandi March start date (March 12, 1930 from Sabarmati) and end date (April 6, 1930 at Dandi)',
-      'Gandhi-Irwin Pact (March 5, 1931) & Second Round Table Conference participation',
-      'Difference between Non-Cooperation Movement (1920) and Civil Disobedience Movement (1930)'
-    ],
-    whatIfScenarios: [
-      'What if Lord Irwin had accepted the 11 demands before the Salt March?',
-      'अहिंसा के मार्ग पर चलते हुए ब्रिटिश शासन को कैसे झुकाया गया?'
-    ]
+    examRelevance: {
+      hindi: [
+        'SSC / Railway: दांडी मार्च की शुरुआत (12 मार्च 1930 साबरमती से) और समाप्ति (6 अप्रैल 1930 दांडी में)',
+        'गांधी-इरविन समझौता (5 मार्च 1931) और द्वितीय गोलमेज सम्मेलन में भागीदारी',
+        'असहयोग आंदोलन (1920) और सविनय अवज्ञा आंदोलन (1930) के बीच अंतर'
+      ],
+      english: [
+        'SSC / Railway: Dandi March start date (March 12, 1930 from Sabarmati) and end date (April 6, 1930 at Dandi)',
+        'Gandhi-Irwin Pact (March 5, 1931) & Second Round Table Conference participation',
+        'Difference between Non-Cooperation Movement (1920) and Civil Disobedience Movement (1930)'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर लॉर्ड इरविन ने दांडी मार्च से पहले 11 मांगों को स्वीकार कर लिया होता?',
+        'अहिंसा के मार्ग पर चलते हुए ब्रिटिश शासन को कैसे झुकाया गया?'
+      ],
+      english: [
+        'What if Lord Irwin had accepted the 11 demands before the Salt March?',
+        'How was the British rule made to bow while following the path of non-violence?'
+      ]
+    }
   },
   {
     id: 'bhagat-1931',
@@ -86,15 +112,28 @@ export const ERAS: EraPersona[] = [
       english: 'Inquilab Zindabad! I am Bhagat Singh. From Lahore Jail, our struggle for freedom and social justice continues. Ask me about Naujawan Bharat Sabha, Central Assembly trial, and revolutionary ideals.'
     },
     systemPersona: 'You are Shaheed Bhagat Singh in March 1931. You are Male. Speak with intense passion, fearless patriotism, sharp intellectual clarity, and deep commitment to socialism and freedom.',
-    examRelevance: [
-      'HSRA (Hindustan Socialist Republican Association) formed in 1928 at Feroz Shah Kotla, Delhi',
-      'Central Assembly Bombing (April 8, 1929) alongside Batukeshwar Dutt to "make the deaf hear"',
-      'Lahore Conspiracy Case & the immortal slogan "Inquilab Zindabad"'
-    ],
-    whatIfScenarios: [
-      'What if Gandhi-Irwin Pact had successfully commuted the death sentence of Bhagat Singh?',
-      'क्रांति से आपका वास्तविक अभिप्राय क्या था?'
-    ]
+    examRelevance: {
+      hindi: [
+        'HSRA (Hindustan Socialist Republican Association) का गठन 1928 में फिरोजशाह कोटला, दिल्ली में हुआ',
+        'बटुकेश्वर दत्त के साथ असेंबली बम कांड (8 अप्रैल 1929) "बहरों को सुनाने के लिए"',
+        'लाहौर षड्यंत्र केस और अमर नारा "इंकलाब जिंदाबाद"'
+      ],
+      english: [
+        'HSRA (Hindustan Socialist Republican Association) formed in 1928 at Feroz Shah Kotla, Delhi',
+        'Central Assembly Bombing (April 8, 1929) alongside Batukeshwar Dutt to "make the deaf hear"',
+        'Lahore Conspiracy Case & the immortal slogan "Inquilab Zindabad"'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर गांधी-इरविन समझौते से भगत सिंह की फांसी की सजा माफ हो जाती?',
+        'क्रांति से आपका वास्तविक अभिप्राय क्या था?'
+      ],
+      english: [
+        'What if Gandhi-Irwin Pact had successfully commuted the death sentence of Bhagat Singh?',
+        'What was your real meaning of revolution?'
+      ]
+    }
   },
   {
     id: 'lakshmibai-1857',
@@ -110,15 +149,28 @@ export const ERAS: EraPersona[] = [
       english: 'Hail Liberty! I am Rani Lakshmibai of Jhansi. "I will not surrender my Jhansi!" The East India Company Doctrine of Lapse shall be met with steel. Ask me about our 1857 military and guerrilla strategy!'
     },
     systemPersona: 'You are Rani Lakshmibai in May 1857. You are Female. Speak with heroic courage, fierce patriotic pride, dignity, and tactical military brilliance in Hindi or English.',
-    examRelevance: [
-      'UPSC / State PCS: Doctrine of Lapse introduced by Lord Dalhousie and annexation of Jhansi (1853)',
-      'Main centers and leaders of 1857 Revolt: Jhansi (Lakshmibai), Kanpur (Nana Saheb), Lucknow (Begum Hazrat Mahal)',
-      'Hugh Rose statement: "Here lay the woman who was the only man among the rebels"'
-    ],
-    whatIfScenarios: [
-      'What if Gwalior and Indore troops had joined Rani Lakshmibai earlier in 1857?',
-      '1857 के स्वतंत्रता संग्राम में भारतीय राजाओं की एकता क्यों आवश्यक थी?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / State PCS: लॉर्ड डलहौजी द्वारा व्यपगत का सिद्धांत (Doctrine of Lapse) और झांसी का विलय (1853)',
+        '1857 के विद्रोह के मुख्य केंद्र और नेता: झांसी (लक्ष्मीबाई), कानपुर (नाना साहब), लखनऊ (बेगम हजरत महल)',
+        'ह्यू रोज का कथन: "यहाँ वह महिला सोई हुई है जो विद्रोहियों में एकमात्र पुरुष थी"'
+      ],
+      english: [
+        'UPSC / State PCS: Doctrine of Lapse introduced by Lord Dalhousie and annexation of Jhansi (1853)',
+        'Main centers and leaders of 1857 Revolt: Jhansi (Lakshmibai), Kanpur (Nana Saheb), Lucknow (Begum Hazrat Mahal)',
+        'Hugh Rose statement: "Here lay the woman who was the only man among the rebels"'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर ग्वालियर और इंदौर की सेनाएँ 1857 में पहले ही रानी लक्ष्मीबाई के साथ मिल जातीं?',
+        '1857 के स्वतंत्रता संग्राम में भारतीय राजाओं की एकता क्यों आवश्यक थी?'
+      ],
+      english: [
+        'What if Gwalior and Indore troops had joined Rani Lakshmibai earlier in 1857?',
+        'Why was the unity of Indian kings necessary in the 1857 freedom struggle?'
+      ]
+    }
   },
   {
     id: 'kalam-2002',
@@ -134,15 +186,28 @@ export const ERAS: EraPersona[] = [
       english: 'Warm greetings, dear students! I am Dr. A.P.J. Abdul Kalam. "Dreams are not what you see while sleeping; dreams are what do not let you sleep." Discuss space technology, IGMDP missile program, or Vision 2020 with me.'
     },
     systemPersona: 'You are Dr. A.P.J. Abdul Kalam in 2002. You are Male. Speak with warm paternal affection, supreme scientific passion, humility, and inspiration for students and nation building.',
-    examRelevance: [
-      'Integrated Guided Missile Development Programme (IGMDP): PRITHVI, AGNI, TRISHUL, NAG, AKASH',
-      'Pokhran-II Nuclear Tests (Operation Shakti, 1998) & SLV-III launch',
-      'PURA (Providing Urban Amenities to Rural Areas) model for inclusive growth'
-    ],
-    whatIfScenarios: [
-      'What if India had started indigenous cryogenic rocket engine development 10 years earlier?',
-      'विद्यार्थियों को असफलता से सीखकर सफलता कैसे प्राप्त करनी चाहिए?'
-    ]
+    examRelevance: {
+      hindi: [
+        'एकीकृत निर्देशित मिसाइल विकास कार्यक्रम (IGMDP): पृथ्वी, अग्नि, त्रिशूल, नाग, आकाश',
+        'पोखरण-II परमाणु परीक्षण (ऑपरेशन शक्ति, 1998) और SLV-III लॉन्च',
+        'समावेशी विकास के लिए PURA (ग्रामीण क्षेत्रों में शहरी सुविधाएं प्रदान करना) मॉडल'
+      ],
+      english: [
+        'Integrated Guided Missile Development Programme (IGMDP): PRITHVI, AGNI, TRISHUL, NAG, AKASH',
+        'Pokhran-II Nuclear Tests (Operation Shakti, 1998) & SLV-III launch',
+        'PURA (Providing Urban Amenities to Rural Areas) model for inclusive growth'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर भारत ने 10 साल पहले स्वदेशी क्रायोजेनिक रॉकेट इंजन विकसित करना शुरू कर दिया होता?',
+        'विद्यार्थियों को असफलता से सीखकर सफलता कैसे प्राप्त करनी चाहिए?'
+      ],
+      english: [
+        'What if India had started indigenous cryogenic rocket engine development 10 years earlier?',
+        'How should students learn from failure to achieve success?'
+      ]
+    }
   },
   {
     id: 'bose-1943',
@@ -158,15 +223,28 @@ export const ERAS: EraPersona[] = [
       english: 'Jai Hind! I am Netaji Subhas Chandra Bose. "Give me blood, and I shall give you freedom!" From Singapore in 1943, the Provisional Government of Azad Hind stands declared. Debate INA military strategy, Forward Bloc, and uncompromising Purna Swaraj with me.'
     },
     systemPersona: 'You are Netaji Subhas Chandra Bose in October 1943. You are Male. Speak with fiery patriot military leadership, supreme determination, and strategic vision in Hindi or English.',
-    examRelevance: [
-      'UPSC / SSC: Formation of Forward Bloc in 1939 after Haripura & Tripuri Congress sessions',
-      'Azad Hind Government established in Singapore on 21 October 1943 with 3 regiments: Gandhi, Nehru, Azad & Rani of Jhansi Regiment',
-      'Famous slogans: "Jai Hind", "Delhi Chalo", and "Give me blood, I will give you freedom"'
-    ],
-    whatIfScenarios: [
-      'What if INA forces had successfully crossed Imphal and Kohima in 1944?',
-      'त्रिपुरी कांग्रेस अधिवेशन (1939) के बाद फॉरवर्ड ब्लॉक के गठन की आवश्यकता क्यों पड़ी?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / SSC: हरिपुरा और त्रिपुरी कांग्रेस सत्रों के बाद 1939 में फॉरवर्ड ब्लॉक का गठन',
+        '21 अक्टूबर 1943 को सिंगापुर में आजाद हिंद सरकार की स्थापना: गांधी, नेहरू, आजाद और झांसी की रानी रेजिमेंट',
+        'प्रसिद्ध नारे: "जय हिंद", "दिल्ली चलो", और "तुम मुझे खून दो, मैं तुम्हें आजादी दूंगा"'
+      ],
+      english: [
+        'UPSC / SSC: Formation of Forward Bloc in 1939 after Haripura & Tripuri Congress sessions',
+        'Azad Hind Government established in Singapore on 21 October 1943 with 3 regiments: Gandhi, Nehru, Azad & Rani of Jhansi Regiment',
+        'Famous slogans: "Jai Hind", "Delhi Chalo", and "Give me blood, I will give you freedom"'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर INA सेनाओं ने 1944 में इंफाल और कोहिमा को सफलतापूर्वक पार कर लिया होता?',
+        'त्रिपुरी कांग्रेस अधिवेशन (1939) के बाद फॉरवर्ड ब्लॉक के गठन की आवश्यकता क्यों पड़ी?'
+      ],
+      english: [
+        'What if INA forces had successfully crossed Imphal and Kohima in 1944?',
+        'Why was the formation of Forward Bloc necessary after the Tripuri Congress session (1939)?'
+      ]
+    }
   },
   {
     id: 'patel-1948',
@@ -182,16 +260,30 @@ export const ERAS: EraPersona[] = [
       english: 'Greetings! I am Sardar Vallabhbhai Patel, the Iron Man of India. We have unified 565 princely states into one strong integrated Union of India. Discuss Operation Polo, Bardoli Satyagraha, and All India Services with me.'
     },
     systemPersona: 'You are Sardar Vallabhbhai Patel in 1948. You are Male. Speak with pragmatic iron resolve, administrative authority, national unity, and realistic statesmanship.',
-    examRelevance: [
-      'UPSC / SSC: Integration of 565 Princely States & V.P. Menon assistance in Ministry of States',
-      'Operation Polo (September 1948) for annexation of Hyderabad State',
-      'Bardoli Satyagraha (1928) where women of Bardoli conferred the title "Sardar" upon him',
-      'Patron saint of All India Services (IAS, IPS, IFS - Article 312)'
-    ],
-    whatIfScenarios: [
-      'What if Hyderabad or Junagadh had not signed the Instrument of Accession in 1948?',
-      'भारतीय रियासतों के एकीकरण में सरदार पटेल की कूटनीतिक नीति क्या थी?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / SSC: 565 रियासतों का एकीकरण और रियासत मंत्रालय में वी.पी. मेनन की सहायता',
+        'हैदराबाद राज्य के विलय के लिए ऑपरेशन पोलो (सितंबर 1948)',
+        'बारडोली सत्याग्रह (1928) जहाँ बारडोली की महिलाओं ने उन्हें "सरदार" की उपाधि दी',
+        'अखिल भारतीय सेवाओं के जनक (IAS, IPS, IFS - अनुच्छेद 312)'
+      ],
+      english: [
+        'UPSC / SSC: Integration of 565 Princely States & V.P. Menon assistance in Ministry of States',
+        'Operation Polo (September 1948) for annexation of Hyderabad State',
+        'Bardoli Satyagraha (1928) where women of Bardoli conferred the title "Sardar" upon him',
+        'Patron saint of All India Services (IAS, IPS, IFS - Article 312)'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर हैदराबाद या जूनागढ़ ने 1948 में विलय पत्र पर हस्ताक्षर नहीं किए होते?',
+        'भारतीय रियासतों के एकीकरण में सरदार पटेल की कूटनीतिक नीति क्या थी?'
+      ],
+      english: [
+        'What if Hyderabad or Junagadh had not signed the Instrument of Accession in 1948?',
+        'What was Sardar Patel\'s diplomatic policy in the integration of Indian princely states?'
+      ]
+    }
   },
   {
     id: 'vivekananda-1893',
@@ -207,15 +299,28 @@ export const ERAS: EraPersona[] = [
       english: 'Sisters and Brothers of America! I am Swami Vivekananda. "Arise, awake, and stop not till the goal is reached." Discuss Vedantic philosophy, 1893 Chicago World Parliament, youth empowerment, and character building with me.'
     },
     systemPersona: 'You are Swami Vivekananda in September 1893. You are Male. Speak with fiery spiritual magnetism, deep Vedantic intellect, universal brotherhood, and inspiring energy for youth.',
-    examRelevance: [
-      'UPSC / State Exams: Chicago Parliament of Religions speech (11 September 1893)',
-      'Ramakrishna Mission founded on May 1, 1897 at Belur Math, Bengal',
-      'National Youth Day celebrated in India on January 12 (his birthday)'
-    ],
-    whatIfScenarios: [
-      'What if Western philosophy had embraced Vedantic spiritual harmony earlier?',
-      'युवाओं में आत्मविश्वास और चरित्र निर्माण के लिए वेदांत का क्या संदेश है?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / State Exams: शिकागो विश्व धर्म संसद भाषण (11 सितंबर 1893)',
+        'रामकृष्ण मिशन की स्थापना 1 मई 1897 को बेलूर मठ, बंगाल में हुई',
+        'भारत में राष्ट्रीय युवा दिवस 12 जनवरी (उनके जन्मदिन) को मनाया जाता है'
+      ],
+      english: [
+        'UPSC / State Exams: Chicago Parliament of Religions speech (11 September 1893)',
+        'Ramakrishna Mission founded on May 1, 1897 at Belur Math, Bengal',
+        'National Youth Day celebrated in India on January 12 (his birthday)'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर पाश्चात्य दर्शन ने वेदांत के आध्यात्मिक सामंजस्य को पहले ही अपना लिया होता?',
+        'युवाओं में आत्मविश्वास और चरित्र निर्माण के लिए वेदांत का क्या संदेश है?'
+      ],
+      english: [
+        'What if Western philosophy had embraced Vedantic spiritual harmony earlier?',
+        'What is the message of Vedanta for self-confidence and character building among youth?'
+      ]
+    }
   },
   {
     id: 'naidu-1947',
@@ -231,16 +336,30 @@ export const ERAS: EraPersona[] = [
       english: 'Greetings! I am Sarojini Naidu, the Nightingale of India. As the first Indian woman Congress President (1925 Kanpur) and 1st female Governor, ask me about Dharasana Salt Satyagraha, women rights, and patriotic poetry.'
     },
     systemPersona: 'You are Sarojini Naidu in 1947. You are Female. Speak with lyrical eloquence, passionate feminist advocacy, poetic charm, and political wisdom.',
-    examRelevance: [
-      'First Indian woman President of Indian National Congress (1925 Kanpur Session)',
-      'First woman Governor of an Indian State (United Provinces / UP, 1947-1949)',
-      'Led the legendary Dharasana Salt Raid during 1930 Civil Disobedience Movement',
-      'Poetry works: "The Golden Threshold", "The Bird of Time", "The Broken Wing"'
-    ],
-    whatIfScenarios: [
-      'What if women leadership in the 1930 Freedom Movement had been given equal command positions earlier?',
-      'धरासणा साल्ट वर्क्स सत्याग्रह में भारतीय महिलाओं की बहादुरी का क्या महत्व रहा?'
-    ]
+    examRelevance: {
+      hindi: [
+        'भारतीय राष्ट्रीय कांग्रेस की पहली भारतीय महिला अध्यक्ष (1925 कानपुर सत्र)',
+        'किसी भारतीय राज्य (संयुक्त प्रांत / यूपी, 1947-1949) की पहली महिला राज्यपाल',
+        '1930 के सविनय अवज्ञा आंदोलन के दौरान प्रसिद्ध धरासणा साल्ट रेड का नेतृत्व किया',
+        'कविता रचनाएँ: "द गोल्डन थ्रेशोल्ड", "द बर्ड ऑफ टाइम", "द ब्रोकन विंग"'
+      ],
+      english: [
+        'First Indian woman President of Indian National Congress (1925 Kanpur Session)',
+        'First woman Governor of an Indian State (United Provinces / UP, 1947-1949)',
+        'Led the legendary Dharasana Salt Raid during 1930 Civil Disobedience Movement',
+        'Poetry works: "The Golden Threshold", "The Bird of Time", "The Broken Wing"'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर 1930 के स्वतंत्रता आंदोलन में महिला नेतृत्व को पहले ही समान कमान दी गई होती?',
+        'धरासणा साल्ट वर्क्स सत्याग्रह में भारतीय महिलाओं की बहादुरी का क्या महत्व रहा?'
+      ],
+      english: [
+        'What if women leadership in the 1930 Freedom Movement had been given equal command positions earlier?',
+        'What was the importance of the bravery of Indian women in the Dharasana Salt Works Satyagraha?'
+      ]
+    }
   },
   {
     id: 'shivaji-1674',
@@ -256,15 +375,28 @@ export const ERAS: EraPersona[] = [
       english: 'Jai Bhawani! I am Chhatrapati Shivaji Maharaj. Crowned at Raigad Fort in 1674, Hindavi Swarajya stands established. Ask me about Maratha guerrilla tactics (Ganimi Kawa), Ashta Pradhan Council, and Naval Defense.'
     },
     systemPersona: 'You are Chhatrapati Shivaji Maharaj in 1674. You are Male. Speak with supreme valor, righteous justice, military genius, and pride in Hindavi Swarajya.',
-    examRelevance: [
-      'UPSC / SSC: Ashta Pradhan Council (Peshwa, Amatya, Mantri, Sachiv, Sumant, Senapati, Pandit Rao, Nyayadhish)',
-      'Father of Indian Navy (established naval forts like Sindhudurg & Vijaydurg)',
-      'Battle of Pratapgad (1859) against Afzal Khan and Treaty of Purandar (1665) with Jai Singh'
-    ],
-    whatIfScenarios: [
-      'What if the Maratha Navy had secured control of the entire western Indian coastline?',
-      'अष्टप्रधान मंत्रिपरिषद की प्रशासनिक व्यवस्था आज के समय में कितनी प्रासंगिक है?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / SSC: अष्टप्रधान परिषद (पेशवा, अमात्य, मंत्री, सचिव, सुमंत, सेनापति, पंडित राव, न्यायाधीश)',
+        'भारतीय नौसेना के जनक (सिंधुदुर्ग और विजयदुर्ग जैसे समुद्री किलों की स्थापना)',
+        'अफजल खान के खिलाफ प्रतापगढ़ की लड़ाई (1659) और जय सिंह के साथ पुरंदर की संधि (1665)'
+      ],
+      english: [
+        'UPSC / SSC: Ashta Pradhan Council (Peshwa, Amatya, Mantri, Sachiv, Sumant, Senapati, Pandit Rao, Nyayadhish)',
+        'Father of Indian Navy (established naval forts like Sindhudurg & Vijaydurg)',
+        'Battle of Pratapgad (1659) against Afzal Khan and Treaty of Purandar (1665) with Jai सिंह'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर मराठा नौसेना ने पूरे पश्चिमी भारतीय तट पर नियंत्रण सुरक्षित कर लिया होता?',
+        'अष्टप्रधान मंत्रिपरिषद की प्रशासनिक व्यवस्था आज के समय में कितनी प्रासंगिक है?'
+      ],
+      english: [
+        'What if the Maratha Navy had secured control of the entire western Indian coastline?',
+        'How relevant is the administrative system of the Ashta Pradhan Council in today\'s time?'
+      ]
+    }
   },
   {
     id: 'aryabhata-499',
@@ -280,15 +412,28 @@ export const ERAS: EraPersona[] = [
       english: 'Greetings! I am Aryabhata (499 CE). At age 23, I authored "Aryabhatiya". Debate the rotation of Earth on its axis, true causes of eclipses, Pi value (π = 3.1416), and the place-value system with me.'
     },
     systemPersona: 'You are Aryabhata in 499 CE. You are Male. Speak with profound mathematical precision, astronomical wonder, and scientific inquiry.',
-    examRelevance: [
-      'UPSC / SSC History & Science: Author of "Aryabhatiya" and "Arya-Siddhanta" during Gupta Golden Age',
-      'First to formulate Earth rotates on its axis and calculate year length as 365.258 days',
-      'India’s first satellite launched in 1975 named "Aryabhata" in his honor'
-    ],
-    whatIfScenarios: [
-      'What if ancient Indian astronomical texts had been translated into Latin 500 years earlier?',
-      'ग्रहण के पीछे पौराणिक कथाओं को खारिज कर वैज्ञानिक कारण बताने का क्या प्रभाव पड़ा?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / SSC इतिहास और विज्ञान: गुप्त स्वर्ण युग के दौरान "आर्यभटीय" और "आर्य-सिद्धांत" के लेखक',
+        'सबसे पहले यह बताया कि पृथ्वी अपनी धुरी पर घूमती है और वर्ष की लंबाई 365.258 दिन बताई',
+        '1975 में लॉन्च किए गए भारत के पहले उपग्रह का नाम उनके सम्मान में "आर्यभट्ट" रखा गया'
+      ],
+      english: [
+        'UPSC / SSC History & Science: Author of "Aryabhatiya" and "Arya-Siddhanta" during Gupta Golden Age',
+        'First to formulate Earth rotates on its axis and calculate year length as 365.258 days',
+        'India’s first satellite launched in 1975 named "Aryabhata" in his honor'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर प्राचीन भारतीय खगोलीय ग्रंथों का 500 साल पहले लैटिन में अनुवाद हो गया होता?',
+        'ग्रहण के पीछे पौराणिक कथाओं को खारिज कर वैज्ञानिक कारण बताने का क्या प्रभाव पड़ा?'
+      ],
+      english: [
+        'What if ancient Indian astronomical texts had been translated into Latin 500 years earlier?',
+        'What was the impact of rejecting mythological stories behind eclipses and giving scientific reasons?'
+      ]
+    }
   },
   {
     id: 'ashoka-261',
@@ -304,15 +449,28 @@ export const ERAS: EraPersona[] = [
       english: 'Greetings! I am Emperor Ashoka of the Maurya Dynasty. The bloodshed at Kalinga has transformed my heart. My empire now seeks Dhamma-Vijaya instead of military conquest. Ask me about my Edicts and Dhamma policy.'
     },
     systemPersona: 'You are Emperor Ashoka in 261 BCE post-Kalinga war. You are Male. Speak with deep spiritual serenity, philosophical wisdom, and sovereign dignity in Hindi or English.',
-    examRelevance: [
-      'UPSC / SSC: Rock Edicts (Major Rock Edict XIII explicitly mentions Kalinga War & remorse)',
-      'James Prinsep deciphering Brahmi and Kharosthi scripts in 1837 for Ashokan edicts',
-      'Third Buddhist Council convened at Pataliputra under Ashoka patronage'
-    ],
-    whatIfScenarios: [
-      'What if Ashoka had continued military conquest instead of adopting Dhamma?',
-      'धम्म महामात्रों की नियुक्ति से साम्राज्य में क्या परिवर्तन आया?'
-    ]
+    examRelevance: {
+      hindi: [
+        'UPSC / SSC: शिलालेख (मुख्य शिलालेख XIII स्पष्ट रूप से कलिंग युद्ध और पश्चाताप का उल्लेख करता है)',
+        'जेम्स प्रिंसेप ने 1837 में अशोक के शिलालेखों के लिए ब्राह्मी और खरोष्ठी लिपियों को डिकोड किया',
+        'अशोक के संरक्षण में पाटलिपुत्र में तीसरी बौद्ध संगीति आयोजित की गई'
+      ],
+      english: [
+        'UPSC / SSC: Rock Edicts (Major Rock Edict XIII explicitly mentions Kalinga War & remorse)',
+        'James Prinsep deciphering Brahmi and Kharosthi scripts in 1837 for Ashokan edicts',
+        'Third Buddhist Council convened at Pataliputra under Ashoka patronage'
+      ]
+    },
+    whatIfScenarios: {
+      hindi: [
+        'क्या होता अगर अशोक ने धम्म अपनाने के बजाय सैन्य विजय जारी रखी होती?',
+        'धम्म महामात्रों की नियुक्ति से साम्राज्य में क्या परिवर्तन आया?'
+      ],
+      english: [
+        'What if Ashoka had continued military conquest instead of adopting Dhamma?',
+        'What change came in the empire with the appointment of Dhamma Mahamatras?'
+      ]
+    }
   }
 ];
 
@@ -455,47 +613,86 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
         body: JSON.stringify({
           messages: [{
             role: 'user',
-            content: `Create a historical AI persona for "${q}" with greeting in Hindi and English, era year, title, location, system prompt persona, gender (male or female), 3 exam points, and 2 what-if questions.`
+            content: `Create a historical AI persona for "${q}" with:
+1. Greeting in Hindi and English
+2. Era year, title, location
+3. System prompt persona (include gender: male/female)
+4. 3 Exam Points (Provide as an object with 'hindi' and 'english' arrays)
+5. 2 What-if questions (Provide as an object with 'hindi' and 'english' arrays)
+
+Return ONLY a clean JSON object following this interface:
+{
+  "name": string,
+  "title": string,
+  "year": string,
+  "location": string,
+  "gender": "male" | "female",
+  "greeting": { "hindi": string, "english": string },
+  "systemPersona": string,
+  "examRelevance": { "hindi": string[], "english": string[] },
+  "whatIfScenarios": { "hindi": string[], "english": string[] }
+}`
           }],
-          systemInstruction: `You are HansAI Time-Travel Portal. Generate dynamic persona details for historical figure "${q}".`
+          systemInstruction: `You are HansAI Time-Travel Portal. Generate dynamic persona details for historical figure "${q}" as JSON. Ensure both 'hindi' and 'english' keys exist for greeting, examRelevance, and whatIfScenarios.`
         })
       });
 
-      let aiText = "";
+      let aiPersona: any = null;
       if (res.ok) {
         const data = await res.json();
-        aiText = data.reply || "";
+        const reply = data.reply || "";
+        try {
+          const jsonMatch = reply.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            aiPersona = JSON.parse(jsonMatch[0]);
+          }
+        } catch (e) {
+          console.error("Failed to parse AI persona JSON", e);
+        }
       }
 
-      // Infer gender from query
+      // Infer gender from query if AI failed or for safety
       const isFemaleQuery = ["rani", "lakshmi", "bai", "sarojini", "kalpana", "marie", "curie", "kavya", "begum", "indira", "mother", "teresa", "sita", "draupadi", "noor", "jahan"].some(w => q.toLowerCase().includes(w));
-      const inferredGender: 'male' | 'female' = isFemaleQuery ? 'female' : 'male';
+      const inferredGender: 'male' | 'female' = aiPersona?.gender || (isFemaleQuery ? 'female' : 'male');
+
+      // Helper to ensure bilingual structure
+      const ensureBilingual = (data: any, defaultHindi: string | string[], defaultEnglish: string | string[]) => {
+        if (data && typeof data === 'object' && !Array.isArray(data)) {
+          return {
+            hindi: data.hindi || (Array.isArray(data.english) ? data.english : defaultHindi),
+            english: data.english || (Array.isArray(data.hindi) ? data.hindi : defaultEnglish)
+          };
+        }
+        if (typeof data === 'string' || Array.isArray(data)) {
+          return { hindi: data, english: data };
+        }
+        return { hindi: defaultHindi, english: defaultEnglish };
+      };
 
       const newPersona: EraPersona = {
         id: `custom-era-${Date.now()}`,
-        name: q,
-        title: 'Historical Leader & Pioneer',
-        year: 'Historical Era',
-        location: 'India / World History',
+        name: aiPersona?.name || q,
+        title: aiPersona?.title || 'Historical Leader & Pioneer',
+        year: aiPersona?.year || 'Historical Era',
+        location: aiPersona?.location || 'India / World History',
         gender: inferredGender,
         avatarUrl: inferredGender === 'female' 
           ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Sarojini_Naidu_1912.jpg/440px-Sarojini_Naidu_1912.jpg'
           : 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Sardar_patel_%28cropped%29.jpg/440px-Sardar_patel_%28cropped%29.jpg',
         bgGradient: 'from-purple-950 via-slate-900 to-indigo-950',
-        greeting: {
-          hindi: `जय हिंद! मैं ${q} हूँ। काल-यात्रा में आपका स्वागत है। आप मुझसे इतिहास, सिद्धांतों, निर्णयों और परीक्षा के मुख्य बिंदुओं पर प्रश्न पूछ सकते हैं।`,
-          english: `Greetings! I am ${q}. Welcome to the Time Portal. Debate history, decisions and principles with me.`
-        },
-        systemPersona: `You are ${q}. You are ${inferredGender === 'female' ? 'Female' : 'Male'}. Speak in character with deep historical accuracy, wisdom, and eloquence. When asked in Hindi (e.g. "Hindi me batao"), reply 100% in pure articulate Hindi.`,
-        examRelevance: [
-          `${q} Key historical milestones and exam points`,
-          `Role in national movement / scientific / constitutional history`,
-          `Frequently asked PYQ questions`
-        ],
-        whatIfScenarios: [
-          `What if ${q} had taken a different strategy?`,
-          `इतिहास के इस महत्वपूर्ण मोड़ पर आपके निर्णय का क्या प्रभाव रहा?`
-        ]
+        greeting: ensureBilingual(aiPersona?.greeting, 
+          `जय हिंद! मैं ${q} हूँ। काल-यात्रा में आपका स्वागत है। आप मुझसे इतिहास, सिद्धांतों, निर्णयों और परीक्षा के मुख्य बिंदुओं पर प्रश्न पूछ सकते हैं।`,
+          `Greetings! I am ${q}. Welcome to the Time Portal. Debate history, decisions and principles with me.`
+        ) as any,
+        systemPersona: aiPersona?.systemPersona || `You are ${q}. You are ${inferredGender === 'female' ? 'Female' : 'Male'}. Speak in character with deep historical accuracy, wisdom, and eloquence.`,
+        examRelevance: ensureBilingual(aiPersona?.examRelevance,
+          [`${q} के मुख्य ऐतिहासिक मील के पत्थर और परीक्षा बिंदु`, `राष्ट्रीय आंदोलन / वैज्ञानिक / संवैधानिक इतिहास में भूमिका`, `अक्सर पूछे जाने वाले PYQ प्रश्न`],
+          [`${q} Key historical milestones and exam points`, `Role in national movement / scientific / constitutional history`, `Frequently asked PYQ questions`]
+        ) as any,
+        whatIfScenarios: ensureBilingual(aiPersona?.whatIfScenarios,
+          [`क्या होता अगर ${q} ने एक अलग रणनीति अपनाई होती?`, `इतिहास के इस महत्वपूर्ण मोड़ पर आपके निर्णय का क्या प्रभाव रहा?`],
+          [`What if ${q} had taken a different strategy?`, `What was the impact of your decision at this important turning point in history?`]
+        ) as any
       };
 
       setEraList(prev => [...prev, newPersona]);
@@ -539,7 +736,7 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: chatPayload,
-          systemInstruction: `${selectedEra.systemPersona}\n\nCRITICAL LANGUAGE MANDATE: If the user writes in Hindi or asks 'Hindi me batao', you MUST reply fully in pure, rich, elegant Hindi as ${selectedEra.name}. Never give English apologies or static errors. Speak with authentic authority, historical accuracy, and inspiring wisdom.`
+          systemInstruction: `${selectedEra.systemPersona}\n\nCRITICAL LANGUAGE MANDATE: The user has selected ${language.toUpperCase()} as their primary language interface. You MUST respond as ${selectedEra.name} strictly in ${language === 'hindi' ? 'pure articulate Hindi' : 'standard English'}. Even if the user switches partially, maintain the chosen ${language} tone unless they explicitly ask to switch languages. Speak with authentic authority, historical accuracy, and inspiring wisdom.`
         })
       });
 
@@ -866,7 +1063,7 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
             </div>
 
             <ul className="space-y-2.5">
-              {selectedEra.examRelevance.map((point, idx) => (
+              {(selectedEra.examRelevance[language === 'hindi' ? 'hindi' : 'english'] || selectedEra.examRelevance['english']).map((point, idx) => (
                 <li key={idx} className="p-3 bg-[#070B14] border border-slate-800 rounded-2xl text-xs sm:text-sm font-semibold text-slate-100 flex items-start gap-2.5 leading-relaxed">
                   <Flame className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                   <span>{point}</span>
@@ -883,7 +1080,7 @@ export const TimeTravelSimulatorView: React.FC<TimeTravelSimulatorViewProps> = (
             </div>
 
             <div className="space-y-2.5">
-              {selectedEra.whatIfScenarios.map((scenario, idx) => (
+              {(selectedEra.whatIfScenarios[language === 'hindi' ? 'hindi' : 'english'] || selectedEra.whatIfScenarios['english']).map((scenario, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(scenario)}

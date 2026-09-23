@@ -175,8 +175,12 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: `Create a super memorable Hindi & English mnemonic/trick, acronym, rhyme story, explanation and exam usage for topic: "${query}". Format response in clear structured sections.`,
-          systemInstruction: `You are HansAI Memory Trick Architect. Generate clever, funny, and 100% memorable mnemonics in Hindi and English for student exam preparation.`
+          message: `Create a super memorable mnemonic/trick for topic: "${query}" strictly in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}. Include:
+1. Acronym/Code
+2. Rhyme or Story in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}
+3. Detailed explanation in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}
+4. Exam usage in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}`,
+          systemInstruction: `You are HansAI Memory Trick Architect. Generate clever, funny, and 100% memorable mnemonics strictly in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'} for student exam preparation.`
         })
       });
 
