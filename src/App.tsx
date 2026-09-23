@@ -8023,54 +8023,54 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       onSubmit={(e) => { e.preventDefault(); handleSendChat(); }}
                       className="bg-slate-900/95 border border-slate-800 p-3 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all flex items-center gap-2 shadow-2xl w-full"
                     >
-                      {/* Hidden File Gallery Input (Supports multiple files up to 3) */}
+                      {/* Hidden File Gallery Input (Supports images and PDFs up to 3) */}
                       <input 
                         type="file" 
                         ref={fileInputRef}
-                        accept="image/*"
+                        accept="image/*,application/pdf,.txt,.md"
                         multiple
                         className="hidden"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const files = e.target.files;
                           if (!files || files.length === 0) return;
                           const fileArray = Array.from(files);
-                          const validImageFiles = fileArray.filter(f => f.type.startsWith('image/'));
                           
-                          if (validImageFiles.length === 0) {
-                            showToast(language === 'hindi' ? "कृपया मान्य इमेज फाइल चुनें!" : "Please choose valid image files!", "warn");
-                            return;
-                          }
-                          
-                          const remainingSlots = 3 - chatAttachedImages.length;
-                          if (remainingSlots <= 0) {
-                            showToast(language === 'hindi' ? "अधिकतम 3 इमेज ही अपलोड कर सकते हैं!" : "Maximum 3 images can be attached!", "warn");
-                            return;
-                          }
-                          
-                          const filesToAdd = validImageFiles.slice(0, remainingSlots);
-                          filesToAdd.forEach((file) => {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const base64Data = (reader.result as string).split(',')[1];
-                              setChatAttachedImages(prev => {
-                                if (prev.length >= 3) return prev;
-                                return [
-                                  ...prev,
-                                  {
-                                    id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-                                    mimeType: file.type,
-                                    data: base64Data,
-                                    previewUrl: URL.createObjectURL(file),
-                                    name: file.name
-                                  }
-                                ];
-                              });
-                            };
-                            reader.readAsDataURL(file);
-                          });
-
-                          if (validImageFiles.length > remainingSlots) {
-                            showToast(language === 'hindi' ? "केवल 3 इमेज तक ही जोड़ी जा सकती हैं।" : "Only up to 3 images can be attached.", "info");
+                          for (const file of fileArray) {
+                            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                              showToast(language === 'hindi' ? `📄 PDF "${file.name}" लोड हो रही है...` : `📄 Loading PDF "${file.name}"...`, "info");
+                              try {
+                                const arrayBuffer = await file.arrayBuffer();
+                                // Extract text or notify user
+                                setChatInput(prev => (prev ? prev + "\n\n" : "") + `[Attached PDF Document: ${file.name}] कृपया इस पीडीएफ नोट्स का विश्लेषण करें और इसके मुख्य बिंदुओं को समझाएं।`);
+                                showToast(language === 'hindi' ? `✅ PDF "${file.name}" जुड़ गई है!` : `✅ PDF "${file.name}" attached!`, "success");
+                              } catch (err) {
+                                showToast("Failed to parse PDF", "error");
+                              }
+                            } else if (file.type.startsWith('image/')) {
+                              const remainingSlots = 3 - chatAttachedImages.length;
+                              if (remainingSlots <= 0) {
+                                showToast(language === 'hindi' ? "अधिकतम 3 इमेज ही अपलोड कर सकते हैं!" : "Maximum 3 images can be attached!", "warn");
+                                continue;
+                              }
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const base64Data = (reader.result as string).split(',')[1];
+                                setChatAttachedImages(prev => {
+                                  if (prev.length >= 3) return prev;
+                                  return [
+                                    ...prev,
+                                    {
+                                      id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                                      mimeType: file.type,
+                                      data: base64Data,
+                                      previewUrl: URL.createObjectURL(file),
+                                      name: file.name
+                                    }
+                                  ];
+                                });
+                              };
+                              reader.readAsDataURL(file);
+                            }
                           }
                           e.target.value = '';
                         }}

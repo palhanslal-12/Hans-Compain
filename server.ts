@@ -1589,7 +1589,7 @@ const OWNER_ALERTS_FILE = path.join(process.cwd(), "owner_alerts.json");
 
 interface OwnerAlertRecord {
   id: string;
-  type: 'problem' | 'update' | 'security' | 'test_quiz';
+  type: 'problem' | 'update' | 'security' | 'test_quiz' | 'feedback';
   title: string;
   message: string;
   timestamp: string;
@@ -1614,7 +1614,7 @@ function loadOwnerAlerts(): OwnerAlertRecord[] {
       id: "init_alert_1",
       type: "update",
       title: "🚀 HansAI 2026 Engine Active",
-      message: "Owner Phone & Email Alert Monitor is running. Any system problem, update, or student test submission will alert palhanslal4@gmail.com.",
+      message: "Owner Phone & Email Alert Monitor is running. Any system problem, update, or student test submission will alert support.hans.compain@gmail.com.",
       timestamp: new Date().toISOString(),
       severity: "info",
       source: "System Core",
@@ -1638,7 +1638,7 @@ app.get("/api/owner/alerts", (req, res) => {
     const problemCount = alerts.filter(a => a.type === 'problem' || a.severity === 'critical' || a.severity === 'high').length;
     res.json({
       success: true,
-      ownerEmail: "palhanslal4@gmail.com",
+      ownerEmail: "support.hans.compain@gmail.com",
       alerts: alerts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
       problemCount,
       totalAlerts: alerts.length
@@ -1664,7 +1664,7 @@ app.post("/api/owner/alerts", (req, res) => {
       message,
       severity: severity || (type === "problem" ? "high" : "info"),
       source: source || "Client App",
-      userEmail: userEmail || "palhanslal4@gmail.com",
+      userEmail: userEmail || "support.hans.compain@gmail.com",
       deviceInfo: deviceInfo || "Mobile / Browser",
       timestamp: new Date().toISOString(),
       emailDispatched: true
@@ -1673,9 +1673,9 @@ app.post("/api/owner/alerts", (req, res) => {
     alerts.unshift(newAlert);
     saveOwnerAlerts(alerts);
 
-    // Simulated email & push delivery log for Hanslal Pal
+    // Simulated email & push delivery log for Hans Compain
     console.log(`\n======================================================`);
-    console.log(`🚨 [OWNER ALERT DISPATCHED TO PALHANSLAL4@GMAIL.COM]`);
+    console.log(`🚨 [ALERT DISPATCHED TO SUPPORT.HANS.COMPAIN@GMAIL.COM]`);
     console.log(`TYPE: ${newAlert.type.toUpperCase()} | SEVERITY: ${newAlert.severity}`);
     console.log(`TITLE: ${newAlert.title}`);
     console.log(`MESSAGE: ${newAlert.message}`);
@@ -1685,14 +1685,14 @@ app.post("/api/owner/alerts", (req, res) => {
     res.json({
       success: true,
       alert: newAlert,
-      message: `Alert recorded & dispatched to Owner (palhanslal4@gmail.com)`
+      message: `Alert recorded & dispatched to Hans Compain (support.hans.compain@gmail.com)`
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to record owner alert" });
   }
 });
 
-// POST Dispatch Direct Email / Phone Alert to Owner
+// POST Dispatch Direct Email / Phone Alert
 app.post("/api/owner/dispatch-email-alert", (req, res) => {
   try {
     const { title, message, type = "update", details = {} } = req.body;
@@ -1707,7 +1707,7 @@ app.post("/api/owner/dispatch-email-alert", (req, res) => {
       message: alertMessage,
       severity: type === "problem" ? "critical" : "info",
       source: "Manual / Event Trigger",
-      userEmail: "palhanslal4@gmail.com",
+      userEmail: "support.hans.compain@gmail.com",
       timestamp: new Date().toISOString(),
       emailDispatched: true
     };
@@ -1716,7 +1716,7 @@ app.post("/api/owner/dispatch-email-alert", (req, res) => {
 
     console.log(`\n======================================================`);
     console.log(`📧 [EMAIL NOTIFICATION DISPATCHED]`);
-    console.log(`TO: palhanslal4@gmail.com`);
+    console.log(`TO: support.hans.compain@gmail.com`);
     console.log(`SUBJECT: [HansAI Alert] ${alertTitle}`);
     console.log(`BODY: ${alertMessage}`);
     console.log(`DETAILS: ${JSON.stringify(details)}`);
@@ -1724,9 +1724,9 @@ app.post("/api/owner/dispatch-email-alert", (req, res) => {
 
     res.json({
       success: true,
-      deliveredTo: "palhanslal4@gmail.com",
+      deliveredTo: "support.hans.compain@gmail.com",
       deliveredAt: new Date().toISOString(),
-      message: "Owner phone & email alert sent successfully to palhanslal4@gmail.com!"
+      message: "Alert email sent successfully to support.hans.compain@gmail.com!"
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to dispatch email alert" });
@@ -1766,7 +1766,7 @@ app.post("/api/reviews", (req, res) => {
 
     const mailOptions = {
       from: '"HANS COMPAIN AI" <' + (process.env.EMAIL_USER || 'support.hans.compain@gmail.com') + '>',
-      to: 'palhanslal4@gmail.com',
+      to: 'support.hans.compain@gmail.com',
       subject: `⭐ [HansAI Feedback] ${userName || 'Student'} rated ${rating}/5 Stars`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background: #0B1120; color: #fff;">
@@ -1779,16 +1779,16 @@ app.post("/api/reviews", (req, res) => {
           <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #f59e0b;">
             <p style="margin: 0; color: #f8fafc; font-style: italic;">"${comment || 'No comment provided'}"</p>
           </div>
-          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 20px;">© 2026 Hans Compain AI Platform by Hans Lal Pal</p>
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 20px;">© 2026 Hans Compain AI Platform</p>
         </div>
       `
     };
 
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-        console.warn("Could not email owner feedback alert:", err?.message);
+        console.warn("Could not email feedback alert:", err?.message);
       } else {
-        console.log("Feedback email successfully dispatched to palhanslal4@gmail.com:", info?.messageId);
+        console.log("Feedback email successfully dispatched to support.hans.compain@gmail.com:", info?.messageId);
       }
     });
 
