@@ -1,6 +1,6 @@
 {
   "name": "Hans Compain",
-  "description": "Hans Compain AI - Your adaptive mentor for Govt Exams (SSC, Railway, Banking) & Boards (10th/12th). Personalized PYQ Analyzer, Hotspot identification, and smart voice-enabled study assistance.",
+  "description": "Hans Compain: हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान! (SSC, Railway, Banking, 10th/12th Board Academic Engine 2026)",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

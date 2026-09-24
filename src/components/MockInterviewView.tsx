@@ -488,7 +488,7 @@ export const MockInterviewView: React.FC<MockInterviewViewProps> = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `HansAI_Mock_Interview_Scorecard.txt`;
+      a.download = `Hans Compain_Mock_Interview_Scorecard.txt`;
       a.click();
       URL.revokeObjectURL(url);
       showToast("Report downloaded successfully! 📥", "success");

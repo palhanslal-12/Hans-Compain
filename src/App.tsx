@@ -181,8 +181,8 @@ import {
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
   english: {
-    appTitle: "HansAI",
-    subtitle: "Your AI Companion",
+    appTitle: "Hans Compain",
+    subtitle: "Where dreams take flight with Hans Compain's true knowledge!",
     welcomeTitle: "How can I assist you today?",
     welcomeDesc: "Explaining concepts simply, structuring your study rules, or conducting deep multi-source live web research.",
     exploreWorkspaces: "EXPLORE NEXT-GEN WORKSPACES & FIELDS",
@@ -233,7 +233,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     reviewTextPlaceholder: "Write your honest feedback on Hans Compain's speed, utility, or content...",
     aboutCreatorTitle: "About the Creator",
     logoutBtn: "Log Out",
-    welcomeGreeting: "Hello! I am Hans Compain, your AI Companion. How can I help you learn, write, or research today?",
+    welcomeGreeting: "Hello! I am Hans Compain, your AI Companion. Every dream gets wings with Hans Compain's true knowledge!",
     micListening: "Listening... speak now",
     micTooltip: "Use Voice Dictation (Speech-to-Text)",
     speakerTooltip: "Read aloud latest assistant output",
@@ -251,15 +251,15 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     carouselUI: "UI Experience",
   },
   hindi: {
-    appTitle: "हंसएआई साथी",
-    subtitle: "आपका एआई साथी",
+    appTitle: "Hans Compain",
+    subtitle: "हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान!",
     welcomeTitle: "आज मैं आपकी क्या सहायता कर सकता हूँ?",
     welcomeDesc: "अवधारणाओं को सरल बनाना, अध्ययन नियम तैयार करना, या व्यापक बहु-स्रोत लाइव वेब पर रिसर्च करना।",
     exploreWorkspaces: "नेक्स्ट-जेन वर्कस्पेस व फील्ड्स का अन्वेषण करें",
     addOption: "कस्टम विकल्प जोड़ें",
     customFieldTitle: "नया शैक्षणिक/परीक्षा क्षेत्र जोड़ें",
     fieldTitleLabel: "विकल्प/परीक्षा का शीर्षक",
-    fieldTitlePlaceholder: "जैसे: सिविल सर्विसेज, बैंकिंग, रेलवे...",
+    fieldTitlePlaceholder: "जैसे: Civil Services, Banking, Railway...",
     selectIconLabel: "चिह्न / इमोजी चुनें",
     cancel: "रद्द करें",
     addSection: "सेक्शन जोड़ें",
@@ -300,14 +300,14 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     ratingAccuracy: "तथ्यात्मक शुद्धता",
     ratingSpeed: "सिस्टम की गति व लेटेंसी",
     ratingExperience: "यूआई अनुभव",
-    reviewTextPlaceholder: "हंसएआई की गति, उपयोगिता या विषयवस्तु पर अपनी स्पष्ट टिप्पणी लिखें...",
+    reviewTextPlaceholder: "हंस कम्पेन की गति, उपयोगिता या विषयवस्तु पर अपनी स्पष्ट टिप्पणी लिखें...",
     aboutCreatorTitle: "निर्माता के बारे में",
     logoutBtn: "लॉग आउट",
-    welcomeGreeting: "नमस्ते! मैं हंसएआई हूँ, आपका एआई साथी। आज आप किस विषय के बारे में जानना, सीखना या शोध करना चाहते हैं?",
+    welcomeGreeting: "नमस्ते! मैं Hans Compain हूँ, आपका AI साथी। हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान!",
     micListening: "सुन रहा हूँ... अब बोलें",
     micTooltip: "आवाज द्वारा टाइप करें (स्पीच-टू-टेक्स्ट)",
     speakerTooltip: "सहायक के उत्तर को बोलकर सुनें",
-    creatorAnswerText: "हंसएआई को विद्यार्थियों और शोधकर्ताओं को सशक्त बनाने एवं त्वरित अध्ययन में सहायता हेतु तैयार किया गया है।",
+    creatorAnswerText: "Hans Compain को विद्यार्थियों और शोधकर्ताओं को सशक्त बनाने एवं त्वरित अध्ययन में सहायता हेतु तैयार किया गया है।",
     noAccountHeader: "अपने खाते को सत्यापित करें",
     selectAccountHeader: "गूगल खाता चुनने वाला",
     useAnotherAccount: "नया गूगल अकाउंट जोड़ें",
@@ -321,7 +321,7 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     carouselUI: "यूआई",
   },
   spanish: {
-    appTitle: "HansAI",
+    appTitle: "Hans Compain",
     subtitle: "Su Compañero de IA",
     welcomeTitle: "¿Cómo puedo ayudarte hoy?",
     welcomeDesc: "Explicando conceptos de forma sencilla o realizando investigaciones profundas de múltiples fuentes en la web.",
@@ -339,11 +339,11 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     newsLoading: "Analizando noticias neutrales...",
     loginTitle: "Registrarse con Google",
     logoutBtn: "Cerrar sesión",
-    welcomeGreeting: "¡Hola! Soy HansAI, tu compañero de IA. ¿Cómo puedo ayudarte a aprender, escribir o investigar hoy?",
-    creatorAnswerText: "HansAI ha sido diseñado para empoderar a estudiantes, investigadores y profesionales."
+    welcomeGreeting: "¡Hola! Soy Hans Compain, tu compañero de IA. ¿Cómo puedo ayudarte a aprender, escribir o investigar hoy?",
+    creatorAnswerText: "Hans Compain ha sido diseñado para empoderar a estudiantes, investigadores y profesionales."
   },
   french: {
-    appTitle: "HansAI",
+    appTitle: "Hans Compain",
     subtitle: "Votre Compagnon IA",
     welcomeTitle: "Comment puis-je vous aider aujourd'hui?",
     welcomeDesc: "Expliquer des concepts simplement ou effectuer des recherches approfondies de sources multiples sur le web.",
@@ -361,11 +361,11 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     newsLoading: "Analyse des nouvelles neutres en cours...",
     loginTitle: "Se connecter avec Google",
     logoutBtn: "Se déconnecter",
-    welcomeGreeting: "Bonjour! Je suis HansAI, votre compagnon IA. Comment puis-je vous aider à apprendre, à écrire ou à faire des recherches aujourd'hui?",
-    creatorAnswerText: "HansAI a été conçu pour autonomiser les étudiants, les chercheurs et les professionnels."
+    welcomeGreeting: "Bonjour! Je suis Hans Compain, votre compagnon IA. Comment puis-je vous aider à apprendre, à écrire ou à faire des recherches aujourd'hui?",
+    creatorAnswerText: "Hans Compain a été conçu pour autonomiser les étudiants, les chercheurs et les professionnels."
   },
   german: {
-    appTitle: "HansAI",
+    appTitle: "Hans Compain",
     subtitle: "Ihr KI-Begleiter",
     welcomeTitle: "Wie kann ich Ihnen heute helfen?",
     welcomeDesc: "Konzepte einfach erklären oder tiefgehende Recherchen aus mehreren Webquellen durchführen.",
@@ -383,8 +383,8 @@ const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german'
     newsLoading: "Neutrale Nachrichten werden analysiert...",
     loginTitle: "Mit Google anmelden",
     logoutBtn: "Abmelden",
-    welcomeGreeting: "Hallo! Ich bin HansAI, Ihr KI-Begleiter. Wie kann ich Ihnen heute beim Lernen, Schreiben oder Recherchieren helfen?",
-    creatorAnswerText: "HansAI wurde entwickelt, um Studenten, Forschern und Fachleuten zu helfen."
+    welcomeGreeting: "Hallo! Ich bin Hans Compain, Ihr KI-Begleiter. Wie kann ich Ihnen heute beim Lernen, Schreiben oder Recherchieren helfen?",
+    creatorAnswerText: "Hans Compain wurde entwickelt, um Studenten, Forschern und Fachleuten zu helfen."
   }
 };
 
@@ -525,14 +525,14 @@ export default function App() {
       }
     }
     if (!content) {
-      content = `HansAI Study Notes & Academic Solutions for ${title}`;
+      content = `Hans Compain Study Notes & Academic Solutions for ${title}`;
     }
 
     showToast(language === 'hindi' ? "📄 PDF तैयार हो रहा है, कृपया प्रतीक्षा करें..." : "📄 Generating high-res PDF...", "info");
     const success = await generateStudyNotesPdf({
-      title: title || 'HansAI Study Notes',
+      title: title || 'Hans Compain Study Notes',
       content: content,
-      author: user?.name || user?.email || 'HansAI Student',
+      author: user?.name || user?.email || 'Hans Compain Student',
       language: language
     });
 
@@ -545,10 +545,10 @@ export default function App() {
   const handleDownloadMessagePdf = async (msg: Message) => {
     showToast(language === 'hindi' ? "📥 PDF तैयार हो रहा है..." : "📥 Preparing PDF...", "info");
     const success = await generateStudyNotesPdf({
-      title: `HansAI Study Notes - ${new Date().toLocaleDateString()}`,
+      title: `Hans Compain Study Notes - ${new Date().toLocaleDateString()}`,
       topic: msg.content.slice(0, 45).replace(/[#*`]/g, '').trim(),
       content: msg.content,
-      author: user?.name || user?.email || 'HansAI Student',
+      author: user?.name || user?.email || 'Hans Compain Student',
       language: language
     });
     if (success) {
@@ -564,19 +564,19 @@ export default function App() {
 
   // Language state (English/Hindi)
   const [language, setLanguage] = useState<'english' | 'hindi'>(() => {
-    return (localStorage.getItem('hansai-language') as 'english' | 'hindi') || 'hindi';
+    return (localStorage.getItem('hans-compain-language') as 'english' | 'hindi') || 'hindi';
   });
 
   const [quizLanguage, setQuizLanguage] = useState<'english' | 'hindi'>(() => {
-    return (localStorage.getItem('hansai-quiz-language') as 'english' | 'hindi') || 'hindi';
+    return (localStorage.getItem('hans-compain-quiz-language') as 'english' | 'hindi') || 'hindi';
   });
 
   useEffect(() => {
-    localStorage.setItem('hansai-language', language);
+    localStorage.setItem('hans-compain-language', language);
   }, [language]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-quiz-language', quizLanguage);
+    localStorage.setItem('hans-compain-quiz-language', quizLanguage);
   }, [quizLanguage]);
 
   // Translate helper
@@ -589,10 +589,10 @@ export default function App() {
 
   // Appearance & Personalization Settings state
   const [theme, setTheme] = useState<'midnight' | 'charcoal' | 'light'>(() => {
-    return (localStorage.getItem('hansai-theme') as 'midnight' | 'charcoal' | 'light') || 'midnight';
+    return (localStorage.getItem('hans-compain-theme') as 'midnight' | 'charcoal' | 'light') || 'midnight';
   });
   const [textSize, setTextSize] = useState<'sm' | 'base' | 'lg'>(() => {
-    return (localStorage.getItem('hansai-text-size') as 'sm' | 'base' | 'lg') || 'base';
+    return (localStorage.getItem('hans-compain-text-size') as 'sm' | 'base' | 'lg') || 'base';
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -609,7 +609,7 @@ export default function App() {
   const [isHelpGuideOpen, setIsHelpGuideOpen] = useState<boolean>(false);
   const [isDiagnosticsModalOpen, setIsDiagnosticsModalOpen] = useState<boolean>(false);
   const [isFiveStarFeedbackOpen, setIsFiveStarFeedbackOpen] = useState<boolean>(false);
-  const [feedbackInitialContext, setFeedbackInitialContext] = useState<string>('HansAI Chat & Assistant');
+  const [feedbackInitialContext, setFeedbackInitialContext] = useState<string>('Hans Compain Chat & Assistant');
   const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState<boolean>(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState<boolean>(false);
   const [isAppInstallModalOpen, setIsAppInstallModalOpen] = useState<boolean>(false);
@@ -681,7 +681,7 @@ export default function App() {
 
   // Desktop / Browser Push Notifications Settings State
   const [browserNotificationsEnabled, setBrowserNotificationsEnabled] = useState<boolean>(() => {
-    return localStorage.getItem('hansai-browser-notifications') === 'true';
+    return localStorage.getItem('hans-compain-browser-notifications') === 'true';
   });
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -695,12 +695,12 @@ export default function App() {
       if (typeof window !== 'undefined' && 'Notification' in window) {
         if (Notification.permission === 'granted') {
           setBrowserNotificationsEnabled(true);
-          localStorage.setItem('hansai-browser-notifications', 'true');
+          localStorage.setItem('hans-compain-browser-notifications', 'true');
           setNotificationPermission('granted');
           showToast(language === 'hindi' ? '🔔 ब्राउज़र नोटिफिकेशन्स सक्रिय कर दिए गए हैं!' : '🔔 Desktop notifications enabled!', 'success');
         } else if (Notification.permission === 'denied') {
           setBrowserNotificationsEnabled(false);
-          localStorage.setItem('hansai-browser-notifications', 'false');
+          localStorage.setItem('hans-compain-browser-notifications', 'false');
           setNotificationPermission('denied');
           showToast(
             language === 'hindi' 
@@ -714,11 +714,11 @@ export default function App() {
             setNotificationPermission(permission);
             if (permission === 'granted') {
               setBrowserNotificationsEnabled(true);
-              localStorage.setItem('hansai-browser-notifications', 'true');
+              localStorage.setItem('hans-compain-browser-notifications', 'true');
               showToast(language === 'hindi' ? '🔔 ब्राउज़र नोटिफिकेशन्स अनुमति स्वीकृत व सक्रिय!' : '🔔 Notifications allowed and enabled!', 'success');
             } else {
               setBrowserNotificationsEnabled(false);
-              localStorage.setItem('hansai-browser-notifications', 'false');
+              localStorage.setItem('hans-compain-browser-notifications', 'false');
               showToast(language === 'hindi' ? '⚠️ नोटिफिकेशन अनुमति नहीं दी गई।' : '⚠️ Notification permission was not granted.', 'warn');
             }
           } catch (e) {
@@ -731,7 +731,7 @@ export default function App() {
       }
     } else {
       setBrowserNotificationsEnabled(false);
-      localStorage.setItem('hansai-browser-notifications', 'false');
+      localStorage.setItem('hans-compain-browser-notifications', 'false');
       showToast(language === 'hindi' ? '🔕 ब्राउज़र नोटिफिकेशन्स बंद कर दिए गए हैं।' : '🔕 Desktop notifications disabled.', 'info');
     }
   };
@@ -754,13 +754,13 @@ export default function App() {
 
     if (perm === 'granted') {
       try {
-        const notif = new Notification(language === 'hindi' ? '🕊️ HansAI - दैनिक अध्ययन व परीक्षा अलर्ट' : '🕊️ HansAI - Academic Study Alert', {
+        const notif = new Notification(language === 'hindi' ? '🕊️ Hans Compain - दैनिक अध्ययन व परीक्षा अलर्ट' : '🕊️ Hans Compain - Academic Study Alert', {
           body: language === 'hindi'
             ? '🎯 बधाई! ब्राउज़र नोटिफिकेशन सेवा सफलतापूर्वक सक्रिय है। दैनिक क्विज़, PYQ और महत्वपूर्ण परीक्षा सूचनाएं आपको समय पर मिलेंगी।'
             : '🎯 Success! Desktop notification channel is working. You will receive daily quiz alerts, PYQs, and exam notifications.',
           icon: '/favicon.ico',
           badge: '/favicon.ico',
-          tag: 'hansai-test-notification'
+          tag: 'hans-compain-test-notification'
         });
         notif.onclick = () => {
           window.focus();
@@ -779,18 +779,18 @@ export default function App() {
 
   // Auto Voice Response Setting (Auto-speak response on Voice chat without opening new page)
   const [autoVoiceReadout, setAutoVoiceReadout] = useState<boolean>(() => {
-    const saved = localStorage.getItem('hansai-auto-voice');
+    const saved = localStorage.getItem('hans-compain-auto-voice');
     return saved !== null ? saved === 'true' : true;
   });
 
   // Multi-lingual Indian Voice selector (Hindi, English, Tamil, Telugu, Kannada, Malayalam, Marathi, Bengali, Gujarati, Punjabi, Odia, etc.)
   const [selectedIndianVoiceLang, setSelectedIndianVoiceLang] = useState<string>(() => {
-    return localStorage.getItem('hansai-voice-lang') || 'hi-IN';
+    return localStorage.getItem('hans-compain-voice-lang') || 'hi-IN';
   });
 
   // Chat/Content Font Size Control (Normal, Large, Extra-Large, Huge)
   const [chatFontSize, setChatFontSize] = useState<'normal' | 'large' | 'xl' | 'huge'>(() => {
-    return (localStorage.getItem('hansai-chat-font-size') as any) || 'large';
+    return (localStorage.getItem('hans-compain-chat-font-size') as any) || 'large';
   });
 
   const wasVoiceTriggeredRef = useRef<boolean>(false);
@@ -800,21 +800,21 @@ export default function App() {
   const [activeFeatureCategory, setActiveFeatureCategory] = useState<string | null>('study');
 
   // Gemini model settings (Flash vs Flash-Lite)
-  const [selectedModel, setSelectedModel] = useState<'gemini-2.5-flash' | 'gemini-3.1-flash-lite'>(() => {
-    const saved = localStorage.getItem('hansai-active-model');
-    if (saved === 'gemini-2.5-flash' || saved === 'gemini-3.1-flash-lite') return saved;
-    return 'gemini-2.5-flash';
+  const [selectedModel, setSelectedModel] = useState<'gemini-1.5-flash' | 'gemini-3.5-flash-lite'>(() => {
+    const saved = localStorage.getItem('hans-compain-active-model');
+    if (saved === 'gemini-1.5-flash' || saved === 'gemini-3.5-flash-lite') return saved;
+    return 'gemini-1.5-flash';
   });
 
   // Educational Key Topics Highlight state
   const [isHighlightingEnabled, setIsHighlightingEnabled] = useState<boolean>(() => {
-    const saved = localStorage.getItem('hansai-highlight-text');
+    const saved = localStorage.getItem('hans-compain-highlight-text');
     return saved !== null ? saved === 'true' : true;
   });
 
   // SCREEN LIGHT / EYE-CARE COLOR MODES (5 Themes: Dark, Blue-Green Light, Warm Yellow, Eco Gray, Cyber Blue)
   const [screenColorMode, setScreenColorMode] = useState<'dark' | 'blue_green_light' | 'warm_yellow' | 'eco_gray' | 'cyber_blue'>(() => {
-    return (localStorage.getItem('hansai-color-mode') as any) || 'dark';
+    return (localStorage.getItem('hans-compain-color-mode') as any) || 'dark';
   });
 
   const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState<boolean>(false);
@@ -901,7 +901,7 @@ export default function App() {
   });
   const [showWelcomeProfile, setShowWelcomeProfile] = useState(false);
   const [user, setUser] = useState<{ email: string; name: string; userId?: string; role?: string; avatarUrl?: string; targetExam?: string } | null>(() => {
-    const saved = localStorage.getItem('hansai-user-session');
+    const saved = localStorage.getItem('hans-compain-user-session');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -1007,10 +1007,10 @@ export default function App() {
     // Owner Hanslal Pal and unauthenticated users are exempted from auto-logout
     if (!user || user.role === 'owner' || user.email === 'palhanslal4@gmail.com') return;
 
-    let sessionStart = parseInt(localStorage.getItem('hansai-session-timestamp') || '0', 10);
+    let sessionStart = parseInt(localStorage.getItem('hans-compain-session-timestamp') || '0', 10);
     if (!sessionStart || isNaN(sessionStart)) {
       sessionStart = Date.now();
-      localStorage.setItem('hansai-session-timestamp', sessionStart.toString());
+      localStorage.setItem('hans-compain-session-timestamp', sessionStart.toString());
     }
 
     const THREE_HOURS_MS = 3 * 60 * 60 * 1000; // 3 hours = 10,800,000 ms
@@ -1023,8 +1023,8 @@ export default function App() {
 
       if (remaining <= 0) {
         // 3 Hours Limit Reached -> Trigger Auto Logout
-        localStorage.removeItem('hansai-user-session');
-        localStorage.removeItem('hansai-session-timestamp');
+        localStorage.removeItem('hans-compain-user-session');
+        localStorage.removeItem('hans-compain-session-timestamp');
         setUser(null);
         setIsHeaderMenuOpen(false);
         setActiveView('chat');
@@ -1203,7 +1203,7 @@ export default function App() {
         }
         let storedUser = null;
         try {
-          const raw = localStorage.getItem('hansai-user-session') || localStorage.getItem('hansai_registered_user');
+          const raw = localStorage.getItem('hans-compain-user-session') || localStorage.getItem('hansai_registered_user');
           if (raw) storedUser = JSON.parse(raw);
         } catch (e) {}
 
@@ -1335,11 +1335,11 @@ export default function App() {
         // Trigger browser notification if permitted
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           try {
-            const notif = new Notification('📰 HansAI - दैनिक करेंट अफेयर्स व क्विज़ अपडेट', {
+            const notif = new Notification('📰 Hans Compain - दैनिक करेंट अफेयर्स व क्विज़ अपडेट', {
               body: 'आज के शीर्ष समसामयिकी प्रश्न व लाइव टेस्ट उपलब्ध हैं। अभी अभ्यास करें और अपना रैंक सुधारें!',
               icon: '/favicon.ico',
               badge: '/favicon.ico',
-              tag: `hansai-ca-${todayStr}`
+              tag: `hans-compain-ca-${todayStr}`
             });
             notif.onclick = () => {
               window.focus();
@@ -1513,7 +1513,7 @@ export default function App() {
 
   // AI Model Controls
   const [aiModelSettings, setAiModelSettings] = useState({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-1.5-flash',
     temperature: 0.7,
     maxTokens: 4096,
     safetyLevel: 'Balanced'
@@ -1732,7 +1732,7 @@ export default function App() {
       const newUserObj = { name: cleanName, email: cleanEmail, role };
 
       setUser(newUserObj);
-      localStorage.setItem('hansai-user-session', JSON.stringify(newUserObj));
+      localStorage.setItem('hans-compain-user-session', JSON.stringify(newUserObj));
       setIsUserRegisterModalOpen(false);
       showToast(`Welcome ${cleanName}! Registered successfully in Firestore. 🎉`, "success");
       fetchOwnerAnalytics();
@@ -1740,7 +1740,7 @@ export default function App() {
       const role = cleanEmail === 'palhanslal4@gmail.com' ? 'owner' : 'student';
       const newUserObj = { name: cleanName, email: cleanEmail, role };
       setUser(newUserObj);
-      localStorage.setItem('hansai-user-session', JSON.stringify(newUserObj));
+      localStorage.setItem('hans-compain-user-session', JSON.stringify(newUserObj));
       setIsUserRegisterModalOpen(false);
       showToast(`Welcome ${cleanName}! Saved in Firestore & Local storage.`, "success");
       fetchOwnerAnalytics();
@@ -1753,7 +1753,7 @@ export default function App() {
     if (!user) return;
     const newUserObj = { ...user, ...updatedData };
     setUser(newUserObj);
-    localStorage.setItem('hansai-user-session', JSON.stringify(newUserObj));
+    localStorage.setItem('hans-compain-user-session', JSON.stringify(newUserObj));
     try {
       await syncUserProfile({
         ...newUserObj,
@@ -1777,7 +1777,7 @@ export default function App() {
 
     if (!activeEmail) {
       try {
-        const saved = localStorage.getItem('hansai-user-session') || localStorage.getItem('hansai_registered_user');
+        const saved = localStorage.getItem('hans-compain-user-session') || localStorage.getItem('hansai_registered_user');
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed.email) {
@@ -1803,14 +1803,14 @@ export default function App() {
       id: `act-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       type: typeLabel as 'quiz' | 'timer' | 'note',
       title: `[${type.toUpperCase()}] ${query.trim()}`,
-      subtitle: `Recorded on HansAI AI Platform`,
+      subtitle: `Recorded on Hans Compain AI Platform`,
       timestamp: new Date().toISOString()
     };
 
     setActivityLogs(prev => {
       const updated = [newLog, ...prev];
       try {
-        localStorage.setItem('hansai-history', JSON.stringify(updated));
+        localStorage.setItem('hans-compain-history', JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
@@ -1845,7 +1845,7 @@ export default function App() {
     setActivityLogs(prev => {
       const updated = prev.filter(item => item.id !== logId);
       try {
-        localStorage.setItem('hansai-history', JSON.stringify(updated));
+        localStorage.setItem('hans-compain-history', JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
@@ -1859,16 +1859,16 @@ export default function App() {
 
   // Premium Utility states
   const [advancedResearchMode, setAdvancedResearchMode] = useState(() => {
-    return localStorage.getItem('hansai-advanced-research') === 'true';
+    return localStorage.getItem('hans-compain-advanced-research') === 'true';
   });
 
   useEffect(() => {
-    localStorage.setItem('hansai-advanced-research', advancedResearchMode ? 'true' : 'false');
+    localStorage.setItem('hans-compain-advanced-research', advancedResearchMode ? 'true' : 'false');
   }, [advancedResearchMode]);
 
   // Saved Projects and Interactive Audio Recorder states
   const [savedProjects, setSavedProjects] = useState<any[]>(() => {
-    const saved = localStorage.getItem('hansai-projects');
+    const saved = localStorage.getItem('hans-compain-projects');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -1876,11 +1876,11 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('hansai-projects', JSON.stringify(savedProjects));
+    localStorage.setItem('hans-compain-projects', JSON.stringify(savedProjects));
   }, [savedProjects]);
 
   const [savedChats, setSavedChats] = useState<any[]>(() => {
-    const saved = localStorage.getItem('hansai-saved-chats');
+    const saved = localStorage.getItem('hans-compain-saved-chats');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -1891,7 +1891,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('hansai-saved-chats', JSON.stringify(savedChats));
+    localStorage.setItem('hans-compain-saved-chats', JSON.stringify(savedChats));
   }, [savedChats]);
 
   // ChatGPT-style active chat session tracking and inline editing states
@@ -1983,11 +1983,11 @@ export default function App() {
 
   // Collapsible Workspaces Toggle
   const [isWorkspaceCollapsed, setIsWorkspaceCollapsed] = useState(() => {
-    return localStorage.getItem('hansai-workspace-collapsed') === 'true';
+    return localStorage.getItem('hans-compain-workspace-collapsed') === 'true';
   });
 
   useEffect(() => {
-    localStorage.setItem('hansai-workspace-collapsed', isWorkspaceCollapsed ? 'true' : 'false');
+    localStorage.setItem('hans-compain-workspace-collapsed', isWorkspaceCollapsed ? 'true' : 'false');
   }, [isWorkspaceCollapsed]);
 
   const [isUtilityDashboardOpen, setIsUtilityDashboardOpen] = useState(false);
@@ -2036,7 +2036,7 @@ export default function App() {
 
   // DYNAMIC FEEDBACK FEED LIST state
   const [feedbacks, setFeedbacks] = useState<Array<{ id: string; user: string; avatarUrl?: string; ratingAccuracy: number; ratingSpeed: number; ratingExperience: number; comment: string; date: string }>>(() => {
-    const saved = localStorage.getItem('hansai-feedbacks-v2');
+    const saved = localStorage.getItem('hans-compain-feedbacks-v2');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -2089,10 +2089,10 @@ export default function App() {
 
   // ALARM REMINDER & TIMER UTILITIES states
   const [reminderEnabled, setReminderEnabled] = useState<boolean>(() => {
-    return localStorage.getItem('hansai-reminder-enabled') !== 'false';
+    return localStorage.getItem('hans-compain-reminder-enabled') !== 'false';
   });
   const [reminderTime, setReminderTime] = useState<string>(() => {
-    return localStorage.getItem('hansai-reminder-time') || "19:00";
+    return localStorage.getItem('hans-compain-reminder-time') || "19:00";
   });
   const [reminderAlertState, setReminderAlertState] = useState<boolean>(false);
   const [hasAlertedHalfTime, setHasAlertedHalfTime] = useState<boolean>(false);
@@ -2147,7 +2147,7 @@ export default function App() {
 
   // Sync to local storages
   useEffect(() => {
-    localStorage.setItem('hansai-color-mode', screenColorMode);
+    localStorage.setItem('hans-compain-color-mode', screenColorMode);
   }, [screenColorMode]);
 
   // ⭐ Automatic 5-Star Feedback Popup Trigger when user finishes a feature or quiz and returns to Home / Chat
@@ -2160,7 +2160,7 @@ export default function App() {
       const hasAsked = sessionStorage.getItem('hansai_feedback_asked_session');
       if (!hasAsked) {
         const timer = setTimeout(() => {
-          setFeedbackInitialContext(`HansAI Feature: ${prev.toUpperCase()}`);
+          setFeedbackInitialContext(`Hans Compain Feature: ${prev.toUpperCase()}`);
           setIsFiveStarFeedbackOpen(true);
           sessionStorage.setItem('hansai_feedback_asked_session', 'true');
         }, 1200);
@@ -2172,22 +2172,22 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('hansai-user-session', JSON.stringify(user));
+      localStorage.setItem('hans-compain-user-session', JSON.stringify(user));
     } else {
-      localStorage.removeItem('hansai-user-session');
+      localStorage.removeItem('hans-compain-user-session');
     }
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-feedbacks-v1', JSON.stringify(feedbacks));
+    localStorage.setItem('hans-compain-feedbacks-v1', JSON.stringify(feedbacks));
   }, [feedbacks]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-reminder-enabled', String(reminderEnabled));
+    localStorage.setItem('hans-compain-reminder-enabled', String(reminderEnabled));
   }, [reminderEnabled]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-reminder-time', reminderTime);
+    localStorage.setItem('hans-compain-reminder-time', reminderTime);
   }, [reminderTime]);
 
   const triggerDailyReminder = () => {
@@ -2198,7 +2198,7 @@ export default function App() {
     if ("Notification" in window) {
       if (Notification.permission === "granted") {
         try {
-          new Notification("HansAI Goal Reminder / याद दिलाने वाला", {
+          new Notification("Hans Compain Goal Reminder / याद दिलाने वाला", {
             body: "आपके पास अभी भी कुछ अधूरे दैनिक लक्ष्य हैं! इन्हें आज ही पूर्ण करें और तैयारी कड़क रखें। 🚀",
             icon: "https://img.icons8.com/fluent/192/000000/brain.png"
           });
@@ -2225,20 +2225,20 @@ export default function App() {
 
   // Active settings application to local and window objects
   useEffect(() => {
-    localStorage.setItem('hansai-theme', theme);
+    localStorage.setItem('hans-compain-theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-text-size', textSize);
+    localStorage.setItem('hans-compain-text-size', textSize);
   }, [textSize]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-active-model', selectedModel);
+    localStorage.setItem('hans-compain-active-model', selectedModel);
   }, [selectedModel]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-highlight-text', String(isHighlightingEnabled));
+    localStorage.setItem('hans-compain-highlight-text', String(isHighlightingEnabled));
   }, [isHighlightingEnabled]);
 
   // Derived helper mapping text sizes to Tailwind utilities
@@ -2478,33 +2478,14 @@ export default function App() {
   };
 
   const startVoiceAssistantMode = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      showToast(
-        language === 'hindi' 
-          ? "इस ब्राउज़र में वॉयस अस्सिस्टेंट समर्थित नहीं है। कृपया Chrome या Edge का उपयोग करें।" 
-          : "Voice Recognition is not supported in this browser. Please use Chrome or Edge.", 
-        "warn"
-      );
-      return;
-    }
-
-    if (isVoiceAssistantActive) {
-      stopVoiceAssistantMode();
-      return;
-    }
-
-    // Warmup audio player
-    try {
-      const silentAudio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=");
-      silentAudio.play().catch(() => {});
-    } catch (e) {}
-
-    isVoiceAssistantActiveRef.current = true;
-    setIsVoiceAssistantActive(true);
-    showToast("🎙️ Hands-Free Voice Assistant Active! Speak your question.", "success");
-
-    startListeningCycle();
+    // Isolate Gemini Hands-Free: Instead of integrated mode, open the dedicated modal
+    setIsGeminiLiveOpen(true);
+    showToast(
+      language === 'hindi' 
+        ? "🎙️ Hans Compain हैंड्स-फ्री मोड सक्रिय! अब आप बोलकर पढ़ाई कर सकते हैं।" 
+        : "🎙️ Hans Compain Hands-Free Active! Speak to learn.", 
+      "success"
+    );
   };
 
   // 4. Voice Input vocal dictation with Multi-lingual Indian Languages Support
@@ -2911,11 +2892,11 @@ export default function App() {
     // Open app on a fresh new page on startup as requested ("Chat ki history app open karne par na dikhe new page par open ho")
     // Safely auto-archive any unarchived previous session into saved chats so history is preserved
     try {
-      const saved = localStorage.getItem('hansai-chat-messages');
+      const saved = localStorage.getItem('hans-compain-chat-messages');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const rawSavedChats = localStorage.getItem('hansai-saved-chats');
+          const rawSavedChats = localStorage.getItem('hans-compain-saved-chats');
           let existing = [];
           if (rawSavedChats) {
             try { existing = JSON.parse(rawSavedChats) || []; } catch (e) {}
@@ -2928,8 +2909,8 @@ export default function App() {
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             messages: parsed
           };
-          localStorage.setItem('hansai-saved-chats', JSON.stringify([archivedSession, ...existing]));
-          localStorage.removeItem('hansai-chat-messages');
+          localStorage.setItem('hans-compain-saved-chats', JSON.stringify([archivedSession, ...existing]));
+          localStorage.removeItem('hans-compain-chat-messages');
         }
       }
     } catch (e) {}
@@ -2941,7 +2922,7 @@ export default function App() {
   useEffect(() => {
     if (chatMessages && chatMessages.length > 0) {
       try {
-        localStorage.setItem('hansai-chat-messages', JSON.stringify(chatMessages));
+        localStorage.setItem('hans-compain-chat-messages', JSON.stringify(chatMessages));
       } catch (e) {}
     }
   }, [chatMessages]);
@@ -3027,7 +3008,7 @@ export default function App() {
   // Mistake Revision Notebook state
   const [mistakeNotebook, setMistakeNotebook] = useState<MistakeNotebookItem[]>(() => {
     try {
-      const saved = localStorage.getItem('hansai-mistake-notebook');
+      const saved = localStorage.getItem('hans-compain-mistake-notebook');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -3046,7 +3027,7 @@ export default function App() {
   const [savedQuizSearch, setSavedQuizSearch] = useState('');
   const [reviewingSavedQuiz, setReviewingSavedQuiz] = useState<SavedQuizRecord | null>(null);
   const [hasActiveQuizDraft, setHasActiveQuizDraft] = useState<boolean>(() => {
-    return !!localStorage.getItem('hansai-active-quiz-draft');
+    return !!localStorage.getItem('hans-compain-active-quiz-draft');
   });
 
   const handleDownloadA1Card = () => {
@@ -3106,10 +3087,10 @@ export default function App() {
 </head>
 <body>
   <div class="certificate-card">
-    <div class="bg-watermark">HANS-AI</div>
+    <div class="bg-watermark">HANS COMPAIN</div>
     <div class="content-wrap">
       <div class="header">
-        <div class="org-title">🏆 HANS-AI ACADEMIC EVALUATION COUNCIL</div>
+        <div class="org-title">🏆 HANS COMPAIN ACADEMIC EVALUATION COUNCIL</div>
         <div class="sub-org">राष्ट्रीय परीक्षा मूल्यांकन एवं डिजिटल लर्निंग सिस्टम (A1 GRADE REPORT)</div>
         <div class="card-type">OFFICIAL CHAPTER SCORECARD & A1 CERTIFICATE</div>
       </div>
@@ -3166,7 +3147,7 @@ export default function App() {
         </div>
       </div>
       <div class="footer">
-        <div>Verified By: HansAI Educational Platform</div>
+        <div>Verified By: Hans Compain Educational Platform</div>
         <div>Certificate Ref: #HS-A1-${Date.now().toString().slice(-6)}</div>
       </div>
     </div>
@@ -3178,7 +3159,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `HansAI_A1_Card_${studentName.replace(/\s+/g, '_')}_${quizSubject.replace(/\s+/g, '_')}.html`;
+    link.download = `Hans Compain_A1_Card_${studentName.replace(/\s+/g, '_')}_${quizSubject.replace(/\s+/g, '_')}.html`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -3190,7 +3171,7 @@ export default function App() {
   const [activeQuizTab, setActiveQuizTab] = useState<'syllabus' | 'saved' | 'mistakes'>('syllabus');
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuizRecord[]>(() => {
     try {
-      const saved = localStorage.getItem('hansai-saved-quizzes');
+      const saved = localStorage.getItem('hans-compain-saved-quizzes');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -3200,7 +3181,7 @@ export default function App() {
   // Syllabus Revision and Utility Trackers state
   const [syllabusTrackers, setSyllabusTrackers] = useState<Array<{ id: string; exam: string; subject: string; topic: string; done: boolean; notes: boolean; quiz: boolean }>>(() => {
     try {
-      const saved = localStorage.getItem('hansai-syllabus-trackers');
+      const saved = localStorage.getItem('hans-compain-syllabus-trackers');
       if (saved) return JSON.parse(saved);
     } catch {}
     return [
@@ -3310,7 +3291,7 @@ export default function App() {
         negativeMarkVal,
         lastSaved: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
       };
-      localStorage.setItem('hansai-active-quiz-draft', JSON.stringify(draftData));
+      localStorage.setItem('hans-compain-active-quiz-draft', JSON.stringify(draftData));
       setHasActiveQuizDraft(true);
       setQuizAutoSaveNotice(`Auto-Saved at ${new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' })}`);
     } catch (err) {
@@ -3320,7 +3301,7 @@ export default function App() {
 
   const resumeActiveQuizDraft = () => {
     try {
-      const savedDraft = localStorage.getItem('hansai-active-quiz-draft');
+      const savedDraft = localStorage.getItem('hans-compain-active-quiz-draft');
       if (savedDraft) {
         const data = JSON.parse(savedDraft);
         if (data.quizzes && data.quizzes.length > 0) {
@@ -3345,7 +3326,7 @@ export default function App() {
   };
 
   const discardActiveQuizDraft = () => {
-    localStorage.removeItem('hansai-active-quiz-draft');
+    localStorage.removeItem('hans-compain-active-quiz-draft');
     setHasActiveQuizDraft(false);
     showToast("Unfinished quiz draft cleared.", "info");
   };
@@ -3590,7 +3571,7 @@ export default function App() {
         return prev;
       }
       const updated = [newItem, ...prev];
-      localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+      localStorage.setItem('hans-compain-mistake-notebook', JSON.stringify(updated));
       showToast("गलती रजिस्टर (Mistake Notebook) में सुरक्षित! 📓", "success");
       return updated;
     });
@@ -3599,14 +3580,14 @@ export default function App() {
   const handleDeleteMistake = (id: string) => {
     const updated = mistakeNotebook.filter(m => m.id !== id);
     setMistakeNotebook(updated);
-    localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+    localStorage.setItem('hans-compain-mistake-notebook', JSON.stringify(updated));
     showToast("Mistake record removed.", "info");
   };
 
   const handleClearAllMistakes = () => {
     if (confirm("क्या आप सभी गलत प्रश्न रजिस्टर से हटाना चाहते हैं? (Clear all mistake records?)")) {
       setMistakeNotebook([]);
-      localStorage.removeItem('hansai-mistake-notebook');
+      localStorage.removeItem('hans-compain-mistake-notebook');
       showToast("Mistake notebook cleared.", "info");
     }
   };
@@ -3614,7 +3595,7 @@ export default function App() {
   const handleToggleMasteredMistake = (id: string) => {
     const updated = mistakeNotebook.map(m => m.id === id ? { ...m, mastered: !m.mastered } : m);
     setMistakeNotebook(updated);
-    localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+    localStorage.setItem('hans-compain-mistake-notebook', JSON.stringify(updated));
     showToast("Status updated.", "success");
   };
 
@@ -3724,7 +3705,7 @@ export default function App() {
       setMistakeNotebook(prev => {
         if (prev.some(m => m.question === mistakeItem.question)) return prev;
         const updated = [mistakeItem, ...prev];
-        localStorage.setItem('hansai-mistake-notebook', JSON.stringify(updated));
+        localStorage.setItem('hans-compain-mistake-notebook', JSON.stringify(updated));
         return updated;
       });
     }
@@ -3789,8 +3770,8 @@ export default function App() {
 
       const updated = [autoSavedRecord, ...savedQuizzes.filter(q => q.id !== autoSavedRecord.id)];
       setSavedQuizzes(updated);
-      localStorage.setItem('hansai-saved-quizzes', JSON.stringify(updated));
-      localStorage.removeItem('hansai-active-quiz-draft');
+      localStorage.setItem('hans-compain-saved-quizzes', JSON.stringify(updated));
+      localStorage.removeItem('hans-compain-active-quiz-draft');
       setHasActiveQuizDraft(false);
       setQuizAutoSaveNotice(`Auto-Saved to Records at ${autoSavedRecord.timestamp} ✅`);
       showToast("Quize Auto-Saved in Records! ✅ (क्विज़ स्वतः सुरक्षित हो गया)", "success");
@@ -3820,7 +3801,7 @@ export default function App() {
     setQuizError(null);
     setQuizAutoSaveNotice(null);
     setIsQuizTimerActive(false);
-    localStorage.removeItem('hansai-active-quiz-draft');
+    localStorage.removeItem('hans-compain-active-quiz-draft');
     setHasActiveQuizDraft(false);
   };
 
@@ -3863,7 +3844,7 @@ export default function App() {
     };
     const updated = [newSaved, ...savedQuizzes.filter(q => q.id !== newSaved.id)];
     setSavedQuizzes(updated);
-    localStorage.setItem('hansai-saved-quizzes', JSON.stringify(updated));
+    localStorage.setItem('hans-compain-saved-quizzes', JSON.stringify(updated));
     showToast("Quiz record re-saved and confirmed in Repository! 💾✅", "success");
   };
 
@@ -3879,7 +3860,7 @@ export default function App() {
       return track;
     });
     setSyllabusTrackers(updated);
-    localStorage.setItem('hansai-syllabus-trackers', JSON.stringify(updated));
+    localStorage.setItem('hans-compain-syllabus-trackers', JSON.stringify(updated));
   };
 
   const handleAddSyllabusTracker = (e: React.FormEvent) => {
@@ -3896,14 +3877,14 @@ export default function App() {
     };
     const updated = [...syllabusTrackers, newTrack];
     setSyllabusTrackers(updated);
-    localStorage.setItem('hansai-syllabus-trackers', JSON.stringify(updated));
+    localStorage.setItem('hans-compain-syllabus-trackers', JSON.stringify(updated));
     setNewTrackerTopic('');
     showToast("New syllabus practice task added successfully! 📝", "success");
   };
 
   // 1. Smart Folders, Dynamic Notes state and Local storage managers
   const [folders, setFolders] = useState<Array<{ id: string; name: string; emoji: string; color: string }>>(() => {
-    const saved = localStorage.getItem('hansai-folders');
+    const saved = localStorage.getItem('hans-compain-folders');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -3922,7 +3903,7 @@ export default function App() {
   });
 
   const [notes, setNotes] = useState<Array<{ id: string; folderId: string; title: string; content: string; tags: string[]; createdAt: string }>>(() => {
-    const saved = localStorage.getItem('hansai-notes');
+    const saved = localStorage.getItem('hans-compain-notes');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -4021,7 +4002,7 @@ export default function App() {
 
   // 3. Activity Log & Savings state
   const [activityLogs, setActivityLogs] = useState<Array<{ id: string; type: 'timer' | 'quiz' | 'note' | 'chat'; title: string; subtitle: string; score?: string; timestamp: string }>>(() => {
-    const saved = localStorage.getItem('hansai-history');
+    const saved = localStorage.getItem('hans-compain-history');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -4052,7 +4033,7 @@ export default function App() {
   useEffect(() => {
     if (activityLogs) {
       try {
-        localStorage.setItem('hansai-history', JSON.stringify(activityLogs));
+        localStorage.setItem('hans-compain-history', JSON.stringify(activityLogs));
       } catch (e) {}
     }
   }, [activityLogs]);
@@ -4062,7 +4043,7 @@ export default function App() {
   const [triggerConfetti, setTriggerConfetti] = useState(false);
   const [confettiParticles, setConfettiParticles] = useState<{ id: number; char: string; x: number; y: number; size: number; delay: number }[]>([]);
   const [dailyGoals, setDailyGoals] = useState<{ id: string; text: string; done: boolean; category: string }[]>(() => {
-    const saved = localStorage.getItem('hansai-goals-v2');
+    const saved = localStorage.getItem('hans-compain-goals-v2');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -4079,7 +4060,7 @@ export default function App() {
 
   // Trigger goal storage sync
   useEffect(() => {
-    localStorage.setItem('hansai-goals-v2', JSON.stringify(dailyGoals));
+    localStorage.setItem('hans-compain-goals-v2', JSON.stringify(dailyGoals));
   }, [dailyGoals]);
 
   // DAILY GOALS REMINDER ticking check
@@ -4154,7 +4135,7 @@ export default function App() {
 
   // Subject Progress Metrics (Time spent in hours per subject Area)
   const [subjectProgress, setSubjectProgress] = useState<{ id: string; subject: string; hours: number; accuracy: number; totalMCQs: number }[]>(() => {
-    const saved = localStorage.getItem('hansai-subject-progress');
+    const saved = localStorage.getItem('hans-compain-subject-progress');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -4170,7 +4151,7 @@ export default function App() {
   const handleUpdateProgressHour = (id: string, hoursToAdd: number) => {
     setSubjectProgress(prev => {
       const updated = prev.map(p => p.id === id ? { ...p, hours: Math.max(0, p.hours + hoursToAdd) } : p);
-      localStorage.setItem('hansai-subject-progress', JSON.stringify(updated));
+      localStorage.setItem('hans-compain-subject-progress', JSON.stringify(updated));
       return updated;
     });
   };
@@ -4449,7 +4430,7 @@ export default function App() {
   const [leaderboardSearch, setLeaderboardSearch] = useState("");
   const [leaderboardFilter, setLeaderboardFilter] = useState("ALL");
   const [leaderboardList, setLeaderboardList] = useState<any[]>(() => {
-    const saved = localStorage.getItem('hansai-leaderboard');
+    const saved = localStorage.getItem('hans-compain-leaderboard');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -4474,7 +4455,7 @@ export default function App() {
     };
     const updated = [newRecord, ...leaderboardList];
     setLeaderboardList(updated);
-    localStorage.setItem('hansai-leaderboard', JSON.stringify(updated));
+    localStorage.setItem('hans-compain-leaderboard', JSON.stringify(updated));
     showToast("मॉक टेस्ट स्कोर सफलतापूर्वक सहेजा गया और रैंक की गणना की गई!", "success");
     setRegScoreName("");
     setRegScoreLoc("");
@@ -4491,7 +4472,7 @@ export default function App() {
     { id: 'step-6', title: "Self-Study Practice Session Run", duration: "45 mins", desc: "स्मार्ट टाइमर लगाकर कड़क अभ्यास करें।" }
   ]);
   const [unlockedProgressSteps, setUnlockedProgressSteps] = useState<string[]>(() => {
-    const saved = localStorage.getItem('hansai-unlocked-steps');
+    const saved = localStorage.getItem('hans-compain-unlocked-steps');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -4505,7 +4486,7 @@ export default function App() {
       } else {
         updated = [...prev, stepId];
       }
-      localStorage.setItem('hansai-unlocked-steps', JSON.stringify(updated));
+      localStorage.setItem('hans-compain-unlocked-steps', JSON.stringify(updated));
       return updated;
     });
   };
@@ -4530,7 +4511,7 @@ export default function App() {
     createdAt: string;
     isAiGenerated?: boolean;
   }>>(() => {
-    const saved = localStorage.getItem('hansai-music-tracks');
+    const saved = localStorage.getItem('hans-compain-music-tracks');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -4582,7 +4563,7 @@ export default function App() {
   const [musicPlaybackSpeed, setMusicPlaybackSpeed] = useState(1.0);
 
   useEffect(() => {
-    localStorage.setItem('hansai-music-tracks', JSON.stringify(musicTracks));
+    localStorage.setItem('hans-compain-music-tracks', JSON.stringify(musicTracks));
   }, [musicTracks]);
 
   const playWebAudioSynthBeat = (genre: string, tempoBpm: number) => {
@@ -4757,7 +4738,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
   // Real Active Healthy Lifestyle checkoff tracker
   const [lifestyleTracker, setLifestyleTracker] = useState<{ id: string; title: string; hint: string; checked: boolean; rewardPoints: number }[]>(() => {
-    const saved = localStorage.getItem('hansai-lifestyle');
+    const saved = localStorage.getItem('hans-compain-lifestyle');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -4954,7 +4935,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
   // External App Launcher Actions
   const handleLaunchYouTube = (topic = launcherSearchTopic) => {
-    const clean = (topic || "HansAI Study Lectures").trim();
+    const clean = (topic || "Hans Compain Study Lectures").trim();
     const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(clean)}`;
     window.open(url, "_blank", "noopener,noreferrer");
     showToast(`YouTube search launched for "${clean}"! 🎬`, "info");
@@ -5013,9 +4994,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
     if (isTimerRunning && timeLeft > 0) {
       const m = Math.floor(timeLeft / 60).toString().padStart(2, "0");
       const s = (timeLeft % 60).toString().padStart(2, "0");
-      document.title = `⏰ (${m}:${s}) ${timerAlarmTitle || "HansAI Timer"}`;
+      document.title = `⏰ (${m}:${s}) ${timerAlarmTitle || "Hans Compain Timer"}`;
     } else {
-      document.title = "HansAI • हंस-एआई • Quantum Lab Core";
+      document.title = "Hans Compain • हंस-एआई • Quantum Lab Core";
     }
   }, [isTimerRunning, timeLeft, timerAlarmTitle]);
 
@@ -5083,11 +5064,11 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
   // Save folders and notes to localStorage on modification
   useEffect(() => {
-    localStorage.setItem('hansai-folders', JSON.stringify(folders));
+    localStorage.setItem('hans-compain-folders', JSON.stringify(folders));
   }, [folders]);
 
   useEffect(() => {
-    localStorage.setItem('hansai-notes', JSON.stringify(notes));
+    localStorage.setItem('hans-compain-notes', JSON.stringify(notes));
   }, [notes]);
 
   // Save new project to list
@@ -5144,7 +5125,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
     if (query.includes('pdf') || query.includes('पीडीएफ')) {
       const topicName = userQuery.replace(/pdf|पीडीएफ|banao|chahiye|download|bnao|generate|karo/gi, '').trim() || 'संपूर्ण सामान्य अध्ययन (General Studies Notes)';
-      return `### 📄 HansAI - आपके अध्ययन हेतु विशेष PDF नोट्स\n\n` +
+      return `### 📄 Hans Compain - आपके अध्ययन हेतु विशेष PDF नोट्स\n\n` +
         `**विषय:** "${topicName}"\n\n` +
         `#### 📌 मुख्य बिंदु व परीक्षा सारांश:\n` +
         `1. **अवधारणा की स्पष्टता:** इस अध्याय के सभी महत्वपूर्ण सूत्र, सिद्धांत एवं तिथियां शामिल हैं।\n` +
@@ -5237,7 +5218,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
     if (query.includes('bihar') || query.includes('gk') || query.includes('ssc') || query.includes('upsc') || query.includes('cgl') || query.includes('chsl') || query.includes('board')) {
       return `### 🎯 प्रतियोगी परीक्षा तैयारी (Exam Strategy)\n\n` +
-        `**"${userQuery}"** हेतु HansAI अध्ययन रणनीति:\n\n` +
+        `**"${userQuery}"** हेतु Hans Compain अध्ययन रणनीति:\n\n` +
         `1. **सिलेबस व PYQ:** विगत 5 वर्षों के प्रश्नों का गहन विश्लेषण करें।\n` +
         `2. **दैनिक शेड्यूल:** GK/General Awareness, गणित, रीजनिंग व भाषा का संतुलित समय बांटें।\n` +
         `3. **मॉक टेस्ट:** साप्ताहिक टेस्ट हल करें व कमजोर टॉपिक्स को तुरंत सुधारें।\n\n` +
@@ -5359,7 +5340,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       id: `hist-chat-${Date.now()}`,
       type: 'chat' as const,
       title: `AI Query: "${messageContent.length > 50 ? messageContent.substring(0, 50) + '...' : messageContent}"`,
-      subtitle: `Asked in HansAI Chat Session (${new Date().toLocaleTimeString()})`,
+      subtitle: `Asked in Hans Compain Chat Session (${new Date().toLocaleTimeString()})`,
       timestamp: new Date().toISOString()
     };
     setActivityLogs(prev => [historyItem, ...prev]);
@@ -5525,7 +5506,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
       }
       wasVoiceTriggeredRef.current = false;
     } catch (err: any) {
-      console.error("Chat fetch error, running HansAI local smart fallback system:", err);
+      console.error("Chat fetch error, running Hans Compain local smart fallback system:", err);
       
       const query = messageContent.toLowerCase();
       let customReply = "";
@@ -5577,7 +5558,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         }
         return s;
       }));
-      showToast("HansAI Local Response Activated ✅", "success");
+      showToast("Hans Compain Local Response Activated ✅", "success");
 
       const shouldSpeakVoice = isVoiceAssistantActive || isVoiceAssistantActiveRef.current || autoVoiceReadout || wasVoiceTriggeredRef.current;
       if (shouldSpeakVoice && customReply) {
@@ -5626,10 +5607,10 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 </h1>
                 <span className="text-lg">⚡</span>
               </div>
-              <p className="text-xs text-amber-300 font-bold tracking-wide">
-                Shorthand, Steno Dictation & AI Learning Platform
+              <p className="text-xs text-amber-300 font-bold tracking-wide px-4">
+                हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान!
               </p>
-              <div className="p-2 bg-indigo-950/70 border border-indigo-500/30 rounded-xl text-[11px] text-indigo-200 font-sans italic shadow-sm">
+              <div className="p-2 bg-indigo-950/70 border border-indigo-500/30 rounded-xl text-[11px] text-indigo-200 font-sans italic shadow-sm mx-4">
                 "ज्ञानम् परमम् बलम् • हंस-ज्ञान, अनुशासन एवं निरंतर प्रगति"
               </div>
             </div>
@@ -5684,7 +5665,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
           <button 
             onClick={() => {
               setActiveHeaderBanner('');
-              localStorage.setItem('hansai-banner-dismissed', 'true');
+              localStorage.setItem('hans-compain-banner-dismissed', 'true');
               showToast("Announcement banner dismissed. You can re-enable it in Settings.", "info");
             }}
             className="text-white/80 hover:text-white p-0.5 ml-2 cursor-pointer border-none bg-transparent"
@@ -5742,7 +5723,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 HANS COMPAIN
               </span>
               <span className="text-[7px] sm:text-[9px] text-cyan-400/80 font-bold tracking-wider uppercase mt-0.5 hidden xs:inline truncate">
-                SHORTHAND & AI
+                हर सपने को मिलेगी उड़ान!
               </span>
             </div>
           </div>
@@ -5764,7 +5745,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </button>
           )}
 
-          {/* 🎙️ HANDS-FREE VOICE ASSISTANT ("Hey Compain" / "Hello Hans AI") */}
+          {/* 🎙️ HANDS-FREE VOICE ASSISTANT ("Hey Compain" / "Hello Hans Compain") */}
           <button
             onClick={startVoiceAssistantMode}
             className={`px-2.5 sm:px-3 py-1.5 border rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0 ${
@@ -5772,7 +5753,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 ring-1 ring-emerald-400/40 animate-pulse'
                 : 'bg-slate-900/80 hover:bg-slate-800 border-slate-700/80 text-slate-300'
             }`}
-            title="हैंड्स-फ्री वॉयस असिस्टेंट ('Hey Compain' या 'Hello Hans AI' बोलें)"
+            title="हैंड्स-फ्री वॉयस असिस्टेंट ('Hey Compain' या 'Hello Hans Compain' बोलें)"
           >
             <Mic className={`w-3.5 h-3.5 ${isVoiceAssistantActive ? 'text-emerald-400 animate-bounce' : 'text-slate-400'}`} />
             <span className="hidden sm:inline">
@@ -5852,7 +5833,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setScreenColorMode('blue_green_light');
-                  localStorage.setItem('hansai-color-mode', 'blue_green_light');
+                  localStorage.setItem('hans-compain-color-mode', 'blue_green_light');
                   showToast(language === 'hindi' ? "थीम: ब्लू-ग्रीन लाइट मोड सक्रिय" : "Theme: Blue-Green Light Active", "success");
                 }}
                 className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all col-span-2 ${
@@ -5872,7 +5853,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setScreenColorMode('dark');
-                  localStorage.setItem('hansai-color-mode', 'dark');
+                  localStorage.setItem('hans-compain-color-mode', 'dark');
                   showToast("Theme: Midnight Dark", "success");
                 }}
                 className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
@@ -5889,7 +5870,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setScreenColorMode('warm_yellow');
-                  localStorage.setItem('hansai-color-mode', 'warm_yellow');
+                  localStorage.setItem('hans-compain-color-mode', 'warm_yellow');
                   showToast("Theme: Warm Yellow (Eye-Care)", "success");
                 }}
                 className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
@@ -5906,7 +5887,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setScreenColorMode('eco_gray');
-                  localStorage.setItem('hansai-color-mode', 'eco_gray');
+                  localStorage.setItem('hans-compain-color-mode', 'eco_gray');
                   showToast("Theme: Eco Slate Gray", "success");
                 }}
                 className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
@@ -5923,7 +5904,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setScreenColorMode('cyber_blue');
-                  localStorage.setItem('hansai-color-mode', 'cyber_blue');
+                  localStorage.setItem('hans-compain-color-mode', 'cyber_blue');
                   showToast("Theme: Cyber Blue", "success");
                 }}
                 className={`p-2 rounded-xl border text-left flex items-center gap-2 font-bold cursor-pointer transition-all ${
@@ -5946,7 +5927,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setLanguage('hindi');
-                  localStorage.setItem('hansai-language', 'hindi');
+                  localStorage.setItem('hans-compain-language', 'hindi');
                   showToast("भाषा: हिंदी (Hindi Active) 🇮🇳", "success");
                 }}
                 className={`p-2 rounded-xl border text-center font-bold cursor-pointer transition-all ${
@@ -5958,7 +5939,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               <button
                 onClick={() => {
                   setLanguage('english');
-                  localStorage.setItem('hansai-language', 'english');
+                  localStorage.setItem('hans-compain-language', 'english');
                   showToast("Language: English Active 🇬🇧", "success");
                 }}
                 className={`p-2 rounded-xl border text-center font-bold cursor-pointer transition-all ${
@@ -5990,7 +5971,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 onClick={() => {
                   const nextVal = !autoVoiceReadout;
                   setAutoVoiceReadout(nextVal);
-                  localStorage.setItem('hansai-auto-voice', String(nextVal));
+                  localStorage.setItem('hans-compain-auto-voice', String(nextVal));
                   showToast(nextVal ? '🔊 Auto Voice Response Enabled! (बोलकर जवाब देगा)' : '🔇 Auto Voice Disabled.', 'info');
                 }}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
@@ -6014,7 +5995,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 onChange={(e) => {
                   const val = e.target.value;
                   setSelectedIndianVoiceLang(val);
-                  localStorage.setItem('hansai-voice-lang', val);
+                  localStorage.setItem('hans-compain-voice-lang', val);
                   showToast(`🇮🇳 Voice set to ${val}`, 'success');
                 }}
                 className="w-full bg-[#03060E] border border-indigo-500/40 rounded-lg text-xs text-indigo-100 p-1.5 focus:outline-none focus:border-cyan-400"
@@ -6039,7 +6020,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     key={size}
                     onClick={() => {
                       setChatFontSize(size);
-                      localStorage.setItem('hansai-chat-font-size', size);
+                      localStorage.setItem('hans-compain-chat-font-size', size);
                       showToast(`Font Size: ${size.toUpperCase()}`, 'info');
                     }}
                     className={`py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer capitalize ${
@@ -6147,7 +6128,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             {/* 5-Star Feedback & Suggestions Button */}
             <button
               onClick={() => {
-                setFeedbackInitialContext('HansAI Main Platform & App');
+                setFeedbackInitialContext('Hans Compain Main Platform & App');
                 setIsFiveStarFeedbackOpen(true);
                 setIsHeaderMenuOpen(false);
               }}
@@ -6196,7 +6177,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
               </span>
             </button>
 
-            {/* 🔍 HansAI Auto-Problem Diagnostics & Owner Alert */}
+            {/* 🔍 Hans Compain Auto-Problem Diagnostics & Owner Alert */}
             <button
               onClick={() => {
                 setIsDiagnosticsModalOpen(true);
@@ -6345,7 +6326,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                 <button
                   onClick={() => {
-                    localStorage.removeItem('hansai-user-session');
+                    localStorage.removeItem('hans-compain-user-session');
                     setUser(null);
                     setIsHeaderMenuOpen(false);
                     showToast(language === 'hindi' ? "सफलतापूर्वक लॉगआउट किया गया! 👋" : "Successfully Logged Out! 👋", "info");
@@ -7171,9 +7152,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                       {/* Share App +50 Coins Button */}
                       <button
                         onClick={() => {
-                          const currentCoins = parseInt(localStorage.getItem("hansai-user-coins") || "350", 10);
+                          const currentCoins = parseInt(localStorage.getItem("hans-compain-user-coins") || "350", 10);
                           const newCoins = currentCoins + 50;
-                          localStorage.setItem("hansai-user-coins", newCoins.toString());
+                          localStorage.setItem("hans-compain-user-coins", newCoins.toString());
                           if (navigator.share) {
                             navigator.share({
                               title: "HANS COMPAIN - Shorthand & Study App",
@@ -7347,7 +7328,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                           onChange={(e) => {
                             const val = e.target.value;
                             setSelectedIndianVoiceLang(val);
-                            localStorage.setItem('hansai-voice-lang', val);
+                            localStorage.setItem('hans-compain-voice-lang', val);
                             showToast(`🇮🇳 Voice language set to ${val}`, 'success');
                             if (isVoiceAssistantActiveRef.current) {
                               if (voiceAssistantRecRef.current) {
@@ -8805,9 +8786,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 </label>
                 <div className="flex flex-col gap-1.5">
                   <button
-                    onClick={() => setSelectedModel('gemini-2.5-flash')}
+                    onClick={() => setSelectedModel('gemini-1.5-flash')}
                     className={`p-2 rounded-xl border text-left transition-all ${
-                      selectedModel === 'gemini-2.5-flash'
+                      selectedModel === 'gemini-1.5-flash'
                         ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold shadow-inner'
                         : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
                     }`}
@@ -8817,9 +8798,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   </button>
                   
                   <button
-                    onClick={() => setSelectedModel('gemini-3.1-flash-lite')}
+                    onClick={() => setSelectedModel('gemini-3.5-flash-lite')}
                     className={`p-2 rounded-xl border text-left transition-all ${
-                      selectedModel === 'gemini-3.1-flash-lite'
+                      selectedModel === 'gemini-3.5-flash-lite'
                         ? 'border-indigo-500 bg-indigo-500/10 text-white font-semibold shadow-inner'
                         : 'border-slate-800 bg-[#090D16] text-slate-400 hover:border-slate-700'
                     }`}
@@ -9126,7 +9107,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     const selectedAvatar = avatarList[hash];
 
                     const loggedUser = { email, name, avatarUrl: selectedAvatar, role: 'student' };
-                    localStorage.setItem('hansai-user-session', JSON.stringify(loggedUser));
+                    localStorage.setItem('hans-compain-user-session', JSON.stringify(loggedUser));
                     setUser(loggedUser);
                     setIsLoginModalOpen(false);
 
@@ -9312,7 +9293,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
                     const updatedFeedbacks = [newFeedbackItem, ...feedbacks];
                     setFeedbacks(updatedFeedbacks);
-                    localStorage.setItem('hansai-feedbacks-v2', JSON.stringify(updatedFeedbacks));
+                    localStorage.setItem('hans-compain-feedbacks-v2', JSON.stringify(updatedFeedbacks));
                     
                     showToast(language === 'hindi' ? "समीक्षा सफलतापूर्वक दर्ज की गई! धन्यवाद। 🙏" : "Your rating & review successfully registered! Thank you. 🙏", "success");
                     setFeedbackComment("");
@@ -9459,7 +9440,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
             <div className="border-t border-slate-850 pt-5 mt-auto text-center space-y-2">
               <span className="text-[8px] tracking-widest text-[#a5b4fc] block uppercase font-black leading-none">HANS.AI/VERCEL/LIVE</span>
-              <p className="text-[8px] text-slate-500 font-mono">HansAI Learning & Research System</p>
+              <p className="text-[8px] text-slate-500 font-mono">Hans Compain Learning & Research System</p>
             </div>
           </div>
         </div>
@@ -9596,9 +9577,9 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                   const dynamicShareUrl = getAppShareUrl();
                   const shareText = `🎯 *HANS COMPAIN - Daily Study Motivation* 🎯\n\n"${customPosterQuote}"\n- _${customPosterAuthor}_\n\n📲 *Start practicing Live Quizzes, Shorthand & Science Lab for exams!* Join Free At:\n${dynamicShareUrl}\n\n🕊️ _HANS COMPAIN • AI Academic & Shorthand Ecosystem_`;
                   
-                  const currentCoins = parseInt(localStorage.getItem("hansai-user-coins") || "350", 10);
+                  const currentCoins = parseInt(localStorage.getItem("hans-compain-user-coins") || "350", 10);
                   const newCoins = currentCoins + 50;
-                  localStorage.setItem("hansai-user-coins", newCoins.toString());
+                  localStorage.setItem("hans-compain-user-coins", newCoins.toString());
 
                   if (navigator.share) {
                     navigator.share({
@@ -9738,7 +9719,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                     <Zap className="w-3.5 h-3.5 text-indigo-400" />
                     How to optimize shorthand speed:
                   </p>
-                  Practice high-frequency English and Hindi vocabulary outlines daily, maintain steady pen movements, and utilize HansAI's custom shorthand transcription feedback alerts.
+                  Practice high-frequency English and Hindi vocabulary outlines daily, maintain steady pen movements, and utilize Hans Compain's custom shorthand transcription feedback alerts.
                 </div>
               </div>
 

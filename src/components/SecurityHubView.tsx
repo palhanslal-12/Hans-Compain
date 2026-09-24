@@ -38,7 +38,7 @@ export const SecurityHubView: React.FC<SecurityHubProps> = ({ user, showToast })
           <div>
             <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-xs uppercase tracking-wider mb-1">
               <ShieldCheck className="w-4 h-4" />
-              <span>HansAI Enterprise Security Vault</span>
+              <span>Hans Compain Enterprise Security Vault</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
               AI Security System & Recovery Audit / सुरक्षा केंद्र

@@ -142,7 +142,7 @@ export const EduReelsView: React.FC<{
   const loadStudentMistakesAndSearches = () => {
     let localMistakes: MistakeNotebookItem[] = [];
     try {
-      const saved = localStorage.getItem('hansai-mistake-notebook');
+      const saved = localStorage.getItem('hans-compain-mistake-notebook');
       if (saved) {
         localMistakes = JSON.parse(saved);
       }
@@ -184,7 +184,7 @@ export const EduReelsView: React.FC<{
     // 2. EXTRACT RECENT SEARCHES & NOTES
     const searchReels: Reel[] = [];
     try {
-      const savedChats = localStorage.getItem('hansai-saved-chats');
+      const savedChats = localStorage.getItem('hans-compain-saved-chats');
       if (savedChats) {
         const chats = JSON.parse(savedChats);
         if (Array.isArray(chats)) {
@@ -207,7 +207,7 @@ export const EduReelsView: React.FC<{
         }
       }
 
-      const savedNotes = localStorage.getItem('hansai-notes');
+      const savedNotes = localStorage.getItem('hans-compain-notes');
       if (savedNotes) {
         const notes = JSON.parse(savedNotes);
         if (Array.isArray(notes)) {
@@ -304,7 +304,7 @@ export const EduReelsView: React.FC<{
   const handleBookmark = (reel: Reel) => {
     setBookmarkedMap((prev) => ({ ...prev, [reel.id]: !prev[reel.id] }));
     try {
-      const saved = localStorage.getItem('hansai-mistake-notebook');
+      const saved = localStorage.getItem('hans-compain-mistake-notebook');
       const curList: MistakeNotebookItem[] = saved ? JSON.parse(saved) : [];
       if (!curList.some(m => m.question === reel.question)) {
         curList.push({
@@ -319,7 +319,7 @@ export const EduReelsView: React.FC<{
           attemptCount: 1,
           mastered: false
         });
-        localStorage.setItem('hansai-mistake-notebook', JSON.stringify(curList));
+        localStorage.setItem('hans-compain-mistake-notebook', JSON.stringify(curList));
       }
     } catch {}
   };
@@ -352,7 +352,7 @@ export const EduReelsView: React.FC<{
         question: `${topic} से संबंधित सबसे महत्वपूर्ण बोर्ड व परीक्षा प्रश्न क्या है?`,
         answer: `${topic} का मूल सिद्धांत एवं मुख्य परिभाषा।`,
         fact: `हंस-एआई कैप्सूल: ${topic} पर गहन अभ्यास के लिए चैट या PYQ वॉल्ट में 100 प्रश्नों का टेस्ट दें!`,
-        boardSource: 'HansAI Instant Knowledge Short',
+        boardSource: 'Hans Compain Instant Knowledge Short',
         bgColor: 'from-amber-950 via-indigo-950 to-slate-900',
         likes: 1540
       };
@@ -624,7 +624,7 @@ export const EduReelsView: React.FC<{
                       onClick={() => {
                         if (navigator.share) {
                           navigator.share({
-                            title: 'HansAI Edu Reel',
+                            title: 'Hans Compain Edu Reel',
                             text: `${reel.question}\nAnswer: ${reel.answer}`,
                             url: window.location.href,
                           }).catch(() => {});

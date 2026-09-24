@@ -60,7 +60,7 @@ export const OwnerPhoneAlertBanner: React.FC<OwnerPhoneAlertBannerProps> = ({
     await dispatchOwnerAlert(
       'update',
       '📱 Owner Alert Test (Phone & Email Verification)',
-      `HansAI Owner Alert Test dispatched at ${new Date().toLocaleTimeString()} to palhanslal4@gmail.com. Phone vibration and email dispatched!`,
+      `Hans Compain Owner Alert Test dispatched at ${new Date().toLocaleTimeString()} to palhanslal4@gmail.com. Phone vibration and email dispatched!`,
       'info'
     );
     await fetchAlerts();

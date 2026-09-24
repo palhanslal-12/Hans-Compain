@@ -53,7 +53,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
   const [lightSpot, setLightSpot] = useState({ x: 50, y: 50 });
 
   const [cards, setCards] = useState<Flashcard[]>(() => {
-    const raw = localStorage.getItem('hansai-user-flashcards');
+    const raw = localStorage.getItem('hans-compain-user-flashcards');
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
@@ -73,7 +73,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
   // Whenever cards change, persist them so any newly added card is saved
   useEffect(() => {
     try {
-      localStorage.setItem('hansai-user-flashcards', JSON.stringify(cards));
+      localStorage.setItem('hans-compain-user-flashcards', JSON.stringify(cards));
     } catch (e) {
       console.error("Failed to save flashcards", e);
     }
@@ -101,7 +101,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
 
   const loadStudyHistoryFromStorage = () => {
     try {
-      const savedLibrary = localStorage.getItem('hansai-my-books-library');
+      const savedLibrary = localStorage.getItem('hans-compain-my-books-library');
       if (savedLibrary) {
         const parsedBooks = JSON.parse(savedLibrary);
         if (Array.isArray(parsedBooks)) {
@@ -347,7 +347,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
 
             <button
               onClick={() => {
-                const deckRaw = `HansAI Flashcards Deck: ${topic}\nTotal Cards: ${cards.length}\nMastered: ${masteredCount}/${cards.length}\n\n` + 
+                const deckRaw = `Hans Compain Flashcards Deck: ${topic}\nTotal Cards: ${cards.length}\nMastered: ${masteredCount}/${cards.length}\n\n` + 
                   cards.map((c, i) => `[Card ${i+1}] Category: ${c.category}\nQ: ${c.front}\nA: ${c.back}`).join('\n\n---\n\n');
                 onExportPdf(`Flashcards - ${topic}`, undefined, deckRaw);
               }}

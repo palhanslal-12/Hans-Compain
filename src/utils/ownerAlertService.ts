@@ -68,10 +68,10 @@ export function vibratePhoneForAlert(pattern: number[] = [200, 100, 200, 100, 30
 export function showSystemPhoneNotification(title: string, body: string) {
   try {
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-      new Notification(`🚨 HansAI Alert: ${title}`, {
+      new Notification(`🚨 Hans Compain Alert: ${title}`, {
         body,
         icon: '/favicon.ico',
-        tag: 'hansai-owner-alert'
+        tag: 'hans-compain-owner-alert'
       });
     }
   } catch (e) {

@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
               ⚠️
             </div>
             <div className="space-y-2">
-              <h2 className="text-lg font-extrabold text-white">HansAI - App Refresh Needed</h2>
+              <h2 className="text-lg font-extrabold text-white">Hans Compain - App Refresh Needed</h2>
               <p className="text-xs text-slate-300 leading-relaxed">
                 ऐप में अस्थायी डेटा लोड समस्या आई है। रिफ्रेश बटन दबाकर फिर से शुरू करें।
               </p>
@@ -61,12 +61,12 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 onClick={() => {
                   try {
                     const keys = [
-                      'hansai-saved-chats',
-                      'hansai-chat-messages',
-                      'hansai-mistake-notebook',
-                      'hansai-saved-quizzes',
-                      'hansai-active-quiz-draft',
-                      'hansai-syllabus-trackers',
+                      'hans-compain-saved-chats',
+                      'hans-compain-chat-messages',
+                      'hans-compain-mistake-notebook',
+                      'hans-compain-saved-quizzes',
+                      'hans-compain-active-quiz-draft',
+                      'hans-compain-syllabus-trackers',
                       'hansai_usage',
                       'hanscompain_intro_seen'
                     ];

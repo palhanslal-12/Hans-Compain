@@ -39,7 +39,7 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
             </div>
             <div>
               <h3 className="font-extrabold text-white text-lg flex items-center gap-2">
-                HansAI Companion • प्रोजेक्ट रोडमैप व योजनाएं
+                Hans Compain Companion • प्रोजेक्ट रोडमैप व योजनाएं
                 <span className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-500/40">
                   Plans & Features
                 </span>
@@ -151,7 +151,7 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
                   # QR Scanner (स्मार्ट क्वेश्चन व नोट्स स्कैनर)
                 </h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  किताबों के QR कोड, स्टडी नोट्स, और क्वेश्चन पेपर्स को तुरंत स्कैन करके सीधा HansAI में खोलें और वॉइस से व्याख्या सुनें।
+                  किताबों के QR कोड, स्टडी नोट्स, और क्वेश्चन पेपर्स को तुरंत स्कैन करके सीधा Hans Compain में खोलें और वॉइस से व्याख्या सुनें।
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-2">
                   {onLaunchFeature && (
@@ -229,7 +229,7 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
                 आप कुछ और सुझाव दे सकते हैं?
               </span>
               <p className="text-[11px] text-slate-400">
-                यदि आपके पास HansAI Companion के लिए कोई नया फीचर या सुझाव है, तो सीधे शेयर करें।
+                यदि आपके पास Hans Compain Companion के लिए कोई नया फीचर या सुझाव है, तो सीधे शेयर करें।
               </p>
             </div>
             {onOpenFeedback && (
@@ -248,7 +248,7 @@ export const UpcomingFeaturesRoadmapModal: React.FC<UpcomingFeaturesRoadmapModal
 
         {/* Footer */}
         <div className="px-6 py-3.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-          <span>HansAI Companion • Continuous Innovation</span>
+          <span>Hans Compain Companion • Continuous Innovation</span>
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold transition-colors"

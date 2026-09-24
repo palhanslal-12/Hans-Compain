@@ -241,7 +241,7 @@ export const ChatHistoryModal: React.FC<ChatHistoryModalProps> = ({
                   <p className="text-xs text-slate-400 max-w-md mx-auto">
                     {language === 'hindi'
                       ? 'जब आप AI से कोई प्रश्न पूछते हैं, तो वह चैट सत्र यहाँ स्वचालित रूप से सुरक्षित हो जाता है।'
-                      : 'When you ask questions to HansAI, your conversation sessions will automatically be stored here for future revision.'}
+                      : 'When you ask questions to Hans Compain, your conversation sessions will automatically be stored here for future revision.'}
                   </p>
                   {onStartNewChat && (
                     <button

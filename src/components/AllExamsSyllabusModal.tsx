@@ -815,7 +815,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
         <html>
         <head>
           <meta charset="utf-8"/>
-          <title>${activeExam.name} - Official Syllabus (HansAI)</title>
+          <title>${activeExam.name} - Official Syllabus (Hans Compain)</title>
           <style>
             body { font-family: 'Segoe UI', Arial, sans-serif; padding: 25px; color: #0f172a; background: #ffffff; line-height: 1.5; }
             .header { text-align: center; border-bottom: 3px solid #0284c7; padding-bottom: 12px; margin-bottom: 18px; }
@@ -839,7 +839,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
         </head>
         <body>
           <div class="header">
-            <span class="badge">HansAI Academic Companion • Official Exam Syllabus Directory</span>
+            <span class="badge">Hans Compain Academic Companion • Official Exam Syllabus Directory</span>
             <div class="title">${activeExam.name}</div>
             <div class="meta">Category: ${activeExam.category.toUpperCase()} | Level: ${activeExam.level}</div>
           </div>
@@ -873,7 +873,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
           </div>
 
           <div class="footer">
-            Downloaded from HansAI Companion • Educational Platform (${new Date().toLocaleDateString()})
+            Downloaded from Hans Compain Companion • Educational Platform (${new Date().toLocaleDateString()})
           </div>
 
           <script>
@@ -893,7 +893,7 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
       // Download file link
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = `${activeExam.name.replace(/[^a-zA-Z0-9]/g, '_')}_Syllabus_HansAI.html`;
+      link.download = `${activeExam.name.replace(/[^a-zA-Z0-9]/g, '_')}_Syllabus_Hans Compain.html`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1062,11 +1062,11 @@ export const AllExamsSyllabusModal: React.FC<Props> = ({
       // Footer
       ctx.fillStyle = '#64748B';
       ctx.font = '11px sans-serif';
-      ctx.fillText(`HansAI Academic Companion • Syllabus Directory (${new Date().toLocaleDateString()})`, 45, canvas.height - 25);
+      ctx.fillText(`Hans Compain Academic Companion • Syllabus Directory (${new Date().toLocaleDateString()})`, 45, canvas.height - 25);
 
       // Download
       const link = document.createElement('a');
-      link.download = `${activeExam.name.replace(/[^a-zA-Z0-9]/g, '_')}_Syllabus_HansAI.png`;
+      link.download = `${activeExam.name.replace(/[^a-zA-Z0-9]/g, '_')}_Syllabus_Hans Compain.png`;
       link.href = canvas.toDataURL('image/png');
       document.body.appendChild(link);
       link.click();

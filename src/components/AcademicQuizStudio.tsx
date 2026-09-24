@@ -1388,7 +1388,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
 
     // Save to Local History for Parent Report
     try {
-      const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+      const history = JSON.parse(localStorage.getItem('hans-compain-test-history') || '[]');
       history.unshift({
         id: `res_${Date.now()}`,
         title: currentTestTitle,
@@ -1400,7 +1400,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
         wrong: resultSummary.wrong,
         unattempted: resultSummary.unattempted
       });
-      localStorage.setItem('hansai-test-history', JSON.stringify(history.slice(0, 50)));
+      localStorage.setItem('hans-compain-test-history', JSON.stringify(history.slice(0, 50)));
     } catch (e) {
       console.warn("Could not save test history", e);
     }
@@ -2267,7 +2267,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
                   <span className="text-sm font-mono font-black">{Math.max(0, testResult.wrong - Math.round(testResult.wrong * 0.6))} Qs</span>
                 </div>
                 <p className="text-[11px] text-slate-300">
-                  समय भी नष्ट हुआ और नकारात्मक अंक भी मिले। HansAI नोट्स से बुनियादी थ्योरी दोहराएं।
+                  समय भी नष्ट हुआ और नकारात्मक अंक भी मिले। Hans Compain नोट्स से बुनियादी थ्योरी दोहराएं।
                 </p>
               </div>
             </div>
@@ -3246,7 +3246,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
 
             {/* Real Stats Grid from History */}
             {(() => {
-              const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+              const history = JSON.parse(localStorage.getItem('hans-compain-test-history') || '[]');
               const totalTests = history.length;
               const avgAccuracy = totalTests > 0 
                 ? Math.round(history.reduce((acc: number, h: any) => acc + h.accuracy, 0) / totalTests) 
@@ -3279,15 +3279,15 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
               <button
                 onClick={() => {
-                  const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+                  const history = JSON.parse(localStorage.getItem('hans-compain-test-history') || '[]');
                   const totalTests = history.length;
                   const avgAccuracy = totalTests > 0 
                     ? Math.round(history.reduce((acc: number, h: any) => acc + h.accuracy, 0) / totalTests) 
                     : 0;
                   
                   const shareText = language === 'hindi'
-                    ? `नमस्ते पापा/मम्मी, मैंने आज HansAI पर अपनी टेस्ट रिपोर्ट जनरेट की है। मेरा औसत स्कोर ${avgAccuracy}% रहा है और मैंने कुल ${totalTests} टेस्ट दिए हैं। प्रगति यहाँ देखें: https://hansai.app`
-                    : `Hi Mom/Dad, I generated my study progress report on HansAI today. My average accuracy is ${avgAccuracy}% across ${totalTests} tests. View details: https://hansai.app`;
+                    ? `नमस्ते पापा/मम्मी, मैंने आज Hans Compain पर अपनी टेस्ट रिपोर्ट जनरेट की है। मेरा औसत स्कोर ${avgAccuracy}% रहा है और मैंने कुल ${totalTests} टेस्ट दिए हैं। प्रगति यहाँ देखें: https://hanscompain.app`
+                    : `Hi Mom/Dad, I generated my study progress report on Hans Compain today. My average accuracy is ${avgAccuracy}% across ${totalTests} tests. View details: https://hanscompain.app`;
                   window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
                   showToast(language === 'hindi' ? 'रिपोर्ट व्हाट्सऐप पर शेयर की जा रही है!' : 'Report shared on WhatsApp!', 'success');
                 }}
@@ -3299,7 +3299,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
               
               <button
                 onClick={() => {
-                  const history = JSON.parse(localStorage.getItem('hansai-test-history') || '[]');
+                  const history = JSON.parse(localStorage.getItem('hans-compain-test-history') || '[]');
                   const totalTests = history.length;
                   const avgAccuracy = totalTests > 0 
                     ? Math.round(history.reduce((acc: number, h: any) => acc + h.accuracy, 0) / totalTests) 
@@ -3307,7 +3307,7 @@ export const AcademicQuizStudio: React.FC<AcademicQuizStudioProps> = ({
 
                   showToast(language === 'hindi' ? 'विस्तृत PDF रिपोर्ट डाउनलोड हो रही है...' : 'Downloading detailed PDF report...', 'info');
                   onExportPdf("Parent-Progress-Report", "parent-report-card", 
-                    `PARENT PROGRESS REPORT CARD\nStudent: HansAI User\nDate: ${new Date().toLocaleDateString()}\nTests Attempted: ${totalTests}\nAverage Accuracy: ${avgAccuracy}%\n\nPerformance History:\n` +
+                    `PARENT PROGRESS REPORT CARD\nStudent: Hans Compain User\nDate: ${new Date().toLocaleDateString()}\nTests Attempted: ${totalTests}\nAverage Accuracy: ${avgAccuracy}%\n\nPerformance History:\n` +
                     history.map((h: any, i: number) => `${i+1}. ${h.title}: ${h.score}/${h.totalMarks} (${h.accuracy}%)`).join('\n')
                   );
                 }}

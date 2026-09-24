@@ -97,8 +97,12 @@ export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, sho
                 />
                 {image ? (
                   <div className="space-y-2">
-                    <img src={image.previewUrl} alt="Question Uploaded" className="max-h-40 mx-auto rounded-lg object-contain" />
-                    <span className="text-[11px] text-emerald-400 font-bold block">Change Photo 📸</span>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-emerald-300 text-[11px] font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isHindi ? 'फोटो सफलतापूर्वक प्राप्त हो गई! ✅' : 'Photo Attached Successfully! ✅'}</span>
+                    </div>
+                    <img src={image.previewUrl} alt="Question Uploaded" className="max-h-48 mx-auto rounded-xl object-contain border border-emerald-500/30 shadow-md" />
+                    <span className="text-[11px] text-slate-400 font-bold block hover:text-emerald-400 transition-colors">Click to Change Photo 📸</span>
                   </div>
                 ) : (
                   <div className="py-6 space-y-2">

@@ -162,7 +162,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
       }
 
       const cleanUserId = regUserId.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-      const cleanEmail = regEmail.trim().toLowerCase() || `${cleanPhone}@student.hansai.in`;
+      const cleanEmail = regEmail.trim().toLowerCase() || `${cleanPhone}@student.hanscompain.com`;
 
       const res = await fetch('/api/users/register', {
         method: 'POST',
@@ -190,7 +190,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
       const displayName = getCleanDisplayName(regName.trim(), cleanPhone);
       const uObj = { name: displayName, userId: assignedUserId, email: data.user?.email || cleanEmail, phone: cleanPhone, role: 'student' };
       setUser(uObj);
-      localStorage.setItem('hansai-user-session', JSON.stringify(uObj));
+      localStorage.setItem('hans-compain-user-session', JSON.stringify(uObj));
       onCloseRegister();
       showToast(`🎉 खाता तैयार है! आपकी यूजर आईडी: @${assignedUserId} है। अब आप यूजर आईडी या ईमेल व पासवर्ड से कभी भी लॉगिन कर सकते हैं।`, "success");
     } catch (err: any) {
@@ -256,7 +256,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
         const displayName = getCleanDisplayName(data.user?.name, rawTarget);
         const uObj = { name: displayName, email: data.user?.email || rawTarget, phone: data.user?.phone, role: data.user?.role || 'student' };
         setUser(uObj);
-        localStorage.setItem('hansai-user-session', JSON.stringify(uObj));
+        localStorage.setItem('hans-compain-user-session', JSON.stringify(uObj));
         onCloseLogin();
         showToast(`Welcome back, ${displayName}! Portal Unlocked. 🔐`, "success");
       } else {
@@ -266,7 +266,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
           return;
         }
         const isPhone = !rawTarget.includes('@') && rawTarget.replace(/\D/g, '').length >= 10;
-        const cleanEmail = isPhone ? `${rawTarget.replace(/\D/g, '').slice(-10)}@student.hansai.in` : rawTarget.toLowerCase();
+        const cleanEmail = isPhone ? `${rawTarget.replace(/\D/g, '').slice(-10)}@student.hanscompain.com` : rawTarget.toLowerCase();
 
         const res = await fetch('/api/users/login-secure', {
           method: 'POST',
@@ -290,7 +290,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
           role: 'student'
         };
         setUser(uObj);
-        localStorage.setItem('hansai-user-session', JSON.stringify(uObj));
+        localStorage.setItem('hans-compain-user-session', JSON.stringify(uObj));
         onCloseLogin();
         showToast(`Welcome back, ${displayName}! 🔐`, "success");
       }
@@ -321,7 +321,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
       const displayName = getCleanDisplayName(targetName, targetEmail);
       const uObj = { name: displayName, email: targetEmail, role: 'student' };
       setUser(uObj);
-      localStorage.setItem('hansai-user-session', JSON.stringify(uObj));
+      localStorage.setItem('hans-compain-user-session', JSON.stringify(uObj));
       setSocialModalProvider(null);
       onCloseRegister();
       onCloseLogin();
@@ -341,7 +341,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     setIsForgotLoading(true);
     try {
       const isPhone = !forgotTarget.includes('@') && forgotTarget.replace(/\D/g, '').length >= 10;
-      const cleanEmail = isPhone ? `${forgotTarget.replace(/\D/g, '').slice(-10)}@student.hansai.in` : forgotTarget.toLowerCase();
+      const cleanEmail = isPhone ? `${forgotTarget.replace(/\D/g, '').slice(-10)}@student.hanscompain.com` : forgotTarget.toLowerCase();
 
       const res = await fetch('/api/users/forgot-password', {
         method: 'POST',
@@ -366,7 +366,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     setIsForgotLoading(true);
     try {
       const isPhone = !forgotTarget.includes('@') && forgotTarget.replace(/\D/g, '').length >= 10;
-      const cleanEmail = isPhone ? `${forgotTarget.replace(/\D/g, '').slice(-10)}@student.hansai.in` : forgotTarget.toLowerCase();
+      const cleanEmail = isPhone ? `${forgotTarget.replace(/\D/g, '').slice(-10)}@student.hanscompain.com` : forgotTarget.toLowerCase();
 
       const res = await fetch('/api/users/verify-security-answer', {
         method: 'POST',
@@ -398,7 +398,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     setIsForgotLoading(true);
     try {
       const isPhone = !forgotTarget.includes('@') && forgotTarget.replace(/\D/g, '').length >= 10;
-      const cleanEmail = isPhone ? `${forgotTarget.replace(/\D/g, '').slice(-10)}@student.hansai.in` : forgotTarget.toLowerCase();
+      const cleanEmail = isPhone ? `${forgotTarget.replace(/\D/g, '').slice(-10)}@student.hanscompain.com` : forgotTarget.toLowerCase();
 
       const res = await fetch('/api/users/reset-password', {
         method: 'POST',

@@ -210,7 +210,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Hanslal Pal Ji (Founder Owner) • Firebase Auth & Firestore Connected • DB: <span className="text-amber-300 font-mono">ai-studio-hansai-de97b975</span>
+              Hanslal Pal Ji (Founder Owner) • Firebase Auth & Firestore Connected • DB: <span className="text-amber-300 font-mono">ai-studio-hans-compain-de97b975</span>
             </p>
           </div>
         </div>
@@ -1245,8 +1245,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     }}
                     className="w-full text-xs py-2.5 px-3 bg-[#060913] border border-slate-800 rounded-xl text-amber-300 font-mono focus:outline-none focus:border-amber-500"
                   >
-                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended - Fast & Multimodal)</option>
-                    <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (High Speed & High Quota)</option>
+                    <option value="gemini-1.5-flash">Gemini 2.5 Flash (Recommended - Fast & Multimodal)</option>
+                    <option value="gemini-3.5-flash-lite">Gemini 3.1 Flash Lite (High Speed & High Quota)</option>
                     <option value="gemini-2.5-pro">Gemini 2.5 Pro (Deep Reasoning)</option>
                   </select>
                 </div>

@@ -125,26 +125,28 @@ export const GeminiLiveStudyAssistant: React.FC<GeminiLiveStudyAssistantProps> =
     speakText(textToSpeak, {
       lang: language === 'hindi' ? 'hi-IN' : 'en-US',
       gender: voiceGender,
-      rate: 0.98,
+      rate: 1.0,
       pitch: voiceGender === 'female' ? 1.05 : 0.95,
       onStart: () => {
         isSpeakingRef.current = true;
         setIsSpeaking(true);
+        // Abort recognition immediately when starting to speak to prevent echo
+        if (recognitionRef.current) {
+          try { recognitionRef.current.abort(); } catch (e) {}
+        }
       },
       onEnd: () => {
-        isSpeakingRef.current = false;
-        setIsSpeaking(false);
-        
-        // Auto resume listening for continuous hands-free dialogue!
-        if (isComponentActiveRef.current && !isPausedRef.current) {
-          setStatusMessage(language === 'hindi' ? '🎙️ सुन रहा हूँ... आप बोलिए' : '🎙️ Listening... speak now');
-          playChime(660, 0.08); // Ready chime
-          setTimeout(() => {
-            if (isComponentActiveRef.current && !isPausedRef.current && !isSpeakingRef.current) {
-              startListening();
-            }
-          }, 300);
-        }
+        // Add a 500ms safety buffer after speaking ends before restarting recognition to avoid catching own echo tail
+        setTimeout(() => {
+          isSpeakingRef.current = false;
+          setIsSpeaking(false);
+          
+          if (isComponentActiveRef.current && !isPausedRef.current) {
+            setStatusMessage(language === 'hindi' ? '🎙️ सुन रहा हूँ... आप बोलिए' : '🎙️ Listening... speak now');
+            playChime(660, 0.08);
+            startListening();
+          }
+        }, 500);
       },
       onError: () => {
         isSpeakingRef.current = false;
@@ -276,12 +278,12 @@ export const GeminiLiveStudyAssistant: React.FC<GeminiLiveStudyAssistantProps> =
         if (isFinalDetected) {
           triggerSpeech();
         } else {
-          // Pause detection: 1.1s of silence sends the speech query!
+          // Pause detection: 1.0s of silence sends the speech query! (Reduced for faster response)
           silenceTimerRef.current = setTimeout(() => {
             if (lastUserSpeechRef.current.trim().length >= 2) {
               triggerSpeech();
             }
-          }, 1200);
+          }, 1000);
         }
       };
 
@@ -474,7 +476,7 @@ export const GeminiLiveStudyAssistant: React.FC<GeminiLiveStudyAssistantProps> =
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 font-medium">
-                {language === 'hindi' ? 'बोलकर पढ़ाई करें • प्राकृतिक आवाज़' : 'Speak to learn • Natural Gemini Voice'}
+                हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान!
               </p>
             </div>
           </div>

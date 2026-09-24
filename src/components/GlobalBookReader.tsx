@@ -247,7 +247,7 @@ Outcome & Significance:
   {
     id: 'computer-programming',
     title: 'Computer Science, Coding & AI (कंप्यूटर साइंस व कोडिंग)',
-    author: 'HansAI Tech & Computer Science Series',
+    author: 'Hans Compain Tech & Computer Science Series',
     category: 'Technology & Coding',
     coverColor: 'from-purple-600 to-indigo-900',
     description: 'Python, JavaScript, Data Structures, Web Development, Cloud Computing, and Artificial Intelligence fundamentals.',
@@ -395,7 +395,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
   // Books Library & Storage
   const [books, setBooks] = useState<Book[]>(() => {
     try {
-      const saved = localStorage.getItem('hansai-my-books-library');
+      const saved = localStorage.getItem('hans-compain-my-books-library');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -409,7 +409,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
   // Save books to localStorage on change
   useEffect(() => {
     try {
-      localStorage.setItem('hansai-my-books-library', JSON.stringify(books));
+      localStorage.setItem('hans-compain-my-books-library', JSON.stringify(books));
     } catch (e) {
       console.error("Failed to store books locally", e);
     }
@@ -867,7 +867,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
       const data = await res.json();
       if (res.ok && data.flashcards && data.flashcards.length > 0) {
         // Load, append and save to user flashcards
-        const existingRaw = localStorage.getItem('hansai-user-flashcards');
+        const existingRaw = localStorage.getItem('hans-compain-user-flashcards');
         let existingCards = [];
         if (existingRaw) {
           try { existingCards = JSON.parse(existingRaw); } catch(e){}
@@ -880,7 +880,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
         };
 
         const updatedCards = [newCard, ...existingCards];
-        localStorage.setItem('hansai-user-flashcards', JSON.stringify(updatedCards));
+        localStorage.setItem('hans-compain-user-flashcards', JSON.stringify(updatedCards));
         showToast(language === 'hindi' ? "सफलतापूर्वक फ़्लैशकार्ड निर्मित! रिवीज़न सेक्शन में देखें। 🎓" : "Flashcard created successfully! Check Revision tab.", "success");
       } else {
         throw new Error("No flashcard returned");
@@ -888,7 +888,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
     } catch (err) {
       console.error(err);
       // Fallback local flashcard creation if offline/API fails
-      const existingRaw = localStorage.getItem('hansai-user-flashcards');
+      const existingRaw = localStorage.getItem('hans-compain-user-flashcards');
       let existingCards = [];
       if (existingRaw) {
         try { existingCards = JSON.parse(existingRaw); } catch(e){}
@@ -901,7 +901,7 @@ export const GlobalBookReader: React.FC<GlobalBookReaderProps> = ({
         mastered: false
       };
       const updatedCards = [fallbackCard, ...existingCards];
-      localStorage.setItem('hansai-user-flashcards', JSON.stringify(updatedCards));
+      localStorage.setItem('hans-compain-user-flashcards', JSON.stringify(updatedCards));
       showToast(language === 'hindi' ? "फ़्लैशकार्ड स्थानीय रूप से सहेज लिया गया है। ✓" : "Flashcard saved locally! ✓", "success");
     }
   };

@@ -348,21 +348,14 @@ function rotateApiKey() {
 
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
 const DEPRECATED_MODELS = new Set([
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
   'gemini-pro',
-  'gemini-2.0-flash',
-  'gemini-2.0-pro',
-  'gemini-2.0-flash-thinking',
-  'gemini-2.0-flash-lite',
-  'gemini-3.8-flash',
   'gemini-flash-latest'
 ]);
 
 const VALID_FALLBACK_MODELS = [
-  'gemini-2.5-flash',
-  'gemini-3.1-flash-lite',
-  'gemini-2.5-pro'
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
+  'gemini-2.0-flash'
 ];
 
 // Circuit breaker to track model quota exhaustion and temporarily route traffic to healthy models
@@ -371,10 +364,10 @@ const modelCooldownMap = new Map<string, number>();
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
   const now = Date.now();
 
-  // Normalize requested model (default to gemini-2.5-flash)
-  let requested = primaryModel ? String(primaryModel).trim() : 'gemini-2.5-flash';
+  // Normalize requested model (default to gemini-1.5-flash)
+  let requested = primaryModel ? String(primaryModel).trim() : 'gemini-1.5-flash';
   if (!requested || DEPRECATED_MODELS.has(requested)) {
-    requested = 'gemini-2.5-flash';
+    requested = 'gemini-1.5-flash';
   }
 
   // Filter models that are currently in quota cooldown (60 seconds cooldown)
@@ -384,7 +377,7 @@ async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string
   };
 
   // Build prioritized fallback sequence: start with available non-cooled-down models first
-  const pool = ['gemini-2.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-pro', 'gemini-3.1-pro-preview'];
+  const pool = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-3.5-flash-lite'];
   const healthyModels = pool.filter(m => !isCooledDown(m));
   const coolingModels = pool.filter(m => isCooledDown(m));
 
@@ -395,7 +388,7 @@ async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string
   ]));
 
   if (candidateModels.length === 0) {
-    candidateModels = ['gemini-3.1-flash-lite', 'gemini-2.5-flash'];
+    candidateModels = ['gemini-3.5-flash-lite', 'gemini-1.5-flash'];
   }
 
   let lastError: any = null;
@@ -508,9 +501,9 @@ function sanitizeInput(text: string): string {
   return sanitized;
 }
 
-const HANSAI_SYSTEM_INSTRUCTION = `[SYSTEM INSTRUCTIONS FOR HANS AI]
+const HANSAI_SYSTEM_INSTRUCTION = `[SYSTEM INSTRUCTIONS FOR HANS COMPAIN]
 IDENTITY & ROLE:
-Your name is "Hans AI", an intelligent, highly versatile study assistant and companion for the platform "HANS COMPAIN" created by Hanslal Pal.
+Your name is "Hans Compain", an intelligent, highly versatile study assistant and companion for the platform "HANS COMPAIN" created by Hanslal Pal.
 
 CORE RESPONSE DISCIPLINE:
 1. Direct & Relevant: Answer the user's exact question thoroughly, accurately, and cleanly.
@@ -519,6 +512,7 @@ CORE RESPONSE DISCIPLINE:
    - विद्यार्थी का समय व टोकन बचाएं। केवल तभी लंबा विस्तार दें जब उपयोगकर्ता स्पष्ट रूप से "विस्तार से समझाएं" या "detailed step-by-step proof" मांगे।
 3. Do NOT repeatedly mention or recite lists of exams (e.g. "SSC, BPSC, Railway...") or the user's email address in your replies unless the user explicitly asks about them.
 4. If explicitly asked "Who created you?" or "Who is your founder?", reply ONLY: "मुझे HANS COMPAIN के लिए Hanslal ने बनाया है।" Do NOT mention any location, city, or backstory.
+5. TAGLINE: हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान!
 
 WORK & ERROR DETECTION (गलती पकड़ना):
 Teach step-by-step. When a student asks a question, gives an answer, or inputs a problem, analyze it carefully.
@@ -653,13 +647,13 @@ function generateSubjectKnowledgeReply(userQuery: string, language: string = "hi
 
   const snippet = (userQuery || "").slice(0, 70);
   return language === "hindi"
-    ? `${namePrefix}### 📚 हंस-एआई (HansAI) - विस्तृत अध्ययन एवं संपूर्ण समाधान\n\n` +
+    ? `${namePrefix}### 📚 हंस-एआई (Hans Compain) - विस्तृत अध्ययन एवं संपूर्ण समाधान\n\n` +
       `आपकी जिज्ञासा **"${snippet}"** के संबंध में विस्तृत अध्ययन मार्गदर्शन:\n\n` +
       `1. **अवधारणा की स्पष्टता (Conceptual Clarity):** प्रतियोगी परीक्षाओं (SSC, Board, State PCS, Railway) के लिए इस विषय की मूल अवधारणाओं एवं तथ्यों को समझना अनिवार्य है।\n` +
       `2. **चरणबद्ध अध्ययन (Step-by-Step Approach):** सबसे पहले मुख्य परिभाषाएं, फिर वास्तविक उदाहरण तथा अंत में परीक्षा में पूछे जाने वाले प्रश्नों का अभ्यास करें।\n` +
       `3. **रिवीजन व शॉर्टकट:** मुख्य बिन्दुओं के संक्षिप्त नोट्स बनाकर नियमित रिवीजन करें।\n\n` +
       `👉 आप इस टॉपिक के संबंध में कोई भी विशेष प्रश्न पूछ सकते हैं, मैं आपको पूरा विस्तृत उत्तर व समाधान प्रदान करूँगा!`
-    : `${namePrefix}### 📚 HansAI - Comprehensive Academic Explanation & Guidance\n\n` +
+    : `${namePrefix}### 📚 Hans Compain - Comprehensive Academic Explanation & Guidance\n\n` +
       `Regarding your query **"${snippet}"**:\n\n` +
       `1. **Core Concept:** Deep understanding of fundamental principles is essential for top performance.\n` +
       `2. **Step-by-Step Breakdown:** Learn definitions, key rules/formulas, real-world examples, and exam applications.\n` +
@@ -679,7 +673,7 @@ let otaConfig = {
 
 // Health Check API
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", service: "HansAI", timestamp: new Date().toISOString() });
+  res.json({ status: "ok", service: "Hans Compain", timestamp: new Date().toISOString() });
 });
 
 // GET OTA Config API
@@ -712,7 +706,7 @@ app.post("/api/users/register", (req, res) => {
     }
     const cleanName = String(name).trim();
     const cleanPhone = phone ? String(phone).replace(/\D/g, '').slice(-10) : "";
-    const cleanEmail = email ? String(email).trim().toLowerCase() : (cleanPhone ? `${cleanPhone}@student.hansai.in` : "");
+    const cleanEmail = email ? String(email).trim().toLowerCase() : (cleanPhone ? `${cleanPhone}@student.hanscompain.com` : "");
 
     let users = loadUsers();
 
@@ -927,7 +921,7 @@ app.post("/api/auth/verify-otp", (req, res) => {
 
     const cleanName = (name || (user ? user.name : isPhone ? `Student (${cleanKey.slice(-4)})` : cleanKey.split('@')[0])).trim();
     const timestampStr = new Date().toISOString();
-    const userEmail = isPhone ? (user?.email || `${cleanKey}@student.hansai.in`) : cleanKey;
+    const userEmail = isPhone ? (user?.email || `${cleanKey}@student.hanscompain.com`) : cleanKey;
 
     if (!user) {
       // Auto-register verified user
@@ -936,7 +930,7 @@ app.post("/api/auth/verify-otp", (req, res) => {
         name: cleanName,
         email: userEmail,
         phone: isPhone ? cleanKey : undefined,
-        passwordHash: hashSecret("HansAI@" + cleanOtp),
+        passwordHash: hashSecret("Hans Compain@" + cleanOtp),
         securityQuestion: "What is your verified login method?",
         securityAnswerHash: hashSecret("OTP Verified"),
         registeredAt: timestampStr,
@@ -1613,7 +1607,7 @@ function loadOwnerAlerts(): OwnerAlertRecord[] {
     {
       id: "init_alert_1",
       type: "update",
-      title: "🚀 HansAI 2026 Engine Active",
+      title: "🚀 Hans Compain 2026 Engine Active",
       message: "Owner Phone & Email Alert Monitor is running. Any system problem, update, or student test submission will alert support.hans.compain@gmail.com.",
       timestamp: new Date().toISOString(),
       severity: "info",
@@ -1696,8 +1690,8 @@ app.post("/api/owner/alerts", (req, res) => {
 app.post("/api/owner/dispatch-email-alert", (req, res) => {
   try {
     const { title, message, type = "update", details = {} } = req.body;
-    const alertTitle = title || "HansAI System Event Notification";
-    const alertMessage = message || "An update or event was registered in HansAI.";
+    const alertTitle = title || "Hans Compain System Event Notification";
+    const alertMessage = message || "An update or event was registered in Hans Compain.";
 
     const alerts = loadOwnerAlerts();
     const alertRecord: OwnerAlertRecord = {
@@ -1717,7 +1711,7 @@ app.post("/api/owner/dispatch-email-alert", (req, res) => {
     console.log(`\n======================================================`);
     console.log(`📧 [EMAIL NOTIFICATION DISPATCHED]`);
     console.log(`TO: support.hans.compain@gmail.com`);
-    console.log(`SUBJECT: [HansAI Alert] ${alertTitle}`);
+    console.log(`SUBJECT: [Hans Compain Alert] ${alertTitle}`);
     console.log(`BODY: ${alertMessage}`);
     console.log(`DETAILS: ${JSON.stringify(details)}`);
     console.log(`======================================================\n`);
@@ -1767,7 +1761,7 @@ app.post("/api/reviews", (req, res) => {
     const mailOptions = {
       from: '"HANS COMPAIN AI" <' + (process.env.EMAIL_USER || 'support.hans.compain@gmail.com') + '>',
       to: 'support.hans.compain@gmail.com',
-      subject: `⭐ [HansAI Feedback] ${userName || 'Student'} rated ${rating}/5 Stars`,
+      subject: `⭐ [Hans Compain Feedback] ${userName || 'Student'} rated ${rating}/5 Stars`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background: #0B1120; color: #fff;">
           <h2 style="color: #F59E0B; margin-top: 0;">New Student Feedback & Rating 📨</h2>
@@ -1824,15 +1818,20 @@ app.post("/api/gemini-live-study", aiRateLimiter, async (req, res) => {
       modePrompt = "You are an all-round academic study mentor for competitive exams, board studies, and general knowledge.";
     }
 
-    const systemInstruction = `You are Google Gemini Live Hands-Free Study Assistant for HANS COMPAIN students.
+    const systemInstruction = `You are "Hans Compain" Google Gemini Live Hands-Free Study Assistant.
 ${modePrompt}
-Language preference: ${language === 'hindi' ? 'Hindi or conversational Hinglish' : 'English'}.
-CRITICAL VOICE GUIDELINES:
-1. Your response will be SPOKEN ALOUD directly to the student via speech synthesis.
-2. Speak with natural conversational warmth, enthusiasm, clarity, and pacing—just like Google Gemini Live.
-3. DO NOT use markdown symbols, asterisks (*), bullet points (-), numbered lists (1. 2.), headers (###), backticks, or emojis. Write pure spoken sentences.
-4. Keep the response concise: strictly 2 to 4 spoken sentences (around 40-70 words), so the student can listen easily without fatigue.
-5. If the user asks for more detail, give clear, crisp spoken explanations.`;
+STRICT LANGUAGE POLICY:
+- If language is 'hindi', you MUST respond in clear, natural Hinglish (conversational Hindi with common English terms) that an Indian student can easily understand. Avoid pure, complex Sanskritized Hindi and avoid pure English.
+- If language is 'english', respond in clear professional English.
+- Current User Language Preference: ${language === 'hindi' ? 'Hinglish/Hindi' : 'English'}.
+
+CRITICAL VOICE & UX GUIDELINES:
+1. Your response will be SPOKEN ALOUD directly to the student.
+2. Tone: Friendly, enthusiastic, and like a real human mentor.
+3. NO Markdown: DO NOT use asterisks (*), bullet points, headers, or any symbols. Use plain spoken text.
+4. Length: Keep it between 3 to 5 clear sentences. Not too short, not too long.
+5. If the student is practicing Shorthand, dictate clearly and at a steady pace.
+6. TAGLINE: हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान! (Only mention this occasionally or at the start of a session).`;
 
     const contents: any[] = [];
     if (Array.isArray(history) && history.length > 0) {
@@ -1850,7 +1849,7 @@ CRITICAL VOICE GUIDELINES:
       parts: [{ text: query }]
     });
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents,
       config: {
         systemInstruction,
@@ -2018,7 +2017,7 @@ app.post("/api/chat", aiRateLimiter, async (req, res) => {
 
     // 1. Core Identity & Feature Awareness
     customizedInstruction += `\n\nCORE IDENTITY & AWARENESS RULE:
-You are HansAI (हंस एआई), a highly intelligent, comprehensive educational companion app created by Hanslal Pal. 
+You are Hans Compain (हंस एआई), a highly intelligent, comprehensive educational companion app created by Hanslal Pal. 
 When asked "what can you do", "what are your features", or "aapme kya kya features hai", you MUST be aware of ALL your app capabilities. 
 Your features include:
 1. Live AI Study Chat & Voice Assistant (in Hindi & English) with PDF download & listening capabilities.
@@ -2049,7 +2048,7 @@ Always present these capabilities proudly and clearly in bullet points when aske
 
     customizedInstruction += "\n\nLUCENT-STYLE HIGHLIGHTING RULE: You MUST act like a classic 'Lucent's GK' book. Highlight highly important terms, dates, formulas, or names. Wrap critically important points (errors, warnings, main concepts) with `==` like `==this is red==` to highlight them in RED. Wrap positive confirmations, study tips, or key formulas with `++` like `++this is green++` to highlight them in GREEN.";
 
-    customizedInstruction += "\n\nCREATIVE POETRY & LITERATURE FEEDBACK RULE: When a user shares their original poem, lines, or creative thoughts (जैसे कविता, दोहा, शायरी या सुविचार), HansAI MUST respond with high appreciation, deep respect, and structured constructive feedback. Highlight the core emotion ('भाव बहुत सुंदर है'), mention the best theme/analogy ('सबसे अच्छी बात: ...'), and offer a refined, highly lyrical and polished version (or dohe/kavita style) while retaining the original sentiment.";
+    customizedInstruction += "\n\nCREATIVE POETRY & LITERATURE FEEDBACK RULE: When a user shares their original poem, lines, or creative thoughts (जैसे कविता, दोहा, शायरी या सुविचार), Hans Compain MUST respond with high appreciation, deep respect, and structured constructive feedback. Highlight the core emotion ('भाव बहुत सुंदर है'), mention the best theme/analogy ('सबसे अच्छी बात: ...'), and offer a refined, highly lyrical and polished version (or dohe/kavita style) while retaining the original sentiment.";
 
     if (userName && String(userName).trim() && String(userName).trim() !== "Visitor Aspirant" && String(userName).trim() !== "Student" && String(userName).trim() !== "Guest Link Visitor") {
       customizedInstruction += `\n\nUSER NAME ADDRESSING RULE: The student's name is "${String(userName).trim()}". Kindly address them respectfully by name (e.g., "${String(userName).trim()} जी") when starting your response or explaining concepts on any topic.`;
@@ -2088,7 +2087,7 @@ Always present these capabilities proudly and clearly in bullet points when aske
     const releaseSlot = await acquireAiSlot();
     let response: any;
     try {
-      response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
+      response = await generateContentWithFallback(ai, model || "gemini-1.5-flash", {
         contents: formattedContents,
         config: config
       });
@@ -2200,7 +2199,7 @@ Explain the correct answer step-by-step with clear exam rationale.`;
     const releaseSlot = await acquireAiSlot();
     let response: any;
     try {
-      response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
+      response = await generateContentWithFallback(ai, model || "gemini-1.5-flash", {
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -2222,7 +2221,7 @@ Explain the correct answer step-by-step with clear exam rationale.`;
               required: ["question", "options", "answerIndex", "explanation"]
             }
           },
-          systemInstruction: `You are HansAI Academic Exam Simulator. You generate high-quality, authentic questions strictly calibrated to ${normalizedDifficulty} difficulty in ${quizLang}. Never mix Hindi and English with slashes.`
+          systemInstruction: `You are Hans Compain Academic Exam Simulator. You generate high-quality, authentic questions strictly calibrated to ${normalizedDifficulty} difficulty in ${quizLang}. Never mix Hindi and English with slashes.`
         }
       });
     } finally {
@@ -2440,7 +2439,7 @@ Requirements for each question:
 - explanation: Clear step-by-step rationale explaining why the correct answer is right.
 - hint: A 1-sentence quick clue or formula reminder.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2463,7 +2462,7 @@ Requirements for each question:
             required: ["question", "options", "answerIndex", "explanation"]
           }
         },
-        systemInstruction: `You are the HansAI Live Quiz Battle Engine. You specialize in generating crystal-clear, verified MCQs for both Board Exams (Class 10th/12th) and Competitive Exams in ${quizLang}.`
+        systemInstruction: `You are the Hans Compain Live Quiz Battle Engine. You specialize in generating crystal-clear, verified MCQs for both Board Exams (Class 10th/12th) and Competitive Exams in ${quizLang}.`
       }
     });
 
@@ -2584,7 +2583,7 @@ Your task:
 
 Ensure all text is strictly in ${quizLang === "english" ? "clean English" : "natural Hindi (Devanagari)"}.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2604,7 +2603,7 @@ Ensure all text is strictly in ${quizLang === "english" ? "clean English" : "nat
           },
           required: ["question", "options", "answerIndex", "explanation"]
         },
-        systemInstruction: "You are the HansAI Real-Time Voice Quiz Engine. You transform spoken inputs from students and teachers into verified 4-option battle questions instantly."
+        systemInstruction: "You are the Hans Compain Real-Time Voice Quiz Engine. You transform spoken inputs from students and teachers into verified 4-option battle questions instantly."
       }
     });
 
@@ -2697,7 +2696,7 @@ app.post("/api/research", async (req, res) => {
     - High-retention mnemonic tools or short tricks to memorize key components
     - Exactly 3 multiple-choice practice questions targeting this specific topic with detailed options and answers.`;
 
-    const response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, model || "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2741,7 +2740,7 @@ app.post("/api/research", async (req, res) => {
           },
           required: ["topicName", "subjectArea", "summary", "analyticalPoints", "historicalTimeline", "crucialMnemonics", "practiceQuestions"]
         },
-        systemInstruction: "You are the ultimate study research tool HansAI. Output factual, high-retention, extremely accurate research guides to clear competitive exams."
+        systemInstruction: "You are the ultimate study research tool Hans Compain. Output factual, high-retention, extremely accurate research guides to clear competitive exams."
       }
     });
 
@@ -2801,10 +2800,10 @@ app.post("/api/status-generate", async (req, res) => {
     If category is 'motivation', write a powerful 2-line motivational quote in Hindi/Hinglish.
     Ensure it is totally new, creative, elegant, and ready to share as a morning status! Do not repeat old generic quotes.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
-        systemInstruction: "You are the companion HansAI, writing beautiful, positive, and motivating daily WhatsApp status messages and poems for Indian students."
+        systemInstruction: "You are the companion Hans Compain, writing beautiful, positive, and motivating daily WhatsApp status messages and poems for Indian students."
       }
     });
 
@@ -2842,7 +2841,7 @@ Generate exactly 5 nodes:
 - "x": integer percentage position on canvas (step 1: 50, step 2: 25, step 3: 75, step 4: 35, step 5: 50)
 - "y": integer percentage position on canvas (step 1: 15, step 2: 35, step 3: 55, step 4: 72, step 5: 88)`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2862,7 +2861,7 @@ Generate exactly 5 nodes:
             required: ["id", "label", "desc", "detail", "x", "y"]
           }
         },
-        systemInstruction: "You are HansAI. Output factual, topic-specific step-by-step concept flowcharts for students."
+        systemInstruction: "You are Hans Compain. Output factual, topic-specific step-by-step concept flowcharts for students."
       }
     });
 
@@ -2940,7 +2939,7 @@ Generate a valid JSON object matching this structure:
   ]
 }`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2978,7 +2977,7 @@ Generate a valid JSON object matching this structure:
           },
           required: ["id", "title", "author", "category", "description", "chapters"]
         },
-        systemInstruction: "You are HansAI Book Engine. Generate authentic, accurate multi-chapter book breakdowns for ANY requested book title or novel in Hindi & English."
+        systemInstruction: "You are Hans Compain Book Engine. Generate authentic, accurate multi-chapter book breakdowns for ANY requested book title or novel in Hindi & English."
       }
     });
 
@@ -3043,7 +3042,7 @@ app.post("/api/news", async (req, res) => {
     Absolute prohibition of mixed language components or mechanical word-by-word copy translations. 
     Aspirants depend on this feed for real-world study; employ elite, fluid, natural, and professionally localized translation grammar.`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -3142,7 +3141,7 @@ app.post("/api/study-plan", async (req, res) => {
     - weeklyPhases: 4 weekly phases detailing specific focus topics, practice mocks, and revision milestones
     - examTips: 3 strategic preparation tips in Hindi/Hinglish`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -3180,7 +3179,7 @@ app.post("/api/study-plan", async (req, res) => {
           },
           required: ["goalName", "totalDays", "dailySchedule", "weeklyPhases", "examTips"]
         },
-        systemInstruction: "You are HansAI. Generate disciplined, practical, high-yield exam study plans for students."
+        systemInstruction: "You are Hans Compain. Generate disciplined, practical, high-yield exam study plans for students."
       }
     });
 
@@ -3231,7 +3230,7 @@ app.post("/api/flashcards", async (req, res) => {
     - back: Concise, precise answer or explanation (in Hindi/English)
     - category: subject tag`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -3248,7 +3247,7 @@ app.post("/api/flashcards", async (req, res) => {
             required: ["id", "front", "back", "category"]
           }
         },
-        systemInstruction: "You are HansAI. Generate memorable, high-retention flashcards for exams."
+        systemInstruction: "You are Hans Compain. Generate memorable, high-retention flashcards for exams."
       }
     });
 
@@ -3331,61 +3330,61 @@ app.post("/api/current-affairs/daily", async (req, res) => {
   const getCuratedArticles = () => [
     {
       id: `ca-${Date.now()}-1`,
-      category: 'Science & Tech',
-      titleHi: `इसरो एवं नासा का संयुक्त NISAR उपग्रह मिशन: पृथ्वी अवलोकन एवं आपदा प्रबंधन में नया मील का पत्थर`,
-      titleEn: `ISRO-NASA Joint NISAR Satellite Mission: A Milestone in Earth Observation and Disaster Management`,
-      summaryHi: `भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) और अमेरिकी अंतरिक्ष एजेंसी (NASA) का संयुक्त NISAR उपग्रह मिशन पृथ्वी की भूमि और बर्फ की सतहों में मिलीमीटर स्तर के परिवर्तनों को मापने के लिए तैयार किया गया है। यह वैश्विक जलवायु परिवर्तन और आपदा निगरानी में क्रांतिकारी कदम साबित होगा।`,
-      summaryEn: `The joint NISAR mission by ISRO and NASA is designed to measure millimeter-level changes in Earth's land and ice surfaces using dual-frequency radar, providing unprecedented data for disaster management and climate tracking.`,
+      category: 'Sports & Awards',
+      titleHi: `अंतर्राष्ट्रीय खेल जगत व राष्ट्रीय खेल पुरस्कार: प्रमुख टूर्नामेंट, ग्रैंड स्लैम विजेता और प्रतियोगी परीक्षाओं के अति-महत्वपूर्ण तथ्य`,
+      titleEn: `Major Sports Tournaments, Grand Slam Champions, and National Sports Awards: High-Yield Exam Digest`,
+      summaryHi: `प्रतिस्पर्धी परीक्षाओं (SSC, BPSC, UPSC, Railway) में हालिया खेल प्रतियोगिताओं, ओलंपिक पदक विजेताओं, आईसीसी टूर्नामेंट्स और प्रतिष्ठित राष्ट्रीय खेल पुरस्कारों (जैसे मेजर ध्यानचंद खेल रत्न, अर्जुन पुरस्कार) से जुड़े प्रश्न बहुतायत में पूछे जा रहे हैं। यहाँ प्रमुख खेल अपडेट्स का संकलन दिया गया है।`,
+      summaryEn: `Competitive exams increasingly feature direct questions on recent international sports championships, Grand Slam tennis winners, ICC tournaments, and National Sports Awards (Major Dhyan Chand Khel Ratna, Arjuna Awards).`,
       date: dateFormatted,
       readTime: isHindi ? '4 मिनट' : '4 min',
-      examRelevance: 'UPSC CSE GS-3 (Science & Tech) / SSC CGL / State PSCs',
-      keyFact: isHindi ? 'NISAR दोहरा एल-बैंड और एस-बैंड सिंथेटिक एपर्चर रडार (SAR) वाला विश्व का पहला उपग्रह है।' : 'NISAR is the world’s first dual-frequency L-band and S-band Synthetic Aperture Radar satellite.',
-      tag: 'Space Technology',
-      backgroundHi: `NISAR (NASA-ISRO Synthetic Aperture Radar) मिशन 2014 में हस्ताक्षरित एक ऐतिहासिक द्विपक्षीय समझौते के तहत विकसित किया गया है। इसमें नासा एल-बैंड रडार तथा इसरो एस-बैंड रडार व लॉन्च व्हीकल (GSLV) उपलब्ध करा रहा है।`,
-      backgroundEn: `The NISAR mission was conceived under a 2014 bilateral agreement between NASA and ISRO, combining advanced L-band radar from NASA and S-band radar with GSLV launch capability from ISRO.`,
+      examRelevance: 'SSC CGL / RRB NTPC / State PSC / Banking Exams (Current Sports & Awards)',
+      keyFact: isHindi ? 'मेजर ध्यानचंद खेल रत्न पुरस्कार भारत का सर्वोच्च खेल सम्मान है।' : 'Major Dhyan Chand Khel Ratna is India’s highest sporting honor.',
+      tag: 'Sports & Honors',
+      backgroundHi: `परीक्षाओं में करेंट अफेयर्स के तहत पिछले 6 से 12 महीनों के प्रमुख खेल आयोजनों, विजेता खिलाड़ियों, उपविजेताओं और उनके गृह राज्यों/देशों से जुड़े फैक्चुअल प्रश्न अनिवार्य रूप से आते हैं।`,
+      backgroundEn: `Exams strictly test recent tournament winners, host countries, record-breaking medalists, and recipient names of prestigious civilian and sports honors.`,
       deepAnalysisHi: [
-        'दोहरा रडार बैंड पृथ्वी की सतह, जंगलों के बायोमास और ग्लेशियरों की सूक्ष्म गतिशीलता को दिन-रात और किसी भी मौसम में स्कैन करने में सक्षम है।',
-        'भूस्खलन, भूकंप, ज्वालामुखी और बाढ़ जैसी प्राकृतिक आपदाओं की पूर्व चेतावनी और पुनर्वास योजनाओं में अत्यंत सहायक होगा।',
-        'कृषि क्षेत्र में मिट्टी की नमी और फसल स्वास्थ्य का सटीक अनुमान लगाकर खाद्य सुरक्षा को मजबूत करेगा।'
+        'क्रिकेट: आईसीसी पुरुष एवं महिला टी20/वनडे विश्व कप तथा आईपीएल के विजेता एवं प्लेयर ऑफ द टूर्नामेंट।',
+        'टेनिस: ऑस्ट्रेलियन ओपन, फ्रेंच ओपन, विंबलडन और यूएस ओपन के एकल (Singles) विजेता।',
+        'राष्ट्रीय खेल पुरस्कार: इस वर्ष अर्जुन पुरस्कार प्राप्त करने वाले खिलाड़ियों की सूची और खेल विधा।'
       ],
       deepAnalysisEn: [
-        'Dual-band SAR enables day-and-night all-weather imaging with millimeter resolution of landmass and ice dynamics.',
-        'Vital for disaster early warning, assessing earthquake ruptures, volcanic deformation, and landslide risks.',
-        'Significantly enhances agricultural productivity through precise soil moisture and crop yield estimations.'
+        'Cricket: Recent ICC World Cup champions, Player of the Series, and Orange/Purple cap holders.',
+        'Tennis: Australian, French, Wimbledon, and US Open Singles champions and runners-up.',
+        'National Sports Awards: Complete list of Arjuna Awardees and Khel Ratna recipients.'
       ],
       keyProvisionsHi: [
-        '12 दिनों में संपूर्ण पृथ्वी की सतह का व्यापक मानचित्रण।',
-        'खुला डेटा नीति: सभी शोधकर्ताओं और वैज्ञानिकों के लिए डेटा निःशुल्क उपलब्ध कराया जाएगा।',
-        'कम से कम 3 वर्ष का प्राथमिक मिशन जीवनकाल।'
+        'खिलाड़ियों के नाम और संबंधित खेल का सटीक मिलान।',
+        'विभिन्न राष्ट्रीय और अंतर्राष्ट्रीय ट्रॉफियों से संबंधित खेल (जैसे ईरानी कप, रणजी ट्रॉफी, थॉमस कप)।',
+        'ओलंपिक, पैरालिंपिक और एशियाई खेलों में भारत के कुल पदक और शीर्ष एथलीट।'
       ],
       keyProvisionsEn: [
-        'Full Earth landmass mapped every 12 days.',
-        'Open data policy providing free access to global scientists.',
-        'Minimum 3-year operational mission lifespan.'
+        'Direct matching of players with their respective sports disciplines.',
+        'Trophies & Tournaments mapping (Ranji Trophy, Irani Cup, Thomas/Uber Cup, Santosh Trophy).',
+        'Medal tallies and star performers in Olympics, Paralympics, and Asian Games.'
       ],
-      examImpactHi: 'प्रारंभिक परीक्षा में SAR तकनीक व बैंड्स पर प्रश्न; मुख्य परीक्षा में भारत-अमेरिका अंतरिक्ष कूटनीति और आपदा प्रबंधन में उपयोग पर 15 अंक का प्रश्न अपेक्षित।',
-      examImpactEn: 'Prelims: Questions on L-band/S-band SAR and payloads; Mains GS-3: Questions on space diplomacy and disaster resilience.',
+      examImpactHi: 'प्रत्येक प्रतियोगी परीक्षा में 3 से 5 प्रश्न सीधे खेलकूद और पुरस्कारों से पूछे जाते हैं।',
+      examImpactEn: 'Guaranteed 3 to 5 objective questions in competitive exams directly test sports and awards.',
       mcq: {
-        questionHi: 'NISAR उपग्रह मिशन के संदर्भ में निम्नलिखित में से कौन सा कथन सही है?',
-        questionEn: 'Which of the following statements regarding the NISAR satellite mission is correct?',
+        questionHi: 'प्रतिष्ठित "मेजर ध्यानचंद खेल रत्न पुरस्कार" में सम्मानित खिलाड़ी को कितनी नकद पुरस्कार राशि प्रदान की जाती है?',
+        questionEn: 'What is the cash prize awarded to the recipient of the prestigious "Major Dhyan Chand Khel Ratna Award"?',
         optionsHi: [
-          'यह केवल चंद्रमा की सतह का अध्ययन करेगा',
-          'यह दोहरा एल-बैंड और एस-बैंड रडार का उपयोग करने वाला उपग्रह है',
-          'यह केवल यूरोपीय अंतरिक्ष एजेंसी (ESA) का प्रोजेक्ट है',
-          'यह भू-स्थिर कक्षा (GEO) में स्थापित किया जाएगा'
+          '5 लाख रुपये',
+          '10 लाख रुपये',
+          '25 लाख रुपये',
+          '50 लाख रुपये'
         ],
         optionsEn: [
-          'It is solely dedicated to lunar surface mapping',
-          'It utilizes dual-frequency L-band and S-band Synthetic Aperture Radar',
-          'It is an exclusive project of the European Space Agency (ESA)',
-          'It will operate in a Geostationary Orbit (GEO)'
+          '₹5 Lakhs',
+          '₹10 Lakhs',
+          '₹25 Lakhs',
+          '₹50 Lakhs'
         ],
-        correctIndex: 1,
-        explanationHi: 'NISAR नासा और इसरो का संयुक्त मिशन है जो एल-बैंड और एस-बैंड रडार के साथ पृथ्वी की निचली कक्षा (LEO) में कार्य करेगा।',
-        explanationEn: 'NISAR is a joint NASA-ISRO Low Earth Orbit mission utilizing both L-band and S-band synthetic aperture radar.'
+        correctIndex: 2,
+        explanationHi: 'मेजर ध्यानचंद खेल रत्न पुरस्कार के तहत 25 लाख रुपये की नकद राशि, एक पदक और प्रशस्ति पत्र दिया जाता है।',
+        explanationEn: 'The Major Dhyan Chand Khel Ratna Award carries a cash prize of ₹25 Lakhs, a medallion, and a citation.'
       },
-      mainsQuestionHi: 'NISAR मिशन भारत के आपदा प्रबंधन और जलवायु परिवर्तन निगरानी तंत्र को किस प्रकार सुदृढ़ करेगा? विश्लेषणात्मक व्याख्या कीजिए।',
-      mainsQuestionEn: 'How will the NISAR mission strengthen India’s disaster management and climate change monitoring mechanisms? Explain analytically.'
+      mainsQuestionHi: 'भारतीय खेल इकोसिस्टम में खेलो इंडिया अभियान और कॉर्पोरेट सामाजिक उत्तरदायित्व (CSR) ने ओलंपिक खेलों में पदक की संभावनाओं को कैसे बदला है? चर्चा कीजिए।',
+      mainsQuestionEn: 'How have the Khelo India initiative and corporate backing transformed India’s Olympic medal prospects and grassroots sports ecosystem? Discuss.'
     },
     {
       id: `ca-${Date.now()}-2`,
@@ -3603,7 +3602,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
     - mainsQuestionHi: Descriptive question in Hindi
     - mainsQuestionEn: Descriptive question in English`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -3657,7 +3656,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
             ]
           }
         },
-        systemInstruction: "You are HansAI Current Affairs Engine. Generate real, high-quality, actual current affairs with live search."
+        systemInstruction: "You are Hans Compain Current Affairs Engine. Generate real, high-quality, actual current affairs with live search."
       }
     });
 
@@ -3698,7 +3697,7 @@ app.post("/api/ocr-solve", async (req, res) => {
     - solution: Detailed step-by-step solution in Hindi/English
     - practiceMcqs: Array of 3 MCQs (question, options [4], answerIndex, explanation)`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: [
         {
           role: "user",
@@ -3736,7 +3735,7 @@ app.post("/api/ocr-solve", async (req, res) => {
           },
           required: ["extractedText", "solution", "practiceMcqs"]
         },
-        systemInstruction: "You are HansAI. Solve doubts from photos accurately and clearly for students."
+        systemInstruction: "You are Hans Compain. Solve doubts from photos accurately and clearly for students."
       }
     });
 
@@ -3765,7 +3764,7 @@ app.post("/api/audio-transcribe", async (req, res) => {
     - summary: 3-5 bullet points of key takeaways
     - subjectTag: Main subject area detected`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: [
         {
           role: "user",
@@ -3791,7 +3790,7 @@ app.post("/api/audio-transcribe", async (req, res) => {
           },
           required: ["transcript", "summary", "subjectTag"]
         },
-        systemInstruction: "You are HansAI. Transcribe audio accurately and summarize lectures for students."
+        systemInstruction: "You are Hans Compain. Transcribe audio accurately and summarize lectures for students."
       }
     });
 
@@ -3910,7 +3909,7 @@ JSON RESPONSE FORMAT (Strictly match this structure):
   ]
 }`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
       contents: prompt,
       config: {
         responseMimeType: "application/json"
@@ -3952,7 +3951,7 @@ cron.schedule('0 10 * * *', () => {
 
   users.forEach(user => {
     // Only send to valid emails, skip visitors/guests
-    if (!user.email || user.email.includes('@student.hansai.in') || user.email.includes('@hansai.visitor')) return;
+    if (!user.email || user.email.includes('@student.hanscompain.com') || user.email.includes('@hansai.visitor')) return;
     
     const lastActive = new Date(user.lastActiveAt || user.registeredAt).getTime();
     const timeSinceActive = now - lastActive;
@@ -4044,7 +4043,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`HansAI Full-Stack Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Hans Compain Full-Stack Server running on http://0.0.0.0:${PORT}`);
   });
 }
 

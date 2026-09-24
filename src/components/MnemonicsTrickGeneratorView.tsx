@@ -180,7 +180,7 @@ export const MnemonicsTrickGeneratorView: React.FC<MnemonicsTrickGeneratorViewPr
 2. Rhyme or Story in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}
 3. Detailed explanation in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}
 4. Exam usage in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}`,
-          systemInstruction: `You are HansAI Memory Trick Architect. Generate clever, funny, and 100% memorable mnemonics strictly in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'} for student exam preparation.`
+          systemInstruction: `You are Hans Compain Memory Trick Architect. Generate clever, funny, and 100% memorable mnemonics strictly in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'} for student exam preparation.`
         })
       });
 

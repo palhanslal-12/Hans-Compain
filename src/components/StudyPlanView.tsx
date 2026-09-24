@@ -52,7 +52,7 @@ export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, sho
           <div>
             <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-xs uppercase tracking-wider mb-1">
               <Target className="w-4 h-4" />
-              <span>HansAI Smart Academic Engine</span>
+              <span>Hans Compain Smart Academic Engine</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
               {isHindi ? "AI अध्ययन योजना एवं रोडमैप" : "AI Study Plan & Roadmap Generator"}

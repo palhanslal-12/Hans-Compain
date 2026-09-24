@@ -12,7 +12,7 @@ export async function generateStudyNotesPdf(options: {
   author?: string;
   language?: string;
 }): Promise<boolean> {
-  const docTitle = options.title || options.topic || 'HansAI Academic Study Notes';
+  const docTitle = options.title || options.topic || 'Hans Compain Academic Study Notes';
   const authorName = options.author || 'Hanslal Pal (Founder Owner)';
   const dateStr = new Date().toLocaleDateString('en-IN', {
     day: 'numeric',
@@ -46,7 +46,7 @@ export async function generateStudyNotesPdf(options: {
       <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
         <div>
           <div style="font-size: 16px; font-weight: 800; letter-spacing: 0.5px; color: #ffffff;">
-            HansAI • Student Academic & Exam Prep Studio
+            Hans Compain • Student Academic & Exam Prep Studio
           </div>
           <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
             Created by ${authorName} • Generated on ${dateStr}
@@ -74,8 +74,8 @@ export async function generateStudyNotesPdf(options: {
 
       <!-- Footer Bar -->
       <div style="margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 12px; display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
-        <span>HansAI • Student Academic & Exam Prep Studio (www.hansai.edu)</span>
-        <span>Secure Academic Record • Powered by HansAI Engine</span>
+        <span>Hans Compain • Student Academic & Exam Prep Studio (www.hanscompain.edu)</span>
+        <span>Secure Academic Record • Powered by Hans Compain Engine</span>
       </div>
 
     </div>
@@ -119,7 +119,7 @@ export async function generateStudyNotesPdf(options: {
       heightLeft -= pdfHeight;
     }
 
-    const filename = `${docTitle.slice(0, 35).replace(/[^a-zA-Z0-9_\u0900-\u097F]/g, '_')}_HansAI_Notes.pdf`;
+    const filename = `${docTitle.slice(0, 35).replace(/[^a-zA-Z0-9_\u0900-\u097F]/g, '_')}_HansCompain_Notes.pdf`;
     pdf.save(filename);
 
     return true;

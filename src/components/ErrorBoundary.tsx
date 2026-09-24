@@ -28,7 +28,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("HansAI Component Crash Caught:", error, errorInfo);
+    console.error("Hans Compain Component Crash Caught:", error, errorInfo);
     try {
       dispatchOwnerAlert(
         'problem',

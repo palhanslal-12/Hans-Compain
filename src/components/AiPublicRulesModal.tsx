@@ -54,8 +54,8 @@ export const AiPublicRulesModal: React.FC<AiPublicRulesModalProps> = ({
       badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
       title: isHindi ? '4. शैक्षणिक व करियर मार्गदर्शन (Dedicated Academic Purpose)' : '4. Academic & Skill Building Focus',
       desc: isHindi
-        ? 'HansAI विशेष रूप से SSC, Stenography (Pitman Shorthand), GK, English, Maths व अन्य प्रतियोगी परीक्षाओं की तैयारी को आसान बनाने हेतु तैयार किया गया है।'
-        : 'HansAI is tailored for competitive exams (SSC CGL/CHSL/Steno, State Exams), shorthand dictation, notes revision, and doubt clearing.'
+        ? 'Hans Compain विशेष रूप से SSC, Stenography (Pitman Shorthand), GK, English, Maths व अन्य प्रतियोगी परीक्षाओं की तैयारी को आसान बनाने हेतु तैयार किया गया है।'
+        : 'Hans Compain is tailored for competitive exams (SSC CGL/CHSL/Steno, State Exams), shorthand dictation, notes revision, and doubt clearing.'
     },
     {
       id: 5,
@@ -100,7 +100,7 @@ export const AiPublicRulesModal: React.FC<AiPublicRulesModalProps> = ({
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
               {isHindi
-                ? 'HansAI का सुरक्षित, नैतिक और प्रभावी उपयोग सुनिश्चित करने के लिए आवश्यक दिशा-निर्देश'
+                ? 'Hans Compain का सुरक्षित, नैतिक और प्रभावी उपयोग सुनिश्चित करने के लिए आवश्यक दिशा-निर्देश'
                 : 'Essential guidelines ensuring safe, ethical, and productive AI learning for all users.'}
             </p>
           </div>
@@ -148,7 +148,7 @@ export const AiPublicRulesModal: React.FC<AiPublicRulesModalProps> = ({
         {/* Footer Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800">
           <span className="text-[10px] text-slate-400 font-mono">
-            HansAI Standards • Version 2.4 Active
+            Hans Compain Standards • Version 2.4 Active
           </span>
           <button
             onClick={onClose}

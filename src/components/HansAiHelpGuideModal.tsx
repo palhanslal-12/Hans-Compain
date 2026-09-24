@@ -82,11 +82,11 @@ export const A8_PROBLEM_CATEGORIES = [
       hindi: `📥 **PDF डाउनलोड करने का तरीका:**
 1. चैट में AI द्वारा दिए गए किसी भी उत्तर के नीचे **'📥 PDF डाउनलोड'** बटन पर क्लिक करें।
 2. अथवा चैट इनपुट में लिखें **"इस जवाब का PDF बनाओ"** या **"SSC GS Notes PDF"**।
-3. HansAI तुरंत रंगीन, प्रिंट-रेडी A4 PDF फाइल तैयार करके डाउनलोड कर देगा।`,
+3. Hans Compain तुरंत रंगीन, प्रिंट-रेडी A4 PDF फाइल तैयार करके डाउनलोड कर देगा।`,
       english: `📥 **How to Download PDF Notes:**
 1. Click the **'📥 Download PDF'** button located directly beneath any AI response in Chat.
 2. Or simply type **"Create PDF for this"** in the chat prompt.
-3. HansAI formats and downloads a clean, printable study document instantly.`
+3. Hans Compain formats and downloads a clean, printable study document instantly.`
     }
   },
   {
@@ -158,10 +158,10 @@ export const A8_PROBLEM_CATEGORIES = [
     actionView: 'notes',
     solution: {
       hindi: `📶 **ऑफलाइन इस्तेमाल:**
-1. HansAI PWA तकनीक से लैस है, इसलिए इंटरनेट न होने पर भी आपके सहेजे गए नोट्स, मिस्टेक डायरी और लोकल फॉर्मूला इंजन चलते रहते हैं।
+1. Hans Compain PWA तकनीक से लैस है, इसलिए इंटरनेट न होने पर भी आपके सहेजे गए नोट्स, मिस्टेक डायरी और लोकल फॉर्मूला इंजन चलते रहते हैं।
 2. इंटरनेट जुड़ते ही आपका डेटा क्लाउड में सुरक्षित सिंक हो जाता है।`,
       english: `📶 **Offline Capability:**
-1. HansAI functions as an offline-first PWA. Your saved study records, flash notes, and mistake entries are always accessible without network.
+1. Hans Compain functions as an offline-first PWA. Your saved study records, flash notes, and mistake entries are always accessible without network.
 2. Data automatically syncs when connectivity resumes.`
     }
   },
@@ -230,8 +230,8 @@ export const A8_PROBLEM_CATEGORIES = [
       bhojpuri: 'अउर कवनो सवाल पूछीं'
     },
     solution: {
-      hindi: `💡 आप नीचे दिए गए चैट बॉक्स में अपना कोई भी प्रश्न हिंदी, English या अपनी भाषा में लिख सकते हैं। HansAI तुरंत समाधान प्रदान करेगा!`,
-      english: `💡 Feel free to type any question or issue in the chat box below in your chosen language. HansAI will assist you immediately!`
+      hindi: `💡 आप नीचे दिए गए चैट बॉक्स में अपना कोई भी प्रश्न हिंदी, English या अपनी भाषा में लिख सकते हैं। Hans Compain तुरंत समाधान प्रदान करेगा!`,
+      english: `💡 Feel free to type any question or issue in the chat box below in your chosen language. Hans Compain will assist you immediately!`
     }
   }
 ];

@@ -1,5 +1,5 @@
 /**
- * HansAI / Hans Compain Sharing Engine
+ * Hans Compain / Hans Compain Sharing Engine
  * Generates clean, robust, and dynamic public URLs with one-click social share & deep-linking
  */
 
@@ -133,7 +133,7 @@ export function shareViaLinkedIn(options: ShareOptions = {}): void {
 export function shareViaEmail(options: ShareOptions = {}): void {
   const url = options.url || getAppShareUrl(options.tab);
   const subject = encodeURIComponent(options.title || "Hans Compain - AI Academic & Career Companion");
-  const body = encodeURIComponent(`Hi,\n\nI want to share this incredible AI study and exam preparation companion with you:\n\nHans Compain (HansAI) features Live Quizzes, Hindi/English Shorthand dictations, a Virtual Science Lab, and instant Photo Doubt Solving.\n\nCheck it out here:\n${url}\n\nBest regards!`);
+  const body = encodeURIComponent(`Hi,\n\nI want to share this incredible AI study and exam preparation companion with you:\n\nHans Compain (Hans Compain) features Live Quizzes, Hindi/English Shorthand dictations, a Virtual Science Lab, and instant Photo Doubt Solving.\n\nCheck it out here:\n${url}\n\nBest regards!`);
   window.location.href = `mailto:?subject=${subject}&body=${body}`;
 }
 

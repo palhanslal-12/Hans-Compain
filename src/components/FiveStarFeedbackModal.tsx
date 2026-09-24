@@ -19,7 +19,7 @@ export const FiveStarFeedbackModal: React.FC<FiveStarFeedbackModalProps> = ({
   language = 'hindi',
   user,
   onOpenLogin,
-  initialContext = 'HansAI Companion App',
+  initialContext = 'Hans Compain Companion App',
   onFeedbackSubmitted,
   showToast = () => {}
 }) => {
@@ -86,10 +86,10 @@ export const FiveStarFeedbackModal: React.FC<FiveStarFeedbackModalProps> = ({
 
     try {
       // 1. Save to local storage for instant feedback persistence
-      const existingReviewsStr = localStorage.getItem('hansai-user-reviews');
+      const existingReviewsStr = localStorage.getItem('hans-compain-user-reviews');
       const existing = existingReviewsStr ? JSON.parse(existingReviewsStr) : [];
       const updated = [feedbackPayload, ...existing];
-      localStorage.setItem('hansai-user-reviews', JSON.stringify(updated));
+      localStorage.setItem('hans-compain-user-reviews', JSON.stringify(updated));
 
       // 2. Submit to Firestore if available
       try {

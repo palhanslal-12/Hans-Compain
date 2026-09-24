@@ -217,20 +217,24 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
 
         if (matchingVoices.length > 0) {
           if (targetGender === 'female') {
+            // Prioritize higher-quality natural sounding voices
             selectedVoice = matchingVoices.find(v => {
               const n = v.name.toLowerCase();
-              return n.includes('female') || n.includes('swara') || n.includes('kavya') || 
+              return n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('swara') || n.includes('kavya') || 
                      n.includes('priya') || n.includes('zira') || n.includes('samantha') || 
                      n.includes('victoria') || n.includes('kiran') || n.includes('kalpana') ||
-                     n.includes('lekha') || n.includes('geeta') || n.includes('ananya');
+                     n.includes('lekha') || n.includes('geeta') || n.includes('ananya') || 
+                     n.includes('pallavi') || n.includes('vani') || n.includes('neerja') ||
+                     n.includes('sangeeta') || n.includes('shanti') || n.includes('female');
             });
           } else {
             selectedVoice = matchingVoices.find(v => {
               const n = v.name.toLowerCase();
-              return n.includes('male') || n.includes('hemant') || n.includes('neel') || 
+              return n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('hemant') || n.includes('neel') || 
                      n.includes('david') || n.includes('alex') || n.includes('mark') || 
                      n.includes('george') || n.includes('ravi') || n.includes('madhav') ||
-                     n.includes('valluvar') || n.includes('google');
+                     n.includes('valluvar') || n.includes('google') || n.includes('prakash') ||
+                     n.includes('arvind') || n.includes('vijay') || n.includes('male');
             });
           }
 

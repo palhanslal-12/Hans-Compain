@@ -230,9 +230,9 @@ export function SystemDiagnosticsModal({
   const handleSendEmailNotification = () => {
     setEmailSending(true);
 
-    const subject = encodeURIComponent(`🚨 HansAI System Diagnostic Alert - Status: ${errorCount > 0 ? 'CRITICAL ERROR' : warningCount > 0 ? 'WARNING' : '100% HEALTHY'}`);
+    const subject = encodeURIComponent(`🚨 Hans Compain System Diagnostic Alert - Status: ${errorCount > 0 ? 'CRITICAL ERROR' : warningCount > 0 ? 'WARNING' : '100% HEALTHY'}`);
     
-    let body = `Namaste Hanslal Pal Ji (Owner/Founder),\n\nHansAI Automatic Problem & Health Diagnostic Report:\nTimestamp: ${new Date().toLocaleString()}\nOverall Status: ${errorCount === 0 ? '✅ All Core Systems 100% Operational' : '⚠️ Issues Detected'}\n\n`;
+    let body = `Namaste Hanslal Pal Ji (Owner/Founder),\n\nHans Compain Automatic Problem & Health Diagnostic Report:\nTimestamp: ${new Date().toLocaleString()}\nOverall Status: ${errorCount === 0 ? '✅ All Core Systems 100% Operational' : '⚠️ Issues Detected'}\n\n`;
     
     tests.forEach((t, i) => {
       body += `${i + 1}. [${t.status.toUpperCase()}] ${t.name} (${t.latencyMs}ms)\n   Details: ${t.details}\n`;
@@ -246,7 +246,7 @@ export function SystemDiagnosticsModal({
       body += `Additional Notes / User Feedback:\n"${customErrorNotes.trim()}"\n\n`;
     }
 
-    body += `System Info:\nContainer Port: 3000\nGenerated automatically by HansAI Auto Problem Finder.`;
+    body += `System Info:\nContainer Port: 3000\nGenerated automatically by Hans Compain Auto Problem Finder.`;
 
     const mailtoUrl = `mailto:${recipientEmail}?subject=${subject}&body=${encodeURIComponent(body)}`;
 

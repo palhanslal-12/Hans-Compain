@@ -226,8 +226,8 @@ export const DailyStreakIndicator: React.FC<DailyStreakIndicatorProps> = ({
   const handleShareStreak = () => {
     const dynamicUrl = getAppShareUrl();
     const text = language === 'hindi'
-      ? `🔥 मैं HansAI पर ${streakData.currentStreak} दिनों से लगातार अभ्यास कर रहा हूँ! मेरा बेस्ट रिकॉर्ड ${streakData.bestStreak} दिन है। आप भी अपनी पढ़ाई शुरू करें: ${dynamicUrl}`
-      : `🔥 I'm on a ${streakData.currentStreak}-Day study streak on HansAI! My best record is ${streakData.bestStreak} days. Practice daily and boost your learning: ${dynamicUrl}`;
+      ? `🔥 मैं Hans Compain पर ${streakData.currentStreak} दिनों से लगातार अभ्यास कर रहा हूँ! मेरा बेस्ट रिकॉर्ड ${streakData.bestStreak} दिन है। आप भी अपनी पढ़ाई शुरू करें: ${dynamicUrl}`
+      : `🔥 I'm on a ${streakData.currentStreak}-Day study streak on Hans Compain! My best record is ${streakData.bestStreak} days. Practice daily and boost your learning: ${dynamicUrl}`;
     
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);

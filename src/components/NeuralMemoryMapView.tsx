@@ -334,7 +334,7 @@ export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showTo
     setIsSearchingAI(true);
     showToast(
       language === 'hindi'
-        ? `🤖 HansAI "${q}" पर न्यूरल नॉलेज मैप एवं गहन नोट्स तैयार कर रहा है...`
+        ? `🤖 Hans Compain "${q}" पर न्यूरल नॉलेज मैप एवं गहन नोट्स तैयार कर रहा है...`
         : `🤖 Generating AI Neural Knowledge Node & Diagram for "${q}"...`,
       "info"
     );
@@ -345,7 +345,7 @@ export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showTo
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: `Generate a comprehensive exam study node for topic: "${q}" in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}. Provide in JSON format if possible or structured text with: Category, Key Points, Mnemonic, Deep Explanation in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}, Exam PYQ Alert, and 3 Highlights.`,
-          systemInstruction: `You are HansAI Neural Knowledge System. Generate a detailed study node for "${q}" strictly in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}. Keep explanations 100% exam accurate with key articles, formulas, dates, or rules.`
+          systemInstruction: `You are Hans Compain Neural Knowledge System. Generate a detailed study node for "${q}" strictly in ${language === 'hindi' ? 'HINDI' : 'ENGLISH'}. Keep explanations 100% exam accurate with key articles, formulas, dates, or rules.`
         })
       });
 
@@ -377,7 +377,7 @@ export const NeuralMemoryMapView: React.FC<NeuralMemoryMapViewProps> = ({ showTo
         importantHighlights: [
           `🔥 ${q}: बार-बार पूछे जाने वाले प्रश्न व मुख्य बिंदु`,
           `⚡ परीक्षा में त्वरित उत्तर हेतु शॉर्टकट ट्रिक`,
-          `📌 HansAI द्वारा सहेजा गया कस्टम न्यूरल नोड`
+          `📌 Hans Compain द्वारा सहेजा गया कस्टम न्यूरल नोड`
         ],
         examAlert: `UPSC / SSC / State PCS Exam High-Yield Core Topic: ${q}`,
         imageUrl: `https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80`,

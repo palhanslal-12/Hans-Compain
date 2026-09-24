@@ -509,7 +509,7 @@ export const ScienceFormulaLabView: React.FC<ScienceFormulaLabViewProps> = ({ sh
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: `Provide step-by-step formula solution, substitution, variables explanation, unit analysis, and practical real-world cause-and-effect for: "${query}". Format clearly in ${isHindi ? 'Hindi & English' : 'English'}.`,
-          systemInstruction: `You are HansAI Physics & Chemistry Master. Explain scientific laws with practical real-life examples and exam tips.`
+          systemInstruction: `You are Hans Compain Physics & Chemistry Master. Explain scientific laws with practical real-life examples and exam tips.`
         })
       });
 

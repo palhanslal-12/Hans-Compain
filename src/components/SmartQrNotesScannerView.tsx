@@ -95,9 +95,9 @@ export const SmartQrNotesScannerView: React.FC<SmartQrNotesScannerViewProps> = (
         ? `कृपया इस स्कैन किए गए प्रश्न/नोट्स की पूरी व्याख्या हिंदी और इंग्लिश में बताएं:\n${scanResult}`
         : `Please explain this scanned question/note thoroughly in English and Hindi:\n${scanResult}`
       );
-      showToast(isHindi ? "HansAI Companion में प्रश्न भेजा गया! 🚀" : "Question sent to HansAI Companion! 🚀", "success");
+      showToast(isHindi ? "Hans Compain Companion में प्रश्न भेजा गया! 🚀" : "Question sent to Hans Compain Companion! 🚀", "success");
     } else {
-      showToast(isHindi ? "HansAI को भेजा गया!" : "Sent to HansAI!", "info");
+      showToast(isHindi ? "Hans Compain को भेजा गया!" : "Sent to Hans Compain!", "info");
     }
   };
 
@@ -256,7 +256,7 @@ export const SmartQrNotesScannerView: React.FC<SmartQrNotesScannerViewProps> = (
                     className="w-full sm:flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg shadow-emerald-600/30 border-none"
                   >
                     <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>{isHindi ? 'HansAI से व्याख्या पूछें 🚀' : 'Ask HansAI Explanation 🚀'}</span>
+                    <span>{isHindi ? 'Hans Compain से व्याख्या पूछें 🚀' : 'Ask Hans Compain Explanation 🚀'}</span>
                   </button>
                   <button
                     onClick={() => setScanResult(null)}

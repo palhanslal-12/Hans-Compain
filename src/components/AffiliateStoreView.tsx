@@ -98,7 +98,7 @@ export const AffiliateStoreView: React.FC<Props> = ({ user, showToast }) => {
   const isAdmin = user?.role === 'owner';
 
   const [products, setProducts] = useState<AffiliateProduct[]>(() => {
-    const saved = localStorage.getItem('hansai-affiliate-products');
+    const saved = localStorage.getItem('hans-compain-affiliate-products');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { console.error(e); }
     }
@@ -119,7 +119,7 @@ export const AffiliateStoreView: React.FC<Props> = ({ user, showToast }) => {
   const [newAffiliateUrl, setNewAffiliateUrl] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('hansai-affiliate-products', JSON.stringify(products));
+    localStorage.setItem('hans-compain-affiliate-products', JSON.stringify(products));
   }, [products]);
 
   const handleAddProduct = (e: React.FormEvent) => {

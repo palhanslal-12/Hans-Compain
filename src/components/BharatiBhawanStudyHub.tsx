@@ -844,7 +844,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
   // 🔗 Persistent Linked Chapter Progress State
   const [completedChaptersMap, setCompletedChaptersMap] = useState<Record<string, boolean>>(() => {
     try {
-      const saved = localStorage.getItem('hansai-completed-chapters');
+      const saved = localStorage.getItem('hans-compain-completed-chapters');
       return saved ? JSON.parse(saved) : { 'trigonometry': true, 'real-numbers': true };
     } catch {
       return { 'trigonometry': true, 'real-numbers': true };
@@ -857,7 +857,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
     setCompletedChaptersMap((prev) => {
       const updated = { ...prev, [chapterId]: !prev[chapterId] };
       try {
-        localStorage.setItem('hansai-completed-chapters', JSON.stringify(updated));
+        localStorage.setItem('hans-compain-completed-chapters', JSON.stringify(updated));
       } catch (e) {}
       if (updated[chapterId]) {
         showToast?.('🎉 बहुत खूब! यह अध्याय पूर्ण चिह्नित हुआ और सिलेबस व लक्ष्यों में जुड़ गया।', 'success');
@@ -876,7 +876,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
         updated[chap.id] = idx < targetCount;
       });
       try {
-        localStorage.setItem('hansai-completed-chapters', JSON.stringify(updated));
+        localStorage.setItem('hans-compain-completed-chapters', JSON.stringify(updated));
       } catch {}
       return updated;
     });
@@ -995,10 +995,10 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
     }
 
     try {
-      const saved = localStorage.getItem('hansai-mistake-notebook');
+      const saved = localStorage.getItem('hans-compain-mistake-notebook');
       const existing = saved ? JSON.parse(saved) : [];
       const merged = [...wrongQuestions, ...existing];
-      localStorage.setItem('hansai-mistake-notebook', JSON.stringify(merged));
+      localStorage.setItem('hans-compain-mistake-notebook', JSON.stringify(merged));
       showToast?.(`📕 ${wrongQuestions.length} गलत प्रश्न आपकी 'मिस्टेक नोटबुक' में जुड़ गए!`, 'success');
       if (onOpenMistakeNotebook) {
         onOpenMistakeNotebook();
@@ -1011,7 +1011,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
   // Linked Actions: Add revision goal to Daily Goals
   const handleAddChapterToDailyGoals = () => {
     try {
-      const saved = localStorage.getItem('hansai-goals-v2');
+      const saved = localStorage.getItem('hans-compain-goals-v2');
       const existing = saved ? JSON.parse(saved) : [];
       const newGoal = {
         id: `goal-${Date.now()}`,
@@ -1019,7 +1019,7 @@ export const BharatiBhawanStudyHub: React.FC<BharatiBhawanStudyHubProps> = ({
         done: false,
         category: currentSubject.id === 'maths' ? 'Math' : currentSubject.id === 'physics' ? 'Science' : 'Academic'
       };
-      localStorage.setItem('hansai-goals-v2', JSON.stringify([newGoal, ...existing]));
+      localStorage.setItem('hans-compain-goals-v2', JSON.stringify([newGoal, ...existing]));
       showToast?.(`🎯 दैनिक लक्ष्य में '${currentChapter.titleHi}' का रिवीजन जुड़ गया!`, 'success');
       if (onOpenDailyGoals) {
         onOpenDailyGoals();

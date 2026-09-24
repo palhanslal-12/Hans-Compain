@@ -22,7 +22,7 @@ export const INITIAL_MUSIC_TRACKS: MusicTrack[] = [
     title: "Focus & Grit (जीत का कड़क जोश - Motivation Rap)",
     genre: "Rap",
     bpm: 95,
-    creatorName: "HansAI Studio",
+    creatorName: "Hans Compain Studio",
     createdAt: "2026-07-28",
     plays: 1420,
     lyrics: `[Verse 1]\nपावन माटी से उठकर अब तुमको इतिहास बनाना है,\nआलस की जंजीरें तोड़, खुद को अब मेहनत में तपाना है!\nगाँव के खेतों की खुशबू, तेरे पुरखों का संघर्ष याद रख,\nहाथ में कलम, दिमाग में सपना, खुद पर तू पूर्ण विश्वास रख!\n\n[Chorus]\nमेहनत कर, लड़ जा रे बंदे, लक्ष्य को तू पा के रहेगा,\nदुनिया जो आज हंसती है तुझपे, कल वो खुद सर झुका के कहेगा—\n"वाह रे शूरवीर तूने कर दिखाया, असंभव को भी संभव बनाया!"`
@@ -32,7 +32,7 @@ export const INITIAL_MUSIC_TRACKS: MusicTrack[] = [
     title: "Saraswati Vandana & Study Focus Lofi",
     genre: "Bhakti",
     bpm: 72,
-    creatorName: "HansAI Divine Studio",
+    creatorName: "Hans Compain Divine Studio",
     createdAt: "2026-07-30",
     plays: 2890,
     lyrics: `[Invocation]\nया कुन्देन्दुतुषारहारधवला या शुभ्रवस्त्रावृता,\nया वीणावरदण्डमण्डितकरा या श्वेतपद्मासना॥\n\n[Study Lofi Ambient Verse]\nमाँ सरस्वती का वरदान, बुद्धि और ज्ञान का प्रकाश,\nएकाग्र मन से अध्ययन कर, पूर्ण होगा हर अभिलाष!\nलो-फाई संगीत की शांत धारा, तनाव को करे दूर,\nज्ञान का हर एक दीप जलेगा, मन होगा भरपूर!`
@@ -42,7 +42,7 @@ export const INITIAL_MUSIC_TRACKS: MusicTrack[] = [
     title: "Steno Speed 100 WPM Rhythm Beat",
     genre: "StenoBeat",
     bpm: 108,
-    creatorName: "HansAI Student",
+    creatorName: "Hans Compain Student",
     createdAt: "2026-08-01",
     plays: 870,
     lyrics: `[Speed Beat Dictation]\nपेंसिल की नोक चले तेज़ी से, पिटमैन के हुक और स्ट्रोक सधे,\n80 से 100 की रफ्तार पकड़, परीक्षा के हर सवाल बंधे!\nकंसोनेंट और वॉवेल का तालमेल, डिक्टेशन में ना हो कोई भूल,\nस्टेनोग्राफर का यह कड़ा अभ्यास, बनाएगा तुम्हें सफल और कूल!`
@@ -52,7 +52,7 @@ export const INITIAL_MUSIC_TRACKS: MusicTrack[] = [
     title: "Entrepreneur Spirit (धंधे का सिकंदर - Motivation Rap)",
     genre: "Rap",
     bpm: 90,
-    creatorName: "HansAI Candidate",
+    creatorName: "Hans Compain Candidate",
     createdAt: "2026-07-29",
     plays: 640,
     lyrics: `[Verse 1]\nजमीन से जुड़कर आसमां को छूना है,\nखेत की हल्दी-अदरक को अब सोना बनाना है!\nMSME की योजना तैयार कर, फैक्ट्री का ढांचा खड़ा कर,\nमशीनरी पर सब्सिडी मिलेगी, तू तो बस हिम्मत बड़ी कर!\n\n[Chorus]\nबिज़नेस का राजा बनेगा तू, बस ईमान अपना साफ़ रख,\nभारत के माटी की शक्ति, उद्यम का नया इतिहास रख!`
@@ -62,7 +62,7 @@ export const INITIAL_MUSIC_TRACKS: MusicTrack[] = [
     title: "Deep Alpha Waves Concentration (10Hz Binaural)",
     genre: "AlphaWaves",
     bpm: 60,
-    creatorName: "HansAI Neuroscience Core",
+    creatorName: "Hans Compain Neuroscience Core",
     createdAt: "2026-08-02",
     plays: 3120,
     lyrics: `[Meditative Mantras]\nॐ शांतिः शांतिः शांतिः॥\n10Hz Alpha Waves frequency active for optimal memory retention, deep study focus, and cognitive endurance.`
@@ -78,7 +78,7 @@ interface MusicStudioViewProps {
 export function MusicStudioView({ user, showToast, isAdminEmbedded = false }: MusicStudioViewProps) {
   const [tracks, setTracks] = useState<MusicTrack[]>(() => {
     try {
-      const saved = localStorage.getItem('hansai-custom-music-tracks');
+      const saved = localStorage.getItem('hans-compain-custom-music-tracks');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -113,7 +113,7 @@ export function MusicStudioView({ user, showToast, isAdminEmbedded = false }: Mu
   useEffect(() => {
     try {
       const customOnly = tracks.filter(t => t.isCustom);
-      localStorage.setItem('hansai-custom-music-tracks', JSON.stringify(customOnly));
+      localStorage.setItem('hans-compain-custom-music-tracks', JSON.stringify(customOnly));
     } catch (e) {}
   }, [tracks]);
 
@@ -312,7 +312,7 @@ export function MusicStudioView({ user, showToast, isAdminEmbedded = false }: Mu
       title: newTitle.trim(),
       genre: newGenre,
       bpm: Number(newBpm) || 90,
-      creatorName: user?.name || "HansAI Student",
+      creatorName: user?.name || "Hans Compain Student",
       createdAt: new Date().toISOString().split('T')[0],
       lyrics: newLyrics.trim(),
       plays: 1,
@@ -534,7 +534,7 @@ export function MusicStudioView({ user, showToast, isAdminEmbedded = false }: Mu
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-850/60 text-[10px] text-slate-500">
-                <span>HansAI Web Audio Synthesis</span>
+                <span>Hans Compain Web Audio Synthesis</span>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(currentTrack.lyrics);

@@ -239,11 +239,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
       // Update local storage session
       try {
-        const stored = localStorage.getItem('hansai-user-session');
+        const stored = localStorage.getItem('hans-compain-user-session');
         if (stored) {
           const parsed = JSON.parse(stored);
           parsed.userId = clean;
-          localStorage.setItem('hansai-user-session', JSON.stringify(parsed));
+          localStorage.setItem('hans-compain-user-session', JSON.stringify(parsed));
         }
       } catch (e) {}
 
@@ -420,7 +420,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div className="text-right">
                 <span className="text-lg font-black text-amber-300 font-mono tracking-tight flex items-center gap-1 justify-end">
                   <span>🪙</span>
-                  <span>{localStorage.getItem("hansai-user-coins") || "350"}</span>
+                  <span>{localStorage.getItem("hans-compain-user-coins") || "350"}</span>
                 </span>
                 <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold uppercase">
                   {language === "hindi" ? "गोल्ड स्टूडेंट" : "Gold Scholar"}
@@ -448,9 +448,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                const currentCoins = parseInt(localStorage.getItem("hansai-user-coins") || "350", 10);
+                const currentCoins = parseInt(localStorage.getItem("hans-compain-user-coins") || "350", 10);
                 const newCoins = currentCoins + 50;
-                localStorage.setItem("hansai-user-coins", newCoins.toString());
+                localStorage.setItem("hans-compain-user-coins", newCoins.toString());
                 if (navigator.share) {
                   navigator.share({
                     title: "HANS COMPAIN - Stenography & Exam Preparation App",

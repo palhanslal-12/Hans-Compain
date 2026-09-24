@@ -740,7 +740,7 @@ export const ArticleVoiceReader: React.FC<ArticleVoiceReaderProps> = ({
 
             <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
               <span>{isHindi ? "किसी वाक्य पर क्लिक करके सीधे वहीं से सुनें" : "Click any sentence to jump to that part"}</span>
-              <span className="text-indigo-400 font-semibold">HansAI Speech</span>
+              <span className="text-indigo-400 font-semibold">Hans Compain Speech</span>
             </div>
 
           </div>

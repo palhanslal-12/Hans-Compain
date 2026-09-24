@@ -598,7 +598,7 @@ export const UnlimitedPyqVaultView: React.FC<UnlimitedPyqVaultViewProps> = ({
       
       const updated = [newNotif, ...existingNotifs].slice(0, 30);
       localStorage.setItem('hansai_notifications_v1', JSON.stringify(updated));
-      window.dispatchEvent(new Event('hansai-notif-update'));
+      window.dispatchEvent(new Event('hans-compain-notif-update'));
     } catch (e) {
       console.warn("Could not save reminder notification to storage", e);
     }

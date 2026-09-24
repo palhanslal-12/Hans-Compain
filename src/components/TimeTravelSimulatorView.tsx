@@ -633,7 +633,7 @@ Return ONLY a clean JSON object following this interface:
   "whatIfScenarios": { "hindi": string[], "english": string[] }
 }`
           }],
-          systemInstruction: `You are HansAI Time-Travel Portal. Generate dynamic persona details for historical figure "${q}" as JSON. Ensure both 'hindi' and 'english' keys exist for greeting, examRelevance, and whatIfScenarios.`
+          systemInstruction: `You are Hans Compain Time-Travel Portal. Generate dynamic persona details for historical figure "${q}" as JSON. Ensure both 'hindi' and 'english' keys exist for greeting, examRelevance, and whatIfScenarios.`
         })
       });
 

@@ -52,7 +52,7 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
   // Read REAL user activity from localStorage
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuizRecord[]>(() => {
     try {
-      const raw = localStorage.getItem('hansai-saved-quizzes');
+      const raw = localStorage.getItem('hans-compain-saved-quizzes');
       return raw ? JSON.parse(raw) : [];
     } catch {
       return [];
@@ -61,7 +61,7 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
 
   const [mistakes, setMistakes] = useState<MistakeNotebookItem[]>(() => {
     try {
-      const raw = localStorage.getItem('hansai-mistake-notebook');
+      const raw = localStorage.getItem('hans-compain-mistake-notebook');
       return raw ? JSON.parse(raw) : [];
     } catch {
       return [];
@@ -80,11 +80,11 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
   // Compute live Brain Analysis dynamically from actual tests & mistakes
   useEffect(() => {
     try {
-      const rawQuizzes = localStorage.getItem('hansai-saved-quizzes');
+      const rawQuizzes = localStorage.getItem('hans-compain-saved-quizzes');
       const qList: SavedQuizRecord[] = rawQuizzes ? JSON.parse(rawQuizzes) : [];
       setSavedQuizzes(qList);
 
-      const rawMistakes = localStorage.getItem('hansai-mistake-notebook');
+      const rawMistakes = localStorage.getItem('hans-compain-mistake-notebook');
       const mList: MistakeNotebookItem[] = rawMistakes ? JSON.parse(rawMistakes) : [];
       setMistakes(mList);
 
@@ -390,7 +390,7 @@ export const AIPerformanceDiagnosticsView: React.FC<AIPerformanceDiagnosticsView
               <p className="text-xs text-slate-300 leading-relaxed">
                 {isHindi
                   ? "आपने अभी तक कोई टेस्ट या क्विज़ सबमिट नहीं किया है। हंस AI कोई भी नकली कमज़ोर विषय या फर्जी प्रतिशत नहीं दिखाता है। जैसे ही आप पहला टेस्ट देंगे, आपका ब्रेन सिग्नल ऑटोमैटिक रिकॉर्ड होकर यहाँ दिखेगा।"
-                  : "You haven't attempted any tests yet. Hans AI never shows fake percentages or fabricated weak areas. As you solve live quizzes, your real neural signals and accuracy will appear here in real time."}
+                  : "You haven't attempted any tests yet. Hans Compain never shows fake percentages or fabricated weak areas. As you solve live quizzes, your real neural signals and accuracy will appear here in real time."}
               </p>
             </div>
 

@@ -69,7 +69,7 @@ const DEFAULT_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-5',
     type: 'system',
-    title: '🛡️ HansAI Companion v4.8 सिक्योरिटी व AI अपग्रेड',
+    title: '🛡️ Hans Compain Companion v4.8 सिक्योरिटी व AI अपग्रेड',
     message: 'सभी इनपुट बॉक्स सुरक्षित व क्लीन किए गए हैं। तेज रिस्पॉन्स और ऑफलाइन डेटा सिंक अब और अधिक स्मूथ है।',
     timestamp: '2 days ago',
     isRead: true,
@@ -152,7 +152,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
       if (permission === 'granted') {
         showToast("ब्राउज़र पुश नोटिफिकेशन सक्रिय कर दिया गया! 🔔", "success");
         try {
-          new Notification("HansAI Companion 🔔", {
+          new Notification("Hans Compain Companion 🔔", {
             body: "पुश नोटिफिकेशन चालू है! जब भी कोई बैकग्राउंड प्रोसेस, रिकॉर्डर या ऐप अपडेट पूरा होगा, आपको तुरंत नोटिफिकेशन मिलेगा।",
             icon: "/icon-192.png"
           });

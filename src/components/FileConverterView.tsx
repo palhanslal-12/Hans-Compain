@@ -143,7 +143,7 @@ export const FileConverterView: React.FC<FileConverterViewProps> = ({
       }
 
       pdf.save(`Converted_Document_${Date.now()}.pdf`);
-      playCompletionNotify("HansAI File Converter", isHindi ? "आपकी PDF फाइल सफलतापूर्वक बन गई है!" : "Your PDF document has been created successfully!");
+      playCompletionNotify("Hans Compain File Converter", isHindi ? "आपकी PDF फाइल सफलतापूर्वक बन गई है!" : "Your PDF document has been created successfully!");
       showToast(isHindi ? "पीडीएफ सफलतापूर्वक बन गया और डाउनलोड हुआ!" : "PDF created and downloaded successfully!", "success");
     } catch (err) {
       console.error(err);
@@ -220,7 +220,7 @@ export const FileConverterView: React.FC<FileConverterViewProps> = ({
       const imgDataUrl = canvas.toDataURL('image/png');
       setExtractedImages([imgDataUrl]);
 
-      playCompletionNotify("HansAI Converter", isHindi ? "PDF की फोटो/इमेज बन कर तैयार है!" : "PDF converted to High-Resolution Image!");
+      playCompletionNotify("Hans Compain Converter", isHindi ? "PDF की फोटो/इमेज बन कर तैयार है!" : "PDF converted to High-Resolution Image!");
       showToast(isHindi ? "पीडीएफ से इमेज सफलतापूर्वक बदल दी गई!" : "PDF pages converted to images!", "success");
     } catch (err) {
       console.error(err);
@@ -239,7 +239,7 @@ export const FileConverterView: React.FC<FileConverterViewProps> = ({
 
     setIsGeneratingWord(true);
     try {
-      const headerTitle = docTitle.trim() || 'HansAI_Document';
+      const headerTitle = docTitle.trim() || 'Hans Compain_Document';
       
       // Generate clean HTML structure compatible with Microsoft Word & Google Docs
       const htmlString = `
@@ -257,7 +257,7 @@ export const FileConverterView: React.FC<FileConverterViewProps> = ({
         <body>
           <h1>${headerTitle}</h1>
           <p>${docContent.replace(/\n/g, '<br/>')}</p>
-          <div class="footer">Created with HansAI Digital Learning Ecosystem • ${new Date().toLocaleDateString()}</div>
+          <div class="footer">Created with Hans Compain Digital Learning Ecosystem • ${new Date().toLocaleDateString()}</div>
         </body>
         </html>
       `;
@@ -275,7 +275,7 @@ export const FileConverterView: React.FC<FileConverterViewProps> = ({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      playCompletionNotify("HansAI Converter", isHindi ? "आपकी MS Word (.doc) फाइल तैयार है!" : "Your Word document (.doc) is ready!");
+      playCompletionNotify("Hans Compain Converter", isHindi ? "आपकी MS Word (.doc) फाइल तैयार है!" : "Your Word document (.doc) is ready!");
       showToast(isHindi ? "वर्ड फाइल (.docx/.doc) डाउनलोड हो गई!" : "Word document (.docx) downloaded!", "success");
     } catch (err) {
       console.error(err);

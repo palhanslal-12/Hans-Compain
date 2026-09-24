@@ -196,7 +196,7 @@ Explanation: Reason...]`,
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                HansAI Vision & OCR Engine
+                Hans Compain Vision & OCR Engine
               </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white mt-1">
@@ -369,7 +369,7 @@ Explanation: Reason...]`,
 
                 {/* PDF Export Button */}
                 <button
-                  onClick={() => onExportPdf("HansAI_Scanned_Notes", "notes-ocr-export-node", summaryText)}
+                  onClick={() => onExportPdf("Hans Compain_Scanned_Notes", "notes-ocr-export-node", summaryText)}
                   className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-slate-700"
                 >
                   <Download className="w-3.5 h-3.5 text-amber-400" />

@@ -142,7 +142,7 @@ export async function fetchAdminRealtimeMetrics(): Promise<AdminMetricsData> {
       // 4. Feature Usage Leaderboard from Analytics & LocalStorage
       const storedClicks = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('hans_feature_clicks') || '{}') : {};
       metrics.featureUsageLeaderboard = [
-        { name: 'Hans AI Chat & Voice Assistant', key: 'hans_ai_chat', clicks: (storedClicks['hans_ai_chat'] || 342) + Math.floor(totalUsers * 2.1) },
+        { name: 'Hans Compain Chat & Voice Assistant', key: 'hans_ai_chat', clicks: (storedClicks['hans_ai_chat'] || 342) + Math.floor(totalUsers * 2.1) },
         { name: 'Pitman Steno Master Pad', key: 'steno_pad', clicks: (storedClicks['steno_pad'] || 189) + Math.floor(totalUsers * 1.4) },
         { name: 'Live Quiz Battle Mode', key: 'quiz_battle', clicks: (storedClicks['quiz_battle'] || 124) + Math.floor(totalUsers * 0.9) },
         { name: 'PYQ Vault (2015-2026)', key: 'pyq_vault', clicks: (storedClicks['pyq_vault'] || 210) + Math.floor(totalUsers * 1.8) },

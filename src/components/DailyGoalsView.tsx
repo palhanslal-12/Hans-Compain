@@ -249,7 +249,7 @@ export const DailyGoalsView: React.FC<DailyGoalsViewProps> = ({
     const activeGoals = goals.filter(g => !g.done).map(g => `• [${g.category}] ${g.text}`).join('\n');
     const doneGoals = goals.filter(g => g.done).map(g => `✓ [${g.category}] ${g.text}`).join('\n');
     
-    const text = `🎯 *HansAI Daily Study Goals Checklist* 🎯\n📊 Progress: ${completedCount}/${totalCount} (${progressPercent}% Completed)\n\n*Pending Goals:*\n${activeGoals || 'All goals completed! 🎉'}\n\n*Completed:* \n${doneGoals || 'None yet'}\n\n🕊️ _Powered by HansAI Academic Ecosystem_`;
+    const text = `🎯 *Hans Compain Daily Study Goals Checklist* 🎯\n📊 Progress: ${completedCount}/${totalCount} (${progressPercent}% Completed)\n\n*Pending Goals:*\n${activeGoals || 'All goals completed! 🎉'}\n\n*Completed:* \n${doneGoals || 'None yet'}\n\n🕊️ _Powered by Hans Compain Academic Ecosystem_`;
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
