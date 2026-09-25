@@ -162,6 +162,24 @@ export const GeminiLiveStudyAssistant: React.FC<GeminiLiveStudyAssistantProps> =
   const queryGeminiLive = async (spokenQuery: string) => {
     if (!spokenQuery || spokenQuery.trim().length < 2) return;
 
+    const lowerQuery = spokenQuery.toLowerCase();
+    if (
+      lowerQuery.includes('बंद करो') || 
+      lowerQuery.includes('स्टॉप') || 
+      lowerQuery.includes('खत्म करो') || 
+      lowerQuery.includes('बाय') || 
+      lowerQuery.includes('अलविदा') || 
+      lowerQuery.includes('close') || 
+      lowerQuery.includes('stop') || 
+      lowerQuery.includes('exit')
+    ) {
+      speakSpokenText(language === 'hindi' ? "अलविदा! फिर मिलेंगे।" : "Goodbye! See you soon.");
+      setTimeout(() => {
+        onClose();
+      }, 1200);
+      return;
+    }
+
     setIsThinking(true);
     setStatusMessage(language === 'hindi' ? '🔮 जेमिनी सोच रहा है... (Thinking)' : '🔮 Gemini Thinking...');
     

@@ -12,11 +12,14 @@ interface CurrentAffairsHubViewProps {
   onStartQuiz?: (topic: string) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
   language?: string;
+  user?: any;
+  onOpenLogin?: () => void;
 }
 
 export interface DetailedArticleItem {
   id: string;
   category: 'National' | 'International' | 'Economy & Banking' | 'Science & Tech' | 'Sports' | 'State Affairs' | 'Schemes & Governance';
+  imageUrl?: string;
   titleHi: string;
   titleEn: string;
   summaryHi: string;
@@ -1235,13 +1238,27 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
   );
 };
 
-export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ onStartQuiz, showToast, language = 'hindi' }) => {
+export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ onStartQuiz, showToast, language = 'hindi', user, onOpenLogin }) => {
   const isHindi = language === 'hindi';
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [lang, setLang] = useState<'hi' | 'en'>(isHindi ? 'hi' : 'en');
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
+
+  // Auto-open article if shared URL contains ?article=id
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const articleId = params.get('article');
+      if (articleId) {
+        const found = articles.find(a => a.id === articleId) || ARTICLES_DATABASE.find(a => a.id === articleId);
+        if (found) {
+          setSelectedArticle(found);
+        }
+      }
+    } catch (e) {}
+  }, [articles]);
 
   // Live Auto-Updating Articles State
   const [articles, setArticles] = useState<DetailedArticleItem[]>([]);
@@ -1756,6 +1773,8 @@ Include:
           handleSpeak={handleSpeak}
           toggleBookmark={toggleBookmark}
           bookmarkedIds={bookmarkedIds}
+          user={user}
+          onOpenLogin={onOpenLogin}
           onClose={() => {
             stopAllSpeech();
             setSelectedArticle(null);

@@ -349,13 +349,16 @@ function rotateApiKey() {
 // Helper to perform generateContent calls with robust retry-and-alternate-model fallback strategy
 const DEPRECATED_MODELS = new Set([
   'gemini-pro',
-  'gemini-flash-latest'
+  'gemini-flash-latest',
+  'gemini-2.0-flash-lite',
+  'models/gemini-2.0-flash-lite'
 ]);
 
 const VALID_FALLBACK_MODELS = [
+  'gemini-2.5-flash',
+  'gemini-3.5-flash-lite',
   'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-2.0-flash'
+  'gemini-1.5-pro'
 ];
 
 // Circuit breaker to track model quota exhaustion and temporarily route traffic to healthy models
@@ -364,10 +367,13 @@ const modelCooldownMap = new Map<string, number>();
 async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string, options: { contents: any; config?: any }) {
   const now = Date.now();
 
-  // Normalize requested model (default to gemini-1.5-flash)
-  let requested = primaryModel ? String(primaryModel).trim() : 'gemini-1.5-flash';
-  if (!requested || DEPRECATED_MODELS.has(requested)) {
-    requested = 'gemini-1.5-flash';
+  // Normalize requested model (default to gemini-2.5-flash)
+  let requested = primaryModel ? String(primaryModel).trim() : 'gemini-2.5-flash';
+  if (requested.startsWith('models/')) {
+    requested = requested.replace('models/', '');
+  }
+  if (!requested || DEPRECATED_MODELS.has(requested) || requested === 'gemini-2.0-flash-lite') {
+    requested = 'gemini-2.5-flash';
   }
 
   // Filter models that are currently in quota cooldown (60 seconds cooldown)
@@ -377,7 +383,7 @@ async function generateContentWithFallback(ai: GoogleGenAI, primaryModel: string
   };
 
   // Build prioritized fallback sequence: start with available non-cooled-down models first
-  const pool = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-3.5-flash-lite'];
+  const pool = ['gemini-2.5-flash', 'gemini-3.5-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-pro'];
   const healthyModels = pool.filter(m => !isCooledDown(m));
   const coolingModels = pool.filter(m => isCooledDown(m));
 
@@ -3331,6 +3337,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
     {
       id: `ca-${Date.now()}-1`,
       category: 'Sports & Awards',
+      imageUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
       titleHi: `अंतर्राष्ट्रीय खेल जगत व राष्ट्रीय खेल पुरस्कार: प्रमुख टूर्नामेंट, ग्रैंड स्लैम विजेता और प्रतियोगी परीक्षाओं के अति-महत्वपूर्ण तथ्य`,
       titleEn: `Major Sports Tournaments, Grand Slam Champions, and National Sports Awards: High-Yield Exam Digest`,
       summaryHi: `प्रतिस्पर्धी परीक्षाओं (SSC, BPSC, UPSC, Railway) में हालिया खेल प्रतियोगिताओं, ओलंपिक पदक विजेताओं, आईसीसी टूर्नामेंट्स और प्रतिष्ठित राष्ट्रीय खेल पुरस्कारों (जैसे मेजर ध्यानचंद खेल रत्न, अर्जुन पुरस्कार) से जुड़े प्रश्न बहुतायत में पूछे जा रहे हैं। यहाँ प्रमुख खेल अपडेट्स का संकलन दिया गया है।`,
@@ -3389,6 +3396,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
     {
       id: `ca-${Date.now()}-2`,
       category: 'Economy & Banking',
+      imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
       titleHi: `भारतीय रिजर्व बैंक (RBI) द्वारा डिजिटल रुपया (CBDC) और यूपीआई का व्यापक इंटरऑपरेबिलिटी विस्तार`,
       titleEn: `RBI Expands Digital Rupee (CBDC) and UPI Cross-Interoperability`,
       summaryHi: `भारतीय रिजर्व बैंक ने सेंट्रल बैंक डिजिटल करेंसी (e₹) और यूनिफाइड पेमेंट्स इंटरफेस (UPI) के बीच क्रॉस-सिस्टम इंटरऑपरेबिलिटी को बढ़ावा देने के लिए नए दिशानिर्देश जारी किए हैं। इससे ऑफलाइन एवं सीमा पार भुगतानों में अभूतपूर्व सुगमता आएगी।`,
@@ -3447,6 +3455,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
     {
       id: `ca-${Date.now()}-3`,
       category: 'Schemes & Governance',
+      imageUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80',
       titleHi: `पीएम गति शक्ति राष्ट्रीय मास्टर प्लान: मल्टी-मॉडल कनेक्टिविटी और लॉजिस्टिक्स लागत घटाने में ऐतिहासिक प्रगति`,
       titleEn: `PM Gati Shakti National Master Plan: Transformative Multimodal Logistics and Infrastructure Integration`,
       summaryHi: `पीएम गति शक्ति राष्ट्रीय मास्टर प्लान ने विभिन्न मंत्रालयों के बीच अवसंरचना परियोजनाओं के समन्वय को 100% डिजिटल कर लॉजिस्टिक्स लागत को सकल घरेलू उत्पाद (GDP) के 9% के नीचे लाने का ऐतिहासिक लक्ष्य हासिल किया है।`,
@@ -3505,6 +3514,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
     {
       id: `ca-${Date.now()}-4`,
       category: 'International',
+      imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1200&q=80',
       titleHi: `ग्लोबल बायोफ्यूल्स अलायंस (GBA) और अंतर्राष्ट्रीय स्वच्छ ऊर्जा संक्रमण का तीव्र विस्तार`,
       titleEn: `Global Biofuels Alliance (GBA) and International Clean Energy Transition Gains Momentum`,
       summaryHi: `भारत की अध्यक्षता में गठित ग्लोबल बायोफ्यूल्स अलायंस (GBA) में विश्व के प्रमुख 24 देश और 12 अंतर्राष्ट्रीय संगठन शामिल हो चुके हैं। इसका उद्देश्य 2030 तक स्थायी विमानन ईंधन (SAF) और 20% इथेनॉल सम्मिश्रण (E20) को वैश्विक मानक बनाना है।`,

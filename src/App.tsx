@@ -799,6 +799,72 @@ export default function App() {
   const [isFeatureHubOpen, setIsFeatureHubOpen] = useState<boolean>(false);
   const [activeFeatureCategory, setActiveFeatureCategory] = useState<string | null>('study');
 
+  // Voice Wake-Word Listener ("ओके हंस" / "Hey Hans")
+  const [isWakeWordActive, setIsWakeWordActive] = useState<boolean>(() => {
+    return localStorage.getItem('hans-compain-wake-word') !== 'false';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hans-compain-wake-word', String(isWakeWordActive));
+  }, [isWakeWordActive]);
+
+  useEffect(() => {
+    if (!isWakeWordActive || isGeminiLiveOpen) return;
+
+    let wakeRec: any = null;
+    let timer: any = null;
+
+    const startWakeListening = () => {
+      if (isGeminiLiveOpen || !isWakeWordActive) return;
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+
+      try {
+        const rec = new SpeechRecognition();
+        rec.continuous = false;
+        rec.interimResults = false;
+        rec.lang = language === 'hindi' ? 'hi-IN' : 'en-US';
+
+        rec.onresult = (event: any) => {
+          const text = event.results[0]?.[0]?.transcript?.toLowerCase() || '';
+          if (
+            text.includes('ओके हंस') || 
+            text.includes('ओ के हंस') || 
+            text.includes('हे हंस') || 
+            text.includes('हे हेंस') || 
+            text.includes('hey hans') || 
+            text.includes('okay hans') || 
+            text.includes('hans ai') || 
+            text.includes('hans compain') ||
+            text.includes('हंस अभियान')
+          ) {
+            setIsGeminiLiveOpen(true);
+            showToast(language === 'hindi' ? "🎙️ 'ओके हंस' वेक-वर्ड डिटेक्ट हुआ! वॉयस असिस्टेंट खुल गया।" : "🎙️ Wake-word detected! Voice Assistant opened.", "success");
+          }
+        };
+
+        rec.onerror = () => {};
+        rec.onend = () => {
+          if (!isGeminiLiveOpen && isWakeWordActive) {
+            timer = setTimeout(startWakeListening, 2500);
+          }
+        };
+
+        wakeRec = rec;
+        rec.start();
+      } catch (e) {}
+    };
+
+    timer = setTimeout(startWakeListening, 2000);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      if (wakeRec) {
+        try { wakeRec.abort(); } catch (e) {}
+      }
+    };
+  }, [isWakeWordActive, isGeminiLiveOpen, language]);
+
   // Gemini model settings (Flash vs Flash-Lite)
   const [selectedModel, setSelectedModel] = useState<'gemini-1.5-flash' | 'gemini-3.5-flash-lite'>(() => {
     const saved = localStorage.getItem('hans-compain-active-model');
@@ -2529,7 +2595,10 @@ export default function App() {
       };
 
       rec.onerror = (err: any) => {
-        console.error("Speech Recognition capture error: ", err);
+        const errCode = err?.error;
+        if (errCode && errCode !== 'no-speech' && errCode !== 'aborted') {
+          console.warn("Speech Recognition notice:", errCode);
+        }
         setIsVoiceRecording(false);
       };
 
@@ -2596,7 +2665,10 @@ export default function App() {
       };
 
       rec.onerror = (err: any) => {
-        console.error("Timer Speech Recognition capture error: ", err);
+        const errCode = err?.error;
+        if (errCode && errCode !== 'no-speech' && errCode !== 'aborted') {
+          console.warn("Timer Speech Recognition notice:", errCode);
+        }
         setIsTimerVoiceRecording(false);
       };
 
@@ -2663,7 +2735,10 @@ export default function App() {
       };
 
       rec.onerror = (err: any) => {
-        console.error("Notes Speech Recognition capture error: ", err);
+        const errCode = err?.error;
+        if (errCode && errCode !== 'no-speech' && errCode !== 'aborted') {
+          console.warn("Notes Speech Recognition notice:", errCode);
+        }
         setIsNotesVoiceRecording(false);
       };
 
@@ -5745,6 +5820,31 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
             </button>
           )}
 
+          {/* 🎙️ WAKE-WORD TOGGLE ("ओके हंस" / "Hey Hans") */}
+          <button
+            onClick={() => {
+              const next = !isWakeWordActive;
+              setIsWakeWordActive(next);
+              showToast(
+                next 
+                  ? (language === 'hindi' ? "🎙️ 'ओके हंस' / 'हे हंस' वेक-वर्ड एक्टिव हो गया है!" : "🎙️ Wake-word 'Hey Hans' activated!")
+                  : (language === 'hindi' ? "🔇 वेक-वर्ड ऑफ कर दिया गया है।" : "🔇 Wake-word deactivated."),
+                next ? "success" : "info"
+              );
+            }}
+            className={`px-2 py-1.5 border rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0 ${
+              isWakeWordActive
+                ? 'bg-amber-500/20 border-amber-400 text-amber-300'
+                : 'bg-slate-900/50 border-slate-700/60 text-slate-400'
+            }`}
+            title="बोलकर ओपन करने के लिए 'ओके हंस' या 'हे हंस' वेक-वर्ड टॉगल करें"
+          >
+            <Sparkles className={`w-3 h-3 ${isWakeWordActive ? 'text-amber-400 animate-spin' : 'text-slate-500'}`} />
+            <span className="hidden md:inline text-[11px]">
+              {isWakeWordActive ? '🎙️ "ओके हंस" ऑन' : '🎙️ "ओके हंस" ऑफ'}
+            </span>
+          </button>
+
           {/* 🎙️ HANDS-FREE VOICE ASSISTANT ("Hey Compain" / "Hello Hans Compain") */}
           <button
             onClick={startVoiceAssistantMode}
@@ -8320,6 +8420,8 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                 <CurrentAffairsHubView
                   showToast={showToast}
                   language={language}
+                  user={user}
+                  onOpenLogin={() => setIsAuthLoginOpen(true)}
                   onStartQuiz={(topic) => {
                     setActiveView('quiz');
                     showToast(topic + ' का लाइव टेस्ट लोड किया जा रहा है...', 'info');
