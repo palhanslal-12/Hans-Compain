@@ -581,6 +581,8 @@ interface ArticleDetailModalProps {
   handleSpeak: (text: string, id: string) => void;
   toggleBookmark: (id: string) => void;
   bookmarkedIds: string[];
+  user?: any;
+  onOpenLogin?: () => void;
   onClose: () => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
   articleDoubtMessages: Array<{ sender: 'user' | 'ai'; text: string; time: string }>;
@@ -609,6 +611,8 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
   handleSpeak,
   toggleBookmark,
   bookmarkedIds,
+  user,
+  onOpenLogin,
   onClose,
   showToast,
   articleDoubtMessages,
@@ -864,10 +868,10 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
             )}
 
             {/* Article Main Headline (Serif style for PIB, Bold Sans for App style) */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h2 className={`leading-snug tracking-tight text-slate-900 ${
                 pibMode 
-                  ? 'font-serif font-black text-[#111c24] border-b border-slate-300 pb-4' 
+                  ? 'font-serif font-black text-[#111c24]' 
                   : 'font-black text-white'
               } ${
                 fontSizeLevel === 'normal' ? 'text-xl sm:text-2xl' : fontSizeLevel === 'xlarge' ? 'text-2xl sm:text-4xl' : 'text-2xl sm:text-3xl'
@@ -879,6 +883,23 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                   🎯 {isHindi ? 'विशेष परीक्षा विश्लेषण सामग्री (IAS/SSC हेतु उपयोगी)' : 'Optimized Exam Brief for IAS, SSC & State Services'}
                 </div>
               )}
+            </div>
+
+            {/* Editorial Header Image (The Hindu & PIB Style) */}
+            <div className="rounded-2xl overflow-hidden border border-slate-700/60 shadow-lg relative bg-slate-900">
+              <img 
+                src={article.imageUrl || "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80"} 
+                alt={article.titleEn} 
+                className="w-full h-56 sm:h-72 object-cover hover:scale-105 transition-transform duration-700" 
+              />
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 sm:p-4 flex items-center justify-between">
+                <span className="px-2.5 py-1 bg-amber-500 text-slate-950 font-black text-[10px] uppercase rounded-md tracking-wider">
+                  {article.category} Editorial
+                </span>
+                <span className="text-[11px] font-mono text-slate-300 font-bold">
+                  {isHindi ? 'द हिन्दू / पीआईबी विशेष विश्लेषण' : 'The Hindu & PIB Curated'}
+                </span>
+              </div>
             </div>
 
             {/* Section 1: Executive Summary */}
@@ -919,161 +940,222 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
               </p>
             </div>
 
-            {/* Section 3: Deep Technical Analysis */}
-            <div className="space-y-2.5">
-              <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
-                pibMode ? 'text-emerald-800' : 'text-emerald-400'
-              }`}>
-                <Zap className="w-4 h-4" />
-                {isHindi ? '3. विस्तृत आयाम व मुख्य बिंदु (In-Depth Dimensions)' : '3. In-Depth Dimensions'}
-              </h3>
-              <div className={`space-y-3 rounded-2xl border ${
-                pibMode ? 'bg-[#f6fbf8] border-emerald-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
-              }`}>
-                {(lang === 'hi' ? article.deepAnalysisHi : article.deepAnalysisEn).map((pt, i) => (
-                  <div key={i} className={`flex items-start gap-3 ${
-                    pibMode ? 'text-slate-800' : 'text-slate-100'
-                  } ${
-                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
-                  }`}>
-                    <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                    <span className={pibMode ? 'font-serif' : ''}>{pt}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 4: Key Policy Provisions */}
-            <div className="space-y-2.5">
-              <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
-                pibMode ? 'text-indigo-800' : 'text-indigo-400'
-              }`}>
-                <Award className="w-4 h-4" />
-                {isHindi ? '4. प्रमुख नीतिगत प्रावधान (Key Provisions & Data)' : '4. Key Provisions & Data'}
-              </h3>
-              <div className={`space-y-3 rounded-2xl border ${
-                pibMode ? 'bg-[#f7f6fc] border-indigo-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
-              }`}>
-                {(lang === 'hi' ? article.keyProvisionsHi : article.keyProvisionsEn).map((prov, i) => (
-                  <div key={i} className={`flex items-start gap-3 ${
-                    pibMode ? 'text-slate-800' : 'text-slate-200'
-                  } ${
-                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
-                  }`}>
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-2 ${pibMode ? 'bg-indigo-600' : 'bg-indigo-400'}`} />
-                    <span className={pibMode ? 'font-serif' : ''}>{prov}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 5: High-Yield Fact Box */}
-            <div className={`border-2 p-5 rounded-2xl space-y-2 shadow-sm ${
-              pibMode 
-                ? 'bg-[#fffbeb] border-amber-500/40 text-amber-900' 
-                : 'bg-[#18120c] border-amber-500/50 text-white'
+            {/* Vocabulary & Anto-Synonyms Widget */}
+            <div className={`border rounded-2xl p-4 sm:p-5 space-y-3 shadow-md ${
+              pibMode ? 'bg-[#f4f1ea] border-amber-800/20 text-slate-900' : 'bg-[#0e1424] border-indigo-500/30 text-slate-100'
             }`}>
-              <div className={`text-xs sm:text-sm font-black flex items-center gap-2 uppercase tracking-wider ${
-                pibMode ? 'text-amber-800' : 'text-amber-300'
-              }`}>
-                <Target className="w-5 h-5 text-amber-500" />
-                <span>{isHindi ? 'हाई-यील्ड एग्जाम फैक्ट (High-Yield Exam Fact):' : 'High-Yield Exam Fact:'}</span>
-              </div>
-              <p className={`font-bold ${
-                fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-              } ${pibMode ? 'font-serif' : ''}`}>{article.keyFact}</p>
-            </div>
-
-            {/* Section 6: Interactive Practice MCQ */}
-            <div className={`border p-6 rounded-2xl space-y-4 shadow-md ${
-              pibMode ? 'bg-white border-slate-300 text-slate-800' : 'bg-[#0f1524] border-slate-800 text-white'
-            }`}>
-              <div className="flex items-center justify-between">
-                <span className={`text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                  pibMode ? 'text-cyan-800' : 'text-cyan-400'
-                }`}>
-                  <HelpCircle className="w-4 h-4" />
-                  {isHindi ? 'अभ्यास प्रश्न (Interactive Practice MCQ)' : 'Practice MCQ'}
+              <div className="flex items-center gap-2">
+                <span className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl">
+                  📖
                 </span>
-                <span className={`text-xs px-2.5 py-1 rounded-md font-bold ${
-                  pibMode ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'
-                }`}>Prelims Level</span>
-              </div>
-
-              <p className={`font-bold ${
-                fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-              } ${pibMode ? 'font-serif' : ''}`}>
-                {lang === 'hi' ? article.mcq.questionHi : article.mcq.questionEn}
-              </p>
-
-              <div className="space-y-2.5">
-                {(lang === 'hi' ? article.mcq.optionsHi : article.mcq.optionsEn).map((opt, idx) => {
-                  const isSelected = selectedMcqAnswer === idx;
-                  const isCorrect = idx === article.mcq.correctIndex;
-                  let btnClass = pibMode 
-                    ? "bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100" 
-                    : "bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700";
-                  
-                  if (selectedMcqAnswer !== null) {
-                    if (isCorrect) {
-                      btnClass = pibMode
-                        ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold"
-                        : "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-bold shadow-md shadow-emerald-950/50";
-                    } else if (isSelected) {
-                      btnClass = pibMode
-                        ? "bg-rose-50 border-rose-400 text-rose-800"
-                        : "bg-rose-950/80 border-rose-500 text-rose-100";
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setSelectedMcqAnswer(idx);
-                        setShowMcqExplanation(true);
-                        if (idx === article.mcq.correctIndex) {
-                          showToast(isHindi ? "सही उत्तर! 🎉 शाबाश!" : "Correct Answer! 🎉", "success");
-                        } else {
-                          showToast(isHindi ? "गलत उत्तर! व्याख्या देखें।" : "Incorrect! Check explanation.", "warn");
-                        }
-                      }}
-                      className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
-                    >
-                      <span className={pibMode ? 'font-serif' : ''}>{String.fromCharCode(65 + idx)}. {opt}</span>
-                      {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {showMcqExplanation && (
-                <div className={`p-4 rounded-xl text-sm sm:text-base space-y-1.5 animate-fade-in border ${
-                  pibMode 
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
-                    : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-100'
-                }`}>
-                  <strong className="block text-emerald-700 font-bold">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
-                  <p className={pibMode ? 'font-serif' : ''}>{lang === 'hi' ? article.mcq.explanationHi : article.mcq.explanationEn}</p>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-300">
+                    {isHindi ? 'महत्वपूर्ण शब्दावली, पर्यायवाची व विलोम शब्द (Vocabulary & Anto-Synonyms)' : 'Key Exam Vocabulary & Anto-Synonyms'}
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    {isHindi ? 'आर्टिकल में प्रयुक्त कठिन शब्दों का परीक्षा-उन्मुख विश्लेषण' : 'Exam-grade word meanings & synonyms extracted from this editorial'}
+                  </p>
                 </div>
-              )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-xl space-y-1">
+                  <div className="font-extrabold text-xs text-cyan-300">1. Interoperability (इंटरऑपरेबिलिटी)</div>
+                  <div className="text-[11px] text-slate-300"><strong>अर्थ:</strong> विभिन्न प्रणालियों का आपस में डेटा आदान-प्रदान करना।</div>
+                  <div className="text-[10px] text-emerald-400"><strong>Synonyms:</strong> Compatibility, Integration</div>
+                  <div className="text-[10px] text-rose-400"><strong>Antonyms:</strong> Isolation, Segregation</div>
+                </div>
+                <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-xl space-y-1">
+                  <div className="font-extrabold text-xs text-amber-300">2. Sovereign (संप्रभु / सॉवरेन)</div>
+                  <div className="text-[11px] text-slate-300"><strong>अर्थ:</strong> सर्वोच्च सत्ता संपन्न जो बाहरी नियंत्रण से मुक्त हो।</div>
+                  <div className="text-[10px] text-emerald-400"><strong>Synonyms:</strong> Autonomous, Independent</div>
+                  <div className="text-[10px] text-rose-400"><strong>Antonyms:</strong> Dependent, Subordinate</div>
+                </div>
+              </div>
             </div>
 
-            {/* Section 7: Mains Descriptive Model Question */}
-            <div className={`border p-5 rounded-2xl space-y-2.5 ${
-              pibMode ? 'bg-[#f5f7fa] border-slate-300 text-slate-800' : 'bg-indigo-950/40 border-indigo-500/40 text-slate-100'
-            }`}>
-              <span className={`text-xs sm:text-sm font-black uppercase tracking-wider block ${
-                pibMode ? 'text-indigo-800' : 'text-indigo-300'
-              }`}>
-                ✍️ {isHindi ? 'मुख्य परीक्षा संभावित प्रश्न (Mains Analytical Question):' : 'Mains Analytical Question:'}
-              </span>
-              <p className={`font-medium leading-relaxed italic ${
-                fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-              } ${pibMode ? 'font-serif' : ''}`}>
-                "{lang === 'hi' ? article.mainsQuestionHi : article.mainsQuestionEn}"
-              </p>
-            </div>
+            {/* SOFT LOGIN WALL IF !user */}
+            {!user ? (
+              <div className="bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 border-2 border-amber-500/50 rounded-3xl p-6 sm:p-8 text-center space-y-4 my-8 shadow-2xl backdrop-blur-md">
+                <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/40 rounded-2xl flex items-center justify-center mx-auto text-amber-400 font-black text-xl">
+                  🔒
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg sm:text-xl font-black text-white">
+                    {isHindi ? 'पूरा आर्टिकल, इन-डेप्थ विश्लेषण और प्रैक्टिस MCQs अनलॉक करें!' : 'Unlock Full Article, In-Depth Analysis & MCQs!'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
+                    {isHindi 
+                      ? 'आपने मुख्य सारांश और शब्दावली पढ़ ली है। आगे के सभी विस्तृत आयाम, नीतिगत प्रावधान, प्रैक्टिस प्रश्न और AI डाउट असिस्टेंट का लाभ उठाने के लिए मुफ्त लॉगिन करें।' 
+                      : 'You have read the executive summary. Sign in for free to access full in-depth dimensions, policy provisions, practice MCQs, and AI tutor.'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onOpenLogin?.()}
+                  className="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-sm rounded-2xl shadow-xl transition-all cursor-pointer active:scale-95 inline-flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <span>{isHindi ? '🔑 मुफ्त लॉगिन करें (Login / Register)' : '🔑 Sign In / Register Free'}</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Section 3: Deep Technical Analysis */}
+                <div className="space-y-2.5">
+                  <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
+                    pibMode ? 'text-emerald-800' : 'text-emerald-400'
+                  }`}>
+                    <Zap className="w-4 h-4" />
+                    {isHindi ? '3. विस्तृत आयाम व मुख्य बिंदु (In-Depth Dimensions)' : '3. In-Depth Dimensions'}
+                  </h3>
+                  <div className={`space-y-3 rounded-2xl border ${
+                    pibMode ? 'bg-[#f6fbf8] border-emerald-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
+                  }`}>
+                    {(lang === 'hi' ? article.deepAnalysisHi : article.deepAnalysisEn).map((pt, i) => (
+                      <div key={i} className={`flex items-start gap-3 ${
+                        pibMode ? 'text-slate-800' : 'text-slate-100'
+                      } ${
+                        fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                      }`}>
+                        <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className={pibMode ? 'font-serif' : ''}>{pt}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section 4: Key Policy Provisions */}
+                <div className="space-y-2.5">
+                  <h3 className={`text-sm sm:text-base font-black flex items-center gap-2 uppercase tracking-wider ${
+                    pibMode ? 'text-indigo-800' : 'text-indigo-400'
+                  }`}>
+                    <Award className="w-4 h-4" />
+                    {isHindi ? '4. प्रमुख नीतिगत प्रावधान (Key Provisions & Data)' : '4. Key Provisions & Data'}
+                  </h3>
+                  <div className={`space-y-3 rounded-2xl border ${
+                    pibMode ? 'bg-[#f7f6fc] border-indigo-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
+                  }`}>
+                    {(lang === 'hi' ? article.keyProvisionsHi : article.keyProvisionsEn).map((prov, i) => (
+                      <div key={i} className={`flex items-start gap-3 ${
+                        pibMode ? 'text-slate-800' : 'text-slate-200'
+                      } ${
+                        fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                      }`}>
+                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-2 ${pibMode ? 'bg-indigo-600' : 'bg-indigo-400'}`} />
+                        <span className={pibMode ? 'font-serif' : ''}>{prov}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section 5: High-Yield Fact Box */}
+                <div className={`border-2 p-5 rounded-2xl space-y-2 shadow-sm ${
+                  pibMode 
+                    ? 'bg-[#fffbeb] border-amber-500/40 text-amber-900' 
+                    : 'bg-[#18120c] border-amber-500/50 text-white'
+                }`}>
+                  <div className={`text-xs sm:text-sm font-black flex items-center gap-2 uppercase tracking-wider ${
+                    pibMode ? 'text-amber-800' : 'text-amber-300'
+                  }`}>
+                    <Target className="w-5 h-5 text-amber-500" />
+                    <span>{isHindi ? 'हाई-यील्ड एग्जाम फैक्ट (High-Yield Exam Fact):' : 'High-Yield Exam Fact:'}</span>
+                  </div>
+                  <p className={`font-bold ${
+                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                  } ${pibMode ? 'font-serif' : ''}`}>{article.keyFact}</p>
+                </div>
+
+                {/* Section 6: Interactive Practice MCQ */}
+                <div className={`border p-6 rounded-2xl space-y-4 shadow-md ${
+                  pibMode ? 'bg-white border-slate-300 text-slate-800' : 'bg-[#0f1524] border-slate-800 text-white'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-1.5 ${
+                      pibMode ? 'text-cyan-800' : 'text-cyan-400'
+                    }`}>
+                      <HelpCircle className="w-4 h-4" />
+                      {isHindi ? 'अभ्यास प्रश्न (Interactive Practice MCQ)' : 'Practice MCQ'}
+                    </span>
+                    <span className={`text-xs px-2.5 py-1 rounded-md font-bold ${
+                      pibMode ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'
+                    }`}>Prelims Level</span>
+                  </div>
+
+                  <p className={`font-bold ${
+                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                  } ${pibMode ? 'font-serif' : ''}`}>
+                    {lang === 'hi' ? article.mcq.questionHi : article.mcq.questionEn}
+                  </p>
+
+                  <div className="space-y-2.5">
+                    {(lang === 'hi' ? article.mcq.optionsHi : article.mcq.optionsEn).map((opt, idx) => {
+                      const isSelected = selectedMcqAnswer === idx;
+                      const isCorrect = idx === article.mcq.correctIndex;
+                      let btnClass = pibMode 
+                        ? "bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100" 
+                        : "bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700";
+                      
+                      if (selectedMcqAnswer !== null) {
+                        if (isCorrect) {
+                          btnClass = pibMode
+                            ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold"
+                            : "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-bold shadow-md shadow-emerald-950/50";
+                        } else if (isSelected) {
+                          btnClass = pibMode
+                            ? "bg-rose-50 border-rose-400 text-rose-800"
+                            : "bg-rose-950/80 border-rose-500 text-rose-100";
+                        }
+                      }
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setSelectedMcqAnswer(idx);
+                            setShowMcqExplanation(true);
+                            if (idx === article.mcq.correctIndex) {
+                              showToast(isHindi ? "सही उत्तर! 🎉 शाबाश!" : "Correct Answer! 🎉", "success");
+                            } else {
+                              showToast(isHindi ? "गलत उत्तर! व्याख्या देखें।" : "Incorrect! Check explanation.", "warn");
+                            }
+                          }}
+                          className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
+                        >
+                          <span className={pibMode ? 'font-serif' : ''}>{String.fromCharCode(65 + idx)}. {opt}</span>
+                          {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {showMcqExplanation && (
+                    <div className={`p-4 rounded-xl text-sm sm:text-base space-y-1.5 animate-fade-in border ${
+                      pibMode 
+                        ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
+                        : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-100'
+                    }`}>
+                      <strong className="block text-emerald-700 font-bold">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
+                      <p className={pibMode ? 'font-serif' : ''}>{lang === 'hi' ? article.mcq.explanationHi : article.mcq.explanationEn}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Section 7: Mains Descriptive Model Question */}
+                <div className={`border p-5 rounded-2xl space-y-2.5 ${
+                  pibMode ? 'bg-[#f5f7fa] border-slate-300 text-slate-800' : 'bg-indigo-950/40 border-indigo-500/40 text-slate-100'
+                }`}>
+                  <span className={`text-xs sm:text-sm font-black uppercase tracking-wider block ${
+                    pibMode ? 'text-indigo-800' : 'text-indigo-300'
+                  }`}>
+                    ✍️ {isHindi ? 'मुख्य परीक्षा संभावित प्रश्न (Mains Analytical Question):' : 'Mains Analytical Question:'}
+                  </span>
+                  <p className={`font-medium leading-relaxed italic ${
+                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                  } ${pibMode ? 'font-serif' : ''}`}>
+                    "{lang === 'hi' ? article.mainsQuestionHi : article.mainsQuestionEn}"
+                  </p>
+                </div>
+              </>
+            )}
 
             {/* Footer Action Bar: Trigger AI Doubt or Return */}
             <div className={`pt-6 pb-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t ${
@@ -1246,6 +1328,13 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
 
+  // Live Auto-Updating Articles State
+  const [articles, setArticles] = useState<DetailedArticleItem[]>([]);
+  const [isLoadingLive, setIsLoadingLive] = useState<boolean>(false);
+
+  // Deep Article Reader Modal States
+  const [selectedArticle, setSelectedArticle] = useState<DetailedArticleItem | null>(null);
+
   // Auto-open article if shared URL contains ?article=id
   useEffect(() => {
     try {
@@ -1259,13 +1348,6 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
       }
     } catch (e) {}
   }, [articles]);
-
-  // Live Auto-Updating Articles State
-  const [articles, setArticles] = useState<DetailedArticleItem[]>([]);
-  const [isLoadingLive, setIsLoadingLive] = useState<boolean>(false);
-
-  // Deep Article Reader Modal States
-  const [selectedArticle, setSelectedArticle] = useState<DetailedArticleItem | null>(null);
   const [selectedMcqAnswer, setSelectedMcqAnswer] = useState<number | null>(null);
   const [showMcqExplanation, setShowMcqExplanation] = useState<boolean>(false);
 
@@ -1394,6 +1476,23 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
     setSelectedArticle(article);
     setSelectedMcqAnswer(null);
     setShowMcqExplanation(false);
+
+    // Save to user reading history
+    try {
+      const existing = JSON.parse(localStorage.getItem('hans-compain-read-articles') || '[]');
+      const filtered = existing.filter((item: any) => item.id !== article.id);
+      const updated = [{
+        id: article.id,
+        category: article.category,
+        titleHi: article.titleHi,
+        titleEn: article.titleEn,
+        date: article.date,
+        imageUrl: article.imageUrl,
+        readAt: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }, ...filtered].slice(0, 50);
+      localStorage.setItem('hans-compain-read-articles', JSON.stringify(updated));
+    } catch (e) {}
+
     setArticleDoubtMessages([
       {
         sender: 'ai',

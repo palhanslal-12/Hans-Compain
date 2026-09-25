@@ -164,6 +164,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [showUrlField, setShowUrlField] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeProfileTab, setActiveProfileTab] = useState<'settings' | 'history'>('settings');
+  const [readArticlesHistory, setReadArticlesHistory] = useState<any[]>([]);
 
   // Sync state when modal opens or user prop changes
   React.useEffect(() => {
@@ -177,6 +179,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setCity(user?.city || '');
       setUserIdInput(user?.userId || '');
       setUserIdStatus({ msg: '', type: '' });
+      try {
+        const hist = JSON.parse(localStorage.getItem('hans-compain-read-articles') || '[]');
+        setReadArticlesHistory(hist);
+      } catch (e) {
+        setReadArticlesHistory([]);
+      }
     }
   }, [isOpen, user]);
 
