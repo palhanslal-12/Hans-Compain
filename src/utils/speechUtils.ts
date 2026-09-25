@@ -180,8 +180,22 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       return;
     }
 
+    try {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    } catch (e) {}
+
     const allVoices = window.speechSynthesis.getVoices();
     const voices = allVoices.length > 0 ? allVoices : cachedVoices;
+
+    // If text has Hindi/Devanagari characters and no Hindi TTS voice exists in browser, immediately use HD Audio TTS
+    const isTextHindi = isHindiText(cleanText);
+    const hasHindiVoice = voices.some(v => v.lang.toLowerCase().startsWith('hi') || v.name.toLowerCase().includes('hindi'));
+    if (isTextHindi && !hasHindiVoice && voices.length > 0) {
+      playAudioTTS();
+      return;
+    }
 
     const speakWebChunk = () => {
       // Abort if session was stopped/superseded
@@ -256,13 +270,12 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
       
       const watchdogTimeout = setTimeout(() => {
         if (hasEnded || sessionId !== currentSpeechSessionId) return;
-        console.warn("SpeechSynthesis got stuck before starting or during playback, forcing server-side HD Audio TTS");
         hasEnded = true;
         try {
           window.speechSynthesis.cancel();
         } catch (e) {}
         playAudioTTS();
-      }, 2200); // 2.2s threshold to start or speak a small chunk
+      }, 1400); // 1.4s threshold to start or speak a small chunk
 
       utterance.onstart = () => {
         clearTimeout(watchdogTimeout);
@@ -320,6 +333,12 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
 
   // 2. Server-side /api/tts Audio Streamer Fallback (Multi-lingual)
   const playAudioTTS = () => {
+    // Reuse existing audio player or instantiate one so user-gesture permissions carry over
+    if (!currentAudioPlayer) {
+      currentAudioPlayer = new Audio();
+    }
+    const audio = currentAudioPlayer;
+
     const playNextChunk = () => {
       if (sessionId !== currentSpeechSessionId) return;
 
@@ -333,8 +352,7 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
 
       const audioUrl = `/api/tts?text=${encodeURIComponent(chunk)}&lang=${chunkLang}&gender=${targetGender}`;
 
-      const audio = new Audio(audioUrl);
-      currentAudioPlayer = audio;
+      audio.src = audioUrl;
       audio.playbackRate = activeRate;
 
       audio.onended = () => {
@@ -353,7 +371,8 @@ export const speakText = (text: string, rawOptions: SpeechOptions | string = {})
         }
       };
 
-      audio.play().catch(() => {
+      audio.play().catch((err) => {
+        console.warn("Audio playback issue:", err);
         if (sessionId !== currentSpeechSessionId) return;
         currentChunkIdx++;
         if (currentChunkIdx < chunks.length) {

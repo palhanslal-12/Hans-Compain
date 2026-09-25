@@ -16,6 +16,16 @@ interface CurrentAffairsHubViewProps {
   onOpenLogin?: () => void;
 }
 
+export interface EditorialVocabItem {
+  word: string;
+  hindiMeaning: string;
+  partOfSpeech: string;
+  definition: string;
+  synonyms: string[];
+  antonyms: string[];
+  exampleSentence: string;
+}
+
 export interface DetailedArticleItem {
   id: string;
   category: 'National' | 'International' | 'Economy & Banking' | 'Science & Tech' | 'Sports' | 'State Affairs' | 'Schemes & Governance';
@@ -30,6 +40,9 @@ export interface DetailedArticleItem {
   keyFact: string;
   tag: string;
   
+  // Editorial Vocabulary & Anto-Syno Items
+  vocabItems?: EditorialVocabItem[];
+
   // Detailed Deep-Dive Article Sections
   backgroundHi: string;
   backgroundEn: string;
@@ -67,6 +80,37 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'UPSC CSE (GS-3 Science & Tech), SSC CGL Mains, BPSC, Railway RRB',
     keyFact: 'भारत सेमीकंडक्टर मिशन (ISM 2.0) का कुल वित्तीय परिव्यय ₹76,000 करोड़ से अधिक है।',
     tag: 'Technology & Economy',
+    imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+
+    vocabItems: [
+      {
+        word: 'Fabrication',
+        hindiMeaning: 'विनिर्माण / उत्पादन संरचना',
+        partOfSpeech: 'Noun',
+        definition: 'The action or process of manufacturing semiconductor microchips and hardware.',
+        synonyms: ['Manufacturing', 'Assembly', 'Production', 'Construction'],
+        antonyms: ['Demolition', 'Dismantling', 'Destruction'],
+        exampleSentence: 'Indigenous semiconductor fabrication hubs guarantee critical hardware supply chain stability.'
+      },
+      {
+        word: 'Autonomy',
+        hindiMeaning: 'स्वायत्तता / पूर्ण आत्मनिर्भरता',
+        partOfSpeech: 'Noun',
+        definition: 'Freedom from external control or influence; independence.',
+        synonyms: ['Sovereignty', 'Self-reliance', 'Independence', 'Self-rule'],
+        antonyms: ['Dependence', 'Subordination', 'Subjugation'],
+        exampleSentence: 'Achieving technology autonomy shields the country from geopolitical disruptions.'
+      },
+      {
+        word: 'Pari-Passu',
+        hindiMeaning: 'समान स्तर पर / बराबरी से',
+        partOfSpeech: 'Adverb / Adj',
+        definition: 'Side by side; at an equal pace or on an equal footing without bias.',
+        synonyms: ['Equally', 'Concurrently', 'Proportionately'],
+        antonyms: ['Disproportionately', 'Unequally', 'Disparately'],
+        exampleSentence: 'The Union Government releases 50% capital subsidies on a pari-passu basis with states.'
+      }
+    ],
 
     backgroundHi: 'वैश्विक चिप संकट और आपूर्ति श्रृंखला की बाधाओं को देखते हुए भारत ने 2021 में इंडिया सेमीकंडक्टर मिशन (ISM) शुरू किया था। अब 6G तकनीक और AI चिप्स की बढ़ती मांग के साथ भारत ने गुजरात (धोलेरा) और असम (मोरीगांव) में बड़े पैमाने पर फैब और OSAT संयंत्र स्थापित करने का काम तेज किया है।',
     backgroundEn: 'In response to global supply disruptions, India launched the ISM in 2021. Now, driven by 6G architecture and generative AI demands, India has accelerated commercial-scale chip foundries in Dholera (Gujarat) and Morigaon (Assam).',
@@ -122,6 +166,37 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'UPSC CSE (GS-3 Science & Tech), CDS, NDA, SSC CGL, State PSCs',
     keyFact: 'शुक्र को "पृथ्वी की जुड़वां बहन" (Earth\'s Twin) कहा जाता है क्योंकि इसका आकार व द्रव्यमान लगभग पृथ्वी के समान है।',
     tag: 'Space Exploration',
+    imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
+
+    vocabItems: [
+      {
+        word: 'Retrograde',
+        hindiMeaning: 'विपरीत गति / पश्चगामी (दक्षिणावर्त)',
+        partOfSpeech: 'Adjective',
+        definition: 'Moving in the direction contrary to normal planetary spin; clockwise from East to West.',
+        synonyms: ['Inverse', 'Reverse', 'Backward', 'Counter'],
+        antonyms: ['Direct', 'Forward', 'Prograde', 'Progressive'],
+        exampleSentence: 'Venus exhibits retrograde rotation, spinning in the opposite direction to most planets.'
+      },
+      {
+        word: 'Biosignature',
+        hindiMeaning: 'जैव-हस्ताक्षर / जैविक जीवन का संकेत',
+        partOfSpeech: 'Noun',
+        definition: 'Any scientific feature or molecule that provides evidence of past or present life.',
+        synonyms: ['Biomarker', 'Life indicator', 'Biological signal'],
+        antonyms: ['Abiotic trace', 'Inorganic relic'],
+        exampleSentence: 'Phosphine gas in the cloud layers was probed as a potential atmospheric biosignature.'
+      },
+      {
+        word: 'Penetrate',
+        hindiMeaning: 'भेदना / आर-पार देखना',
+        partOfSpeech: 'Verb',
+        definition: 'To pierce or force a way through dense obstacle layers.',
+        synonyms: ['Pierce', 'Puncture', 'Infiltrate', 'Permeate'],
+        antonyms: ['Deflect', 'Reflect', 'Repel'],
+        exampleSentence: 'Synthetic Aperture Radar can penetrate opaque sulfuric acid cloud decks to image terrain.'
+      }
+    ],
 
     backgroundHi: 'शुक्र ग्रह का वायुमंडल अत्यधिक घना और 96% कार्बन डाइऑक्साइड ($CO_2$) से युक्त है, जहाँ सतह का तापमान 465°C तक रहता है। यह अत्यधिक ग्रीनहाउस प्रभाव (Runaway Greenhouse Effect) का सबसे बड़ा उदाहरण है। इसरो का यह मिशन शुक्र की सतह के नीचे ज्वालामुखी गतिविधि और बादलों में सल्फ्यूरिक एसिड का अध्ययन करेगा।',
     backgroundEn: 'Venus has an extreme runaway greenhouse atmosphere with 96% CO2 and surface temperatures near 465°C. ISRO’s orbiter will pierce the thick sulfuric acid cloud layers to map subterranean volcanic geology and atmospheric chemistry.',
@@ -185,6 +260,37 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'RBI Grade B, IBPS PO, SBI PO, UPSC GS-3 Economy, SSC CGL',
     keyFact: 'CBDC एक सॉवरेन डिजिटल मुद्रा है, जो RBI की देनदारी (Liability) होती है और लीगल टेंडर है।',
     tag: 'Banking & Digital Currency',
+    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80',
+
+    vocabItems: [
+      {
+        word: 'Interoperability',
+        hindiMeaning: 'पारस्परिक संचालन क्षमता / अंतर-संचालनीयता',
+        partOfSpeech: 'Noun',
+        definition: 'The ability of different computer systems, devices or software to exchange and make use of information.',
+        synonyms: ['Compatibility', 'Integration', 'Interchangeability'],
+        antonyms: ['Incompatibility', 'Isolation', 'Segregation'],
+        exampleSentence: 'Interoperability between QR codes and CBDC wallets simplifies retail payments.'
+      },
+      {
+        word: 'Legal Tender',
+        hindiMeaning: 'कानूनी निविदा / वैध मुद्रा',
+        partOfSpeech: 'Noun',
+        definition: 'Currency declared by law to be legally valid for settlement of all public or private debts.',
+        synonyms: ['Lawful currency', 'Fiat money', 'Official coin of the realm'],
+        antonyms: ['Counterfeit', 'Unbacked credit', 'Illegitimate scrip'],
+        exampleSentence: 'Unlike speculative cryptocurrencies, CBDC possesses statutory status as sovereign legal tender.'
+      },
+      {
+        word: 'Fungibility',
+        hindiMeaning: 'विनिमेयता / समरूपता',
+        partOfSpeech: 'Noun',
+        definition: 'The property of a good or a commodity whose individual units are capable of mutual substitution.',
+        synonyms: ['Equivalence', 'Interchangeability', 'Substitutability'],
+        antonyms: ['Non-fungibility', 'Uniqueness', 'Distinctiveness'],
+        exampleSentence: 'Digital Rupee maintains total fungibility with conventional physical currency notes.'
+      }
+    ],
 
     backgroundHi: 'आरबीआई ने दिसंबर 2022 में खुदरा डिजिटल रुपया (e₹-R) का पायलट प्रोजेक्ट शुरू किया था। भारत के पहाड़ी, जनजातीय और दूरदराज के क्षेत्रों में इंटरनेट कनेक्टिविटी सीमित होने के कारण ऑफलाइन समाधान की आवश्यकता महसूस की गई।',
     backgroundEn: 'RBI commenced the retail e-Rupee pilot in December 2022. To bridge financial exclusion in remote terrains lacking continuous telecom cellular data, offline cryptographic settlement protocols were created.',
@@ -248,6 +354,7 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'SSC GD, UP Police, Railway NTPC, State SI, BPSC',
     keyFact: 'राष्ट्रीय खेल दिवस हर वर्ष 29 अगस्त को हॉकी के जादूगर मेजर ध्यानचंद की जयंती पर मनाया जाता है।',
     tag: 'Sports & Honors',
+    imageUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80',
 
     backgroundHi: 'टोक्यो और पेरिस ओलंपिक के बाद भारत ने फील्ड एथलेटिक्स में अपनी वैश्विक धाक जमाई है। 90 मीटर के प्रतिष्ठित क्लब में प्रवेश करने वाले भारत के पहले एथलीट बनकर नया राष्ट्रीय कीर्तिमान स्थापित किया गया।',
     backgroundEn: 'Following podium finishes at Tokyo and Paris Olympics, Indian track-and-field athletes cemented global supremacy, crossing the prestigious 90m barrier.',
@@ -301,6 +408,7 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'UPSC CSE (GS-2 International Relations & GS-3 Environment), State PSCs, CDS',
     keyFact: 'ISA का वैश्विक मुख्यालय राष्ट्रीय सौर ऊर्जा संस्थान (NISE), गुरुग्राम, हरियाणा (भारत) में स्थित है।',
     tag: 'International Treaties & Climate',
+    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
 
     backgroundHi: 'कर्क रेखा (Tropic of Cancer) और मकर रेखा (Tropic of Capricorn) के बीच स्थित धूप संपन्न देशों (Suryaputras) को स्वच्छ ऊर्जा समाधान प्रदान करने के लिए प्रधानमंत्री नरेंद्र मोदी और फ्रांस के राष्ट्रपति द्वारा इसकी नींव रखी गई थी।',
     backgroundEn: 'Founded jointly by India and France to pool technological and financial resources across sunshine-rich nations situated between the Tropics of Cancer and Capricorn.',
@@ -354,6 +462,7 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'UPSC CSE (GS-2 Schemes & GS-3 Energy), SSC CGL, BPSC, UPPSC',
     keyFact: 'योजना के तहत 1 kW सिस्टम पर ₹30,000, 2 kW पर ₹60,000 और 3 kW या अधिक पर ₹78,000 की सीधी सब्सिडी दी जाती है।',
     tag: 'Government Schemes',
+    imageUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80',
 
     backgroundHi: 'पारंपरिक ग्रिड बिजली पर कोयला आधारित निर्भरता को कम करने और गरीब व मध्यम वर्गीय परिवारों के बिजली बिल को शून्य करने के उद्देश्य से फरवरी 2024 में ₹75,000 करोड़ के परिव्यय के साथ यह योजना शुरू की गई थी।',
     backgroundEn: 'Launched with an outlay of ₹75,000 crore to eliminate household electricity bills, reduce thermal coal stress, and accelerate domestic manufacturing of solar PV modules.',
@@ -407,6 +516,7 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'UPSC CSE (GS-3 Space Technology), SSC CGL, NDA/CDS, State PSCs, Railway Exams',
     keyFact: 'सूर्य-पृथ्वी प्रणाली में कुल 5 लैग्रेंज बिंदु (L1 से L5) हैं, जहाँ गुरुत्वाकर्षण और सेंट्रीफ्यूगल बल संतुलित होते हैं।',
     tag: 'Space & Solar Science',
+    imageUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80',
 
     backgroundHi: 'आदित्य-L1 को पीएसएलवी-C57 (PSLV-C57) रॉकेट द्वारा 2 सितंबर 2023 को प्रक्षेपित किया गया था। यह पृथ्वी से लगभग 15 लाख किलोमीटर दूर L1 बिंदु पर स्थित है। इस बिंदु का मुख्य लाभ यह है कि यहाँ से बिना किसी ग्रहण या बाधा के सूर्य पर लगातार चौबीसों घंटे नजर रखी जा सकती है।',
     backgroundEn: 'Launched on September 2, 2023, aboard the PSLV-C57 workhorse, Aditya-L1 was inserted into a periodic halo orbit around Lagrange Point 1 (L1). Stationing at L1 grants an uninterrupted, continuous view of the solar disc without any planetary occultation or eclipses.',
@@ -460,6 +570,7 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'UPSC CSE (GS-3 Indian Economy), RBI Grade B, SBI PO, IBPS, SSC CGL',
     keyFact: 'e-RUPI एक उद्देश्य-विशिष्ट (Purpose-Specific) डिजिटल कूपन है, जबकि CBDC एक पूर्ण सॉवरेन कानूनी निविदा (Legal Tender) है।',
     tag: 'Financial Technology',
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
 
     backgroundHi: 'e-RUPI को अगस्त 2021 में राष्ट्रीय भुगतान निगम (NPCI) द्वारा वित्तीय सेवाओं के रिसाव-मुक्त (Leakage-proof) वितरण के लिए लॉन्च किया गया था। दूसरी ओर, RBI ने 2022 में डिजिटल रुपया (Central Bank Digital Currency) लॉन्च किया, जो भौतिक मुद्रा का डिजिटल प्रतिरूप है।',
     backgroundEn: 'Developed by NPCI, e-RUPI was launched in August 2021 as a cashless, contactless, target-oriented voucher system. In contrast, RBI’s retail Central Bank Digital Currency (e₹-R) represents the digital form of paper notes, acting as direct fiat currency.',
@@ -523,6 +634,7 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     examRelevance: 'UPSC CSE (GS-3 Space & Tech), Defense Services CDS/NDA, SSC CGL Mains, State SI',
     keyFact: 'गगनयान भारत का पहला मानवयुक्त अंतरिक्ष मिशन है। चंद्रयान-4 का लक्ष्य चंद्रमा की सतह से 2-3 किलोग्राम मिट्टी वापस पृथ्वी पर सुरक्षित लाना है।',
     tag: 'Space Exploration Technology',
+    imageUrl: 'https://images.unsplash.com/photo-1517976487507-5b3b11329a43?auto=format&fit=crop&w=800&q=80',
 
     backgroundHi: 'चंद्रयान-3 की ऐतिहासिक सफलता (चंद्रमा के दक्षिणी ध्रुव पर सॉफ्ट लैंडिंग) के बाद भारत अब अंतरिक्ष अन्वेषण के अगले चरण में है। भारत ने 2035 तक अपना खुद का "भारतीय अंतरिक्ष स्टेशन" (BAS) स्थापित करने और 2040 तक चंद्रमा पर भारतीय अंतरिक्ष यात्री को उतारने का लक्ष्य रखा है।',
     backgroundEn: 'Building on the historic soft-landing success of Chandrayaan-3, ISRO is executing a progressive deep space roadmap, which targets establishing the Bharatiya Antariksha Station (BAS) by 2035 and putting an Indian on the moon by 2040.',
@@ -566,6 +678,365 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   }
 ];
 
+export const getArticleVocab = (article: DetailedArticleItem): EditorialVocabItem[] => {
+  if (article.vocabItems && article.vocabItems.length > 0) {
+    return article.vocabItems;
+  }
+  switch (article.category) {
+    case 'Science & Tech':
+      return [
+        {
+          word: 'Trajectory',
+          hindiMeaning: 'प्रक्षेपवक्र / गति मार्ग',
+          partOfSpeech: 'Noun',
+          definition: 'The curved path followed by a projectile or spacecraft under gravitational forces.',
+          synonyms: ['Orbit', 'Flight path', 'Course', 'Vector'],
+          antonyms: ['Stationary point', 'Deviation'],
+          exampleSentence: 'Spacecraft flight trajectories require continuous real-time telemetry calibration.'
+        },
+        {
+          word: 'Orbital Insertion',
+          hindiMeaning: 'कक्षीय प्रविष्टि',
+          partOfSpeech: 'Noun',
+          definition: 'The aerospace operation of adjusting spacecraft velocity to place it into stable planetary orbit.',
+          synonyms: ['Orbital capture', 'Atmospheric rendezvous'],
+          antonyms: ['Escape trajectory', 'Re-entry burn'],
+          exampleSentence: 'ISRO achieved flawless orbital insertion into the Venusian gravitational sphere.'
+        },
+        {
+          word: 'Parametric',
+          hindiMeaning: 'प्राचलिक / चर मानकों से संबंधित',
+          partOfSpeech: 'Adjective',
+          definition: 'Relating to or expressed in terms of a parameter or mathematical variable.',
+          synonyms: ['Calibrated', 'Quantitative', 'Measured'],
+          antonyms: ['Non-parametric', 'Qualitative', 'Arbitrary'],
+          exampleSentence: 'Radar spectrometers mapped parametric elevation profiles across the volcanic plains.'
+        }
+      ];
+    case 'Economy & Banking':
+      return [
+        {
+          word: 'Disinflation',
+          hindiMeaning: 'मुद्रास्फीति में कमी / महंगाई दर का घटना',
+          partOfSpeech: 'Noun',
+          definition: 'A reduction in the rate of inflation, where prices are still rising but at a slower pace.',
+          synonyms: ['Price stabilization', 'Inflation deceleration', 'Easing'],
+          antonyms: ['Hyperinflation', 'Price escalation', 'Surge'],
+          exampleSentence: 'Prudent monetary tightening by the central bank fostered gradual disinflation.'
+        },
+        {
+          word: 'Fiscal Deficit',
+          hindiMeaning: 'राजकोषीय घाटा',
+          partOfSpeech: 'Noun',
+          definition: 'The shortfall in a government income compared with its spending in a financial year.',
+          synonyms: ['Budgetary shortfall', 'Public borrowing requirement'],
+          antonyms: ['Fiscal surplus', 'Revenue windfall'],
+          exampleSentence: 'Targeting a fiscal deficit glidepath below 4.5% reinforces sovereign creditworthiness.'
+        },
+        {
+          word: 'Remittance',
+          hindiMeaning: 'प्रेषण / प्रेषित धन',
+          partOfSpeech: 'Noun',
+          definition: 'A sum of money sent in payment or as a gift, especially by expatriate workers back home.',
+          synonyms: ['Transfer', 'Repatriation', 'Inward credit'],
+          antonyms: ['Capital outflow', 'Drain', 'Withholding'],
+          exampleSentence: 'India continues to rank as the largest recipient of inward global diaspora remittances.'
+        }
+      ];
+    case 'Sports':
+      return [
+        {
+          word: 'Endurance',
+          hindiMeaning: 'सहनशक्ति / अटूट क्षमता',
+          partOfSpeech: 'Noun',
+          definition: 'The ability to withstand an arduous process or hardship without giving way.',
+          synonyms: ['Stamina', 'Fortitude', 'Perseverance', 'Tenacity'],
+          antonyms: ['Frailty', 'Lethargy', 'Weakness', 'Fatigue'],
+          exampleSentence: 'Elite track events demand superior cardiovascular endurance and mental resilience.'
+        },
+        {
+          word: 'Podium Finish',
+          hindiMeaning: 'शीर्ष तीन पदक विजेताओं में स्थान',
+          partOfSpeech: 'Noun',
+          definition: 'Achieving first, second or third place in a premier athletic championship.',
+          synonyms: ['Medal contention', 'Top-tier rank', 'Championship placement'],
+          antonyms: ['Elimination', 'Disqualification'],
+          exampleSentence: 'Rigorous high-altitude training yielded a memorable podium finish for the Indian contingent.'
+        },
+        {
+          word: 'Disqualification',
+          hindiMeaning: 'अयोग्यता / निष्कासन',
+          partOfSpeech: 'Noun',
+          definition: 'The act of stopping someone from taking part in a competition because they broke rules.',
+          synonyms: ['Debarment', 'Exclusion', 'Suspension'],
+          antonyms: ['Qualification', 'Eligibility', 'Sanction'],
+          exampleSentence: 'Athletes must strictly follow false start protocols to avoid instant disqualification.'
+        }
+      ];
+    case 'International':
+      return [
+        {
+          word: 'Multilateralism',
+          hindiMeaning: 'बहुपक्षवाद / संयुक्त वैश्विक सहयोग',
+          partOfSpeech: 'Noun',
+          definition: 'Alliance of multiple countries pursuing a common goal and respecting international law.',
+          synonyms: ['Global collaboration', 'Internationalism', 'Coalition'],
+          antonyms: ['Unilateralism', 'Isolationism', 'Bilateral exclusivity'],
+          exampleSentence: 'The Global South advocates reformed multilateralism in the UN Security Council.'
+        },
+        {
+          word: 'Sovereignty',
+          hindiMeaning: 'संप्रभुता / सर्वोच्च सत्ता',
+          partOfSpeech: 'Noun',
+          definition: 'Supreme power or authority of a state over its territory and governance free from external control.',
+          synonyms: ['Autonomy', 'Self-determination', 'Supreme rule'],
+          antonyms: ['Colonialism', 'Subjugation', 'Vassalage'],
+          exampleSentence: 'Peaceful border accords respect territorial integrity and mutual sovereign rights.'
+        },
+        {
+          word: 'Consensus',
+          hindiMeaning: 'सर्वसम्मति / आम सहमति',
+          partOfSpeech: 'Noun',
+          definition: 'General agreement arrived at by all participating stakeholder nations.',
+          synonyms: ['Unanimity', 'Accord', 'Concurrence', 'Harmonization'],
+          antonyms: ['Discord', 'Dissent', 'Disagreement', 'Veto'],
+          exampleSentence: 'The summit declaration was finalized after achieving unanimous cross-bloc consensus.'
+        }
+      ];
+    default:
+      return [
+        {
+          word: 'Prerequisite',
+          hindiMeaning: 'अनिवार्य पूर्व-शर्त / पूर्वापेक्षा',
+          partOfSpeech: 'Noun / Adjective',
+          definition: 'A thing that is required as a prior condition for something else to happen or exist.',
+          synonyms: ['Precondition', 'Requirement', 'Imperative', 'Sine qua non'],
+          antonyms: ['Optional add-on', 'Superfluity', 'Inessential'],
+          exampleSentence: 'Institutional transparency is a vital prerequisite for good democratic governance.'
+        },
+        {
+          word: 'Empowerment',
+          hindiMeaning: 'सशक्तिकरण / सामर्थ्य वृद्धि',
+          partOfSpeech: 'Noun',
+          definition: 'The process of becoming stronger and more confident, especially in controlling one life and rights.',
+          synonyms: ['Enfranchisement', 'Elevation', 'Strengthening', 'Capacity-building'],
+          antonyms: ['Marginalization', 'Disenfranchisement', 'Suppression'],
+          exampleSentence: 'Digital literacy initiatives foster socio-economic empowerment across rural youth.'
+        },
+        {
+          word: 'Sustainable',
+          hindiMeaning: 'सतत / पर्यावरण-अनुकूल टिकाऊ',
+          partOfSpeech: 'Adjective',
+          definition: 'Able to be maintained at a certain rate or level without depleting natural resources.',
+          synonyms: ['Viable', 'Renewable', 'Enduring', 'Eco-friendly'],
+          antonyms: ['Unsustainable', 'Depleting', 'Short-lived', 'Wasteful'],
+          exampleSentence: 'Clean energy transition ensures long-term sustainable growth for coming generations.'
+        }
+      ];
+  }
+};
+
+interface ShareArticleModalProps {
+  article: DetailedArticleItem;
+  isOpen: boolean;
+  onClose: () => void;
+  language: string;
+  showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
+}
+
+const ShareArticleModal: React.FC<ShareArticleModalProps> = ({
+  article,
+  isOpen,
+  onClose,
+  language,
+  showToast
+}) => {
+  const isHi = language === 'hindi';
+  if (!isOpen || !article) return null;
+
+  const shareTitle = isHi ? (article.titleHi || article.titleEn || '') : (article.titleEn || article.titleHi || '');
+  const shareSummary = isHi ? (article.summaryHi || article.summaryEn || '').slice(0, 160) : (article.summaryEn || article.summaryHi || '').slice(0, 160);
+  const shareUrl = `${window.location.origin}${window.location.pathname}?tab=current-affairs&article=${article.id || ''}`;
+  
+  const formattedShareMessage = `📰 *${shareTitle}*\n\n📌 *मुख्य सारांश:* ${shareSummary}...\n\n🎯 *परीक्षा उपयोगिता:* ${article.examRelevance}\n\n📖 पूरा संपादकीय, शब्दावली (Antonyms/Synonyms) व अभ्यास MCQs पढ़ने के लिए नीचे लिंक पर क्लिक करें:\n👉 ${shareUrl}`;
+
+  const handleWhatsAppShare = () => {
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedShareMessage)}`;
+    window.open(waUrl, '_blank');
+    showToast(isHi ? "WhatsApp शेयरिंग विंडो खुल रही है..." : "Opening WhatsApp...", "success");
+  };
+
+  const handleTelegramShare = () => {
+    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(formattedShareMessage)}`;
+    window.open(tgUrl, '_blank');
+    showToast(isHi ? "Telegram शेयरिंग विंडो खुल रही है..." : "Opening Telegram...", "success");
+  };
+
+  const handleInstagramShare = () => {
+    const igCaption = `📰 ${shareTitle}\n\n${shareSummary}...\n\n🎯 Focus: ${article.examRelevance}\n\n🔗 Read Full Editorial at: ${shareUrl}\n\n#HansCompain #CurrentAffairs2026 #UPSC #SSCCGL #PIB #TheHindu`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(igCaption);
+    }
+    showToast(
+      isHi 
+        ? "✓ इंस्टाग्राम कैप्शन व लिंक कॉपी हो गया! अब Instagram खोलकर अपनी स्टोरी या चैट में पेस्ट करें।" 
+        : "✓ Instagram caption & link copied! Paste into your Story or DM.", 
+      "success"
+    );
+  };
+
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: `${shareTitle} - ${shareSummary}`,
+          url: shareUrl
+        });
+        showToast(isHi ? "आर्टिकल शेयर किया गया!" : "Article shared!", "success");
+      } catch (err) {}
+    } else {
+      handleCopyLink();
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrl);
+      showToast(isHi ? "✓ डायरेक्ट लिंक कॉपी हो गया!" : "✓ Direct link copied to clipboard!", "success");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in text-left">
+      <div className="bg-[#0b1120] border border-cyan-500/40 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl text-slate-100">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+              <Share2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-black text-white text-base">
+                {isHi ? 'संपादकीय लेख शेयर करें' : 'Share Editorial Article'}
+              </h3>
+              <p className="text-xs text-slate-400">
+                {isHi ? 'मित्रों, ग्रुप्स और सोशल मीडिया पर साझा करें' : 'Share direct deep-link with study groups'}
+              </p>
+            </div>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Article Preview Card */}
+        <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-2xl flex items-center gap-3">
+          {article.imageUrl ? (
+            <img src={article.imageUrl} alt={article.titleEn} className="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
+          ) : (
+            <div className="w-14 h-14 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl shrink-0">
+              📰
+            </div>
+          )}
+          <div className="min-w-0 space-y-0.5">
+            <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">
+              {article.category}
+            </span>
+            <h4 className="text-xs font-bold text-white line-clamp-2">
+              {shareTitle}
+            </h4>
+          </div>
+        </div>
+
+        {/* Share Action Buttons */}
+        <div className="space-y-2.5">
+          {/* WhatsApp */}
+          <button
+            onClick={handleWhatsAppShare}
+            className="w-full p-3 bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 text-[#25D366] rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">💬</span>
+              <span>{isHi ? 'WhatsApp पर शेयर करें' : 'Share on WhatsApp'}</span>
+            </div>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+
+          {/* Telegram */}
+          <button
+            onClick={handleTelegramShare}
+            className="w-full p-3 bg-[#229ED9]/15 hover:bg-[#229ED9]/25 border border-[#229ED9]/40 text-[#229ED9] rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">✈️</span>
+              <span>{isHi ? 'Telegram पर शेयर करें' : 'Share on Telegram'}</span>
+            </div>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+
+          {/* Instagram */}
+          <button
+            onClick={handleInstagramShare}
+            className="w-full p-3 bg-gradient-to-r from-purple-500/15 via-pink-500/15 to-orange-500/15 hover:from-purple-500/25 hover:to-orange-500/25 border border-pink-500/40 text-pink-300 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">📸</span>
+              <span>{isHi ? 'Instagram स्टोरी / DM हेतु कॉपी करें' : 'Copy for Instagram Story / DM'}</span>
+            </div>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+
+          {/* Native Web Share if available */}
+          {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
+            <button
+              onClick={handleNativeShare}
+              className="w-full p-3 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg">📱</span>
+                <span>{isHi ? 'डिवाइस शेयर शीट खोलें' : 'Open Device Share Sheet'}</span>
+              </div>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
+        </div>
+
+        {/* Direct Link Copy Input */}
+        <div className="space-y-1.5 pt-1">
+          <label className="text-[11px] font-bold text-slate-400 block">
+            {isHi ? 'डायरेक्ट आर्टिकल वेब लिंक:' : 'Direct Article Web Link:'}
+          </label>
+          <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2">
+            <input 
+              type="text" 
+              readOnly 
+              value={shareUrl} 
+              className="bg-transparent border-none outline-none text-xs text-slate-300 flex-1 font-mono truncate select-all" 
+            />
+            <button
+              onClick={handleCopyLink}
+              className="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-lg text-xs font-black transition-all cursor-pointer shrink-0"
+            >
+              {isHi ? 'कॉपी करें' : 'Copy'}
+            </button>
+          </div>
+          <p className="text-[10px] text-slate-500">
+            {isHi 
+              ? '💡 जिसे आप यह लिंक भेजेंगे, वह 4-5 पंक्तियाँ सारांश पढ़ने के बाद पूरे विश्लेषण के लिए लॉगिन कर सकेगा।' 
+              : '💡 Recipients can read the introductory summary, then log in for full dimensions & vocab analysis.'}
+          </p>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
 interface ArticleDetailModalProps {
   article: DetailedArticleItem;
   isHindi: boolean;
@@ -594,7 +1065,151 @@ interface ArticleDetailModalProps {
   handleToggleVoiceDoubt: () => void;
   isListeningDoubtVoice: boolean;
   doubtEndRef: React.RefObject<HTMLDivElement | null>;
+  onShareArticle: (article: DetailedArticleItem) => void;
 }
+
+const WordDetectiveBox: React.FC<{ isHindi: boolean; pibMode: boolean; showToast: any }> = ({ isHindi, pibMode, showToast }) => {
+  const [queryWord, setQueryWord] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [wordResult, setWordResult] = useState<EditorialVocabItem | null>(null);
+
+  const handleLookup = async (wordToSearch?: string) => {
+    const term = (wordToSearch || queryWord).trim();
+    if (!term) return;
+    setIsLoading(true);
+    setWordResult(null);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Perform rigorous competitive exam vocabulary analysis for the word: "${term}".
+Provide the response strictly in JSON:
+{
+  "word": "${term}",
+  "hindiMeaning": "सटीक हिन्दी अर्थ व संदर्भ",
+  "partOfSpeech": "Noun / Verb / Adjective / Adverb",
+  "definition": "Concise high-yield English definition",
+  "synonyms": ["Synonym 1", "Synonym 2", "Synonym 3"],
+  "antonyms": ["Antonym 1", "Antonym 2", "Antonym 3"],
+  "exampleSentence": "Exam-grade standard sentence using this word."
+}`,
+          systemInstruction: 'You are a master English & Hindi vocabulary tutor for competitive exams (UPSC, SSC, Banking).'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const jsonMatch = data.reply.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          setWordResult(parsed);
+          showToast(isHindi ? `✓ "${term}" का विश्लेषण प्राप्त हुआ!` : `✓ Vocabulary analysis ready for "${term}"!`, "success");
+          return;
+        }
+      }
+      throw new Error("Failed");
+    } catch (e) {
+      showToast(isHindi ? "शब्दावली खोजने में असमर्थ। पुनः प्रयास करें।" : "Could not analyze word. Please retry.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className={`p-4 sm:p-5 rounded-2xl border space-y-3.5 shadow-md ${
+      pibMode ? 'bg-[#f7f5ef] border-slate-300' : 'bg-slate-900/90 border-slate-800'
+    }`}>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black text-indigo-400 flex items-center gap-1.5 uppercase tracking-wider">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>{isHindi ? 'AI वर्ड डिटेक्टर व वोकैबुलरी खोज (Anto-Syno Explorer)' : 'AI Word Detective & Anto-Syno Explorer'}</span>
+        </span>
+        <span className="text-[10px] text-slate-400">
+          {isHindi ? 'आर्टिकल का कोई भी शब्द लिखें' : 'Lookup any word from article'}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={queryWord}
+          onChange={(e) => setQueryWord(e.target.value)}
+          placeholder={isHindi ? "उदा. Autonomous, Sovereign, Disinflation..." : "e.g. Sovereign, Interoperability..."}
+          className={`flex-1 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border outline-none font-medium transition-colors ${
+            pibMode 
+              ? 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-indigo-600' 
+              : 'bg-slate-950 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400'
+          }`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleLookup();
+            }
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => handleLookup()}
+          disabled={!queryWord.trim() || isLoading}
+          className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 disabled:opacity-50 text-white text-xs font-black rounded-xl transition-all cursor-pointer shadow-md shrink-0 border-none"
+        >
+          {isLoading ? (isHindi ? 'विश्लेषण...' : 'Analyzing...') : (isHindi ? '🔍 अर्थ व Anto-Syno' : '🔍 Lookup')}
+        </button>
+      </div>
+
+      {wordResult && (
+        <div className={`p-4 rounded-xl border space-y-2.5 animate-fade-in ${
+          pibMode ? 'bg-white border-indigo-200 text-slate-800 shadow-sm' : 'bg-slate-950 border-indigo-500/40 text-slate-100 shadow-inner'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-black text-sm text-cyan-400">{wordResult.word}</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold">
+                {wordResult.partOfSpeech}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => speakText(wordResult.word, { lang: 'en-IN' })}
+              className="p-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 cursor-pointer"
+              title="Pronounce word"
+            >
+              <Volume2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="text-xs sm:text-sm">
+            <strong className="text-amber-400">{isHindi ? 'सटीक अर्थ: ' : 'Meaning: '}</strong>
+            <span className="font-semibold">{wordResult.hindiMeaning}</span>
+          </div>
+
+          <div className="text-xs text-slate-400">
+            <strong>Definition: </strong>{wordResult.definition}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
+            <div className="p-2.5 bg-emerald-950/30 border border-emerald-500/30 rounded-lg">
+              <strong className="text-emerald-400 block mb-1">Synonyms (समानार्थी):</strong>
+              <span className="text-slate-300">{wordResult.synonyms.join(', ')}</span>
+            </div>
+            <div className="p-2.5 bg-rose-950/30 border border-rose-500/30 rounded-lg">
+              <strong className="text-rose-400 block mb-1">Antonyms (विलोम):</strong>
+              <span className="text-slate-300">{wordResult.antonyms.join(', ')}</span>
+            </div>
+          </div>
+
+          {wordResult.exampleSentence && (
+            <div className="text-xs italic text-slate-400 border-t border-slate-800 pt-2">
+              <strong>Example: </strong>"{wordResult.exampleSentence}"
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
   article,
@@ -623,7 +1238,8 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
   handleSendArticleDoubt,
   handleToggleVoiceDoubt,
   isListeningDoubtVoice,
-  doubtEndRef
+  doubtEndRef,
+  onShareArticle
 }) => {
   const [selectedMcqAnswer, setSelectedMcqAnswer] = useState<number | null>(null);
   const [showMcqExplanation, setShowMcqExplanation] = useState<boolean>(false);
@@ -788,6 +1404,20 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
               <Bookmark className={`w-4 h-4 ${bookmarkedIds.includes(article.id) ? 'fill-cyan-500 text-cyan-500' : ''}`} />
             </button>
 
+            {/* Share Article (WhatsApp, Instagram, Telegram) */}
+            <button
+              onClick={() => onShareArticle(article)}
+              className={`px-3 py-1.5 border rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                pibMode 
+                  ? 'bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900 shadow-sm' 
+                  : 'bg-cyan-500/15 hover:bg-cyan-500/25 border-cyan-500/40 text-cyan-300'
+              }`}
+              title={isHindi ? 'WhatsApp, Instagram, Telegram पर शेयर करें' : 'Share on WhatsApp, Instagram, Telegram'}
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>{isHindi ? 'शेयर करें' : 'Share'}</span>
+            </button>
+
             {/* Toggle Bilingual Language (English/Hindi) inside the modal */}
             <button
               onClick={() => setLang(prev => prev === 'hi' ? 'en' : 'hi')}
@@ -888,7 +1518,7 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
             {/* Editorial Header Image (The Hindu & PIB Style) */}
             <div className="rounded-2xl overflow-hidden border border-slate-700/60 shadow-lg relative bg-slate-900">
               <img 
-                src={article.imageUrl || "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80"} 
+                src={article.imageUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80"} 
                 alt={article.titleEn} 
                 className="w-full h-56 sm:h-72 object-cover hover:scale-105 transition-transform duration-700" 
               />
@@ -899,6 +1529,54 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                 <span className="text-[11px] font-mono text-slate-300 font-bold">
                   {isHindi ? 'द हिन्दू / पीआईबी विशेष विश्लेषण' : 'The Hindu & PIB Curated'}
                 </span>
+              </div>
+            </div>
+
+            {/* Quick Share Strip (WhatsApp, Instagram, Telegram, Direct Link) */}
+            <div className={`p-3 sm:p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2.5 transition-all ${
+              pibMode ? 'bg-[#f4efe4] border-amber-900/15 text-slate-800' : 'bg-slate-900/80 border-slate-800 text-slate-200'
+            }`}>
+              <div className="flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-black">
+                  {isHindi ? 'दोस्तों व स्टडी ग्रुप्स के साथ साझा करें:' : 'Share with Study Groups:'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => onShareArticle(article)}
+                  className="px-3 py-1.5 bg-[#25D366]/20 hover:bg-[#25D366]/30 border border-[#25D366]/50 text-[#25D366] rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>💬 WhatsApp</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onShareArticle(article)}
+                  className="px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border border-pink-500/40 text-pink-300 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>📸 Instagram</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onShareArticle(article)}
+                  className="px-3 py-1.5 bg-[#229ED9]/20 hover:bg-[#229ED9]/30 border border-[#229ED9]/50 text-[#229ED9] rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>✈️ Telegram</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?tab=current-affairs&article=${article.id}`;
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText(shareUrl);
+                      showToast(isHindi ? "✓ डायरेक्ट आर्टिकल लिंक कॉपी हो गया!" : "✓ Direct article link copied!", "success");
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>🔗 {isHindi ? 'लिंक कॉपी' : 'Copy Link'}</span>
+                </button>
               </div>
             </div>
 
@@ -941,35 +1619,82 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
             </div>
 
             {/* Vocabulary & Anto-Synonyms Widget */}
-            <div className={`border rounded-2xl p-4 sm:p-5 space-y-3 shadow-md ${
+            <div className={`border rounded-2xl p-4 sm:p-5 space-y-4 shadow-md ${
               pibMode ? 'bg-[#f4f1ea] border-amber-800/20 text-slate-900' : 'bg-[#0e1424] border-indigo-500/30 text-slate-100'
             }`}>
-              <div className="flex items-center gap-2">
-                <span className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl">
-                  📖
-                </span>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-300">
-                    {isHindi ? 'महत्वपूर्ण शब्दावली, पर्यायवाची व विलोम शब्द (Vocabulary & Anto-Synonyms)' : 'Key Exam Vocabulary & Anto-Synonyms'}
-                  </h4>
-                  <p className="text-[11px] text-slate-400">
-                    {isHindi ? 'आर्टिकल में प्रयुक्त कठिन शब्दों का परीक्षा-उन्मुख विश्लेषण' : 'Exam-grade word meanings & synonyms extracted from this editorial'}
-                  </p>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl text-lg">
+                    📖
+                  </span>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-300">
+                      {isHindi ? 'संपादकीय शब्दावली, पर्यायवाची व विलोम शब्द (Vocabulary, Synonyms & Antonyms)' : 'Key Editorial Vocabulary, Synonyms & Antonyms'}
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      {isHindi ? 'द हिन्दू व PIB संपादकीय में प्रयुक्त कठिन शब्दों का परीक्षा विश्लेषण' : 'Exam-grade word meanings, synonyms & antonyms from this editorial'}
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              {/* Dynamic Curated Vocabulary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-xl space-y-1">
-                  <div className="font-extrabold text-xs text-cyan-300">1. Interoperability (इंटरऑपरेबिलिटी)</div>
-                  <div className="text-[11px] text-slate-300"><strong>अर्थ:</strong> विभिन्न प्रणालियों का आपस में डेटा आदान-प्रदान करना।</div>
-                  <div className="text-[10px] text-emerald-400"><strong>Synonyms:</strong> Compatibility, Integration</div>
-                  <div className="text-[10px] text-rose-400"><strong>Antonyms:</strong> Isolation, Segregation</div>
-                </div>
-                <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-xl space-y-1">
-                  <div className="font-extrabold text-xs text-amber-300">2. Sovereign (संप्रभु / सॉवरेन)</div>
-                  <div className="text-[11px] text-slate-300"><strong>अर्थ:</strong> सर्वोच्च सत्ता संपन्न जो बाहरी नियंत्रण से मुक्त हो।</div>
-                  <div className="text-[10px] text-emerald-400"><strong>Synonyms:</strong> Autonomous, Independent</div>
-                  <div className="text-[10px] text-rose-400"><strong>Antonyms:</strong> Dependent, Subordinate</div>
-                </div>
+                {getArticleVocab(article).map((vItem, vIdx) => (
+                  <div key={vIdx} className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2 text-left shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-xs text-cyan-300">{vIdx + 1}. {vItem.word}</span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold">
+                          {vItem.partOfSpeech}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => speakText(vItem.word, { lang: 'en-IN' })}
+                        className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-cyan-400 cursor-pointer"
+                        title="Pronounce word"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="text-[11px] text-slate-200">
+                      <strong className="text-amber-400">{isHindi ? 'सटीक अर्थ: ' : 'Meaning: '}</strong>
+                      <span className="font-semibold">{vItem.hindiMeaning}</span>
+                    </div>
+
+                    <div className="text-[10px] text-slate-400">
+                      <strong>Def:</strong> {vItem.definition}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-1 text-[10px] pt-1">
+                      <div className="text-emerald-400 flex items-start gap-1">
+                        <strong className="shrink-0">Synonyms:</strong>
+                        <span className="text-slate-300">{vItem.synonyms.join(', ')}</span>
+                      </div>
+                      <div className="text-rose-400 flex items-start gap-1">
+                        <strong className="shrink-0">Antonyms:</strong>
+                        <span className="text-slate-300">{vItem.antonyms.join(', ')}</span>
+                      </div>
+                    </div>
+
+                    {vItem.exampleSentence && (
+                      <div className="text-[10px] text-slate-400 italic border-t border-slate-800/80 pt-1.5">
+                        <strong>Exam Usage:</strong> "{vItem.exampleSentence}"
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* In-article AI Word Detective / Anto-Syno Explorer */}
+              <div className="pt-2">
+                <WordDetectiveBox
+                  isHindi={isHindi}
+                  pibMode={pibMode}
+                  showToast={showToast}
+                />
               </div>
             </div>
 
@@ -1010,7 +1735,7 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                   <div className={`space-y-3 rounded-2xl border ${
                     pibMode ? 'bg-[#f6fbf8] border-emerald-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
                   }`}>
-                    {(lang === 'hi' ? article.deepAnalysisHi : article.deepAnalysisEn).map((pt, i) => (
+                    {((lang === 'hi' ? article.deepAnalysisHi : article.deepAnalysisEn) || []).map((pt, i) => (
                       <div key={i} className={`flex items-start gap-3 ${
                         pibMode ? 'text-slate-800' : 'text-slate-100'
                       } ${
@@ -1034,7 +1759,7 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                   <div className={`space-y-3 rounded-2xl border ${
                     pibMode ? 'bg-[#f7f6fc] border-indigo-900/10 p-5' : 'bg-slate-900/80 border-slate-800 p-5'
                   }`}>
-                    {(lang === 'hi' ? article.keyProvisionsHi : article.keyProvisionsEn).map((prov, i) => (
+                    {((lang === 'hi' ? article.keyProvisionsHi : article.keyProvisionsEn) || []).map((prov, i) => (
                       <div key={i} className={`flex items-start gap-3 ${
                         pibMode ? 'text-slate-800' : 'text-slate-200'
                       } ${
@@ -1065,95 +1790,99 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                 </div>
 
                 {/* Section 6: Interactive Practice MCQ */}
-                <div className={`border p-6 rounded-2xl space-y-4 shadow-md ${
-                  pibMode ? 'bg-white border-slate-300 text-slate-800' : 'bg-[#0f1524] border-slate-800 text-white'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-1.5 ${
-                      pibMode ? 'text-cyan-800' : 'text-cyan-400'
-                    }`}>
-                      <HelpCircle className="w-4 h-4" />
-                      {isHindi ? 'अभ्यास प्रश्न (Interactive Practice MCQ)' : 'Practice MCQ'}
-                    </span>
-                    <span className={`text-xs px-2.5 py-1 rounded-md font-bold ${
-                      pibMode ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'
-                    }`}>Prelims Level</span>
-                  </div>
-
-                  <p className={`font-bold ${
-                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-                  } ${pibMode ? 'font-serif' : ''}`}>
-                    {lang === 'hi' ? article.mcq.questionHi : article.mcq.questionEn}
-                  </p>
-
-                  <div className="space-y-2.5">
-                    {(lang === 'hi' ? article.mcq.optionsHi : article.mcq.optionsEn).map((opt, idx) => {
-                      const isSelected = selectedMcqAnswer === idx;
-                      const isCorrect = idx === article.mcq.correctIndex;
-                      let btnClass = pibMode 
-                        ? "bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100" 
-                        : "bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700";
-                      
-                      if (selectedMcqAnswer !== null) {
-                        if (isCorrect) {
-                          btnClass = pibMode
-                            ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold"
-                            : "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-bold shadow-md shadow-emerald-950/50";
-                        } else if (isSelected) {
-                          btnClass = pibMode
-                            ? "bg-rose-50 border-rose-400 text-rose-800"
-                            : "bg-rose-950/80 border-rose-500 text-rose-100";
-                        }
-                      }
-
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            setSelectedMcqAnswer(idx);
-                            setShowMcqExplanation(true);
-                            if (idx === article.mcq.correctIndex) {
-                              showToast(isHindi ? "सही उत्तर! 🎉 शाबाश!" : "Correct Answer! 🎉", "success");
-                            } else {
-                              showToast(isHindi ? "गलत उत्तर! व्याख्या देखें।" : "Incorrect! Check explanation.", "warn");
-                            }
-                          }}
-                          className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
-                        >
-                          <span className={pibMode ? 'font-serif' : ''}>{String.fromCharCode(65 + idx)}. {opt}</span>
-                          {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {showMcqExplanation && (
-                    <div className={`p-4 rounded-xl text-sm sm:text-base space-y-1.5 animate-fade-in border ${
-                      pibMode 
-                        ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
-                        : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-100'
-                    }`}>
-                      <strong className="block text-emerald-700 font-bold">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
-                      <p className={pibMode ? 'font-serif' : ''}>{lang === 'hi' ? article.mcq.explanationHi : article.mcq.explanationEn}</p>
+                {article.mcq && (
+                  <div className={`border p-6 rounded-2xl space-y-4 shadow-md ${
+                    pibMode ? 'bg-white border-slate-300 text-slate-800' : 'bg-[#0f1524] border-slate-800 text-white'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-1.5 ${
+                        pibMode ? 'text-cyan-800' : 'text-cyan-400'
+                      }`}>
+                        <HelpCircle className="w-4 h-4" />
+                        <span>{isHindi ? 'अभ्यास प्रश्न (Interactive Practice MCQ)' : 'Practice MCQ'}</span>
+                      </span>
+                      <span className={`text-xs px-2.5 py-1 rounded-md font-bold ${
+                        pibMode ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'
+                      }`}>Prelims Level</span>
                     </div>
-                  )}
-                </div>
+
+                    <p className={`font-bold ${
+                      fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                    } ${pibMode ? 'font-serif' : ''}`}>
+                      {lang === 'hi' ? article.mcq.questionHi : article.mcq.questionEn}
+                    </p>
+
+                    <div className="space-y-2.5">
+                      {((lang === 'hi' ? article.mcq.optionsHi : article.mcq.optionsEn) || []).map((opt, idx) => {
+                        const isSelected = selectedMcqAnswer === idx;
+                        const isCorrect = idx === article.mcq.correctIndex;
+                        let btnClass = pibMode 
+                          ? "bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100" 
+                          : "bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700";
+                        
+                        if (selectedMcqAnswer !== null) {
+                          if (isCorrect) {
+                            btnClass = pibMode
+                              ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold"
+                              : "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-bold shadow-md shadow-emerald-950/50";
+                          } else if (isSelected) {
+                            btnClass = pibMode
+                              ? "bg-rose-50 border-rose-400 text-rose-800"
+                              : "bg-rose-950/80 border-rose-500 text-rose-100";
+                          }
+                        }
+
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setSelectedMcqAnswer(idx);
+                              setShowMcqExplanation(true);
+                              if (idx === article.mcq.correctIndex) {
+                                showToast(isHindi ? "सही उत्तर! 🎉 शाबाश!" : "Correct Answer! 🎉", "success");
+                              } else {
+                                showToast(isHindi ? "गलत उत्तर! व्याख्या देखें।" : "Incorrect! Check explanation.", "warn");
+                              }
+                            }}
+                            className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
+                          >
+                            <span className={pibMode ? 'font-serif' : ''}>{String.fromCharCode(65 + idx)}. {opt}</span>
+                            {selectedMcqAnswer !== null && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {showMcqExplanation && (
+                      <div className={`p-4 rounded-xl text-sm sm:text-base space-y-1.5 animate-fade-in border ${
+                        pibMode 
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
+                          : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-100'
+                      }`}>
+                        <strong className="block text-emerald-700 font-bold">{isHindi ? 'सटीक व्याख्या (Detailed Solution):' : 'Explanation:'}</strong>
+                        <p className={pibMode ? 'font-serif' : ''}>{lang === 'hi' ? article.mcq.explanationHi : article.mcq.explanationEn}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Section 7: Mains Descriptive Model Question */}
-                <div className={`border p-5 rounded-2xl space-y-2.5 ${
-                  pibMode ? 'bg-[#f5f7fa] border-slate-300 text-slate-800' : 'bg-indigo-950/40 border-indigo-500/40 text-slate-100'
-                }`}>
-                  <span className={`text-xs sm:text-sm font-black uppercase tracking-wider block ${
-                    pibMode ? 'text-indigo-800' : 'text-indigo-300'
+                {(article.mainsQuestionHi || article.mainsQuestionEn) && (
+                  <div className={`border p-5 rounded-2xl space-y-2.5 ${
+                    pibMode ? 'bg-[#f5f7fa] border-slate-300 text-slate-800' : 'bg-indigo-950/40 border-indigo-500/40 text-slate-100'
                   }`}>
-                    ✍️ {isHindi ? 'मुख्य परीक्षा संभावित प्रश्न (Mains Analytical Question):' : 'Mains Analytical Question:'}
-                  </span>
-                  <p className={`font-medium leading-relaxed italic ${
-                    fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
-                  } ${pibMode ? 'font-serif' : ''}`}>
-                    "{lang === 'hi' ? article.mainsQuestionHi : article.mainsQuestionEn}"
-                  </p>
-                </div>
+                    <span className={`text-xs sm:text-sm font-black uppercase tracking-wider block ${
+                      pibMode ? 'text-indigo-800' : 'text-indigo-300'
+                    }`}>
+                      ✍️ {isHindi ? 'मुख्य परीक्षा संभावित प्रश्न (Mains Analytical Question):' : 'Mains Analytical Question:'}
+                    </span>
+                    <p className={`font-medium leading-relaxed italic ${
+                      fontSizeLevel === 'normal' ? 'text-sm' : fontSizeLevel === 'xlarge' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'
+                    } ${pibMode ? 'font-serif' : ''}`}>
+                      "{lang === 'hi' ? article.mainsQuestionHi : article.mainsQuestionEn}"
+                    </p>
+                  </div>
+                )}
               </>
             )}
 
@@ -1320,6 +2049,28 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
   );
 };
 
+// Helper to calculate dynamic auto-updating dates relative to today
+const getRelativeDateString = (daysOffset: number, isHi: boolean): string => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysOffset);
+  const day = d.getDate();
+  const year = d.getFullYear();
+  const monthsHi = ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
+  const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthStr = isHi ? monthsHi[d.getMonth()] : monthsEn[d.getMonth()];
+  return `${day} ${monthStr} ${year}`;
+};
+
+const getFallbackArticles = (isHi: boolean): DetailedArticleItem[] => {
+  return ARTICLES_DATABASE.map((item, idx) => {
+    const offset = Math.min(Math.floor(idx / 2), 4);
+    return {
+      ...item,
+      date: getRelativeDateString(offset, isHi)
+    };
+  });
+};
+
 export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ onStartQuiz, showToast, language = 'hindi', user, onOpenLogin }) => {
   const isHindi = language === 'hindi';
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -1328,33 +2079,20 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
 
-  // Live Auto-Updating Articles State
-  const [articles, setArticles] = useState<DetailedArticleItem[]>([]);
+  // Live Auto-Updating Articles State initialized with fresh date-shifted articles
+  const [articles, setArticles] = useState<DetailedArticleItem[]>(() => getFallbackArticles(language === 'hindi'));
   const [isLoadingLive, setIsLoadingLive] = useState<boolean>(false);
 
   // Deep Article Reader Modal States
   const [selectedArticle, setSelectedArticle] = useState<DetailedArticleItem | null>(null);
-
-  // Auto-open article if shared URL contains ?article=id
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const articleId = params.get('article');
-      if (articleId) {
-        const found = articles.find(a => a.id === articleId) || ARTICLES_DATABASE.find(a => a.id === articleId);
-        if (found) {
-          setSelectedArticle(found);
-        }
-      }
-    } catch (e) {}
-  }, [articles]);
+  const [sharingArticle, setSharingArticle] = useState<DetailedArticleItem | null>(null);
   const [selectedMcqAnswer, setSelectedMcqAnswer] = useState<number | null>(null);
   const [showMcqExplanation, setShowMcqExplanation] = useState<boolean>(false);
 
   // Article Reader UX: Dynamic Font Scaling, On-Demand AI Doubt Drawer, and PIB Official Page Mode
   const [fontSizeLevel, setFontSizeLevel] = useState<'normal' | 'large' | 'xlarge'>('large');
   const [isDoubtDrawerOpen, setIsDoubtDrawerOpen] = useState<boolean>(false);
-  const [pibMode, setPibMode] = useState<boolean>(true); // Let's default to true since they requested it!
+  const [pibMode, setPibMode] = useState<boolean>(true); // Default to PIB view
 
   // In-line AI Doubt / Chat inside the Article Modal
   const [articleDoubtMessages, setArticleDoubtMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string; time: string }>>([]);
@@ -1368,28 +2106,6 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
   const [customTopicQuery, setCustomTopicQuery] = useState('');
   const [isGeneratingCustomTopic, setIsGeneratingCustomTopic] = useState(false);
 
-  // Helper to calculate dynamic auto-updating dates relative to today
-  const getRelativeDateString = (daysOffset: number, isHi: boolean): string => {
-    const d = new Date();
-    d.setDate(d.getDate() - daysOffset);
-    const day = d.getDate();
-    const year = d.getFullYear();
-    const monthsHi = ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
-    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const monthStr = isHi ? monthsHi[d.getMonth()] : monthsEn[d.getMonth()];
-    return `${day} ${monthStr} ${year}`;
-  };
-
-  const getFallbackArticles = (isHi: boolean): DetailedArticleItem[] => {
-    return ARTICLES_DATABASE.map((item, idx) => {
-      const offset = Math.min(Math.floor(idx / 2), 4);
-      return {
-        ...item,
-        date: getRelativeDateString(offset, isHi)
-      };
-    });
-  };
-
   useEffect(() => {
     setLang(isHindi ? 'hi' : 'en');
   }, [language]);
@@ -1402,11 +2118,11 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
 
   // Handle Dynamic Auto-Updating and Syncing Live Current Affairs
   useEffect(() => {
-    // 1. Instantly display dynamic date-shifted fallback articles so dates are always 100% updated to today/yesterday/etc.
+    // Refresh date-shifted fallback articles on language switch
     const initialLocal = getFallbackArticles(isHindi);
     setArticles(initialLocal);
 
-    // 2. Fetch the real-world, search-grounded daily current affairs live from Gemini
+    // Fetch the real-world, search-grounded daily current affairs live from Gemini
     const fetchDailyArticlesLive = async () => {
       setIsLoadingLive(true);
       try {
@@ -1434,12 +2150,19 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
 
   const categories = ['All', 'National', 'International', 'Economy & Banking', 'Science & Tech', 'Sports', 'Schemes & Governance'];
 
-  const filteredArticles = articles.filter(item => {
+  const filteredArticles = (articles || []).filter(item => {
+    if (!item) return false;
     const matchCat = selectedCategory === 'All' || item.category === selectedCategory;
-    const matchSearch = item.titleHi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.keyFact.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.tag.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) return matchCat;
+    const titleHi = (item.titleHi || '').toLowerCase();
+    const titleEn = (item.titleEn || '').toLowerCase();
+    const keyFact = (item.keyFact || '').toLowerCase();
+    const tag = (item.tag || '').toLowerCase();
+    const matchSearch = titleHi.includes(q) ||
+                        titleEn.includes(q) ||
+                        keyFact.includes(q) ||
+                        tag.includes(q);
     return matchCat && matchSearch;
   });
 
@@ -1503,6 +2226,25 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
       }
     ]);
   };
+
+  // Auto-open article if shared URL contains ?article=id (supports deep-linking & popstate)
+  useEffect(() => {
+    const checkUrlArticle = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const articleId = params.get('article');
+        if (articleId) {
+          const found = articles.find(a => a.id === articleId) || ARTICLES_DATABASE.find(a => a.id === articleId);
+          if (found) {
+            handleOpenArticle(found);
+          }
+        }
+      } catch (e) {}
+    };
+    checkUrlArticle();
+    window.addEventListener('popstate', checkUrlArticle);
+    return () => window.removeEventListener('popstate', checkUrlArticle);
+  }, [articles]);
 
   const handleSendArticleDoubt = async (queryText?: string) => {
     const textToSend = queryText || userDoubtInput.trim();
@@ -1804,6 +2546,16 @@ Include:
                     >
                       <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-rose-600' : ''}`} />
                     </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSharingArticle(item);
+                      }}
+                      className="p-2 rounded-xl border transition-all cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-cyan-600 border-slate-200"
+                      title={isHindi ? "शेयर करें (WhatsApp, Instagram, Telegram)" : "Share Article"}
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -1832,22 +2584,36 @@ Include:
                 </div>
               </div>
 
-              {/* Sidebar Info Card inside card for PIB style feel */}
-              <div className="md:w-56 bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3 shrink-0">
-                <div className="space-y-1">
-                  <span className="text-[9px] font-black text-amber-800 uppercase tracking-wider block flex items-center gap-1">
-                    <Target className="w-3 h-3" />
-                    EXAM FOCUS
+              {/* Sidebar Info Card & Editorial Image */}
+              <div className="md:w-56 flex flex-col gap-3 shrink-0">
+                <div className="w-full h-32 rounded-2xl overflow-hidden border border-slate-200 relative group/img bg-slate-100">
+                  <img
+                    src={item.imageUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=80"}
+                    alt={item.titleEn}
+                    className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  <span className="absolute bottom-2 left-2 text-[9px] font-black uppercase text-white bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded border border-white/20">
+                    The Hindu / PIB
                   </span>
-                  <div className="text-[11px] font-bold text-slate-700 line-clamp-2">{item.examRelevance}</div>
                 </div>
-                
-                <div className="space-y-1">
-                  <span className="text-[9px] font-black text-emerald-800 uppercase tracking-wider block flex items-center gap-1">
-                    <Zap className="w-3 h-3" />
-                    KEY DATA
-                  </span>
-                  <div className="text-[11px] font-bold text-slate-600 italic line-clamp-3">"{item.keyFact}"</div>
+
+                <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 space-y-2.5 flex-1">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black text-amber-800 uppercase tracking-wider flex items-center gap-1">
+                      <Target className="w-3 h-3" />
+                      EXAM FOCUS
+                    </span>
+                    <div className="text-[11px] font-bold text-slate-700 line-clamp-2">{item.examRelevance}</div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black text-emerald-800 uppercase tracking-wider flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      KEY DATA
+                    </span>
+                    <div className="text-[11px] font-bold text-slate-600 italic line-clamp-3">"{item.keyFact}"</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1889,6 +2655,18 @@ Include:
           handleToggleVoiceDoubt={handleToggleVoiceDoubt}
           isListeningDoubtVoice={isListeningDoubtVoice}
           doubtEndRef={doubtEndRef}
+          onShareArticle={(art) => setSharingArticle(art)}
+        />
+      )}
+
+      {/* ARTICLE SHARE MODAL (WhatsApp, Instagram, Telegram, Direct Deep-Link) */}
+      {sharingArticle && (
+        <ShareArticleModal
+          article={sharingArticle}
+          isOpen={!!sharingArticle}
+          onClose={() => setSharingArticle(null)}
+          language={language}
+          showToast={showToast}
         />
       )}
 

@@ -13,7 +13,12 @@ import {
   Award, 
   Target, 
   ShieldCheck, 
-  RefreshCw 
+  RefreshCw,
+  BookOpen,
+  Newspaper,
+  Clock,
+  ArrowRight,
+  ExternalLink
 } from 'lucide-react';
 
 export interface UserProfileData {
@@ -49,6 +54,7 @@ interface UserProfileModalProps {
   }) => void;
   showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
   language?: string;
+  onOpenArticle?: (articleId: string) => void;
 }
 
 // 12 Curated Preset Avatars with High Reliability
@@ -145,7 +151,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   user,
   onSaveProfile,
   showToast,
-  language = 'hindi'
+  language = 'hindi',
+  onOpenArticle
 }) => {
   const [name, setName] = useState(user?.name || 'Scholar Student');
   const [avatarUrl, setAvatarUrl] = useState(
@@ -209,6 +216,24 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         showToast(language === 'hindi' ? 'लोकेशन एक्सेस की अनुमति दें।' : 'Please allow location permission.', 'warn');
       }
     );
+  };
+
+  const handleClearReadingHistory = () => {
+    try {
+      localStorage.removeItem('hans-compain-read-articles');
+      setReadArticlesHistory([]);
+      showToast(language === 'hindi' ? 'करंट अफेयर्स पढ़ने की हिस्ट्री साफ़ कर दी गई।' : 'Reading history cleared.', 'info');
+    } catch (e) {}
+  };
+
+  const handleRemoveSingleHistoryItem = (articleId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const updated = readArticlesHistory.filter((item: any) => item.id !== articleId);
+      localStorage.setItem('hans-compain-read-articles', JSON.stringify(updated));
+      setReadArticlesHistory(updated);
+      showToast(language === 'hindi' ? 'लेख हिस्ट्री से हटाया गया' : 'Article removed from history', 'info');
+    } catch (e) {}
   };
 
   if (!isOpen) return null;
@@ -410,31 +435,184 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
         {/* Scrollable Content Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar">
-          
-          {/* USER DASHBOARD & GAMIFICATION COINS CARD */}
-          <div className="bg-gradient-to-r from-amber-950/80 via-indigo-950/90 to-slate-900 border-2 border-amber-500/50 rounded-2xl p-4 shadow-xl text-white space-y-3 relative overflow-hidden">
-            <div className="flex items-center justify-between border-b border-amber-500/30 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🪙</span>
-                <div>
-                  <h4 className="text-sm font-black text-amber-300">
-                    {language === "hindi" ? "हंस कॉइंस व रिवॉर्ड्स डैशबोर्ड" : "Hans Coins & Rewards Dashboard"}
-                  </h4>
-                  <p className="text-[10px] text-amber-200/80">
-                    {language === "hindi" ? "अध्ययन प्रदर्शन व क्विज़ जीतने पर प्राप्त कॉइंस" : "Coins earned from quizzes, streak & study tests"}
-                  </p>
+
+          {/* Tab Navigation: Settings vs Reading History */}
+          <div className="flex items-center gap-2 p-1.5 bg-[#080D1A] border border-slate-800 rounded-2xl">
+            <button
+              type="button"
+              onClick={() => setActiveProfileTab('settings')}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                activeProfileTab === 'settings'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>{language === 'hindi' ? 'प्रोफ़ाइल विवरण' : 'Profile Settings'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveProfileTab('history')}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 relative ${
+                activeProfileTab === 'history'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Newspaper className="w-4 h-4" />
+              <span>{language === 'hindi' ? 'पढ़े गए करंट अफेयर्स' : 'Reading History'}</span>
+              {readArticlesHistory.length > 0 && (
+                <span className="px-1.5 py-0.2 bg-amber-400 text-slate-950 rounded-full text-[10px] font-black">
+                  {readArticlesHistory.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {activeProfileTab === 'history' ? (
+            <div className="space-y-4 animate-fade-in text-left">
+              {/* Reading History Header */}
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-950/60 via-slate-900 to-indigo-950/60 border border-amber-500/30 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white">
+                      {language === 'hindi' ? 'मेरी करंट अफेयर्स व संपादकीय हिस्ट्री' : 'My Current Affairs & Editorial Log'}
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      {language === 'hindi' 
+                        ? 'केवल आपके द्वारा पढ़े गए लेखों का व्यक्तिगत रिकॉर्ड' 
+                        : 'Personal log of articles read only by this profile'}
+                    </p>
+                  </div>
                 </div>
+
+                {readArticlesHistory.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearReadingHistory}
+                    className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{language === 'hindi' ? 'इतिहास साफ़ करें' : 'Clear All'}</span>
+                  </button>
+                )}
               </div>
-              <div className="text-right">
-                <span className="text-lg font-black text-amber-300 font-mono tracking-tight flex items-center gap-1 justify-end">
-                  <span>🪙</span>
-                  <span>{localStorage.getItem("hans-compain-user-coins") || "350"}</span>
-                </span>
-                <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold uppercase">
-                  {language === "hindi" ? "गोल्ड स्टूडेंट" : "Gold Scholar"}
-                </span>
-              </div>
+
+              {/* History Items List or Empty State */}
+              {readArticlesHistory.length === 0 ? (
+                <div className="p-8 text-center bg-slate-900/50 border border-slate-800 rounded-3xl space-y-4">
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">
+                    📰
+                  </div>
+                  <div className="space-y-1 max-w-sm mx-auto">
+                    <h5 className="text-sm font-black text-white">
+                      {language === 'hindi' ? 'अभी तक कोई लेख नहीं पढ़ा गया' : 'No Articles Read Yet'}
+                    </h5>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      {language === 'hindi' 
+                        ? 'जैसे ही आप Current Affairs Hub में कोई लेख खोलेंगे, वह स्वचालित रूप से आपकी व्यक्तिगत प्रोफाइल हिस्ट्री में जुड़ जाएगा।' 
+                        : 'Whenever you read an editorial or PIB release, it will be automatically recorded here.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenArticle?.('ca-1');
+                      onClose();
+                    }}
+                    className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer border-none"
+                  >
+                    {language === 'hindi' ? '📰 आज का पहला संपादकीय लेख पढ़ें' : '📰 Read Today\'s Featured Editorial'}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {readArticlesHistory.map((item: any, idx: number) => (
+                    <div
+                      key={item.id || idx}
+                      onClick={() => {
+                        onOpenArticle?.(item.id);
+                        onClose();
+                      }}
+                      className="p-3.5 sm:p-4 bg-[#080D1C] hover:bg-[#0c142b] border border-slate-800 hover:border-amber-500/50 rounded-2xl transition-all flex items-center justify-between gap-3 cursor-pointer group shadow-sm"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        {item.imageUrl ? (
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.titleEn || 'Article'} 
+                            className="w-12 h-12 rounded-xl object-cover border border-slate-700 shrink-0" 
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 font-black text-base">
+                            📰
+                          </div>
+                        )}
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              {item.category || 'Editorial'}
+                            </span>
+                            {item.readAt && (
+                              <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-slate-500" />
+                                {item.readAt}
+                              </span>
+                            )}
+                          </div>
+                          <h5 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-1">
+                            {language === 'hindi' ? (item.titleHi || item.titleEn) : (item.titleEn || item.titleHi)}
+                          </h5>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => handleRemoveSingleHistoryItem(item.id, e)}
+                          className="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800/80 transition-colors"
+                          title="Remove from history"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <span className="p-2 bg-amber-500/20 text-amber-300 group-hover:bg-amber-500 group-hover:text-slate-950 rounded-xl transition-all">
+                          <ArrowRight className="w-4 h-4" />
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          ) : (
+            <>
+              {/* USER DASHBOARD & GAMIFICATION COINS CARD */}
+              <div className="bg-gradient-to-r from-amber-950/80 via-indigo-950/90 to-slate-900 border-2 border-amber-500/50 rounded-2xl p-4 shadow-xl text-white space-y-3 relative overflow-hidden">
+                <div className="flex items-center justify-between border-b border-amber-500/30 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🪙</span>
+                    <div>
+                      <h4 className="text-sm font-black text-amber-300">
+                        {language === "hindi" ? "हंस कॉइंस व रिवॉर्ड्स डैशबोर्ड" : "Hans Coins & Rewards Dashboard"}
+                      </h4>
+                      <p className="text-[10px] text-amber-200/80">
+                        {language === "hindi" ? "अध्ययन प्रदर्शन व क्विज़ जीतने पर प्राप्त कॉइंस" : "Coins earned from quizzes, streak & study tests"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-lg font-black text-amber-300 font-mono tracking-tight flex items-center gap-1 justify-end">
+                      <span>🪙</span>
+                      <span>{localStorage.getItem("hans-compain-user-coins") || "350"}</span>
+                    </span>
+                    <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold uppercase">
+                      {language === "hindi" ? "गोल्ड स्टूडेंट" : "Gold Scholar"}
+                    </span>
+                  </div>
+                </div>
 
             {/* Badges Row */}
             <div className="grid grid-cols-3 gap-2 text-center pt-1">
@@ -861,28 +1039,52 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               </div>
             </div>
           </form>
+        </>
+      )}
 
         </div>
 
         {/* Modal Bottom Action Footer */}
         <div className="p-4 bg-[#0A0E1A] border-t border-slate-800 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
-          >
-            {language === 'hindi' ? 'रद्द करें' : 'Cancel'}
-          </button>
+          {activeProfileTab === 'history' ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveProfileTab('settings')}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <span>← {language === 'hindi' ? 'प्रोफ़ाइल सेटिंग्स पर जाएं' : 'Back to Settings'}</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={() => handleSave()}
-            className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-650 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/30 cursor-pointer active:scale-95 border-none"
-            id="save-user-profile-btn"
-          >
-            <Check className="w-4 h-4 text-emerald-300" />
-            <span>{language === 'hindi' ? 'प्रोफ़ाइल सेव करें (Save Changes)' : 'Save Profile Changes'}</span>
-          </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-black transition-all shadow-lg cursor-pointer border-none"
+              >
+                <span>{language === 'hindi' ? 'बंद करें (Close)' : 'Close'}</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
+              >
+                {language === 'hindi' ? 'रद्द करें' : 'Cancel'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSave()}
+                className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-650 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/30 cursor-pointer active:scale-95 border-none"
+                id="save-user-profile-btn"
+              >
+                <Check className="w-4 h-4 text-emerald-300" />
+                <span>{language === 'hindi' ? 'प्रोफ़ाइल सेव करें (Save Changes)' : 'Save Profile Changes'}</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

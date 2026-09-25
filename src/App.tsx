@@ -1355,7 +1355,11 @@ export default function App() {
       if (typeof window !== 'undefined' && window.location.search) {
         const urlParams = new URLSearchParams(window.location.search);
         const targetTab = urlParams.get('tab') || urlParams.get('view');
-        if (targetTab) {
+        const targetArticle = urlParams.get('article');
+        if (targetArticle && !targetTab) {
+          setActiveView('current-affairs');
+          showToast(`Opened shared editorial article`, 'info');
+        } else if (targetTab) {
           const validViews = ['chat', 'newsboard', 'research', 'quiz', 'group-quiz', 'pyq-vault', 'current-affairs', 'qr-scanner', 'leaderboard', 'process', 'calculator', 'rap', 'notes', 'timer', 'history', 'goals', 'map', 'soul', 'sarkari-result', 'owner-dashboard', 'feedback', 'planner', 'study-plan', 'flashcards', 'photo-doubt', 'security', 'book-reader', 'notes-ocr', 'photo-ocr', 'neural-map', 'time-travel', 'mnemonics', 'science-lab', 'steno', 'launch-hub', 'article-reader', 'file-converter', 'weather-alerts', 'affiliate-store', 'affiliate', 'mistake-notebook', 'mock-interview', 'performance-analytics', 'bharti-bhawan'];
           if (validViews.includes(targetTab)) {
             setActiveView(targetTab as any);
@@ -10985,6 +10989,16 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
         onSaveProfile={handleSaveProfile}
         showToast={showToast}
         language={language}
+        onOpenArticle={(articleId) => {
+          setIsUserProfileModalOpen(false);
+          setActiveView('current-affairs');
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', 'current-affairs');
+            url.searchParams.set('article', articleId);
+            window.history.pushState({}, '', url.toString());
+          } catch (e) {}
+        }}
       />
 
       {/* 📲 ANDROID APP SCREEN INSTALL MODAL */}
