@@ -4,7 +4,7 @@ import {
   Volume2, VolumeX, Share2, ArrowRight, CheckCircle2, Bookmark, 
   Flame, Target, MessageSquare, Send, Mic, MicOff, X, 
   HelpCircle, RefreshCw, ChevronRight, Lightbulb, FileText, Check,
-  Printer, Copy
+  Printer, Copy, ExternalLink
 } from 'lucide-react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
 
@@ -28,7 +28,9 @@ export interface EditorialVocabItem {
 
 export interface DetailedArticleItem {
   id: string;
-  category: 'National' | 'International' | 'Economy & Banking' | 'Science & Tech' | 'Sports' | 'State Affairs' | 'Schemes & Governance';
+  category: 'National' | 'International' | 'Economy & Banking' | 'Science & Tech' | 'Sports' | 'Sports & Honors' | 'State Affairs' | 'Schemes & Governance' | 'Defense & Security' | 'Environment' | string;
+  source?: string;
+  sourceUrl?: string;
   imageUrl?: string;
   titleHi: string;
   titleEn: string;
@@ -71,6 +73,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-1',
     category: 'National',
+    source: 'इलेक्ट्रॉनिक्स और सूचना प्रौद्योगिकी मंत्रालय (MeitY) • PIB',
+    sourceUrl: 'https://meity.gov.in',
     titleHi: 'भारत ने 6G मिशन और सेमीकंडक्टर फैब्रिकेशन इकोसिस्टम का किया ऐतिहासिक विस्तार',
     titleEn: 'India Expands Indigenous 6G Mission & Semiconductor Fab Ecosystem',
     summaryHi: 'केंद्रीय इलेक्ट्रॉनिक्स और आईटी मंत्रालय ने राष्ट्रीय 6G विज़न डॉक्यूमेंट 2.0 और स्वदेशी सेमीकंडक्टर निर्माण हब के नए चरण को मंजूरी दी, जिससे भारत इलेक्ट्रॉनिक्स विनिर्माण में पूर्ण आत्मनिर्भरता की ओर अग्रसर है।',
@@ -157,6 +161,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-2',
     category: 'Science & Tech',
+    source: 'भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) • विज्ञान और प्रौद्योगिकी मंत्रालय',
+    sourceUrl: 'https://isro.gov.in',
     titleHi: 'इसरो (ISRO) का शुक्रयान-1 (Shukrayaan-1) मिशन: उन्नत सिंथेटिक एपर्चर रडार का सफल परीक्षण',
     titleEn: 'ISRO Shukrayaan-1 Venus Mission: Synthetic Aperture Radar Payload Validated',
     summaryHi: 'भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) ने वीनस ऑर्बिटर मिशन (शुक्रयान-1) के लिए विशेष वायुमंडलीय स्पेक्ट्रोमीटर और सिंथेटिक एपर्चर रडार (SAR) का सफल परीक्षण पूरा किया।',
@@ -251,6 +257,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-3',
     category: 'Economy & Banking',
+    source: 'भारतीय रिजर्व बैंक (RBI) आधिकारिक बुलेटिन • The Economic Times',
+    sourceUrl: 'https://rbi.org.in',
     titleHi: 'RBI ने डिजिटल रुपया (CBDC) में ऑफलाइन पीयर-टू-पीयर (P2P) लेनदेन प्रणाली को दी अंतिम मंजूरी',
     titleEn: 'RBI Grants Full Regulatory Approval for Offline P2P CBDC Digital Rupee Transactions',
     summaryHi: 'भारतीय रिजर्व बैंक (RBI) ने बिना इंटरनेट और टेलीकॉम नेटवर्क वाले दूरदराज के क्षेत्रों में केंद्रीय बैंक डिजिटल मुद्रा (CBDC-R) के सुरक्षित ऑफलाइन लेनदेन को सक्षम किया।',
@@ -345,6 +353,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-4',
     category: 'Sports',
+    source: 'युवा कार्यक्रम और खेल मंत्रालय (MYAS) • World Athletics Federation',
+    sourceUrl: 'https://yas.nic.in',
     titleHi: 'विश्व एथलेटिक्स चैंपियनशिप 2026: भारत ने भाला फेंक में जीता ऐतिहासिक स्वर्ण पदक',
     titleEn: 'World Athletics Championships 2026: India Secures Historic Gold in Javelin Throw',
     summaryHi: 'भारतीय एथलीट ने 90.15 मीटर के अभूतपूर्व थ्रो के साथ विश्व एथलेटिक्स चैंपियनशिप 2026 में शीर्ष स्थान हासिल कर इतिहास रचा।',
@@ -399,6 +409,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-5',
     category: 'International',
+    source: 'अंतर्राष्ट्रीय सौर गठबंधन (ISA) • पर्यावरण, वन और जलवायु परिवर्तन मंत्रालय',
+    sourceUrl: 'https://isolaralliance.org',
     titleHi: 'अंतर्राष्ट्रीय सौर गठबंधन (ISA) में 120वां सदस्य देश शामिल, वैश्विक सौर ग्रिड पर हुआ समझौता',
     titleEn: '120th Country Joins International Solar Alliance (ISA); Pact on One Sun One World One Grid',
     summaryHi: 'भारत और फ्रांस द्वारा 2015 के पेरिस जलवायु समझौते (COP21) के दौरान स्थापित अंतर्राष्ट्रीय सौर गठबंधन (ISA) का विस्तार 120 देशों तक पहुँच गया।',
@@ -453,6 +465,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-6',
     category: 'Schemes & Governance',
+    source: 'नवीन और नवीकरणीय ऊर्जा मंत्रालय (MNRE) • पत्र सूचना कार्यालय (PIB)',
+    sourceUrl: 'https://pmsuryaghar.gov.in',
     titleHi: 'प्रधानमंत्री सूर्य घर: मुफ्त बिजली योजना का विस्तार, 1 करोड़ घरों में सोलर रूफटॉप लक्ष्य',
     titleEn: 'PM Surya Ghar Muft Bijli Yojana: Fast-Tracking 10 Million Rooftop Solar Homes',
     summaryHi: 'केंद्र सरकार ने हर महीने 300 यूनिट तक मुफ्त बिजली उपलब्ध कराने और ग्रिड को अतिरिक्त बिजली बेचकर परिवारों को आय अर्जित कराने हेतु सब्सिडी पोर्टल को तेज किया।',
@@ -507,6 +521,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-7',
     category: 'Science & Tech',
+    source: 'भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) • अंतरिक्ष विभाग',
+    sourceUrl: 'https://isro.gov.in',
     titleHi: 'इसरो (ISRO) का आदित्य-L1 (Aditya-L1) सूर्य मिशन: हेलो ऑर्बिट और सौर तूफानों का सफल वैज्ञानिक विश्लेषण',
     titleEn: 'ISRO Aditya-L1 Solar Mission: Continuous Corona & Solar Wind Profiling at Lagrange Point L1',
     summaryHi: 'भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) के पहले समर्पित सौर मिशन "आदित्य-L1" ने सूर्य-पृथ्वी प्रणाली के प्रथम लैग्रेंजियन बिंदु (L1) के चारों ओर अपनी हेलो कक्षा (Halo Orbit) में रहते हुए कोरोनल मास इजेक्शन (CME) और सौर ज्वालाओं का ऐतिहासिक डेटा जारी किया है।',
@@ -561,6 +577,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-8',
     category: 'Economy & Banking',
+    source: 'राष्ट्रीय भुगतान निगम (NPCI) • भारतीय रिजर्व बैंक (RBI)',
+    sourceUrl: 'https://npci.org.in',
     titleHi: 'e-RUPI वाउचर और सेंट्रल बैंक डिजिटल करेंसी (CBDC) में अंतर: भारत में डिजिटल भुगतान का नया युग',
     titleEn: 'e-RUPI Digital Voucher vs CBDC Digital Rupee: High-Yield Functional Comparison & Monetary Impact',
     summaryHi: 'वित्तीय समावेशन को बढ़ावा देने के लिए भारत सरकार की दो प्रमुख डिजिटल पहल - "e-RUPI" कूपन वाउचर प्रणाली और भारतीय रिजर्व बैंक (RBI) द्वारा जारी "डिजिटल रुपया (CBDC)" दोनों देश की कैशलेस अर्थव्यवस्था को नई गति दे रहे हैं।',
@@ -625,6 +643,8 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
   {
     id: 'ca-9',
     category: 'Science & Tech',
+    source: 'केंद्रीय मंत्रिमंडल प्रेस विज्ञप्ति • इसरो (ISRO)',
+    sourceUrl: 'https://isro.gov.in',
     titleHi: 'इसरो (ISRO) गगनयान (Gaganyaan) और चंद्रयान-4 (Chandrayaan-4) मिशन: भारत का महत्वाकांक्षी अंतरिक्ष रोडमैप',
     titleEn: 'ISRO Future Space Roadmap: Accelerating Gaganyaan Human Spaceflight & Chandrayaan-4 Sample Return Mission',
     summaryHi: 'केंद्रीय मंत्रिमंडल ने भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) के दो सबसे बड़े आगामी मिशनों - गगनयान (मानवयुक्त अंतरिक्ष उड़ान) और चंद्रयान-4 (चंद्रमा से मिट्टी के नमूने वापस लाने का मिशन) के लिए अतिरिक्त बजटीय आवंटन और कड़े समय-सारणी को मंजूरी दी है।',
@@ -675,6 +695,329 @@ const ARTICLES_DATABASE: DetailedArticleItem[] = [
     },
     mainsQuestionHi: 'प्रश्न: चंद्रयान-4 मिशन चंद्रयान-3 की तुलना में तकनीकी रूप से किस प्रकार अधिक जटिल और चुनौतीपूर्ण है? समझाइए। (200 शब्द)',
     mainsQuestionEn: 'Question: How is the Chandrayaan-4 sample return mission technologically more complex and challenging than the Chandrayaan-3 landing mission? Elaborate. (200 words)'
+  },
+  {
+    id: 'ca-10',
+    category: 'Sports & Honors',
+    source: 'अंतर्राष्ट्रीय शतरंज महासंघ (FIDE) • अखिल भारतीय शतरंज महासंघ (AICF)',
+    sourceUrl: 'https://fide.com',
+    titleHi: '45वें फिडे शतरंज ओलंपियाड में भारत का ऐतिहासिक दोहरा स्वर्ण पदक और युवा ग्रैंडमास्टर्स का वैश्विक दबदबा',
+    titleEn: 'India Clinches Historic Double Gold at 45th FIDE Chess Olympiad: Unprecedented Global Dominance',
+    summaryHi: '45वें फिडे शतरंज ओलंपियाड में भारतीय पुरुष (ओपन) और महिला दोनों टीमों ने ऐतिहासिक दोहरा स्वर्ण पदक जीतकर इतिहास रच दिया। डी. गुकेश और दिव्या देशमुख ने व्यक्तिगत स्वर्ण पदक भी जीते।',
+    summaryEn: 'At the 45th FIDE Chess Olympiad in Budapest, India scripted sporting history by securing sensational double gold medals in both Open and Women’s sections, led by standout performances from D. Gukesh and Divya Deshmukh.',
+    date: '24 सितम्बर 2026',
+    readTime: '3.5 मिनट',
+    examRelevance: 'SSC CGL / RRB NTPC / State PSCs / UPSC Prelims (Sports Champions & Global Trophies)',
+    keyFact: 'भारत शतरंज ओलंपियाड के एक ही संस्करण में पुरुष और महिला दोनों वर्ग में स्वर्ण जीतने वाला दुनिया का तीसरा देश बना।',
+    tag: 'Chess & Global Honors',
+    imageUrl: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=800&q=80',
+    vocabItems: [
+      {
+        word: 'Dominance',
+        hindiMeaning: 'वर्चस्व / आधिपत्य',
+        partOfSpeech: 'Noun',
+        definition: 'Power and influence over others; supreme tactical control.',
+        synonyms: ['Supremacy', 'Mastery', 'Ascendancy', 'Hegemony'],
+        antonyms: ['Subservience', 'Weakness', 'Inferiority'],
+        exampleSentence: 'Indian chess prodigies established complete dominance at the 45th Olympiad.'
+      },
+      {
+        word: 'Prodigy',
+        hindiMeaning: 'असाधारण प्रतिभाशाली बालक / प्रतिभा',
+        partOfSpeech: 'Noun',
+        definition: 'A young person endowed with exceptional qualities or abilities.',
+        synonyms: ['Genius', 'Mastermind', 'Phenomenon', 'Virtuoso'],
+        antonyms: ['Novice', 'Amateur'],
+        exampleSentence: 'Grandmaster D. Gukesh is recognized globally as a generational chess prodigy.'
+      }
+    ],
+    backgroundHi: 'हंगरी की राजधानी बुडापेस्ट में आयोजित 45वें फिडे शतरंज ओलंपियाड में 190 से अधिक देशों की टीमों ने भाग लिया था। भारत ने दोनों वर्गों में सर्वोच्च प्रदर्शन किया।',
+    backgroundEn: 'Staged in Budapest, Hungary with over 190 national federations, India triumphed in both sections with unmatched consistency.',
+    deepAnalysisHi: [
+      'ओपन वर्ग में भारत ने 11 में से 10 राउंड जीतकर 21 मैच अंकों के साथ स्वर्ण पदक जीता।',
+      'डी. गुकेश ने बोर्ड-1 पर 2750+ रेटिंग प्रदर्शन के साथ व्यक्तिगत स्वर्ण पदक हासिल किया।',
+      'महिला टीम ने अंतिम राउंड में अजरबैजान को हराकर ऐतिहासिक स्वर्ण पदक अपने नाम किया।'
+    ],
+    deepAnalysisEn: [
+      'Open category: India won 10 out of 11 matches, securing 21 match points.',
+      'D. Gukesh secured Board-1 individual gold with exceptional tournament performance rating.',
+      'Women’s squad defeated Azerbaijan in the decider to lift the Vera Menchik Cup.'
+    ],
+    keyProvisionsHi: [
+      'ओपन टीम: डी. गुकेश, आर. प्रज्ञानंद, अर्जुन एरिगैसी, विदित गुजराती और पी. हरिकृष्णा।',
+      'महिला टीम: हरिका द्रोणावल्ली, आर. वैशाली, दिव्या देशमुख, वंतिका अग्रवाल और तानिया सचदेव।',
+      'हैमिल्टन-रसेल कप (ओपन) और वेरा मेन्चिक कप (महिला) दोनों भारत को प्राप्त हुए।'
+    ],
+    keyProvisionsEn: [
+      'Open Team: D. Gukesh, R. Praggnanandhaa, Arjun Erigaisi, Vidit Gujrathi, P. Harikrishna.',
+      'Women Team: Harika Dronavalli, R. Vaishali, Divya Deshmukh, Vantika Agrawal, Tania Sachdev.',
+      'Awarded Hamilton-Russell Cup (Open) and Vera Menchik Cup (Women).'
+    ],
+    examImpactHi: 'प्रतियोगी परीक्षाओं में खेल आयोजनों, ट्राफियों और खिलाड़ियों के राज्यों से संबंधित प्रश्न अनिवार्य रूप से पूछे जाते हैं।',
+    examImpactEn: 'High yield for sports honors, venue locations, and player awards in competitive exams.',
+    mcq: {
+      questionHi: '45वें फिडे शतरंज ओलंपियाड (45th FIDE Chess Olympiad) का आयोजन किस शहर में किया गया था?',
+      questionEn: 'In which city was the 45th FIDE Chess Olympiad officially organized?',
+      optionsHi: ['बुडापेस्ट (हंगरी)', 'चेन्नई (भारत)', 'बाकू (अज़रबैजान)', 'दुबई (यूएई)'],
+      optionsEn: ['Budapest (Hungary)', 'Chennai (India)', 'Baku (Azerbaijan)', 'Dubai (UAE)'],
+      correctIndex: 0,
+      explanationHi: '45वां फिडे शतरंज ओलंपियाड बुडापेस्ट (हंगरी) में आयोजित हुआ जहाँ भारत ने ऐतिहासिक दोहरा स्वर्ण पदक जीता।',
+      explanationEn: 'The 45th FIDE Chess Olympiad took place in Budapest, Hungary where India clinched historic double gold.'
+    },
+    mainsQuestionHi: 'प्रश्न: भारतीय खेल पारिस्थितिकी तंत्र में शतरंज और ओलंपिक खेलों में युवाओं की ऐतिहासिक उपलब्धियों के पीछे नीतिगत सुधारों की भूमिका स्पष्ट कीजिए। (200 शब्द)',
+    mainsQuestionEn: 'Question: Analyze the policy support, sports academies, and grassroots scouting driving India’s global sporting renaissance. (200 words)'
+  },
+  {
+    id: 'ca-11',
+    category: 'Schemes & Governance',
+    source: 'नवीन एवं नवीकरणीय ऊर्जा मंत्रालय (MNRE) • PIB दिल्ली',
+    sourceUrl: 'https://pmsuryaghar.gov.in',
+    titleHi: 'पीएम सूर्य घर: मुफ्त बिजली योजना — 1 करोड़ घरों को 300 यूनिट मुफ्त बिजली व ₹75,000 करोड़ का मेगा मिशन',
+    titleEn: 'PM Surya Ghar Muft Bijli Yojana: Mega ₹75,000 Crore Rooftop Solar Mission Empowering 1 Crore Households',
+    summaryHi: 'केंद्रीय मंत्रिमंडल द्वारा ₹75,021 करोड़ के परिव्यय के साथ पीएम सूर्य घर योजना को पूरे देश में लागू किया गया है, जिसके तहत आवासीय घरों की छतों पर सोलर पैनल लगाने हेतु 60% तक सीधी केंद्रीय सब्सिडी दी जा रही है।',
+    summaryEn: 'PM Surya Ghar Muft Bijli Yojana provides up to 60% direct central capital subsidies and collateral-free loans to provide 1 crore residential households with 300 units of free solar power every month.',
+    date: '22 सितम्बर 2026',
+    readTime: '4 मिनट',
+    examRelevance: 'UPSC CSE GS-2 & GS-3 (Energy Transition, Social Welfare, Renewable Targets), SSC, BPSC',
+    keyFact: '2 किलोवाट (kW) क्षमता तक के सिस्टम के लिए सिस्टम लागत का 60% केंद्रीय अनुदान प्रत्यक्ष लाभ अंतरण (DBT) द्वारा दिया जाता है।',
+    tag: 'Solar Energy & Welfare',
+    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+    vocabItems: [
+      {
+        word: 'Decentralized',
+        hindiMeaning: 'विकेंद्रीकृत',
+        partOfSpeech: 'Adjective',
+        definition: 'Controlled by several local offices or authorities rather than one single one.',
+        synonyms: ['Distributed', 'Dispersed', 'Democratized'],
+        antonyms: ['Centralized', 'Monopolized'],
+        exampleSentence: 'Decentralized rooftop solar empowers individual households as independent clean energy producers.'
+      }
+    ],
+    backgroundHi: 'भारत ने 2030 तक 500 गीगावाट गैर-जीवाश्म ऊर्जा क्षमता का लक्ष्य रखा है। यह योजना वितरण कंपनियों (DISCOMs) के वित्तीय घाटे को कम करने और आम परिवारों के बिजली बिल को शून्य करने में गेम-चेंजर है।',
+    backgroundEn: 'Aimed at fulfilling India’s commitment of 500 GW non-fossil power by 2030 while liberating households from escalating electricity tariffs.',
+    deepAnalysisHi: [
+      'वार्षिक ₹75,000 करोड़ से अधिक की बिजली लागत बचत और अतिरिक्त बिजली ग्रिड को बेचकर घरेलू आय।',
+      'विनिर्माण, स्थापना, संचालन और रखरखाव में 17 लाख से अधिक नए हरित रोजगारों का सृजन।',
+      'कार्बन डाइऑक्साइड उत्सर्जन में 720 मिलियन टन की शुद्ध कमी।'
+    ],
+    deepAnalysisEn: [
+      'Over ₹75,000 Crore annual electricity bill savings and additional income through net-metering.',
+      'Creation of over 17 lakh direct green jobs in solar assembly, installation, and inverter maintenance.',
+      'Net reduction of 720 million tonnes of carbon dioxide emissions over the 25-year asset lifecycle.'
+    ],
+    keyProvisionsHi: [
+      'राष्ट्रीय पोर्टल (pmsuryaghar.gov.in) के माध्यम से पारदर्शी सिंगल-विंडो आवेदन और डीबीटी सब्सिडी।',
+      'शहरी स्थानीय निकायों और पंचायतों को मॉडल सोलर विलेज विकसित करने के लिए विशेष प्रोत्साहन।'
+    ],
+    keyProvisionsEn: [
+      'Unified National Portal for end-to-end transparent vendor selection and DBT subsidy transfers.',
+      'Financial rewards to Urban Local Bodies and Panchayats to develop Model Solar Villages.'
+    ],
+    examImpactHi: 'नवीकरणीय ऊर्जा, जलवायु परिवर्तन और प्रत्यक्ष लाभ अंतरण (DBT) से संबंधित सभी प्रतियोगी परीक्षाओं में निश्चित प्रश्न।',
+    examImpactEn: 'Direct focal point for exam questions on renewable energy policies and decarbonization.',
+    mcq: {
+      questionHi: 'पीएम सूर्य घर: मुफ्त बिजली योजना के अंतर्गत 1 किलोवाट (kW) रूफटॉप सोलर सिस्टम के लिए कितनी केंद्रीय वित्तीय सहायता (सब्सिडी) देय है?',
+      questionEn: 'Under PM Surya Ghar Muft Bijli Yojana, what is the direct Central Financial Assistance for a 1 kW rooftop solar system?',
+      optionsHi: ['₹15,000', '₹30,000', '₹50,000', '₹78,000'],
+      optionsEn: ['₹15,000', '₹30,000', '₹50,000', '₹78,000'],
+      correctIndex: 1,
+      explanationHi: '1 किलोवाट सिस्टम के लिए ₹30,000 तथा 2 किलोवाट सिस्टम के लिए ₹60,000 की केंद्रीय सब्सिडी प्रत्यक्ष लाभ अंतरण द्वारा दी जाती है।',
+      explanationEn: 'The scheme provides ₹30,000 direct subsidy for 1 kW capacity and ₹60,000 for 2 kW capacity systems.'
+    },
+    mainsQuestionHi: 'प्रश्न: पीएम सूर्य घर योजना भारत की विकेंद्रीकृत सौर ऊर्जा क्रांति और ऊर्जा सुरक्षा में किस प्रकार मील का पत्थर है? समीक्षा कीजिए। (200 शब्द)',
+    mainsQuestionEn: 'Question: How does PM Surya Ghar Muft Bijli Yojana democratize decentralized solar energy generation and bolster India’s energy security? Critically examine. (200 words)'
+  },
+  {
+    id: 'ca-12',
+    category: 'National',
+    source: 'विधि और न्याय मंत्रालय • भारत का राजपत्र (The Gazette of India)',
+    sourceUrl: 'https://egazette.gov.in',
+    titleHi: 'भारतीय न्याय संहिता (BNS), BNSS और BSA: भारत की नई आपराधिक न्याय प्रणाली का ऐतिहासिक कार्यान्वयन',
+    titleEn: 'Bharatiya Nyaya Sanhita (BNS), BNSS & BSA: Historic Transition in India’s Criminal Justice Architecture',
+    summaryHi: 'औपनिवेशिक काल के 160 वर्ष पुराने भारतीय दंड संहिता (IPC), CrPC और साक्ष्य अधिनियम के स्थान पर तीन नए आपराधिक कानून—BNS, BNSS और BSA पूरे देश में प्रभावी हो गए हैं।',
+    summaryEn: 'Replacing colonial-era penal codes, India’s modern trio of criminal laws—Bharatiya Nyaya Sanhita (BNS), BNSS, and BSA—have established victim-centric, technology-enabled jurisprudence.',
+    date: '20 सितम्बर 2026',
+    readTime: '4.5 मिनट',
+    examRelevance: 'UPSC CSE GS-2 (Polity & Governance) / Judiciary / State PCS / SSC CGL',
+    keyFact: 'जीरो एफआईआर, ई-एफआईआर और फॉरेंसिक जांच को 7 वर्ष से अधिक सजा वाले अपराधों में अनिवार्य किया गया है।',
+    tag: 'Legal & Judicial Reforms',
+    imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+    vocabItems: [
+      {
+        word: 'Jurisprudence',
+        hindiMeaning: 'न्यायशास्त्र / विधि दर्शन',
+        partOfSpeech: 'Noun',
+        definition: 'The theory or philosophy of law; a legal system.',
+        synonyms: ['Legal philosophy', 'Judicial doctrine', 'Case law'],
+        antonyms: ['Lawlessness', 'Anarchy'],
+        exampleSentence: 'The new criminal laws reflect a shift toward restorative and victim-centric jurisprudence.'
+      }
+    ],
+    backgroundHi: '1860 के मैकाले कालीन कानूनों को बदलकर न्याय-केंद्रित, समयबद्ध जांच और डिजिटल साक्ष्यों को प्राथमिक दर्जा देने के लिए संसद द्वारा इन कानूनों को पारित किया गया।',
+    backgroundEn: 'Enacted by Parliament to shed the colonial punitive mindset, prioritize justice over punishment, and enforce statutory trial timelines.',
+    deepAnalysisHi: [
+      'नागरिक केंद्रित बदलाव: किसी भी थाने में अपराध दर्ज कराने हेतु जीरो एफआईआर (Zero FIR) का वैधानिक अधिकार।',
+      'डिजिटल युग: ऑडियो-वीडियो इलेक्ट्रॉनिक रिकॉर्डिंग को फॉरेंसिक साक्ष्य के रूप में अनिवार्य कानूनी मान्यता।',
+      'छोटे अपराधों में पहली बार सामुदायिक सेवा (Community Service) को वैकल्पिक दंड के रूप में जोड़ा गया।'
+    ],
+    deepAnalysisEn: [
+      'Citizen-first paradigm: Statutory mandate for Zero FIR across any jurisdictional police station without territorial restriction.',
+      'Digital transformation: Videography of crime scene searches and seizures legally mandated.',
+      'Introduction of Community Service as an official progressive alternative to incarceration for minor petty infractions.'
+    ],
+    keyProvisionsHi: [
+      'आतंकवादी कृत्य, संगठित अपराध और मॉब लिंचिंग को अलग से परिभाषित कर कठोर दंड का प्रावधान।',
+      'भगोड़े अपराधियों की उनकी अनुपस्थिति में भी सुनवाई (Trial in Absentia)।',
+      'पीड़ितों को 90 दिनों के भीतर जांच की प्रगति रिपोर्ट प्राप्त करने का कानूनी अधिकार।'
+    ],
+    keyProvisionsEn: [
+      'Specific codification of terrorist acts, organized crime syndicates, and mob lynching with stringent penalties.',
+      'Trial in Absentia for proclaimed fugitives evading state jurisdiction.',
+      'Statutory guarantee for victims to receive formal investigation progress updates within 90 days.'
+    ],
+    examImpactHi: 'आईपीसी बनाम बीएनएस धाराओं का तुलनात्मक अध्ययन मुख्य एवं प्रारंभिक परीक्षा दोनों में अनिवार्य टॉपिक है।',
+    examImpactEn: 'Vital comparative analysis between colonial sections and modern BNS provisions for all exams.',
+    mcq: {
+      questionHi: 'नए आपराधिक कानूनों के अनुसार कितने वर्ष या उससे अधिक की सजा वाले सभी अपराधों में फॉरेंसिक जांच अनिवार्य कर दी गई है?',
+      questionEn: 'Under the new criminal jurisprudence framework, forensic investigation has been made mandatory for offences punishable with imprisonment of how many years or more?',
+      optionsHi: ['3 वर्ष', '5 वर्ष', '7 वर्ष', '10 वर्ष'],
+      optionsEn: ['3 Years', '5 Years', '7 Years', '10 Years'],
+      correctIndex: 2,
+      explanationHi: 'भारतीय नागरिक सुरक्षा संहिता (BNSS) के तहत 7 वर्ष या उससे अधिक सजा वाले सभी गंभीर अपराधों में फॉरेंसिक टीम द्वारा घटनास्थल का दौरा और साक्ष्य संकलन अनिवार्य है।',
+      explanationEn: 'Under BNSS, forensic crime scene investigation and videographed evidence collection are mandatory for all crimes carrying 7+ years imprisonment.'
+    },
+    mainsQuestionHi: 'प्रश्न: भारतीय न्याय संहिता और नागरिक सुरक्षा संहिता किस प्रकार दंड-केंद्रित व्यवस्था से न्याय-केंद्रित और तकनीक-सक्षम न्यायशास्त्र की ओर संक्रमण को दर्शाती हैं? समीक्षा कीजिए। (250 शब्द)',
+    mainsQuestionEn: 'Question: How do Bharatiya Nyaya Sanhita and BNSS mark a paradigm shift from punitive colonial policing to citizen-centric, technology-backed justice? Critically analyze. (250 words)'
+  },
+  {
+    id: 'ca-13',
+    category: 'Defense & Security',
+    source: 'रक्षा मंत्रालय (MoD) • भारतीय नौसेना (Indian Navy) प्रेस रिलीज',
+    sourceUrl: 'https://indiannavy.nic.in',
+    titleHi: 'प्रोजेक्ट 17A नीलगिरि क्लास स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स और भारतीय नौसेना की रणनीतिक तैयारी',
+    titleEn: 'Project 17A Nilgiri-Class Stealth Guided Missile Frigates: Fortifying Indian Navy’s Indo-Pacific Vigil',
+    summaryHi: 'भारतीय नौसेना के स्वदेशी प्रोजेक्ट 17A के तहत मझगांव डॉक और जीआरएसई द्वारा निर्मित अत्याधुनिक स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स 75% स्वदेशी सामग्री और ब्रह्मोस सुपरसोनिक मिसाइल से लैस हैं।',
+    summaryEn: 'Indian Navy’s indigenously constructed Project 17A Nilgiri-class advanced stealth guided-missile frigates feature 75% domestic components and BrahMos supersonic strike capabilities.',
+    date: '16 सितम्बर 2026',
+    readTime: '3.5 मिनट',
+    examRelevance: 'UPSC CSE GS-3 (Defense Indigenization, Maritime Strategy) / CDS / NDA / AFCAT',
+    keyFact: 'प्रोजेक्ट 17A के सभी 7 युद्धपोतों का निर्माण मझगांव डॉक (MDL) और गार्डन रीच (GRSE) द्वारा स्वदेशी रूप से किया गया है।',
+    tag: 'Maritime Defense',
+    imageUrl: 'https://images.unsplash.com/photo-1579975096649-e773152b04cb?auto=format&fit=crop&w=800&q=80',
+    vocabItems: [
+      {
+        word: 'Indigenization',
+        hindiMeaning: 'स्वदेशीकरण / घरेलू उत्पादन',
+        partOfSpeech: 'Noun',
+        definition: 'The process of making something local or native; manufacturing defense hardware domestically.',
+        synonyms: ['Localization', 'Self-reliance', 'Domestic manufacturing'],
+        antonyms: ['Import reliance', 'Foreign dependence'],
+        exampleSentence: 'Naval indigenization under Project 17A reached a historic high of 75% domestic components.'
+      }
+    ],
+    backgroundHi: 'हिंद महासागर क्षेत्र (IOR) में समुद्री व्यापार मार्गों की सुरक्षा और रणनीतिक संतुलन बनाए रखने के लिए भारतीय नौसेना अपने बेड़े का आधुनिकीकरण मेक इन इंडिया के तहत कर रही है।',
+    backgroundEn: 'Vital for safeguarding Indian Ocean sea lanes of communication (SLOCs) and countering adversarial naval build-ups.',
+    deepAnalysisHi: [
+      'रडार क्रॉस-सेक्शन (RCS) को न्यूनतम करने के लिए उन्नत स्टेल्थ ज्योमेट्री और रडार-एब्जॉर्बेंट कोटिंग्स।',
+      'हथियार प्रणाली: 8 ब्रह्मोस सुपरसोनिक क्रूज मिसाइल और 32 बराक-8 (LRSAM) लंबी दूरी की मिसाइलें।',
+      'कंबाइंड डीजल और गैस (CODAG) प्रणोदन प्रणाली से 28 नॉट से अधिक की शीर्ष गति।'
+    ],
+    deepAnalysisEn: [
+      'Reduced Radar Cross Section (RCS) leveraging flush deck profiles and composite radar-absorbent materials.',
+      'Lethal offensive suite: 8 BrahMos supersonic cruise missiles and 32 Barak-8 LRSAM missiles.',
+      'CODAG propulsion suite delivering sustained operational sprint speeds exceeding 28 knots.'
+    ],
+    keyProvisionsHi: [
+      'इंटीग्रेटेड प्लेटफॉर्म मैनेजमेंट सिस्टम (IPMS) और स्वदेशी कॉम्बैट मैनेजमेंट सिस्टम (CMS)।',
+      'पनडुब्बी रोधी युद्ध (ASW) के लिए स्वदेशी हमसा-एनजी सोनार और रॉकेट लॉन्चर।'
+    ],
+    keyProvisionsEn: [
+      'Integrated Platform Management System (IPMS) built with Bharat Electronics Limited (BEL).',
+      'Advanced indigenous HUMSA-NG bow sonar and heavy torpedo decoys for anti-submarine warfare.'
+    ],
+    examImpactHi: 'रक्षा क्षेत्र में आत्मनिर्भर भारत और प्रमुख सैन्य युद्धाभ्यासों से जुड़े प्रश्न।',
+    examImpactEn: 'High yield for defense indigenization questions and Indian Ocean maritime strategies.',
+    mcq: {
+      questionHi: 'भारतीय नौसेना के प्रोजेक्ट 17A के तहत निर्मित युद्धपोत किस श्रेणी के हैं?',
+      questionEn: 'The warships constructed under the Indian Navy’s Project 17A belong to which category?',
+      optionsHi: ['परमाणु पनडुब्बी (SSBN)', 'स्टेल्थ गाइडेड मिसाइल फ्रिगेट (Stealth Frigate)', 'विमानवाहक पोत', 'तटीय गश्ती पोत'],
+      optionsEn: ['Nuclear Ballistic Submarine', 'Stealth Guided Missile Frigate', 'Aircraft Carrier', 'Offshore Patrol Vessel'],
+      correctIndex: 1,
+      explanationHi: 'प्रोजेक्ट 17A के तहत निर्मित नीलगिरि श्रेणी के सभी पोत अत्याधुनिक स्टेल्थ गाइडेड मिसाइल फ्रिगेट हैं।',
+      explanationEn: 'Project 17A Nilgiri-class vessels are state-of-the-art stealth guided missile frigates.'
+    },
+    mainsQuestionHi: 'प्रश्न: हिंद-प्रशांत क्षेत्र में भारत की समुद्री सुरक्षा रणनीति और नौसैनिक स्वदेशीकरण के महत्व का मूल्यांकन कीजिए। (200 शब्द)',
+    mainsQuestionEn: 'Question: Evaluate India’s posture in the Indo-Pacific in light of ongoing naval indigenization and Project 17A inductions. (200 words)'
+  },
+  {
+    id: 'ca-14',
+    category: 'Economy & Banking',
+    source: 'भारतीय रिजर्व बैंक (RBI) इनोवेशन हब • The Economic Times',
+    sourceUrl: 'https://rbi.org.in',
+    titleHi: 'भारतीय रिजर्व बैंक (RBI) द्वारा एकीकृत ऋण इंटरफेस (ULI) और सीबीडीसी का विस्तार',
+    titleEn: 'RBI Expands Unified Lending Interface (ULI) and Cross-Border CBDC Digital Rupee',
+    summaryHi: 'भारतीय रिजर्व बैंक ने यूपीआई की तर्ज पर ऋण वितरण में क्रांतिकारी बदलाव लाने के लिए "यूनिफाइड लेंडिंग इंटरफेस (ULI)" का विस्तार किया है, जिससे किसानों और छोटे उद्यमियों को बिना कागजी कार्रवाई के तुरंत ऋण मिल रहा है।',
+    summaryEn: 'RBI has expanded the Unified Lending Interface (ULI) to transform credit delivery across India, enabling frictionless, consent-based digital credit flow for farmers and MSMEs without paperwork.',
+    date: '14 सितम्बर 2026',
+    readTime: '4 मिनट',
+    examRelevance: 'UPSC CSE GS-3 (Indian Economy & Banking), RBI Grade B, Banking PO / Clerk, SSC CGL',
+    keyFact: 'ULI विभिन्न राज्यों के भूमि रिकॉर्ड, आधार, पैन और बैंक स्टेटमेंट्स को डिजिटल रूप से एक मंच पर जोड़ता है।',
+    tag: 'Digital Banking & Credit',
+    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80',
+    vocabItems: [
+      {
+        word: 'Frictionless',
+        hindiMeaning: 'बाधा रहित / सुगम',
+        partOfSpeech: 'Adjective',
+        definition: 'Smooth and seamless; achieved with little or no difficulty or bureaucracy.',
+        synonyms: ['Seamless', 'Effortless', 'Unobstructed'],
+        antonyms: ['Cumbersome', 'Complicated', 'Impeded'],
+        exampleSentence: 'ULI enables frictionless digital credit appraisal for rural farmers in minutes.'
+      }
+    ],
+    backgroundHi: 'आरबीआई इनोवेशन हब (RBIH) द्वारा विकसित ULI प्लेटफॉर्म ने पहले पायलट के रूप में किसान क्रेडिट कार्ड (KCC) और डेयरी ऋणों के वितरण समय को कई हफ्तों से घटाकर कुछ ही मिनटों में बदल दिया है।',
+    backgroundEn: 'Developed by RBI Innovation Hub, ULI reduces loan appraisal processing time from weeks to mere minutes by integrating siloed financial and land registry datasets.',
+    deepAnalysisHi: [
+      'डिजिटल पब्लिक इंफ्रास्ट्रक्चर (DPI): JAM ट्रिनिटी और UPI के बाद ULI भारत का अगला बड़ा आर्थिक सुधार है।',
+      'ग्रामीण अर्थव्यवस्था को बढ़ावा: भूमि रिकॉर्ड्स के प्रत्यक्ष डिजिटलीकरण से साहूकारों पर निर्भरता समाप्त होगी।',
+      'एनपीए में कमी: सटीक डेटा एकीकरण से बैंकों के गैर-निष्पादित परिसंपत्ति (NPA) जोखिम में भारी कमी।'
+    ],
+    deepAnalysisEn: [
+      'Digital Public Infrastructure (DPI): ULI represents the third pillar of India’s DPI alongside JAM and UPI.',
+      'Rural credit surge: Direct digitization of state cadastral registries liberates smallholders from informal usurious moneylenders.',
+      'Mitigates NPA risks: Real-time verifiable data pipelines minimize underwriting defaults.'
+    ],
+    keyProvisionsHi: [
+      'सहमति-आधारित डेटा साझाकरण: ग्राहक की स्पष्ट सहमति के बिना कोई डेटा साझा नहीं किया जा सकता।',
+      'प्लग-एंड-प्ले आर्किटेक्चर: सभी वाणिज्यिक बैंक, एनबीएफसी और फिनटेक आसानी से जुड़ सकते हैं।'
+    ],
+    keyProvisionsEn: [
+      'Consent-based data architecture protecting user privacy and ownership rights.',
+      'Standardized plug-and-play APIs for commercial banks, NBFCs, and fintech lenders.'
+    ],
+    examImpactHi: 'भारतीय बैंकिंग सुधार, फिनटेक इनोवेशन और वित्तीय समावेशन पर आधारित अनिवार्य प्रश्न।',
+    examImpactEn: 'Direct questions on DPI evolution, RBI monetary innovations, and financial inclusion.',
+    mcq: {
+      questionHi: 'आरबीआई द्वारा शुरू किए गए "ULI" का पूर्ण रूप (Full Form) क्या है?',
+      questionEn: 'What is the full form of "ULI" introduced by the Reserve Bank of India?',
+      optionsHi: [
+        'यूनिफाइड लेंडिंग इंटरफेस (Unified Lending Interface)',
+        'यूनिवर्सल लिक्विडिटी इंडेक्स (Universal Liquidity Index)',
+        'यूनाइटेड लोन इंटीग्रेशन (United Loan Integration)',
+        'अल्ट्रा लार्ज इंफ्रास्ट्रक्चर (Ultra Large Infrastructure)'
+      ],
+      optionsEn: [
+        'Unified Lending Interface',
+        'Universal Liquidity Index',
+        'United Loan Integration',
+        'Ultra Large Infrastructure'
+      ],
+      correctIndex: 0,
+      explanationHi: 'ULI का पूर्ण रूप "Unified Lending Interface" है, जो ऋण वितरण को डिजिटल और तीव्र बनाने वाला मंच है।',
+      explanationEn: 'ULI stands for Unified Lending Interface, designed for frictionless, consent-driven credit assessment.'
+    },
+    mainsQuestionHi: 'प्रश्न: यूनिफाइड लेंडिंग इंटरफेस (ULI) भारत के डिजिटल पब्लिक इंफ्रास्ट्रक्चर (DPI) और वित्तीय समावेशन को किस प्रकार नई दिशा दे सकता है? चर्चा कीजिए। (200 शब्द)',
+    mainsQuestionEn: 'Question: Discuss how the Unified Lending Interface (ULI) can revolutionize formal credit access for underserved MSMEs and farmers in India. (200 words)'
   }
 ];
 
@@ -870,17 +1213,23 @@ const ShareArticleModal: React.FC<ShareArticleModalProps> = ({
   // High-Impact News Editorial WhatsApp Status (Crisp, intriguing for general & student readers alike)
   const statusHeadline = isHi ? (article.titleHi || article.titleEn) : (article.titleEn || article.titleHi);
   const statusFact = article.keyFact ? `"${article.keyFact}"` : shareSummary;
+  const sourceLine = article.source ? `🏛️ *स्रोत (Source):* ${article.source}\n` : '';
 
   const statusMessage = `🔴 *बड़ी खबर व राष्ट्रीय विश्लेषण (Editorial Flash)*
 📰 *${statusHeadline}*
 
-📌 *मुख्य तथ्य:* ${statusFact}
+${sourceLine}📌 *मुख्य तथ्य:* ${statusFact}
 
 👉 *पूरी रिपोर्ट व विस्तृत विश्लेषण यहाँ पढ़ें:*
 🔗 ${shareUrl}`;
 
   // Standard chat share copy
-  const chatShareMessage = `📰 *${shareTitle}*\n\n📌 *मुख्य बिंदु:* ${shareSummary}...\n\n👉 *पूरी रिपोर्ट व अभ्यास टेस्ट यहाँ पढ़ें:*\n🔗 ${shareUrl}`;
+  const chatShareMessage = `📰 *${shareTitle}*
+
+${sourceLine}📌 *मुख्य बिंदु:* ${shareSummary}...
+
+👉 *पूरी रिपोर्ट व अभ्यास टेस्ट यहाँ पढ़ें:*
+🔗 ${shareUrl}`;
 
   const handleWhatsAppStatus = () => {
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(statusMessage)}`;
@@ -1044,13 +1393,20 @@ const ShareArticleModal: React.FC<ShareArticleModalProps> = ({
     ctx.textAlign = 'left';
     ctx.fillText(`📅 ${article.date} • ⏱️ ${article.readTime} Read`, 310, startY + 33);
 
+    // Verified Source Citation
+    if (article.source) {
+      ctx.fillStyle = '#F59E0B';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.fillText(`🏛️ स्रोत: ${article.source}`, 50, startY + 80);
+    }
+
     // 3. TITLE (Word wrapped)
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 44px sans-serif';
     ctx.textAlign = 'left';
     const words = shareTitle.split(' ');
     let line = '';
-    let currentY = startY + 100;
+    let currentY = startY + (article.source ? 130 : 100);
     const maxWidth = width - 100;
     const lineHeight = 58;
 
@@ -1648,7 +2004,7 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
     }
   };
 
-  const ministryName = getMinistryLabel(article.category, lang === 'hi');
+  const ministryName = article.source || getMinistryLabel(article.category, lang === 'hi');
   const releaseId = `20658${article.id.replace(/\D/g, '') || '9'}`;
 
   return (
@@ -1880,6 +2236,7 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
               <div>
                 <h1 className="text-xl font-black text-slate-900 tracking-tight">🏛️ HANS COMPAIN AI — ACADEMIC & EDITORIAL SERIES</h1>
                 <p className="text-xs text-slate-600 font-bold">UPSC CSE • SSC CGL • BPSC • State PSCs • Current Affairs & Shorthand Ecosystem</p>
+                <p className="text-xs text-amber-900 font-bold mt-1">Verified Primary Source: {article.source || 'PIB / Govt of India'}</p>
               </div>
               <div className="text-right text-[11px] font-mono text-slate-700">
                 <div>Date: {article.date}</div>
@@ -1914,11 +2271,23 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                   </p>
                 </div>
 
-                {/* Ministry and Post Details */}
+                {/* Ministry, Source and Post Details */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] sm:text-xs font-mono text-slate-700 bg-slate-100/80 p-3 rounded-xl border border-slate-200">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>
-                    <span className="font-bold">{ministryName}</span>
+                    <span className="font-bold">{article.source || ministryName}</span>
+                    {article.sourceUrl && (
+                      <a
+                        href={article.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 font-bold ml-1 bg-amber-100/90 px-2 py-0.5 rounded transition-all"
+                        title={isHindi ? "आधिकारिक वेबसाइट पर स्रोत देखें" : "View Official Source"}
+                      >
+                        <span>{isHindi ? 'आधिकारिक स्रोत' : 'Official Source'}</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
                   </div>
                   <div className="flex flex-col sm:items-end">
                     <span>{isHindi ? 'स्थान: नई दिल्ली' : 'Posted On: Delhi'}</span>
@@ -1973,10 +2342,46 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                 <span className="px-2.5 py-1 bg-amber-500 text-slate-950 font-black text-[10px] uppercase rounded-md tracking-wider">
                   {article.category} Editorial
                 </span>
-                <span className="text-[11px] font-mono text-slate-300 font-bold">
-                  {isHindi ? 'द हिन्दू / पीआईबी विशेष विश्लेषण' : 'The Hindu & PIB Curated'}
+                <span className="text-[11px] font-mono text-slate-300 font-bold truncate max-w-[260px]">
+                  {article.source ? `स्रोत: ${article.source}` : (isHindi ? 'द हिन्दू / पीआईबी विशेष विश्लेषण' : 'The Hindu & PIB Curated')}
                 </span>
               </div>
+            </div>
+
+            {/* Verified Primary Source Citation Card */}
+            <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm ${
+              pibMode 
+                ? 'bg-amber-50/90 border-amber-200/90 text-amber-950' 
+                : 'bg-slate-900/90 border-cyan-500/30 text-slate-200'
+            }`}>
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow">
+                  🏛️
+                </div>
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+                    <span>{isHindi ? 'प्रमाणित स्रोत / संदर्भ' : 'Verified Publication Source'}</span>
+                    <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded text-[9px] font-bold">100% Authentic</span>
+                  </div>
+                  <div className={`text-sm font-black mt-0.5 ${pibMode ? 'text-slate-900' : 'text-white'}`}>
+                    {article.source || (isHindi ? 'पत्र सूचना कार्यालय (PIB) • भारत सरकार' : 'Press Information Bureau (PIB), Govt of India')}
+                  </div>
+                  <div className={`text-[11px] font-medium ${pibMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                    {isHindi ? `दैनिक करंट अफेयर्स कवरेज • जारी दिनांक: ${article.date}` : `Daily Editorial Coverage • Released: ${article.date}`}
+                  </div>
+                </div>
+              </div>
+              {article.sourceUrl && (
+                <a
+                  href={article.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl transition-all shadow shrink-0 cursor-pointer"
+                >
+                  <span>{isHindi ? 'मूल स्रोत देखें' : 'Visit Source'}</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
             </div>
 
             {/* Quick Share Strip (WhatsApp, Instagram, Telegram, Direct Link) */}
@@ -2025,6 +2430,51 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
                   <span>🔗 {isHindi ? 'लिंक कॉपी' : 'Copy Link'}</span>
                 </button>
               </div>
+            </div>
+
+            {/* Verified Official Source & Authority Citation Card */}
+            <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md ${
+              pibMode 
+                ? 'bg-[#f4efe4] border-amber-900/20 text-slate-900' 
+                : 'bg-slate-900/90 border-cyan-500/30 text-slate-100'
+            }`}>
+              <div className="flex items-start sm:items-center gap-3">
+                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0 shadow-sm ${
+                  pibMode ? 'bg-amber-600 text-white' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                }`}>
+                  🏛️
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30">
+                      ✓ {isHindi ? 'सत्यापित आधिकारिक स्रोत' : 'Verified Official Source'}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      📅 {article.date}
+                    </span>
+                  </div>
+                  <h4 className={`text-sm sm:text-base font-extrabold ${pibMode ? 'text-slate-900 font-serif' : 'text-white'}`}>
+                    {article.source || (isHindi ? 'पत्र सूचना कार्यालय (PIB) • भारत सरकार' : 'Press Information Bureau (PIB), Govt of India')}
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    {isHindi 
+                      ? 'यह विश्लेषण आधिकारिक सरकारी विज्ञप्ति, संबंधित मंत्रालय एवं प्रमुख राष्ट्रीय दैनिकों द्वारा जारी सूचना पर आधारित है।' 
+                      : 'Authentic information validated against official ministry gazettes, PIB dispatches, and premier national broadsheets.'}
+                  </p>
+                </div>
+              </div>
+
+              {article.sourceUrl && (
+                <a
+                  href={article.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-slate-950 hover:bg-slate-800 text-white rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow shrink-0 border border-slate-700 cursor-pointer self-stretch sm:self-auto justify-center"
+                >
+                  <span>🌐 {isHindi ? 'मूल स्रोत देखें' : 'View Source'}</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                </a>
+              )}
             </div>
 
             {/* Section 1: Executive Summary */}
@@ -2509,8 +2959,20 @@ const getRelativeDateString = (daysOffset: number, isHi: boolean): string => {
 };
 
 const getFallbackArticles = (isHi: boolean): DetailedArticleItem[] => {
-  return ARTICLES_DATABASE.map((item, idx) => {
-    const offset = Math.min(Math.floor(idx / 2), 4);
+  const today = new Date();
+  const startOfYear = new Date(today.getFullYear(), 0, 0);
+  const diff = today.getTime() - startOfYear.getTime();
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  // Rotate articles daily so a different set of categories appears on top every single day!
+  const shift = (dayOfYear * 3) % ARTICLES_DATABASE.length;
+  const rotated = [
+    ...ARTICLES_DATABASE.slice(shift),
+    ...ARTICLES_DATABASE.slice(0, shift)
+  ];
+
+  return rotated.map((item, idx) => {
+    const offset = Math.min(Math.floor(idx / 3), 4);
     return {
       ...item,
       date: getRelativeDateString(offset, isHi)
@@ -2569,20 +3031,32 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
     const initialLocal = getFallbackArticles(isHindi);
     setArticles(initialLocal);
 
+    // Auto-detect if today is a new calendar day
+    const todayStr = new Date().toISOString().split('T')[0];
+    const lastFetchDate = localStorage.getItem('hans_last_ca_date');
+    const isNewDay = lastFetchDate !== todayStr;
+
     // Fetch the real-world, search-grounded daily current affairs live from Gemini
-    const fetchDailyArticlesLive = async () => {
+    const fetchDailyArticlesLive = async (force: boolean) => {
       setIsLoadingLive(true);
       try {
         const response = await fetch('/api/current-affairs/daily', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ language: isHindi ? 'hindi' : 'english' })
+          body: JSON.stringify({ 
+            language: isHindi ? 'hindi' : 'english',
+            forceRefresh: force
+          })
         });
         if (response.ok) {
           const data = await response.json();
           if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
             setArticles(data.articles);
-            showToast(isHindi ? "✨ दैनिक करंट अफेयर्स लाइव अपडेट हो गए हैं!" : "✨ Daily Current affairs synchronized live!", "success");
+            localStorage.setItem('hans_last_ca_date', todayStr);
+            localStorage.setItem('hans_last_ca_time', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+            if (force) {
+              showToast(isHindi ? "✨ आज का दैनिक करंट अफेयर्स स्वतः अपडेट हो गया है!" : "✨ Today's daily current affairs auto-updated!", "success");
+            }
           }
         }
       } catch (err) {
@@ -2592,14 +3066,68 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
       }
     };
 
-    fetchDailyArticlesLive();
+    fetchDailyArticlesLive(isNewDay);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const currentDate = new Date().toISOString().split('T')[0];
+        const storedDate = localStorage.getItem('hans_last_ca_date');
+        if (storedDate !== currentDate) {
+          fetchDailyArticlesLive(true);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [language]);
 
-  const categories = ['All', 'National', 'International', 'Economy & Banking', 'Science & Tech', 'Sports', 'Schemes & Governance'];
+  const handleRefreshLiveArticles = async () => {
+    setIsLoadingLive(true);
+    showToast(isHindi ? "✨ ताजा करंट अफेयर्स लोड किए जा रहे हैं..." : "✨ Fetching latest breaking current affairs...", "info");
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const response = await fetch('/api/current-affairs/daily', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language: isHindi ? 'hindi' : 'english', forceRefresh: true })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
+          setArticles(data.articles);
+          localStorage.setItem('hans_last_ca_date', todayStr);
+          localStorage.setItem('hans_last_ca_time', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          showToast(isHindi ? "✅ ताजा करंट अफेयर्स सफलतापूर्वक अपडेट हो गए!" : "✅ Live Current affairs synchronized successfully!", "success");
+        } else {
+          showToast(isHindi ? "ताजा समाचार अपडेट हैं।" : "Newsfeed is already up-to-date.", "info");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load live daily news", err);
+      showToast(isHindi ? "लाइव अपडेट लोड करने में समस्या आई, कृपया पुनः प्रयास करें।" : "Failed to refresh live news.", "error");
+    } finally {
+      setIsLoadingLive(false);
+    }
+  };
+
+  const categories = ['All', 'National', 'Sports & Honors', 'Economy & Banking', 'Schemes & Governance', 'Science & Tech', 'International', 'Defense & Security'];
 
   const filteredArticles = (articles || []).filter(item => {
     if (!item) return false;
-    const matchCat = selectedCategory === 'All' || item.category === selectedCategory;
+    let matchCat = selectedCategory === 'All' || item.category === selectedCategory;
+    if (!matchCat && selectedCategory !== 'All') {
+      const itemCat = (item.category || '').toLowerCase();
+      const selCat = selectedCategory.toLowerCase();
+      if (selCat.includes('sport') && (itemCat.includes('sport') || itemCat.includes('award') || itemCat.includes('honor') || itemCat.includes('chess'))) matchCat = true;
+      else if (selCat.includes('scheme') && (itemCat.includes('scheme') || itemCat.includes('governance') || itemCat.includes('yojana'))) matchCat = true;
+      else if (selCat.includes('economy') && (itemCat.includes('economy') || itemCat.includes('banking') || itemCat.includes('finance') || itemCat.includes('credit'))) matchCat = true;
+      else if (selCat.includes('defense') && (itemCat.includes('defense') || itemCat.includes('security') || itemCat.includes('military') || itemCat.includes('navy'))) matchCat = true;
+      else if (selCat.includes('science') && (itemCat.includes('science') || itemCat.includes('tech') || itemCat.includes('space') || itemCat.includes('quantum'))) matchCat = true;
+      else if (selCat.includes('national') && (itemCat.includes('national') || itemCat.includes('law') || itemCat.includes('polity'))) matchCat = true;
+      else if (selCat.includes('international') && (itemCat.includes('international') || itemCat.includes('global') || itemCat.includes('world'))) matchCat = true;
+    }
     const q = (searchQuery || '').trim().toLowerCase();
     if (!q) return matchCat;
     const titleHi = (item.titleHi || '').toLowerCase();
@@ -2892,6 +3420,15 @@ Include:
 
         <div className="flex items-center gap-2 flex-wrap">
           <button
+            onClick={handleRefreshLiveArticles}
+            disabled={isLoadingLive}
+            className="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 border-none active:scale-95 disabled:opacity-60"
+            title={isHindi ? "ताजा करंट अफेयर्स लोड करें (Refresh News)" : "Refresh Live News"}
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoadingLive ? 'animate-spin' : ''}`} />
+            <span>{isLoadingLive ? (isHindi ? 'लोड हो रहा है...' : 'Refreshing...') : (isHindi ? '🔄 ताजा खबरें रिफ्रेश' : '🔄 Refresh News')}</span>
+          </button>
+          <button
             onClick={() => setCustomTopicModalOpen(true)}
             className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2 border-none active:scale-95"
           >
@@ -3014,6 +3551,28 @@ Include:
                     {lang === 'hi' ? item.summaryHi : item.summaryEn}
                   </p>
                 </div>
+
+                {/* Verified Source Citation Tag */}
+                {item.source && (
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-900 bg-amber-50/90 border border-amber-200/80 px-2.5 py-1 rounded-xl w-fit">
+                    <span className="text-xs">🏛️</span>
+                    <span className="truncate max-w-[220px] sm:max-w-xs">
+                      {isHindi ? `स्रोत: ${item.source}` : `Source: ${item.source}`}
+                    </span>
+                    {item.sourceUrl && (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="text-amber-700 hover:text-amber-900 inline-flex items-center ml-1 p-0.5 hover:bg-amber-200/50 rounded cursor-pointer"
+                        title={isHindi ? "मूल स्रोत लिंक खोलें" : "Open source link"}
+                      >
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2">

@@ -35,7 +35,7 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 8px rgba(0, 229, 255, 0.45);
 }
 
-/* Print Stylesheet for PDF Exports */
+/* Print Stylesheet for PDF Exports & Official Watermarks */
 @media print {
   body, main, .print-area {
     background: #FFFFFF !important;
@@ -44,6 +44,25 @@ input:focus, textarea:focus, select:focus {
     margin: 0 !important;
     width: 100% !important;
     font-size: 12pt !important;
+    position: relative !important;
+  }
+
+  /* Global Watermark across all printed exam sheets, current affairs & notes */
+  body::before {
+    content: "HANS COMPAIN AI • OFFICIAL STUDY MATERIAL";
+    position: fixed;
+    top: 45%;
+    left: 5%;
+    width: 90%;
+    text-align: center;
+    transform: rotate(-30deg);
+    font-size: 38pt;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.08) !important;
+    z-index: 9999;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
   }
 
   aside, 
