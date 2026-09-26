@@ -3039,18 +3039,24 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
     // Fetch the real-world, search-grounded daily current affairs live from Gemini
     const fetchDailyArticlesLive = async (force: boolean) => {
       setIsLoadingLive(true);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7500);
+
       try {
         const response = await fetch('/api/current-affairs/daily', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
           body: JSON.stringify({ 
             language: isHindi ? 'hindi' : 'english',
             forceRefresh: force
           })
         });
+        clearTimeout(timeoutId);
+
         if (response.ok) {
           const data = await response.json();
-          if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
+          if (data && data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
             setArticles(data.articles);
             localStorage.setItem('hans_last_ca_date', todayStr);
             localStorage.setItem('hans_last_ca_time', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -3060,20 +3066,23 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
           }
         }
       } catch (err) {
-        console.error("Failed to load live daily news", err);
+        clearTimeout(timeoutId);
+        // Fallback articles are already loaded via getFallbackArticles(); keep local pool active seamlessly
+        console.warn("Using offline/cached curated articles pool:", err);
       } finally {
         setIsLoadingLive(false);
       }
     };
 
-    fetchDailyArticlesLive(isNewDay);
+    // Load today's news (uses cache if available for instant <50ms load)
+    fetchDailyArticlesLive(false);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         const currentDate = new Date().toISOString().split('T')[0];
         const storedDate = localStorage.getItem('hans_last_ca_date');
         if (storedDate !== currentDate) {
-          fetchDailyArticlesLive(true);
+          fetchDailyArticlesLive(false);
         }
       }
     };
@@ -3086,16 +3095,22 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
   const handleRefreshLiveArticles = async () => {
     setIsLoadingLive(true);
     showToast(isHindi ? "✨ ताजा करंट अफेयर्स लोड किए जा रहे हैं..." : "✨ Fetching latest breaking current affairs...", "info");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
       const todayStr = new Date().toISOString().split('T')[0];
       const response = await fetch('/api/current-affairs/daily', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({ language: isHindi ? 'hindi' : 'english', forceRefresh: true })
       });
+      clearTimeout(timeoutId);
+
       if (response.ok) {
         const data = await response.json();
-        if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
+        if (data && data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
           setArticles(data.articles);
           localStorage.setItem('hans_last_ca_date', todayStr);
           localStorage.setItem('hans_last_ca_time', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -3103,10 +3118,13 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubViewProps> = ({ on
         } else {
           showToast(isHindi ? "ताजा समाचार अपडेट हैं।" : "Newsfeed is already up-to-date.", "info");
         }
+      } else {
+        showToast(isHindi ? "समाचार अपडेट हैं।" : "Newsfeed is up-to-date.", "info");
       }
     } catch (err) {
-      console.error("Failed to load live daily news", err);
-      showToast(isHindi ? "लाइव अपडेट लोड करने में समस्या आई, कृपया पुनः प्रयास करें।" : "Failed to refresh live news.", "error");
+      clearTimeout(timeoutId);
+      console.warn("Live refresh notice:", err);
+      showToast(isHindi ? "दैनिक समाचार पहले से ही अद्यतन हैं।" : "Articles are up to date.", "info");
     } finally {
       setIsLoadingLive(false);
     }

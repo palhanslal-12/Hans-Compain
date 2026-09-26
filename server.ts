@@ -3654,14 +3654,7 @@ app.post("/api/current-affairs/daily", async (req, res) => {
   const todayString = today.toISOString().split('T')[0];
   const cacheFile = path.join(DATA_DIR, `current_affairs_daily_${isHindi ? 'hi' : 'en'}_${todayString}.json`);
 
-  // 1. If forceRefresh is requested, remove any stale cache for today
-  if (forceRefresh && fs.existsSync(cacheFile)) {
-    try {
-      fs.unlinkSync(cacheFile);
-    } catch (e) {}
-  }
-
-  // 2. Check if cached version for today already exists and has complete metadata & source
+  // 1. Check if cached version for today already exists and has complete metadata & source
   if (!forceRefresh && fs.existsSync(cacheFile)) {
     try {
       const cachedData = JSON.parse(fs.readFileSync(cacheFile, "utf-8"));
@@ -4269,12 +4262,16 @@ Structure for each object:
   "mainsQuestionEn": "Mains analytical question in English"
 }`;
 
-    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
-      contents: prompt,
-      config: {
-        tools: [{ googleSearch: {} }]
-      }
-    });
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Live search query timeout")), 6500));
+    const response = await Promise.race([
+      generateContentWithFallback(ai, "gemini-2.5-flash", {
+        contents: prompt,
+        config: {
+          tools: [{ googleSearch: {} }]
+        }
+      }),
+      timeoutPromise
+    ]) as any;
 
     const rawText = response.text || "";
     if (rawText) {
