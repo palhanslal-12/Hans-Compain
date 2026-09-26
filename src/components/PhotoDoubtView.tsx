@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, Upload, Sparkles, CheckCircle2, HelpCircle, Download, FileText } from 'lucide-react';
+import { optimizeImageFile } from '../utils/imageUtils';
 
 interface PhotoDoubtViewProps {
   onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
@@ -14,20 +15,21 @@ export const PhotoDoubtView: React.FC<PhotoDoubtViewProps> = ({ onExportPdf, sho
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<any | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64String = (reader.result as string).split(",")[1];
+    try {
+      showToast(isHindi ? "इमेज ऑप्टिमाइज़ हो रही है..." : "Optimizing image...", "info");
+      const optimized = await optimizeImageFile(file, 1600, 0.85);
       setImage({
-        mimeType: file.type,
-        data: base64String,
-        previewUrl: URL.createObjectURL(file)
+        mimeType: optimized.mimeType,
+        data: optimized.data,
+        previewUrl: optimized.previewUrl
       });
-      showToast(isHindi ? "प्रश्न की फोटो अपलोड हो गई! 'डाउट हल करें' पर क्लिक करें। 📸" : "Question photo uploaded! Click Solve Doubt to process. 📸", "info");
-    };
-    reader.readAsDataURL(file);
+      showToast(isHindi ? "प्रश्न की फोटो तैयार है! 'डाउट हल करें' पर क्लिक करें। 📸" : "Question photo ready! Click Solve Doubt to process. 📸", "success");
+    } catch (err) {
+      showToast(isHindi ? "इमेज लोड करने में त्रुटि" : "Error loading image", "warn");
+    }
   };
 
   const handleSolveDoubt = async (e: React.FormEvent) => {

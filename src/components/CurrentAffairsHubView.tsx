@@ -4,7 +4,7 @@ import {
   Volume2, VolumeX, Share2, ArrowRight, CheckCircle2, Bookmark, 
   Flame, Target, MessageSquare, Send, Mic, MicOff, X, 
   HelpCircle, RefreshCw, ChevronRight, Lightbulb, FileText, Check,
-  Printer
+  Printer, Copy
 } from 'lucide-react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
 
@@ -852,51 +852,71 @@ const ShareArticleModal: React.FC<ShareArticleModalProps> = ({
   showToast
 }) => {
   const isHi = language === 'hindi';
+  const [activeTab, setActiveTab] = useState<'status' | 'card'>('status');
+  const [cardFormat, setCardFormat] = useState<'story' | 'post'>('story'); // 9:16 story or 1:1 post
+  const [generatedImgDataUrl, setGeneratedImgDataUrl] = useState<string | null>(null);
+  const [isGeneratingCard, setIsGeneratingCard] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   if (!isOpen || !article) return null;
 
   const shareTitle = isHi ? (article.titleHi || article.titleEn || '') : (article.titleEn || article.titleHi || '');
-  const shareSummary = isHi ? (article.summaryHi || article.summaryEn || '').slice(0, 160) : (article.summaryEn || article.summaryHi || '').slice(0, 160);
-  const shareUrl = `${window.location.origin}${window.location.pathname}?tab=current-affairs&article=${article.id || ''}`;
+  const shareSummary = isHi ? (article.summaryHi || article.summaryEn || '').slice(0, 180) : (article.summaryEn || article.summaryHi || '').slice(0, 180);
   
-  const formattedShareMessage = `📰 *${shareTitle}*\n\n📌 *मुख्य सारांश:* ${shareSummary}...\n\n🎯 *परीक्षा उपयोगिता:* ${article.examRelevance}\n\n📖 पूरा संपादकीय, शब्दावली (Antonyms/Synonyms) व अभ्यास MCQs पढ़ने के लिए नीचे लिंक पर क्लिक करें:\n👉 ${shareUrl}`;
+  // Clean, direct shareable URL
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://hans-compain.app';
+  const shareUrl = `${originUrl}/?tab=current-affairs&article=${article.id || ''}`;
+  
+  // High-Impact News Editorial WhatsApp Status (Crisp, intriguing for general & student readers alike)
+  const statusHeadline = isHi ? (article.titleHi || article.titleEn) : (article.titleEn || article.titleHi);
+  const statusFact = article.keyFact ? `"${article.keyFact}"` : shareSummary;
 
-  const handleWhatsAppShare = () => {
-    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedShareMessage)}`;
+  const statusMessage = `🔴 *बड़ी खबर व राष्ट्रीय विश्लेषण (Editorial Flash)*
+📰 *${statusHeadline}*
+
+📌 *मुख्य तथ्य:* ${statusFact}
+
+👉 *पूरी रिपोर्ट व विस्तृत विश्लेषण यहाँ पढ़ें:*
+🔗 ${shareUrl}`;
+
+  // Standard chat share copy
+  const chatShareMessage = `📰 *${shareTitle}*\n\n📌 *मुख्य बिंदु:* ${shareSummary}...\n\n👉 *पूरी रिपोर्ट व अभ्यास टेस्ट यहाँ पढ़ें:*\n🔗 ${shareUrl}`;
+
+  const handleWhatsAppStatus = () => {
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(statusMessage)}`;
+    window.open(waUrl, '_blank');
+    showToast(isHi ? "WhatsApp स्टेटस विंडो खुल रही है..." : "Opening WhatsApp Status...", "success");
+  };
+
+  const handleWhatsAppChat = () => {
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(chatShareMessage)}`;
     window.open(waUrl, '_blank');
     showToast(isHi ? "WhatsApp शेयरिंग विंडो खुल रही है..." : "Opening WhatsApp...", "success");
   };
 
   const handleTelegramShare = () => {
-    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(formattedShareMessage)}`;
+    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(chatShareMessage)}`;
     window.open(tgUrl, '_blank');
     showToast(isHi ? "Telegram शेयरिंग विंडो खुल रही है..." : "Opening Telegram...", "success");
   };
 
   const handleInstagramShare = () => {
-    const igCaption = `📰 ${shareTitle}\n\n${shareSummary}...\n\n🎯 Focus: ${article.examRelevance}\n\n🔗 Read Full Editorial at: ${shareUrl}\n\n#HansCompain #CurrentAffairs2026 #UPSC #SSCCGL #PIB #TheHindu`;
+    const igCaption = `📰 ${shareTitle}\n\n📌 Key Fact: "${article.keyFact}"\n\n🎯 Focus: ${article.examRelevance}\n\n🔗 Read Full Editorial at: ${shareUrl}\n\n#HansCompain #CurrentAffairs2026 #UPSC #SSCCGL #PIB #TheHindu`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(igCaption);
     }
     showToast(
       isHi 
-        ? "✓ इंस्टाग्राम कैप्शन व लिंक कॉपी हो गया! अब Instagram खोलकर अपनी स्टोरी या चैट में पेस्ट करें।" 
+        ? "✓ इंस्टाग्राम स्टेटस कैप्शन व लिंक कॉपी हो गया! अब Instagram स्टोरी या DM में पेस्ट करें।" 
         : "✓ Instagram caption & link copied! Paste into your Story or DM.", 
       "success"
     );
   };
 
-  const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: `${shareTitle} - ${shareSummary}`,
-          url: shareUrl
-        });
-        showToast(isHi ? "आर्टिकल शेयर किया गया!" : "Article shared!", "success");
-      } catch (err) {}
-    } else {
-      handleCopyLink();
+  const handleCopyStatusText = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(statusMessage);
+      showToast(isHi ? "✓ स्टेटस टेक्स्ट व लिंक कॉपी हो गया! अब WhatsApp Status पर पेस्ट करें।" : "✓ Status text & link copied!", "success");
     }
   };
 
@@ -907,11 +927,244 @@ const ShareArticleModal: React.FC<ShareArticleModalProps> = ({
     }
   };
 
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: statusMessage,
+          url: shareUrl
+        });
+        showToast(isHi ? "आर्टिकल शेयर किया गया!" : "Article shared!", "success");
+      } catch (err) {}
+    } else {
+      handleCopyStatusText();
+    }
+  };
+
+  // Generate High-Definition Canvas Status Image with Watermark
+  const generateStatusCard = () => {
+    setIsGeneratingCard(true);
+    const canvas = document.createElement('canvas');
+    const isVerticalStory = cardFormat === 'story';
+    const width = 1080;
+    const height = isVerticalStory ? 1920 : 1080;
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      setIsGeneratingCard(false);
+      return;
+    }
+
+    // 1. Dark Premium Gradient Background
+    const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+    bgGrad.addColorStop(0, '#060B18');
+    bgGrad.addColorStop(0.5, '#0B132B');
+    bgGrad.addColorStop(1, '#020617');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, width, height);
+
+    // 2. Load Subject-Specific Image or draw fallback banner
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const fallbackDraw = () => {
+      // Draw stylized topic banner
+      const bannerGrad = ctx.createLinearGradient(0, 0, width, isVerticalStory ? 750 : 450);
+      bannerGrad.addColorStop(0, '#0F172A');
+      bannerGrad.addColorStop(1, '#1E293B');
+      ctx.fillStyle = bannerGrad;
+      ctx.fillRect(0, 0, width, isVerticalStory ? 750 : 450);
+
+      finishDrawingCanvas(ctx, width, height, isVerticalStory);
+    };
+
+    img.onload = () => {
+      try {
+        // Draw Image cropped to header zone
+        const imgHeight = isVerticalStory ? 800 : 480;
+        ctx.drawImage(img, 0, 0, width, imgHeight);
+
+        // Smooth Dark Gradient Overlay over Image bottom
+        const imgFade = ctx.createLinearGradient(0, imgHeight - 350, 0, imgHeight + 50);
+        imgFade.addColorStop(0, 'rgba(6, 11, 24, 0)');
+        imgFade.addColorStop(0.8, 'rgba(6, 11, 24, 0.95)');
+        imgFade.addColorStop(1, '#060B18');
+        ctx.fillStyle = imgFade;
+        ctx.fillRect(0, imgHeight - 350, width, 400);
+
+        finishDrawingCanvas(ctx, width, height, isVerticalStory);
+      } catch (e) {
+        fallbackDraw();
+      }
+    };
+
+    img.onerror = () => {
+      fallbackDraw();
+    };
+
+    img.src = article.imageUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80";
+  };
+
+  const finishDrawingCanvas = (ctx: CanvasRenderingContext2D, width: number, height: number, isVerticalStory: boolean) => {
+    // 1. TOP OFFICIAL BADGE & WATERMARK
+    ctx.fillStyle = 'rgba(6, 11, 24, 0.85)';
+    ctx.beginPath();
+    ctx.roundRect(40, 40, width - 80, 80, 20);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#38BDF8';
+    ctx.font = 'bold 28px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('🏛️ HANS COMPAIN AI', 70, 90);
+
+    ctx.fillStyle = '#F59E0B';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('THE HINDU & PIB EDITORIAL', width - 70, 90);
+
+    // 2. CATEGORY PILL
+    const startY = isVerticalStory ? 760 : 490;
+    ctx.fillStyle = '#F59E0B';
+    ctx.beginPath();
+    ctx.roundRect(50, startY, 240, 48, 12);
+    ctx.fill();
+
+    ctx.fillStyle = '#0F172A';
+    ctx.font = '900 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(article.category.toUpperCase(), 170, startY + 33);
+
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`📅 ${article.date} • ⏱️ ${article.readTime} Read`, 310, startY + 33);
+
+    // 3. TITLE (Word wrapped)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 44px sans-serif';
+    ctx.textAlign = 'left';
+    const words = shareTitle.split(' ');
+    let line = '';
+    let currentY = startY + 100;
+    const maxWidth = width - 100;
+    const lineHeight = 58;
+
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        ctx.fillText(line, 50, currentY);
+        line = words[n] + ' ';
+        currentY += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, 50, currentY);
+
+    // 4. KEY EXAM DATA HIGHLIGHT BOX
+    currentY += 40;
+    const boxHeight = isVerticalStory ? 260 : 180;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    ctx.beginPath();
+    ctx.roundRect(50, currentY, width - 100, boxHeight, 24);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FBBF24';
+    ctx.font = '900 26px sans-serif';
+    ctx.fillText('⚡ EXAM FOCUS & KEY FACT:', 80, currentY + 50);
+
+    ctx.fillStyle = '#E2E8F0';
+    ctx.font = 'italic 500 28px sans-serif';
+    
+    // Wrap key fact
+    const factWords = `"${article.keyFact}"`.split(' ');
+    let fLine = '';
+    let fY = currentY + 100;
+    for (let i = 0; i < factWords.length; i++) {
+      const tLine = fLine + factWords[i] + ' ';
+      if (ctx.measureText(tLine).width > width - 180 && i > 0) {
+        ctx.fillText(fLine, 80, fY);
+        fLine = factWords[i] + ' ';
+        fY += 40;
+      } else {
+        fLine = tLine;
+      }
+    }
+    ctx.fillText(fLine, 80, fY);
+
+    // 5. CALL TO ACTION & DIRECT LINK BOX
+    currentY += boxHeight + 40;
+    const ctaHeight = isVerticalStory ? 210 : 130;
+    const ctaGrad = ctx.createLinearGradient(50, currentY, width - 50, currentY + ctaHeight);
+    ctaGrad.addColorStop(0, '#0284C7');
+    ctaGrad.addColorStop(1, '#4F46E5');
+    ctx.fillStyle = ctaGrad;
+    ctx.beginPath();
+    ctx.roundRect(50, currentY, width - 100, ctaHeight, 24);
+    ctx.fill();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 32px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('👉 पूरा संपादकीय व प्रैक्टिस MCQs यहाँ पढ़ें:', width / 2, currentY + 60);
+
+    ctx.fillStyle = '#FEF08A';
+    ctx.font = 'bold 28px monospace';
+    ctx.fillText(shareUrl, width / 2, currentY + 115);
+
+    if (isVerticalStory) {
+      ctx.fillStyle = '#E0E7FF';
+      ctx.font = '500 22px sans-serif';
+      ctx.fillText('✨ UPSC • SSC CGL • BPSC • Railway RRB • Defense Exams', width / 2, currentY + 165);
+    }
+
+    // 6. OFFICIAL BOTTOM WATERMARK
+    const bottomY = height - 70;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.fillRect(50, bottomY - 30, width - 100, 1);
+
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🛡️ HANS COMPAIN AI — Study Smart. Rank High. • Official Verified Series', width / 2, bottomY + 20);
+
+    // 7. Save Canvas as Data URL
+    try {
+      const dataUrl = ctx.canvas.toDataURL('image/png');
+      setGeneratedImgDataUrl(dataUrl);
+    } catch (e) {}
+    setIsGeneratingCard(false);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'card') {
+      generateStatusCard();
+    }
+  }, [activeTab, cardFormat, article]);
+
+  const handleDownloadCard = () => {
+    if (!generatedImgDataUrl) return;
+    const link = document.createElement('a');
+    link.download = `HansCompain_${article.id || 'article'}_Status.png`;
+    link.href = generatedImgDataUrl;
+    link.click();
+    showToast(isHi ? "✓ स्टेटस कार्ड डाउनलोड हो गया!" : "✓ Status Card downloaded!", "success");
+  };
+
   return (
-    <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in text-left">
-      <div className="bg-[#0b1120] border border-cyan-500/40 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl text-slate-100">
+    <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in text-left">
+      <div className="bg-[#0b1120] border border-cyan-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto">
         
-        {/* Header */}
+        {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
@@ -919,10 +1172,10 @@ const ShareArticleModal: React.FC<ShareArticleModalProps> = ({
             </div>
             <div>
               <h3 className="font-black text-white text-base">
-                {isHi ? 'संपादकीय लेख शेयर करें' : 'Share Editorial Article'}
+                {isHi ? 'स्टेटस व सोशल शेयर इंजन' : 'Status & Social Share Engine'}
               </h3>
               <p className="text-xs text-slate-400">
-                {isHi ? 'मित्रों, ग्रुप्स और सोशल मीडिया पर साझा करें' : 'Share direct deep-link with study groups'}
+                {isHi ? 'WhatsApp स्टेटस, स्टोरी व डायरेक्ट लिंक शेयर करें' : 'Share WhatsApp Status, Story Card & Direct Link'}
               </p>
             </div>
           </div>
@@ -934,103 +1187,237 @@ const ShareArticleModal: React.FC<ShareArticleModalProps> = ({
           </button>
         </div>
 
-        {/* Article Preview Card */}
-        <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-2xl flex items-center gap-3">
-          {article.imageUrl ? (
-            <img src={article.imageUrl} alt={article.titleEn} className="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
-          ) : (
-            <div className="w-14 h-14 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl shrink-0">
-              📰
-            </div>
-          )}
-          <div className="min-w-0 space-y-0.5">
-            <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">
-              {article.category}
-            </span>
-            <h4 className="text-xs font-bold text-white line-clamp-2">
-              {shareTitle}
-            </h4>
-          </div>
+        {/* Mode Selector Tabs */}
+        <div className="flex rounded-xl bg-slate-900/90 p-1 border border-slate-800">
+          <button
+            onClick={() => setActiveTab('status')}
+            className={`flex-1 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              activeTab === 'status' 
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md' 
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>💬</span>
+            <span>{isHi ? 'WhatsApp स्टेटस व 1-क्लिक शेयर' : 'WhatsApp Status & Quick Share'}</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('card')}
+            className={`flex-1 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              activeTab === 'card' 
+                ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-md' 
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>🎨</span>
+            <span>{isHi ? 'HD स्टेटस इमेज कार्ड (वाटरमार्क)' : 'HD Story Card (Watermarked)'}</span>
+          </button>
         </div>
 
-        {/* Share Action Buttons */}
-        <div className="space-y-2.5">
-          {/* WhatsApp */}
-          <button
-            onClick={handleWhatsAppShare}
-            className="w-full p-3 bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 text-[#25D366] rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-lg">💬</span>
-              <span>{isHi ? 'WhatsApp पर शेयर करें' : 'Share on WhatsApp'}</span>
-            </div>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-
-          {/* Telegram */}
-          <button
-            onClick={handleTelegramShare}
-            className="w-full p-3 bg-[#229ED9]/15 hover:bg-[#229ED9]/25 border border-[#229ED9]/40 text-[#229ED9] rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-lg">✈️</span>
-              <span>{isHi ? 'Telegram पर शेयर करें' : 'Share on Telegram'}</span>
-            </div>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-
-          {/* Instagram */}
-          <button
-            onClick={handleInstagramShare}
-            className="w-full p-3 bg-gradient-to-r from-purple-500/15 via-pink-500/15 to-orange-500/15 hover:from-purple-500/25 hover:to-orange-500/25 border border-pink-500/40 text-pink-300 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-lg">📸</span>
-              <span>{isHi ? 'Instagram स्टोरी / DM हेतु कॉपी करें' : 'Copy for Instagram Story / DM'}</span>
-            </div>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-
-          {/* Native Web Share if available */}
-          {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
-            <button
-              onClick={handleNativeShare}
-              className="w-full p-3 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer group"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-lg">📱</span>
-                <span>{isHi ? 'डिवाइस शेयर शीट खोलें' : 'Open Device Share Sheet'}</span>
+        {/* TAB 1: WHATSAPP STATUS & ONE-CLICK SOCIAL SHARE */}
+        {activeTab === 'status' && (
+          <div className="space-y-4 animate-fade-in">
+            {/* Article Preview Snippet */}
+            <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-2xl flex items-center gap-3">
+              {article.imageUrl ? (
+                <img src={article.imageUrl} alt={article.titleEn} className="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
+              ) : (
+                <div className="w-14 h-14 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl shrink-0">
+                  📰
+                </div>
+              )}
+              <div className="min-w-0 space-y-0.5">
+                <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">
+                  {article.category}
+                </span>
+                <h4 className="text-xs font-bold text-white line-clamp-2">
+                  {shareTitle}
+                </h4>
               </div>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          )}
-        </div>
+            </div>
 
-        {/* Direct Link Copy Input */}
-        <div className="space-y-1.5 pt-1">
-          <label className="text-[11px] font-bold text-slate-400 block">
-            {isHi ? 'डायरेक्ट आर्टिकल वेब लिंक:' : 'Direct Article Web Link:'}
-          </label>
-          <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2">
-            <input 
-              type="text" 
-              readOnly 
-              value={shareUrl} 
-              className="bg-transparent border-none outline-none text-xs text-slate-300 flex-1 font-mono truncate select-all" 
-            />
-            <button
-              onClick={handleCopyLink}
-              className="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-lg text-xs font-black transition-all cursor-pointer shrink-0"
-            >
-              {isHi ? 'कॉपी करें' : 'Copy'}
-            </button>
+            {/* Formatted WhatsApp Status Preview Box */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                  <span>📱</span>
+                  <span>{isHi ? 'WhatsApp स्टेटस प्रीव्यू (क्लिकेबल लिंक के साथ):' : 'Status Preview (With Clickable Link):'}</span>
+                </span>
+                <button
+                  onClick={handleCopyStatusText}
+                  className="text-[10px] font-bold text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>{isHi ? 'टेक्स्ट कॉपी करें' : 'Copy Text'}</span>
+                </button>
+              </div>
+              <div className="p-3 bg-slate-950 border border-emerald-500/30 rounded-2xl text-[11px] text-slate-300 font-sans leading-relaxed whitespace-pre-wrap max-h-36 overflow-y-auto">
+                {statusMessage}
+              </div>
+            </div>
+
+            {/* Primary Action Buttons */}
+            <div className="space-y-2">
+              {/* WhatsApp Status Button */}
+              <button
+                onClick={handleWhatsAppStatus}
+                className="w-full p-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-black text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer shadow-lg shadow-emerald-950/40 group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-lg">📲</span>
+                  <span>{isHi ? 'WhatsApp स्टेटस पर सेट करें (डायरेक्ट लिंक सहित)' : 'Set WhatsApp Status (With Live Link)'}</span>
+                </div>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              {/* Grid for other share channels */}
+              <div className="grid grid-cols-2 gap-2">
+                {/* WhatsApp Chat */}
+                <button
+                  onClick={handleWhatsAppChat}
+                  className="p-2.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>💬</span>
+                  <span>{isHi ? 'WhatsApp चैट / ग्रुप' : 'WhatsApp Chat'}</span>
+                </button>
+
+                {/* Telegram */}
+                <button
+                  onClick={handleTelegramShare}
+                  className="p-2.5 bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 text-sky-300 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>✈️</span>
+                  <span>Telegram</span>
+                </button>
+
+                {/* Instagram */}
+                <button
+                  onClick={handleInstagramShare}
+                  className="p-2.5 bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/40 text-pink-300 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>📸</span>
+                  <span>Instagram Story / DM</span>
+                </button>
+
+                {/* Native Share */}
+                <button
+                  onClick={handleNativeShare}
+                  className="p-2.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>📱</span>
+                  <span>{isHi ? 'डिवाइस शेयर शीट' : 'Device Share'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Direct Link Box */}
+            <div className="space-y-1.5 pt-1">
+              <label className="text-[11px] font-bold text-slate-400 block">
+                {isHi ? '🔗 डायरेक्ट आर्टिकल वेब लिंक:' : '🔗 Direct Article Web Link:'}
+              </label>
+              <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2">
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={shareUrl} 
+                  className="bg-transparent border-none outline-none text-xs text-slate-300 flex-1 font-mono truncate select-all" 
+                />
+                <button
+                  onClick={handleCopyLink}
+                  className="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-lg text-xs font-black transition-all cursor-pointer shrink-0"
+                >
+                  {isHi ? 'कॉपी करें' : 'Copy'}
+                </button>
+              </div>
+            </div>
           </div>
-          <p className="text-[10px] text-slate-500">
-            {isHi 
-              ? '💡 जिसे आप यह लिंक भेजेंगे, वह 4-5 पंक्तियाँ सारांश पढ़ने के बाद पूरे विश्लेषण के लिए लॉगिन कर सकेगा।' 
-              : '💡 Recipients can read the introductory summary, then log in for full dimensions & vocab analysis.'}
-          </p>
-        </div>
+        )}
+
+        {/* TAB 2: HD VISUAL STATUS CARD GENERATOR (WITH WATERMARK) */}
+        {activeTab === 'card' && (
+          <div className="space-y-4 animate-fade-in">
+            {/* Aspect Ratio Switcher */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-300">
+                {isHi ? 'इमेज फॉर्मेट चुनें:' : 'Select Card Format:'}
+              </span>
+              <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                <button
+                  onClick={() => setCardFormat('story')}
+                  className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    cardFormat === 'story' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  📱 9:16 Story
+                </button>
+                <button
+                  onClick={() => setCardFormat('post')}
+                  className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    cardFormat === 'post' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  🖼️ 1:1 Square
+                </button>
+              </div>
+            </div>
+
+            {/* Visual Card Preview */}
+            <div className="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center p-2 min-h-[220px]">
+              {isGeneratingCard ? (
+                <div className="flex flex-col items-center gap-2 text-slate-400 py-10">
+                  <RefreshCw className="w-6 h-6 animate-spin text-cyan-400" />
+                  <span className="text-xs font-bold">{isHi ? 'वाटरमार्क स्टेटस कार्ड तैयार हो रहा है...' : 'Generating Watermarked Card...'}</span>
+                </div>
+              ) : generatedImgDataUrl ? (
+                <div className="space-y-2 w-full flex flex-col items-center">
+                  <img
+                    src={generatedImgDataUrl}
+                    alt="Hans Compain Status Card"
+                    className={`rounded-xl shadow-2xl border border-slate-800 object-contain ${
+                      cardFormat === 'story' ? 'max-h-72 w-auto' : 'max-h-60 w-auto'
+                    }`}
+                  />
+                  <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{isHi ? 'वाटरमार्क: HANS COMPAIN AI • आधिकारिक स्टडी सीरीज़' : 'Official Watermark: HANS COMPAIN AI'}</span>
+                  </span>
+                </div>
+              ) : (
+                <button
+                  onClick={generateStatusCard}
+                  className="px-4 py-2 bg-cyan-600 text-white rounded-xl text-xs font-bold"
+                >
+                  Generate Card
+                </button>
+              )}
+            </div>
+
+            {/* Card Action Buttons */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                onClick={handleDownloadCard}
+                disabled={!generatedImgDataUrl}
+                className="p-3 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-cyan-950/40"
+              >
+                <span>⬇️</span>
+                <span>{isHi ? 'स्टेटस इमेज डाउनलोड करें' : 'Download Status Image'}</span>
+              </button>
+
+              <button
+                onClick={handleWhatsAppStatus}
+                className="p-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-950/40"
+              >
+                <span>💬</span>
+                <span>{isHi ? 'WhatsApp पर लगाएं' : 'Post to WhatsApp'}</span>
+              </button>
+            </div>
+
+            <p className="text-[10px] text-slate-400 text-center">
+              {isHi 
+                ? '💡 इस इमेज को डाउनलोड करके WhatsApp Status या Instagram Story में लगाएं और साथ में लिंक पेस्ट करें।' 
+                : '💡 Download this image and attach it to your WhatsApp Status or Instagram Story with the live link.'}
+            </p>
+          </div>
+        )}
 
       </div>
     </div>
@@ -1439,10 +1826,70 @@ const ArticleDetailModal: React.FC<ArticleDetailModalProps> = ({
         </div>
 
         {/* Modal Body - Dynamic Styles based on pibMode */}
-        <div className={`flex-1 overflow-y-auto p-4 sm:p-8 relative transition-colors duration-300 ${
+        <div className={`flex-1 overflow-y-auto p-4 sm:p-8 relative transition-colors duration-300 print:overflow-visible print:p-0 print:bg-white print:text-black ${
           pibMode ? 'bg-[#fcfbf9] text-slate-900' : 'bg-[#0a0f1d] text-slate-100'
         }`}>
-          <div className={`mx-auto transition-all duration-300 ${isDoubtDrawerOpen ? 'max-w-3xl' : 'max-w-4xl'} space-y-6`}>
+          {/* PRINT-ONLY OFFICIAL WATERMARK & STYLES */}
+          <style>{`
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .print-article-container, .print-article-container * {
+                visibility: visible;
+              }
+              .print-article-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+                padding: 20px !important;
+              }
+              .no-print {
+                display: none !important;
+              }
+              .print-watermark-overlay {
+                position: fixed;
+                top: 35%;
+                left: 10%;
+                width: 80%;
+                text-align: center;
+                transform: rotate(-35deg);
+                font-size: 52px;
+                font-weight: 900;
+                color: rgba(0, 0, 0, 0.06);
+                pointer-events: none;
+                z-index: 1000;
+                text-transform: uppercase;
+                letter-spacing: 6px;
+                line-height: 1.4;
+              }
+            }
+          `}</style>
+
+          {/* Watermark element for print */}
+          <div className="hidden print:block print-watermark-overlay">
+            HANS COMPAIN AI<br />OFFICIAL STUDY MATERIAL • VERIFIED
+          </div>
+
+          {/* PRINT ONLY OFFICIAL DOCUMENT HEADER */}
+          <div className="hidden print:block border-b-2 border-slate-900 pb-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">🏛️ HANS COMPAIN AI — ACADEMIC & EDITORIAL SERIES</h1>
+                <p className="text-xs text-slate-600 font-bold">UPSC CSE • SSC CGL • BPSC • State PSCs • Current Affairs & Shorthand Ecosystem</p>
+              </div>
+              <div className="text-right text-[11px] font-mono text-slate-700">
+                <div>Date: {article.date}</div>
+                <div>ID: {article.id.toUpperCase()}</div>
+                <div>https://hans-compain.app</div>
+              </div>
+            </div>
+          </div>
+
+          <div className={`mx-auto transition-all duration-300 print-article-container ${isDoubtDrawerOpen ? 'max-w-3xl' : 'max-w-4xl'} space-y-6`}>
             
             {/* AUTHENTIC PIB BANNER WRAPPER */}
             {pibMode && (

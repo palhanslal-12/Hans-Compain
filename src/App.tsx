@@ -177,6 +177,7 @@ import {
   deleteLogFromFirestore,
   RealOwnerAnalyticsData
 } from './lib/firebase';
+import { optimizeImageFile } from './utils/imageUtils';
 
 // Multi-lingual Dynamic Translations Map
 const translations: Record<'english' | 'hindi' | 'spanish' | 'french' | 'german', Record<string, string>> = {
@@ -1489,6 +1490,47 @@ export default function App() {
       console.warn("Live pageview logging failed", e);
     }
   }, [activeView, user?.email]);
+
+  // Periodic Heartbeat Tracker (Sends 30s active engagement ping so Admin knows exactly who is online and for how long)
+  useEffect(() => {
+    const storedVisitorId = localStorage.getItem('hansai_visitor_id') || 'visitor_' + Date.now();
+    const storedEmail = user?.email || localStorage.getItem('hansai_user_email') || '';
+    const storedName = user?.name || localStorage.getItem('hansai_user_name') || '';
+    
+    const viewTitlesMap: Record<string, string> = {
+      'chat': '🏠 होम AI चैट ट्यूटर',
+      'current-affairs': '📰 दैनिक समसामयिकी (The Hindu / PIB)',
+      'steno': '⚡ पिटमैन शॉर्टहैंड स्टेनो लैब',
+      'quiz': '🧠 अध्यायवार अभ्यास क्विज़',
+      'sarkari-result': '🏛️ सरकारी रिजल्ट व जॉब अलर्ट्स',
+      'book-reader': '📖 NCERT व मानक बुक्स रीडर',
+      'global-reader': '🌍 ग्लोबल बुक्स लाइब्रेरी',
+      'notes-ocr': '📑 हस्तलिखित नोट्स OCR स्कैनर',
+      'pyq': '📖 विगत वर्ष प्रश्न पत्र (PYQ बैंक)',
+      'study-plan': '📅 व्यक्तिगत अध्ययन योजना (Study Plan)',
+      'music-studio': '🎵 फोकस स्टडी म्यूजिक व बाइनॉरल बीट्स',
+      'bharti-bhawan': '📗 भारती भवन बुक्स & अध्ययन केंद्र',
+      'owner-dashboard': '👑 HANS AI ओनर एडमिन कंसोल'
+    };
+    const pageTitle = viewTitlesMap[activeView] || (activeView ? `सेक्शन: ${activeView}` : 'Home Tutor');
+
+    const interval = setInterval(() => {
+      fetch('/api/users/heartbeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitorId: storedVisitorId,
+          email: storedEmail,
+          name: storedName,
+          activeView,
+          activeViewTitle: pageTitle,
+          durationSeconds: 30
+        })
+      }).catch(() => {});
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [activeView, user?.email, user?.name]);
 
   // Owner analytics state (for owner dashboard) with full RealOwnerAnalyticsData schema
   const [ownerAnalyticsData, setOwnerAnalyticsData] = useState<RealOwnerAnalyticsData>({
@@ -5367,44 +5409,17 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
 
   // Trigger Chatbot API Request
   const handleSendChat = async (textToSend?: string) => {
-    // Daily 10-Query Limit Check
+    // Record daily interaction count for analytics (No hard blocking for students or owner)
     const today = new Date().toISOString().slice(0, 10);
-    let usage = { date: today, count: 0 };
     try {
+      let usage = { date: today, count: 0 };
       const raw = localStorage.getItem('hansai_usage');
       if (raw) usage = JSON.parse(raw);
+      if (usage.date !== today) usage = { date: today, count: 0 };
+      usage.count++;
+      localStorage.setItem('hansai_usage', JSON.stringify(usage));
     } catch {}
-    if (usage.date !== today) {
-      usage = { date: today, count: 0 };
-    }
-    if (usage.count >= 10) {
-      showToast(
-        language === 'hindi'
-          ? "दैनिक मुफ्त सीमा (Daily Free Limit - 10 Queries) समाप्त! कल सुबह नई लिमिट शुरू होगी।"
-          : "Daily Free Limit Reached (10 queries/day)! Limit resets tomorrow morning.",
-        "warn"
-      );
-      return;
-    }
-    usage.count++;
-    localStorage.setItem('hansai_usage', JSON.stringify(usage));
 
-    // Guest Limit Check (Gemini / ChatGPT style)
-    if (!user) {
-      if (guestPromptCount >= 2) {
-        showToast(
-          language === 'hindi'
-            ? "असीमित AI सर्च और चैट जारी रखने के लिए कृपया Google या Facebook से लॉगिन/रजिस्टर करें! 🔐"
-            : "Please Sign In with Google or Facebook to continue unlimited AI search! 🔐",
-          "info"
-        );
-        setIsAuthRegisterOpen(true);
-        return;
-      }
-      const newCount = guestPromptCount + 1;
-      setGuestPromptCount(newCount);
-      localStorage.setItem('hansai_guest_prompt_count', newCount.toString());
-    }
     const messageContent = textToSend || chatInput;
     if (!messageContent.trim() && chatAttachedImages.length === 0) return;
 
@@ -8137,24 +8152,25 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                                 showToast(language === 'hindi' ? "अधिकतम 3 इमेज ही अपलोड कर सकते हैं!" : "Maximum 3 images can be attached!", "warn");
                                 continue;
                               }
-                              const reader = new FileReader();
-                              reader.onload = () => {
-                                const base64Data = (reader.result as string).split(',')[1];
+                              try {
+                                showToast(language === 'hindi' ? "इमेज प्रोसेस हो रही है..." : "Optimizing image...", "info");
+                                const optimized = await optimizeImageFile(file, 1600, 0.85);
                                 setChatAttachedImages(prev => {
                                   if (prev.length >= 3) return prev;
                                   return [
                                     ...prev,
                                     {
                                       id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-                                      mimeType: file.type,
-                                      data: base64Data,
-                                      previewUrl: URL.createObjectURL(file),
+                                      mimeType: optimized.mimeType,
+                                      data: optimized.data,
+                                      previewUrl: optimized.previewUrl,
                                       name: file.name
                                     }
                                   ];
                                 });
-                              };
-                              reader.readAsDataURL(file);
+                              } catch (err) {
+                                showToast("Error uploading image", "warn");
+                              }
                             }
                           }
                           e.target.value = '';
@@ -8168,7 +8184,7 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                         accept="image/*"
                         capture="environment"
                         className="hidden"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             if (!file.type.startsWith('image/')) {
@@ -8179,21 +8195,22 @@ Make labels and details 100% specific to "${cleanTopic}". Do NOT use generic tex
                               showToast(language === 'hindi' ? "अधिकतम 3 इमेज ही अपलोड कर सकते हैं!" : "Maximum 3 images can be attached!", "warn");
                               return;
                             }
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const base64Data = (reader.result as string).split(',')[1];
+                            try {
+                              showToast(language === 'hindi' ? "कैमरा फोटो प्रोसेस हो रही है..." : "Processing photo...", "info");
+                              const optimized = await optimizeImageFile(file, 1600, 0.85);
                               setChatAttachedImages(prev => [
                                 ...prev,
                                 {
                                   id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-                                  mimeType: file.type,
-                                  data: base64Data,
-                                  previewUrl: URL.createObjectURL(file),
+                                  mimeType: optimized.mimeType,
+                                  data: optimized.data,
+                                  previewUrl: optimized.previewUrl,
                                   name: file.name
                                 }
                               ]);
-                            };
-                            reader.readAsDataURL(file);
+                            } catch (err) {
+                              showToast("Error processing camera photo", "warn");
+                            }
                           }
                           e.target.value = '';
                         }}

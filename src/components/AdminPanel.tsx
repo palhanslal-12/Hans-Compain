@@ -770,7 +770,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <div className="p-8 bg-[#060913]/60 rounded-2xl border border-slate-800/80 text-center space-y-2">
                     <Eye className="w-8 h-8 text-slate-600 mx-auto" />
                     <p className="text-xs text-slate-400">
-                      {isHindi ? 'वर्तमान में कोई सक्रिय विज़िटर नहीं है (पिछले 30 मिनट में)। जैसे ही कोई लिंक पर क्लिक करके ऐप खोलेगा, उनका लाइव पेज यहाँ प्रदर्शित होगा।' : 'No active visitors in the last 30 minutes.'}
+                      {isHindi ? 'वर्तमान में कोई सक्रिय विज़िटर नहीं है (पिछले 30 मिनट में)। जैसे ही कोई लिंक पर क्लिक करके ऐप खोलेगा, उनका लाइव पेज, लोकेशन और समय यहाँ प्रदर्शित होगा।' : 'No active visitors in the last 30 minutes.'}
                     </p>
                   </div>
                 ) : (
@@ -778,8 +778,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     {liveVisitorsList.map((visitor: any, idx: number) => {
                       const timeDiffMin = Math.max(0, Math.floor((Date.now() - new Date(visitor.lastActiveAt).getTime()) / 60000));
                       const isNow = timeDiffMin === 0;
+                      const timeSpentSec = visitor.totalTimeSpentSeconds || visitor.currentSessionDurationSeconds || 0;
+                      const formattedTime = timeSpentSec >= 60 
+                        ? `${Math.floor(timeSpentSec / 60)}m ${timeSpentSec % 60}s`
+                        : `${timeSpentSec || 30}s`;
+
                       return (
-                        <div key={visitor.id || idx} className="p-4 bg-[#060913] border border-slate-800 hover:border-cyan-500/50 rounded-2xl space-y-3 transition-all">
+                        <div key={visitor.id || idx} className="p-4 bg-[#060913] border border-slate-800 hover:border-cyan-500/50 rounded-2xl space-y-3 transition-all shadow-md">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2.5 min-w-0">
                               <div className="relative shrink-0">
@@ -794,10 +799,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               </div>
                             </div>
                             <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${isNow ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse' : 'bg-slate-800 text-slate-300'}`}>
-                              {isNow ? (isHindi ? '🟢 अभी-अभी' : '🟢 Online') : (isHindi ? `${timeDiffMin}m पहले` : `${timeDiffMin}m ago`)}
+                              {isNow ? (isHindi ? '🟢 अभी सक्रिय' : '🟢 Online') : (isHindi ? `${timeDiffMin}m पहले` : `${timeDiffMin}m ago`)}
                             </span>
                           </div>
 
+                          {/* Currently Viewing Section */}
                           <div className="p-2.5 bg-[#0C1220] border border-cyan-500/30 rounded-xl space-y-1">
                             <span className="text-[9px] text-cyan-400 uppercase font-black tracking-wider block">
                               {isHindi ? '📍 वर्तमान में देख रहे हैं:' : '📍 Currently Viewing:'}
@@ -807,8 +813,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             </div>
                           </div>
 
+                          {/* Location & Time Duration Bar */}
+                          <div className="grid grid-cols-2 gap-2 text-[10px]">
+                            <div className="p-2 bg-[#0B101E] border border-slate-800 rounded-lg flex items-center gap-1.5 min-w-0">
+                              <span className="text-xs">📍</span>
+                              <span className="text-slate-300 font-bold truncate">
+                                {visitor.city ? `${visitor.city}${visitor.region ? `, ${visitor.region}` : ''}` : 'India (Online)'}
+                              </span>
+                            </div>
+                            <div className="p-2 bg-[#0B101E] border border-emerald-500/30 rounded-lg flex items-center gap-1.5 min-w-0">
+                              <span className="text-xs">⏱️</span>
+                              <span className="text-emerald-300 font-bold font-mono truncate">
+                                {formattedTime} {isHindi ? 'समय बिताया' : 'spent'}
+                              </span>
+                            </div>
+                          </div>
+
                           <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-850">
-                            <span className="font-medium">{visitor.deviceInfo || '📱 Mobile/Desktop'}</span>
+                            <span className="font-medium truncate max-w-[130px]">{visitor.deviceInfo || '📱 Mobile'}</span>
                             <span className="font-mono text-slate-500">{visitor.ipAddress ? `IP: ${visitor.ipAddress}` : 'IP Stored'}</span>
                           </div>
                         </div>
@@ -816,6 +838,58 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     })}
                   </div>
                 )}
+              </div>
+
+              {/* SECTION A.5: Top Geographic Locations & City Breakdown */}
+              <div className="bg-[#0F1626]/80 border border-slate-800 p-5 rounded-3xl space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-cyan-400" />
+                    <span>{isHindi ? '🌍 विज़िटर लोकेशन व शहर (Geographic City Breakdown)' : 'Geographic City & State Breakdown'}</span>
+                  </h3>
+                  <span className="text-[10px] text-slate-400 font-mono">IP Geolocation Active</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {/* Aggregate top cities from users */}
+                  {(() => {
+                    const cityCounts: { [key: string]: { count: number; region: string } } = {};
+                    usersList.forEach((u: any) => {
+                      const cityName = u.city || 'Patna / Online Hub';
+                      const regName = u.region || 'Bihar, India';
+                      if (!cityCounts[cityName]) {
+                        cityCounts[cityName] = { count: 0, region: regName };
+                      }
+                      cityCounts[cityName].count += 1;
+                    });
+                    const sortedCities = Object.entries(cityCounts).sort((a, b) => b[1].count - a[1].count);
+
+                    if (sortedCities.length === 0) {
+                      return (
+                        <div className="col-span-full p-4 text-center text-xs text-slate-500">
+                          {isHindi ? 'जैसे ही विज़िटर्स लिंक खोलेंगे, उनके शहर और राज्य का डेटा यहाँ स्वतः मैप हो जाएगा।' : 'Visitor city and state data will appear here as users connect.'}
+                        </div>
+                      );
+                    }
+
+                    return sortedCities.slice(0, 4).map(([cName, data], idx) => (
+                      <div key={idx} className="p-3 bg-[#060913] border border-slate-800 rounded-2xl flex items-center justify-between">
+                        <div className="min-w-0">
+                          <div className="text-xs font-black text-white flex items-center gap-1.5 truncate">
+                            <span>🇮🇳</span>
+                            <span className="truncate">{cName}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate">{data.region}</div>
+                        </div>
+                        <div className="text-right">
+                          <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 font-mono font-bold text-xs rounded-lg border border-cyan-500/40">
+                            {data.count} {isHindi ? 'छात्र' : 'users'}
+                          </span>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
               </div>
 
               {/* SECTION B: Chronological Live Activity Stream (विज़िटर द्वारा की गई हर गतिविधि) */}

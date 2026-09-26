@@ -109,3 +109,21 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
+/* ============================================================================
+ * SECTION 3: PWA ADMIN ENGINE - FORCE PURGE CACHE BROADCAST LISTENER
+ * ============================================================================ */
+self.addEventListener('message', (event) => {
+  if (event.data && (event.data.type === 'FORCE_PURGE_CACHE' || event.data.type === 'PURGE_CACHE')) {
+    console.log('[SW ADMIN ENGINE] Received FORCE_PURGE_CACHE signal. Purging all caches...');
+    caches.keys().then((names) => {
+      return Promise.all(names.map((name) => caches.delete(name)));
+    }).then(() => {
+      return self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
+    }).then((clients) => {
+      clients.forEach((client) => {
+        client.postMessage({ type: 'EXECUTE_PAGE_RELOAD', timestamp: Date.now() });
+      });
+    });
+  }
+});

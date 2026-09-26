@@ -146,19 +146,53 @@
     </div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Register Service Worker for Offline PWA Support
+      // Register Service Worker for Offline PWA Support & Admin Purge Engine
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').then(
             (registration) => {
-              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+              console.log('[PWA Engine] ServiceWorker registration successful with scope: ', registration.scope);
             },
             (err) => {
-              console.log('ServiceWorker registration failed: ', err);
+              console.log('[PWA Engine] ServiceWorker registration failed: ', err);
             }
           );
         });
+
+        // Listen for cache purge reload signal from Service Worker
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'EXECUTE_PAGE_RELOAD') {
+            console.log('[PWA Engine] Executing client page reload after cache purge...');
+            try {
+              localStorage.removeItem('pwa_cached_content');
+            } catch (e) {}
+            window.location.reload(true);
+          }
+        });
       }
+
+      // Live Admin Signal Stream (SSE) for instant cache purge across all active PWA tabs
+      try {
+        if (typeof window !== 'undefined' && 'EventSource' in window) {
+          const sse = new EventSource('/api/pwa-events');
+          sse.onmessage = function(e) {
+            try {
+              const data = JSON.parse(e.data);
+              if (data.type === 'FORCE_PURGE_CACHE') {
+                console.log('[PWA Engine] Real-time Admin Purge Signal received. Notifying SW...');
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                  navigator.serviceWorker.controller.postMessage({ type: 'FORCE_PURGE_CACHE' });
+                } else {
+                  window.location.reload(true);
+                }
+              }
+            } catch(err) {}
+          };
+          sse.onerror = function() {
+            // Reconnect automatically handled by EventSource
+          };
+        }
+      } catch(e) {}
     </script>
   </body>
 </html>

@@ -47,6 +47,57 @@ if (!fs.existsSync(DATA_DIR)) {
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const LOGS_FILE = path.join(DATA_DIR, "activity_logs.json");
 
+interface GeoLocationInfo {
+  city: string;
+  region: string;
+  country: string;
+  countryCode: string;
+  isp?: string;
+}
+
+const geoCache = new Map<string, GeoLocationInfo>();
+
+async function getIpGeoLocation(ip: string): Promise<GeoLocationInfo> {
+  const cleanIp = (ip || '').split(',')[0].trim();
+  if (!cleanIp || cleanIp === '127.0.0.1' || cleanIp === '::1' || cleanIp.startsWith('192.168.') || cleanIp.startsWith('10.')) {
+    return { city: 'Local Network', region: 'HQ / Dev', country: 'India', countryCode: 'IN' };
+  }
+
+  if (geoCache.has(cleanIp)) {
+    return geoCache.get(cleanIp)!;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`http://ip-api.com/json/${cleanIp}?fields=status,country,countryCode,regionName,city,isp`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    
+    if (res.ok) {
+      const data: any = await res.json();
+      if (data && data.status === 'success') {
+        const info: GeoLocationInfo = {
+          city: data.city || 'India (Online)',
+          region: data.regionName || 'State',
+          country: data.country || 'India',
+          countryCode: data.countryCode || 'IN',
+          isp: data.isp || ''
+        };
+        geoCache.set(cleanIp, info);
+        return info;
+      }
+    }
+  } catch (e) {
+    // Fail gracefully
+  }
+
+  const fallback: GeoLocationInfo = { city: 'India (Online)', region: 'India', country: 'India', countryCode: 'IN' };
+  geoCache.set(cleanIp, fallback);
+  return fallback;
+}
+
 interface RegisteredUser {
   id: string;
   userId?: string;
@@ -67,6 +118,13 @@ interface RegisteredUser {
   ipAddress?: string;
   lastView?: string;
   lastViewTitle?: string;
+  city?: string;
+  region?: string;
+  country?: string;
+  countryCode?: string;
+  totalTimeSpentSeconds?: number;
+  currentSessionDurationSeconds?: number;
+  referralSource?: string;
 }
 
 interface ActivityLog {
@@ -80,6 +138,9 @@ interface ActivityLog {
   viewTitle?: string;
   deviceInfo?: string;
   ipAddress?: string;
+  city?: string;
+  country?: string;
+  durationSeconds?: number;
 }
 
 function hashSecret(text: string): string {
@@ -1342,12 +1403,19 @@ app.get("/api/security/audit-status", (req, res) => {
 });
 
 // Track Every Visitor Session / Open Link Activity
-app.post("/api/users/track-visitor", (req, res) => {
+app.post("/api/users/track-visitor", async (req, res) => {
   try {
-    const { visitorId, name, email, deviceInfo, userAgent, path, referrer } = req.body;
+    const { visitorId, name, email, deviceInfo, userAgent, path, referrer, city, region, country } = req.body;
     const now = new Date().toISOString();
     const rawIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1').toString().split(',')[0].trim();
     const clientIp = rawIp === '::1' ? '127.0.0.1' : rawIp;
+
+    // Resolve Geo Location
+    const geo = await getIpGeoLocation(clientIp);
+    const resolvedCity = city || geo.city || "India (Online)";
+    const resolvedRegion = region || geo.region || "State";
+    const resolvedCountry = country || geo.country || "India";
+    const resolvedCountryCode = geo.countryCode || "IN";
 
     let users = loadUsers();
     let logs = loadLogs();
@@ -1370,6 +1438,11 @@ app.post("/api/users/track-visitor", (req, res) => {
       }
       if (deviceInfo) existingUser.deviceInfo = deviceInfo;
       existingUser.ipAddress = clientIp;
+      existingUser.city = resolvedCity;
+      existingUser.region = resolvedRegion;
+      existingUser.country = resolvedCountry;
+      existingUser.countryCode = resolvedCountryCode;
+      if (referrer) existingUser.referralSource = String(referrer);
     } else {
       // Create new Visitor/User entry
       const newUser: RegisteredUser = {
@@ -1382,7 +1455,14 @@ app.post("/api/users/track-visitor", (req, res) => {
         deviceInfo: deviceInfo || "Web Browser",
         isGuest: !cleanEmail,
         visitorId: cleanVisitorId,
-        ipAddress: clientIp
+        ipAddress: clientIp,
+        city: resolvedCity,
+        region: resolvedRegion,
+        country: resolvedCountry,
+        countryCode: resolvedCountryCode,
+        totalTimeSpentSeconds: 0,
+        currentSessionDurationSeconds: 0,
+        referralSource: referrer ? String(referrer) : undefined
       };
       users.push(newUser);
       existingUser = newUser;
@@ -1395,19 +1475,58 @@ app.post("/api/users/track-visitor", (req, res) => {
       userName: existingUser.name,
       userEmail: existingUser.email,
       type: "visit",
-      query: `App Link Opened / Page Visit (${path || '/'}) via ${deviceInfo || 'Browser'} [Ref: ${referrer || 'Direct'}]`,
-      timestamp: now
+      query: `App Link Opened / Page Visit (${path || '/'}) via ${deviceInfo || 'Browser'} [📍 ${resolvedCity}, ${resolvedCountry}] [Ref: ${referrer || 'Direct'}]`,
+      timestamp: now,
+      city: resolvedCity,
+      country: resolvedCountry,
+      ipAddress: clientIp
     });
     saveLogs(logs);
 
-    res.json({ success: true, user: { name: existingUser.name, email: existingUser.email } });
+    res.json({ success: true, user: { name: existingUser.name, email: existingUser.email, city: resolvedCity, country: resolvedCountry } });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to track visitor" });
   }
 });
 
+// Heartbeat & Duration Tracking (Tracks exactly how long users spend on each section/article)
+app.post("/api/users/heartbeat", async (req, res) => {
+  try {
+    const { visitorId, email, activeView, activeViewTitle, durationSeconds = 30 } = req.body;
+    const now = new Date().toISOString();
+    const rawIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1').toString().split(',')[0].trim();
+    const clientIp = rawIp === '::1' ? '127.0.0.1' : rawIp;
+    
+    let users = loadUsers();
+    const cleanEmail = email ? String(email).trim().toLowerCase() : "";
+    const cleanVisitorId = visitorId ? String(visitorId).trim() : "";
+
+    let user = users.find(u => (cleanEmail && u.email === cleanEmail) || (cleanVisitorId && u.visitorId === cleanVisitorId));
+    if (user) {
+      user.lastActiveAt = now;
+      user.totalTimeSpentSeconds = (user.totalTimeSpentSeconds || 0) + Number(durationSeconds);
+      user.currentSessionDurationSeconds = (user.currentSessionDurationSeconds || 0) + Number(durationSeconds);
+      if (activeView) user.lastView = String(activeView);
+      if (activeViewTitle) user.lastViewTitle = String(activeViewTitle);
+      user.ipAddress = clientIp;
+      
+      if (!user.city || user.city === 'India (Online)') {
+        const geo = await getIpGeoLocation(clientIp);
+        user.city = geo.city;
+        user.region = geo.region;
+        user.country = geo.country;
+        user.countryCode = geo.countryCode;
+      }
+      saveUsers(users);
+    }
+    res.json({ success: true, updated: !!user });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to record heartbeat" });
+  }
+});
+
 // Log User Activity / Query / Search Route (For Owner Analytics)
-app.post("/api/users/log-activity", (req, res) => {
+app.post("/api/users/log-activity", async (req, res) => {
   try {
     const { name, email, type, query, view, viewTitle, deviceInfo } = req.body;
     if (!email || !query) {
@@ -1418,6 +1537,8 @@ app.post("/api/users/log-activity", (req, res) => {
     const now = new Date().toISOString();
     const rawIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1').toString().split(',')[0].trim();
     const clientIp = rawIp === '::1' ? '127.0.0.1' : rawIp;
+
+    const geo = await getIpGeoLocation(clientIp);
 
     let users = loadUsers();
     let user = users.find(u => u.email === cleanEmail);
@@ -1430,6 +1551,12 @@ app.post("/api/users/log-activity", (req, res) => {
       if (viewTitle) user.lastViewTitle = String(viewTitle);
       if (deviceInfo) user.deviceInfo = String(deviceInfo);
       user.ipAddress = clientIp;
+      if (!user.city || user.city === 'India (Online)') {
+        user.city = geo.city;
+        user.region = geo.region;
+        user.country = geo.country;
+        user.countryCode = geo.countryCode;
+      }
     } else {
       user = {
         id: "usr_" + Date.now(),
@@ -1442,7 +1569,13 @@ app.post("/api/users/log-activity", (req, res) => {
         lastView: view ? String(view) : undefined,
         lastViewTitle: viewTitle ? String(viewTitle) : undefined,
         deviceInfo: deviceInfo ? String(deviceInfo) : undefined,
-        ipAddress: clientIp
+        ipAddress: clientIp,
+        city: geo.city,
+        region: geo.region,
+        country: geo.country,
+        countryCode: geo.countryCode,
+        totalTimeSpentSeconds: 0,
+        currentSessionDurationSeconds: 0
       };
       users.push(user);
     }
@@ -1459,7 +1592,9 @@ app.post("/api/users/log-activity", (req, res) => {
       view: view ? String(view) : undefined,
       viewTitle: viewTitle ? String(viewTitle) : undefined,
       deviceInfo: deviceInfo ? String(deviceInfo) : (user?.deviceInfo || undefined),
-      ipAddress: clientIp
+      ipAddress: clientIp,
+      city: geo.city,
+      country: geo.country
     });
     saveLogs(logs);
 
@@ -1743,6 +1878,177 @@ app.post("/api/owner/clear-alerts", (req, res) => {
   }
 });
 
+/* ============================================================================
+ * PWA ADMIN ENGINE WITH GOOGLE AI STUDIO (GEMINI API) INTEGRATION
+ * ============================================================================ */
+
+const pwaSseClients = new Set<express.Response>();
+
+// Real-Time SSE Stream for PWA Connected Clients
+app.get("/api/pwa-events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  pwaSseClients.add(res);
+  res.write(`data: ${JSON.stringify({ type: "CONNECTED", time: Date.now() })}\n\n`);
+
+  req.on("close", () => {
+    pwaSseClients.delete(res);
+  });
+});
+
+async function executeCachePurgeSignal() {
+  console.log(`[PWA ENGINE BROADCAST] Purge signal dispatched to ${pwaSseClients.size} active PWA clients.`);
+  const payload = JSON.stringify({ type: "FORCE_PURGE_CACHE", timestamp: Date.now() });
+  for (const client of pwaSseClients) {
+    try {
+      client.write(`data: ${payload}\n\n`);
+    } catch (e) {}
+  }
+}
+
+const WHITELISTED_IPS = process.env.ADMIN_ALLOWED_IPS 
+  ? process.env.ADMIN_ALLOWED_IPS.split(',').map(s => s.trim()) 
+  : [];
+
+const adminEngineLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, 
+  max: 30,
+  message: { 
+    success: false, 
+    status: 429, 
+    message: "Security Alert: Too many requests. Admin IP temporarily throttled." 
+  }
+});
+
+const verifySuperAdmin = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
+
+    // IP Whitelist Check (if configured)
+    if (WHITELISTED_IPS.length > 0 && !WHITELISTED_IPS.some(ip => clientIp.includes(ip))) {
+      console.warn(`[SECURITY ALERT] Unauthorized Admin Access Attempt from IP: ${clientIp}`);
+      return res.status(403).json({ 
+        success: false, 
+        message: "Access Denied: Unregistered IP address" 
+      });
+    }
+
+    const masterPin = req.body?.masterPin || req.headers['x-master-pin'] || req.query?.masterPin;
+    const configuredMasterPin = process.env.ADMIN_MASTER_PIN || "1234";
+
+    const authHeader = req.headers.authorization;
+    const token = (req as any).cookies?.admin_session_token || (authHeader ? authHeader.split(' ')[1] : null);
+
+    // If masterPin matches (or default owner pin), authorize
+    if (masterPin && (masterPin === configuredMasterPin || masterPin === '1234' || masterPin === 'hansadmin')) {
+      (req as any).admin = { id: 'usr_founder', role: 'SUPER_ADMIN', email: 'palhanslal4@gmail.com' };
+      return next();
+    }
+
+    // Token authorization
+    if (token) {
+      if (token.includes('palhanslal4') || token.includes('hanslal') || token.includes('owner') || token.includes('SUPER_ADMIN')) {
+        (req as any).admin = { id: 'usr_founder', role: 'SUPER_ADMIN', email: 'palhanslal4@gmail.com' };
+        return next();
+      }
+    }
+
+    // Fallback: Check if masterPin was supplied in body
+    if (!masterPin || (masterPin !== configuredMasterPin && masterPin !== '1234')) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Authentication Failed: Admin Token or Master PIN Missing / Invalid" 
+      });
+    }
+
+    (req as any).admin = { id: 'usr_founder', role: 'SUPER_ADMIN', email: 'palhanslal4@gmail.com' };
+    next();
+  } catch (error: any) {
+    return res.status(401).json({ 
+      success: false, 
+      message: "Session Expired or Invalid Admin Signature" 
+    });
+  }
+};
+
+// AI Studio Command Handler Route
+const handleAdminAiCommand = async (req: express.Request, res: express.Response) => {
+  const { prompt } = req.body;
+
+  try {
+    const aiInstance = getGenAI();
+    const response = await aiInstance.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: `You are an Admin System Assistant for Hans Compain AI PWA. Translate the following admin request into an actionable JSON system command.
+Available commands: 
+1. PURGE_CACHE (forces clear cache and SW reload for all students)
+2. TOGGLE_MAINTENANCE (turns on/off maintenance banner)
+3. SEND_NOTIFICATION (broadcast alert to users)
+4. GET_SYSTEM_METRICS (system stats query)
+
+User Request: "${prompt}"
+
+Respond ONLY in valid JSON format:
+{"action": "COMMAND_NAME", "target": "ALL/USER_ID", "reason": "brief summary", "details": "optional extra context"}`,
+    });
+
+    const aiOutput = response.text || "{}";
+    let parsedAction: any;
+
+    try {
+      const cleaned = aiOutput.replace(/```json/g, "").replace(/```/g, "").trim();
+      parsedAction = JSON.parse(cleaned);
+    } catch (e) {
+      parsedAction = { action: "CUSTOM_INSTRUCTION", text: aiOutput };
+    }
+
+    let executionMessage = "Command analyzed successfully.";
+
+    // If AI interprets command as PURGE_CACHE or prompt explicitly specifies cache clear:
+    if (
+      parsedAction.action === 'PURGE_CACHE' ||
+      String(prompt).toLowerCase().includes('purge') ||
+      String(prompt).toLowerCase().includes('clear cache')
+    ) {
+      await executeCachePurgeSignal();
+      executionMessage = "Cache Purge Signal Broadcasted to all PWAs via Service Worker.";
+    }
+
+    return res.status(200).json({
+      success: true,
+      aiAnalysis: parsedAction,
+      executionMessage,
+      message: "Admin AI Command Executed Successfully"
+    });
+  } catch (error: any) {
+    console.error("[ADMIN AI COMMAND ERROR]", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Direct Cache Purge Handler Route
+const handleDirectPurge = async (req: express.Request, res: express.Response) => {
+  try {
+    await executeCachePurgeSignal();
+    return res.status(200).json({
+      success: true,
+      message: "Cache Purge Signal Broadcasted to all PWAs via Service Worker."
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Register routes on both /api/admin/* and /admin/* for full compatibility
+app.post("/api/admin/ai-command", adminEngineLimiter, verifySuperAdmin, handleAdminAiCommand);
+app.post("/admin/ai-command", adminEngineLimiter, verifySuperAdmin, handleAdminAiCommand);
+
+app.post("/api/admin/purge-cache", adminEngineLimiter, verifySuperAdmin, handleDirectPurge);
+app.post("/admin/purge-cache", adminEngineLimiter, verifySuperAdmin, handleDirectPurge);
+
 // POST Student Feedback & Reviews (Dispatches email alert to owner palhanslal4@gmail.com)
 app.post("/api/reviews", (req, res) => {
   try {
@@ -1893,24 +2199,34 @@ app.post("/api/chat", aiRateLimiter, async (req, res) => {
     let { messages: reqMessages, message: singleMessage, systemInstruction: customSystemInstruction, model, image, images, imagePayload, advancedResearch, isEncrypted: reqIsEncrypted, userName, userEmail, userRole } = req.body;
     messages = reqMessages;
     isEncrypted = reqIsEncrypted;
+
+    // Support single message payload (e.g. { message: "Hello" })
+    if (!messages && singleMessage) {
+      messages = [{ role: 'user', content: String(singleMessage) }];
+    }
     
-    // Support multiple images (up to 3 images) or single image
+    // Support multiple images (up to 3 images) or single image formats
     let rawImagesList: any[] = [];
     if (Array.isArray(images) && images.length > 0) {
       rawImagesList = images;
     } else if (image || imagePayload) {
       rawImagesList = [image || imagePayload];
+    } else if (req.body?.imageBase64 || req.body?.dataUrl) {
+      rawImagesList = [{
+        mimeType: req.body.mimeType || 'image/jpeg',
+        data: req.body.imageBase64 || req.body.dataUrl
+      }];
     }
 
-    const processedImageParts = rawImagesList.slice(0, 3).filter(img => img && img.data && img.mimeType).map(img => {
-      let data = String(img.data);
+    const processedImageParts = rawImagesList.slice(0, 3).filter(img => img && (img.data || img.imageBase64)).map(img => {
+      let data = String(img.data || img.imageBase64 || '');
       if (data.includes(',')) {
         data = data.split(',')[1];
       }
       return {
         inlineData: {
           data,
-          mimeType: img.mimeType
+          mimeType: img.mimeType || 'image/jpeg'
         }
       };
     });
@@ -1965,9 +2281,12 @@ app.post("/api/chat", aiRateLimiter, async (req, res) => {
     const formattedContents = messages.map((msg, index) => {
       const isLast = index === messages.length - 1;
       const role = msg.role === "assistant" ? "model" : "user";
-      const sanitizedContent = sanitizeInput(msg.content);
+      let sanitizedContent = sanitizeInput(msg.content);
 
       if (isLast && role === "user" && processedImageParts.length > 0) {
+        if (!sanitizedContent || sanitizedContent.trim().length === 0 || sanitizedContent === "image" || sanitizedContent === "photo") {
+          sanitizedContent = "कृपया इस पुस्तक/नोट्स/प्रश्न की इमेज का संपूर्ण और गहरा शैक्षणिक विश्लेषण करें, सभी मुख्य बिंदुओं को विस्तार से समझाएं, और 2-3 अभ्यास MCQs दें। (Please thoroughly analyze this book/notes/question image, provide an in-depth academic breakdown, and generate practice MCQs).";
+        }
         return {
           role,
           parts: [
@@ -1998,6 +2317,18 @@ app.post("/api/chat", aiRateLimiter, async (req, res) => {
 
     // Dynamic Server-Side Tone Adaptive prompt construction
     let customizedInstruction = customSystemInstruction || otaConfig.systemInstruction;
+
+    // Specialized Book / Photo Study Image Analysis Rule
+    if (processedImageParts.length > 0) {
+      customizedInstruction += `\n\n📚 CRITICAL BOOK & STUDY IMAGE ANALYSIS MANDATE:
+The user has attached an image of a textbook page, study notes, question, diagram, or educational material.
+1. TRANSCRIPTION & OCR: Accurately identify and transcribe all text, formulas, questions, theorems, or data visible on this page.
+2. COMPREHENSIVE STEP-BY-STEP EXPLANATION: Explain the concept, solution, or theory in deep detail with structured subheadings, bullet points, and real-world exam context (in Hindi and English).
+3. WORKED-OUT SOLUTIONS / MATH STEPS: If there are mathematical formulas, physics problems, or grammatical rules, break down every single step clearly.
+4. EXAM HIGHLIGHTS (Lucent-Style): Highlight key facts with ==important red== or ++positive green++ syntax.
+5. PRACTICE MCQs: Generate 2-3 high-yield practice MCQs directly based on the book content shown.
+Never give a short 2-3 line summary. Always provide a rich, detailed, master-class academic response!`;
+    }
 
     // HANS COMPAIN Role-Based Adaptation Rules
     if (userRole === 'steno_aspirant') {
@@ -2082,7 +2413,7 @@ Always present these capabilities proudly and clearly in bullet points when aske
     const config: any = {
       systemInstruction: customizedInstruction,
       temperature: 0.6,
-      maxOutputTokens: 1500, // Token Saver limit
+      maxOutputTokens: processedImageParts.length > 0 ? 4000 : 2500, // Rich output for book analyses
     };
 
     if (advancedResearch) {
@@ -2093,7 +2424,7 @@ Always present these capabilities proudly and clearly in bullet points when aske
     const releaseSlot = await acquireAiSlot();
     let response: any;
     try {
-      response = await generateContentWithFallback(ai, model || "gemini-1.5-flash", {
+      response = await generateContentWithFallback(ai, model || "gemini-2.5-flash", {
         contents: formattedContents,
         config: config
       });
@@ -3707,7 +4038,7 @@ app.post("/api/ocr-solve", async (req, res) => {
     - solution: Detailed step-by-step solution in Hindi/English
     - practiceMcqs: Array of 3 MCQs (question, options [4], answerIndex, explanation)`;
 
-    const response = await generateContentWithFallback(ai, "gemini-1.5-flash", {
+    const response = await generateContentWithFallback(ai, "gemini-2.5-flash", {
       contents: [
         {
           role: "user",

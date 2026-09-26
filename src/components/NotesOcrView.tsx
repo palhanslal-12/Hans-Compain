@@ -5,6 +5,7 @@ import {
   BookOpen, Brain, Download, ArrowRight, ShieldCheck 
 } from 'lucide-react';
 import { speakText, stopAllSpeech } from '../utils/speechUtils';
+import { optimizeImageFile } from '../utils/imageUtils';
 
 interface NotesOcrViewProps {
   onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
@@ -41,25 +42,22 @@ export const NotesOcrView: React.FC<NotesOcrViewProps> = ({ onExportPdf, showToa
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        showToast(isHindi ? "फ़ाइल बहुत बड़ी है (अधिकतम 10MB)" : "File too large (Max 10MB)", "warn");
-        return;
+      try {
+        showToast(isHindi ? "इमेज ऑप्टिमाइज़ हो रही है..." : "Optimizing notes image...", "info");
+        const optimized = await optimizeImageFile(file, 1600, 0.85);
+        setImageMime(optimized.mimeType);
+        setSelectedImage(optimized.previewUrl);
+        processNotesImage(optimized.data, optimized.mimeType);
+      } catch (err) {
+        showToast(isHindi ? "इमेज लोड करने में त्रुटि" : "Error processing image", "warn");
       }
-      setImageMime(file.type || 'image/jpeg');
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setSelectedImage(result);
-        processNotesImage(result, file.type || 'image/jpeg');
-      };
-      reader.readAsDataURL(file);
     }
   };
 
-  const processNotesImage = async (base64DataUrl: string, mimeType: string) => {
+  const processNotesImage = async (base64Data: string, mimeType: string) => {
     setIsProcessing(true);
     setExtractedText('');
     setSummaryText('');
@@ -72,9 +70,6 @@ export const NotesOcrView: React.FC<NotesOcrViewProps> = ({ onExportPdf, showToa
     showToast(isHindi ? "फोटो से नोट्स का विश्लेषण हो रहा है..." : "Analyzing handwritten photo notes...", "info");
 
     try {
-      // Extract base64 payload
-      const base64Data = base64DataUrl.split(',')[1];
-
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -97,7 +92,7 @@ C) Option 3
 D) Option 4
 Answer: B
 Explanation: Reason...]`,
-          imagePayload: {
+          image: {
             mimeType,
             data: base64Data
           }
