@@ -147,6 +147,43 @@ export const AdminPanel: React.FC = () => {
     setTimeout(() => setStatusBanner(null), 3000);
   };
 
+  const handleExportCSV = () => {
+    if (usersList.length === 0) {
+      setStatusBanner('⚠️ एक्सपोर्ट के लिए कोई डेटा उपलब्ध नहीं है।');
+      setTimeout(() => setStatusBanner(null), 3000);
+      return;
+    }
+
+    const headers = ['User ID', 'Name', 'Email', 'Type (Registered/Guest)', 'Target Exam', 'Visit Count', 'Device', 'Last Active Time', 'Last Topic', 'Features Used'];
+    const rows = usersList.map(u => {
+      const featStr = u.featuresUsed ? Object.entries(u.featuresUsed).map(([k, v]) => `${k}: ${v}x`).join('; ') : '';
+      return [
+        `"${u.userId}"`,
+        `"${u.displayName.replace(/"/g, '""')}"`,
+        `"${u.email}"`,
+        `"${u.userType === 'registered' || u.isLoggedIn ? 'Registered Student' : 'Guest Visitor'}"`,
+        `"${u.targetExam || 'SSC & Steno'}"`,
+        u.visitCount || 1,
+        `"${u.device || 'Web'}"`,
+        `"${u.lastActiveStr || u.lastActive}"`,
+        `"${(u.lastTopic || '').replace(/"/g, '""')}"`,
+        `"${featStr.replace(/"/g, '""')}"`
+      ].join(',');
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `hans_compain_students_report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setStatusBanner('📥 छात्रों व विज़िटर्स की एक्सेल/CSV रिपोर्ट डाउनलोड हो गई है!');
+    setTimeout(() => setStatusBanner(null), 3000);
+  };
+
   // Filtered Users List
   const filteredUsers = usersList.filter(u => {
     const matchesType =

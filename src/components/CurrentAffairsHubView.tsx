@@ -570,7 +570,25 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
   onLoginRequired,
   onReturnHome
 }) => {
-  const [editorials, setEditorials] = useState<NewsEditorial[]>(verifiedEditorials);
+  const [editorials, setEditorials] = useState<NewsEditorial[]>(() => {
+    try {
+      const saved = localStorage.getItem('hans_synced_current_affairs');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge with default verified editorials to ensure none are missing
+          const map = new Map<string, NewsEditorial>();
+          verifiedEditorials.forEach(item => map.set(item.id, item));
+          parsed.forEach((item: NewsEditorial) => map.set(item.id, item));
+          return Array.from(map.values());
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return verifiedEditorials;
+  });
+
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeArticle, setActiveArticle] = useState<NewsEditorial | null>(null);
@@ -580,6 +598,13 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
   const [isGeneratingAiArticle, setIsGeneratingAiArticle] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(initialUser || auth.currentUser);
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+
+  // Live Cloud Sync State
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string>(() => {
+    return localStorage.getItem('hans_ca_last_sync') || 'अभी सिंक करें';
+  });
+  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
 
   // Article Reader Detail Page Controls
   const [readerTheme, setReaderTheme] = useState<'pib' | 'dark'>('pib');
@@ -607,9 +632,66 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
     return () => unsub();
   }, []);
 
+  // Main Instant Refresh & Cloud Sync Function
+  const handleManualRefresh = async () => {
+    setIsSyncing(true);
+    setSyncStatusMsg('ताजा खबरें रिफ्रेश हो रही हैं...');
+    
+    // 1. Immediate instant local state refresh
+    const map = new Map<string, NewsEditorial>();
+    verifiedEditorials.forEach(item => map.set(item.id, item));
+    editorials.forEach(item => map.set(item.id, item));
+    const refreshedList = Array.from(map.values());
+    setEditorials(refreshedList);
+    localStorage.setItem('hans_synced_current_affairs', JSON.stringify(refreshedList));
+    
+    const nowStr = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    setLastSyncTime(`आज ${nowStr}`);
+    localStorage.setItem('hans_ca_last_sync', `आज ${nowStr}`);
+
+    // 2. Fetch server vault in background
+    try {
+      const res = await fetch('/api/current-affairs/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          initialList: verifiedEditorials,
+          forceRefresh: true
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
+          data.articles.forEach((item: NewsEditorial) => map.set(item.id, item));
+          const combined = Array.from(map.values());
+          setEditorials(combined);
+          localStorage.setItem('hans_synced_current_affairs', JSON.stringify(combined));
+        }
+      }
+    } catch (err) {
+      console.warn('Sync error:', err);
+    } finally {
+      setTimeout(() => {
+        setIsSyncing(false);
+        setSyncStatusMsg(`✅ रिफ्रेश सफल! सभी ताजा खबरें अपडेट हो गई हैं (${map.size} आर्टिकल्स)`);
+        setTimeout(() => setSyncStatusMsg(null), 3500);
+      }, 350);
+    }
+  };
+
+  const syncArticlesWithCloud = async (forceRefresh = false) => {
+    return handleManualRefresh();
+  };
+
+  // Auto-sync on component mount
+  useEffect(() => {
+    syncArticlesWithCloud(false);
+  }, []);
+
   // Direct Article Deep Linking check on mount & hash/query change
   useEffect(() => {
-    const checkDirectArticleLink = () => {
+    const checkDirectArticleLink = async () => {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const queryArticleId = initialArticleId || urlParams.get('article') || urlParams.get('articleId');
@@ -623,7 +705,24 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
 
         const targetId = queryArticleId || hashArticleId;
         if (targetId) {
-          const found = editorials.find(item => item.id === targetId || item.id.toLowerCase() === targetId.toLowerCase());
+          let found = editorials.find(item => item.id === targetId || item.id.toLowerCase() === targetId.toLowerCase());
+          
+          // If not in state, attempt fetching from server vault directly
+          if (!found) {
+            try {
+              const res = await fetch(`/api/current-affairs/get?id=${encodeURIComponent(targetId)}`);
+              if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.article) {
+                  found = data.article;
+                  setEditorials(prev => [data.article, ...prev.filter(x => x.id !== data.article.id)]);
+                }
+              }
+            } catch {
+              // fallback
+            }
+          }
+
           if (found) {
             setActiveArticle(found);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -947,7 +1046,19 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
           '"अंतरिक्ष क्षेत्र में वाणिज्यिक निवेश और स्वदेशी तकनीकी क्षमता भारत की वैश्विक भू-राजनीतिक स्थिति को कैसे सुदृढ़ करती है?"'
       };
 
-      setEditorials(prev => [newEd, ...prev]);
+      setEditorials(prev => {
+        const updated = [newEd, ...prev.filter(x => x.id !== newEd.id)];
+        localStorage.setItem('hans_synced_current_affairs', JSON.stringify(updated));
+        return updated;
+      });
+
+      // Save to server data vault so other users & direct links can load it
+      fetch('/api/current-affairs/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ article: newEd })
+      }).catch(err => console.warn('Save article error:', err));
+
       handleOpenArticle(newEd);
     } catch {
       // fallback
@@ -1577,11 +1688,13 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
             {/* 3 Action Buttons Matching Screenshot 1 */}
             <div className="flex flex-wrap items-center gap-2">
               <button
-                onClick={() => setEditorials([...verifiedEditorials])}
-                className="px-4 py-2 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-black text-xs flex items-center gap-1.5 cursor-pointer shadow"
+                onClick={handleManualRefresh}
+                disabled={isSyncing}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black text-xs flex items-center gap-1.5 cursor-pointer shadow transition-all active:scale-95"
+                title={`अंतिम रिफ्रेश: ${lastSyncTime}`}
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>ताजा खबरें रिफ्रेश</span>
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-cyan-200' : ''}`} />
+                <span>{isSyncing ? 'रिफ्रेश हो रहा है...' : '🔄 ताजा खबरें रिफ्रेश'}</span>
               </button>
 
               <button
@@ -1602,6 +1715,19 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
               </button>
             </div>
           </div>
+
+          {/* Cloud Sync Status Pill */}
+          {syncStatusMsg && (
+            <div className="bg-sky-950/90 border border-sky-500/40 text-sky-200 px-4 py-2 rounded-2xl text-xs font-bold flex items-center justify-between shadow-lg animate-fade-in">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span>{syncStatusMsg}</span>
+              </div>
+              <span className="text-[10px] text-slate-400 bg-sky-900/60 px-2 py-0.5 rounded-full">
+                अंतिम सिंक: {lastSyncTime}
+              </span>
+            </div>
+          )}
 
           {/* 2. CATEGORY FILTER PILLS + SEARCH INPUT MATCHING SCREENSHOT 1 */}
           <div className="bg-[#091122] border border-slate-800 rounded-2xl p-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5">

@@ -20,7 +20,110 @@ try {
   console.warn('AI Init Error:', e);
 }
 
-// 1. Daily Current Affairs API
+// 1. Daily Current Affairs & Editorial Sync APIs
+app.get('/api/current-affairs/articles', (req, res) => {
+  try {
+    const dataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+    const vaultFile = path.join(dataDir, 'current_affairs_vault.json');
+    if (fs.existsSync(vaultFile)) {
+      const data = JSON.parse(fs.readFileSync(vaultFile, 'utf-8'));
+      if (Array.isArray(data) && data.length > 0) {
+        return res.json({ success: true, articles: data });
+      }
+    }
+    return res.json({ success: true, articles: [] });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Failed to read articles vault' });
+  }
+});
+
+app.get('/api/current-affairs/get', (req, res) => {
+  try {
+    const id = req.query.id as string;
+    if (!id) return res.status(400).json({ error: 'Missing article ID' });
+    const dataDir = path.join(process.cwd(), 'data');
+    const vaultFile = path.join(dataDir, 'current_affairs_vault.json');
+    if (fs.existsSync(vaultFile)) {
+      const list = JSON.parse(fs.readFileSync(vaultFile, 'utf-8'));
+      if (Array.isArray(list)) {
+        const found = list.find((a: any) => a.id === id || a.id?.toLowerCase() === id.toLowerCase());
+        if (found) return res.json({ success: true, article: found });
+      }
+    }
+    return res.status(404).json({ success: false, error: 'Article not found' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+app.post('/api/current-affairs/save', (req, res) => {
+  try {
+    const { article } = req.body;
+    if (!article || !article.id) {
+      return res.status(400).json({ error: 'Invalid article payload' });
+    }
+    const dataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+    const vaultFile = path.join(dataDir, 'current_affairs_vault.json');
+
+    let articles: any[] = [];
+    if (fs.existsSync(vaultFile)) {
+      try {
+        articles = JSON.parse(fs.readFileSync(vaultFile, 'utf-8'));
+      } catch {
+        articles = [];
+      }
+    }
+
+    const existingIndex = articles.findIndex((a: any) => a.id === article.id);
+    if (existingIndex >= 0) {
+      articles[existingIndex] = { ...articles[existingIndex], ...article, updatedAt: new Date().toISOString() };
+    } else {
+      articles.unshift({ ...article, createdAt: new Date().toISOString() });
+    }
+
+    fs.writeFileSync(vaultFile, JSON.stringify(articles, null, 2));
+    res.json({ success: true, message: 'Article synced to cloud vault', article });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Failed to save article' });
+  }
+});
+
+app.post('/api/current-affairs/sync', async (req, res) => {
+  try {
+    const { initialList = [], forceRefresh = false } = req.body;
+    const dataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+    const vaultFile = path.join(dataDir, 'current_affairs_vault.json');
+
+    let articles: any[] = [];
+    if (fs.existsSync(vaultFile)) {
+      try {
+        articles = JSON.parse(fs.readFileSync(vaultFile, 'utf-8'));
+      } catch {
+        articles = [];
+      }
+    }
+
+    // Merge incoming initial verified list
+    if (Array.isArray(initialList) && initialList.length > 0) {
+      for (const item of initialList) {
+        if (!articles.some((a: any) => a.id === item.id)) {
+          articles.push(item);
+        }
+      }
+    }
+
+    // Save and send immediately if not force refresh
+    fs.writeFileSync(vaultFile, JSON.stringify(articles, null, 2));
+
+    return res.json({ success: true, count: articles.length, articles });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Sync failed' });
+  }
+});
+
 app.post('/api/current-affairs/daily', async (req, res) => {
   try {
     const { language = 'hindi', forceRefresh = false } = req.body;
@@ -345,22 +448,38 @@ async function checkInactivityAndSendAutoEmails() {
 setInterval(checkInactivityAndSendAutoEmails, 60 * 60 * 1000);
 
 async function startServer() {
-  const distExists = fs.existsSync(path.join(process.cwd(), 'dist', 'index.html'));
-  const isProduction = process.env.NODE_ENV === 'production' || distExists;
+  const distPath = path.join(process.cwd(), 'dist');
+  const distIndexPath = path.join(distPath, 'index.html');
+  const distExists = fs.existsSync(distIndexPath);
+  const isProduction = process.env.NODE_ENV === 'production' && distExists;
 
   if (isProduction && distExists) {
-    app.use(express.static(path.join(process.cwd(), 'dist')));
-    app.get('*', (req, res) => res.sendFile(path.join(process.cwd(), 'dist', 'index.html')));
-  } else {
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
-      server: { middlewareMode: true, hmr: false },
-      appType: 'spa'
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      try {
+        if (fs.existsSync(distIndexPath)) {
+          return res.sendFile(distIndexPath);
+        }
+      } catch (err) {
+        console.warn('Dist file send error:', err);
+      }
+      res.status(404).send('Not Found');
     });
-    app.use(vite.middlewares);
+  } else {
+    try {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true, hmr: false },
+        appType: 'spa'
+      });
+      app.use(vite.middlewares);
+    } catch (viteErr) {
+      console.error('Vite server init error:', viteErr);
+    }
   }
+
   const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Hans Compain Engine - Port ${PORT}`);
+    console.log(`🚀 Hans Compain Engine - Port ${PORT} [Mode: ${isProduction ? 'Production' : 'Dev-Vite'}]`);
   });
   server.on('error', (err: any) => {
     console.error('Server listen error:', err);

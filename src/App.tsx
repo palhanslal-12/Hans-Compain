@@ -69,6 +69,8 @@ import { PeerChallengeArena } from './components/PeerChallengeArena';
 import { NeuralMemoryMapView } from './components/NeuralMemoryMapView';
 import { StudyPlanView } from './components/StudyPlanView';
 import { AffiliateStoreView } from './components/AffiliateStoreView';
+import { PWAInstallButton } from './components/PWAInstallButton';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { auth, signInWithGoogle, logoutUser } from './firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { trackVisitorAction } from './utils/userTracker';
@@ -324,6 +326,8 @@ export const App: React.FC = () => {
 
         {/* Header Right Icons Capsule matching Screenshot 1 */}
         <div className="flex items-center gap-2 shrink-0">
+          <PWAInstallButton variant="header" />
+
           {activeView !== 'home' && (
             <button
               onClick={() => navigateTo('home')}
@@ -451,6 +455,9 @@ export const App: React.FC = () => {
 
           {/* Navigation Links matching Screenshot 3 & 4 */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+            {/* In-App PWA Install Banner in Sidebar */}
+            <PWAInstallButton variant="sidebar" />
+
             <div className="space-y-1">
               <span className="text-[10px] font-extrabold text-cyan-400 uppercase tracking-widest px-1">
                 🚀 मुख्य स्टडी टूल्स व फीचर्स
@@ -983,6 +990,9 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Offline Status Connectivity Banner */}
+      <OfflineIndicator />
 
     </div>
   );
