@@ -1,92 +1,84 @@
-import React from 'react';
-import type { ErrorInfo, ReactNode } from 'react';
-import { RotateCcw, ArrowLeft } from 'lucide-react';
-import { dispatchOwnerAlert } from '../utils/ownerAlertService';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { RotateCcw, ShieldAlert, Sparkles, Home } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
-  fallbackTitle?: string;
-  onReset?: () => void;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
-export class ErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-    };
-  }
-
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
-
-  public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Hans Compain Component Crash Caught:", error, errorInfo);
-    try {
-      dispatchOwnerAlert(
-        'problem',
-        `⚠️ UI Crash in ${this.props.fallbackTitle || 'Component'}`,
-        `Error: ${error?.message || 'Unknown runtime error'}. Stack: ${error?.stack?.slice(0, 200) || 'N/A'}`,
-        'critical',
-        { fallbackTitle: this.props.fallbackTitle, errorInfo }
-      );
-    } catch (e) {
-      // Ignore
-    }
-  }
-
-  private handleReset = () => {
-    this.setState({ hasError: false, error: null });
-    if (this.props.onReset) {
-      this.props.onReset();
-    }
+export class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null
   };
 
-  public override render() {
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error, errorInfo: null };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Hans Compain ErrorBoundary caught an error:', error, errorInfo);
+    this.setState({ errorInfo });
+  }
+
+  private handleResetApp = () => {
+    try {
+      localStorage.removeItem('hans_test_history');
+      localStorage.removeItem('hans_chat_history');
+      localStorage.removeItem('hans_compain_mistake_notebook');
+      localStorage.removeItem('hans_seen_question_ids');
+    } catch {
+      // ignore
+    }
+    window.location.reload();
+  };
+
+  public render() {
     if (this.state.hasError) {
       return (
-        <div className="w-full min-h-[60vh] flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-          <div className="bg-[#0f172a] border border-amber-500/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-lg">
-              ⚠️
+        <div className="min-h-screen w-full bg-[#03060E] text-white font-sans flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-[#0A1020] border-2 border-rose-500/40 rounded-3xl p-6 shadow-2xl space-y-5 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto shadow-lg">
+              <ShieldAlert className="w-9 h-9" />
             </div>
-            
-            <div>
-              <h3 className="text-lg font-black text-white">
-                {this.props.fallbackTitle || 'फीचर लोड करने में समस्या आई / Feature Recovery'}
-              </h3>
-              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                यह फीचर सुरक्षित रूप से रीसेट कर दिया गया है। बिना ऐप बंद किए तुरंत दोबारा शुरू करने के लिए नीचे बटन दबाएं।
+
+            <div className="space-y-2">
+              <h1 className="text-xl font-black font-hindi-title text-white">
+                हंस कैंपेन ऐप लोडिंग रीस्टार्ट (App Recovery)
+              </h1>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                ब्राउज़र कैश या किसी अस्थायी त्रुटि के कारण स्क्रीन लोड नहीं हो सकी। नीचे दिए गए बटन से ऐप को सुरक्षित रीस्टार्ट करें।
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-3 pt-2">
+            {this.state.error && (
+              <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-rose-300 text-left max-h-28 overflow-y-auto">
+                {this.state.error.message || 'Unknown render error occurred.'}
+              </div>
+            )}
+
+            <div className="space-y-2 pt-2">
               <button
-                type="button"
-                onClick={this.handleReset}
-                className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-550 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg cursor-pointer border-none active:scale-95"
+                onClick={() => window.location.reload()}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs tracking-wide shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>पुनः शुरू करें (Restart View)</span>
+                <span>पुनः लोड करें (RELOAD APP)</span>
               </button>
 
-              {this.props.onReset && (
-                <button
-                  type="button"
-                  onClick={this.props.onReset}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>मुख्य चैट (Back to Chat)</span>
-                </button>
-              )}
+              <button
+                onClick={this.handleResetApp}
+                className="w-full py-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
+              >
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>कैश साफ़ कर पुनः प्रारंभ करें (RESET CACHE & RELOAD)</span>
+              </button>
             </div>
           </div>
         </div>
@@ -96,4 +88,3 @@ export class ErrorBoundary extends React.Component<Props, State> {
     return this.props.children;
   }
 }
-

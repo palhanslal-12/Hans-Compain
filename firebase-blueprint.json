@@ -1,188 +1,137 @@
 {
   "entities": {
-    "User": {
-      "title": "User",
-      "description": "Student and visitor profile record",
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Registered student profile and activity tracking for 24h inactivity auto-email alerts",
       "type": "object",
       "properties": {
-        "uid": { "type": "string" },
-        "displayName": { "type": "string" },
-        "email": { "type": "string" },
-        "role": { "type": "string" },
-        "isGuest": { "type": "boolean" },
-        "visitorId": { "type": "string" },
-        "deviceInfo": { "type": "string" },
-        "referralSource": { "type": "string" },
-        "promptCount": { "type": "number" },
-        "registeredAt": { "type": "string" },
-        "lastActiveAt": { "type": "string" }
+        "uid": {
+          "type": "string",
+          "description": "User Firebase Auth UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Student display name",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Registered student email for 24h study alerts",
+          "maxLength": 150
+        },
+        "targetExam": {
+          "type": "string",
+          "description": "Student target exam",
+          "maxLength": 100
+        },
+        "streakDays": {
+          "type": "number",
+          "description": "Current active study streak in days"
+        },
+        "xpCoins": {
+          "type": "number",
+          "description": "Total earned XP coins"
+        },
+        "lastActiveAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of last study activity"
+        },
+        "autoEmailEnabled": {
+          "type": "boolean",
+          "description": "Background 24h inactivity email alert flag"
+        }
       },
-      "required": ["uid"]
+      "required": ["uid", "displayName", "email", "targetExam", "streakDays", "xpCoins", "lastActiveAt", "autoEmailEnabled"]
     },
-    "ActivityLog": {
-      "title": "ActivityLog",
-      "description": "User activity, feature usage and AI interaction log for real analytics",
+    "StudyActivity": {
+      "title": "StudyActivity",
+      "description": "Student learning activity item used to auto-generate personalized EduReels and Analytics",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "userName": { "type": "string" },
-        "userEmail": { "type": "string" },
-        "type": { "type": "string" },
-        "feature": { "type": "string" },
-        "query": { "type": "string" },
-        "status": { "type": "string" },
-        "errorDetails": { "type": "string" },
-        "referral": { "type": "string" },
-        "timestamp": { "type": "string" }
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "feature": {
+          "type": "string",
+          "description": "Module name (steno, ca, quiz, science, library, board)",
+          "maxLength": 60
+        },
+        "topic": {
+          "type": "string",
+          "description": "Studied topic or question title",
+          "maxLength": 200
+        },
+        "summary": {
+          "type": "string",
+          "description": "Key takeaway or concept for auto-reel generation",
+          "maxLength": 1000
+        },
+        "scorePercent": {
+          "type": "number",
+          "description": "Accuracy or score achieved in this activity"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Activity timestamp"
+        }
       },
-      "required": ["type", "timestamp"]
+      "required": ["userId", "feature", "topic", "summary", "scorePercent", "createdAt"]
     },
-    "ReferralClick": {
-      "title": "ReferralClick",
-      "description": "Share link and referral source tracking",
+    "AdminBroadcast": {
+      "title": "AdminBroadcast",
+      "description": "Admin announcements, WhatsApp group config, and live notification items",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "referralCode": { "type": "string" },
-        "visitorId": { "type": "string" },
-        "referrer": { "type": "string" },
-        "timestamp": { "type": "string" },
-        "convertedToUser": { "type": "boolean" }
+        "authorUid": {
+          "type": "string",
+          "description": "Admin UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Broadcast heading",
+          "maxLength": 150
+        },
+        "message": {
+          "type": "string",
+          "description": "Broadcast body content",
+          "maxLength": 1000
+        },
+        "whatsappGroupUrl": {
+          "type": "string",
+          "description": "Official WhatsApp group link",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Broadcast creation timestamp"
+        }
       },
-      "required": ["visitorId", "timestamp"]
-    },
-    "QuizScore": {
-      "title": "QuizScore",
-      "description": "Student quiz score and assessment metrics",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "examCategory": { "type": "string" },
-        "score": { "type": "number" },
-        "totalQuestions": { "type": "number" },
-        "percentage": { "type": "number" },
-        "timestamp": { "type": "string" }
-      },
-      "required": ["userId", "score", "totalQuestions"]
-    },
-    "MistakeItem": {
-      "title": "MistakeItem",
-      "description": "Student mistake registered for remediation",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "question": { "type": "string" },
-        "userAnswer": { "type": "string" },
-        "correctAnswer": { "type": "string" },
-        "explanation": { "type": "string" },
-        "timestamp": { "type": "string" }
-      },
-      "required": ["userId", "question", "correctAnswer"]
-    },
-    "StenoRecord": {
-      "title": "StenoRecord",
-      "description": "Shorthand practice transcription results",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "title": { "type": "string" },
-        "wpm": { "type": "number" },
-        "accuracy": { "type": "number" },
-        "passageSystem": { "type": "string" },
-        "timestamp": { "type": "string" }
-      },
-      "required": ["userId", "wpm", "accuracy"]
-    },
-    "StudentFeedback": {
-      "title": "StudentFeedback",
-      "description": "Student feedback or content correction report",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "name": { "type": "string" },
-        "category": { "type": "string" },
-        "message": { "type": "string" },
-        "timestamp": { "type": "string" }
-      },
-      "required": ["message"]
-    },
-    "GroupQuizRoom": {
-      "title": "GroupQuizRoom",
-      "description": "Real-time multiplayer group quiz room session",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "subject": { "type": "string" },
-        "category": { "type": "string" },
-        "hostId": { "type": "string" },
-        "hostName": { "type": "string" },
-        "status": { "type": "string" },
-        "currentQuestionIndex": { "type": "number" },
-        "timePerQuestion": { "type": "number" },
-        "questionStartTime": { "type": "number" },
-        "speakerEnabled": { "type": "boolean" },
-        "createdAt": { "type": "string" }
-      },
-      "required": ["id", "title", "hostId", "status"]
-    },
-    "ExamLeaderboardEntry": {
-      "title": "ExamLeaderboardEntry",
-      "description": "Practice set and exam mock leaderboard ranking entry",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "avatar": { "type": "string" },
-        "examTitle": { "type": "string" },
-        "subject": { "type": "string" },
-        "score": { "type": "number" },
-        "totalQuestions": { "type": "number" },
-        "correctCount": { "type": "number" },
-        "wrongCount": { "type": "number" },
-        "timeSpentSeconds": { "type": "number" },
-        "accuracy": { "type": "number" },
-        "timestamp": { "type": "string" }
-      },
-      "required": ["id", "name", "score", "totalQuestions"]
+      "required": ["authorUid", "title", "message", "whatsappGroupUrl", "createdAt"]
     }
   },
   "firestore": {
     "/users/{userId}": {
-      "schema": "User",
-      "description": "User and visitor profile collection"
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private student profile and 24-hour inactivity alert metadata"
     },
-    "/activity_logs/{logId}": {
-      "schema": "ActivityLog",
-      "description": "Real-time usage and feature analytics logs"
+    "/activities/{activityId}": {
+      "schema": { "$ref": "#/entities/StudyActivity" },
+      "description": "Student study activities for auto-generating EduReels and performance analytics"
     },
-    "/referrals/{refId}": {
-      "schema": "ReferralClick",
-      "description": "Share-link clicks and referral tracker"
-    },
-    "/users/{userId}/quiz_scores/{scoreId}": {
-      "schema": "QuizScore",
-      "description": "User quiz assessment scores"
-    },
-    "/users/{userId}/mistakes/{mistakeId}": {
-      "schema": "MistakeItem",
-      "description": "User mistake notebook items"
-    },
-    "/users/{userId}/steno_records/{recordId}": {
-      "schema": "StenoRecord",
-      "description": "User shorthand practice and transcription records"
-    },
-    "/feedbacks/{feedbackId}": {
-      "schema": "StudentFeedback",
-      "description": "Platform bug and question correction reports"
-    },
-    "/group_quizzes/{roomId}": {
-      "schema": "GroupQuizRoom",
-      "description": "Multiplayer live group quiz room state"
-    },
-    "/exam_leaderboard/{entryId}": {
-      "schema": "ExamLeaderboardEntry",
-      "description": "Public practice set and test series ranks"
+    "/broadcasts/{broadcastId}": {
+      "schema": { "$ref": "#/entities/AdminBroadcast" },
+      "description": "Admin announcements and WhatsApp integration settings"
     }
   }
 }

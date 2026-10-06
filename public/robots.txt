@@ -1,4 +1,0 @@
-User-agent: *
-Disallow:
-
-Sitemap: https://hans-compain.onrender.com/sitemap.xml

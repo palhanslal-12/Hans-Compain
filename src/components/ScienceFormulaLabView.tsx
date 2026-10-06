@@ -1,2934 +1,1579 @@
 import React, { useState } from 'react';
-import { 
-  Zap, Compass, Activity, Play, RotateCcw, Sparkles, BookOpen, 
-  HelpCircle, CheckCircle2, Sliders, RefreshCw, Calculator, Flame, 
-  Award, Volume2, VolumeX, ArrowRight, Eye, Beaker, Atom, TrendingUp, Info,
-  Dna, Leaf, Cpu, Sun, Orbit, Binary, Radio, Gauge, BatteryCharging, Droplets,
-  Layers, ShieldCheck, Microscope, Wind, Cable, ToggleLeft, ToggleRight, Check, X,
-  Thermometer, Lightbulb, Satellite, ShieldAlert
+import {
+  FlaskConical,
+  Zap,
+  Eye,
+  Atom,
+  Volume2,
+  RotateCcw,
+  Calculator,
+  Sparkles,
+  Search,
+  ChevronRight,
+  ArrowLeft,
+  Maximize2,
+  Minimize2,
+  CheckCircle2,
+  Sliders,
+  Award
 } from 'lucide-react';
-import { speakText, stopAllSpeech } from '../utils/speechUtils';
-import { InteractivePeriodicTable } from './InteractivePeriodicTable';
+import { recordStudyActivity } from '../firebase';
 
-interface ScienceFormulaLabViewProps {
-  showToast: (msg: string, type: 'success' | 'error' | 'info' | 'warn') => void;
-  language: 'hindi' | 'english';
+export interface ScienceLabConfig {
+  id: string;
+  number: number;
+  category: 'physics' | 'chemistry' | 'biology';
+  categoryLabel: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  badge: string;
+  formula: string;
+  param1Label: string;
+  param1Unit: string;
+  param1Min: number;
+  param1Max: number;
+  param1Default: number;
+  param2Label: string;
+  param2Unit: string;
+  param2Min: number;
+  param2Max: number;
+  param2Default: number;
+  computeResult: (p1: number, p2: number) => {
+    primaryLabel: string;
+    primaryValue: string;
+    secondaryLabel: string;
+    secondaryValue: string;
+    statusText: string;
+  };
+  examFacts: string[];
 }
 
-export type LabCategory = 'all' | 'chemistry' | 'biology' | 'electronics' | 'physics' | 'space' | 'math-ai';
+export const ALL_28_SCIENCE_LABS: ScienceLabConfig[] = [
+  // ===================== PHYSICS (10 LABS) =====================
+  {
+    id: 'ohm-circuit',
+    number: 1,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'ओम का नियम एवं विद्युत परिपथ लैब',
+    subtitle: 'Ohm’s Law (V = I × R) & Electric Power Simulator',
+    icon: '⚡',
+    badge: 'CLASS 10 & 12 PHYSICS',
+    formula: 'I = V / R   |   P = V × I = V² / R',
+    param1Label: 'वोल्टेज (Voltage V)',
+    param1Unit: 'V',
+    param1Min: 2,
+    param1Max: 24,
+    param1Default: 12,
+    param2Label: 'प्रतिरोध (Resistance R)',
+    param2Unit: 'Ω',
+    param2Min: 1,
+    param2Max: 20,
+    param2Default: 4,
+    computeResult: (v, r) => {
+      const i = v / r;
+      const p = v * i;
+      return {
+        primaryLabel: 'प्रवाहित धारा (Current I)',
+        primaryValue: `${i.toFixed(2)} A (एम्पियर)`,
+        secondaryLabel: 'विद्युत शक्ति (Power P)',
+        secondaryValue: `${p.toFixed(1)} W (वाट)`,
+        statusText: i > 4 ? 'उच्च धारा प्रवाह: बल्ब अत्यंत तीव्र चमक रहा है!' : 'सामान्य परिपथ प्रवाह सक्रिय है।'
+      };
+    },
+    examFacts: [
+      'नियत ताप पर किसी चालक के सिरों के बीच विभवांतर (V) प्रवाहित धारा (I) के समानुपाती होता है (V = IR)।',
+      'अमीटर (Ammeter) को सदैव श्रेणीक्रम (Series) में और वोल्टमीटर को समांतर क्रम (Parallel) में जोड़ा जाता है।',
+      'आदर्श अमीटर का प्रतिरोध शून्य (0) और आदर्श वोल्टमीटर का प्रतिरोध अनंत (∞) होता है।'
+    ]
+  },
+  {
+    id: 'convex-lens',
+    number: 2,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'उत्तल एवं अवतल लेंस रे-डायग्राम लैब',
+    subtitle: 'Optics Lens Formula (1/v - 1/u = 1/f) & Magnification',
+    icon: '🔍',
+    badge: 'OPTICS RAY LAB',
+    formula: '1/v - 1/u = 1/f   |   m = v / u   |   P = 100 / f(cm)',
+    param1Label: 'वस्तु की दूरी (Object Distance |u|)',
+    param1Unit: 'cm',
+    param1Min: 10,
+    param1Max: 80,
+    param1Default: 30,
+    param2Label: 'फोकस दूरी (Focal Length f)',
+    param2Unit: 'cm',
+    param2Min: 10,
+    param2Max: 40,
+    param2Default: 15,
+    computeResult: (uAbs, f) => {
+      const u = -uAbs;
+      const invV = 1 / f + 1 / u;
+      const v = Math.abs(invV) < 0.0001 ? 999 : 1 / invV;
+      const m = v / u;
+      return {
+        primaryLabel: 'प्रतिबिंब की दूरी (Image v)',
+        primaryValue: Math.abs(v) > 500 ? '∞ (अनंत पर)' : `${v.toFixed(1)} cm`,
+        secondaryLabel: 'आवर्धन व क्षमता (m & Power)',
+        secondaryValue: `m = ${m.toFixed(2)}x | P = +${(100 / f).toFixed(1)} D`,
+        statusText: v > 0 ? 'प्रकृति: वास्तविक तथा उल्टा (Real & Inverted)' : 'प्रकृति: आभासी तथा सीधा (Virtual & Erect)'
+      };
+    },
+    examFacts: [
+      'लेंस की क्षमता का SI मात्रक डाइऑप्टर (Dioptre - D) होता है (P = 1/f मीटर में)।',
+      'उत्तल लेंस की फोकस दूरी व क्षमता धनात्मक (+) तथा अवतल लेंस की ऋणात्मक (-) होती है।',
+      'जब वस्तु 2F पर होती है, तो प्रतिबिंब भी 2F पर वस्तु के बराबर आकार का बनता है।'
+    ]
+  },
+  {
+    id: 'spherical-mirror',
+    number: 3,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'अवतल एवं उत्तल दर्पण परावर्तन लैब',
+    subtitle: 'Spherical Mirror Formula (1/v + 1/u = 1/f)',
+    icon: '🪞',
+    badge: 'MIRROR FORMULA',
+    formula: '1/v + 1/u = 1/f   |   f = R / 2   |   m = -v / u',
+    param1Label: 'वस्तु की दूरी (|u|)',
+    param1Unit: 'cm',
+    param1Min: 10,
+    param1Max: 80,
+    param1Default: 40,
+    param2Label: 'वक्रता त्रिज्या (Radius R = 2f)',
+    param2Unit: 'cm',
+    param2Min: 20,
+    param2Max: 60,
+    param2Default: 30,
+    computeResult: (uAbs, r) => {
+      const f = -r / 2;
+      const u = -uAbs;
+      const invV = 1 / f - 1 / u;
+      const v = Math.abs(invV) < 0.0001 ? -999 : 1 / invV;
+      const m = -v / u;
+      return {
+        primaryLabel: 'प्रतिबिंब स्थिति (v)',
+        primaryValue: `${v.toFixed(1)} cm (f = ${f} cm)`,
+        secondaryLabel: 'रेखीय आवर्धन (m = -v/u)',
+        secondaryValue: `${m.toFixed(2)}x`,
+        statusText: v < 0 ? 'वास्तविक व उल्टा प्रतिबिंब (दर्पण के सामने)' : 'आभासी व सीधा प्रतिबिंब (दर्पण के पीछे)'
+      };
+    },
+    examFacts: [
+      'वाहनों के साइड मिरर (Rear-view Mirror) में उत्तल दर्पण का प्रयोग होता है क्योंकि यह सदैव सीधा और बड़ा दृष्टि क्षेत्र देता है।',
+      'दंत चिकित्सक (Dentist), सोलर कुकर और सर्चलाइट में अवतल दर्पण का प्रयोग होता है।'
+    ]
+  },
+  {
+    id: 'prism-snell',
+    number: 4,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'प्रिज्म वर्ण-विक्षेपण एवं स्नेल का नियम लैब',
+    subtitle: 'Refraction of Light, Snell’s Law & VIBGYOR Spectrum',
+    icon: '🌈',
+    badge: 'PRISM & SNELL LAW',
+    formula: 'μ = sin(i) / sin(r)   |   δ = (i + e) - A',
+    param1Label: 'आपतन कोण (Angle of Incidence i)',
+    param1Unit: '°',
+    param1Min: 15,
+    param1Max: 75,
+    param1Default: 45,
+    param2Label: 'माध्यम का अपवर्तनांक (Refractive Index μ)',
+    param2Unit: '',
+    param2Min: 1.2,
+    param2Max: 2.4,
+    param2Default: 1.5,
+    computeResult: (iDeg, mu) => {
+      const iRad = (iDeg * Math.PI) / 180;
+      const sinR = Math.sin(iRad) / mu;
+      const rDeg = (Math.asin(Math.min(1, sinR)) * 180) / Math.PI;
+      const speed = (3 / mu).toFixed(2);
+      return {
+        primaryLabel: 'अपवर्तन कोण (Angle r)',
+        primaryValue: `${rDeg.toFixed(1)}°`,
+        secondaryLabel: 'माध्यम में प्रकाश की चाल',
+        secondaryValue: `${speed} × 10⁸ m/s`,
+        statusText: 'बैंगनी रंग का विचलन सर्वाधिक और लाल रंग का विचलन सबसे कम होता है (VIBGYOR)।'
+      };
+    },
+    examFacts: [
+      'हीरे (Diamond) का अपवर्तनांक सर्वाधिक (2.42) होता है और क्रांतिक कोण 24.4° होने से पूर्ण आंतरिक परावर्तन होता है।',
+      'लाल रंग का तरंगदैर्घ्य (Wavelength) सबसे अधिक होता है, इसलिए खतरे के सिग्नल लाल बनाए जाते हैं।'
+    ]
+  },
+  {
+    id: 'pendulum-gravity',
+    number: 5,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'सरल लोलक एवं आवर्तकाल प्रयोगशाला',
+    subtitle: 'Simple Pendulum Time Period (T = 2π√(L/g))',
+    icon: '⏱️',
+    badge: 'SHM & GRAVITY',
+    formula: 'T = 2π √(L / g)   |   f = 1 / T',
+    param1Label: 'लोलक की प्रभावी लंबाई (Length L)',
+    param1Unit: 'cm',
+    param1Min: 20,
+    param1Max: 200,
+    param1Default: 100,
+    param2Label: 'गुरुत्वीय त्वरण (Gravity g)',
+    param2Unit: 'm/s²',
+    param2Min: 1.6,
+    param2Max: 24.8,
+    param2Default: 9.8,
+    computeResult: (lCm, g) => {
+      const lM = lCm / 100;
+      const t = 2 * Math.PI * Math.sqrt(lM / g);
+      return {
+        primaryLabel: 'आवर्तकाल (Time Period T)',
+        primaryValue: `${t.toFixed(2)} सेकंड`,
+        secondaryLabel: 'आवृत्ति (Frequency f)',
+        secondaryValue: `${(1 / t).toFixed(2)} Hz`,
+        statusText: 'गर्मियों में लोलक की लंबाई बढ़ने से आवर्तकाल बढ़ जाता है और घड़ी सुस्त (Slow) हो जाती है।'
+      };
+    },
+    examFacts: [
+      'सेकंड लोलक (Second’s Pendulum) का आवर्तकाल 2 सेकंड और पृथ्वी पर लंबाई लगभग 99.3 सेमी (1 मीटर) होती है।',
+      'लोलक का आवर्तकाल गोलक के द्रव्यमान (Mass) पर निर्भर नहीं करता।'
+    ]
+  },
+  {
+    id: 'projectile-motion',
+    number: 6,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'प्रक्षेप्य गति एवं परास सिमुलेटर लैब',
+    subtitle: 'Projectile Motion: Range (R), Max Height (H) & Time of Flight',
+    icon: '🚀',
+    badge: 'KINEMATICS LAB',
+    formula: 'R = (u² sin 2θ) / g   |   H = (u² sin²θ) / 2g',
+    param1Label: 'प्रारंभिक वेग (Initial Velocity u)',
+    param1Unit: 'm/s',
+    param1Min: 10,
+    param1Max: 100,
+    param1Default: 40,
+    param2Label: 'प्रक्षेपण कोण (Launch Angle θ)',
+    param2Unit: '°',
+    param2Min: 15,
+    param2Max: 85,
+    param2Default: 45,
+    computeResult: (u, theta) => {
+      const rad = (theta * Math.PI) / 180;
+      const g = 9.8;
+      const range = (u * u * Math.sin(2 * rad)) / g;
+      const maxH = (u * u * Math.pow(Math.sin(rad), 2)) / (2 * g);
+      return {
+        primaryLabel: 'क्षैतिज परास (Max Range R)',
+        primaryValue: `${range.toFixed(1)} मीटर`,
+        secondaryLabel: 'अधिकतम ऊँचाई (Max Height H)',
+        secondaryValue: `${maxH.toFixed(1)} मीटर`,
+        statusText: theta === 45 ? '45° के कोण पर क्षैतिज परास (Range) अधिकतम होता है!' : 'प्रक्षेप्य का पथ सदैव परवलयाकार (Parabolic) होता है।'
+      };
+    },
+    examFacts: [
+      'अधिकतम दूरी तक गेंद या भाला फेंकने के लिए प्रक्षेपण कोण 45° होना चाहिए।',
+      'प्रक्षेप्य के उच्चतम बिंदु पर ऊर्ध्वाधर वेग शून्य होता है, केवल क्षैतिज वेग (u cos θ) कार्य करता है।'
+    ]
+  },
+  {
+    id: 'newton-friction',
+    number: 7,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'न्यूटन के गति नियम एवं घर्षण बल लैब',
+    subtitle: 'Newton’s Second Law (F = ma), Momentum & Kinetic Energy',
+    icon: '⚖️',
+    badge: 'LAWS OF MOTION',
+    formula: 'F = m × a   |   p = m × v   |   KE = ½ m v²',
+    param1Label: 'लगाया गया बल (Applied Force F)',
+    param1Unit: 'N',
+    param1Min: 10,
+    param1Max: 200,
+    param1Default: 60,
+    param2Label: 'पिंड का द्रव्यमान (Mass m)',
+    param2Unit: 'kg',
+    param2Min: 2,
+    param2Max: 50,
+    param2Default: 12,
+    computeResult: (f, m) => {
+      const a = f / m;
+      const v5 = a * 5;
+      return {
+        primaryLabel: 'उत्पन्न त्वरण (Acceleration a)',
+        primaryValue: `${a.toFixed(2)} m/s²`,
+        secondaryLabel: '5 सेकंड बाद संवेग (Momentum p)',
+        secondaryValue: `${(m * v5).toFixed(0)} kg·m/s`,
+        statusText: 'संवेग परिवर्तन की दर लगाए गए असंतुलित बल के समानुपाती होती है।'
+      };
+    },
+    examFacts: [
+      'न्यूटन के प्रथम नियम को "जड़त्व का नियम" (Law of Inertia) कहते हैं; इससे बल की परिभाषा मिलती है।',
+      'न्यूटन के द्वितीय नियम से बल का सूत्र (F = ma) और तृतीय नियम से क्रिया-प्रतिक्रिया सिद्धांत मिलता है।'
+    ]
+  },
+  {
+    id: 'resistor-network',
+    number: 8,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'श्रेणीक्रम एवं समांतर क्रम प्रतिरोध लैब',
+    subtitle: 'Series (R₁ + R₂) vs Parallel (R₁R₂ / (R₁ + R₂)) Combination',
+    icon: '🔌',
+    badge: 'CIRCUIT NETWORK',
+    formula: 'R_series = R₁ + R₂   |   1/R_parallel = 1/R₁ + 1/R₂',
+    param1Label: 'प्रथम प्रतिरोध (Resistor R₁)',
+    param1Unit: 'Ω',
+    param1Min: 2,
+    param1Max: 30,
+    param1Default: 6,
+    param2Label: 'द्वितीय प्रतिरोध (Resistor R₂)',
+    param2Unit: 'Ω',
+    param2Min: 2,
+    param2Max: 30,
+    param2Default: 12,
+    computeResult: (r1, r2) => {
+      const rSeries = r1 + r2;
+      const rParallel = (r1 * r2) / (r1 + r2);
+      return {
+        primaryLabel: 'श्रेणीक्रम तुल्य प्रतिरोध (Rs)',
+        primaryValue: `${rSeries.toFixed(1)} Ω`,
+        secondaryLabel: 'समांतर क्रम तुल्य प्रतिरोध (Rp)',
+        secondaryValue: `${rParallel.toFixed(2)} Ω`,
+        statusText: 'घरेलू विद्युत वायरिंग सदैव समांतर क्रम (Parallel) में की जाती है ताकि प्रत्येक उपकरण को समान 220V मिले।'
+      };
+    },
+    examFacts: [
+      'फ्यूज तार (Fuse Wire) सीसा और टिन (Pb + Sn) की मिश्रधातु का बना होता है और इसे सदैव श्रेणीक्रम में लगाते हैं।',
+      'समांतर क्रम में तुल्य प्रतिरोध सबसे छोटे प्रतिरोध से भी कम प्राप्त होता है।'
+    ]
+  },
+  {
+    id: 'faraday-transformer',
+    number: 9,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'फैराडे विद्युत चुम्बकीय प्रेरण एवं ट्रांसफॉर्मर लैब',
+    subtitle: 'Electromagnetic Induction & Step-Up / Step-Down Transformer',
+    icon: '🧲',
+    badge: 'MAGNETISM & AC',
+    formula: 'Vs / Vp = Ns / Np   |   e = -N (dΦ / dt)',
+    param1Label: 'प्राथमिक वोल्टेज (Primary Vp)',
+    param1Unit: 'V',
+    param1Min: 50,
+    param1Max: 440,
+    param1Default: 220,
+    param2Label: 'फेरों का अनुपात (Turns Ratio Ns/Np)',
+    param2Unit: 'x',
+    param2Min: 0.2,
+    param2Max: 5.0,
+    param2Default: 2.0,
+    computeResult: (vp, ratio) => {
+      const vs = vp * ratio;
+      return {
+        primaryLabel: 'द्वितीयक आउटपुट वोल्टेज (Vs)',
+        primaryValue: `${vs.toFixed(0)} V`,
+        secondaryLabel: 'ट्रांसफॉर्मर प्रकार (Type)',
+        secondaryValue: ratio > 1 ? 'Step-Up (उच्चायी ट्रांसफॉर्मर)' : ratio < 1 ? 'Step-Down (अपचायी)' : '1:1 आइसोलेशन',
+        statusText: 'ट्रांसफॉर्मर केवल प्रत्यावर्ती धारा (AC) पर कार्य करता है, दिष्ट धारा (DC) पर नहीं।'
+      };
+    },
+    examFacts: [
+      'ट्रांसफॉर्मर अन्योन्य प्रेरण (Mutual Induction) के सिद्धांत पर कार्य करता है और इसकी क्रोड नर्म लोहे (Soft Iron) की बनी होती है।',
+      'मोबाइल चार्जर में Step-Down ट्रांसफॉर्मर और रेक्टिफायर (AC से DC बदलने हेतु) लगा होता है।'
+    ]
+  },
+  {
+    id: 'sound-wave-echo',
+    number: 10,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Physics)',
+    title: 'ध्वनि तरंग, आवृत्ति एवं प्रतिध्वनि (Echo) लैब',
+    subtitle: 'Sound Wave Velocity (v = f × λ), Pitch & Echo Distance',
+    icon: '🔊',
+    badge: 'ACOUSTICS LAB',
+    formula: 'v = f × λ   |   Echo Distance d = (v × t) / 2',
+    param1Label: 'ध्वनि आवृत्ति (Frequency f)',
+    param1Unit: 'Hz',
+    param1Min: 20,
+    param1Max: 2000,
+    param1Default: 440,
+    param2Label: 'परावर्तक दीवार की दूरी (Distance d)',
+    param2Unit: 'm',
+    param2Min: 5,
+    param2Max: 100,
+    param2Default: 17.2,
+    computeResult: (f, d) => {
+      const v = 344;
+      const lambda = v / f;
+      const echoTime = (2 * d) / v;
+      return {
+        primaryLabel: 'तरंगदैर्घ्य (Wavelength λ)',
+        primaryValue: `${lambda.toFixed(2)} मीटर`,
+        secondaryLabel: 'प्रतिध्वनि समय (Echo Time)',
+        secondaryValue: `${echoTime.toFixed(2)}s (${d >= 17.2 ? 'स्पष्ट प्रतिध्वनि सुनाई देगी' : 'प्रतिध्वनि नहीं'})`,
+        statusText: 'स्पष्ट प्रतिध्वनि (Echo) सुनने के लिए न्यूनतम दूरी 17.2 मीटर (समय अंतराल 0.1 सेकंड) होनी चाहिए।'
+      };
+    },
+    examFacts: [
+      'मानव कान की श्रव्य परास (Audible Range) 20 Hz से 20,000 Hz (20 kHz) होती है।',
+      'ध्वनि अनुदैर्घ्य यांत्रिक तरंग है; यह निर्वात (Vacuum) में गमन नहीं कर सकती और इसकी चाल ठोस (इस्पात) में सर्वाधिक होती है।'
+    ]
+  },
 
-export const ScienceFormulaLabView: React.FC<ScienceFormulaLabViewProps> = ({ showToast, language }) => {
-  const isHindi = language === 'hindi';
-  const [selectedCategory, setSelectedCategory] = useState<LabCategory>('all');
-  const [activeTab, setActiveTab] = useState<
-    | 'periodic-table'
-    | 'circuits' 
-    | 'medical-cardio' 
-    | 'optics' 
-    | 'pendulum' 
-    | 'chemistry-ph' 
-    | 'projectile' 
-    | 'trig' 
-    | 'finance'
-    | 'biology-photosynthesis'
-    | 'biology-genetics'
-    | 'biology-osmosis'
-    | 'electronics-logic-gates'
-    | 'electronics-transformer'
-    | 'engineering-solar'
-    | 'space-orbital'
-    | 'custom-solver'
-  >('periodic-table');
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  // ===================== CHEMISTRY (9 LABS) =====================
+  {
+    id: 'ph-scale-indicator',
+    number: 11,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'अम्ल-क्षार pH स्केल एवं सूचक प्रयोगशाला',
+    subtitle: 'Acid-Base pH Scale (0–14), Litmus & Universal Indicator',
+    icon: '🧪',
+    badge: 'ACIDS & BASES',
+    formula: 'pH = -log₁₀[H⁺]   |   pH + pOH = 14',
+    param1Label: 'विलयन का pH मान (pH Value)',
+    param1Unit: 'pH',
+    param1Min: 0,
+    param1Max: 14,
+    param1Default: 7,
+    param2Label: 'तापमान (Temperature)',
+    param2Unit: '°C',
+    param2Min: 15,
+    param2Max: 60,
+    param2Default: 25,
+    computeResult: (ph) => {
+      const nature = ph < 7 ? 'अम्लीय (Acidic - नीला लिटमस लाल)' : ph > 7 ? 'क्षारीय (Basic - लाल लिटमस नीला)' : 'उदासीन (Neutral - शुद्ध जल)';
+      return {
+        primaryLabel: 'विलयन की प्रकृति (Nature)',
+        primaryValue: nature,
+        secondaryLabel: 'हाइड्रोजन आयन सांद्रता [H⁺]',
+        secondaryValue: `10⁻${ph} mol/L (pOH = ${14 - ph})`,
+        statusText: ph === 7.4 ? 'मानव रक्त का pH 7.4 (हल्का क्षारीय) होता है।' : ph < 5.6 ? 'अम्लीय वर्षा (pH < 5.6) की श्रेणी!' : 'मानक सूचक परीक्षण सक्रिय।'
+      };
+    },
+    examFacts: [
+      'pH स्केल की खोज 1909 में सोरेनसन (Sorensen) ने की थी।',
+      'मानव रक्त का pH = 7.4, शुद्ध जल = 7.0, दूध = 6.4, सिरका = 2.4–3.4 और आमाशय रस (HCl) = 1.2 होता है।'
+    ]
+  },
+  {
+    id: 'bohr-periodic-118',
+    number: 12,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: '118 तत्वों की आवर्त सारणी एवं 3D बोर परमाणु मॉडल',
+    subtitle: 'Interactive Bohr Atomic Shells (K, L, M, N) & Electronic Configuration',
+    icon: '🧬',
+    badge: 'ATOMIC STRUCTURE',
+    formula: 'अधिकतम इलेक्ट्रॉन = 2n² (K=2, L=8, M=18, N=32)',
+    param1Label: 'परमाणु क्रमांक (Atomic Number Z)',
+    param1Unit: 'Z',
+    param1Min: 1,
+    param1Max: 30,
+    param1Default: 11,
+    param2Label: 'न्यूट्रॉन संख्या (Neutrons N)',
+    param2Unit: 'n⁰',
+    param2Min: 0,
+    param2Max: 35,
+    param2Default: 12,
+    computeResult: (z, n) => {
+      const names: Record<number, string> = {
+        1: 'हाइड्रोजन (H)', 2: 'हीलियम (He)', 6: 'कार्बन (C)', 7: 'नाइट्रोजन (N)', 8: 'ऑक्सीजन (O)',
+        11: 'सोडियम (Na)', 12: 'मैग्नीशियम (Mg)', 13: 'एल्युमिनियम (Al)', 17: 'क्लोरीन (Cl)', 20: 'कैल्शियम (Ca)', 26: 'आयरन (Fe)', 29: 'कॉपर (Cu)'
+      };
+      const k = Math.min(2, z);
+      const l = Math.min(8, Math.max(0, z - 2));
+      const m = Math.min(18, Math.max(0, z - 10));
+      const nShell = Math.max(0, z - 28);
+      return {
+        primaryLabel: 'तत्व एवं द्रव्यमान संख्या (A = Z + N)',
+        primaryValue: `${names[z] || `तत्व Z=${z}`} | A = ${z + n}`,
+        secondaryLabel: 'इलेक्ट्रॉनिक विन्यास (K, L, M, N)',
+        secondaryValue: [k, l, m, nShell].filter(x => x > 0).join(', '),
+        statusText: `नाभिक में ${z} प्रोटॉन और ${n} न्यूट्रॉन स्थित हैं तथा बाह्य कोशों में ${z} इलेक्ट्रॉन परिक्रमा कर रहे हैं।`
+      };
+    },
+    examFacts: [
+      'आधुनिक आवर्त सारणी हेनरी मोजले (1913) द्वारा परमाणु क्रमांक (Atomic Number Z) पर आधारित है, जिसमें 18 वर्ग और 7 आवर्त हैं।',
+      'प्रोटॉन की खोज रदरफोर्ड/गोल्डस्टीन, इलेक्ट्रॉन की जे.जे. थॉमसन और न्यूट्रॉन की खोज जेम्स चैडविक (1932) ने की।'
+    ]
+  },
+  {
+    id: 'acid-base-titration',
+    number: 13,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'अम्ल-क्षार ब्यूरेट अनुमापन (Titration) लैब',
+    subtitle: 'Volumetric Titration (M₁V₁ = M₂V₂) & Phenolphthalein End-Point',
+    icon: '💧',
+    badge: 'TITRATION LAB',
+    formula: 'M₁ × V₁ (Acid) = M₂ × V₂ (Base)',
+    param1Label: 'HCl अम्ल की मोलरता (M₁)',
+    param1Unit: 'M',
+    param1Min: 0.1,
+    param1Max: 2.0,
+    param1Default: 0.5,
+    param2Label: 'NaOH क्षार का आयतन (V₂)',
+    param2Unit: 'mL',
+    param2Min: 10,
+    param2Max: 50,
+    param2Default: 25,
+    computeResult: (m1, v2) => {
+      const v1 = 25;
+      const m2 = (m1 * v1) / v2;
+      return {
+        primaryLabel: 'अज्ञात NaOH की मोलरता (M₂)',
+        primaryValue: `${m2.toFixed(3)} M (mol/L)`,
+        secondaryLabel: 'उदासीनीकरण बिंदु (End-Point)',
+        secondaryValue: `${v2} mL पर हल्का गुलाबी रंग (Phenolphthalein)`,
+        statusText: 'HCl + NaOH → NaCl + H₂O + 13.7 kcal ऊष्मा (उदासीनीकरण अभिक्रिया)।'
+      };
+    },
+    examFacts: [
+      'फिनोल्फथैलिन सूचक अम्लीय माध्यम में रंगहीन और क्षारीय माध्यम में गुलाबी (Pink) रंग देता है।',
+      'मिथाइल ऑरेंज अम्लीय माध्यम में लाल और क्षारीय माध्यम में पीला रंग देता है।'
+    ]
+  },
+  {
+    id: 'ideal-gas-laws',
+    number: 14,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'बॉयल, चार्ल्स एवं आदर्श गैस नियम लैब',
+    subtitle: 'Ideal Gas Equation (PV = nRT) & Piston-Cylinder Simulator',
+    icon: '🎈',
+    badge: 'GAS LAWS LAB',
+    formula: 'P × V = n × R × T   |   P₁V₁ / T₁ = P₂V₂ / T₂',
+    param1Label: 'गैस का तापमान (Temperature T)',
+    param1Unit: 'K',
+    param1Min: 200,
+    param1Max: 600,
+    param1Default: 300,
+    param2Label: 'सिलेंडर का आयतन (Volume V)',
+    param2Unit: 'L',
+    param2Min: 2,
+    param2Max: 50,
+    param2Default: 10,
+    computeResult: (t, v) => {
+      const r = 0.0821;
+      const p = (1 * r * t) / v;
+      return {
+        primaryLabel: 'गैस का दाब (Pressure P)',
+        primaryValue: `${p.toFixed(2)} atm`,
+        secondaryLabel: 'अणुओं की गतिज ऊर्जा',
+        secondaryValue: `${((1.5 * 8.314 * t) / 1000).toFixed(2)} kJ/mol`,
+        statusText: 'नियत ताप पर आयतन घटाने से गैस का दाब बढ़ता है (बॉयल का नियम: P ∝ 1/V)।'
+      };
+    },
+    examFacts: [
+      'परम शून्य ताप (Absolute Zero) 0 K या -273.15°C होता है, जिस पर गैसों की आणविक गति शून्य हो जाती है।',
+      'STP पर किसी भी आदर्श गैस के 1 मोल का आयतन 22.4 लीटर होता है।'
+    ]
+  },
+  {
+    id: 'electrolysis-cell',
+    number: 15,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'जल का विद्युत अपघटन एवं गैल्वेनिक सेल लैब',
+    subtitle: 'Electrolysis of Water (2H₂O → 2H₂ + O₂) & Faraday’s Law',
+    icon: '🔋',
+    badge: 'ELECTROCHEMISTRY',
+    formula: 'W = Z × I × t   |   कैथोड पर H₂ : एनोड पर O₂ = 2 : 1',
+    param1Label: 'विद्युत धारा (Current I)',
+    param1Unit: 'A',
+    param1Min: 1,
+    param1Max: 20,
+    param1Default: 5,
+    param2Label: 'प्रवाह समय (Time t)',
+    param2Unit: 'min',
+    param2Min: 5,
+    param2Max: 60,
+    param2Default: 20,
+    computeResult: (i, tMin) => {
+      const q = i * tMin * 60;
+      const h2Vol = (q / 96500) * 11.2;
+      return {
+        primaryLabel: 'कुल प्रवाहित आवेश (Q = I×t)',
+        primaryValue: `${q} कूलॉम (C)`,
+        secondaryLabel: 'मुक्त गैस आयतन (STP पर)',
+        secondaryValue: `H₂ = ${(h2Vol * 1000).toFixed(0)} mL | O₂ = ${(h2Vol * 500).toFixed(0)} mL`,
+        statusText: 'कैथोड (-) पर हाइड्रोजन गैस का आयतन एनोड (+) पर ऑक्सीजन से ठीक दोगुना (2:1) होता है।'
+      };
+    },
+    examFacts: [
+      '1 फैराडे (1 F) = 96,500 कूलॉम/मोल आवेश होता है।',
+      'विद्युत लेपन (Electroplating) में जिस धातु की परत चढ़ानी होती है उसे एनोड और वस्तु को कैथोड बनाया जाता है।'
+    ]
+  },
+  {
+    id: 'thermo-reactions',
+    number: 16,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'ऊष्माक्षेपी एवं ऊष्माशोषी अभिक्रिया लैब',
+    subtitle: 'Exothermic vs Endothermic Enthalpy (ΔH) & Catalyst Action',
+    icon: '🔥',
+    badge: 'THERMOCHEMISTRY',
+    formula: 'ΔH = H_products - H_reactants',
+    param1Label: 'अभिकारक ऊर्जा (Reactant Energy)',
+    param1Unit: 'kJ',
+    param1Min: 50,
+    param1Max: 300,
+    param1Default: 200,
+    param2Label: 'उत्पाद ऊर्जा (Product Energy)',
+    param2Unit: 'kJ',
+    param2Min: 50,
+    param2Max: 300,
+    param2Default: 120,
+    computeResult: (er, ep) => {
+      const dh = ep - er;
+      return {
+        primaryLabel: 'एंथैल्पी परिवर्तन (ΔH)',
+        primaryValue: `${dh > 0 ? '+' : ''}${dh} kJ/mol`,
+        secondaryLabel: 'अभिक्रिया प्रकार',
+        secondaryValue: dh < 0 ? 'ऊष्माक्षेपी (Exothermic - ऊष्मा मुक्त)' : 'ऊष्माशोषी (Endothermic - ऊष्मा अवशोषित)',
+        statusText: dh < 0 ? 'चूने में पानी मिलाना (CaO + H₂O → Ca(OH)₂) और श्वसन ऊष्माक्षेपी अभिक्रियाएं हैं।' : 'प्रकाश संश्लेषण और बर्फ का पिघलना ऊष्माशोषी प्रक्रियाएं हैं।'
+      };
+    },
+    examFacts: [
+      'उत्प्रेरक (Catalyst) अभिक्रिया की सक्रियण ऊर्जा (Activation Energy) को कम करके दर बढ़ा देता है।',
+      'अमोनिया निर्माण की हैबर विधि (N₂ + 3H₂ → 2NH₃) में लोहे (Fe) का चूर्ण उत्प्रेरक के रूप में प्रयुक्त होता है।'
+    ]
+  },
+  {
+    id: 'organic-hydrocarbons',
+    number: 17,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'कार्बनिक रसायन एवं हाइड्रोकार्बन संरचना लैब',
+    subtitle: 'Alkane (CnH2n+2), Alkene (CnH2n) & Alkyne (CnH2n-2) Builder',
+    icon: '⚗️',
+    badge: 'ORGANIC CHEMISTRY',
+    formula: 'Alkane: CₙH₂ₙ₊₂  |  Alkene: CₙH₂ₙ  |  Alkyne: CₙH₂ₙ₋₂',
+    param1Label: 'कार्बन परमाणुओं की संख्या (n)',
+    param1Unit: 'C',
+    param1Min: 1,
+    param1Max: 10,
+    param1Default: 2,
+    param2Label: 'बंध क्रम (1=एकल, 2=द्विबंध, 3=त्रिबंध)',
+    param2Unit: 'Bond',
+    param2Min: 1,
+    param2Max: 3,
+    param2Default: 1,
+    computeResult: (n, bond) => {
+      const prefixes = ['', 'Meth', 'Eth', 'Prop', 'But', 'Pent', 'Hex', 'Hept', 'Oct', 'Non', 'Dec'];
+      const b = Math.round(bond);
+      const effN = b > 1 && n === 1 ? 2 : n;
+      const hCount = b === 1 ? 2 * effN + 2 : b === 2 ? 2 * effN : 2 * effN - 2;
+      const suffix = b === 1 ? 'ane (संतृप्त)' : b === 2 ? 'ene (असंतृप्त द्विबंध)' : 'yne (असंतृप्त त्रिबंध)';
+      return {
+        primaryLabel: 'आणविक सूत्र (Molecular Formula)',
+        primaryValue: `C${effN}H${hCount}`,
+        secondaryLabel: 'IUPAC नाम एवं श्रेणी',
+        secondaryValue: `${prefixes[effN]}${suffix}`,
+        statusText: b === 1 ? 'एल्केन को पैराफिन (कम क्रियाशील) कहा जाता है; LPG में ब्यूटेन व प्रोपेन होता है।' : 'असंतृप्त हाइड्रोकार्बन योगात्मक अभिक्रिया दिखाते हैं।'
+      };
+    },
+    examFacts: [
+      'फलों को कृत्रिम रूप से पकाने के लिए एथिलीन (C₂H₄) और एसिटिलीन (C₂H₂) गैस का उपयोग होता है।',
+      'मार्श गैस या बायोगैस का मुख्य घटक मीथेन (CH₄) होता है।'
+    ]
+  },
+  {
+    id: 'molarity-solution',
+    number: 18,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'विलयन की मोलरता एवं सांद्रता प्रयोगशाला',
+    subtitle: 'Solution Molarity (M = n / V) & Concentration Calculator',
+    icon: '🔬',
+    badge: 'SOLUTIONS LAB',
+    formula: 'M = (विलेय के मोल n) / (विलयन का आयतन लीटर में)',
+    param1Label: 'विलेय के मोल (Moles n)',
+    param1Unit: 'mol',
+    param1Min: 0.5,
+    param1Max: 10,
+    param1Default: 2,
+    param2Label: 'विलयन का आयतन (Volume V)',
+    param2Unit: 'L',
+    param2Min: 0.5,
+    param2Max: 10,
+    param2Default: 1,
+    computeResult: (n, v) => {
+      const m = n / v;
+      return {
+        primaryLabel: 'विलयन की मोलरता (Molarity M)',
+        primaryValue: `${m.toFixed(2)} M (mol/L)`,
+        secondaryLabel: 'NaCl ग्राम मात्रा (यदि विलेय NaCl हो)',
+        secondaryValue: `${(n * 58.5).toFixed(1)} ग्राम`,
+        statusText: 'तापमान बढ़ाने पर विलयन का आयतन बढ़ता है, इसलिए मोलरता ताप पर निर्भर करती है जबकि मोललता नहीं।'
+      };
+    },
+    examFacts: [
+      'शुद्ध जल की मोलरता 55.55 M (1000 / 18) होती है।',
+      '1 मोल पदार्थ में कणों की संख्या आवोगाद्रो संख्या (6.022 × 10²³) के बराबर होती है।'
+    ]
+  },
+  {
+    id: 'radioactivity-halflife',
+    number: 19,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Chemistry)',
+    title: 'रेडियोधर्मिता एवं अर्ध-आयु काल (Half-Life) लैब',
+    subtitle: 'Radioactive Decay (N = N₀ (½)ⁿ) & Alpha, Beta, Gamma Rays',
+    icon: '☢️',
+    badge: 'NUCLEAR LAB',
+    formula: 'N = N₀ × (1/2)ⁿ   |   λ = 0.693 / T₁/₂',
+    param1Label: 'प्रारंभिक मात्रा (Initial Mass N₀)',
+    param1Unit: 'g',
+    param1Min: 16,
+    param1Max: 256,
+    param1Default: 100,
+    param2Label: 'बीते हुए अर्ध-आयु काल (Number of Half-Lives n)',
+    param2Unit: 'T½',
+    param2Min: 1,
+    param2Max: 6,
+    param2Default: 2,
+    computeResult: (n0, halfLives) => {
+      const rem = n0 / Math.pow(2, halfLives);
+      return {
+        primaryLabel: 'शेष रेडियोधर्मी मात्रा (Remaining N)',
+        primaryValue: `${rem.toFixed(2)} ग्राम`,
+        secondaryLabel: 'विघटित प्रतिशत (Decayed %)',
+        secondaryValue: `${(((n0 - rem) / n0) * 100).toFixed(1)}%`,
+        statusText: 'गामा (γ) किरणों की भेदन क्षमता सर्वाधिक और अल्फा (α) कणों की आयनन क्षमता सर्वाधिक होती है।'
+      };
+    },
+    examFacts: [
+      'रेडियोधर्मिता की खोज हेनरी बेक्वेरेल ने की और रेडियम की खोज मैडम क्यूरी ने की।',
+      'जीवाश्मों की आयु कार्बन-14 (C-14, अर्ध-आयु 5730 वर्ष) और पृथ्वी/चट्टानों की आयु यूरेनियम डेटिंग से ज्ञात की जाती है।'
+    ]
+  },
 
-  // -------------------------------------------------------------
-  // LAB 1: OHM'S LAW & ELECTRIC CIRCUITS
-  // -------------------------------------------------------------
-  const [voltage, setVoltage] = useState<number>(12); // V
-  const [resistance, setResistance] = useState<number>(10); // Ohms
-  const current = (voltage / resistance).toFixed(2); // I = V / R
-  const power = (voltage * (voltage / resistance)).toFixed(2); // P = V * I
-
-  const getCircuitExplanation = () => {
-    if (isHindi) {
-      return `【प्रैक्टिकल विश्लेषण】: 
-• वोल्टेज (V = ${voltage}V) बढ़ाने का मतलब है सर्किट में बैटरी का धक्का (Electrical Pressure) बढ़ाना। इससे इलेक्ट्रॉनों की गति तेज होती है और धारा (I = ${current}A) बढ़ती है।
-• प्रतिरोध (R = ${resistance}Ω) बढ़ाने का मतलब है तार में रुकावट पैदा करना। जब R बढ़ता है तो धारा घटती है।
-• वर्तमान शक्ति (Power P = ${power}W): बल्ब की चमक शक्ति के सीधे समानुपाती है। ${parseFloat(power) > 50 ? 'बल्ब बहुत तेज और गर्म जल रहा है!' : 'बल्ब सामान्य मंद गति से जल रहा है।'}`;
-    } else {
-      return `[Practical Analysis]:
-• Increasing Voltage (V = ${voltage}V) increases electrical pressure, pushing more electrons per second through the circuit (Current I = ${current}A).
-• Increasing Resistance (R = ${resistance}Ω) obstructs electron flow, decreasing current.
-• Total Power Dissipation is ${power} Watts (P = V × I).`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 2: MEDICAL PHYSIOLOGY & CARDIAC CYCLE
-  // -------------------------------------------------------------
-  const [heartRate, setHeartRate] = useState<number>(72); // BPM
-  const [strokeVolume, setStrokeVolume] = useState<number>(70); // mL/beat
-  const [systolicBP, setSystolicBP] = useState<number>(120); // mmHg
-  const [diastolicBP, setDiastolicBP] = useState<number>(80); // mmHg
-
-  const cardiacOutput = ((heartRate * strokeVolume) / 1000).toFixed(2); // L/min
-  const meanArterialPressure = (diastolicBP + (systolicBP - diastolicBP) / 3).toFixed(1);
-  const pulsePressure = systolicBP - diastolicBP;
-
-  const getCardioExplanation = () => {
-    if (isHindi) {
-      return `【हार्ट व बीपी प्रैक्टिकल विश्लेषण】:
-• हार्ट रेट (${heartRate} BPM) व स्ट्रोक वॉल्यूम (${strokeVolume} mL): दिल 1 मिनट में शरीर को ${cardiacOutput} लीटर शुद्ध रक्त पंप कर रहा है। (सामान्य सीमा: 4.5 से 6.0 L/min)।
-• ब्लड प्रेशर (${systolicBP}/${diastolicBP} mmHg): सिस्टोलिक (धड़कन के समय का दबाव) और डायस्टोलिक (आराम के समय का दबाव)।
-• पल्स प्रेशर (${pulsePressure} mmHg): धमनियों की लोच (Arterial Elasticity) दर्शाता है।
-• MAP (${meanArterialPressure} mmHg): मस्तिष्क व गुर्दे (Kidneys) तक रक्त पहुँचाने वाला निरंतर परफ्यूजन दबाव है।`;
-    } else {
-      return `[Cardiac Hemodynamics]:
-• Cardiac Output is ${cardiacOutput} L/min (CO = HR × SV). Normal resting range is 4.5 - 6.0 L/min.
-• Blood Pressure is ${systolicBP}/${diastolicBP} mmHg. Pulse Pressure is ${pulsePressure} mmHg.
-• Mean Arterial Pressure (MAP) is ${meanArterialPressure} mmHg, which drives organ perfusion.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 3: OPTICS & CONVEX LENS
-  // -------------------------------------------------------------
-  const [focalLength, setFocalLength] = useState<number>(20); // f in cm
-  const [objectDistance, setObjectDistance] = useState<number>(40); // u in cm
-  const uSign = -objectDistance;
-  const vCalculated = (focalLength * uSign) / (uSign + focalLength);
-  const vDisplay = isFinite(vCalculated) ? vCalculated.toFixed(1) : '∞';
-  const magnification = isFinite(vCalculated) ? (vCalculated / uSign).toFixed(2) : '∞';
-
-  const getOpticsExplanation = () => {
-    const isVirtual = objectDistance < focalLength;
-    if (isHindi) {
-      if (isVirtual) {
-        return `【मैग्निफाइंग ग्लास स्थिति (u < f)】:
-• वस्तु (${objectDistance}cm) फोकस (${focalLength}cm) के अंदर है!
-• किरणें दूसरी तरफ नहीं मिलतीं। लेंस के उसी तरफ आभासी (Virtual), सीधा (Erect) और ${Math.abs(parseFloat(magnification))}x गुना बड़ा प्रतिबिंब बनता है। सूक्ष्मदर्शी व आवर्धक लेंस इसी सिद्धांत पर काम करते हैं।`;
-      } else if (objectDistance === focalLength * 2) {
-        return `【2F स्थिति (u = 2f = ${focalLength * 2}cm)】:
-• वस्तु 2F पर रखी है। प्रतिबिंब ठीक 2F पर वास्तविक, उल्टा और वस्तु के ठीक बराबर (1.0x) बनता है (फोटोकॉपी मशीन सिद्धांत)।`;
-      } else if (objectDistance > focalLength * 2) {
-        return `【कैमरा स्थिति (u > 2f)】:
-• वस्तु 2F से दूर है। प्रतिबिंब F और 2F के बीच वास्तविक, उल्टा और छोटा (${Math.abs(parseFloat(magnification))}x) बनता है (आँख और कैमरा लेंस)।`;
-      } else {
-        return `【प्रोजेक्टर स्थिति (F < u < 2F)】:
-• वस्तु F और 2F के बीच है। प्रतिबिंब 2F से परे वास्तविक, उल्टा और बड़ा बनता है (सिनेमा प्रोजेक्टर)।`;
+  // ===================== BIOLOGY & SPACE (9 LABS) =====================
+  {
+    id: 'photosynthesis-rate',
+    number: 20,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'प्रकाश संश्लेषण एवं ऑक्सीजन बुलबुला लैब',
+    subtitle: 'Photosynthesis Rate (6CO₂ + 12H₂O → C₆H₁₂O₆ + 6O₂ + 6H₂O)',
+    icon: '🌿',
+    badge: 'BOTANY LAB',
+    formula: '6CO₂ + 12H₂O —(सूर्य का प्रकाश / क्लोरोफिल)→ C₆H₁₂O₆ + 6O₂↑',
+    param1Label: 'प्रकाश की तीव्रता (Light Intensity)',
+    param1Unit: '%',
+    param1Min: 10,
+    param1Max: 100,
+    param1Default: 70,
+    param2Label: 'CO₂ सांद्रता स्तर (CO₂ Level)',
+    param2Unit: 'ppm',
+    param2Min: 100,
+    param2Max: 800,
+    param2Default: 400,
+    computeResult: (light, co2) => {
+      const bubbles = Math.round((light * co2) / 1000);
+      return {
+        primaryLabel: 'ऑक्सीजन बुलबुले दर (O₂ Bubbles)',
+        primaryValue: `${bubbles} बुलबुले / मिनट`,
+        secondaryLabel: 'ग्लूकोज संश्लेषण दक्षता',
+        secondaryValue: `${Math.min(100, Math.round((light + co2 / 8) / 2))}%`,
+        statusText: 'प्रकाश संश्लेषण में निकलने वाली ऑक्सीजन (O₂) जल (H₂O) के प्रकाशिक अपघटन से प्राप्त होती है।'
+      };
+    },
+    examFacts: [
+      'क्लोरोफिल (पर्णहरित) के केंद्र में मैग्नीशियम (Mg²⁺) धातु आयन पाया जाता है।',
+      'प्रकाश संश्लेषण की दर लाल प्रकाश में सर्वाधिक और हरे प्रकाश में शून्य/न्यूनतम होती है।'
+    ]
+  },
+  {
+    id: 'heart-ecg-bp',
+    number: 21,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'मानव हृदय स्पंदन, रक्तचाप एवं ECG सिमुलेटर',
+    subtitle: 'Cardiac Output (HR × Stroke Volume), Blood Pressure & ECG Wave',
+    icon: '❤️',
+    badge: 'HUMAN PHYSIOLOGY',
+    formula: 'Cardiac Output = Heart Rate (72 BPM) × Stroke Volume (70 mL) ≈ 5 L/min',
+    param1Label: 'हृदय स्पंदन दर (Heart Rate)',
+    param1Unit: 'BPM',
+    param1Min: 60,
+    param1Max: 160,
+    param1Default: 72,
+    param2Label: 'स्ट्रोक आयतन (Stroke Volume)',
+    param2Unit: 'mL',
+    param2Min: 50,
+    param2Max: 110,
+    param2Default: 70,
+    computeResult: (hr, sv) => {
+      const co = (hr * sv) / 1000;
+      const sys = Math.round(120 + (hr - 72) * 0.4);
+      const dia = Math.round(80 + (hr - 72) * 0.2);
+      return {
+        primaryLabel: 'कार्डियक आउटपुट (रक्त पंप/मिनट)',
+        primaryValue: `${co.toFixed(2)} लीटर / मिनट`,
+        secondaryLabel: 'अनुमानित रक्तचाप (BP)',
+        secondaryValue: `${sys} / ${dia} mmHg`,
+        statusText: 'SA Node (सानु-अलिंद पर्व) को हृदय का प्राकृतिक पेसमेकर कहा जाता है।'
+      };
+    },
+    examFacts: [
+      'मानव हृदय में 4 कोष्ठक (2 आलिंद, 2 निलय) होते हैं और सामान्य रक्तचाप 120/80 mmHg (स्फिग्मोमैनोमीटर द्वारा मापित) होता है।',
+      'फुफ्फुस धमनी (Pulmonary Artery) एकमात्र धमनी है जिसमें अशुद्ध (विऑक्सीजनित) रक्त बहता है।'
+    ]
+  },
+  {
+    id: 'blood-group-typing',
+    number: 22,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'ABO एवं Rh रक्त समूह मिलान प्रयोगशाला',
+    subtitle: 'Blood Group Compatibility, Antigens, Antibodies & Transfusion',
+    icon: '🩸',
+    badge: 'HEMATOLOGY LAB',
+    formula: 'सर्वदाता (Universal Donor): O⁻   |   सर्वग्राही (Universal Recipient): AB⁺',
+    param1Label: 'रक्त समूह कोड (1=A, 2=B, 3=AB, 4=O)',
+    param1Unit: 'Type',
+    param1Min: 1,
+    param1Max: 4,
+    param1Default: 4,
+    param2Label: 'Rh फैक्टर (1 = Rh Positive +, 0 = Rh Negative -)',
+    param2Unit: 'Rh',
+    param2Min: 0,
+    param2Max: 1,
+    param2Default: 0,
+    computeResult: (code, rh) => {
+      const idx = Math.round(code);
+      const isPos = Math.round(rh) === 1;
+      const types: Record<number, { name: string; antigen: string; antibody: string; canDonate: string }> = {
+        1: { name: 'A', antigen: 'A एंटीजन', antibody: 'b एंटीबॉडी', canDonate: 'A, AB' },
+        2: { name: 'B', antigen: 'B एंटीजन', antibody: 'a एंटीबॉडी', canDonate: 'B, AB' },
+        3: { name: 'AB', antigen: 'A व B दोनों एंटीजन', antibody: 'कोई एंटीबॉडी नहीं (सर्वग्राही)', canDonate: 'केवल AB' },
+        4: { name: 'O', antigen: 'कोई एंटीजन नहीं (सर्वदाता)', antibody: 'a व b दोनों एंटीबॉडी', canDonate: 'A, B, AB, O (सभी को)' }
+      };
+      const t = types[idx] || types[4];
+      return {
+        primaryLabel: `चयनित रक्त समूह: ${t.name}${isPos ? '⁺' : '⁻'}`,
+        primaryValue: `RBC पर: ${t.antigen}`,
+        secondaryLabel: 'प्लाज्मा में एंटीबॉडी व दान पात्रता',
+        secondaryValue: `${t.antibody} | दे सकता है: ${t.canDonate}`,
+        statusText: idx === 4 && !isPos ? 'O⁻ (O Negative) वास्तविक सर्वदाता है क्योंकि इसमें A, B या Rh कोई एंटीजन नहीं होता!' : 'रक्त आधान से पूर्व क्रॉस-मैचिंग अनिवार्य है।'
+      };
+    },
+    examFacts: [
+      'ABO रक्त समूह की खोज कार्ल लैंडस्टीनर (1900) ने की तथा Rh फैक्टर की खोज लैंडस्टीनर व वीनर ने रीसस बंदर में की।',
+      'रक्त का थक्का जमने में विटामिन K, फाइब्रिनोजन प्रोटीन, थ्रोम्बिन और कैल्शियम (Ca²⁺) आयन सहायक होते हैं।'
+    ]
+  },
+  {
+    id: 'mendel-genetics',
+    number: 23,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'मेंडल आनुवंशिकता एवं पनेट स्क्वायर लैब',
+    subtitle: 'Mendel’s Monohybrid (3:1) & Dihybrid (9:3:3:1) Cross Simulator',
+    icon: '🧬',
+    badge: 'GENETICS LAB',
+    formula: 'एकसंकर फीनोटाइप = 3 : 1   |   जीनोटाइप = 1 : 2 : 1 (TT : Tt : tt)',
+    param1Label: 'क्रॉस प्रकार (1 = Tt × Tt, 2 = Tt × tt, 3 = Dihybrid)',
+    param1Unit: 'Cross',
+    param1Min: 1,
+    param1Max: 3,
+    param1Default: 1,
+    param2Label: 'कुल संतति पौधों की संख्या (Total Offspring)',
+    param2Unit: 'पौधे',
+    param2Min: 40,
+    param2Max: 400,
+    param2Default: 160,
+    computeResult: (crossType, total) => {
+      const c = Math.round(crossType);
+      if (c === 1) {
+        return {
+          primaryLabel: 'फीनोटाइप अनुपात (लंबे : बौने = 3 : 1)',
+          primaryValue: `${Math.round(total * 0.75)} लंबे : ${Math.round(total * 0.25)} बौने पौधे`,
+          secondaryLabel: 'जीनोटाइप अनुपात (1 TT : 2 Tt : 1 tt)',
+          secondaryValue: `${Math.round(total * 0.25)} TT : ${Math.round(total * 0.5)} Tt : ${Math.round(total * 0.25)} tt`,
+          statusText: 'प्रभाविता का नियम एवं पृथक्करण का नियम (Law of Segregation) सत्यापित।'
+        };
       }
-    } else {
-      return `[Optics Ray Tracking]: Object Distance u = ${objectDistance}cm, Focal Length f = ${focalLength}cm. Image formed at v = ${vDisplay}cm with magnification m = ${magnification}x. ${isVirtual ? 'Image is Virtual, Erect & Enlarged.' : 'Image is Real & Inverted.'}`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 4: SIMPLE PENDULUM & GRAVITY
-  // -------------------------------------------------------------
-  const [pendulumLength, setPendulumLength] = useState<number>(1.0); // L in meters
-  const [gravity, setGravity] = useState<number>(9.8); // g in m/s^2
-  const timePeriod = (2 * Math.PI * Math.sqrt(pendulumLength / gravity)).toFixed(2);
-  const frequency = (1 / parseFloat(timePeriod)).toFixed(2);
-
-  const getPendulumExplanation = () => {
-    if (isHindi) {
-      return `【पेंडुलम आवर्तकाल (T = 2π√(L/g))】:
-• लंबाई (L = ${pendulumLength}m) बढ़ाने से आवर्तकाल (T = ${timePeriod}s) बढ़ता है क्योंकि पेंडुलम को लंबा चाप (Arc) तय करना पड़ता है।
-• गुरुत्वाकर्षण (g = ${gravity} m/s²): गुरुत्वाकर्षण बढ़ने से पेंडुलम तेजी से नीचे खिंचता है जिससे दोलन तेज हो जाता है।
-• निष्कर्ष: पेंडुलम का आवर्तकाल बॉब (Bob) के द्रव्यमान पर बिल्कुल निर्भर नहीं करता (केवल L और g पर)।`;
-    } else {
-      return `[Pendulum Dynamics (T = 2π√(L/g))]:
-• Length L = ${pendulumLength}m, Gravity g = ${gravity} m/s².
-• Time Period T = ${timePeriod} seconds (1 complete oscillation).
-• Frequency f = ${frequency} Hz.
-• Note: Period depends strictly on length and gravity, NOT on bob mass.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 5: CHEMISTRY ACID-BASE TITRATION & pH SCALE
-  // -------------------------------------------------------------
-  const [acidStrength, setAcidStrength] = useState<number>(0.1); // Molar
-  const [baseVolumeAdded, setBaseVolumeAdded] = useState<number>(25); // mL of NaOH added to 25mL acid
-  
-  // Calculate dynamic pH based on titration progress
-  const acidMoles = 25 * acidStrength; // 25mL acid
-  const baseMoles = baseVolumeAdded * 0.1; // 0.1M base
-  let calculatedPh = 7.0;
-  if (baseMoles < acidMoles) {
-    const unreactedAcid = (acidMoles - baseMoles) / (25 + baseVolumeAdded);
-    calculatedPh = Math.max(1.0, -Math.log10(Math.max(unreactedAcid, 0.0000001)));
-  } else if (baseMoles > acidMoles) {
-    const excessBase = (baseMoles - acidMoles) / (25 + baseVolumeAdded);
-    const pOH = Math.max(0.5, -Math.log10(Math.max(excessBase, 0.0000001)));
-    calculatedPh = Math.min(14.0, 14 - pOH);
-  } else {
-    calculatedPh = 7.0; // Equivalence point
-  }
-  const phDisplay = calculatedPh.toFixed(2);
-
-  const getChemistryExplanation = () => {
-    if (isHindi) {
-      if (calculatedPh < 6.5) {
-        return `【अम्लीय माध्यम (Acidic Solution pH = ${phDisplay})】:
-• बीकर में $[H^+]$ आयनों की सांद्रता $[OH^-]$ से अधिक है।
-• लिटमस पेपर लाल रहेगा और फिनॉल्फथेलिन (Phenolphthalein) रंगहीन रहेगा।`;
-      } else if (calculatedPh >= 6.5 && calculatedPh <= 7.5) {
-        return `【उदासीनीकरण बिंदु (Equivalence Neutral Point pH = ${phDisplay})】:
-• एसिड ($HCl$) और बेस ($NaOH$) ने मिलकर लवण ($NaCl$) और जल ($H_2O$) बना लिया है ($H^+ + OH^- \rightarrow H_2O$)।
-• फिनॉल्फथेलिन इस बिंदु पर हल्का गुलाबी (Faint Pink) रंग दिखाना शुरू करता है।`;
-      } else {
-        return `【क्षारीय माध्यम (Basic Solution pH = ${phDisplay})】:
-• अतिरिक्त बेस मिलाने से विलयन में $[OH^-]$ हाइड्रॉक्साइड आयन बढ़ गए हैं।
-• फिनॉल्फथेलिन गहरा गुलाबी/मैजेंटा रंग दिखाता है और लाल लिटमस नीला हो जाता है।`;
+      if (c === 2) {
+        return {
+          primaryLabel: 'परीक्षण संकरण (Test Cross Tt × tt = 1 : 1)',
+          primaryValue: `${Math.round(total * 0.5)} लंबे (Tt) : ${Math.round(total * 0.5)} बौने (tt)`,
+          secondaryLabel: 'जीनोटाइप अनुपात',
+          secondaryValue: '1 : 1 (50% विषमयुग्मजी, 50% समयुग्मजी अप्रभावी)',
+          statusText: 'अज्ञात प्रभावी फीनोटाइप के जीनोटाइप की जांच के लिए अप्रभावी जनक (tt) से संकरण को Test Cross कहते हैं।'
+        };
       }
-    } else {
-      return `[Titration & pH Analysis]: pH is ${phDisplay}. Solution is ${calculatedPh < 7 ? 'Acidic ([H+] > [OH-])' : calculatedPh > 7 ? 'Basic ([OH-] > [H+])' : 'Neutral (Salt + Water)'}.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 6: PROJECTILE MOTION (प्रक्षेप्य गति)
-  // -------------------------------------------------------------
-  const [launchVelocity, setLaunchVelocity] = useState<number>(30); // m/s
-  const [launchAngle, setLaunchAngle] = useState<number>(45); // degrees
-  const rad = (launchAngle * Math.PI) / 180;
-  const gProj = 9.8;
-  const maxHeight = ((launchVelocity * launchVelocity * Math.sin(rad) * Math.sin(rad)) / (2 * gProj)).toFixed(1);
-  const maxRange = ((launchVelocity * launchVelocity * Math.sin(2 * rad)) / gProj).toFixed(1);
-  const flightTime = ((2 * launchVelocity * Math.sin(rad)) / gProj).toFixed(2);
-
-  const getProjectileExplanation = () => {
-    if (isHindi) {
-      return `【प्रक्षेप्य गति (Projectile Motion)】:
-• वेग (${launchVelocity} m/s) व कोण (${launchAngle}°):
-• अधिकतम क्षैतिज परास (Range R = ${maxRange}m): $45^\circ$ के कोण पर अधिकतम दूरी मिलती है ($\sin 2\theta = \sin 90^\circ = 1$)।
-• अधिकतम ऊंचाई (Height H = ${maxHeight}m): कोण जितना $90^\circ$ के करीब होगा, गेंद उतनी ऊँची जाएगी।
-• उड्डयन काल (Time of Flight T = ${flightTime}s): गेंद हवा में इतने सेकंड रहेगी।`;
-    } else {
-      return `[Kinematics Analysis]: Launch Angle = ${launchAngle}°, Velocity = ${launchVelocity} m/s. Range = ${maxRange}m, Max Height = ${maxHeight}m, Flight Time = ${flightTime}s. Maximum range occurs at exactly 45°.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 7: TRIGONOMETRY
-  // -------------------------------------------------------------
-  const [angleDeg, setAngleDeg] = useState<number>(45);
-  const angleRad = (angleDeg * Math.PI) / 180;
-  const sinVal = Math.sin(angleRad).toFixed(3);
-  const cosVal = Math.cos(angleRad).toFixed(3);
-  const tanVal = Math.cos(angleRad) !== 0 ? Math.tan(angleRad).toFixed(3) : 'Undefined';
-
-  // -------------------------------------------------------------
-  // LAB 8: COMPOUND INTEREST
-  // -------------------------------------------------------------
-  const [principal, setPrincipal] = useState<number>(10000);
-  const [rate, setRate] = useState<number>(8);
-  const [years, setYears] = useState<number>(5);
-  const simpleInterestAmount = principal + (principal * rate * years) / 100;
-  const compoundInterestAmount = principal * Math.pow(1 + rate / 100, years);
-  const compoundProfit = compoundInterestAmount - principal;
-
-  // -------------------------------------------------------------
-  // LAB 9: BIOLOGY - PHOTOSYNTHESIS & ENZYME BIOENERGETICS (जीव विज्ञान)
-  // -------------------------------------------------------------
-  const [lightIntensity, setLightIntensity] = useState<number>(45000); // 0 - 100,000 Lux
-  const [co2Ppm, setCo2Ppm] = useState<number>(420); // 100 - 1200 ppm
-  const [tempCelsius, setTempCelsius] = useState<number>(25); // 5 - 55 °C
-
-  // Blackman's Law of Limiting Factors calculations
-  const lightFactor = Math.min(1.0, lightIntensity / 50000);
-  const co2Factor = Math.min(1.0, co2Ppm / 800);
-  let tempFactor = 1.0;
-  if (tempCelsius < 10) {
-    tempFactor = Math.max(0.05, tempCelsius / 25);
-  } else if (tempCelsius <= 32) {
-    tempFactor = 0.5 + (tempCelsius - 10) * (0.5 / 22);
-  } else if (tempCelsius <= 40) {
-    tempFactor = 1.0 - (tempCelsius - 32) * (0.3 / 8);
-  } else {
-    // Severe thermal denaturation of RuBisCO enzyme
-    tempFactor = Math.max(0.0, 0.7 - (tempCelsius - 40) * (0.7 / 15));
+      return {
+        primaryLabel: 'द्विसंकर क्रॉस अनुपात (Dihybrid 9 : 3 : 3 : 1)',
+        primaryValue: `${Math.round((total * 9) / 16)} गोल-पीले : ${Math.round((total * 1) / 16)} झुर्रीदार-हरे`,
+        secondaryLabel: 'स्वतंत्र अपव्यूहन का नियम',
+        secondaryValue: 'जीनोटाइप अनुपात = 1:2:1:2:4:2:1:2:1',
+        statusText: 'मेंडल ने अपने प्रयोग उद्यान मटर (Pisum sativum) के 7 विपर्यासी लक्षणों पर किए थे।'
+      };
+    },
+    examFacts: [
+      'ग्रेगर जॉन मेंडल को "आनुवंशिकी का जनक" (Father of Genetics) कहा जाता है; "जीन" (Gene) शब्द जोहानसन ने दिया।',
+      'DNA की द्विकुंडली (Double Helix) संरचना वाटसन और क्रिक (1953) ने प्रस्तुत की।'
+    ]
+  },
+  {
+    id: 'microscope-cell',
+    number: 24,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'संयुक्त सूक्ष्मदर्शी एवं कोशिकांग ज़ूम लैब',
+    subtitle: 'Compound Microscope Magnification (M = m_o × m_e) & Cell Organelles',
+    icon: '🔬',
+    badge: 'CYTOLOGY LAB',
+    formula: 'कुल आवर्धन (Total Magnification) = अभिदृश्यक लेंस (Objective) × नेत्रिका (Eyepiece)',
+    param1Label: 'अभिदृश्यक लेंस आवर्धन (Objective Lens)',
+    param1Unit: 'x',
+    param1Min: 10,
+    param1Max: 100,
+    param1Default: 40,
+    param2Label: 'नेत्रिका लेंस आवर्धन (Eyepiece Lens)',
+    param2Unit: 'x',
+    param2Min: 5,
+    param2Max: 20,
+    param2Default: 10,
+    computeResult: (obj, eye) => {
+      const totalMag = obj * eye;
+      return {
+        primaryLabel: 'कुल सूक्ष्मदर्शी आवर्धन (Total Zoom)',
+        primaryValue: `${totalMag}x आवर्धन`,
+        secondaryLabel: 'दृश्यमान कोशिकांग (Visible Organelles)',
+        secondaryValue: totalMag >= 400 ? 'माइटोकॉन्ड्रिया, हरितलवक, केंद्रक व क्रोमेटिन स्पष्ट' : 'कोशिका भित्ति, झिल्ली व केंद्रक दृश्यमान',
+        statusText: 'माइटोकॉन्ड्रिया को कोशिका का ऊर्जा गृह (Powerhouse - ATP) और राइबोसोम को प्रोटीन फैक्ट्री कहते हैं।'
+      };
+    },
+    examFacts: [
+      'कोशिका की खोज रॉबर्ट हुक (1665) ने और जीवित कोशिका की खोज ल्यूवेनहॉक ने की।',
+      'केंद्रक के अतिरिक्त केवल माइटोकॉन्ड्रिया और हरितलवक (Chloroplast) में अपना स्वयं का DNA और 70S राइबोसोम होता है।'
+    ]
+  },
+  {
+    id: 'respiration-lungs',
+    number: 25,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'मानव श्वसन तंत्र एवं फेफड़े आयतन लैब',
+    subtitle: 'Pulmonary Ventilation, Tidal Volume (500 mL) & Alveoli Gas Exchange',
+    icon: '🫁',
+    badge: 'RESPIRATORY LAB',
+    formula: 'Minute Respiratory Volume = श्वसन दर (12–16/min) × Tidal Volume (500 mL)',
+    param1Label: 'श्वसन दर (Breaths per Minute)',
+    param1Unit: '/min',
+    param1Min: 10,
+    param1Max: 40,
+    param1Default: 15,
+    param2Label: 'ज्वारीय आयतन (Tidal Volume TV)',
+    param2Unit: 'mL',
+    param2Min: 300,
+    param2Max: 1200,
+    param2Default: 500,
+    computeResult: (rate, tv) => {
+      const mrv = (rate * tv) / 1000;
+      return {
+        primaryLabel: 'मिनट श्वसन आयतन (Minute Volume)',
+        primaryValue: `${mrv.toFixed(1)} लीटर / मिनट`,
+        secondaryLabel: 'कोशिकीय ATP उत्पादन (वायवीय श्वसन)',
+        secondaryValue: '1 ग्लूकोज = 38 ATP ऊर्जा',
+        statusText: 'कूपिकाओं (Alveoli) में विसरण द्वारा O₂ हीमोग्लोबिन से जुड़कर ऑक्सीहीमोग्लोबिन बनाती है।'
+      };
+    },
+    examFacts: [
+      'सामान्य वयस्क की श्वसन दर 12 से 16 बार प्रति मिनट और ज्वारीय आयतन (Tidal Volume) 500 mL होता है।',
+      'मांसपेशियों में अवायवीय श्वसन से लैक्टिक अम्ल (Lactic Acid) जमने के कारण थकान और ऐंठन होती है।'
+    ]
+  },
+  {
+    id: 'osmosis-cell',
+    number: 26,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'परासरण एवं विसरण (Osmosis in RBC) लैब',
+    subtitle: 'Hypotonic, Isotonic (0.9% NaCl) & Hypertonic Solution Action',
+    icon: '🥔',
+    badge: 'OSMOSIS LAB',
+    formula: 'परासरण दाब π = C × R × T   (अर्धपारगम्य झिल्ली से विलायक का प्रवाह)',
+    param1Label: 'बाहरी विलयन की NaCl सांद्रता',
+    param1Unit: '%',
+    param1Min: 0.1,
+    param1Max: 3.0,
+    param1Default: 0.9,
+    param2Label: 'तापमान (Temperature)',
+    param2Unit: '°C',
+    param2Min: 10,
+    param2Max: 45,
+    param2Default: 27,
+    computeResult: (conc) => {
+      if (Math.abs(conc - 0.9) < 0.15) {
+        return {
+          primaryLabel: 'विलयन प्रकार: समपरासारी (Isotonic 0.9% NaCl)',
+          primaryValue: 'कोशिका का आकार सामान्य रहेगा',
+          secondaryLabel: 'जल प्रवाह स्थिति',
+          secondaryValue: 'अंतःप्रवाह = बहिःप्रवाह (संतुलित)',
+          statusText: '0.9% NaCl विलयन मानव रक्त कोशिकाओं (RBC) के साथ समपरासारी (Isotonic) होता है।'
+        };
+      }
+      if (conc < 0.9) {
+        return {
+          primaryLabel: 'विलयन प्रकार: अल्पपरासारी (Hypotonic)',
+          primaryValue: 'अंतःपरासरण (Endosmosis - कोशिका फूलेगी)',
+          secondaryLabel: 'प्रभाव',
+          secondaryValue: 'जल कोशिका के अंदर प्रवेश करेगा (किशमिश का फूलना)',
+          statusText: 'अल्पपरासारी विलयन में रखने पर जल कोशिका में प्रवेश करता है और कोशिका स्फीत (Turgid) हो जाती है।'
+        };
+      }
+      return {
+        primaryLabel: 'विलयन प्रकार: अतिपरासारी (Hypertonic)',
+        primaryValue: 'बहिःपरासरण (Exosmosis - कोशिका सिकुड़ेगी)',
+        secondaryLabel: 'प्रभाव',
+        secondaryValue: 'जीवद्रव्यकुंचन (Plasmolysis - अंगूर का सिकुड़ना)',
+        statusText: 'गाढ़े नमक/चीनी के घोल में रखने पर कोशिका से जल बाहर निकल जाता है।'
+      };
+    },
+    examFacts: [
+      'पौधों की जड़ों द्वारा जल का अवशोषण परासरण (Osmosis) द्वारा और पत्तियों से जलवाष्प का निकलना वाष्पोत्सर्जन (Transpiration) कहलाता है।',
+      'अचार और मुरब्बे में नमक/चीनी अधिक डालने से जीवाणुओं का जीवद्रव्यकुंचन (Plasmolysis) हो जाता है और अचार खराब नहीं होता।'
+    ]
+  },
+  {
+    id: 'human-eye-defects',
+    number: 27,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Biology)',
+    title: 'मानव नेत्र दोष एवं लेंस सुधार प्रयोगशाला',
+    subtitle: 'Myopia (Concave Correction), Hypermetropia (Convex) & 25cm Least Distance',
+    icon: '👁️',
+    badge: 'HUMAN EYE LAB',
+    formula: 'स्पष्ट दर्शन की न्यूनतम दूरी = 25 cm   |   दूर बिंदु = अनंत (∞)',
+    param1Label: 'नेत्र गोलक फोकस शिफ्ट (-5 = मायोपिया, 0 = सामान्य, +5 = हाइपरमेट्रोपिया)',
+    param1Unit: 'D',
+    param1Min: -5,
+    param1Max: 5,
+    param1Default: -2,
+    param2Label: 'चश्मे के लेंस की क्षमता (Corrective Lens Power)',
+    param2Unit: 'D',
+    param2Min: -5,
+    param2Max: 5,
+    param2Default: -2,
+    computeResult: (defect, lens) => {
+      if (defect < 0) {
+        return {
+          primaryLabel: 'दृष्टि दोष: निकट दृष्टि दोष (Myopia)',
+          primaryValue: 'प्रतिबिंब रेटिना से पहले बन रहा है',
+          secondaryLabel: 'आवश्यक निवारण लेंस',
+          secondaryValue: `अवतल लेंस (Concave Lens ${defect} D) — ${defect === lens ? '✓ रेटिना पर सटीक फोकस!' : 'लेंस क्षमता मिलाएं'}`,
+          statusText: 'निकट दृष्टि दोष में पास की वस्तु स्पष्ट दिखती है परंतु दूर की नहीं; इसे अवतल (Diverging) लेंस से ठीक करते हैं।'
+        };
+      }
+      if (defect > 0) {
+        return {
+          primaryLabel: 'दृष्टि दोष: दूर दृष्टि दोष (Hypermetropia)',
+          primaryValue: 'प्रतिबिंब रेटिना के पीछे बन रहा है',
+          secondaryLabel: 'आवश्यक निवारण लेंस',
+          secondaryValue: `उत्तल लेंस (Convex Lens +${defect} D) — ${defect === lens ? '✓ रेटिना पर सटीक फोकस!' : 'लेंस क्षमता मिलाएं'}`,
+          statusText: 'दूर दृष्टि दोष में दूर की वस्तु स्पष्ट दिखती है परंतु पास की नहीं; इसे उत्तल (Converging) लेंस से ठीक करते हैं।'
+        };
+      }
+      return {
+        primaryLabel: 'स्वस्थ मानव नेत्र (Normal Vision 6/6)',
+        primaryValue: 'रेटिना पर वास्तविक व उल्टा प्रतिबिंब',
+        secondaryLabel: 'स्पष्ट दृष्टि परास',
+        secondaryValue: '25 cm से अनंत (∞) तक',
+        statusText: 'नेत्र दान में आँख के केवल कॉर्निया (Cornea) भाग का दान किया जाता है।'
+      };
+    },
+    examFacts: [
+      'स्वस्थ आँख के लिए स्पष्ट दर्शन की न्यूनतम दूरी 25 सेमी और अधिकतम दूरी अनंत होती है।',
+      'जरा-दृष्टि दोष (Presbyopia) में द्विफोकसी लेंस (Bifocal Lens) और अबिंदुकता (Astigmatism) में बेलनाकार लेंस प्रयुक्त होता है।'
+    ]
+  },
+  {
+    id: 'solar-escape-velocity',
+    number: 28,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान व अंतरिक्ष (Space & Earth)',
+    title: 'सौरमंडल गुरुत्वाकर्षण एवं पलायन वेग लैब',
+    subtitle: 'Planetary Gravity, Weight Calculator & Escape Velocity (11.2 km/s)',
+    icon: '🪐',
+    badge: 'SPACE & ASTRO LAB',
+    formula: 'v_e = √(2gR) = √2 × v_orbital   |   पृथ्वी पलायन वेग = 11.2 km/s',
+    param1Label: 'पृथ्वी पर आपका द्रव्यमान (Your Mass m)',
+    param1Unit: 'kg',
+    param1Min: 30,
+    param1Max: 120,
+    param1Default: 60,
+    param2Label: 'खगोलीय पिंड (1=पृथ्वी, 2=चंद्रमा, 3=मंगल, 4=बृहस्पति)',
+    param2Unit: 'Planet',
+    param2Min: 1,
+    param2Max: 4,
+    param2Default: 2,
+    computeResult: (mass, bodyCode) => {
+      const b = Math.round(bodyCode);
+      const bodies: Record<number, { name: string; gRatio: number; esc: string }> = {
+        1: { name: 'पृथ्वी (Earth)', gRatio: 1.0, esc: '11.2 km/s' },
+        2: { name: 'चंद्रमा (Moon - g/6)', gRatio: 0.166, esc: '2.38 km/s' },
+        3: { name: 'मंगल ग्रह (Mars)', gRatio: 0.38, esc: '5.03 km/s' },
+        4: { name: 'बृहस्पति (Jupiter)', gRatio: 2.53, esc: '59.5 km/s' }
+      };
+      const body = bodies[b] || bodies[1];
+      const weightN = mass * 9.8 * body.gRatio;
+      const apparentKg = mass * body.gRatio;
+      return {
+        primaryLabel: `${body.name} पर आपका आभासी भार`,
+        primaryValue: `${apparentKg.toFixed(1)} kg-wt (${weightN.toFixed(0)} N)`,
+        secondaryLabel: `${body.name} का पलायन वेग (Escape Velocity)`,
+        secondaryValue: body.esc,
+        statusText: `द्रव्यमान (${mass} kg) सर्वत्र समान रहता है, केवल गुरुत्व (g) बदलने से भार (W = mg) बदलता है।`
+      };
+    },
+    examFacts: [
+      'पृथ्वी का पलायन वेग 11.2 किमी/सेकंड है; चंद्रमा पर कम पलायन वेग (2.38 km/s) के कारण वायुमंडल नहीं है।',
+      'भू-स्थिर उपग्रह (Geostationary Satellite) पृथ्वी तल से 35,786 किमी (लगभग 36,000 किमी) की ऊँचाई पर 24 घंटे के आवर्तकाल से घूमता है।'
+    ]
   }
+];
 
-  const photosynthesisRate = Math.round(Math.min(lightFactor, co2Factor) * tempFactor * 100);
-  const o2ProductionMlPerMin = (photosynthesisRate * 0.55).toFixed(1);
-  const glucoseSynthesisGramsPerHour = (photosynthesisRate * 0.18).toFixed(2);
-  const stomatalAperturePercent = Math.min(100, Math.round(lightFactor * 70 + (tempCelsius > 38 ? -40 : 30)));
+export const ScienceFormulaLabView: React.FC = () => {
+  // View Mode: 'hub' (Grid of all 28 labs) or 'bench' (Full-page interactive lab bench)
+  const [viewMode, setViewMode] = useState<'hub' | 'bench'>('hub');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'physics' | 'chemistry' | 'biology'>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedLabId, setSelectedLabId] = useState<string>('ohm-circuit');
+  const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
 
-  // Identify limiting factor
-  const getLimitingFactor = () => {
-    if (tempCelsius > 44) return isHindi ? 'अत्यधिक तापमान (RuBisCO एंजाइम विकृत/Denatured)' : 'Severe Heat (RuBisCO Enzyme Denaturation)';
-    if (tempCelsius < 12) return isHindi ? 'अत्यधिक ठंड (एंजाइम निष्क्रियता/Cold Inactivation)' : 'Cold Temperature Inactivation';
-    if (lightFactor <= co2Factor) return isHindi ? 'प्रकाश तीव्रता (Light Intensity)' : 'Light Intensity';
-    return isHindi ? 'कार्बन डाइऑक्साइड सांद्रता (CO2 Concentration)' : 'CO2 Concentration';
-  };
+  const activeLab = ALL_28_SCIENCE_LABS.find(l => l.id === selectedLabId) || ALL_28_SCIENCE_LABS[0];
 
-  const getPhotosynthesisExplanation = () => {
-    if (isHindi) {
-      return `【प्रकाश संश्लेषण व ब्लैकमेन का सीमाकारी सिद्धांत (6CO2 + 6H2O + Light → C6H12O6 + 6O2)】:
-• कुल प्रकाश संश्लेषण दर: ${photosynthesisRate}% (O2 उत्सर्जन: ${o2ProductionMlPerMin} mL/min, ग्लूकोज: ${glucoseSynthesisGramsPerHour} g/hr)।
-• प्रमुख सीमाकारी कारक (Limiting Factor): ${getLimitingFactor()}।
-• ब्लैकमेन का नियम: जब कोई प्रक्रिया कई कारकों पर निर्भर करती है, तो उसकी दर सबसे न्यूनतम (न्यूनतम उपलब्ध) कारक द्वारा नियंत्रित होती है।
-• रंध्र (Stomata) स्थिति: ${stomatalAperturePercent}% खुले हैं। ${tempCelsius > 38 ? 'अत्यधिक वाष्पोत्सर्जन से बचने हेतु रंध्र सिकुड़ रहे हैं।' : 'गैसों का सुचारू विनिमय हो रहा है।'}`;
-    } else {
-      return `[Photosynthesis Bioenergetics Analysis]:
-• Current Photosynthetic Efficiency is ${photosynthesisRate}%.
-• Net Oxygen Evolution: ${o2ProductionMlPerMin} mL/min | Glucose Synthesis: ${glucoseSynthesisGramsPerHour} g/hr.
-• Primary Limiting Factor: ${getLimitingFactor()} (Blackman's Principle of Limiting Factors).
-• Stomatal Aperture: ${stomatalAperturePercent}%. RuBisCO enzyme activity is optimal at 25-30°C.`;
-    }
-  };
+  const [p1, setP1] = useState<number>(activeLab.param1Default);
+  const [p2, setP2] = useState<number>(activeLab.param2Default);
 
-  // -------------------------------------------------------------
-  // LAB 10: BIOLOGY - GENETICS & PUNNETT SQUARE (मेंडेलियन आनुवंशिकी)
-  // -------------------------------------------------------------
-  const [parent1Alleles, setParent1Alleles] = useState<'TT' | 'Tt' | 'tt'>('Tt');
-  const [parent2Alleles, setParent2Alleles] = useState<'TT' | 'Tt' | 'tt'>('Tt');
-  const [geneticTrait, setGeneticTrait] = useState<'height' | 'eyes' | 'blood'>('height');
-
-  const p1 = parent1Alleles.split('');
-  const p2 = parent2Alleles.split('');
-  
-  // 4 Punnett matrix cells
-  const punnettGrid = [
-    [p1[0] + p2[0], p1[0] + p2[1]],
-    [p1[1] + p2[0], p1[1] + p2[1]]
-  ].map(row => row.map(cell => {
-    const sorted = cell.split('').sort().join('');
-    // Ensure dominant uppercase letter comes first e.g. 'tT' -> 'Tt'
-    if (sorted === 'Tt' || sorted === 'tT') return 'Tt';
-    if (sorted === 'Bb' || sorted === 'bB') return 'Bb';
-    return cell;
-  }));
-
-  const allOffspring = [punnettGrid[0][0], punnettGrid[0][1], punnettGrid[1][0], punnettGrid[1][1]];
-  const countTT = allOffspring.filter(g => g === 'TT' || g === 'BB').length;
-  const countTt = allOffspring.filter(g => g === 'Tt' || g === 'tT' || g === 'Bb' || g === 'bB').length;
-  const counttt = allOffspring.filter(g => g === 'tt' || g === 'bb').length;
-
-  const dominantPercent = ((countTT + countTt) / 4) * 100;
-  const recessivePercent = (counttt / 4) * 100;
-
-  const getGeneticsExplanation = () => {
-    if (isHindi) {
-      return `【मेंडेलियन आनुवंशिकी विश्लेषण (${parent1Alleles} × ${parent2Alleles})】:
-• जीनप्ररूप अनुपात (Genotypic Ratio): ${countTT} Homozygous Dominant : ${countTt} Heterozygous : ${counttt} Homozygous Recessive (${countTT}:${countTt}:${counttt})।
-• दृश्यप्ररूप अनुपात (Phenotypic Ratio): ${dominantPercent}% प्रभावी लक्षण (Dominant) एवं ${recessivePercent}% अप्रभावी लक्षण (Recessive) [${dominantPercent/25}:${recessivePercent/25}]।
-• मेंडल का पृथक्करण नियम (Law of Segregation): युग्मक (Gametes) बनते समय दोनों एलील एक-दूसरे से पूरी शुद्धता से अलग हो जाते हैं।`;
-    } else {
-      return `[Mendelian Monohybrid Cross (${parent1Alleles} × ${parent2Alleles})]:
-• Genotypic Ratio: ${countTT} TT : ${countTt} Tt : ${counttt} tt (${countTT*25}% : ${countTt*25}% : ${counttt*25}%).
-• Phenotypic Ratio: ${dominantPercent}% Dominant Trait vs ${recessivePercent}% Recessive Trait.
-• Demonstrates Mendel's Law of Segregation and Law of Dominance.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 11: BIOLOGY - OSMOSIS & CELL TONICITY (परासरण व कोशिका स्फीति)
-  // -------------------------------------------------------------
-  const [soluteConcentration, setSoluteConcentration] = useState<number>(0.9); // % NaCl
-  const [cellType, setCellType] = useState<'plant' | 'rbc'>('plant');
-
-  const isHypotonic = soluteConcentration < 0.8;
-  const isIsotonic = soluteConcentration >= 0.8 && soluteConcentration <= 1.0;
-  const isHypertonic = soluteConcentration > 1.0;
-
-  const getOsmosisStateName = () => {
-    if (cellType === 'plant') {
-      if (isHypotonic) return isHindi ? 'स्फीत (Turgid - पूर्ण स्फीति दाब)' : 'Turgid (High Turgor Pressure)';
-      if (isIsotonic) return isHindi ? 'शिथिल (Flaccid - साम्यावस्था)' : 'Flaccid (Isotonic Equilibrium)';
-      return isHindi ? 'जीवद्रव्यकुंचित (Plasmolyzed - कोशिकाद्रव्य सिकुड़ा)' : 'Plasmolyzed (Cytoplasm Shrunk)';
-    } else {
-      if (isHypotonic) return isHindi ? 'कोशिका विस्फोट/हीमोलिसिस (Hemolysis / Lysis - RBC फट गई!)' : 'Hemolysis / Lysis (Cell Burst!)';
-      if (isIsotonic) return isHindi ? 'सामान्य द्विनतोदर डिस्क (Normal Biconcave RBC)' : 'Normal Biconcave Erythrocyte';
-      return isHindi ? 'क्रीनेशन/सिकुड़न (Crenation - कंटीली व सिकुड़ी हुई)' : 'Crenated (Shrunken Spiky RBC)';
-    }
-  };
-
-  const getOsmosisExplanation = () => {
-    if (isHindi) {
-      return `【परासरण व टोनिसिटी विश्लेषण (${soluteConcentration}% बाह्य लवण सांद्रता)】:
-• माध्यम की प्रकृति: ${isHypotonic ? 'अल्पपरासारी (Hypotonic Medium - जल कोशिका के भीतर घुसेगा)' : isIsotonic ? 'समपरासारी (Isotonic Normal Saline - शुद्ध जल प्रवाह शून्य)' : 'अतिपरासारी (Hypertonic Brine - जल कोशिका से बाहर खींचेगा)'}।
-• कोशिका की स्थिति: ${getOsmosisStateName()}।
-• वैज्ञानिक कारण: ${cellType === 'plant' ? 'पादप कोशिका में सेलूलोज़ कोशिका भित्ति (Cell Wall) होती है, इसलिए वह अत्यधिक जल भरने पर फटती नहीं बल्कि स्फीत (Turgid) होकर पौधे को सीधा रखती है।' : 'मानव आरबीसी में कोशिका भित्ति नहीं होती, इसलिए अल्पपरासारी जल में जल के अंतःपरासरण से वह फट जाती है (Lysis)। इसलिए अस्पताल में 0.9% Normal Saline चढ़ाई जाती है।'}`;
-    } else {
-      return `[Osmosis & Cellular Tonicity]: Solute Concentration = ${soluteConcentration}%. Solution is ${isHypotonic ? 'Hypotonic' : isIsotonic ? 'Isotonic' : 'Hypertonic'}. Cell State: ${getOsmosisStateName()}.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 12: ELECTRONICS - DIGITAL LOGIC GATES & BINARY CIRCUITS
-  // -------------------------------------------------------------
-  const [selectedGate, setSelectedGate] = useState<'AND' | 'OR' | 'NOT' | 'NAND' | 'NOR' | 'XOR' | 'XNOR'>('AND');
-  const [inputA, setInputA] = useState<0 | 1>(1);
-  const [inputB, setInputB] = useState<0 | 1>(1);
-
-  const computeGateOutput = (gate: string, a: number, b: number): 0 | 1 => {
-    switch (gate) {
-      case 'AND': return (a === 1 && b === 1) ? 1 : 0;
-      case 'OR': return (a === 1 || b === 1) ? 1 : 0;
-      case 'NOT': return a === 0 ? 1 : 0;
-      case 'NAND': return !(a === 1 && b === 1) ? 1 : 0;
-      case 'NOR': return !(a === 1 || b === 1) ? 1 : 0;
-      case 'XOR': return (a ^ b) === 1 ? 1 : 0;
-      case 'XNOR': return a === b ? 1 : 0;
-      default: return 0;
-    }
-  };
-
-  const gateOutput = computeGateOutput(selectedGate, inputA, inputB);
-
-  const getLogicGateExplanation = () => {
-    if (isHindi) {
-      return `【डिजिटल इलेक्ट्रॉनिक्स: ${selectedGate} गेट लॉजिक】:
-• इनपुट: A = ${inputA} (${inputA ? 'HIGH / 5V' : 'LOW / 0V'}), B = ${inputB} (${inputB ? 'HIGH / 5V' : 'LOW / 0V'})।
-• आउटपुट: Y = ${gateOutput} (${gateOutput ? '✅ LED बल्ब जल रहा है (HIGH / 5V)' : '❌ LED बल्ब बंद है (LOW / 0V)'})।
-• बूलियन व्यंजक: ${selectedGate === 'AND' ? 'Y = A · B' : selectedGate === 'OR' ? 'Y = A + B' : selectedGate === 'NOT' ? 'Y = A̅' : selectedGate === 'NAND' ? 'Y = A̅·̅B̅' : selectedGate === 'NOR' ? 'Y = A̅+̅B̅' : selectedGate === 'XOR' ? 'Y = A ⊕ B' : 'Y = A ⊙ B'}।
-• अनुप्रयोग: कंप्यूटर प्रोसेसर के अंकगणितीय तर्क इकाई (ALU), मेमोरी लैच और डिजिटल स्विचिंग में प्रयोग होता है।`;
-    } else {
-      return `[Digital Logic Analysis]: Gate = ${selectedGate}, Input A = ${inputA}, Input B = ${inputB}. Output Y = ${gateOutput} (${gateOutput ? 'HIGH / 5V LED ON' : 'LOW / 0V LED OFF'}).`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 13: ELECTRONICS & ELECTRICAL - AC TRANSFORMER COIL TURNS
-  // -------------------------------------------------------------
-  const [primaryVoltage, setPrimaryVoltage] = useState<number>(220); // V
-  const [primaryTurns, setPrimaryTurns] = useState<number>(500); // Np
-  const [secondaryTurns, setSecondaryTurns] = useState<number>(50); // Ns
-  const [loadResistance, setLoadResistance] = useState<number>(10); // Ohms
-
-  const turnRatio = secondaryTurns / primaryTurns;
-  const secondaryVoltage = Math.round(primaryVoltage * turnRatio * 10) / 10;
-  const secondaryCurrent = Math.round((secondaryVoltage / loadResistance) * 100) / 100;
-  const primaryCurrent = Math.round((secondaryCurrent * turnRatio) * 100) / 100;
-  const transformerPower = Math.round(secondaryVoltage * secondaryCurrent);
-  const transformerType = secondaryTurns > primaryTurns 
-    ? (isHindi ? 'स्टेप-अप ट्रांसफॉर्मर (Step-Up - वोल्टेज वर्धक)' : 'Step-Up Transformer') 
-    : secondaryTurns < primaryTurns 
-    ? (isHindi ? 'स्टेप-डाउन ट्रांसफॉर्मर (Step-Down - वोल्टेज अपचायक)' : 'Step-Down Transformer')
-    : (isHindi ? '1:1 पृथक्करण ट्रांसफॉर्मर (Isolation Transformer)' : '1:1 Isolation Transformer');
-
-  const getTransformerExplanation = () => {
-    if (isHindi) {
-      return `【एसी ट्रांसफॉर्मर सिद्धांत (Vs / Vp = Ns / Np = Ip / Is)】:
-• ट्रांसफॉर्मर प्रकार: ${transformerType} (अनुपात k = ${turnRatio.toFixed(3)})।
-• प्राथमिक क्वाइल (Primary): Vp = ${primaryVoltage}V, Np = ${primaryTurns} फेरे (Turns), धारा Ip = ${primaryCurrent}A।
-• द्वितीयक क्वाइल (Secondary): Vs = ${secondaryVoltage}V, Ns = ${secondaryTurns} फेरे, धारा Is = ${secondaryCurrent}A (भार R = ${loadResistance}Ω)।
-• ऊर्जा संरक्षण नियम: P_in ≈ P_out ≈ ${transformerPower}W। जब वोल्टेज घटती है तो धारा उसी अनुपात में बढ़ती है, कुल शक्ति स्थिर रहती है।`;
-    } else {
-      return `[AC Transformer Induction Analysis]: Transformation Ratio k = ${turnRatio.toFixed(3)}. Primary Vp = ${primaryVoltage}V (${primaryTurns} turns), Secondary Vs = ${secondaryVoltage}V (${secondaryTurns} turns). Type: ${transformerType}. Total Power = ${transformerPower} Watts.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 14: ENGINEERING - SOLAR PHOTOVOLTAIC PANEL EFFICIENCY
-  // -------------------------------------------------------------
-  const [solarIrradiance, setSolarIrradiance] = useState<number>(850); // W/m^2
-  const [panelArea, setPanelArea] = useState<number>(6); // m^2
-  const [cellTemp, setCellTemp] = useState<number>(35); // °C
-  const [panelTechnology, setPanelTechnology] = useState<'mono' | 'poly' | 'thin-film'>('mono');
-
-  const baseEfficiency = panelTechnology === 'mono' ? 0.22 : panelTechnology === 'poly' ? 0.17 : 0.12;
-  // Derating factor: -0.4% per °C above 25°C STC standard test condition
-  const tempDerating = 1 - 0.004 * (cellTemp - 25);
-  const actualEfficiency = Math.max(0.05, baseEfficiency * tempDerating);
-  const peakPowerWatts = Math.round(solarIrradiance * panelArea * actualEfficiency);
-  const dailyEnergyKwh = Math.round((peakPowerWatts * 5.5 / 1000) * 10) / 10;
-  const annualCo2SavedKg = Math.round(dailyEnergyKwh * 365 * 0.82);
-
-  const getSolarExplanation = () => {
-    if (isHindi) {
-      return `【सौर ऊर्जा फोटोवोल्टिक (PV) सेल इंजीनियरिंग】:
-• धूप की तीव्रता (Irradiance): ${solarIrradiance} W/m², पैनल क्षेत्रफल: ${panelArea} m² (${panelTechnology === 'mono' ? 'Monocrystalline 22%' : panelTechnology === 'poly' ? 'Polycrystalline 17%' : 'Thin-Film 12%'} सिलिकॉन)।
-• अधिकतम विद्युत शक्ति (Pmax): ${peakPowerWatts} Watts (${(peakPowerWatts/1000).toFixed(2)} kW)।
-• तापमान गुणांक (Temp Derating): पैनल तापमान ${cellTemp}°C है। 25°C से अधिक गर्म होने पर सोलर सेल की दक्षता ${((1 - tempDerating)*100).toFixed(1)}% घट गई है।
-• दैनिक उत्पादन: ~${dailyEnergyKwh} kWh (यूनिट) प्रतिदिन। वार्षिक कार्बन डाईऑक्साइड बचत: ~${annualCo2SavedKg} kg CO2।`;
-    } else {
-      return `[Solar PV Physics]: Irradiance = ${solarIrradiance} W/m², Area = ${panelArea} m², Cell Temp = ${cellTemp}°C. Peak Output = ${peakPowerWatts}W, Daily Yield = ${dailyEnergyKwh} kWh, Avoided Carbon = ${annualCo2SavedKg} kg CO2/year.`;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // LAB 15: SPACE & ASTROPHYSICS - ORBITAL VELOCITY & ESCAPE VELOCITY
-  // -------------------------------------------------------------
-  const [targetPlanet, setTargetPlanet] = useState<'earth' | 'moon' | 'mars' | 'jupiter'>('earth');
-  const [orbitalAltitudeKm, setOrbitalAltitudeKm] = useState<number>(400); // km (e.g. ISS at 400km)
-
-  const planetData = {
-    earth: { name: 'पृथ्वी (Earth)', mass: 5.972e24, radiusKm: 6371, g0: 9.81, color: 'from-blue-500 to-emerald-500' },
-    moon: { name: 'चंद्रमा (Moon)', mass: 7.342e22, radiusKm: 1737, g0: 1.62, color: 'from-slate-400 to-slate-200' },
-    mars: { name: 'मंगल ग्रह (Mars)', mass: 6.417e23, radiusKm: 3389, g0: 3.71, color: 'from-red-600 to-amber-600' },
-    jupiter: { name: 'बृहस्पति (Jupiter)', mass: 1.898e27, radiusKm: 69911, g0: 24.79, color: 'from-amber-600 to-orange-400' }
-  };
-
-  const currentPlanet = planetData[targetPlanet];
-  const G = 6.6743e-11;
-  const radiusMeters = (currentPlanet.radiusKm + orbitalAltitudeKm) * 1000;
-  const orbitalVelocityMps = Math.sqrt((G * currentPlanet.mass) / radiusMeters);
-  const orbitalVelocityKmS = (orbitalVelocityMps / 1000).toFixed(2);
-  const escapeVelocityKmS = ((Math.sqrt(2) * orbitalVelocityMps) / 1000).toFixed(2);
-  const orbitalPeriodSeconds = (2 * Math.PI * radiusMeters) / orbitalVelocityMps;
-  const orbitalPeriodMinutes = (orbitalPeriodSeconds / 60).toFixed(1);
-  const orbitalPeriodHours = (orbitalPeriodSeconds / 3600).toFixed(2);
-
-  const getSpaceExplanation = () => {
-    if (isHindi) {
-      return `【अंतरिक्ष यांत्रिकी: कक्षीय वेग (vo = √(GM/r)) व पलायन वेग (ve = √2·vo)】:
-• खगोलीय पिंड: ${currentPlanet.name} (त्रिज्या: ${currentPlanet.radiusKm} km, सतह गुरुत्व: ${currentPlanet.g0} m/s²)।
-• कक्षा की ऊंचाई (Altitude): ${orbitalAltitudeKm} km।
-• आवश्यक कक्षीय वेग (Orbital Velocity): ${orbitalVelocityKmS} km/s (लगभग ${(parseFloat(orbitalVelocityKmS)*3600).toLocaleString()} km/h)।
-• पलायन वेग (Escape Velocity): ${escapeVelocityKmS} km/s — इस वेग से फेंकने पर रॉकेट गुरुत्वाकर्षण क्षेत्र को हमेशा के लिए पार कर जाएगा!
-• एक परिक्रमा का समय (Time Period): ${orbitalPeriodMinutes} मिनट (${orbitalPeriodHours} घंटे)। (जैसे ISS 92 मिनट में पृथ्वी का 1 चक्कर लगाता है)।`;
-    } else {
-      return `[Astrophysics & Orbital Mechanics]: Planet = ${currentPlanet.name}, Altitude = ${orbitalAltitudeKm} km. Orbital Velocity vo = ${orbitalVelocityKmS} km/s, Escape Velocity ve = ${escapeVelocityKmS} km/s (√2 ratio). Orbital Period T = ${orbitalPeriodMinutes} minutes.`;
-    }
-  };
-
-  // Custom AI Formula Solver States
-  const [customFormulaQuery, setCustomFormulaQuery] = useState('');
-  const [isSolving, setIsSolving] = useState(false);
-  const [solverResult, setSolverResult] = useState<string | null>(null);
-
-  const handleSolveCustomFormula = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const query = customFormulaQuery.trim();
-    if (!query) return;
-
-    setIsSolving(true);
-    setSolverResult(null);
-    showToast(
-      isHindi ? `🔬 "${query}" का हल व सूत्र चरणबद्ध तैयार हो रहा है...` : `🔬 Solving formula for "${query}"...`,
-      'info'
+  const openLabBench = (lab: ScienceLabConfig) => {
+    setSelectedLabId(lab.id);
+    setP1(lab.param1Default);
+    setP2(lab.param2Default);
+    setViewMode('bench');
+    const res = lab.computeResult(lab.param1Default, lab.param2Default);
+    recordStudyActivity(
+      'science-lab',
+      `Lab #${lab.number}: ${lab.title}`,
+      `${lab.formula} — ${res.statusText}`,
+      100
     );
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: `Provide step-by-step formula solution, substitution, variables explanation, unit analysis, and practical real-world cause-and-effect for: "${query}". Format clearly in ${isHindi ? 'Hindi & English' : 'English'}.`,
-          systemInstruction: `You are Hans Compain Physics & Chemistry Master. Explain scientific laws with practical real-life examples and exam tips.`
-        })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setSolverResult(data.reply || 'Calculation completed.');
-        showToast(isHindi ? '✅ हल तैयार है!' : '✅ Solution generated!', 'success');
-      }
-    } catch (err) {
-      showToast('Could not solve formula. Please try again.', 'error');
-    } finally {
-      setIsSolving(false);
-    }
   };
 
-  const handleSpeakActiveLab = (textToSpeak: string) => {
-    if (isPlayingAudio) {
-      stopAllSpeech();
-      setIsPlayingAudio(false);
-      return;
-    }
-    stopAllSpeech();
-    setIsPlayingAudio(true);
-    speakText(textToSpeak, {
-      lang: isHindi ? 'hi-IN' : 'en-IN',
-      rate: 1.0,
-      onEnd: () => setIsPlayingAudio(false),
-      onError: () => setIsPlayingAudio(false)
-    });
+  const filteredLabs = ALL_28_SCIENCE_LABS.filter(lab => {
+    const catMatch = categoryFilter === 'all' || lab.category === categoryFilter;
+    const q = searchQuery.toLowerCase();
+    const searchMatch =
+      !q ||
+      lab.title.toLowerCase().includes(q) ||
+      lab.subtitle.toLowerCase().includes(q) ||
+      lab.formula.toLowerCase().includes(q);
+    return catMatch && searchMatch;
+  });
+
+  const liveResult = activeLab.computeResult(p1, p2);
+
+  const speakLab = () => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const text = `${activeLab.title}. सूत्र: ${activeLab.formula}. ${liveResult.primaryLabel}: ${liveResult.primaryValue}. ${liveResult.statusText}. ${activeLab.examFacts.join(' ')}`;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'hi-IN';
+    utter.rate = 0.95;
+    window.speechSynthesis.speak(utter);
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-3 sm:p-6 text-slate-100 space-y-6 animate-fade-in text-left">
-      
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-cyan-950 via-slate-900 to-indigo-950 border border-cyan-500/30 rounded-3xl p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-full text-xs font-black flex items-center gap-1.5">
-              <Atom className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
-              INTERACTIVE VIRTUAL SCIENCE LAB 2026
-            </span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white">
-            {isHindi ? 'प्रैक्टिकल सिमुलेटर व कॉज-एंड-इफेक्ट गाइड' : 'Interactive Science Simulator & Cause-and-Effect Lab'}
-          </h1>
-          <p className="text-xs text-slate-300">
-            {isHindi 
-              ? 'स्लाइडर्स को ऊपर-नीचे करके देखें कि भौतिकी व रसायन विज्ञान में असल दुनिया में क्या बदलता है और क्यों।'
-              : 'Adjust sliders to observe live cause-and-effect physics, optics, physiology and chemistry in real time.'}
-          </p>
-        </div>
-      </div>
-
-      {/* LAB CATEGORY FILTERS */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {[
-          { id: 'all', label: isHindi ? '🔬 सभी 17 लैब्स' : '🔬 All 17 Labs' },
-          { id: 'chemistry', label: isHindi ? '⚛️ आवर्त सारणी व रसायन' : '⚛️ Chemistry & Periodic Table' },
-          { id: 'biology', label: isHindi ? '🌿 बायोलॉजी व जीवन विज्ञान' : '🌿 Biology & Life Sciences' },
-          { id: 'electronics', label: isHindi ? '⚡ इलेक्ट्रॉनिक्स व इंजीनियरिंग' : '⚡ Electronics & Engineering' },
-          { id: 'physics', label: isHindi ? '🔭 भौतिकी व प्रकाशिकी' : '🔭 Physics & Optics' },
-          { id: 'space', label: isHindi ? '🌌 अंतरिक्ष व सौर ऊर्जा' : '🌌 Space & Solar Energy' },
-          { id: 'math-ai', label: isHindi ? '📐 गणित व AI सॉल्वर' : '📐 Maths & AI Solver' }
-        ].map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => setSelectedCategory(cat.id as LabCategory)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
-              selectedCategory === cat.id
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/60 shadow-md font-black'
-                : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:text-slate-200'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* LAB SELECTOR TABS */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {[
-          // Chemistry & Periodic Table
-          { id: 'periodic-table', category: 'chemistry', label: isHindi ? '⚛️ आधुनिक आवर्त सारणी (Periodic Table)' : '⚛️ Modern Periodic Table' },
-          { id: 'chemistry-ph', category: 'chemistry', label: isHindi ? '🧪 अम्ल-क्षार व pH पैमाना' : '🧪 Acid-Base & pH Scale' },
-
-          // Physics & Medical
-          { id: 'circuits', category: 'physics', label: isHindi ? '⚡ विद्युत परिपथ (Ohm\'s Law)' : '⚡ Electric Circuit (Ohm\'s Law)' },
-          { id: 'medical-cardio', category: 'biology', label: isHindi ? '🩺 कार्डियक व बीपी लैब' : '🩺 Cardiac & BP Lab' },
-          { id: 'optics', category: 'physics', label: isHindi ? '🔭 लेंस प्रकाशिकी (Optics)' : '🔭 Lens Optics' },
-          { id: 'pendulum', category: 'physics', label: isHindi ? '🕰️ सरल लोलक (Pendulum)' : '🕰️ Simple Pendulum' },
-          { id: 'projectile', category: 'physics', label: isHindi ? '🚀 प्रक्षेप्य गति (Projectile)' : '🚀 Projectile Motion' },
-          
-          // Biology & Life Sciences
-          { id: 'biology-photosynthesis', category: 'biology', label: isHindi ? '🌿 प्रकाश संश्लेषण (Photosynthesis)' : '🌿 Photosynthesis Lab' },
-          { id: 'biology-genetics', category: 'biology', label: isHindi ? '🧬 मेंडेलियन आनुवंशिकी (Punnett)' : '🧬 Genetics & Punnett' },
-          { id: 'biology-osmosis', category: 'biology', label: isHindi ? '💧 परासरण व टोनिसिटी (Osmosis)' : '💧 Osmosis & Tonicity' },
-
-          // Electronics & Engineering
-          { id: 'electronics-logic-gates', category: 'electronics', label: isHindi ? '🔲 डिजिटल लॉजिक गेट्स (Logic Gates)' : '🔲 Logic Gates & Binary' },
-          { id: 'electronics-transformer', category: 'electronics', label: isHindi ? '⚡ ट्रांसफॉर्मर क्वाइल (Transformer)' : '⚡ AC Transformer' },
-          { id: 'engineering-solar', category: 'space', label: isHindi ? '☀️ सोलर सेल PV इंजीनियरिंग' : '☀️ Solar PV Panel Lab' },
-          { id: 'space-orbital', category: 'space', label: isHindi ? '🌌 कक्षीय वेग व पलायन वेग (Orbit)' : '🌌 Orbital & Escape Velocity' },
-
-          // Maths & AI
-          { id: 'trig', category: 'math-ai', label: isHindi ? '📐 त्रिकोणमिति चक्र' : '📐 Trigonometry Circle' },
-          { id: 'finance', category: 'math-ai', label: isHindi ? '💰 चक्रवृद्धि ब्याज (Growth)' : '💰 Compound Interest' },
-          { id: 'custom-solver', category: 'math-ai', label: isHindi ? '🤖 AI फॉर्मूला सॉल्वर' : '🤖 AI Formula Solver' }
-        ]
-          .filter(tab => selectedCategory === 'all' || tab.category === selectedCategory)
-          .map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                stopAllSpeech();
-                setIsPlayingAudio(false);
-                setActiveTab(tab.id as any);
-              }}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-black transition-all border cursor-pointer shrink-0 flex items-center gap-2 ${
-                activeTab === tab.id
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 border-cyan-300 shadow-xl shadow-cyan-500/20 scale-105'
-                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-850'
-              }`}
-            >
-              <span>{tab.label}</span>
-            </button>
-          ))}
-      </div>
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 0: INTERACTIVE MODERN PERIODIC TABLE (CHEMISTRY) */}
-      {/* ============================================================= */}
-      {activeTab === 'periodic-table' && (
-        <InteractivePeriodicTable language={language} showToast={showToast} />
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 1: ELECTRIC CIRCUITS & OHM'S LAW */}
-      {/* ============================================================= */}
-      {activeTab === 'circuits' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Controls & Cause-and-Effect (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">Formula: V = I × R | P = V × I</span>
-                <h2 className="text-base font-extrabold text-white mt-1">विद्युत परिपथ एवं ओम का नियम</h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getCircuitExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Practical Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Quick 1-Click Practical Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                ⚡ {isHindi ? 'प्रैक्टिकल परिदृश्य चुनें (1-Click Presets):' : 'Practical Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setVoltage(24); setResistance(2); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left cursor-pointer"
-                >
-                  ⚡ हाई पावर हीटर (24V, 2Ω)
-                </button>
-                <button
-                  onClick={() => { setVoltage(1.5); setResistance(50); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left cursor-pointer"
-                >
-                  🔋 कमजोर सेल लोड (1.5V, 50Ω)
-                </button>
-                <button
-                  onClick={() => { setVoltage(12); setResistance(10); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left cursor-pointer"
-                >
-                  💡 सामान्य 12V 10Ω बल्ब
-                </button>
-                <button
-                  onClick={() => { setVoltage(24); setResistance(1); }}
-                  className="p-2 bg-slate-900 hover:bg-rose-950/40 border border-rose-900/50 rounded-xl text-[11px] font-bold text-rose-300 text-left cursor-pointer"
-                >
-                  ⚠️ शॉर्ट सर्किट टेस्ट (24V, 1Ω)
-                </button>
-              </div>
-            </div>
-
-            {/* Voltage Slider */}
-            <div className="space-y-1.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Voltage (V) [विद्युत विभव]:</span>
-                <span className="text-cyan-400 font-mono text-sm">{voltage} Volts</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="36"
-                step="1"
-                value={voltage}
-                onChange={(e) => setVoltage(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-              <p className="text-[10px] text-slate-400">
-                {isHindi ? '↑ ऊपर करने पर: बैटरी का दबाव बढ़ता है, जिससे इलेक्ट्रॉन तेजी से दौड़ते हैं।' : '↑ Increasing V drives more current through the circuit.'}
-              </p>
-            </div>
-
-            {/* Resistance Slider */}
-            <div className="space-y-1.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Resistance (R) [प्रतिरोध]:</span>
-                <span className="text-amber-400 font-mono text-sm">{resistance} Ω (Ohms)</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="100"
-                step="1"
-                value={resistance}
-                onChange={(e) => setResistance(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer"
-              />
-              <p className="text-[10px] text-slate-400">
-                {isHindi ? '↑ ऊपर करने पर: तार में रुकावट बढ़ती है, जिससे करंट घटता है।' : '↑ Increasing R restricts flow of electrons, reducing current.'}
-              </p>
-            </div>
-
-            {/* LIVE CALCULATION METRICS */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 block">Current (I = V/R)</span>
-                <span className="text-lg font-black text-emerald-400 font-mono">{current} A</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 block">Power (P = V × I)</span>
-                <span className="text-lg font-black text-yellow-400 font-mono">{power} W</span>
-              </div>
-            </div>
-
-            {/* LIVE CAUSE-AND-EFFECT NARRATIVE BOX */}
-            <div className="p-4 bg-cyan-950/40 border border-cyan-500/30 rounded-2xl text-xs text-cyan-200 leading-relaxed font-medium space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-amber-300">
-                <Info className="w-4 h-4" />
-                <span>{isHindi ? '🔴 प्रैक्टिकल में क्या हो रहा है और क्यों?' : 'Live Physical Explanation:'}</span>
-              </div>
-              <p className="whitespace-pre-line">{getCircuitExplanation()}</p>
-            </div>
-
-          </div>
-
-          {/* LIVE SIMULATION CANVAS (7 COLS) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
-            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
-              ⚡ LIVE CIRCUIT SIMULATION & ELECTRON FLOW
-            </span>
-
-            <svg viewBox="0 0 400 240" className="w-full h-[260px] bg-[#090D16] rounded-2xl border border-slate-800 shadow-inner">
-              {/* Circuit Wires */}
-              <rect x="50" y="40" width="300" height="160" fill="none" stroke="#334155" strokeWidth="4" rx="12" />
-
-              {/* Battery Symbol */}
-              <g transform="translate(45, 120)">
-                <line x1="0" y1="-20" x2="0" y2="20" stroke="#06B6D4" strokeWidth="6" />
-                <line x1="10" y1="-10" x2="10" y2="10" stroke="#06B6D4" strokeWidth="3" />
-                <text x="-32" y="4" fill="#06B6D4" fontSize="10" fontWeight="bold">+ {voltage}V -</text>
-              </g>
-
-              {/* Resistor Symbol */}
-              <g transform="translate(200, 40)">
-                <rect x="-30" y="-12" width="60" height="24" fill="#1E293B" stroke="#F59E0B" strokeWidth="3" rx="4" />
-                <text x="0" y="4" fill="#F59E0B" fontSize="10" fontWeight="bold" textAnchor="middle">{resistance} Ω</text>
-              </g>
-
-              {/* Bulb Glow Symbol with Dynamic Glow */}
-              <g transform="translate(350, 120)">
-                <circle 
-                  cx="0" 
-                  cy="0" 
-                  r={Math.min(28, 14 + parseFloat(power) / 10)} 
-                  fill={parseFloat(power) > 50 ? '#FBBF24' : parseFloat(power) > 10 ? '#F59E0B' : '#78350F'} 
-                  opacity={Math.min(1, 0.4 + parseFloat(power) / 100)}
-                  stroke="#F59E0B" 
-                  strokeWidth="2" 
-                  className="transition-all duration-300" 
-                />
-                <text x="0" y="4" fill="#FFFFFF" fontSize="9" fontWeight="bold" textAnchor="middle">{power}W</text>
-              </g>
-
-              {/* Electron Particles Animation */}
-              <circle cx="200" cy="200" r="4" fill="#10B981" className="animate-ping" />
-            </svg>
-
-            <div className="flex justify-between items-center text-xs font-bold text-slate-300 px-2">
-              <span>{isHindi ? `इलेक्ट्रॉन धारा: I = ${current} A` : `Current: ${current} A`}</span>
-              <span className="text-yellow-400">{isHindi ? `बल्ब आउटपुट: ${power} W` : `Output: ${power} W`}</span>
-            </div>
-          </div>
-
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 2: MEDICAL PHYSIOLOGY & CARDIAC CYCLE */}
-      {/* ============================================================= */}
-      {activeTab === 'medical-cardio' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          <div className="lg:col-span-5 bg-[#090D16] border border-rose-950/40 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-rose-900/30 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-rose-400 tracking-wider">Cardiac Output = HR × SV | MAP = DBP + 1/3(PP)</span>
-                <h2 className="text-base font-extrabold text-white mt-1">हृदय गति व कार्डियक आउटपुट सिम्युलेटर</h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getCardioExplanation())}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 cursor-pointer"
-              >
-                <Volume2 className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Quick 1-Click Medical Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🩺 {isHindi ? 'क्लिनिकल परिदृश्य चुनें:' : 'Clinical Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setHeartRate(72); setStrokeVolume(70); setSystolicBP(120); setDiastolicBP(80); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left"
-                >
-                  ✅ स्वस्थ युवा (72 BPM, 120/80)
-                </button>
-                <button
-                  onClick={() => { setHeartRate(140); setStrokeVolume(110); setSystolicBP(150); setDiastolicBP(85); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left"
-                >
-                  🏃 मैराथन व्यायाम (140 BPM)
-                </button>
-                <button
-                  onClick={() => { setHeartRate(85); setStrokeVolume(65); setSystolicBP(165); setDiastolicBP(105); }}
-                  className="p-2 bg-slate-900 hover:bg-rose-950/40 border border-rose-900/50 rounded-xl text-[11px] font-bold text-rose-300 text-left"
-                >
-                  ⚠️ उच्च रक्तचाप (Hypertension)
-                </button>
-                <button
-                  onClick={() => { setHeartRate(48); setStrokeVolume(95); setSystolicBP(110); setDiastolicBP(70); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left"
-                >
-                  🏅 एथलीट हार्ट (Bradycardia 48)
-                </button>
-              </div>
-            </div>
-
-            {/* Heart Rate Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Heart Rate (HR):</span>
-                <span className="text-rose-400 font-mono">{heartRate} BPM</span>
-              </div>
-              <input
-                type="range"
-                min="40"
-                max="180"
-                step="2"
-                value={heartRate}
-                onChange={(e) => setHeartRate(Number(e.target.value))}
-                className="w-full accent-rose-500 cursor-pointer"
-              />
-            </div>
-
-            {/* Stroke Volume Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Stroke Volume (SV) [प्रति धड़कन रक्त]:</span>
-                <span className="text-pink-400 font-mono">{strokeVolume} mL/beat</span>
-              </div>
-              <input
-                type="range"
-                min="30"
-                max="140"
-                step="2"
-                value={strokeVolume}
-                onChange={(e) => setStrokeVolume(Number(e.target.value))}
-                className="w-full accent-pink-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Blood Pressure Sliders */}
-            <div className="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="space-y-1">
-                <div className="flex justify-between text-[11px] font-bold text-slate-400">
-                  <span>Systolic BP</span>
-                  <span className="text-amber-400 font-mono">{systolicBP} mmHg</span>
-                </div>
-                <input
-                  type="range"
-                  min="90"
-                  max="190"
-                  step="2"
-                  value={systolicBP}
-                  onChange={(e) => setSystolicBP(Number(e.target.value))}
-                  className="w-full accent-amber-400 cursor-pointer"
-                />
-              </div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-[11px] font-bold text-slate-400">
-                  <span>Diastolic BP</span>
-                  <span className="text-cyan-400 font-mono">{diastolicBP} mmHg</span>
-                </div>
-                <input
-                  type="range"
-                  min="50"
-                  max="120"
-                  step="2"
-                  value={diastolicBP}
-                  onChange={(e) => setDiastolicBP(Number(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* Cause and Effect Explanation Box */}
-            <div className="p-4 bg-rose-950/30 border border-rose-900/40 rounded-2xl text-xs text-rose-200 leading-relaxed font-medium space-y-1">
-              <span className="font-bold text-rose-300 block">🩺 {isHindi ? 'क्लिनिकल प्रभाव:' : 'Clinical Analysis:'}</span>
-              <p className="whitespace-pre-line">{getCardioExplanation()}</p>
-            </div>
-
-          </div>
-
-          {/* Visual Canvas (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#090D16] border border-rose-950/40 p-6 rounded-3xl space-y-4 shadow-xl text-center">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <span className="text-xs font-black text-rose-400 uppercase tracking-wider">Real-Time ECG & Hemodynamics</span>
-              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black border uppercase ${
-                heartRate > 100 
-                  ? 'bg-red-500/20 text-red-400 border-red-500/40 animate-pulse'
-                  : heartRate < 60
-                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
-                  : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-              }`}>
-                {heartRate > 100 ? '⚠️ Tachycardia' : heartRate < 60 ? '⚠️ Bradycardia' : '✅ Normal Sinus Rhythm'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Cardiac Output (CO)</span>
-                <span className="text-lg font-black text-rose-400 font-mono">{cardiacOutput} L/min</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Mean Arterial (MAP)</span>
-                <span className="text-lg font-black text-cyan-400 font-mono">{meanArterialPressure} mmHg</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center col-span-2 sm:col-span-1">
-                <span className="text-[10px] font-bold text-slate-400 block">Pulse Pressure</span>
-                <span className="text-lg font-black text-emerald-400 font-mono">{pulsePressure} mmHg</span>
-              </div>
-            </div>
-
-            {/* Interactive SVG ECG */}
-            <svg viewBox="0 0 500 200" className="w-full h-48 bg-[#03060E] rounded-2xl border border-slate-800">
-              <path
-                d="M 20 100 L 100 100 L 115 90 L 130 100 L 150 100 L 165 40 L 180 140 L 195 100 L 220 100 L 240 80 L 260 100 L 300 100 L 315 90 L 330 100 L 350 100 L 365 40 L 380 140 L 395 100 L 420 100 L 440 80 L 460 100 L 480 100"
-                fill="none"
-                stroke="#10B981"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <text x="165" y="30" fill="#F43F5E" fontSize="10" fontWeight="bold">QRS (Ventricular Depolarization)</text>
-            </svg>
-          </div>
-
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 3: OPTICS LENS & MIRRORS */}
-      {/* ============================================================= */}
-      {activeTab === 'optics' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">Formula: 1/f = 1/v - 1/u | m = v/u</span>
-                <h2 className="text-base font-extrabold text-white mt-1">उत्तल लेंस प्रकाशिकी (Convex Lens Optics)</h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getOpticsExplanation())}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 cursor-pointer"
-              >
-                <Volume2 className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Quick 1-Click Optics Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🔭 {isHindi ? 'ऑप्टिक्स परिदृश्य चुनें:' : 'Optics Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setFocalLength(25); setObjectDistance(12); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left"
-                >
-                  🔍 मैग्निफाइंग ग्लास (u &lt; f)
-                </button>
-                <button
-                  onClick={() => { setFocalLength(20); setObjectDistance(40); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left"
-                >
-                  ⚖️ समान आकार (u = 2f)
-                </button>
-                <button
-                  onClick={() => { setFocalLength(15); setObjectDistance(55); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left"
-                >
-                  📷 कैमरा मोड (u &gt; 2f)
-                </button>
-                <button
-                  onClick={() => { setFocalLength(20); setObjectDistance(28); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-rose-300 text-left"
-                >
-                  📽️ प्रोजेक्टर मोड (f &lt; u &lt; 2f)
-                </button>
-              </div>
-            </div>
-
-            {/* Focal Length Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Focal Length (f) [फोकस दूरी]:</span>
-                <span className="text-cyan-400 font-mono">{focalLength} cm</span>
-              </div>
-              <input
-                type="range"
-                min="10"
-                max="50"
-                step="1"
-                value={focalLength}
-                onChange={(e) => setFocalLength(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Object Distance Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Object Distance (u) [वस्तु की दूरी]:</span>
-                <span className="text-amber-400 font-mono">-{objectDistance} cm</span>
-              </div>
-              <input
-                type="range"
-                min="5"
-                max="100"
-                step="1"
-                value={objectDistance}
-                onChange={(e) => setObjectDistance(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Calculated Values */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Image Distance (v)</span>
-                <span className="text-base font-black text-emerald-400 font-mono">{vDisplay} cm</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Magnification (m)</span>
-                <span className="text-base font-black text-yellow-400 font-mono">{magnification}x</span>
-              </div>
-            </div>
-
-            {/* Practical Explanation Box */}
-            <div className="p-4 bg-cyan-950/40 border border-cyan-500/30 rounded-2xl text-xs text-cyan-200 leading-relaxed font-medium space-y-1">
-              <span className="font-bold text-amber-300 block">🔭 {isHindi ? 'किरण आरेख व प्रतिबिंब की प्रकृति:' : 'Ray Optics Analysis:'}</span>
-              <p className="whitespace-pre-line">{getOpticsExplanation()}</p>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
-            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
-              🔭 OPTICS RAY TRACING CANVAS
-            </span>
-
-            <svg viewBox="0 0 400 200" className="w-full h-[240px] bg-[#090D16] rounded-2xl border border-slate-800">
-              <line x1="10" y1="100" x2="390" y2="100" stroke="#475569" strokeWidth="2" strokeDasharray="4 4" />
-              <ellipse cx="200" cy="100" rx="10" ry="70" fill="rgba(6, 182, 212, 0.2)" stroke="#06B6D4" strokeWidth="2" />
-              
-              {/* Object Arrow */}
-              <line x1={Math.max(20, 200 - objectDistance * 1.6)} y1="100" x2={Math.max(20, 200 - objectDistance * 1.6)} y2="55" stroke="#F59E0B" strokeWidth="4" />
-              <polygon points={`${Math.max(20, 200 - objectDistance * 1.6)},47 ${Math.max(20, 200 - objectDistance * 1.6) - 5},57 ${Math.max(20, 200 - objectDistance * 1.6) + 5},57`} fill="#F59E0B" />
-
-              {/* Focus points */}
-              <circle cx={200 - focalLength * 1.6} cy="100" r="3" fill="#06B6D4" />
-              <text x={200 - focalLength * 1.6} y="115" fill="#06B6D4" fontSize="8" textAnchor="middle">F1</text>
-              <circle cx={200 + focalLength * 1.6} cy="100" r="3" fill="#06B6D4" />
-              <text x={200 + focalLength * 1.6} y="115" fill="#06B6D4" fontSize="8" textAnchor="middle">F2</text>
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 4: SIMPLE PENDULUM & GRAVITY */}
-      {/* ============================================================= */}
-      {activeTab === 'pendulum' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">Formula: T = 2π √(L/g) | f = 1/T</span>
-                <h2 className="text-base font-extrabold text-white mt-1">सरल लोलक एवं गुरुत्वाकर्षण लैब</h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getPendulumExplanation())}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 cursor-pointer"
-              >
-                <Volume2 className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Quick 1-Click Gravity Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🪐 {isHindi ? 'ग्रह व गुरुत्वाकर्षण चुनें (Celestial Gravity):' : 'Celestial Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setGravity(9.8); setPendulumLength(1.0); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left"
-                >
-                  🌍 पृथ्वी (Earth g = 9.8 m/s²)
-                </button>
-                <button
-                  onClick={() => { setGravity(1.62); setPendulumLength(1.0); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left"
-                >
-                  🌕 चंद्रमा (Moon g = 1.62 - Slow)
-                </button>
-                <button
-                  onClick={() => { setGravity(3.7); setPendulumLength(1.0); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left"
-                >
-                  🔴 मंगल (Mars g = 3.7 m/s²)
-                </button>
-                <button
-                  onClick={() => { setGravity(24.8); setPendulumLength(1.0); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-rose-300 text-left"
-                >
-                  ⚡ बृहस्पति (Jupiter g = 24.8 - Fast)
-                </button>
-              </div>
-            </div>
-
-            {/* Length Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Length (L) [धागे की लंबाई]:</span>
-                <span className="text-cyan-400 font-mono">{pendulumLength} meters</span>
-              </div>
-              <input
-                type="range"
-                min="0.2"
-                max="5.0"
-                step="0.1"
-                value={pendulumLength}
-                onChange={(e) => setPendulumLength(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Gravity Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Gravity (g) [गुरुत्वाकर्षण त्वरण]:</span>
-                <span className="text-amber-400 font-mono">{gravity} m/s²</span>
-              </div>
-              <input
-                type="range"
-                min="1.0"
-                max="25.0"
-                step="0.2"
-                value={gravity}
-                onChange={(e) => setGravity(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Calculated Period */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Time Period (T)</span>
-                <span className="text-lg font-black text-emerald-400 font-mono">{timePeriod} s</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Frequency (f)</span>
-                <span className="text-lg font-black text-yellow-400 font-mono">{frequency} Hz</span>
-              </div>
-            </div>
-
-            {/* Explanation Box */}
-            <div className="p-4 bg-cyan-950/40 border border-cyan-500/30 rounded-2xl text-xs text-cyan-200 leading-relaxed font-medium space-y-1">
-              <span className="font-bold text-amber-300 block">🕰️ {isHindi ? 'प्रैक्टिकल भौतिकी नियम:' : 'Physics Dynamics:'}</span>
-              <p className="whitespace-pre-line">{getPendulumExplanation()}</p>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
-            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
-              🕰️ SIMPLE PENDULUM OSCILLATION
-            </span>
-
-            <svg viewBox="0 0 400 240" className="w-full h-[260px] bg-[#090D16] rounded-2xl border border-slate-800">
-              <line x1="150" y1="20" x2="250" y2="20" stroke="#64748B" strokeWidth="6" strokeLinecap="round" />
-              <circle cx="200" cy="20" r="4" fill="#06B6D4" />
-
-              {/* String & Bob */}
-              <line x1="200" y1="20" x2="250" y2="170" stroke="#94A3B8" strokeWidth="2" strokeDasharray="2 2" />
-              <line x1="200" y1="20" x2="160" y2="170" stroke="#06B6D4" strokeWidth="3" />
-              <circle cx="160" cy="170" r="16" fill="#F59E0B" stroke="#B45309" strokeWidth="2" />
-              
-              <text x="200" y="215" fill="#38BDF8" fontSize="11" fontWeight="bold" textAnchor="middle">
-                T = 2π√(L/g) = {timePeriod}s | g = {gravity} m/s²
-              </text>
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 5: CHEMISTRY ACID-BASE TITRATION & pH SCALE */}
-      {/* ============================================================= */}
-      {activeTab === 'chemistry-ph' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">pH = -log[H+] | Acid + Base = Salt + Water</span>
-                <h2 className="text-base font-extrabold text-white mt-1">अम्ल-क्षार अनुमापन एवं pH पैमाना लैब</h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getChemistryExplanation())}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 cursor-pointer"
-              >
-                <Volume2 className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Quick 1-Click Chemistry Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🧪 {isHindi ? 'रासायनिक अवस्था चुनें:' : 'Chemical States:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setBaseVolumeAdded(0)}
-                  className="p-2 bg-slate-900 hover:bg-rose-950/40 border border-rose-900/50 rounded-xl text-[11px] font-bold text-rose-300 text-left"
-                >
-                  🔴 शुद्ध अम्ल (HCl 0.1M, pH 1.0)
-                </button>
-                <button
-                  onClick={() => setBaseVolumeAdded(25)}
-                  className="p-2 bg-slate-900 hover:bg-emerald-950/40 border border-emerald-900/50 rounded-xl text-[11px] font-bold text-emerald-300 text-left"
-                >
-                  🟢 न्यूट्रल पॉइंट (Equivalence pH 7.0)
-                </button>
-                <button
-                  onClick={() => setBaseVolumeAdded(50)}
-                  className="p-2 bg-slate-900 hover:bg-blue-950/40 border border-blue-900/50 rounded-xl text-[11px] font-bold text-blue-300 text-left"
-                >
-                  🟣 अत्यधिक क्षार (NaOH pH 12.8)
-                </button>
-                <button
-                  onClick={() => setBaseVolumeAdded(15)}
-                  className="p-2 bg-slate-900 hover:bg-amber-950/40 border border-amber-900/50 rounded-xl text-[11px] font-bold text-amber-300 text-left"
-                >
-                  🟠 आंशिक उदासीनीकरण (pH 2.6)
-                </button>
-              </div>
-            </div>
-
-            {/* Base Added Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Base Added (0.1M NaOH) [मिलाया गया क्षार]:</span>
-                <span className="text-cyan-400 font-mono">{baseVolumeAdded} mL</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="50"
-                step="1"
-                value={baseVolumeAdded}
-                onChange={(e) => setBaseVolumeAdded(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-
-            {/* pH Metric Output */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className={`border p-3 rounded-2xl text-center ${
-                calculatedPh < 6.5 ? 'bg-rose-950/40 border-rose-500 text-rose-300' :
-                calculatedPh > 7.5 ? 'bg-indigo-950/40 border-indigo-500 text-indigo-300' :
-                'bg-emerald-950/40 border-emerald-500 text-emerald-300'
-              }`}>
-                <span className="text-[10px] font-bold block opacity-80">Calculated pH</span>
-                <span className="text-2xl font-black font-mono">{phDisplay}</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Phenolphthalein Color</span>
-                <span className="text-xs font-black text-pink-400 block mt-1">
-                  {calculatedPh < 7 ? 'रंगहीन (Colorless)' : calculatedPh <= 7.5 ? 'हल्का गुलाबी (Faint Pink)' : 'गहरा मैजेंटा (Deep Pink)'}
-                </span>
-              </div>
-            </div>
-
-            {/* Chemistry Cause & Effect */}
-            <div className="p-4 bg-cyan-950/40 border border-cyan-500/30 rounded-2xl text-xs text-cyan-200 leading-relaxed font-medium space-y-1">
-              <span className="font-bold text-amber-300 block">🧪 {isHindi ? 'आयन संतुलन व रासायनिक प्रक्रिया:' : 'Chemical Equilibrium:'}</span>
-              <p className="whitespace-pre-line">{getChemistryExplanation()}</p>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
-            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
-              🧪 VIRTUAL TITRATION BEAKER & PH INDICATOR
-            </span>
-
-            <svg viewBox="0 0 400 240" className="w-full h-[260px] bg-[#090D16] rounded-2xl border border-slate-800">
-              {/* Burette */}
-              <rect x="185" y="10" width="30" height="90" fill="#1E293B" stroke="#64748B" strokeWidth="2" />
-              <text x="200" y="55" fill="#38BDF8" fontSize="9" fontWeight="bold" textAnchor="middle">NaOH</text>
-
-              {/* Droplets */}
-              <circle cx="200" cy="115" r="3" fill="#38BDF8" className="animate-bounce" />
-
-              {/* Conical Flask */}
-              <polygon 
-                points="160,130 240,130 280,210 120,210" 
-                fill={calculatedPh < 7 ? 'rgba(239, 68, 68, 0.25)' : calculatedPh <= 7.5 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(236, 72, 153, 0.45)'} 
-                stroke="#06B6D4" 
-                strokeWidth="3" 
-              />
-              <text x="200" y="185" fill="#FFFFFF" fontSize="13" fontWeight="bold" textAnchor="middle">
-                pH = {phDisplay}
-              </text>
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 6: PROJECTILE MOTION */}
-      {/* ============================================================= */}
-      {activeTab === 'projectile' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">Range: R = v²sin(2θ)/g | Height: H = v²sin²θ/2g</span>
-                <h2 className="text-base font-extrabold text-white mt-1">प्रक्षेप्य गति (Projectile Motion)</h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getProjectileExplanation())}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 cursor-pointer"
-              >
-                <Volume2 className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Quick 1-Click Projectile Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🚀 {isHindi ? 'स्पोर्ट्स व मिलिट्री परिदृश्य:' : 'Motion Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setLaunchAngle(45); setLaunchVelocity(35); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left"
-                >
-                  🏏 क्रिकेट छक्का (45°, 35 m/s)
-                </button>
-                <button
-                  onClick={() => { setLaunchAngle(36); setLaunchVelocity(32); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left"
-                >
-                  🥇 भाला फेंक ओलंपिक (36°)
-                </button>
-                <button
-                  onClick={() => { setLaunchAngle(90); setLaunchVelocity(30); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left"
-                >
-                  🚀 सीधा ऊपर (90° Max Height)
-                </button>
-                <button
-                  onClick={() => { setLaunchAngle(15); setLaunchVelocity(40); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-rose-300 text-left"
-                >
-                  🔫 कम कोण तेज गति (15°, 40 m/s)
-                </button>
-              </div>
-            </div>
-
-            {/* Angle Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Launch Angle (θ) [प्रक्षेप्य कोण]:</span>
-                <span className="text-cyan-400 font-mono">{launchAngle}°</span>
-              </div>
-              <input
-                type="range"
-                min="5"
-                max="90"
-                step="1"
-                value={launchAngle}
-                onChange={(e) => setLaunchAngle(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Velocity Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Initial Velocity (v) [प्रारंभिक वेग]:</span>
-                <span className="text-amber-400 font-mono">{launchVelocity} m/s</span>
-              </div>
-              <input
-                type="range"
-                min="10"
-                max="60"
-                step="1"
-                value={launchVelocity}
-                onChange={(e) => setLaunchVelocity(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Results Grid */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-2xl text-center">
-                <span className="text-[9px] font-bold text-slate-400 block">Max Range (R)</span>
-                <span className="text-sm font-black text-emerald-400 font-mono">{maxRange} m</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-2xl text-center">
-                <span className="text-[9px] font-bold text-slate-400 block">Max Height (H)</span>
-                <span className="text-sm font-black text-cyan-400 font-mono">{maxHeight} m</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-2xl text-center">
-                <span className="text-[9px] font-bold text-slate-400 block">Flight Time (T)</span>
-                <span className="text-sm font-black text-yellow-400 font-mono">{flightTime} s</span>
-              </div>
-            </div>
-
-            {/* Explanation */}
-            <div className="p-4 bg-cyan-950/40 border border-cyan-500/30 rounded-2xl text-xs text-cyan-200 leading-relaxed font-medium space-y-1">
-              <span className="font-bold text-amber-300 block">🚀 {isHindi ? 'प्रक्षेप्य गति नियम:' : 'Kinematics Law:'}</span>
-              <p className="whitespace-pre-line">{getProjectileExplanation()}</p>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
-            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
-              🚀 PARABOLIC TRAJECTORY SIMULATION
-            </span>
-
-            <svg viewBox="0 0 400 240" className="w-full h-[260px] bg-[#090D16] rounded-2xl border border-slate-800">
-              {/* Ground */}
-              <line x1="20" y1="200" x2="380" y2="200" stroke="#475569" strokeWidth="4" />
-
-              {/* Trajectory Arc */}
-              <path
-                d={`M 30 200 Q 180 ${Math.max(30, 200 - parseFloat(maxHeight) * 2.2)} 330 200`}
-                fill="none"
-                stroke="#F59E0B"
-                strokeWidth="3"
-                strokeDasharray="4 4"
-              />
-
-              {/* Ball */}
-              <circle cx="180" cy={Math.max(30, 200 - parseFloat(maxHeight) * 2.2)} r="7" fill="#10B981" />
-              <text x="180" y={Math.max(18, 185 - parseFloat(maxHeight) * 2.2)} fill="#10B981" fontSize="10" fontWeight="bold" textAnchor="middle">
-                H = {maxHeight}m
-              </text>
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 7: TRIGONOMETRY */}
-      {/* ============================================================= */}
-      {activeTab === 'trig' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3">
-              <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">Unit Circle: sin²θ + cos²θ = 1</span>
-              <h2 className="text-base font-extrabold text-white mt-1">त्रिकोणमिति व इकाई वृत्त (Unit Circle)</h2>
-            </div>
-
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Angle (θ):</span>
-                <span className="text-cyan-400 font-mono">{angleDeg}°</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                step="5"
-                value={angleDeg}
-                onChange={(e) => setAngleDeg(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">sin(θ)</span>
-                <span className="text-base font-black text-emerald-400 font-mono">{sinVal}</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">cos(θ)</span>
-                <span className="text-base font-black text-cyan-400 font-mono">{cosVal}</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">tan(θ)</span>
-                <span className="text-base font-black text-yellow-400 font-mono">{tanVal}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
-            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
-              📐 UNIT CIRCLE VISUALIZER
-            </span>
-            <svg viewBox="0 0 300 240" className="w-full h-[240px] bg-[#090D16] rounded-2xl border border-slate-800">
-              <circle cx="150" cy="120" r="80" fill="none" stroke="#334155" strokeWidth="2" />
-              <line x1="50" y1="120" x2="250" y2="120" stroke="#475569" strokeWidth="1.5" />
-              <line x1="150" y1="20" x2="150" y2="220" stroke="#475569" strokeWidth="1.5" />
-              <line x1="150" y1="120" x2={150 + 80 * Math.cos(angleRad)} y2={120 - 80 * Math.sin(angleRad)} stroke="#06B6D4" strokeWidth="3" />
-              <circle cx={150 + 80 * Math.cos(angleRad)} cy={120 - 80 * Math.sin(angleRad)} r="5" fill="#F59E0B" />
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 8: COMPOUND INTEREST */}
-      {/* ============================================================= */}
-      {activeTab === 'finance' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3">
-              <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">A = P(1 + r/100)^t</span>
-              <h2 className="text-base font-extrabold text-white mt-1">चक्रवृद्धि ब्याज व धन वृद्धि सिम्युलेटर</h2>
-            </div>
-
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Principal (P) [मूलधन]:</span>
-                <span className="text-cyan-400 font-mono">₹{principal.toLocaleString()}</span>
-              </div>
-              <input
-                type="range"
-                min="1000"
-                max="100000"
-                step="1000"
-                value={principal}
-                onChange={(e) => setPrincipal(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Rate (r) [ब्याज दर]:</span>
-                <span className="text-amber-400 font-mono">{rate}% p.a.</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="25"
-                step="0.5"
-                value={rate}
-                onChange={(e) => setRate(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer"
-              />
-            </div>
-
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">Years (t) [समय]:</span>
-                <span className="text-emerald-400 font-mono">{years} Years</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="30"
-                step="1"
-                value={years}
-                onChange={(e) => setYears(Number(e.target.value))}
-                className="w-full accent-emerald-400 cursor-pointer"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-slate-400 block">Simple Interest Amt</span>
-                <span className="text-base font-black text-slate-300 font-mono">₹{simpleInterestAmount.toFixed(0)}</span>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl text-center">
-                <span className="text-[10px] font-bold text-emerald-400 block">Compound Interest Amt</span>
-                <span className="text-base font-black text-emerald-400 font-mono">₹{compoundInterestAmount.toFixed(0)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-center">
-            <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
-              💰 COMPOUNDING WEALTH EXPONENTIAL CURVE
-            </span>
-            <div className="p-4 bg-slate-950 rounded-2xl text-xs text-left space-y-2">
-              <p className="text-slate-200">
-                • <strong>अल्बर्ट आइंस्टीन:</strong> "चक्रवृद्धि ब्याज दुनिया का आठवाँ अजूबा है। जो इसे समझता है, वह इसे कमाता है; जो नहीं समझता, वह इसे चुकाता है।"
-              </p>
-              <p className="text-emerald-400 font-mono">
-                • कुल शुद्ध मुनाफा (Compound Wealth Gain): +₹{compoundProfit.toFixed(0)} ({((compoundProfit / principal) * 100).toFixed(0)}% ROI)
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 9: BIOLOGY - PHOTOSYNTHESIS & ENZYME LAB */}
-      {/* ============================================================= */}
-      {activeTab === 'biology-photosynthesis' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controls (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">
-                  6CO₂ + 6H₂O + Photons → C₆H₁₂O₆ + 6O₂
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-1">
-                  {isHindi ? 'प्रकाश संश्लेषण व श्वसन बायोएनर्जेटिक्स' : 'Photosynthesis & Bioenergetics Lab'}
-                </h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getPhotosynthesisExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🌿 {isHindi ? 'प्राकृतिक परिदृश्य (1-Click Presets):' : 'Ecological Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setLightIntensity(65000); setCo2Ppm(420); setTempCelsius(26); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left cursor-pointer"
-                >
-                  ☀️ {isHindi ? 'प्रखर धूप वाला दिन' : 'Sunny Summer Day'}
-                </button>
-                <button
-                  onClick={() => { setLightIntensity(75000); setCo2Ppm(950); setTempCelsius(28); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left cursor-pointer"
-                >
-                  🏡 {isHindi ? 'ग्रीनहाउस उच्च CO₂' : 'Greenhouse High CO2'}
-                </button>
-                <button
-                  onClick={() => { setLightIntensity(8000); setCo2Ppm(420); setTempCelsius(22); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left cursor-pointer"
-                >
-                  🌲 {isHindi ? 'घना छायादार जंगल' : 'Deep Canopy Shade'}
-                </button>
-                <button
-                  onClick={() => { setLightIntensity(85000); setCo2Ppm(420); setTempCelsius(48); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-rose-300 text-left cursor-pointer"
-                >
-                  🔥 {isHindi ? 'ग्रीष्म लहर 48°C (विकृति)' : 'Heat Wave 48°C'}
-                </button>
-              </div>
-            </div>
-
-            {/* Sliders */}
-            <div className="space-y-4">
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300 flex items-center gap-1">
-                    <Sun className="w-3.5 h-3.5 text-amber-400" />
-                    {isHindi ? 'प्रकाश तीव्रता (Light Intensity):' : 'Light Intensity:'}
-                  </span>
-                  <span className="text-amber-400 font-mono">{lightIntensity.toLocaleString()} Lux</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100000"
-                  step="2500"
-                  value={lightIntensity}
-                  onChange={(e) => setLightIntensity(Number(e.target.value))}
-                  className="w-full accent-amber-400 cursor-pointer"
-                />
-              </div>
-
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300 flex items-center gap-1">
-                    <Wind className="w-3.5 h-3.5 text-cyan-400" />
-                    {isHindi ? 'CO₂ सांद्रता (CO₂ Concentration):' : 'CO₂ Concentration:'}
-                  </span>
-                  <span className="text-cyan-400 font-mono">{co2Ppm} ppm</span>
-                </div>
-                <input
-                  type="range"
-                  min="100"
-                  max="1200"
-                  step="20"
-                  value={co2Ppm}
-                  onChange={(e) => setCo2Ppm(Number(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
-                />
-              </div>
-
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300 flex items-center gap-1">
-                    <Thermometer className="w-3.5 h-3.5 text-rose-400" />
-                    {isHindi ? 'तापमान (Temperature):' : 'Temperature:'}
-                  </span>
-                  <span className="text-rose-400 font-mono">{tempCelsius}°C</span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="55"
-                  step="1"
-                  value={tempCelsius}
-                  onChange={(e) => setTempCelsius(Number(e.target.value))}
-                  className="w-full accent-rose-400 cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* Limiting Factor Warning */}
-            <div className="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl space-y-1 text-xs">
-              <span className="font-bold text-emerald-300 block flex items-center gap-1">
-                <Info className="w-3.5 h-3.5" />
-                {isHindi ? 'ब्लैकमेन का सीमाकारी कारक (Limiting Factor):' : 'Primary Limiting Factor:'}
-              </span>
-              <p className="text-slate-300 font-bold">{getLimitingFactor()}</p>
-            </div>
-          </div>
-
-          {/* Live Simulation & Metrics (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-emerald-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2">
-                <Leaf className="w-4 h-4 text-emerald-400" />
-                {isHindi ? 'क्लोरोप्लास्ट व प्रकाशिक अभिक्रिया सिमुलेशन' : 'Live Chloroplast & Calvin Cycle'}
-              </span>
-              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-black">
-                {photosynthesisRate}% {isHindi ? 'दक्षता' : 'Efficiency'}
-              </span>
-            </div>
-
-            {/* Visual Chloroplast Chamber */}
-            <div className="relative h-52 bg-gradient-to-b from-slate-950 via-emerald-950/30 to-slate-950 rounded-2xl border border-emerald-500/30 p-4 flex flex-col justify-between overflow-hidden">
-              <div className="flex justify-between items-center z-10">
-                <div className="flex items-center gap-2 bg-slate-900/90 px-3 py-1 rounded-xl border border-slate-700 text-[11px] font-bold text-amber-300">
-                  <Sun className="w-3.5 h-3.5 animate-spin" />
-                  <span>{lightIntensity > 50000 ? '☀️ High Photon Flux' : '⛅ Low Photons'}</span>
-                </div>
-                <div className="flex items-center gap-2 bg-slate-900/90 px-3 py-1 rounded-xl border border-slate-700 text-[11px] font-bold text-cyan-300">
-                  <Droplets className="w-3.5 h-3.5" />
-                  <span>Stomata: {stomatalAperturePercent}% Open</span>
-                </div>
-              </div>
-
-              {/* Plant leaf & oxygen bubbles */}
-              <div className="flex items-center justify-around z-10">
-                <div className="text-center space-y-1">
-                  <div className="w-16 h-16 rounded-full bg-emerald-600/30 border-2 border-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
-                    <Leaf className="w-8 h-8 text-emerald-300 animate-bounce" />
-                  </div>
-                  <span className="text-[10px] font-bold text-emerald-300 block">Thylakoid Grana</span>
-                </div>
-
-                <div className="text-center space-y-1">
-                  <div className="px-4 py-2 bg-cyan-950/80 border border-cyan-500/50 rounded-2xl">
-                    <span className="text-[10px] text-slate-400 block">O₂ Gas Bubbles</span>
-                    <span className="text-lg font-black text-cyan-300 font-mono">+{o2ProductionMlPerMin} mL/min</span>
-                  </div>
-                </div>
-
-                <div className="text-center space-y-1">
-                  <div className="px-4 py-2 bg-amber-950/80 border border-amber-500/50 rounded-2xl">
-                    <span className="text-[10px] text-slate-400 block">Glucose Synthesis</span>
-                    <span className="text-lg font-black text-amber-300 font-mono">+{glucoseSynthesisGramsPerHour} g/hr</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full bg-slate-900 rounded-full h-3 border border-slate-800 overflow-hidden z-10">
-                <div 
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full transition-all duration-300"
-                  style={{ width: `${photosynthesisRate}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Explanation box */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <p className="text-slate-200 leading-relaxed">
-                {getPhotosynthesisExplanation()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 10: BIOLOGY - GENETICS & PUNNETT SQUARE */}
-      {/* ============================================================= */}
-      {activeTab === 'biology-genetics' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controls (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-purple-400 tracking-wider">
-                  Mendel's Law of Segregation & Dominance
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-1">
-                  {isHindi ? 'मेंडेलियन आनुवंशिकी व पुनेट स्क्वायर' : 'Genetics & Punnett Square Matrix'}
-                </h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getGeneticsExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🧬 {isHindi ? 'मेंडेलियन संकरण (Cross Presets):' : 'Mendelian Cross Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setParent1Alleles('Tt'); setParent2Alleles('Tt'); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-purple-300 text-left cursor-pointer"
-                >
-                  🌱 {isHindi ? 'Monohybrid (Tt × Tt)' : 'Tt × Tt (3:1 Ratio)'}
-                </button>
-                <button
-                  onClick={() => { setParent1Alleles('TT'); setParent2Alleles('tt'); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left cursor-pointer"
-                >
-                  🧬 {isHindi ? 'F1 Pure (TT × tt)' : 'Pure TT × tt (100% Tt)'}
-                </button>
-                <button
-                  onClick={() => { setParent1Alleles('Tt'); setParent2Alleles('tt'); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left cursor-pointer"
-                >
-                  🧪 {isHindi ? 'Test Cross (Tt × tt)' : 'Test Cross (1:1 Ratio)'}
-                </button>
-                <button
-                  onClick={() => { setParent1Alleles('Tt'); setParent2Alleles('TT'); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left cursor-pointer"
-                >
-                  🌲 {isHindi ? 'Back Cross (Tt × TT)' : 'Back Cross (100% Tall)'}
-                </button>
-              </div>
-            </div>
-
-            {/* Genotype Selectors */}
-            <div className="space-y-4">
-              <div className="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
-                <span className="text-xs font-bold text-slate-300 block">
-                  {isHindi ? 'जनक 1 का जीनप्ररूप (Parent 1 Genotype):' : 'Parent 1 Genotype:'}
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['TT', 'Tt', 'tt'] as const).map(g => (
-                    <button
-                      key={g}
-                      onClick={() => setParent1Alleles(g)}
-                      className={`py-2 rounded-xl text-xs font-black border cursor-pointer ${
-                        parent1Alleles === g ? 'bg-purple-600 text-white border-purple-400 shadow-md' : 'bg-slate-900 text-slate-400 border-slate-800'
-                      }`}
-                    >
-                      {g} ({g === 'TT' ? 'Homo Dominant' : g === 'Tt' ? 'Heterozygous' : 'Homo Recessive'})
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
-                <span className="text-xs font-bold text-slate-300 block">
-                  {isHindi ? 'जनक 2 का जीनप्ररूप (Parent 2 Genotype):' : 'Parent 2 Genotype:'}
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['TT', 'Tt', 'tt'] as const).map(g => (
-                    <button
-                      key={g}
-                      onClick={() => setParent2Alleles(g)}
-                      className={`py-2 rounded-xl text-xs font-black border cursor-pointer ${
-                        parent2Alleles === g ? 'bg-indigo-600 text-white border-indigo-400 shadow-md' : 'bg-slate-900 text-slate-400 border-slate-800'
-                      }`}
-                    >
-                      {g} ({g === 'TT' ? 'Homo Dominant' : g === 'Tt' ? 'Heterozygous' : 'Homo Recessive'})
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Punnett Grid & Probability Breakdown (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
-            <span className="text-xs font-black text-purple-400 uppercase tracking-widest block flex items-center gap-2">
-              <Dna className="w-4 h-4 text-purple-400" />
-              {isHindi ? '4-कक्षीय पुनेट स्क्वायर संकरण ग्रिड' : 'Interactive 4-Quadrant Punnett Grid'}
-            </span>
-
-            {/* 2x2 Punnett Grid */}
-            <div className="max-w-md mx-auto bg-slate-950 p-4 rounded-2xl border border-purple-500/30">
-              <div className="grid grid-cols-3 gap-2 text-center items-center">
-                {/* Top left empty */}
-                <div className="p-2 text-[10px] font-bold text-slate-500">P1 \ P2</div>
-                <div className="p-2 bg-indigo-950/80 border border-indigo-500/50 rounded-xl font-black text-indigo-300 text-sm">
-                  {p2[0]}
-                </div>
-                <div className="p-2 bg-indigo-950/80 border border-indigo-500/50 rounded-xl font-black text-indigo-300 text-sm">
-                  {p2[1]}
-                </div>
-
-                {/* Row 1 */}
-                <div className="p-2 bg-purple-950/80 border border-purple-500/50 rounded-xl font-black text-purple-300 text-sm">
-                  {p1[0]}
-                </div>
-                <div className={`p-4 rounded-xl border text-base font-black transition-all ${
-                  punnettGrid[0][0] === 'tt' ? 'bg-amber-950/40 border-amber-500/40 text-amber-300' : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                }`}>
-                  {punnettGrid[0][0]}
-                  <span className="block text-[10px] font-normal text-slate-400">{punnettGrid[0][0] === 'tt' ? '🌱 Dwarf' : '🌲 Tall'}</span>
-                </div>
-                <div className={`p-4 rounded-xl border text-base font-black transition-all ${
-                  punnettGrid[0][1] === 'tt' ? 'bg-amber-950/40 border-amber-500/40 text-amber-300' : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                }`}>
-                  {punnettGrid[0][1]}
-                  <span className="block text-[10px] font-normal text-slate-400">{punnettGrid[0][1] === 'tt' ? '🌱 Dwarf' : '🌲 Tall'}</span>
-                </div>
-
-                {/* Row 2 */}
-                <div className="p-2 bg-purple-950/80 border border-purple-500/50 rounded-xl font-black text-purple-300 text-sm">
-                  {p1[1]}
-                </div>
-                <div className={`p-4 rounded-xl border text-base font-black transition-all ${
-                  punnettGrid[1][0] === 'tt' ? 'bg-amber-950/40 border-amber-500/40 text-amber-300' : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                }`}>
-                  {punnettGrid[1][0]}
-                  <span className="block text-[10px] font-normal text-slate-400">{punnettGrid[1][0] === 'tt' ? '🌱 Dwarf' : '🌲 Tall'}</span>
-                </div>
-                <div className={`p-4 rounded-xl border text-base font-black transition-all ${
-                  punnettGrid[1][1] === 'tt' ? 'bg-amber-950/40 border-amber-500/40 text-amber-300' : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                }`}>
-                  {punnettGrid[1][1]}
-                  <span className="block text-[10px] font-normal text-slate-400">{punnettGrid[1][1] === 'tt' ? '🌱 Dwarf' : '🌲 Tall'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Phenotype & Genotype Ratios */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
-                <span className="text-[10px] font-bold text-emerald-400 block uppercase">
-                  {isHindi ? 'प्रभावी लक्षण (Tall/Dominant)' : 'Dominant Trait'}
-                </span>
-                <span className="text-xl font-black text-emerald-300">{dominantPercent}%</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
-                <span className="text-[10px] font-bold text-amber-400 block uppercase">
-                  {isHindi ? 'अप्रभावी लक्षण (Dwarf/Recessive)' : 'Recessive Trait'}
-                </span>
-                <span className="text-xl font-black text-amber-300">{recessivePercent}%</span>
-              </div>
-            </div>
-
-            {/* Explanation box */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <p className="text-slate-200 leading-relaxed">
-                {getGeneticsExplanation()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 11: BIOLOGY - OSMOSIS & CELL TONICITY */}
-      {/* ============================================================= */}
-      {activeTab === 'biology-osmosis' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controls (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">
-                  Water Potential Ψw & Semi-Permeable Membrane
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-1">
-                  {isHindi ? 'परासरण, टोनिसिटी व कोशिका स्फीति' : 'Osmosis & Cell Tonicity Lab'}
-                </h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getOsmosisExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Cell Type Toggle */}
-            <div className="space-y-2 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <span className="text-xs font-bold text-slate-300 block">
-                {isHindi ? 'कोशिका का प्रकार चुनें (Cell Type):' : 'Select Cell Type:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setCellType('plant')}
-                  className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                    cellType === 'plant' ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-slate-900 text-slate-400 border-slate-800'
-                  }`}
-                >
-                  🌿 {isHindi ? 'पादप कोशिका (Plant Cell)' : 'Plant Cell (Cell Wall)'}
-                </button>
-                <button
-                  onClick={() => setCellType('rbc')}
-                  className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                    cellType === 'rbc' ? 'bg-rose-600 text-white border-rose-400' : 'bg-slate-900 text-slate-400 border-slate-800'
-                  }`}
-                >
-                  🩸 {isHindi ? 'मानव RBC (Animal Cell)' : 'Human RBC (No Wall)'}
-                </button>
-              </div>
-            </div>
-
-            {/* Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                💧 {isHindi ? 'घोल सांद्रता प्रीसेट (Tonicity Presets):' : 'Solution Tonicity:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setSoluteConcentration(0.1)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left cursor-pointer"
-                >
-                  💧 {isHindi ? 'शुद्ध आसुत जल (Hypotonic)' : 'Distilled Water (0.1%)'}
-                </button>
-                <button
-                  onClick={() => setSoluteConcentration(0.9)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left cursor-pointer"
-                >
-                  🏥 {isHindi ? 'अस्पताल सेलाइन (0.9% Isotonic)' : 'Normal Saline (0.9%)'}
-                </button>
-                <button
-                  onClick={() => setSoluteConcentration(3.5)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left cursor-pointer"
-                >
-                  🌊 {isHindi ? 'समुद्री जल (3.5% Saline)' : 'Seawater (3.5%)'}
-                </button>
-                <button
-                  onClick={() => setSoluteConcentration(5.0)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-rose-300 text-left cursor-pointer"
-                >
-                  🧂 {isHindi ? 'गाढ़ा नमक अचार (Hypertonic)' : 'Brine Salt (5.0%)'}
-                </button>
-              </div>
-            </div>
-
-            {/* Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">{isHindi ? 'बाह्य लवण सांद्रता (Solute %):' : 'Solute Concentration:'}</span>
-                <span className="text-cyan-400 font-mono">{soluteConcentration.toFixed(1)}% NaCl</span>
-              </div>
-              <input
-                type="range"
-                min="0.0"
-                max="5.0"
-                step="0.1"
-                value={soluteConcentration}
-                onChange={(e) => setSoluteConcentration(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          {/* Microscopic Chamber (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-cyan-400 uppercase tracking-widest flex items-center gap-2">
-                <Microscope className="w-4 h-4 text-cyan-400" />
-                {isHindi ? 'माइक्रोस्कोपिक सेल चैम्बर सिमुलेशन' : 'Microscopic Osmosis Chamber'}
-              </span>
-              <span className={`px-3 py-1 rounded-full text-xs font-black border ${
-                isHypotonic ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' : isIsotonic ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-              }`}>
-                {isHypotonic ? 'Hypotonic (अंतःपरासरण)' : isIsotonic ? 'Isotonic (साम्यावस्था)' : 'Hypertonic (बहिःपरासरण)'}
-              </span>
-            </div>
-
-            {/* Cell visual representation */}
-            <div className="h-52 bg-slate-950 rounded-2xl border border-cyan-500/30 p-4 flex items-center justify-around relative overflow-hidden">
-              <div className="text-center space-y-2 z-10">
-                <div className={`mx-auto transition-all duration-500 flex items-center justify-center shadow-2xl ${
-                  cellType === 'plant'
-                    ? isHypotonic
-                      ? 'w-28 h-28 rounded-xl bg-emerald-600/40 border-4 border-emerald-400'
-                      : isIsotonic
-                      ? 'w-24 h-24 rounded-xl bg-emerald-700/30 border-2 border-emerald-600'
-                      : 'w-16 h-16 rounded-xl bg-amber-900/40 border-2 border-amber-600'
-                    : isHypotonic
-                    ? 'w-28 h-28 rounded-full bg-rose-600/50 border-4 border-rose-400 animate-ping'
-                    : isIsotonic
-                    ? 'w-24 h-24 rounded-full bg-rose-700/40 border-2 border-rose-500'
-                    : 'w-16 h-16 rounded-full bg-rose-950/60 border-2 border-dashed border-rose-700'
-                }`}>
-                  <span className="text-xs font-black text-white">
-                    {cellType === 'plant' ? (isHypotonic ? 'Turgid' : isIsotonic ? 'Flaccid' : 'Plasmolyzed') : (isHypotonic ? '💥 LYSIS!' : isIsotonic ? 'Normal RBC' : 'Crenated')}
-                  </span>
-                </div>
-                <span className="text-xs font-bold text-slate-300 block">
-                  {getOsmosisStateName()}
-                </span>
-              </div>
-
-              <div className="z-10 bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                <div className="text-slate-300">
-                  <span className="text-slate-400 font-bold block">Water Flux Direction:</span>
-                  <span className="text-cyan-300 font-black">
-                    {isHypotonic ? '➡️ Inward (H₂O Enters Cell)' : isIsotonic ? '⚖️ Zero Net Flux' : '⬅️ Outward (H₂O Leaves Cell)'}
-                  </span>
-                </div>
-                <div className="text-slate-300">
-                  <span className="text-slate-400 font-bold block">Cell Protection:</span>
-                  <span className="text-emerald-400 font-black">
-                    {cellType === 'plant' ? '🛡️ Rigid Cellulose Wall prevents rupture' : '⚠️ No cell wall; risk of hemolysis'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Explanation */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <p className="text-slate-200 leading-relaxed">
-                {getOsmosisExplanation()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 12: ELECTRONICS - DIGITAL LOGIC GATES */}
-      {/* ============================================================= */}
-      {activeTab === 'electronics-logic-gates' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controls (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
-                  Boolean Algebra & Transistor Switching
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-1">
-                  {isHindi ? 'डिजिटल इलेक्ट्रॉनिक्स: लॉजिक गेट्स' : 'Digital Logic Gates & Binary Lab'}
-                </h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getLogicGateExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Gate Selection */}
-            <div className="space-y-2 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <span className="text-xs font-bold text-slate-300 block">
-                {isHindi ? 'लॉजिक गेट चुनें (Select Gate):' : 'Select Gate Type:'}
-              </span>
-              <div className="grid grid-cols-4 gap-2">
-                {(['AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR', 'XNOR'] as const).map(gate => (
-                  <button
-                    key={gate}
-                    onClick={() => setSelectedGate(gate)}
-                    className={`py-2 rounded-xl text-xs font-black border cursor-pointer ${
-                      selectedGate === gate ? 'bg-amber-500 text-slate-950 border-amber-300 shadow-md scale-105' : 'bg-slate-900 text-slate-300 border-slate-800'
-                    }`}
-                  >
-                    {gate}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Inputs A & B Switches */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">
-                  {isHindi ? 'इनपुट स्विच A (Input A):' : 'Input Switch A:'}
-                </span>
-                <button
-                  onClick={() => setInputA(inputA === 1 ? 0 : 1)}
-                  className={`px-4 py-2 rounded-xl text-xs font-black border flex items-center gap-2 cursor-pointer transition-all ${
-                    inputA === 1 ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-400 border-slate-700'
-                  }`}
-                >
-                  {inputA === 1 ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
-                  <span>{inputA === 1 ? '1 (HIGH / 5V)' : '0 (LOW / 0V)'}</span>
-                </button>
-              </div>
-
-              {selectedGate !== 'NOT' && (
-                <div className="flex items-center justify-between bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
-                  <span className="text-xs font-bold text-slate-300">
-                    {isHindi ? 'इनपुट स्विच B (Input B):' : 'Input Switch B:'}
-                  </span>
-                  <button
-                    onClick={() => setInputB(inputB === 1 ? 0 : 1)}
-                    className={`px-4 py-2 rounded-xl text-xs font-black border flex items-center gap-2 cursor-pointer transition-all ${
-                      inputB === 1 ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-400 border-slate-700'
-                    }`}
-                  >
-                    {inputB === 1 ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
-                    <span>{inputB === 1 ? '1 (HIGH / 5V)' : '0 (LOW / 0V)'}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Circuit & Truth Table (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-amber-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
-            <span className="text-xs font-black text-amber-400 uppercase tracking-widest block flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-amber-400" />
-              {isHindi ? 'लाइव बाइनरी सर्किट व सत्यता सारणी (Truth Table)' : 'Live Circuit Schematic & Truth Table'}
-            </span>
-
-            {/* Circuit Diagram */}
-            <div className="h-44 bg-slate-950 rounded-2xl border border-amber-500/30 p-4 flex items-center justify-between relative overflow-hidden">
-              <div className="space-y-3 z-10">
-                <div className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-bold ${inputA === 1 ? 'bg-emerald-950 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-500'}`}>
-                  Input A: {inputA}
-                </div>
-                {selectedGate !== 'NOT' && (
-                  <div className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-bold ${inputB === 1 ? 'bg-emerald-950 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-500'}`}>
-                    Input B: {inputB}
-                  </div>
-                )}
-              </div>
-
-              {/* Gate Icon Box */}
-              <div className="px-6 py-4 bg-amber-950/40 border-2 border-amber-400 rounded-2xl text-center shadow-xl z-10">
-                <span className="text-lg font-black text-amber-300 block">{selectedGate}</span>
-                <span className="text-[10px] font-mono text-slate-400">
-                  {selectedGate === 'AND' ? 'Y = A·B' : selectedGate === 'OR' ? 'Y = A+B' : selectedGate === 'NOT' ? 'Y = A̅' : selectedGate === 'NAND' ? 'Y = A̅·̅B̅' : selectedGate === 'NOR' ? 'Y = A̅+̅B̅' : selectedGate === 'XOR' ? 'Y = A⊕B' : 'Y = A⊙B'}
-                </span>
-              </div>
-
-              {/* Output LED */}
-              <div className="text-center space-y-1 z-10">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto transition-all duration-300 ${
-                  gateOutput === 1 
-                    ? 'bg-yellow-400 border-4 border-yellow-200 shadow-2xl shadow-yellow-400/80 animate-pulse' 
-                    : 'bg-slate-900 border-2 border-slate-700'
-                }`}>
-                  <Lightbulb className={`w-8 h-8 ${gateOutput === 1 ? 'text-slate-950' : 'text-slate-600'}`} />
-                </div>
-                <span className={`text-xs font-black block ${gateOutput === 1 ? 'text-yellow-300' : 'text-slate-500'}`}>
-                  Output Y: {gateOutput} ({gateOutput === 1 ? 'ON' : 'OFF'})
-                </span>
-              </div>
-            </div>
-
-            {/* Truth Table */}
-            <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                {isHindi ? 'सत्यता सारणी (Truth Table):' : 'Truth Table:'}
-              </span>
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400">
-                    <th className="p-2">Input A</th>
-                    {selectedGate !== 'NOT' && <th className="p-2">Input B</th>}
-                    <th className="p-2">Output Y</th>
-                    <th className="p-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(selectedGate === 'NOT' ? [[0, 0], [1, 0]] : [[0, 0], [0, 1], [1, 0], [1, 1]]).map(([a, b], idx) => {
-                    const out = computeGateOutput(selectedGate, a, b);
-                    const isActive = (selectedGate === 'NOT' && inputA === a) || (selectedGate !== 'NOT' && inputA === a && inputB === b);
-                    return (
-                      <tr key={idx} className={`border-b border-slate-900 transition-all ${isActive ? 'bg-amber-500/20 font-black text-amber-300' : 'text-slate-300'}`}>
-                        <td className="p-2 font-mono">{a}</td>
-                        {selectedGate !== 'NOT' && <td className="p-2 font-mono">{b}</td>}
-                        <td className="p-2 font-mono">{out}</td>
-                        <td className="p-2">{out === 1 ? '💡 HIGH (5V)' : '⚫ LOW (0V)'}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Explanation */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <p className="text-slate-200 leading-relaxed">
-                {getLogicGateExplanation()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 13: ELECTRONICS - AC TRANSFORMER COIL TURNS */}
-      {/* ============================================================= */}
-      {activeTab === 'electronics-transformer' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controls (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-blue-400 tracking-wider">
-                  Vs / Vp = Ns / Np = Ip / Is
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-1">
-                  {isHindi ? 'एसी ट्रांसफॉर्मर व फेरा अनुपात' : 'AC Transformer & Turns Ratio'}
-                </h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getTransformerExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                ⚡ {isHindi ? 'वास्तविक ट्रांसफॉर्मर प्रीसेट:' : 'Transformer Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setPrimaryVoltage(220); setPrimaryTurns(440); setSecondaryTurns(10); setLoadResistance(5); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left cursor-pointer"
-                >
-                  📱 {isHindi ? 'मोबाइल चार्जर (220V → 5V)' : 'Phone Charger (5V)'}
-                </button>
-                <button
-                  onClick={() => { setPrimaryVoltage(11000); setPrimaryTurns(2000); setSecondaryTurns(40); setLoadResistance(10); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left cursor-pointer"
-                >
-                  🏭 {isHindi ? 'सबस्टेशन ग्रिड (11kV → 220V)' : 'Substation Grid (11kV)'}
-                </button>
-                <button
-                  onClick={() => { setPrimaryVoltage(220); setPrimaryTurns(100); setSecondaryTurns(1000); setLoadResistance(50); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-rose-300 text-left cursor-pointer"
-                >
-                  ⚡ {isHindi ? 'माइक्रोवेव स्टेप-अप (2.2kV)' : 'Microwave Step-Up (2.2kV)'}
-                </button>
-                <button
-                  onClick={() => { setPrimaryVoltage(220); setPrimaryTurns(500); setSecondaryTurns(500); setLoadResistance(20); }}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left cursor-pointer"
-                >
-                  🛡️ {isHindi ? '1:1 आइसोलेशन ट्रांसफॉर्मर' : '1:1 Isolation (220V)'}
-                </button>
-              </div>
-            </div>
-
-            {/* Sliders */}
-            <div className="space-y-3">
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300">Primary Voltage (Vp):</span>
-                  <span className="text-blue-400 font-mono">{primaryVoltage} V</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="11000"
-                  step="10"
-                  value={primaryVoltage}
-                  onChange={(e) => setPrimaryVoltage(Number(e.target.value))}
-                  className="w-full accent-blue-400 cursor-pointer"
-                />
-              </div>
-
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300">Primary Turns (Np):</span>
-                  <span className="text-cyan-400 font-mono">{primaryTurns} Turns</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="2000"
-                  step="10"
-                  value={primaryTurns}
-                  onChange={(e) => setPrimaryTurns(Number(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
-                />
-              </div>
-
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300">Secondary Turns (Ns):</span>
-                  <span className="text-amber-400 font-mono">{secondaryTurns} Turns</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="2000"
-                  step="10"
-                  value={secondaryTurns}
-                  onChange={(e) => setSecondaryTurns(Number(e.target.value))}
-                  className="w-full accent-amber-400 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Visual Magnetic Core & Output Meters (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-blue-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
-                <Cable className="w-4 h-4 text-blue-400" />
-                {isHindi ? 'लेमिनेटेड कोर व चुंबकीय फ्लक्स सिमुलेशन' : 'Transformer Induction Chamber'}
-              </span>
-              <span className="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/40 rounded-full text-xs font-black">
-                {transformerType}
-              </span>
-            </div>
-
-            {/* Core Schematic */}
-            <div className="h-44 bg-slate-950 rounded-2xl border border-blue-500/30 p-4 flex items-center justify-around relative">
-              <div className="text-center space-y-1 z-10">
-                <div className="p-3 bg-blue-950/80 border border-blue-500/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block">Primary Coil (Np={primaryTurns})</span>
-                  <span className="text-lg font-black text-blue-300 font-mono">{primaryVoltage}V AC</span>
-                  <span className="text-xs text-blue-400 block">Ip = {primaryCurrent}A</span>
-                </div>
-              </div>
-
-              {/* Central Core Box */}
-              <div className="px-4 py-2 bg-slate-900 border-2 border-dashed border-cyan-400/60 rounded-xl text-center z-10">
-                <span className="text-[10px] font-bold text-slate-400 block">Ratio (k)</span>
-                <span className="text-sm font-black text-cyan-300 font-mono">{turnRatio.toFixed(3)}</span>
-                <span className="text-[9px] text-slate-500 block">ΦB Flux Coupling</span>
-              </div>
-
-              <div className="text-center space-y-1 z-10">
-                <div className="p-3 bg-amber-950/80 border border-amber-500/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block">Secondary Coil (Ns={secondaryTurns})</span>
-                  <span className="text-lg font-black text-amber-300 font-mono">{secondaryVoltage}V AC</span>
-                  <span className="text-xs text-amber-400 block">Is = {secondaryCurrent}A</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Metrics */}
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Secondary Output</span>
-                <span className="text-base font-black text-amber-400 font-mono">{secondaryVoltage} V</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Secondary Current</span>
-                <span className="text-base font-black text-cyan-400 font-mono">{secondaryCurrent} A</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Power Conserved</span>
-                <span className="text-base font-black text-emerald-400 font-mono">{transformerPower} W</span>
-              </div>
-            </div>
-
-            {/* Explanation */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <p className="text-slate-200 leading-relaxed">
-                {getTransformerExplanation()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 14: ENGINEERING - SOLAR PHOTOVOLTAIC (PV) LAB */}
-      {/* ============================================================= */}
-      {activeTab === 'engineering-solar' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controls (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
-                  Pmax = G × Area × η × [1 - γ(T - 25)]
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-1">
-                  {isHindi ? 'सोलर सेल व फोटोवोल्टिक इंजीनियरिंग' : 'Solar PV Engineering Lab'}
-                </h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getSolarExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Solar Tech Selector */}
-            <div className="space-y-2 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <span className="text-xs font-bold text-slate-300 block">
-                {isHindi ? 'सोलर पैनल सिलिकॉन तकनीक:' : 'Panel Technology:'}
-              </span>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setPanelTechnology('mono')}
-                  className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                    panelTechnology === 'mono' ? 'bg-amber-500 text-slate-950 border-amber-300 font-black' : 'bg-slate-900 text-slate-400 border-slate-800'
-                  }`}
-                >
-                  Mono (22%)
-                </button>
-                <button
-                  onClick={() => setPanelTechnology('poly')}
-                  className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                    panelTechnology === 'poly' ? 'bg-blue-600 text-white border-blue-400 font-black' : 'bg-slate-900 text-slate-400 border-slate-800'
-                  }`}
-                >
-                  Poly (17%)
-                </button>
-                <button
-                  onClick={() => setPanelTechnology('thin-film')}
-                  className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                    panelTechnology === 'thin-film' ? 'bg-slate-700 text-white border-slate-500 font-black' : 'bg-slate-900 text-slate-400 border-slate-800'
-                  }`}
-                >
-                  Thin-Film (12%)
-                </button>
-              </div>
-            </div>
-
-            {/* Sliders */}
-            <div className="space-y-3">
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300">{isHindi ? 'धूप की तीव्रता (Irradiance):' : 'Solar Irradiance (G):'}</span>
-                  <span className="text-amber-400 font-mono">{solarIrradiance} W/m²</span>
-                </div>
-                <input
-                  type="range"
-                  min="100"
-                  max="1200"
-                  step="25"
-                  value={solarIrradiance}
-                  onChange={(e) => setSolarIrradiance(Number(e.target.value))}
-                  className="w-full accent-amber-400 cursor-pointer"
-                />
-              </div>
-
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300">{isHindi ? 'पैनल क्षेत्रफल (Area):' : 'Panel Surface Area:'}</span>
-                  <span className="text-cyan-400 font-mono">{panelArea} m²</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="25"
-                  step="1"
-                  value={panelArea}
-                  onChange={(e) => setPanelArea(Number(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
-                />
-              </div>
-
-              <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-300">{isHindi ? 'सेल तापमान (Cell Temp):' : 'Cell Temperature:'}</span>
-                  <span className="text-rose-400 font-mono">{cellTemp}°C</span>
-                </div>
-                <input
-                  type="range"
-                  min="-10"
-                  max="75"
-                  step="1"
-                  value={cellTemp}
-                  onChange={(e) => setCellTemp(Number(e.target.value))}
-                  className="w-full accent-rose-400 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* PV Generation Telemetry (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-amber-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2">
-                <Sun className="w-4 h-4 text-amber-400" />
-                {isHindi ? 'लाइव सोलर इन्वर्टर व ग्रिड उत्पादन' : 'Live Solar PV Generation'}
-              </span>
-              <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-black">
-                {peakPowerWatts} Watts Output
-              </span>
-            </div>
-
-            {/* Visual Panel Array */}
-            <div className="h-44 bg-slate-950 rounded-2xl border border-amber-500/30 p-4 flex items-center justify-around relative overflow-hidden">
-              <div className="text-center space-y-1 z-10">
-                <div className="w-16 h-16 bg-blue-950/80 border-2 border-blue-400 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-                  <Layers className="w-8 h-8 text-blue-300" />
-                </div>
-                <span className="text-[10px] text-slate-400 block">Silicon Array</span>
-              </div>
-
-              <div className="text-center space-y-1 z-10">
-                <div className="p-3 bg-amber-950/80 border border-amber-500/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block">Peak Generation</span>
-                  <span className="text-xl font-black text-amber-300 font-mono">{(peakPowerWatts/1000).toFixed(2)} kW</span>
-                </div>
-              </div>
-
-              <div className="text-center space-y-1 z-10">
-                <div className="p-3 bg-emerald-950/80 border border-emerald-500/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block">Daily Energy Yield</span>
-                  <span className="text-xl font-black text-emerald-300 font-mono">{dailyEnergyKwh} Units</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Household Appliances Supported */}
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">LED Bulbs (10W)</span>
-                <span className="text-base font-black text-yellow-300 font-mono">{Math.floor(peakPowerWatts / 10)} Bulbs</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Ceiling Fans (75W)</span>
-                <span className="text-base font-black text-cyan-300 font-mono">{Math.floor(peakPowerWatts / 75)} Fans</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Annual CO₂ Saved</span>
-                <span className="text-base font-black text-emerald-300 font-mono">{annualCo2SavedKg} kg CO₂</span>
-              </div>
-            </div>
-
-            {/* Explanation */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <p className="text-slate-200 leading-relaxed">
-                {getSolarExplanation()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 15: SPACE - ORBITAL & ESCAPE VELOCITY LAB */}
-      {/* ============================================================= */}
-      {activeTab === 'space-orbital' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controls (5 Cols) */}
-          <div className="lg:col-span-5 bg-[#090D16] border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-5 shadow-xl">
-            <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">
-                  vo = √(GM/r) | ve = √(2GM/r)
-                </span>
-                <h2 className="text-base font-extrabold text-white mt-1">
-                  {isHindi ? 'कक्षीय वेग, पलायन वेग व उपग्रह यांत्रिकी' : 'Orbital Mechanics & Escape Velocity'}
-                </h2>
-              </div>
-              <button
-                onClick={() => handleSpeakActiveLab(getSpaceExplanation())}
-                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                  isPlayingAudio ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-800 text-slate-300 border-slate-700'
-                }`}
-                title="Listen Explanation"
-              >
-                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Celestial Body Selection */}
-            <div className="space-y-2 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <span className="text-xs font-bold text-slate-300 block">
-                {isHindi ? 'खगोलीय पिंड चुनें (Celestial Body):' : 'Select Celestial Body:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                {(['earth', 'moon', 'mars', 'jupiter'] as const).map(p => (
-                  <button
-                    key={p}
-                    onClick={() => setTargetPlanet(p)}
-                    className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                      targetPlanet === p ? 'bg-cyan-500 text-slate-950 border-cyan-300 font-black shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800'
-                    }`}
-                  >
-                    {planetData[p].name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Orbit Altitude Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                🛰️ {isHindi ? 'कक्षा ऊंचाई प्रीसेट (Orbit Presets):' : 'Orbit Altitude Presets:'}
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setOrbitalAltitudeKm(400)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-cyan-300 text-left cursor-pointer"
-                >
-                  🚀 {isHindi ? 'ISS स्टेशन (400 km)' : 'ISS Station (400 km)'}
-                </button>
-                <button
-                  onClick={() => setOrbitalAltitudeKm(540)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-purple-300 text-left cursor-pointer"
-                >
-                  🔭 {isHindi ? 'हबल टेलिस्कोप (540 km)' : 'Hubble Telescope (540 km)'}
-                </button>
-                <button
-                  onClick={() => setOrbitalAltitudeKm(20200)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-amber-300 text-left cursor-pointer"
-                >
-                  📍 {isHindi ? 'GPS उपग्रह (20,200 km)' : 'GPS Constellation'}
-                </button>
-                <button
-                  onClick={() => setOrbitalAltitudeKm(35786)}
-                  className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-bold text-emerald-300 text-left cursor-pointer"
-                >
-                  🛰️ {isHindi ? 'भूस्थिर कक्षा (GEO 35,786 km)' : 'Geostationary (35,786 km)'}
-                </button>
-              </div>
-            </div>
-
-            {/* Slider */}
-            <div className="space-y-1 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-slate-300">{isHindi ? 'कक्षा की ऊंचाई (Altitude):' : 'Orbital Altitude (h):'}</span>
-                <span className="text-cyan-400 font-mono">{orbitalAltitudeKm.toLocaleString()} km</span>
-              </div>
-              <input
-                type="range"
-                min="100"
-                max="36000"
-                step="100"
-                value={orbitalAltitudeKm}
-                onChange={(e) => setOrbitalAltitudeKm(Number(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          {/* Space Orbit Chamber (7 Cols) */}
-          <div className="lg:col-span-7 bg-[#060A12] border-2 border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-cyan-400 uppercase tracking-widest flex items-center gap-2">
-                <Orbit className="w-4 h-4 text-cyan-400" />
-                {isHindi ? 'कक्षीय गति व अंतरिक्ष टेलीमेट्री' : 'Orbital Dynamics Telemetry'}
-              </span>
-              <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-full text-xs font-black">
-                {currentPlanet.name}
-              </span>
-            </div>
-
-            {/* Space Visual */}
-            <div className="h-44 bg-slate-950 rounded-2xl border border-cyan-500/30 p-4 flex items-center justify-around relative overflow-hidden">
-              <div className="text-center space-y-1 z-10">
-                <div className={`w-20 h-20 rounded-full bg-gradient-to-r ${currentPlanet.color} flex items-center justify-center mx-auto shadow-2xl`}>
-                  <span className="text-xs font-black text-white">{currentPlanet.name.split(' ')[0]}</span>
-                </div>
-              </div>
-
-              <div className="text-center space-y-1 z-10">
-                <div className="p-3 bg-cyan-950/80 border border-cyan-500/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block">Orbital Velocity (vo)</span>
-                  <span className="text-xl font-black text-cyan-300 font-mono">{orbitalVelocityKmS} km/s</span>
-                </div>
-              </div>
-
-              <div className="text-center space-y-1 z-10">
-                <div className="p-3 bg-amber-950/80 border border-amber-500/50 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block">Escape Velocity (ve)</span>
-                  <span className="text-xl font-black text-amber-300 font-mono">{escapeVelocityKmS} km/s</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Telemetry Cards */}
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Orbital Period (T)</span>
-                <span className="text-base font-black text-cyan-300 font-mono">{orbitalPeriodMinutes} min</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Speed in km/h</span>
-                <span className="text-base font-black text-amber-400 font-mono">{Math.round(parseFloat(orbitalVelocityKmS) * 3600).toLocaleString()} km/h</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 block">Velocity Ratio</span>
-                <span className="text-base font-black text-emerald-400 font-mono">ve = √2 × vo</span>
-              </div>
-            </div>
-
-            {/* Explanation */}
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <p className="text-slate-200 leading-relaxed">
-                {getSpaceExplanation()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================= */}
-      {/* LAB VIEW 9: CUSTOM AI FORMULA SOLVER */}
-      {/* ============================================================= */}
-      {activeTab === 'custom-solver' && (
-        <div className="max-w-4xl mx-auto bg-[#090D16] border border-cyan-500/40 p-6 rounded-3xl space-y-6 shadow-2xl">
-          <div className="text-center space-y-2">
-            <h2 className="text-xl font-black text-white flex items-center justify-center gap-2">
-              <Sparkles className="w-5 h-5 text-cyan-400" />
-              <span>{isHindi ? 'AI मास्टर साइंस फॉर्मूला सॉल्वर' : 'AI Science Formula Master'}</span>
-            </h2>
-            <p className="text-xs text-slate-400">
-              {isHindi ? 'भौतिकी, रसायन या गणित का कोई भी सूत्र लिखें (जैसे: "Bernoulli theorem", "Photoelectric effect", "pH of 0.05M H2SO4")' : 'Enter any physics, chemistry, or maths formula to get step-by-step substitution and real-life analysis.'}
+    <div
+      className={`${
+        isFullScreen
+          ? 'fixed inset-0 z-50 bg-[#03060E] overflow-y-auto p-4 sm:p-8'
+          : 'w-full space-y-5 pb-12'
+      } animate-fade-in`}
+    >
+      {/* TOP FULL-WIDTH STUDIO HEADER */}
+      <div className="bg-gradient-to-r from-cyan-950/70 via-slate-900 to-indigo-950/60 p-5 sm:p-6 rounded-3xl border border-cyan-500/30 shadow-xl space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-black uppercase border border-cyan-500/40 mb-1.5">
+              <FlaskConical className="w-4 h-4" />
+              <span>HANS COMPAIN • 28+ वर्चुअल साइंस लैब सुइट (NCERT &amp; Competitive)</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white">
+              इंटरएक्टिव साइंस लैब (28 लाइव भौतिकी, रसायन, जीव विज्ञान व अंतरिक्ष प्रयोगशालाएं) 🔬
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1">
+              किसी भी प्रयोगशाला पर क्लिक करें और फुल-पेज वर्चुअल लैब बेंच पर स्लाइडर चलाकर लाइव प्रयोग करें।
             </p>
           </div>
 
-          <form onSubmit={handleSolveCustomFormula} className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {viewMode === 'bench' && (
+              <button
+                onClick={() => setViewMode('hub')}
+                className="px-4 py-2.5 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs font-black flex items-center gap-1.5 cursor-pointer shadow"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>सभी 28 लैब्स देखें (All 28 Labs)</span>
+              </button>
+            )}
+            <button
+              onClick={() => setIsFullScreen(!isFullScreen)}
+              className="px-4 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-lg"
+            >
+              {isFullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              <span>{isFullScreen ? 'सामान्य व्यू' : '⛶ फुल-स्क्रीन लैब'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Category Filter Tabs + Search Input */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-3 border-t border-slate-800">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'all' as const, label: '🌐 सभी 28 प्रयोगशालाएं (All 28 Labs)' },
+              { id: 'physics' as const, label: '⚡ भौतिक विज्ञान (Physics - 10 Labs)' },
+              { id: 'chemistry' as const, label: '🧪 रसायन विज्ञान (Chemistry - 9 Labs)' },
+              { id: 'biology' as const, label: '🧬 जीव विज्ञान व अंतरिक्ष (Biology & Space - 9 Labs)' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setCategoryFilter(tab.id);
+                  setViewMode('hub');
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
+                  categoryFilter === tab.id && viewMode === 'hub'
+                    ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-lg'
+                    : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 min-w-[240px]">
+            <Search className="w-4 h-4 text-cyan-400 shrink-0" />
             <input
               type="text"
-              value={customFormulaQuery}
-              onChange={(e) => setCustomFormulaQuery(e.target.value)}
-              placeholder="e.g. Kinetic Energy when mass=15kg, v=20m/s / Archimedes Principle / Newton Law of Cooling"
-              className="flex-1 bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white outline-none focus:border-cyan-400"
+              value={searchQuery}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                if (viewMode !== 'hub') setViewMode('hub');
+              }}
+              placeholder="28 लैब्स में से कोई भी प्रयोग या सूत्र खोजें..."
+              className="bg-transparent border-none outline-none text-xs text-white w-full placeholder:text-slate-500"
             />
-            <button
-              type="submit"
-              disabled={isSolving || !customFormulaQuery.trim()}
-              className="px-5 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-lg shadow-cyan-500/20 disabled:opacity-50 cursor-pointer border-none"
-            >
-              {isSolving ? (isHindi ? 'हल हो रहा है...' : 'Solving...') : (isHindi ? 'हल निकालें' : 'Solve')}
-            </button>
-          </form>
+          </div>
+        </div>
+      </div>
 
-          {solverResult && (
-            <div className="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <span className="text-xs font-black text-cyan-400 uppercase tracking-wider">
-                  {isHindi ? '✅ चरणबद्ध हल व प्रैक्टिकल व्याख्या' : 'Step-by-Step Solution'}
-                </span>
+      {/* =====================================================================
+          MODE 1: ALL 28 LABS DIRECTORY GRID (FULL-WIDTH)
+      ===================================================================== */}
+      {viewMode === 'hub' && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
+          {filteredLabs.map(lab => (
+            <div
+              key={lab.id}
+              onClick={() => openLabBench(lab)}
+              className="bg-[#091122] border-2 border-slate-800/90 hover:border-cyan-400 rounded-3xl p-5 flex flex-col justify-between gap-4 cursor-pointer transition-all hover:-translate-y-0.5 shadow-lg group"
+            >
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-2xl">
+                    {lab.icon}
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-slate-950 border border-cyan-500/30 text-cyan-300">
+                    LAB #{lab.number} • {lab.badge}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold text-amber-400 block">{lab.categoryLabel}</span>
+                  <h3 className="text-sm sm:text-base font-black text-white group-hover:text-cyan-300 transition-colors leading-snug mt-0.5">
+                    {lab.title}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">{lab.subtitle}</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-850 font-mono text-[11px] text-emerald-300 truncate">
+                  {lab.formula}
+                </div>
+              </div>
+
+              <div className="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs font-black text-cyan-400 group-hover:text-white">
+                <span>प्रयोगशाला खोलें (Open Full Lab)</span>
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* =====================================================================
+          MODE 2: FULL-PAGE INTERACTIVE VIRTUAL LAB BENCH
+      ===================================================================== */}
+      {viewMode === 'bench' && (
+        <div className="space-y-5 animate-fade-in">
+          {/* Quick Horizontal Lab Switcher Ribbon */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+            {ALL_28_SCIENCE_LABS.map(lab => (
+              <button
+                key={lab.id}
+                onClick={() => openLabBench(lab)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer border transition-all flex items-center gap-1.5 shrink-0 ${
+                  lab.id === activeLab.id
+                    ? 'bg-cyan-500 text-slate-950 border-cyan-300 font-black shadow'
+                    : 'bg-[#091122] border-slate-800 text-slate-300 hover:text-white'
+                }`}
+              >
+                <span>{lab.icon}</span>
+                <span>#{lab.number} {lab.title}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Main Full-Page Bench Layout (12 Columns) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* LEFT 5 COLS: Interactive Sliders & Formula Readout */}
+            <div className="lg:col-span-5 bg-[#091122] border-2 border-cyan-500/40 rounded-3xl p-5 sm:p-7 space-y-6 shadow-2xl">
+              <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-2xl shrink-0">
+                    {activeLab.icon}
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-amber-400">
+                      LAB #{activeLab.number} • {activeLab.categoryLabel}
+                    </span>
+                    <h2 className="text-base sm:text-lg font-black text-white leading-snug">
+                      {activeLab.title}
+                    </h2>
+                  </div>
+                </div>
                 <button
-                  onClick={() => handleSpeakActiveLab(solverResult)}
-                  className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl"
+                  onClick={speakLab}
+                  className="p-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 hover:text-white cursor-pointer shrink-0"
+                  title="प्रयोग व्याख्या सुनें"
                 >
                   <Volume2 className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed">
-                {solverResult}
-              </p>
+
+              {/* Formula Box */}
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-amber-500/40 space-y-1">
+                <span className="text-[10px] font-black uppercase text-amber-400 block">
+                  📐 मुख्य वैज्ञानिक सूत्र (Core Formula):
+                </span>
+                <div className="text-xs sm:text-sm font-mono font-black text-white">
+                  {activeLab.formula}
+                </div>
+              </div>
+
+              {/* Interactive Sliders */}
+              <div className="space-y-5">
+                {/* Parameter 1 */}
+                <div className="space-y-2 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-cyan-300 flex items-center gap-1.5">
+                      <Sliders className="w-3.5 h-3.5" />
+                      <span>1. {activeLab.param1Label}</span>
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-mono font-black">
+                      {p1} {activeLab.param1Unit}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={activeLab.param1Min}
+                    max={activeLab.param1Max}
+                    step={activeLab.param1Max <= 5 ? 0.1 : 1}
+                    value={p1}
+                    onChange={e => setP1(parseFloat(e.target.value))}
+                    className="w-full accent-cyan-400 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                    <span>Min: {activeLab.param1Min} {activeLab.param1Unit}</span>
+                    <span>Max: {activeLab.param1Max} {activeLab.param1Unit}</span>
+                  </div>
+                </div>
+
+                {/* Parameter 2 */}
+                <div className="space-y-2 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-emerald-300 flex items-center gap-1.5">
+                      <Sliders className="w-3.5 h-3.5" />
+                      <span>2. {activeLab.param2Label}</span>
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-mono font-black">
+                      {p2} {activeLab.param2Unit}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={activeLab.param2Min}
+                    max={activeLab.param2Max}
+                    step={activeLab.param2Max <= 5 ? 0.1 : 1}
+                    value={p2}
+                    onChange={e => setP2(parseFloat(e.target.value))}
+                    className="w-full accent-emerald-400 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                    <span>Min: {activeLab.param2Min} {activeLab.param2Unit}</span>
+                    <span>Max: {activeLab.param2Max} {activeLab.param2Unit}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setP1(activeLab.param1Default);
+                  setP2(activeLab.param2Default);
+                }}
+                className="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>मानक रीडिंग रीसेट करें (Reset Apparatus)</span>
+              </button>
             </div>
-          )}
+
+            {/* RIGHT 7 COLS: Live Visual Apparatus Canvas + Live Numeric Output + Exam Viva Facts */}
+            <div className="lg:col-span-7 space-y-5">
+              {/* Live Simulation Canvas & Digital Meter */}
+              <div className="bg-[#091122] border-2 border-indigo-500/40 rounded-3xl p-5 sm:p-7 space-y-5 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <span className="text-xs font-black uppercase tracking-wider text-cyan-400">
+                    ⚡ लाइव वर्चुअल उपकरण एवं डिजिटल मीटर (Live Simulation Bench)
+                  </span>
+                  <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                    LIVE ACTIVE
+                  </span>
+                </div>
+
+                {/* Dynamic Visual SVG Simulation Canvas */}
+                <div className="bg-[#040814] border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[210px]">
+                  <svg viewBox="0 0 500 180" className="w-full max-w-xl h-44">
+                    <defs>
+                      <linearGradient id="labBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#00F2FE" />
+                        <stop offset="50%" stopColor="#4FACFE" />
+                        <stop offset="100%" stopColor="#00F260" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Grid Lines */}
+                    <line x1="20" y1="90" x2="480" y2="90" stroke="#1E293B" strokeDasharray="4 4" />
+                    <line x1="250" y1="15" x2="250" y2="165" stroke="#1E293B" strokeDasharray="4 4" />
+
+                    {/* Animated Waveform / Ray / Apparatus Representation responsive to p1 & p2 */}
+                    <circle
+                      cx="110"
+                      cy="90"
+                      r={Math.min(55, Math.max(18, (p1 / activeLab.param1Max) * 52))}
+                      fill="rgba(6, 182, 212, 0.18)"
+                      stroke="#22D3EE"
+                      strokeWidth="2.5"
+                    />
+                    <text x="110" y="94" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="bold">
+                      {p1} {activeLab.param1Unit}
+                    </text>
+
+                    {/* Dynamic Connecting Wave / Ray */}
+                    <path
+                      d={`M 165 90 Q 250 ${90 - ((p1 - activeLab.param1Min) / (activeLab.param1Max - activeLab.param1Min || 1)) * 60} 335 90`}
+                      fill="none"
+                      stroke="url(#labBeam)"
+                      strokeWidth="4"
+                    />
+                    <path
+                      d={`M 165 90 Q 250 ${90 + ((p2 - activeLab.param2Min) / (activeLab.param2Max - activeLab.param2Min || 1)) * 60} 335 90`}
+                      fill="none"
+                      stroke="#F59E0B"
+                      strokeWidth="2.5"
+                      strokeDasharray="6 4"
+                    />
+
+                    {/* Output Node */}
+                    <circle
+                      cx="390"
+                      cy="90"
+                      r={Math.min(55, Math.max(18, (p2 / activeLab.param2Max) * 52))}
+                      fill="rgba(16, 185, 129, 0.18)"
+                      stroke="#10B981"
+                      strokeWidth="2.5"
+                    />
+                    <text x="390" y="94" textAnchor="middle" fill="#A7F3D0" fontSize="11" fontWeight="bold">
+                      {p2} {activeLab.param2Unit}
+                    </text>
+
+                    <text x="250" y="168" textAnchor="middle" fill="#94A3B8" fontSize="11" fontWeight="bold">
+                      {activeLab.title} — {activeLab.formula}
+                    </text>
+                  </svg>
+                </div>
+
+                {/* Live Calculated Digital Meters */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-cyan-500/40 space-y-1">
+                    <span className="text-[10px] font-black uppercase text-cyan-400 block">
+                      {liveResult.primaryLabel}
+                    </span>
+                    <div className="text-base sm:text-lg font-black text-white font-mono">
+                      {liveResult.primaryValue}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-emerald-500/40 space-y-1">
+                    <span className="text-[10px] font-black uppercase text-emerald-400 block">
+                      {liveResult.secondaryLabel}
+                    </span>
+                    <div className="text-base sm:text-lg font-black text-emerald-300 font-mono">
+                      {liveResult.secondaryValue}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Conclusion Observation Box */}
+                <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 text-xs sm:text-sm text-indigo-100 leading-relaxed">
+                  <strong className="text-amber-300">🔬 प्रायोगिक निष्कर्ष (Lab Observation): </strong>
+                  {liveResult.statusText}
+                </div>
+              </div>
+
+              {/* Exam Viva-Voce & High-Yield Points */}
+              <div className="bg-[#091122] border border-slate-800 rounded-3xl p-5 sm:p-6 space-y-3 shadow-xl">
+                <div className="flex items-center gap-2 text-amber-400 font-black text-xs sm:text-sm uppercase">
+                  <Award className="w-4 h-4" />
+                  <span>बोर्ड एवं प्रतियोगी परीक्षा वाइवा प्रश्न (Exam Viva Points)</span>
+                </div>
+                <div className="space-y-2">
+                  {activeLab.examFacts.map((fact, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 rounded-2xl bg-slate-950 border border-slate-850 flex items-start gap-2.5 text-xs sm:text-sm text-slate-200 leading-relaxed"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{fact}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
-
     </div>
   );
 };

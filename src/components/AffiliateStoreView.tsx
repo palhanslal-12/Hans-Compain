@@ -1,418 +1,201 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Plus, BookOpen, ExternalLink, Award, Search, Sparkles, Star, Tag, Check, Filter } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingBag, Star, ExternalLink, Check, Tag } from 'lucide-react';
 
-export interface AffiliateProduct {
+interface StoreProduct {
   id: string;
-  title: string;
-  category: 'books' | 'gadgets' | 'shorthand' | 'stationary';
-  examTag: string;
-  price: string;
+  name: string;
+  category: string;
+  price: number;
+  originalPrice: number;
   rating: number;
-  imageUrl: string;
+  reviewsCount: number;
   description: string;
-  affiliateUrl: string;
-  isPopular?: boolean;
+  tag?: string;
+  icon: string;
 }
 
-const DEFAULT_PRODUCTS: AffiliateProduct[] = [
-  {
-    id: 'p1',
-    title: 'Lucent General Knowledge 2026 Edition (Hindi/English)',
-    category: 'books',
-    examTag: 'SSC / RRB / All Competitive',
-    price: '₹240',
-    rating: 4.8,
-    imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&auto=format&fit=crop&q=80',
-    description: 'The bible for Indian competitive exams. Covers History, Polity, Geography, Economics, and General Science.',
-    affiliateUrl: 'https://www.amazon.in/dp/9384761540',
-    isPopular: true
-  },
-  {
-    id: 'p2',
-    title: 'RS Aggarwal Quantitative Aptitude for Competitive Exams',
-    category: 'books',
-    examTag: 'SSC CGL / IBPS / Railway',
-    price: '₹495',
-    rating: 4.7,
-    imageUrl: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&auto=format&fit=crop&q=80',
-    description: 'Complete mathematical shortcuts, formulas, and topic-wise solved questions with detailed step-by-step solutions.',
-    affiliateUrl: 'https://www.amazon.in/dp/9352530168',
-    isPopular: true
-  },
-  {
-    id: 'p3',
-    title: 'Plinth to Paramount English Vol 1 by Neetu Singh',
-    category: 'books',
-    examTag: 'SSC CGL / CHSL / Stenographer',
-    price: '₹310',
-    rating: 4.9,
-    imageUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&auto=format&fit=crop&q=80',
-    description: 'Essential grammar rules, idiom & phrases, spot the error exercises specifically curated for SSC aspirants.',
-    affiliateUrl: 'https://www.amazon.in/dp/9383454008',
-    isPopular: true
-  },
-  {
-    id: 'p4',
-    title: 'Pitman Shorthand Pocket Dictionary (English Shorthand Strokes)',
-    category: 'shorthand',
-    examTag: 'SSC Stenographer / High Court',
-    price: '₹280',
-    rating: 4.9,
-    imageUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=400&auto=format&fit=crop&q=80',
-    description: 'Comprehensive outline dictionary containing over 20,000 pitman shorthand grammalogues and phrases.',
-    affiliateUrl: 'https://www.amazon.in/dp/027370805X',
-    isPopular: true
-  },
-  {
-    id: 'p5',
-    title: 'Digital LCD Visual Pomodoro Timer for Deep Study Focus',
-    category: 'gadgets',
-    examTag: 'All Students & Shorthand Practice',
-    price: '₹599',
-    rating: 4.6,
-    imageUrl: 'https://images.unsplash.com/photo-1508962914676-134849a727f0?w=400&auto=format&fit=crop&q=80',
-    description: 'Silent countdown clock with visual progress ring. Boost study focus and time management for exam sprints.',
-    affiliateUrl: 'https://www.amazon.in/s?k=pomodoro+timer+study',
-    isPopular: false
-  },
-  {
-    id: 'p6',
-    title: 'Noise Isolating Earphones with HD Audio for Shorthand Dictation',
-    category: 'shorthand',
-    examTag: 'Steno Dictation / Audio Books',
-    price: '₹449',
-    rating: 4.5,
-    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&auto=format&fit=crop&q=80',
-    description: 'Crystal clear voice clarity for practicing 80 wpm / 100 wpm stenographer audio dictation passages.',
-    affiliateUrl: 'https://www.amazon.in/s?k=in+ear+headphones',
-    isPopular: false
-  }
-];
+export const AffiliateStoreView: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [orderedItem, setOrderedItem] = useState<StoreProduct | null>(null);
 
-interface Props {
-  user: { name: string; email: string; role?: string } | null;
-  showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
-}
-
-export const AffiliateStoreView: React.FC<Props> = ({ user, showToast }) => {
-  const isAdmin = user?.role === 'owner';
-
-  const [products, setProducts] = useState<AffiliateProduct[]>(() => {
-    const saved = localStorage.getItem('hans-compain-affiliate-products');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return DEFAULT_PRODUCTS;
-  });
-
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  // New Product Form state
-  const [newTitle, setNewTitle] = useState('');
-  const [newCategory, setNewCategory] = useState<'books' | 'gadgets' | 'shorthand' | 'stationary'>('books');
-  const [newExamTag, setNewExamTag] = useState('SSC / Railway / 10th & 12th');
-  const [newPrice, setNewPrice] = useState('₹299');
-  const [newImageUrl, setNewImageUrl] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [newAffiliateUrl, setNewAffiliateUrl] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem('hans-compain-affiliate-products', JSON.stringify(products));
-  }, [products]);
-
-  const handleAddProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !newAffiliateUrl.trim()) {
-      showToast("Please enter Product Title and Affiliate Link.", "warn");
-      return;
-    }
-
-    const item: AffiliateProduct = {
-      id: 'prod_' + Date.now(),
-      title: newTitle.trim(),
-      category: newCategory,
-      examTag: newExamTag.trim() || 'General Exam',
-      price: newPrice.trim() || '₹199',
+  const products: StoreProduct[] = [
+    {
+      id: 'p1',
+      name: 'ऋषि प्रणाली हिन्दी आशुलिपि अभ्यास पुस्तिका (2 लाइन स्टेनो पैड)',
+      category: 'steno',
+      price: 180,
+      originalPrice: 250,
+      rating: 4.9,
+      reviewsCount: 1420,
+      description: 'मानक दूरी वाली रेखाएं जो हल्के और गहरे रेखाक्षरों को स्पष्ट बनाए रखने में मदद करती हैं (पैकेट में 4 नोटबुक)।',
+      tag: 'BESTSELLER',
+      icon: '📓'
+    },
+    {
+      id: 'p2',
+      name: 'अप्सरा स्टेनो पेंसिल पैक (10 पेंसिल + 1 शार्पनर)',
+      category: 'steno',
+      price: 95,
+      originalPrice: 120,
       rating: 4.8,
-      imageUrl: newImageUrl.trim() || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&auto=format&fit=crop&q=80',
-      description: newDescription.trim() || 'Recommended study material for exam preparation.',
-      affiliateUrl: newAffiliateUrl.trim().startsWith('http') ? newAffiliateUrl.trim() : `https://${newAffiliateUrl.trim()}`,
-      isPopular: true
-    };
+      reviewsCount: 890,
+      description: 'विशेष रूप से आशुलिपिकों के लिए निर्मित डार्क और स्मूथ लेड, जो 100 WPM की गति पर भी नहीं टूटती।',
+      tag: 'ESSENTIAL',
+      icon: '✏️'
+    },
+    {
+      id: 'p3',
+      name: 'भारती भवन गणित कक्षा 10 (डॉ. के.सी. सिन्हा - संपूर्ण गाइड)',
+      category: 'board',
+      price: 420,
+      originalPrice: 495,
+      rating: 4.9,
+      reviewsCount: 2310,
+      description: 'बिहार और यूपी बोर्ड के लिए सर्वाधिक प्रामाणिक गणित पुस्तक, प्रत्येक अध्याय के 100% विस्तृत हल सहित।',
+      tag: 'TOP RECOMMENDED',
+      icon: '📚'
+    },
+    {
+      id: 'p4',
+      name: 'NCERT विज्ञान व सामाजिक विज्ञान कॉम्बो (नवीनतम संस्करण 2026)',
+      category: 'board',
+      price: 350,
+      originalPrice: 410,
+      rating: 4.7,
+      reviewsCount: 1650,
+      description: 'सीबीएसई और सभी राज्य बोर्डों के संशोधित सिलेबस पर आधारित आधिकारिक NCERT पुस्तकें।',
+      icon: '🔬'
+    },
+    {
+      id: 'p5',
+      name: 'SSC 25 इयर्स प्रीवियस पेपर्स (तर्कशक्ति, गणित, सामान्य ज्ञान)',
+      category: 'competitive',
+      price: 540,
+      originalPrice: 650,
+      rating: 4.8,
+      reviewsCount: 3100,
+      description: 'TCS परीक्षा पैटर्न पर आधारित अध्यायवार हल किए गए प्रश्न पत्र व्याख्या सहित।',
+      tag: 'EXAM HIT',
+      icon: '🏆'
+    }
+  ];
 
-    setProducts(prev => [item, ...prev]);
-    setIsAddModalOpen(false);
-    showToast(`Product "${item.title}" added to Affiliate Store! 🛍️`, "success");
-
-    // Reset Form
-    setNewTitle('');
-    setNewDescription('');
-    setNewAffiliateUrl('');
-    setNewImageUrl('');
-  };
-
-  const filteredProducts = products.filter(p => {
-    const matchesCat = filterCategory === 'all' || p.category === filterCategory;
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.examTag.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
-  });
+  const filtered = products.filter(p => selectedCategory === 'all' || p.category === selectedCategory);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#03060E] text-slate-100 min-h-full">
-      <div className="max-w-6xl mx-auto space-y-6">
-
-        {/* Top Header Banner */}
-        <div className="bg-gradient-to-r from-emerald-900/60 via-indigo-900/50 to-slate-900 border border-emerald-500/30 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="max-w-4xl mx-auto space-y-5 animate-fade-in pb-12">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-pink-950/60 via-slate-900 to-indigo-950/40 p-5 sm:p-6 rounded-3xl border border-pink-500/30 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-xs uppercase tracking-wider mb-1">
-              <ShoppingBag className="w-4 h-4" />
-              <span>Affiliate & Recommended Store / पुस्तक व सामग्री दुकान</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-xs font-bold uppercase border border-pink-500/30 mb-2">
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>हंस कॉम्पैन अनुशंसित बुकस्टोर</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              Sarkari Exam Books & Essential Study Store 📚
+              पुस्तकें व अध्ययन सामग्री केंद्र (Student Store)
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              Top curated books, pitman shorthand dictionaries, and focus tools recommended by toppers for SSC, Railway, Banking, 10th & 12th Board Exams.
+            <p className="text-slate-300 text-xs sm:text-sm mt-1">
+              आशुलिपि पैड, विशेष स्टेनो पेंसिल, के.सी. सिन्हा गणित गाइड और बोर्ड परीक्षा की मानक पुस्तकें।
             </p>
           </div>
+        </div>
 
-          {isAdmin && (
+        {/* Categories */}
+        <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-800">
+          {[
+            { id: 'all', label: 'सभी उत्पाद' },
+            { id: 'steno', label: 'आशुलिपि व स्टेनो किट' },
+            { id: 'board', label: '10वीं / 12वीं बोर्ड पुस्तकें' },
+            { id: 'competitive', label: 'प्रतियोगी परीक्षा PYQ बुक्स' }
+          ].map(c => (
             <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase rounded-xl transition-all shadow-lg flex items-center gap-2 cursor-pointer border-none shrink-0"
+              key={c.id}
+              onClick={() => setSelectedCategory(c.id)}
+              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedCategory === c.id
+                  ? 'bg-pink-500 text-slate-950 shadow'
+                  : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
+              }`}
             >
-              <Plus className="w-4 h-4" />
-              <span>Add Product / लिस्ट करें</span>
+              {c.label}
             </button>
-          )}
-        </div>
-
-        {/* Search & Filter Bar */}
-        <div className="bg-[#0A0E1A] border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search books, Lucent, Shorthand..."
-              className="w-full pl-9 pr-3 py-2 bg-[#03060E] border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            {[
-              { id: 'all', label: 'All Items' },
-              { id: 'books', label: '📖 Standard Books' },
-              { id: 'shorthand', label: '🎙️ Shorthand Notes' },
-              { id: 'gadgets', label: '⏱️ Study Tools' }
-            ].map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setFilterCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 cursor-pointer ${
-                  filterCategory === cat.id
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
-                    : 'bg-[#03060E] text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProducts.map((prod) => (
-            <div 
-              key={prod.id} 
-              className="bg-[#0A0E1A] border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-4 flex flex-col justify-between transition-all group shadow-md"
-            >
-              <div className="space-y-3">
-                <div className="relative h-44 rounded-xl overflow-hidden bg-slate-900 border border-slate-850">
-                  <img 
-                    src={prod.imageUrl} 
-                    alt={prod.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    referrerPolicy="no-referrer"
-                  />
-                  {prod.isPopular && (
-                    <span className="absolute top-2 left-2 bg-amber-500 text-slate-950 font-black text-[9px] uppercase px-2 py-0.5 rounded-md shadow-md flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-slate-950" />
-                      Top Recommended
-                    </span>
-                  )}
-                  <span className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md text-emerald-400 font-extrabold text-xs px-2.5 py-1 rounded-lg border border-emerald-500/30">
-                    {prod.price}
-                  </span>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-1.5 text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-1">
-                    <Tag className="w-3 h-3 text-indigo-400" />
-                    <span>{prod.examTag}</span>
-                  </div>
-                  <h3 className="text-sm font-extrabold text-white group-hover:text-indigo-300 transition-colors line-clamp-2">
-                    {prod.title}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1.5 line-clamp-3 leading-relaxed">
-                    {prod.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-4 mt-3 border-t border-slate-800/80 flex items-center justify-between">
-                <div className="flex items-center gap-1 text-xs text-amber-400 font-bold">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
-                  <span>{prod.rating} / 5.0</span>
-                </div>
-
-                <a
-                  href={prod.affiliateUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold rounded-xl transition-all shadow-md flex items-center gap-1.5 no-underline cursor-pointer"
-                >
-                  <span>Buy / Check Price</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
           ))}
         </div>
-
-        {filteredProducts.length === 0 && (
-          <div className="bg-[#0A0E1A] border border-slate-800 rounded-2xl p-12 text-center text-slate-400 space-y-3">
-            <BookOpen className="w-10 h-10 text-slate-600 mx-auto" />
-            <p className="text-sm font-semibold">No products found matching your filter.</p>
-            <button
-              onClick={() => { setFilterCategory('all'); setSearchQuery(''); }}
-              className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl"
-            >
-              Reset Filters
-            </button>
-          </div>
-        )}
-
       </div>
 
-      {/* Add Custom Product / Affiliate Item Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0A0E1A] border border-emerald-500/40 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative animate-fade-in text-slate-100">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-sm uppercase tracking-wider">
-                <ShoppingBag className="w-4 h-4" />
-                <span>Add Product / Affiliate Link</span>
+      {/* Products Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {filtered.map(item => (
+          <div
+            key={item.id}
+            className="bg-[#091122] border border-slate-800 hover:border-pink-500/50 rounded-3xl p-5 space-y-3 transition-all shadow-md flex flex-col justify-between group"
+          >
+            <div className="space-y-2.5">
+              <div className="flex items-start justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-2xl">
+                  {item.icon}
+                </div>
+                {item.tag && (
+                  <span className="text-[9px] font-black uppercase bg-pink-500/20 text-pink-300 border border-pink-500/30 px-2 py-0.5 rounded-full">
+                    {item.tag}
+                  </span>
+                )}
               </div>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg bg-transparent border-none cursor-pointer"
-              >
-                ✕
-              </button>
+
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-pink-300 transition-colors line-clamp-2">
+                  {item.name}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-1 text-xs text-amber-400">
+                  <Star className="w-3.5 h-3.5 fill-amber-400" />
+                  <span className="font-bold">{item.rating}</span>
+                  <span className="text-slate-500 text-[10px]">({item.reviewsCount} समीक्षाएं)</span>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                {item.description}
+              </p>
             </div>
 
-            <form onSubmit={handleAddProduct} className="space-y-3 text-xs">
+            <div className="pt-3 border-t border-slate-850 flex items-center justify-between">
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Product Title / नाम</label>
-                <input
-                  type="text"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Lucent GK Hindi 2026 or Pitman Shorthand Dictionary"
-                  className="w-full p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500"
-                  required
-                />
+                <span className="text-sm sm:text-base font-black text-white">₹{item.price}</span>
+                <span className="text-[11px] text-slate-500 line-through ml-1.5">₹{item.originalPrice}</span>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Category / वर्ग</label>
-                  <select
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value as any)}
-                    className="w-full p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500"
-                  >
-                    <option value="books">📖 Books & Practice Sets</option>
-                    <option value="shorthand">🎙️ Shorthand Notebooks</option>
-                    <option value="gadgets">⏱️ Focus Study Gadgets</option>
-                    <option value="stationary">📝 Stationary Items</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Price / मूल्य</label>
-                  <input
-                    type="text"
-                    value={newPrice}
-                    onChange={(e) => setNewPrice(e.target.value)}
-                    placeholder="e.g. ₹299"
-                    className="w-full p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Target Exam Tag / परीक्षा टैग</label>
-                <input
-                  type="text"
-                  value={newExamTag}
-                  onChange={(e) => setNewExamTag(e.target.value)}
-                  placeholder="e.g. 10th, 12th, SSC CGL, RRB, Banking"
-                  className="w-full p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Affiliate Link / Buy URL</label>
-                <input
-                  type="url"
-                  value={newAffiliateUrl}
-                  onChange={(e) => setNewAffiliateUrl(e.target.value)}
-                  placeholder="https://amazon.in/dp/example or affiliate link"
-                  className="w-full p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Image URL (Optional)</label>
-                <input
-                  type="url"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/... or image link"
-                  className="w-full p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Description / संक्षिप्त विवरण</label>
-                <textarea
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Explain why this book or tool helps students prepare..."
-                  className="w-full p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 h-20"
-                />
-              </div>
-
               <button
-                type="submit"
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-lg cursor-pointer border-none"
+                onClick={() => setOrderedItem(item)}
+                className="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-xs font-bold transition-all shadow cursor-pointer flex items-center gap-1"
               >
-                Publish Product to Affiliate Store 🚀
+                <span>ऑर्डर करें</span>
+                <ExternalLink className="w-3 h-3" />
               </button>
-            </form>
+            </div>
           </div>
+        ))}
+      </div>
+
+      {orderedItem && (
+        <div className="p-5 rounded-3xl bg-emerald-950/60 border-2 border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
+          <div className="space-y-1">
+            <div className="text-xs font-black text-emerald-400 uppercase flex items-center gap-1.5">
+              <Check className="w-4 h-4" />
+              <span>छात्र रियायती ऑर्डर चयनित (Student Store Checkout)</span>
+            </div>
+            <h4 className="text-sm sm:text-base font-black text-white">{orderedItem.name}</h4>
+            <p className="text-xs text-slate-300">
+              विशेष छात्र मूल्य: <strong className="text-emerald-300">₹{orderedItem.price}</strong> (बचत: ₹{orderedItem.originalPrice - orderedItem.price})
+            </p>
+          </div>
+          <button
+            onClick={() => setOrderedItem(null)}
+            className="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs cursor-pointer shrink-0"
+          >
+            ✓ पुष्टि करें (Confirm)
+          </button>
         </div>
       )}
-
     </div>
   );
 };

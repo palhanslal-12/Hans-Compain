@@ -1,285 +1,142 @@
 import React, { useState } from 'react';
-import { Target, Calendar, Clock, BookOpen, CheckCircle, Download, Sparkles, AlertCircle } from 'lucide-react';
+import { Calendar, CheckCircle2, Circle, Clock, Target, Sparkles, Award } from 'lucide-react';
 
-interface StudyPlanProps {
-  user: { name: string; email: string } | null;
-  onExportPdf: (title: string, elementId?: string, rawText?: string) => void;
-  showToast: (msg: string, type?: 'info' | 'success' | 'warn') => void;
-  language?: 'english' | 'hindi';
+interface StudySlot {
+  id: string;
+  time: string;
+  subject: string;
+  activity: string;
+  duration: string;
+  completed: boolean;
 }
 
-export const StudyPlanView: React.FC<StudyPlanProps> = ({ user, onExportPdf, showToast, language = 'hindi' }) => {
-  const isHindi = language === 'hindi';
-  const [goal, setGoal] = useState("SSC CGL / Stenographer 2026");
-  const [days, setDays] = useState(30);
-  const [weakAreas, setWeakAreas] = useState("Maths Speed, Error Spotting in English, Shorthand Strokes");
-  const [dailyHours, setDailyHours] = useState(4);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [planResult, setPlanResult] = useState<any | null>(null);
+export const StudyPlanView: React.FC = () => {
+  const [targetExam, setTargetExam] = useState<string>('steno');
+  const [slots, setSlots] = useState<Record<string, StudySlot[]>>({
+    steno: [
+      { id: 's1', time: '06:00 AM - 07:30 AM', subject: 'आशुलिपि (Hindi Shorthand)', activity: '80 WPM डिक्टेशन लिखना व पढ़ना (2 संपादकीय)', duration: '90 मिनट', completed: true },
+      { id: 's2', time: '08:30 AM - 10:00 AM', subject: 'सामान्य ज्ञान (General Awareness)', activity: 'दैनिक करेंट अफेयर्स + आधुनिक भारत का इतिहास', duration: '90 मिनट', completed: false },
+      { id: 's3', time: '02:00 PM - 03:30 PM', subject: 'English Language', activity: 'Active/Passive Voice, Narration व 30 Vocab', duration: '90 मिनट', completed: false },
+      { id: 's4', time: '05:00 PM - 06:30 PM', subject: 'रीजनिंग (General Intelligence)', activity: 'Coding-Decoding व Syllogism 50 प्रश्न', duration: '90 मिनट', completed: false },
+      { id: 's5', time: '09:00 PM - 10:00 PM', subject: 'टाइपिंग व रिवीजन', activity: 'हिंदी मंगल फॉन्ट टाइपिंग + फ्लैशकार्ड्स दोहराव', duration: '60 मिनट', completed: false }
+    ],
+    board: [
+      { id: 'b1', time: '06:30 AM - 08:00 AM', subject: 'गणित (Mathematics)', activity: 'त्रिकोणमिति एवं द्विघात समीकरण (K.C. Sinha)', duration: '90 मिनट', completed: true },
+      { id: 'b2', time: '10:00 AM - 11:30 AM', subject: 'भौतिकी (Physics)', activity: 'ओम का नियम, विद्युत परिपथ व न्यूमेरिकल सवाल', duration: '90 मिनट', completed: false },
+      { id: 'b3', time: '03:00 PM - 04:30 PM', subject: 'रसायन विज्ञान (Chemistry)', activity: 'रासायनिक अभिक्रियाएं व आवर्त सारणी याद करना', duration: '90 मिनट', completed: false },
+      { id: 'b4', time: '07:00 PM - 08:30 PM', subject: 'जीव विज्ञान (Biology)', activity: 'मानव हृदय व पाचन तंत्र के सचित्र आरेख अभ्यास', duration: '90 मिनट', completed: false },
+      { id: 'b5', time: '09:30 PM - 10:30 PM', subject: 'हिन्दी / संस्कृत', activity: 'व्याकरण, संधि-विच्छेद व निबंध लेखन', duration: '60 मिनट', completed: false }
+    ]
+  });
 
-  const handleGeneratePlan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsGenerating(true);
-    try {
-      const res = await fetch("/api/study-plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          goal,
-          days,
-          weakAreas,
-          dailyHours
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Study plan generation failed");
-      setPlanResult(data.plan);
-      showToast("Personalized AI Study Plan generated! 🎯", "success");
-    } catch (err: any) {
-      console.error(err);
-      showToast(err.message || "Failed to generate study plan.", "warn");
-    } finally {
-      setIsGenerating(false);
-    }
+  const activeSlots = slots[targetExam] || slots.steno;
+
+  const toggleComplete = (slotId: string) => {
+    setSlots(prev => {
+      const currentSlots = prev[targetExam] || [];
+      return {
+        ...prev,
+        [targetExam]: currentSlots.map(s => s.id === slotId ? { ...s, completed: !s.completed } : s)
+      };
+    });
   };
 
+  const completedCount = activeSlots.filter(s => s.completed).length;
+  const progressPercent = Math.round((completedCount / activeSlots.length) * 100);
+
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#03060E] text-slate-100 min-h-full">
-      <div className="max-w-4xl mx-auto space-y-6">
-        
-        {/* Header Banner */}
-        <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/50 to-slate-900 border border-indigo-500/30 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="max-w-3xl mx-auto space-y-5 animate-fade-in pb-12">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-indigo-950/60 via-slate-900 to-blue-950/40 p-5 sm:p-6 rounded-3xl border border-indigo-500/30 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-xs uppercase tracking-wider mb-1">
-              <Target className="w-4 h-4" />
-              <span>Hans Compain Smart Academic Engine</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold uppercase border border-indigo-500/30 mb-2">
+              <Calendar className="w-3.5 h-3.5" />
+              <span>व्यक्तिगत दैनिक समय-सारिणी (Personalized Timetable)</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              {isHindi ? "AI अध्ययन योजना एवं रोडमैप" : "AI Study Plan & Roadmap Generator"}
+              दैनिक अध्ययन योजना (Study Plan &amp; Daily Routine)
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              Get a customized day-by-day preparation schedule tailored to your target exam, available hours, and weak areas.
+            <p className="text-slate-300 text-xs sm:text-sm mt-1">
+              अपने लक्ष्य के अनुसार वैज्ञानिक दैनिक रूटीन का पालन करें और आज के पूरे हुए विषयों पर टिक लगाएं।
             </p>
           </div>
-          <div className="text-right sm:text-right font-mono text-[11px] text-indigo-300 bg-indigo-950/60 p-2.5 rounded-xl border border-indigo-800/40">
-            <div>User: {user?.name || 'Aspirant'}</div>
-            <div className="text-emerald-400 font-bold">Status: Active AI Guidance</div>
+
+          <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shrink-0 self-start sm:self-auto">
+            <button
+              onClick={() => setTargetExam('steno')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                targetExam === 'steno' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              SSC &amp; स्टेनो रूटीन
+            </button>
+            <button
+              onClick={() => setTargetExam('board')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                targetExam === 'board' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              10th / 12th बोर्ड रूटीन
+            </button>
           </div>
         </div>
 
-        {/* Form Controls */}
-        <form onSubmit={handleGeneratePlan} className="bg-[#0A0E1A] border border-slate-800 rounded-2xl p-5 space-y-4 shadow-md">
-          {/* Quick Target Exam Selector Chips */}
-          <div className="space-y-1.5">
-            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
-              {isHindi ? "परीक्षा श्रेणी चुनें (10th, 12th, SSC, Railway, UPSC):" : "Select Exam Category (10th, 12th, SSC, Railway, UPSC):"}
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                "10th Board Exam (CBSE/UP/Bihar)",
-                "12th Board Exam (Arts/Science/Commerce)",
-                "SSC CGL Tier 1 & 2",
-                "SSC CHSL / MTS",
-                "SSC Stenographer Grade C & D",
-                "Railway RRB NTPC & Group D",
-                "Banking IBPS PO & Clerk",
-                "UPSC CSE / State PCS (BPSC/UPPSC)",
-                "Defense NDA / CDS / Airforce",
-                "CTET / Teacher Eligibility",
-                "Pitman Shorthand 80-100 wpm Speed"
-              ].map((examName) => (
-                <button
-                  key={examName}
-                  type="button"
-                  onClick={() => setGoal(examName)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer ${
-                    goal === examName
-                      ? 'bg-indigo-600 text-white border-indigo-400 shadow-md'
-                      : 'bg-[#03060E] text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white'
-                  }`}
-                >
-                  {examName}
-                </button>
-              ))}
-            </div>
+        {/* Progress Bar */}
+        <div className="mt-4 pt-3 border-t border-slate-800 space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+            <span>आज की प्रगति (Today's Completion):</span>
+            <span className="text-cyan-400 font-mono">{completedCount} / {activeSlots.length} स्लॉट ({progressPercent}%)</span>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-indigo-400" />
-                {isHindi ? "लक्ष्य परीक्षा:" : "Target Exam:"}
-              </label>
-              <input
-                type="text"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                placeholder="e.g. 10th Board, 12th Science, SSC CGL, Stenographer"
-                className="w-full text-xs p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                {isHindi ? "समयावधि (दिन):" : "Timeline (Days):"}
-              </label>
-              <select
-                value={days}
-                onChange={(e) => setDays(Number(e.target.value))}
-                className="w-full text-xs p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
-              >
-                <option value={7}>7 Days (Rapid Crash Course)</option>
-                <option value={15}>15 Days (High-Yield Sprint)</option>
-                <option value={30}>30 Days (Complete Syllabus Review)</option>
-                <option value={60}>60 Days (Comprehensive Mastery)</option>
-                <option value={90}>90 Days (Zero to Hero Foundation)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-                {isHindi ? "कमजोर विषय व क्षेत्र:" : "Weak Areas & Focus Subjects:"}
-              </label>
-              <input
-                type="text"
-                value={weakAreas}
-                onChange={(e) => setWeakAreas(e.target.value)}
-                placeholder="e.g. Geometry, Prepositions, Shorthand Strokes"
-                className="w-full text-xs p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-emerald-400" />
-                {isHindi ? "दैनिक अध्ययन समय (घंटे):" : "Daily Available Hours:"}
-              </label>
-              <select
-                value={dailyHours}
-                onChange={(e) => setDailyHours(Number(e.target.value))}
-                className="w-full text-xs p-3 bg-[#03060E] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
-              >
-                <option value={2}>2 Hours / day (Part-time aspirants)</option>
-                <option value={4}>4 Hours / day (Standard preparation)</option>
-                <option value={6}>6 Hours / day (Dedicated full-time)</option>
-                <option value={8}>8+ Hours / day (Intensive exam mode)</option>
-              </select>
-            </div>
+          <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
           </div>
+        </div>
+      </div>
 
-          <button
-            type="submit"
-            disabled={isGenerating}
-            className="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer border-none disabled:opacity-50"
+      {/* Slots List */}
+      <div className="space-y-3">
+        {activeSlots.map(slot => (
+          <div
+            key={slot.id}
+            onClick={() => toggleComplete(slot.id)}
+            className={`p-4 rounded-3xl border transition-all cursor-pointer flex items-center justify-between gap-3 shadow-md ${
+              slot.completed
+                ? 'bg-emerald-950/20 border-emerald-500/40 text-slate-200'
+                : 'bg-[#091122] border-slate-800 hover:border-slate-700 text-slate-300'
+            }`}
           >
-            {isGenerating ? (
-              <>
-                <Sparkles className="w-4 h-4 animate-spin text-amber-300" />
-                <span>{isHindi ? "स्मार्ट अध्ययन योजना बन रही है..." : "Crafting Personalized AI Study Schedule..."}</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>{isHindi ? "स्मार्ट रोडमैप बनाएं" : "Generate Smart Study Roadmap"}</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Study Plan Output */}
-        {planResult && (
-          <div id="study-plan-export-container" className="bg-[#0A0E1A] border border-indigo-500/30 rounded-2xl p-5 sm:p-6 space-y-6 shadow-xl animate-fade-in">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-lg font-black text-white">{planResult.title || goal}</h2>
-                <p className="text-xs text-indigo-300 mt-0.5">Target: {days} Days | {dailyHours} Hours/day</p>
-              </div>
-              <button
-                onClick={() => {
-                  const phasesText = (planResult.weeklyPhases || []).map((p: any, i: number) => `Phase ${i+1}: ${p.phaseName || ''} (${p.duration || ''})\nTopic: ${p.focusTopic || ''}\nDaily Targets: ${(p.dailyTargets || []).join(', ')}\nMilestone: ${p.milestoneGoal || ''}`).join('\n\n');
-                  const dailyRoutineText = (planResult.dailyTimeSlots || []).map((s: any) => `${s.time || ''} - ${s.activity || ''} (${s.subject || ''})`).join('\n');
-                  const rawContent = `Goal: ${planResult.title || goal}\nDuration: ${days} Days | ${dailyHours} Hours/day\n\nStrategy Overview:\n${planResult.overview || planResult.strategy || ''}\n\nWeekly Phases:\n${phasesText}\n\nDaily Routine:\n${dailyRoutineText}`;
-                  onExportPdf(`${planResult.title || goal} - Study Plan`, 'study-plan-export-container', rawContent);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export PDF</span>
+            <div className="flex items-center gap-3.5">
+              <button className="text-xl shrink-0 cursor-pointer">
+                {slot.completed ? (
+                  <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                ) : (
+                  <Circle className="w-6 h-6 text-slate-600" />
+                )}
               </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-black ${slot.completed ? 'text-emerald-300 line-through' : 'text-white'}`}>
+                    {slot.subject}
+                  </span>
+                  <span className="text-[10px] text-cyan-400 font-mono bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/20">
+                    {slot.time}
+                  </span>
+                </div>
+                <p className={`text-xs mt-0.5 ${slot.completed ? 'text-slate-500 line-through' : 'text-slate-400'}`}>
+                  {slot.activity}
+                </p>
+              </div>
             </div>
 
-            {/* Overview & Key Strategy */}
-            <div className="bg-[#03060E] border border-slate-800 rounded-xl p-4 text-xs text-slate-300 space-y-2">
-              <div className="font-extrabold text-indigo-400 text-sm">💡 AI Executive Strategy Overview</div>
-              <p>{planResult.overview || planResult.strategy}</p>
-            </div>
-
-            {/* Weekly / Phase Breakdown */}
-            {planResult.weeklyPhases && planResult.weeklyPhases.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-amber-400" />
-                  Phase Breakdown & Weekly Milestones
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {planResult.weeklyPhases.map((phase: any, idx: number) => (
-                    <div key={idx} className="bg-[#03060E] border border-slate-800 rounded-xl p-3.5 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-extrabold text-amber-300">{phase.phaseName || `Week ${idx + 1}`}</span>
-                        <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-mono">{phase.duration || 'Days 1-7'}</span>
-                      </div>
-                      <p className="text-xs font-semibold text-slate-200">{phase.focusTopic}</p>
-                      <ul className="text-[11px] text-slate-400 space-y-1 list-disc pl-4">
-                        {phase.dailyTasks && phase.dailyTasks.map((task: string, tIdx: number) => (
-                          <li key={tIdx}>{task}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Daily Schedule Allocation */}
-            {planResult.dailyTimeBlocks && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-emerald-400" />
-                  Optimal Daily Hour Allocation
-                </h3>
-                <div className="bg-[#03060E] border border-slate-800 rounded-xl p-4 space-y-2 text-xs">
-                  {planResult.dailyTimeBlocks.map((block: any, bIdx: number) => (
-                    <div key={bIdx} className="flex items-center justify-between border-b border-slate-850/60 pb-1.5 last:border-none">
-                      <span className="font-bold text-slate-300">{block.slotName || `Slot ${bIdx + 1}`}</span>
-                      <span className="text-indigo-300 font-mono">{block.duration}</span>
-                      <span className="text-slate-400">{block.activity}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* High Yield Tips */}
-            {planResult.highYieldTips && (
-              <div className="bg-amber-500/10 border border-amber-500/25 rounded-xl p-4 space-y-2 text-xs">
-                <div className="font-extrabold text-amber-300 flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4" />
-                  Aspirant Golden Rules for Exam Success
-                </div>
-                <ul className="list-disc pl-4 space-y-1 text-slate-300">
-                  {planResult.highYieldTips.map((tip: string, tpIdx: number) => (
-                    <li key={tpIdx}>{tip}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <span className="text-xs font-mono text-slate-500 shrink-0 hidden sm:inline-block">
+              {slot.duration}
+            </span>
           </div>
-        )}
-
+        ))}
       </div>
     </div>
   );

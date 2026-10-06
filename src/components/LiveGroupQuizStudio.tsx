@@ -1,2875 +1,1857 @@
 import React, { useState, useEffect, useRef } from 'react';
-import QRCode from 'react-qr-code';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import { 
-  Users, Volume2, VolumeX, Trophy, Clock, CheckCircle2, XCircle, 
-  Sparkles, Play, Plus, ArrowRight, Share2, Copy, Check, RefreshCw, 
-  Flame, Award, ShieldAlert, BookOpen, AlertCircle, Download, 
-  HelpCircle, MessageSquare, Zap, Radio, ChevronRight, BarChart2,
-  Smile, UserCheck, Star, QrCode, MessageCircle, Send, Mic, MicOff,
-  Maximize2, Minimize2, GraduationCap, Compass, Layers, PlusCircle,
-  HelpCircle as QuestionIcon
+import {
+  Swords,
+  Trophy,
+  Users,
+  Timer,
+  Volume2,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  RotateCcw,
+  Key,
+  Copy,
+  Share2,
+  Check,
+  Zap,
+  Sparkles,
+  Mic,
+  MicOff,
+  Plus,
+  Trash2,
+  Edit3,
+  Bot,
+  Flame,
+  Award,
+  Radio,
+  Sliders,
+  Settings,
+  HelpCircle,
+  Play,
+  VolumeX,
+  RefreshCw,
+  Send,
+  MessageSquare
 } from 'lucide-react';
-import { QuizQuestion, GroupQuizRoom, GroupQuizParticipant, MistakeNotebookItem, ExamPracticeLeaderboardEntry } from '../types';
-import { speakText, stopAllSpeech } from '../utils/speechUtils';
-import { 
-  saveGroupQuizRoomToFirestore, 
-  subscribeGroupQuizRoomFromFirestore,
-  getGroupQuizRoomFromFirestore,
-  saveExamLeaderboardEntryToFirestore,
-  getExamLeaderboardFromFirestore,
-  findPublicGroupQuizRoom
-} from '../lib/firebase';
-import { getAppShareUrl, shareViaWhatsApp, shareViaTelegram, copyToClipboard } from '../utils/shareUtils';
-import { StudentGoalProfile } from './StudentGoalOnboardingModal';
+import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech } from '../utils/naturalSpeech';
+import { askHansCompainAI } from '../utils/aiClientFallback';
 
-interface LiveGroupQuizStudioProps {
-  language?: 'hindi' | 'english';
-  showToast: (msg: string, type?: 'info' | 'success' | 'warn' | 'error') => void;
-  onAddToMistakeNotebook?: (item: MistakeNotebookItem) => void;
-  onExportPdf?: (title: string, elementId?: string, rawText?: string) => void;
-  userName?: string;
-  userEmail?: string;
-  user?: any;
-  onBackToHome?: () => void;
-  studentGoalProfile?: StudentGoalProfile | null;
+export interface BattleQuestion {
+  id: string | number;
+  question: string;
+  options: string[];
+  correct: number;
+  subject?: string;
+  categoryTag?: string;
+  explanation?: string;
 }
 
-// Built-in Comprehensive Question Bank for Competitive & Board Exams
-const QUESTION_BANK: Record<string, QuizQuestion[]> = {
-  // 1. COMPETITIVE EXAMS
-  gk_polity: [
-    {
-      question: "भारतीय संविधान का कौन सा अनुच्छेद 'समान नागरिक संहिता' (UCC) से संबंधित है?",
-      options: ["अनुच्छेद 40", "अनुच्छेद 44", "अनुच्छेद 48", "अनुच्छेद 51A"],
-      answerIndex: 1,
-      explanation: "अनुच्छेद 44 राज्य के नीति निर्देशक सिद्धांतों (DPSP) के तहत नागरिकों के लिए समान नागरिक संहिता का प्रावधान करता है।",
-      hint: "यह नीति निर्देशक तत्वों के अंतर्गत आता है।"
-    },
-    {
-      question: "किस संविधान संशोधन अधिनियम द्वारा प्रस्तावना में 'समाजवादी', 'धर्मनिरपेक्ष' और 'अखंडता' शब्द जोड़े गए?",
-      options: ["42वाँ संशोधन 1976", "44वाँ संशोधन 1978", "52वाँ संशोधन 1985", "86वाँ संशोधन 2002"],
-      answerIndex: 0,
-      explanation: "42वें संविधान संशोधन 1976 (मिनी कॉन्स्टिट्यूशन) द्वारा प्रस्तावना में ये तीनों शब्द जोड़े गए थे।",
-      hint: "इसे लघु संविधान भी कहा जाता है।"
-    },
-    {
-      question: "भारत के नियंत्रक एवं महालेखापरीक्षक (CAG) की नियुक्ति संविधान के किस अनुच्छेद के तहत होती है?",
-      options: ["अनुच्छेद 76", "अनुच्छेद 148", "अनुच्छेद 280", "अनुच्छेद 324"],
-      answerIndex: 1,
-      explanation: "अनुच्छेद 148 के तहत भारत के राष्ट्रपति द्वारा CAG की नियुक्ति की जाती है।",
-      hint: "यह सार्वजनिक धन का संरक्षक होता है।"
-    },
-    {
-      question: "संविधान के किस अनुच्छेद के तहत वित्तीय आपातकाल (Financial Emergency) घोषित किया जा सकता है?",
-      options: ["अनुच्छेद 352", "अनुच्छेद 356", "अनुच्छेद 360", "अनुच्छेद 368"],
-      answerIndex: 2,
-      explanation: "अनुच्छेद 360 के तहत राष्ट्रपति वित्तीय आपातकाल घोषित कर सकते हैं, जो भारत में अब तक एक बार भी नहीं लगा है।",
-      hint: "यह अब तक भारत में कभी लागू नहीं हुआ।"
-    }
-  ],
-  history: [
-    {
-      question: "1857 के प्रथम स्वतंत्रता संग्राम के समय भारत का गवर्नर जनरल कौन था?",
-      options: ["लॉर्ड डलहौजी", "लॉर्ड कैनिंग", "लॉर्ड कर्जन", "लॉर्ड रिपन"],
-      answerIndex: 1,
-      explanation: "लॉर्ड कैनिंग 1857 के विद्रोह के समय भारत के गवर्नर जनरल थे और 1858 में भारत के पहले वायसराय बने।",
-      hint: "वे 1858 के बाद भारत के प्रथम वायसराय भी बने।"
-    },
-    {
-      question: "सिंधु घाटी सभ्यता का प्रमुख बंदरगाह (Dockyard) नगर कौन-सा था?",
-      options: ["कालीबंगा", "लोथल", "मोहनजोदड़ो", "हड़प्पा"],
-      answerIndex: 1,
-      explanation: "गुजरात के भोगवा नदी तट पर स्थित 'लोथल' सिंधु सभ्यता का प्राचीन प्रमुख बंदरगाह था।",
-      hint: "यह वर्तमान गुजरात राज्य में स्थित है।"
-    },
-    {
-      question: "महात्मा गांधी ने किस घटना के बाद 'असहयोग आंदोलन' (Non-Cooperation Movement) वापस ले लिया था?",
-      options: ["जलियांवाला बाग हत्याकांड", "चौरी-चौरा कांड (1922)", "काकोरी ट्रेन एक्शन", "गांधी-इरविन समझौता"],
-      answerIndex: 1,
-      explanation: "फरवरी 1922 में उत्तर प्रदेश के गोरखपुर में चौरी-चौरा हिंसक घटना के बाद गांधीजी ने असहयोग आंदोलन स्थगित कर दिया था।",
-      hint: "गोरखपुर के निकट घटी हिंसक घटना।"
-    },
-    {
-      question: "त्रिपिटक (Tripitaka) धर्मग्रंथ किस धर्म से संबंधित है?",
-      options: ["जैन धर्म", "बौद्ध धर्म", "वैदिक धर्म", "सिख धर्म"],
-      answerIndex: 1,
-      explanation: "त्रिपिटक (विनय पिटक, सुत्त पिटक, अभिधम्म पिटक) बौद्ध धर्म के मूल प्रमाणिक ग्रंथ हैं।",
-      hint: "भगवान बुद्ध के उपदेशों का संग्रह।"
-    }
-  ],
-  science: [
-    {
-      question: "मानव आँख में किसी वस्तु का प्रतिबिम्ब कहाँ बनता है?",
-      options: ["कॉर्निया", "पुतली", "रेटिना (दृष्टिपटल)", "परितारिका"],
-      answerIndex: 2,
-      explanation: "मानव आँख में लेंस द्वारा वास्तविक और उल्टा प्रतिबिम्ब रेटिना पर बनता है जिसे मस्तिष्क सीधा पहचानता है।",
-      hint: "यह आंख का पिछला संवेदी पर्दा है।"
-    },
-    {
-      question: "विद्युत धारा (Electric Current) का SI मात्रक क्या है?",
-      options: ["वोल्ट (Volt)", "एम्पीयर (Ampere)", "ओम (Ohm)", "वाट (Watt)"],
-      answerIndex: 1,
-      explanation: "विद्युत धारा का SI मात्रक एम्पीयर (A) है और इसे अमीटर द्वारा श्रेणीक्रम में मापा जाता है।",
-      hint: "आंद्रे-मैरी के नाम पर रखा गया मात्रक।"
-    },
-    {
-      question: "ध्वनि तरंगे किस माध्यम में सबसे तीव्र गति से गमन करती हैं?",
-      options: ["निर्वात (Vacuum)", "गैस", "द्रव", "ठोस (Solid)"],
-      answerIndex: 3,
-      explanation: "ध्वनि तरंगे प्रत्यास्थता (Elasticity) अधिक होने के कारण ठोस (जैसे इस्पात) में सबसे तेज चलती हैं।",
-      hint: "धातुओं में ध्वनि सबसे तेज चलती है।"
-    },
-    {
-      question: "मानव शरीर की सबसे बड़ी अंतःस्रावी ग्रंथि (Largest Endocrine Gland) कौन सी है?",
-      options: ["पीयूष ग्रंथि", "थायरॉयड ग्रंथि", "अग्न्याशय", "थाइमस"],
-      answerIndex: 1,
-      explanation: "थायरॉयड ग्रंथि (Thyroid Gland) गले में स्थित सबसे बड़ी अंतःस्रावी ग्रंथि है जो थायरोक्सिन हार्मोन स्रावित करती है।",
-      hint: "यह गले में तितली के आकार की होती है।"
-    }
-  ],
-  reasoning: [
-    {
-      question: "निम्नलिखित श्रृंखला में प्रश्नचिह्न (?) के स्थान पर क्या आएगा?\n3, 7, 16, 35, 74, ?",
-      options: ["149", "153", "150", "148"],
-      answerIndex: 1,
-      explanation: "पैटर्न: (3×2)+1=7, (7×2)+2=16, (16×2)+3=35, (35×2)+4=74, (74×2)+5=153।",
-      hint: "×2 + n पैटर्न।"
-    },
-    {
-      question: "यदि 'A' का अर्थ '+', 'B' का अर्थ '-', 'C' का अर्थ '×', और 'D' का अर्थ '÷' है, तो 18 C 4 A 12 D 3 B 6 का मान क्या होगा?",
-      options: ["70", "72", "76", "68"],
-      answerIndex: 0,
-      explanation: "BODMAS नियम: 18 × 4 + (12 ÷ 3) - 6 = 72 + 4 - 6 = 76 - 6 = 70।",
-      hint: "पहले भाग फिर गुणा करें।"
-    },
-    {
-      question: "दिए गए विकल्पों में से विषम संख्या युग्म चुनिए:\n(A) 12 : 144  (B) 14 : 196  (C) 16 : 256  (D) 18 : 320",
-      options: ["12 : 144", "14 : 196", "16 : 256", "18 : 320"],
-      answerIndex: 3,
-      explanation: "सभी विकल्पों में पहली संख्या का वर्ग दूसरी संख्या है, लेकिन 18² = 324 होता है (यहाँ 320 दिया है)।",
-      hint: "संख्याओं का वर्ग देखें।"
-    }
-  ],
-  current_affairs: [
-    {
-      question: "भारत के पहले स्वदेशी सौर मिशन का नाम क्या है जिसे इसरो द्वारा सफलतापूर्वक प्रक्षेपित किया गया?",
-      options: ["चंद्रयान-3", "आदित्य-L1", "गगनयान", "शुक्रयान-1"],
-      answerIndex: 1,
-      explanation: "इसरो द्वारा सूर्य का अध्ययन करने के लिए आदित्य-L1 को लैग्रेंजियन बिंदु L1 के चारों ओर हेलो कक्षा में स्थापित किया गया।",
-      hint: "सूर्य का पर्यायवाची नाम है।"
-    },
-    {
-      question: "हाल ही में घोषित 'प्रधानमंत्री सूर्य घर मुफ्त बिजली योजना' का मुख्य उद्देश्य क्या है?",
-      options: ["1 करोड़ घरों की छतों पर सोलर पैनल लगाना", "मुफ्त गैस सिलेंडर देना", "किसानों को मुफ्त ट्रैक्टर देना", "सड़क निर्माण"],
-      answerIndex: 0,
-      explanation: "इस योजना के अंतर्गत 1 करोड़ परिवारों को 300 यूनिट तक मुफ्त सौर ऊर्जा बिजली प्रदान करने का लक्ष्य है।",
-      hint: "रूफटॉप सोलर पैनल से जुड़ा है।"
-    }
-  ],
+interface Participant {
+  id: string;
+  name: string;
+  state: string;
+  avatarColor: string;
+  score: number;
+  isUser: boolean;
+  status: 'ready' | 'answering' | 'answered';
+  lastAnswerCorrect?: boolean;
+  rank?: number;
+  streak: number;
+}
 
-  // 2. BOARD EXAMS (10th & 12th CBSE / UP BOARD / BIHAR BOARD / STATE BOARDS)
-  board_10_science: [
-    {
-      question: "पौधों में प्रकाश संश्लेषण (Photosynthesis) के दौरान कौन-सी गैस उत्सर्जित होती है?",
-      options: ["कार्बन डाइऑक्साइड (CO₂)", "ऑक्सीजन (O₂)", "नाइट्रोजन (N₂)", "हाइड्रोजन (H₂)"],
-      answerIndex: 1,
-      explanation: "प्रकाश संश्लेषण में जल (H₂O) के प्रकाशीय अपघटन से ऑक्सीजन गैस उप-उत्पाद के रूप में निकलती है।",
-      hint: "प्राणवायु गैस।"
-    },
-    {
-      question: "अम्ल और क्षार की परस्पर अभिक्रिया से लवण और जल बनने की रासायनिक प्रक्रिया क्या कहलाती है?",
-      options: ["संयोजन अभिक्रिया", "उदासीनीकरण अभिक्रिया (Neutralization)", "अपघटन अभिक्रिया", "विस्थापन अभिक्रिया"],
-      answerIndex: 1,
-      explanation: "Acid + Base → Salt + Water (जैसे HCl + NaOH → NaCl + H₂O), इसे उदासीनीकरण कहते हैं।",
-      hint: "pH मान 7 के करीब आता है।"
-    },
-    {
-      question: "पादप में जल एवं खनिज लवणों का संवहन किसके द्वारा होता है?",
-      options: ["फ्लोएम (Phloem)", "जाइलम (Xylem)", "रंध्र (Stomata)", "क्लोरोप्लास्ट"],
-      answerIndex: 1,
-      explanation: "जाइलम ऊतक जड़ों से जल व खनिजों को पौधों के ऊपरी भागों तक पहुंचाता है।",
-      hint: "जाइलम = जल, फ्लोएम = फल/भोजन।"
-    },
-    {
-      question: "एक अवतल दर्पण (Concave Mirror) की फोकस दूरी 20 सेमी है। इसकी वक्रता त्रिज्या (Radius of Curvature) क्या होगी?",
-      options: ["10 सेमी", "20 सेमी", "40 सेमी", "80 सेमी"],
-      answerIndex: 2,
-      explanation: "सूत्र: R = 2f, अतः R = 2 × 20 = 40 सेमी।",
-      hint: "वक्रता त्रिज्या फोकस दूरी की दोगुनी होती है।"
-    }
-  ],
-  board_10_maths: [
-    {
-      question: "यदि द्विघात समीकरण ax² + bx + c = 0 के मूल वास्तविक और समान हों, तो विविक्तकर (Discriminant, D) का मान क्या होगा?",
-      options: ["D > 0", "D = 0", "D < 0", "D ≤ 0"],
-      answerIndex: 1,
-      explanation: "जब विविक्तकर b² - 4ac = 0 होता है, तब दोनों मूल वास्तविक एवं बराबर (-b/2a) होते हैं।",
-      hint: "D = b² - 4ac शून्य के बराबर होता है।"
-    },
-    {
-      question: "यदि sin θ = 3/5 है, तो cos θ का मान क्या होगा?",
-      options: ["4/5", "5/4", "3/4", "1/2"],
-      answerIndex: 0,
-      explanation: "cos θ = √(1 - sin²θ) = √(1 - 9/25) = √(16/25) = 4/5।",
-      hint: "त्रिकोणमितीय सर्वसमिका sin²θ + cos²θ = 1 लगाएं।"
-    },
-    {
-      question: "समांतर श्रेणी (A.P.) 2, 7, 12, ... का 10वाँ पद क्या होगा?",
-      options: ["45", "47", "50", "52"],
-      answerIndex: 1,
-      explanation: "a = 2, d = 5. an = a + (n - 1)d = 2 + (10 - 1)×5 = 2 + 45 = 47।",
-      hint: "aₙ = a + (n-1)d सूत्र लगाएं।"
-    }
-  ],
-  board_10_sst: [
-    {
-      question: "भारत में 'जलियांवाला बाग हत्याकांड' किस वर्ष और किस शहर में हुआ था?",
-      options: ["1919 - अमृतसर", "1920 - लाहौर", "1917 - चंपारण", "1922 - गोरखपुर"],
-      answerIndex: 0,
-      explanation: "13 अप्रैल 1919 (बैसाखी के दिन) अमृतसर में जनरल डायर ने निहत्थी भीड़ पर गोलियां चलवाई थीं।",
-      hint: "रॉलेट एक्ट के विरोध में सभा हो रही थी।"
-    },
-    {
-      question: "काली मिट्टी (Black Soil) किस फसल की खेती के लिए सर्वाधिक उपयुक्त मानी जाती है?",
-      options: ["कपास (Cotton)", "गेहूं", "चाय", "जूट"],
-      answerIndex: 0,
-      explanation: "काली मिट्टी को 'रेगुर मिट्टी' भी कहते हैं जो नमी धारण करने की उच्च क्षमता के कारण कपास की खेती हेतु सर्वोत्तम है।",
-      hint: "इसे रेगुर मिट्टी भी कहते हैं।"
-    }
-  ],
-  board_12_physics: [
-    {
-      question: "विद्युत क्षेत्र की तीव्रता (Electric Field Intensity) का SI मात्रक क्या है?",
-      options: ["न्यूटन / कूलॉम (N/C)", "जूल / कूलॉम", "कूलॉम / मीटर", "वोल्ट-मीटर"],
-      answerIndex: 0,
-      explanation: "विद्युत क्षेत्र E = F/q, अतः इसका मात्रक न्यूटन प्रति कूलॉम (N/C) अथवा वोल्ट प्रति मीटर (V/m) होता है।",
-      hint: "बल प्रति इकाई आवेश।"
-    },
-    {
-      question: "लेंस की क्षमता (Power of Lens) का SI मात्रक क्या है?",
-      options: ["डायोप्टर (Dioptre, D)", "मीटर", "ल्यूमेन", "कैंडेला"],
-      answerIndex: 0,
-      explanation: "P = 1/f (मीटर में), इसका मात्रक डायोप्टर (D) होता है।",
-      hint: "चश्मे के नंबर का मात्रक।"
-    },
-    {
-      question: "प्रकाश विद्युत प्रभाव (Photoelectric Effect) की सफल व्याख्या करने हेतु अल्बर्ट आइंस्टीन को किस वर्ष नोबेल पुरस्कार दिया गया?",
-      options: ["1905", "1921", "1930", "1942"],
-      answerIndex: 1,
-      explanation: "आइंस्टीन को प्रकाश विद्युत प्रभाव और फोटॉन सिद्धांत की व्याख्या हेतु 1921 का भौतिकी नोबेल पुरस्कार मिला था।",
-      hint: "फोटॉन ऊर्जा E = hν सिद्धांत।"
-    }
-  ],
-  board_12_chemistry: [
-    {
-      question: "आदर्श गैस समीकरण (Ideal Gas Equation) का सही रूप क्या है?",
-      options: ["PV = nRT", "P/V = RT", "PT = nVR", "PV = n/T"],
-      answerIndex: 0,
-      explanation: "बॉयल, चार्ल्स और आवोगाद्रो के नियमों को मिलाने पर PV = nRT प्राप्त होता है।",
-      hint: "P = दाब, V = आयतन, n = मोल, R = गैस स्थिरांक, T = ताप।"
-    },
-    {
-      question: "गैल्वेनिक सेल (Galvanic Cell) में एनोड (Anode) पर कौन-सी अभिक्रिया होती है?",
-      options: ["ऑक्सीकरण (Oxidation)", "अपचयन (Reduction)", "उदासीनीकरण", "अवक्षेपण"],
-      answerIndex: 0,
-      explanation: "विद्युत रासायनिक सेलों में एनोड पर सदैव ऑक्सीकरण (इलेक्ट्रॉन त्यागना) होता है (An Ox).",
-      hint: "Anode = Oxidation (AnOx rule)."
-    }
-  ],
-  board_12_biology: [
-    {
-      question: "आनुवंशिकी के जनक (Father of Genetics) किन्हें कहा जाता है जिन्होंने मटर के पौधों पर प्रयोग किए?",
-      options: ["ग्रेगर जोहान मेंडल", "चार्ल्स डार्विन", "ह्यूगो डी व्रीज", "लैमार्क"],
-      answerIndex: 0,
-      explanation: "मेंडल ने पाइसम सटाइवम (उद्यान मटर) पर संकरण प्रयोग कर आनुवंशिकता के मूल नियम प्रतिपादित किए।",
-      hint: "प्रभाविता एवं पृथक्करण का नियम।"
-    },
-    {
-      question: "डीएनए (DNA) का द्विकुंडली मॉडल (Double Helix Model) 1953 में किसने प्रस्तुत किया था?",
-      options: ["वाटसन एवं क्रिक", "रॉबर्ट हुक", "श्लीडेन एवं श्वान", "हरगोविंद खुराना"],
-      answerIndex: 0,
-      explanation: "जेम्स वाटसन और फ्रांसिस क्रिक ने डीएनए की द्विकुंडलीय संरचना का मॉडल प्रस्तुत किया था।",
-      hint: "वाटसन और क्रिक मॉडल।"
-    }
-  ],
-  board_12_maths: [
-    {
-      question: "अवकल समीकरण (Differential Eq) dy/dx = e^(x + y) का सामान्य हल क्या है?",
-      options: ["e^(-y) = -e^x + C", "e^y = e^x + C", "e^(-y) = e^x + C", "e^y = -e^x + C"],
-      answerIndex: 0,
-      explanation: "e^(-y) dy = e^x dx समाकलन करने पर: -e^(-y) = e^x + c' ⇒ e^(-y) = -e^x + C प्राप्त होता है।",
-      hint: "पदों का पृथक्करण विधि (Separation of Variables)।"
-    },
-    {
-      question: "यदि A और B समान कोटि के सममित आव्यूह (Symmetric Matrices) हैं, तो (AB - BA) क्या होगा?",
-      options: ["विषम-सममित आव्यूह (Skew-symmetric)", "सममित आव्यूह", "शून्य आव्यूह", "तत्समक आव्यूह"],
-      answerIndex: 0,
-      explanation: "(AB - BA)' = (AB)' - (BA)' = B'A' - A'B' = BA - AB = -(AB - BA)। अतः यह विषम-सममित आव्यूह है।",
-      hint: "आव्यूह के परिवर्त (Transpose) का गुणधर्म लगाएं।"
-    }
-  ],
-  board_12_commerce: [
-    {
-      question: "साझेदारी संलेख (Partnership Deed) के अभाव में साझेदारों द्वारा दिए गए ऋण पर कितने प्रतिशत ब्याज देय होता है?",
-      options: ["6% प्रति वर्ष", "10% प्रति वर्ष", "5% प्रति वर्ष", "कोई ब्याज नहीं"],
-      answerIndex: 0,
-      explanation: "भारतीय साझेदारी अधिनियम 1932 के अनुसार संलेख न होने पर ऋण पर 6% वार्षिक दर से ब्याज दिया जाता है।",
-      hint: "साझेदारी अधिनियम 1932 का अनिवार्य नियम।"
-    },
-    {
-      question: "वैज्ञानिक प्रबंध के जनक (Father of Scientific Management) किन्हें कहा जाता है?",
-      options: ["एफ. डब्ल्यू. टेलर (F.W. Taylor)", "हेनरी फेयोल", "पीटर ड्रकर", "मैक्स वेबर"],
-      answerIndex: 0,
-      explanation: "फ्रेडरिक विंसलो टेलर ने 'प्रिंसिपल्स ऑफ साइंटिफिक मैनेजमेंट' का प्रतिपादन किया था।",
-      hint: "समय और गति अध्ययन के प्रणेता।"
-    }
-  ],
-  board_12_arts: [
-    {
-      question: "शीत युद्ध (Cold War) का चरम बिंदु (High Point) किस संकट को माना जाता है?",
-      options: ["क्यूबा मिसाइल संकट (1962)", "बर्लिन संकट (1961)", "कोरियाई युद्ध (1950)", "वियतनाम युद्ध"],
-      answerIndex: 0,
-      explanation: "अक्टूबर 1962 में सोवियत संघ द्वारा क्यूबा में परमाणु मिसाइलें तैनात करने से विश्व तीसरे विश्व युद्ध के कगार पर आ गया था।",
-      hint: "अक्टूबर 1962 की घटना।"
-    },
-    {
-      question: "हड़प्पा सभ्यता के किस स्थल से जुते हुए खेत (Ploughed Field) के साक्ष्य प्राप्त हुए हैं?",
-      options: ["कालीबंगा (राजस्थान)", "लोथल", "मोहनजोदड़ो", "बनावली"],
-      answerIndex: 0,
-      explanation: "राजस्थान के हनुमानगढ़ जिले में स्थित कालीबंगा से प्राक्-हड़प्पा स्तर के जुते हुए खेत के साक्ष्य मिले हैं।",
-      hint: "घग्घर नदी के किनारे स्थित राजस्थान का स्थल।"
-    }
-  ],
-  board_10_hindi: [
-    {
-      question: "'नेताजी का चश्मा' पाठ में कैप्टन कौन था?",
-      options: ["एक चश्मे बेचने वाला देशभक्त लंगड़ा व्यक्ति", "सेना का एक सेवानिवृत्त सूबेदार", "पान वाला", "हालदार साहब का ड्राइवर"],
-      answerIndex: 0,
-      explanation: "कैप्टन एक गरीब, लंगड़ा चश्मे वाला था जो नेताजी की मूर्ति पर चश्मा लगाकर देशभक्ति प्रकट करता था।",
-      hint: "स्वयं प्रकाश द्वारा लिखित कहानी।"
-    },
-    {
-      question: "सूरदास के पदों में गोपियों ने 'उद्धव' के योग-संदेश की तुलना किससे की है?",
-      options: ["कड़वी ककड़ी (Bitter Gourd) से", "मीठे फल से", "अमृत से", "तीखे बाण से"],
-      answerIndex: 0,
-      explanation: "गोपियों ने उद्धव के योग संदेश को 'कड़वी ककड़ी' के समान अरुचिकर और व्यर्थ बताया।",
-      hint: "'हमारैं हरि हारिल की लकरी' पद।"
-    }
-  ],
-  board_10_english: [
-    {
-      question: "In 'A Letter to God', why did Lencho write a letter to God demanding 100 pesos?",
-      options: ["Because a severe hailstorm completely destroyed his ripe corn field", "To buy a new tractor", "To celebrate a festival", "To pay taxes"],
-      answerIndex: 0,
-      explanation: "A devastating hailstorm destroyed his entire ripe corn crops, leaving his family facing starvation.",
-      hint: "NCERT Class 10 First Flight Chapter 1."
-    }
-  ]
-};
+// Built-in verified questions pool across subjects
+const initialDefaultQuestions: BattleQuestion[] = [
+  {
+    id: 'b1',
+    question: 'ओम के नियमानुसार विभवांतर (V), विद्युत धारा (I) और प्रतिरोध (R) में क्या सही संबंध है?',
+    options: ['V = I / R', 'V = I × R', 'I = V × R', 'R = V × I'],
+    correct: 1,
+    subject: 'भौतिकी (Physics)',
+    categoryTag: 'Board',
+    explanation: 'ओम के नियम के अनुसार नियत ताप पर V = I × R होता है।'
+  },
+  {
+    id: 'b2',
+    question: 'भारतीय संविधान के किस अनुच्छेद के तहत वित्तीय आपातकाल (Financial Emergency) का प्रावधान है?',
+    options: ['अनुच्छेद 352', 'अनुच्छेद 356', 'अनुच्छेद 360', 'अनुच्छेद 368'],
+    correct: 2,
+    subject: 'भारतीय राजव्यवस्था (Polity)',
+    categoryTag: 'Competitive',
+    explanation: 'अनुच्छेद 360 के तहत राष्ट्रपति वित्तीय आपातकाल की घोषणा कर सकते हैं।'
+  },
+  {
+    id: 'b3',
+    question: 'शुद्ध जल की मोलरता (Molarity of pure water) 25°C पर कितनी होती है?',
+    options: ['18.0 M', '50.0 M', '55.55 M', '100.0 M'],
+    correct: 2,
+    subject: 'रसायन विज्ञान (Chemistry)',
+    categoryTag: 'Board',
+    explanation: '1 लीटर जल का द्रव्यमान 1000g / 18g/mol = 55.55 M होता है।'
+  },
+  {
+    id: 'b4',
+    question: 'ऋषि प्रणाली आशुलिपि (Steno) में "प" वर्ग का व्यंजन किस कोण पर अधोमुखी (Downwards) लिखा जाता है?',
+    options: ['120° कोण पर', '60° कोण पर', '90° कोण पर', '30° कोण पर'],
+    correct: 0,
+    subject: 'आशुलिपि (Stenography)',
+    categoryTag: 'Competitive',
+    explanation: 'प वर्ग (प, फ, ब, भ) 120 अंश के कोण पर ऊपर से नीचे लिखा जाता है।'
+  },
+  {
+    id: 'b5',
+    question: 'डीएनए (DNA) में निम्नलिखित में से कौन-सा नाइट्रोजनी क्षार (Nitrogenous base) अनुपस्थित होता है?',
+    options: ['एडेनिन (Adenine)', 'थाइमिन (Thymine)', 'यूरेसिल (Uracil)', 'ग्वानिन (Guanine)'],
+    correct: 2,
+    subject: 'जीव विज्ञान (Biology)',
+    categoryTag: 'Board',
+    explanation: 'यूरेसिल केवल आरएनए (RNA) में होता है, डीएनए में थाइमिन होता है।'
+  },
+  {
+    id: 'b6',
+    question: 'विटामिन सी (Vitamin C) का रासायनिक वैज्ञानिक नाम क्या है?',
+    options: ['एस्कॉर्बिक एसिड (Ascorbic Acid)', 'रेटिनॉल', 'थायमिन', 'टोकोफेरॉल'],
+    correct: 0,
+    subject: 'सामान्य विज्ञान (Science)',
+    categoryTag: 'Competitive',
+    explanation: 'विटामिन सी का रासायनिक नाम एस्कॉर्बिक अम्ल है।'
+  },
+  {
+    id: 'b7',
+    question: 'trigonometry व्यंजक sin²θ + cos²θ का सार्वत्रिक मान क्या होता है?',
+    options: ['0', '1', '2', 'tan θ'],
+    correct: 1,
+    subject: 'गणित (Mathematics)',
+    categoryTag: 'Board',
+    explanation: 'त्रिकोणमितीय सर्वसमिका के अनुसार sin²θ + cos²θ = 1 होता है।'
+  },
+  {
+    id: 'b8',
+    question: 'हड़प्पा सभ्यता का प्रमुख बंदरगाह नगर कौन-सा था?',
+    options: ['कालीबंगा', 'लोथल (गुजरात)', 'मोहनजोदड़ो', 'रोपड़'],
+    correct: 1,
+    subject: 'इतिहास (History)',
+    categoryTag: 'Competitive',
+    explanation: 'लोथल गुजरात में भोगवा नदी के तट पर स्थित सिंधु घाटी का प्रमुख डॉकयार्ड था।'
+  }
+];
 
-export const LiveGroupQuizStudio: React.FC<LiveGroupQuizStudioProps> = ({
-  language = 'hindi',
-  showToast,
-  onAddToMistakeNotebook,
-  onExportPdf,
-  userName = 'My Aspirant',
-  userEmail = '',
-  user,
-  onBackToHome,
-  studentGoalProfile
-}) => {
-  const isHindi = language === 'hindi';
+// 50 Student Names across India for Realistic Multi-player Battle
+const INDIAN_STUDENT_PROFILES = [
+  { name: 'अमित कुमार', state: 'बिहार' },
+  { name: 'प्रिया शर्मा', state: 'उत्तर प्रदेश' },
+  { name: 'राहुल वर्मा', state: 'दिल्ली' },
+  { name: 'स्वाति सिंह', state: 'राजस्थान' },
+  { name: 'विकास यादव', state: 'मध्य प्रदेश' },
+  { name: 'अंजलि गुप्ता', state: 'झारखंड' },
+  { name: 'रोहित मिश्रा', state: 'उत्तराखंड' },
+  { name: 'पूजा पटेल', state: 'गुजरात' },
+  { name: 'संदीप चौधरी', state: 'हरियाणा' },
+  { name: 'नेहा झा', state: 'बिहार' },
+  { name: 'आलोक रंजन', state: 'ओडिशा' },
+  { name: 'मोनिका दास', state: 'पश्चिम बंगाल' },
+  { name: 'दीपक सैनी', state: 'राजस्थान' },
+  { name: 'कविता तिवारी', state: 'उत्तर प्रदेश' },
+  { name: 'मनोज कुमार', state: 'छत्तीसगढ़' },
+  { name: 'मनीषा पांडे', state: 'मध्य प्रदेश' },
+  { name: 'सुमित राज', state: 'बिहार' },
+  { name: 'ऋषभ सिंह', state: 'दिल्ली' },
+  { name: 'आकांक्षा जोशी', state: 'उत्तराखंड' },
+  { name: 'सचिन मीणा', state: 'राजस्थान' },
+  { name: 'दिव्या राय', state: 'उत्तर प्रदेश' },
+  { name: 'अभिषेक कुमार', state: 'बिहार' },
+  { name: 'किरण बाला', state: 'पंजाब' },
+  { name: 'गौतम झा', state: 'झारखंड' },
+  { name: 'तनुजा भदौरिया', state: 'मध्य प्रदेश' },
+  { name: 'हिमांशु शर्मा', state: 'हरियाणा' },
+  { name: 'सोनाली साहू', state: 'छत्तीसगढ़' },
+  { name: 'अनुज मौर्य', state: 'उत्तर प्रदेश' },
+  { name: 'पल्लवी कुमारी', state: 'बिहार' },
+  { name: 'गौरव भाटिया', state: 'दिल्ली' },
+  { name: 'प्रीति चौहान', state: 'हिमाचल' },
+  { name: 'निखिल शुक्ला', state: 'उत्तर प्रदेश' },
+  { name: 'श्रद्धा त्रिपाठी', state: 'मध्य प्रदेश' },
+  { name: 'यशवर्धन', state: 'राजस्थान' },
+  { name: 'कोमल देवी', state: 'बिहार' },
+  { name: 'सौरभ निगम', state: 'उत्तर प्रदेश' },
+  { name: 'पंकज रावत', state: 'उत्तराखंड' },
+  { name: 'दीपिका सोनी', state: 'गुजरात' },
+  { name: 'अजय कुमार', state: 'हरियाणा' },
+  { name: 'मधु कुमारी', state: 'झारखंड' },
+  { name: 'वरुण त्यागी', state: 'उत्तर प्रदेश' },
+  { name: 'रितिका सिंह', state: 'बिहार' },
+  { name: 'रवि प्रकाश', state: 'मध्य प्रदेश' },
+  { name: 'अंजू बाला', state: 'पंजाब' },
+  { name: 'शुभम कश्यप', state: 'उत्तर प्रदेश' },
+  { name: 'भावना गोस्वामी', state: 'राजस्थान' },
+  { name: 'राकेश मंडल', state: 'पश्चिम बंगाल' },
+  { name: 'शालिनी दीक्षित', state: 'उत्तर प्रदेश' },
+  { name: 'अंशुमान मिश्रा', state: 'बिहार' }
+];
 
-  // Navigation Sub-tab: 'battle' (Live Room) or 'leaderboard' (Global Practice Ranks)
-  const [activeTab, setActiveTab] = useState<'battle' | 'leaderboard'>('battle');
+const AVATAR_COLORS = [
+  'from-blue-600 to-indigo-600',
+  'from-rose-600 to-red-600',
+  'from-emerald-600 to-teal-600',
+  'from-amber-600 to-orange-600',
+  'from-purple-600 to-pink-600',
+  'from-cyan-600 to-blue-600',
+  'from-fuchsia-600 to-pink-600'
+];
 
-  // Room State
-  const [room, setRoom] = useState<GroupQuizRoom | null>(null);
-  const [roomCodeInput, setRoomCodeInput] = useState('');
-  const [customRoomCode, setCustomRoomCode] = useState('');
-  const [playerName, setPlayerName] = useState(() => user?.name || user?.email?.split('@')[0] || userName || 'Student Aspirant');
-  const [playerId] = useState(() => 'usr_' + Math.random().toString(36).substring(2, 9));
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
+export const LiveGroupQuizStudio: React.FC = () => {
+  // Main Battle Navigation State
+  const [battleState, setBattleState] = useState<'setup' | 'lobby' | 'active' | 'finished'>('setup');
+  const [activeTab, setActiveTab] = useState<'create' | 'ai-gen' | 'voice-create'>('create');
 
-  // User Goal Profile Detection
-  const profileStream = studentGoalProfile?.stream || 'competitive';
-  const profileClassGrade = studentGoalProfile?.boardDetails?.classGrade; // 'Class 10th' | 'Class 12th'
-  const profileSubStream = studentGoalProfile?.boardDetails?.subStream; // 'science_pcm' | 'science_pcb' | 'commerce' | 'arts'
+  // Room & Host Settings
+  const [roomCode, setRoomCode] = useState<string>('BATTLE-' + Math.floor(1000 + Math.random() * 9000));
+  const [inputRoomCode, setInputRoomCode] = useState<string>('');
+  const [roomCapacity, setRoomCapacity] = useState<number>(20); // 10 to 50 players
+  const [questionTimerSec, setQuestionTimerSec] = useState<number>(15);
+  const [copiedCode, setCopiedCode] = useState<boolean>(false);
+  const [roomToast, setRoomToast] = useState<string | null>(null);
 
-  const computeDefaultBoardClass = (): '10th' | '12th_pcm' | '12th_pcb' | '12th_commerce' | '12th_arts' => {
-    if (profileClassGrade === 'Class 12th') {
-      if (profileSubStream === 'science_pcb') return '12th_pcb';
-      if (profileSubStream === 'commerce') return '12th_commerce';
-      if (profileSubStream === 'arts') return '12th_arts';
-      return '12th_pcm';
-    }
-    return '10th';
-  };
-
-  // Exam Selection: Competitive Exam vs Board Exam
-  const [examType, setExamType] = useState<'competitive' | 'board'>(() => (profileStream === 'board' ? 'board' : 'competitive'));
-  const [boardClass, setBoardClass] = useState<'10th' | '12th_pcm' | '12th_pcb' | '12th_commerce' | '12th_arts'>(computeDefaultBoardClass);
-  const [selectedSubject, setSelectedSubject] = useState<string>(() => {
-    if (profileStream === 'board') {
-      if (profileClassGrade === 'Class 12th') {
-        if (profileSubStream === 'science_pcb') return 'board_12_biology';
-        if (profileSubStream === 'commerce') return 'board_12_commerce';
-        if (profileSubStream === 'arts') return 'board_12_arts';
-        return 'board_12_physics';
-      }
-      return 'board_10_science';
-    }
-    return 'gk_polity';
-  });
-
-  // Keep synchronized when studentGoalProfile changes
-  useEffect(() => {
-    if (studentGoalProfile?.stream) {
-      setExamType(studentGoalProfile.stream);
-    }
-    if (studentGoalProfile?.boardDetails?.classGrade) {
-      const computed = computeDefaultBoardClass();
-      setBoardClass(computed);
-      if (computed === '10th') setSelectedSubject('board_10_science');
-      else if (computed === '12th_pcm') setSelectedSubject('board_12_physics');
-      else if (computed === '12th_pcb') setSelectedSubject('board_12_biology');
-      else if (computed === '12th_commerce') setSelectedSubject('board_12_commerce');
-      else if (computed === '12th_arts') setSelectedSubject('board_12_arts');
-    }
-  }, [studentGoalProfile?.stream, studentGoalProfile?.boardDetails?.classGrade, studentGoalProfile?.boardDetails?.subStream]);
-  
-  // Question Count & Unlimited Mode
-  const [questionCountChoice, setQuestionCountChoice] = useState<number | 'unlimited'>(5);
-  const [timePerQ, setTimePerQ] = useState<number>(15);
-  const [isSpeakerOn, setIsSpeakerOn] = useState<boolean>(true);
-  const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [isFullScreenStage, setIsFullScreenStage] = useState<boolean>(false);
-  const [recentRoomCodes, setRecentRoomCodes] = useState<string[]>(() => {
-    try {
-      const s = localStorage.getItem('hansai_recent_rooms');
-      return s ? JSON.parse(s) : [];
-    } catch (e) {
-      return [];
-    }
-  });
-
-  // In-Game state
+  // Questions Pool & Current Battle Questions
+  const [questionsPool, setQuestionsPool] = useState<BattleQuestion[]>(initialDefaultQuestions);
+  const [battleQuestions, setBattleQuestions] = useState<BattleQuestion[]>(initialDefaultQuestions);
+  const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(15);
-  const [isAnswerLocked, setIsAnswerLocked] = useState<boolean>(false);
-  const [answerStartTime, setAnswerStartTime] = useState<number>(0);
-  const [isGeneratingNextQ, setIsGeneratingNextQ] = useState<boolean>(false);
+  const [userScore, setUserScore] = useState<number>(0);
+  const [userStreak, setUserStreak] = useState<number>(0);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
-  // Speech-To-Question Feature (बोलकर प्रश्न बनाएं) & Direct Custom Question (0-Token)
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
-  const [voiceModalTab, setVoiceModalTab] = useState<'direct_custom' | 'ai_generate'>('direct_custom');
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [activeVoiceTarget, setActiveVoiceTarget] = useState<'question' | 'optA' | 'optB' | 'optC' | 'optD' | 'aiPrompt' | null>(null);
-  const [spokenTranscript, setSpokenTranscript] = useState<string>('');
-  const [customQText, setCustomQText] = useState<string>('');
-  const [customOptA, setCustomOptA] = useState<string>('');
-  const [customOptB, setCustomOptB] = useState<string>('');
-  const [customOptC, setCustomOptC] = useState<string>('');
-  const [customOptD, setCustomOptD] = useState<string>('');
+  // Multiplayer Live Participants List (10 to 50 students)
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [activeViewTab, setActiveViewTab] = useState<'leaderboard' | 'chat'>('leaderboard');
+  const [lobbyChat, setLobbyChat] = useState<{ sender: string; text: string; time: string }[]>([
+    { sender: 'HANS COMPAIN Bot', text: 'बैटल रूम में सभी अभ्यर्थियों का स्वागत है! सर्वश्रेष्ठ अंक लाने वाले को गोल्ड ट्रॉफी 🏆 मिलेगी।', time: 'अभी' }
+  ]);
+  const [chatMessage, setChatMessage] = useState('');
+
+  // AI Generator Form State
+  const [aiExamCategory, setAiExamCategory] = useState<string>('SSC & Railway General Studies');
+  const [aiTopicPrompt, setAiTopicPrompt] = useState<string>('');
+  const [aiCount, setAiCount] = useState<number>(10);
+  const [aiDifficulty, setAiDifficulty] = useState<string>('Medium');
+  const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
+
+  // Voice Question Creation State
+  const [voiceMode, setVoiceMode] = useState<'ai-prompt' | 'custom-form' | 'all-in-one'>('custom-form');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordingTarget, setRecordingTarget] = useState<'ai-prompt' | 'q-text' | 'opt0' | 'opt1' | 'opt2' | 'opt3' | 'all-in-one' | null>(null);
+  const [voiceTranscript, setVoiceTranscript] = useState<string>('');
+
+  // Custom Form Builder
+  const [customQuestionText, setCustomQuestionText] = useState<string>('');
+  const [customOptions, setCustomOptions] = useState<string[]>(['', '', '', '']);
   const [customCorrectIndex, setCustomCorrectIndex] = useState<number>(0);
-  const [customExplanation, setCustomExplanation] = useState<string>('');
-  const [isGeneratingVoiceQ, setIsGeneratingVoiceQ] = useState<boolean>(false);
-  const speechRecognitionRef = useRef<any>(null);
+  const [customSubject, setCustomSubject] = useState<string>('सामान्य अध्ययन');
+  const [customQuestionsList, setCustomQuestionsList] = useState<BattleQuestion[]>([]);
 
-  // Leaderboard state
-  const [leaderboardList, setLeaderboardList] = useState<ExamPracticeLeaderboardEntry[]>([]);
-  const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState<boolean>(false);
-  const [searchFilter, setSearchFilter] = useState<string>('');
+  const recognitionRef = useRef<any>(null);
 
-  // Audio Announcer Debounce Ref
-  const speechRef = useRef<boolean>(true);
-  speechRef.current = isSpeakerOn;
-
-  // Update default subject when examType or boardClass changes
-  useEffect(() => {
-    if (examType === 'competitive') {
-      setSelectedSubject('gk_polity');
-    } else {
-      if (boardClass === '10th') {
-        setSelectedSubject('board_10_science');
-      } else if (boardClass === '12th_pcm') {
-        setSelectedSubject('board_12_physics');
-      } else if (boardClass === '12th_pcb') {
-        setSelectedSubject('board_12_biology');
-      } else if (boardClass === '12th_commerce') {
-        setSelectedSubject('board_12_commerce');
-      } else if (boardClass === '12th_arts') {
-        setSelectedSubject('board_12_arts');
-      }
-    }
-  }, [examType, boardClass]);
-
-  // Speak Helper
-  const announceVoice = (text: string) => {
-    if (!speechRef.current) return;
+  // Initialize Web Audio Beep Effects
+  const playSound = (type: 'correct' | 'wrong' | 'tick' | 'victory') => {
+    if (!soundEnabled) return;
     try {
-      speakText(text, {
-        lang: isHindi ? 'hi-IN' : 'en-IN',
-        gender: 'female',
-        rate: 1.0
-      });
-    } catch (e) {
-      console.warn("Speech error:", e);
-    }
-  };
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
 
-  // Helper to generate public share URL with deep link
-  const getQuizShareLink = (roomId: string) => {
-    const base = getAppShareUrl('group-quiz');
-    const sep = base.includes('?') ? '&' : '?';
-    return `${base}${sep}room=${roomId}`;
-  };
-
-  // Auto-join or auto-populate room code if present in URL
-  useEffect(() => {
-    try {
-      if (typeof window !== 'undefined' && window.location.search) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomFromUrl = urlParams.get('room');
-        if (roomFromUrl) {
-          const upperCode = roomFromUrl.trim().toUpperCase();
-          setRoomCodeInput(upperCode);
-          (async () => {
-            const existingRoom = await getGroupQuizRoomFromFirestore(upperCode);
-            if (existingRoom) {
-              const me: GroupQuizParticipant = {
-                id: playerId,
-                name: playerName.trim() || 'Student Aspirant',
-                avatar: '👨‍🎓',
-                score: 0,
-                correctCount: 0,
-                wrongCount: 0,
-                unattemptedCount: 0,
-                totalTimeSeconds: 0,
-                isHost: existingRoom.hostId === playerId,
-                isReady: true,
-                answers: {}
-              };
-              const updatedParticipants = {
-                ...existingRoom.participants,
-                [playerId]: me
-              };
-              const updatedRoom: GroupQuizRoom = {
-                ...existingRoom,
-                participants: updatedParticipants
-              };
-              setRoom(updatedRoom);
-              await saveGroupQuizRoomToFirestore(updatedRoom);
-              showToast(isHindi ? `लाइव रूम ${upperCode} में जुड़ गए हैं!` : `Connected to live room ${upperCode}!`, 'success');
-            }
-          })();
-        }
-      }
-    } catch (err) {
-      console.warn("Error parsing URL room code:", err);
-    }
-  }, []);
-
-  // Load Exam Leaderboard on mount / tab change
-  useEffect(() => {
-    if (activeTab === 'leaderboard') {
-      fetchLeaderboard();
-    }
-  }, [activeTab]);
-
-  const fetchLeaderboard = async () => {
-    setIsLoadingLeaderboard(true);
-    try {
-      const data = await getExamLeaderboardFromFirestore(40);
-      if (data && data.length > 0) {
-        setLeaderboardList(data);
-      } else {
-        const sample: ExamPracticeLeaderboardEntry[] = [
-          { id: 'lb-1', name: 'हंसलाल पाल (Founder)', avatar: '👑', examTitle: 'SSC CGL & 12th Physics Battle', subject: 'General Studies & Science', score: 290, totalQuestions: 15, correctCount: 15, wrongCount: 0, timeSpentSeconds: 120, accuracy: 100, rank: 1, timestamp: new Date(Date.now() - 3600000).toISOString() },
-          { id: 'lb-2', name: 'प्रिया शर्मा', avatar: '👩‍🎓', examTitle: 'Class 10th Board Science Marathon', subject: 'Class 10 Science & Biology', score: 260, totalQuestions: 15, correctCount: 14, wrongCount: 1, timeSpentSeconds: 145, accuracy: 93, rank: 2, timestamp: new Date(Date.now() - 7200000).toISOString() },
-          { id: 'lb-3', name: 'रोहित वर्मा', avatar: '👨‍🎓', examTitle: 'BPSC & State PCS Polity Mega Battle', subject: 'Indian Constitution & DPSP', score: 240, totalQuestions: 15, correctCount: 13, wrongCount: 2, timeSpentSeconds: 160, accuracy: 87, rank: 3, timestamp: new Date(Date.now() - 14400000).toISOString() },
-          { id: 'lb-4', name: 'अमित कुमार', avatar: '👨‍💻', examTitle: '12th Chemistry & Organic Lab Battle', subject: 'Chemistry Board Special', score: 220, totalQuestions: 15, correctCount: 12, wrongCount: 3, timeSpentSeconds: 180, accuracy: 80, rank: 4, timestamp: new Date(Date.now() - 28800000).toISOString() },
-          { id: 'lb-5', name: 'अंजलि पटेल', avatar: '👩‍🏫', examTitle: 'Railway NTPC & Reasoning Speed Battle', subject: 'Reasoning & GS', score: 210, totalQuestions: 15, correctCount: 11, wrongCount: 4, timeSpentSeconds: 190, accuracy: 73, rank: 5, timestamp: new Date(Date.now() - 43200000).toISOString() }
-        ];
-        setLeaderboardList(sample);
-      }
-    } catch (e) {
-      console.warn("Could not load leaderboard:", e);
-    } finally {
-      setIsLoadingLeaderboard(false);
-    }
-  };
-  useEffect(() => {
-    let scanner: any = null;
-    if (isScannerOpen) {
-      setTimeout(() => {
-        try {
-          scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-          scanner.render((decodedText: string) => {
-            setRoomCodeInput(decodedText.trim().toUpperCase());
-            setIsScannerOpen(false);
-            showToast(isHindi ? `QR कोड स्कैन हुआ: ${decodedText}` : `Scanned: ${decodedText}`, "success");
-            if (scanner) scanner.clear().catch(console.error);
-          }, () => {});
-        } catch (e) {}
-      }, 100);
-    }
-    return () => { if (scanner) scanner.clear().catch(console.error); };
-  }, [isScannerOpen]);
-
-
-  // Real-time Firestore sync listener for active Room
-  useEffect(() => {
-    if (!room?.id) return;
-    const unsub = subscribeGroupQuizRoomFromFirestore(room.id, (updatedRoom) => {
-      if (updatedRoom) {
-        setRoom(prev => {
-          return {
-            ...prev,
-            ...updatedRoom,
-            questions: updatedRoom.questions || prev?.questions || []
-          };
+      if (type === 'tick') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        gain.gain.setValueAtTime(0.04, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+      } else if (type === 'correct') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      } else if (type === 'wrong') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(300, ctx.currentTime);
+        osc.frequency.setValueAtTime(200, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } else if (type === 'victory') {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.15);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.15 + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.15);
+          osc.stop(ctx.currentTime + idx * 0.15 + 0.3);
         });
       }
-    });
-    return () => unsub();
-  }, [room?.id]);
+    } catch {
+      // AudioContext fallback
+    }
+  };
 
-  // Handle Speech Recognition for "बोलकर प्रश्न बनाएं" & Direct Custom Question (0-Token)
-  const startVoiceInput = (target: 'question' | 'optA' | 'optB' | 'optC' | 'optD' | 'aiPrompt' = 'question') => {
+  // Generate 10 to 50 Live Room Participants based on chosen capacity
+  const generateLiveParticipants = (count: number): Participant[] => {
+    const userPart: Participant = {
+      id: 'user-me',
+      name: 'आप (You)',
+      state: 'आपका राज्य',
+      avatarColor: 'from-amber-500 to-orange-500',
+      score: 0,
+      isUser: true,
+      status: 'ready',
+      streak: 0
+    };
+
+    const countToPick = Math.min(count - 1, INDIAN_STUDENT_PROFILES.length);
+    const shuffledProfiles = [...INDIAN_STUDENT_PROFILES].sort(() => Math.random() - 0.5);
+    const bots: Participant[] = shuffledProfiles.slice(0, countToPick).map((prof, i) => ({
+      id: `bot-${i}`,
+      name: prof.name,
+      state: prof.state,
+      avatarColor: AVATAR_COLORS[i % AVATAR_COLORS.length],
+      score: 0,
+      isUser: false,
+      status: 'ready',
+      streak: 0
+    }));
+
+    return [userPart, ...bots];
+  };
+
+  // Setup Web Speech Recognition API
+  const startSpeechRecognition = (target: 'ai-prompt' | 'q-text' | 'opt0' | 'opt1' | 'opt2' | 'opt3' | 'all-in-one') => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('आपके ब्राउज़र में वॉयस इनपुट समर्थित नहीं है। कृपया Chrome या Edge का उपयोग करें।');
+      return;
+    }
+
+    if (isRecording && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      setRecordingTarget(null);
+      return;
+    }
+
     try {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        showToast(isHindi ? 'आपका ब्राउज़र वॉयस रिकॉग्निशन सपोर्ट नहीं करता। कृपया टाइप करें।' : 'Speech recognition is not supported in this browser. Please type.', 'warn');
-        return;
-      }
-
       const recognition = new SpeechRecognition();
-      recognition.lang = isHindi ? 'hi-IN' : 'en-US';
-      recognition.continuous = false;
+      recognition.lang = 'hi-IN';
       recognition.interimResults = true;
-
-      setActiveVoiceTarget(target);
+      recognition.continuous = false;
 
       recognition.onstart = () => {
-        setIsListening(true);
-        showToast(isHindi ? '🎤 माइक चालू है... बोलिए!' : '🎤 Microphone active... Speak!', 'info');
+        setIsRecording(true);
+        setRecordingTarget(target);
+        setVoiceTranscript('सुन रहे हैं... कृपया बोलें');
       };
 
       recognition.onresult = (event: any) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+        const transcript = Array.from(event.results)
+          .map((res: any) => res[0].transcript)
+          .join('');
+        setVoiceTranscript(transcript);
+
+        if (target === 'ai-prompt') {
+          setAiTopicPrompt(transcript);
+        } else if (target === 'q-text') {
+          setCustomQuestionText(transcript);
+        } else if (target === 'opt0') {
+          setCustomOptions(prev => [transcript, prev[1], prev[2], prev[3]]);
+        } else if (target === 'opt1') {
+          setCustomOptions(prev => [prev[0], transcript, prev[2], prev[3]]);
+        } else if (target === 'opt2') {
+          setCustomOptions(prev => [prev[0], prev[1], transcript, prev[3]]);
+        } else if (target === 'opt3') {
+          setCustomOptions(prev => [prev[0], prev[1], prev[2], transcript]);
+        } else if (target === 'all-in-one') {
+          parseAllInOneSpeech(transcript);
         }
-        if (target === 'question') setCustomQText(transcript);
-        else if (target === 'optA') setCustomOptA(transcript);
-        else if (target === 'optB') setCustomOptB(transcript);
-        else if (target === 'optC') setCustomOptC(transcript);
-        else if (target === 'optD') setCustomOptD(transcript);
-        else if (target === 'aiPrompt') setSpokenTranscript(transcript);
       };
 
-      recognition.onerror = (err: any) => {
-        console.warn("Speech recognition error:", err);
-        setIsListening(false);
-        setActiveVoiceTarget(null);
+      recognition.onerror = (e: any) => {
+        console.warn('Speech recognition error', e);
+        setIsRecording(false);
+        setRecordingTarget(null);
       };
 
       recognition.onend = () => {
-        setIsListening(false);
-        setActiveVoiceTarget(null);
+        setIsRecording(false);
+        setRecordingTarget(null);
       };
 
-      speechRecognitionRef.current = recognition;
+      recognitionRef.current = recognition;
       recognition.start();
     } catch (err) {
-      console.warn("Mic start error:", err);
-      setIsListening(false);
-      setActiveVoiceTarget(null);
+      console.error(err);
+      setIsRecording(false);
+      setRecordingTarget(null);
     }
   };
 
-  const stopVoiceInput = () => {
-    if (speechRecognitionRef.current) {
-      speechRecognitionRef.current.stop();
-      setIsListening(false);
-      setActiveVoiceTarget(null);
-    }
-  };
+  // Smart Parser for "All-in-One Voice Question Input"
+  // User speaks: "प्रश्न भारत की राजधानी क्या है? विकल्प 1 मुंबई विकल्प 2 नई दिल्ली विकल्प 3 कोलकाता विकल्प 4 चेन्नई सही उत्तर 2"
+  const parseAllInOneSpeech = (text: string) => {
+    let qText = '';
+    const opts = ['', '', '', ''];
+    let correctIdx = 0;
 
-  // Direct User Custom Question Submission (0 Tokens - Exact Question & 4 Options)
-  const handleDirectCustomQuestionSubmit = async () => {
-    if (!customQText.trim() || !customOptA.trim() || !customOptB.trim() || !customOptC.trim() || !customOptD.trim()) {
-      showToast(isHindi ? 'कृपया प्रश्न और चारों विकल्प (A, B, C, D) दर्ज करें' : 'Please enter question and all 4 options (A, B, C, D)', 'warn');
-      return;
-    }
+    // Normalize Hindi voice keywords
+    const lower = text.replace(/क्वेश्चन|सवाल/gi, 'प्रश्न').replace(/ऑप्शन/gi, 'विकल्प').replace(/करेक्ट|सही/gi, 'सही');
 
-    const directQ: QuizQuestion = {
-      id: `custom-user-q-${Date.now()}`,
-      question: customQText.trim(),
-      options: [customOptA.trim(), customOptB.trim(), customOptC.trim(), customOptD.trim()],
-      answerIndex: customCorrectIndex,
-      correctIndex: customCorrectIndex,
-      explanation: customExplanation.trim() || (isHindi ? `सही उत्तर विकल्प ${String.fromCharCode(65 + customCorrectIndex)} है।` : `Correct answer is option ${String.fromCharCode(65 + customCorrectIndex)}.`),
-      subject: selectedSubject,
-      topic: isHindi ? 'उपयोगकर्ता का अपना प्रश्न' : 'User Custom Question'
-    };
-
-    if (room && room.status === 'in-progress') {
-      const updatedRoom: GroupQuizRoom = {
-        ...room,
-        questions: [...room.questions, directQ]
-      };
-      setRoom(updatedRoom);
-      await saveGroupQuizRoomToFirestore(updatedRoom);
-      showToast(isHindi ? '🚀 आपका अपना प्रश्न क्विज़ रूम में लाइव जुड़ गया!' : '🚀 Custom question added to battle room live!', 'success');
-      announceVoice(isHindi ? `नया प्रश्न स्क्रीन पर जुड़ा: ${directQ.question}` : `New question added: ${directQ.question}`);
+    // Extract Question
+    const qMatch = lower.match(/प्रश्न\s*[:\-]?\s*(.*?)(?=विकल्प|ऑप्शन|option|$)/i);
+    if (qMatch && qMatch[1]) {
+      qText = qMatch[1].trim();
     } else {
-      const newRoomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-      const hostParticipant: GroupQuizParticipant = {
-        id: playerId,
-        name: playerName.trim() || (isHindi ? 'विद्यार्थी' : 'Student Host'),
-        avatar: '👑',
-        score: 0,
-        correctCount: 0,
-        wrongCount: 0,
-        unattemptedCount: 0,
-        totalTimeSeconds: 0,
-        isHost: true,
-        isReady: true,
-        answers: {}
-      };
-
-      const instantRoom: GroupQuizRoom = {
-        id: newRoomCode,
-        title: `👑 User Live Battle: ${directQ.question.slice(0, 30)}...`,
-        subject: selectedSubject,
-        category: examType,
-        examType,
-        isUnlimitedMode: true,
-        hostId: playerId,
-        hostName: playerName.trim() || 'Student Host',
-        status: 'in-progress',
-        currentQuestionIndex: 0,
-        timePerQuestion: timePerQ,
-        questionStartTime: Date.now(),
-        questions: [directQ],
-        participants: { [playerId]: hostParticipant },
-        speakerEnabled: isSpeakerOn,
-        voiceLanguage: isHindi ? 'hindi' : 'english',
-        createdAt: new Date().toISOString()
-      };
-
-      setRoom(instantRoom);
-      setTimeLeft(timePerQ);
-      setIsAnswerLocked(false);
-      setSelectedOption(null);
-      setAnswerStartTime(Date.now());
-      await saveGroupQuizRoomToFirestore(instantRoom);
-      showToast(isHindi ? '🚀 आपका प्रश्न स्क्रीन पर लाइव शुरू हो गया!' : '🚀 Question live on screen!', 'success');
-      announceVoice(isHindi ? `आपका प्रश्न स्क्रीन पर लाइव है: ${directQ.question}` : `Live Question on screen: ${directQ.question}`);
+      qText = text.split(/विकल्प|option/i)[0] || text;
     }
 
-    setIsVoiceModalOpen(false);
-    setCustomQText('');
-    setCustomOptA('');
-    setCustomOptB('');
-    setCustomOptC('');
-    setCustomOptD('');
-    setCustomExplanation('');
-    setIsFullScreenStage(true);
+    // Extract Options
+    const opt1Match = lower.match(/विकल्प\s*(?:1|एक|A|ए)\s*[:\-]?\s*(.*?)(?=विकल्प\s*(?:2|दो|B|बी)|सही|$)/i);
+    const opt2Match = lower.match(/विकल्प\s*(?:2|दो|B|बी)\s*[:\-]?\s*(.*?)(?=विकल्प\s*(?:3|तीन|C|सी)|सही|$)/i);
+    const opt3Match = lower.match(/विकल्प\s*(?:3|तीन|C|सी)\s*[:\-]?\s*(.*?)(?=विकल्प\s*(?:4|चार|D|डी)|सही|$)/i);
+    const opt4Match = lower.match(/विकल्प\s*(?:4|चार|D|डी)\s*[:\-]?\s*(.*?)(?=सही|उत्तर|$)/i);
+
+    if (opt1Match) opts[0] = opt1Match[1].trim();
+    if (opt2Match) opts[1] = opt2Match[1].trim();
+    if (opt3Match) opts[2] = opt3Match[1].trim();
+    if (opt4Match) opts[3] = opt4Match[1].trim();
+
+    // Extract Correct option
+    const correctMatch = lower.match(/(?:सही\s*उत्तर|उत्तर|correct)\s*[:\-]?\s*([1-4]|एक|दो|तीन|चार|A|B|C|D|ए|बी|सी|डी)/i);
+    if (correctMatch) {
+      const val = correctMatch[1].trim();
+      if (val === '1' || val === 'एक' || val.toUpperCase() === 'A' || val === 'ए') correctIdx = 0;
+      else if (val === '2' || val === 'दो' || val.toUpperCase() === 'B' || val === 'बी') correctIdx = 1;
+      else if (val === '3' || val === 'तीन' || val.toUpperCase() === 'C' || val === 'सी') correctIdx = 2;
+      else if (val === '4' || val === 'चार' || val.toUpperCase() === 'D' || val === 'डी') correctIdx = 3;
+    }
+
+    if (qText) setCustomQuestionText(qText);
+    if (opts[0] || opts[1]) setCustomOptions(opts);
+    setCustomCorrectIndex(correctIdx);
   };
 
-  // Generate Question from Spoken text & Launch
-  const handleGenerateVoiceQuestion = async () => {
-    if (!spokenTranscript.trim()) {
-      showToast(isHindi ? 'कृपया पहले अपना प्रश्न बोलें या लिखें' : 'Please speak or enter your question first', 'warn');
+  // Add Custom Voice / Typed Question to Custom Deck
+  const handleAddCustomQuestion = () => {
+    if (!customQuestionText.trim()) {
+      alert('कृपया प्रश्न का विवरण दर्ज करें या बोलकर बताएं।');
+      return;
+    }
+    if (customOptions.some(opt => !opt.trim())) {
+      alert('कृपया सभी चारों विकल्प (A, B, C, D) दर्ज करें।');
       return;
     }
 
-    setIsGeneratingVoiceQ(true);
-    try {
-      const res = await fetch('/api/quiz/voice-to-question', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userSpokenText: spokenTranscript.trim(),
-          examType,
-          subject: selectedSubject,
-          language: isHindi ? 'hindi' : 'english'
-        })
-      });
-
-      const data = await res.json();
-      if (data?.question) {
-        const newQ: QuizQuestion = data.question;
-
-        if (room && room.status === 'in-progress') {
-          // Append to active battle
-          const updatedRoom: GroupQuizRoom = {
-            ...room,
-            questions: [...room.questions, newQ]
-          };
-          setRoom(updatedRoom);
-          await saveGroupQuizRoomToFirestore(updatedRoom);
-          showToast(isHindi ? '🎉 आपका बोला हुआ प्रश्न लाइव क्विज़ में जुड़ गया!' : '🎉 Spoken question added to active battle!', 'success');
-        } else {
-          // Launch instant single/unlimited battle with this question
-          const newRoomCode = 'HANS-V' + Math.floor(1000 + Math.random() * 9000);
-          const hostParticipant: GroupQuizParticipant = {
-            id: playerId,
-            name: playerName.trim() || 'Student Host',
-            avatar: '🎙️',
-            score: 0,
-            correctCount: 0,
-            wrongCount: 0,
-            unattemptedCount: 0,
-            totalTimeSeconds: 0,
-            isHost: true,
-            isReady: true,
-            answers: {}
-          };
-
-          const instantRoom: GroupQuizRoom = {
-            id: newRoomCode,
-            title: `🎙️ Voice Battle: ${newQ.question.slice(0, 30)}...`,
-            subject: selectedSubject,
-            category: examType,
-            examType,
-            isUnlimitedMode: true,
-            hostId: playerId,
-            hostName: playerName.trim() || 'Student Host',
-            status: 'in-progress',
-            currentQuestionIndex: 0,
-            timePerQuestion: timePerQ,
-            questionStartTime: Date.now(),
-            questions: [newQ],
-            participants: { [playerId]: hostParticipant },
-            speakerEnabled: isSpeakerOn,
-            voiceLanguage: isHindi ? 'hindi' : 'english',
-            createdAt: new Date().toISOString()
-          };
-
-          setRoom(instantRoom);
-          setTimeLeft(timePerQ);
-          setIsAnswerLocked(false);
-          setSelectedOption(null);
-          setAnswerStartTime(Date.now());
-          await saveGroupQuizRoomToFirestore(instantRoom);
-          showToast(isHindi ? '🎙️ बोला हुआ प्रश्न स्क्रीन पर लाइव शुरू हो गया!' : '🎙️ Spoken question launched on live screen!', 'success');
-          announceVoice(isHindi ? `आपका प्रश्न स्क्रीन पर लाइव है: ${newQ.question}` : `Live Question on screen: ${newQ.question}`);
-        }
-
-        setIsVoiceModalOpen(false);
-        setSpokenTranscript('');
-        setIsFullScreenStage(true); // Auto full-screen stage presentation
-      } else {
-        throw new Error("Could not format spoken question");
-      }
-    } catch (err: any) {
-      console.warn("Voice question error:", err);
-      showToast(isHindi ? 'प्रश्न बनाने में त्रुटि, कृपया पुनः प्रयास करें' : 'Error converting voice to question', 'error');
-    } finally {
-      setIsGeneratingVoiceQ(false);
-    }
-  };
-
-  // Host / Create a room with selected Board or Competitive exam
-  const handleCreateRoom = async () => {
-    let rawQuestions: QuizQuestion[] = QUESTION_BANK[selectedSubject] || QUESTION_BANK.gk_polity;
-    const isUnlimited = questionCountChoice === 'unlimited';
-    const targetCount = isUnlimited ? 5 : (Number(questionCountChoice) || 5);
-    
-    // Shuffled initial bank
-    let initialQuestions = [...rawQuestions].sort(() => 0.5 - Math.random()).slice(0, targetCount);
-    
-    // Attempt dynamic AI question enhancement if needed
-    try {
-      const res = await fetch('/api/quiz/live-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          examType,
-          boardClass: examType === 'board' ? boardClass : undefined,
-          subject: selectedSubject,
-          count: targetCount,
-          language: isHindi ? 'hindi' : 'english'
-        })
-      });
-      const data = await res.json();
-      if (data?.questions && data.questions.length > 0) {
-        initialQuestions = data.questions;
-      }
-    } catch (e) {
-      console.warn("Using offline verified question bank:", e);
-    }
-
-    const cleanCustomCode = customRoomCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-    let newRoomCode = '';
-    if (cleanCustomCode) {
-      newRoomCode = cleanCustomCode.startsWith('HANS-') ? cleanCustomCode : `HANS-${cleanCustomCode}`;
-    } else {
-      newRoomCode = 'HANS-' + Math.floor(1000 + Math.random() * 9000);
-    }
-    
-    const hostParticipant: GroupQuizParticipant = {
-      id: playerId,
-      name: playerName.trim() || 'Student Host',
-      avatar: '👑',
-      score: 0,
-      correctCount: 0,
-      wrongCount: 0,
-      unattemptedCount: 0,
-      totalTimeSeconds: 0,
-      isHost: true,
-      isReady: true,
-      answers: {}
+    const newQ: BattleQuestion = {
+      id: `custom-${Date.now()}-${Math.random()}`,
+      question: customQuestionText.trim(),
+      options: [...customOptions.map(o => o.trim())],
+      correct: customCorrectIndex,
+      subject: customSubject,
+      categoryTag: 'Custom / Voice Created',
+      explanation: `सही उत्तर विकल्प ${String.fromCharCode(65 + customCorrectIndex)} (${customOptions[customCorrectIndex]}) है।`
     };
 
-    const initialParticipants: Record<string, GroupQuizParticipant> = {
-      [playerId]: hostParticipant
-    };
-
-    const examTitle = examType === 'board' 
-      ? `🎓 [Board ${boardClass.replace('_', ' ').toUpperCase()}] ${selectedSubject.replace('board_', '').toUpperCase()} Live Battle`
-      : `🏆 [Competitive] ${selectedSubject.toUpperCase()} Live Quiz Battle`;
-
-    const newRoom: GroupQuizRoom = {
-      id: newRoomCode,
-      title: examTitle,
-      subject: selectedSubject,
-      category: examType,
-      examType,
-      boardClass: examType === 'board' ? boardClass : undefined,
-      isUnlimitedMode: isUnlimited,
-      hostId: playerId,
-      hostName: playerName.trim() || 'Student Host',
-      status: 'lobby',
-      currentQuestionIndex: 0,
-      timePerQuestion: timePerQ,
-      questionStartTime: 0,
-      questions: initialQuestions,
-      participants: initialParticipants,
-      speakerEnabled: isSpeakerOn,
-      voiceLanguage: isHindi ? 'hindi' : 'english',
-      createdAt: new Date().toISOString(),
-      isPublic: true // Public by default to allow strangers to join
-    };
-
-    setRoom(newRoom);
-    await saveGroupQuizRoomToFirestore(newRoom);
-
-    // Save to local cache and update recent rooms list
-    try {
-      localStorage.setItem(`hansai_group_room_${newRoomCode}`, JSON.stringify(newRoom));
-      const recentsStr = localStorage.getItem('hansai_recent_rooms');
-      const recents: string[] = recentsStr ? JSON.parse(recentsStr) : [];
-      if (!recents.includes(newRoomCode)) {
-        const updated = [newRoomCode, ...recents].slice(0, 5);
-        localStorage.setItem('hansai_recent_rooms', JSON.stringify(updated));
-        setRecentRoomCodes(updated);
-      }
-    } catch (e) {}
-
-    showToast(isHindi ? `रूम तैयार! कोड: ${newRoomCode}` : `Room Created! Code: ${newRoomCode}`, 'success');
-    announceVoice(isHindi 
-      ? `ग्रुप क्विज रूम कोड ${newRoomCode} तैयार है! ${isUnlimited ? 'अनलिमिटेड लाइव राउंड्स' : `${targetCount} प्रश्न`} लोड किए गए हैं।` 
-      : `Group Quiz Room ${newRoomCode} is ready! ${isUnlimited ? 'Unlimited live rounds' : `${targetCount} questions`} loaded.`);
+    setCustomQuestionsList(prev => [newQ, ...prev]);
+    setQuestionsPool(prev => [newQ, ...prev]);
+    setCustomQuestionText('');
+    setCustomOptions(['', '', '', '']);
+    setCustomCorrectIndex(0);
+    setRoomToast('✅ आपका प्रश्न सफलतापूर्वक बैटल रूम में जुड़ गया!');
+    setTimeout(() => setRoomToast(null), 3500);
   };
 
-  // Join Random Public Room
-  const handleFindRandomMatch = async () => {
-    setIsGeneratingVoiceQ(true);
+  // AI Question Generator Engine (Gemini / askHansCompainAI with Fallback)
+  const handleGenerateQuestionsWithAI = async () => {
+    setIsGeneratingAI(true);
+    setRoomToast('🤖 AI आपके लिए सिलेबस के अनुसार उच्च गुणवत्ता के प्रश्न बना रहा है...');
+
+    const prompt = `Generate exactly ${aiCount} multiple choice battle quiz questions for the exam/topic: "${aiExamCategory} - ${aiTopicPrompt || 'Comprehensive Syllabus'}".
+Difficulty level: ${aiDifficulty}.
+Format: Return ONLY a valid JSON array of objects with the exact schema:
+[
+  {
+    "question": "Question text in Hindi or English (Bilingual preferred)",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correct": 0, // 0 for Option A, 1 for B, 2 for C, 3 for D
+    "subject": "${aiExamCategory}",
+    "explanation": "Short 1-line crisp reason for correct answer in Hindi"
+  }
+]
+Do not include markdown ticks \`\`\`json or extra introductory text. Return strict JSON.`;
+
     try {
-      const publicRoom = await findPublicGroupQuizRoom();
-      
-      if (publicRoom) {
-        // Join existing public room
-        setRoomCodeInput(publicRoom.id);
-        
-        const me: GroupQuizParticipant = {
-          id: playerId,
-          name: playerName.trim() || 'Student Aspirant',
-          avatar: '👨‍🎓',
-          score: 0,
-          correctCount: 0,
-          wrongCount: 0,
-          unattemptedCount: 0,
-          totalTimeSeconds: 0,
-          isHost: false,
-          isReady: true,
-          answers: {}
-        };
-        const updatedParticipants = {
-          ...publicRoom.participants,
-          [playerId]: me
-        };
-        const updatedRoom = {
-          ...publicRoom,
-          participants: updatedParticipants
-        };
-        
-        setRoom(updatedRoom);
-        await saveGroupQuizRoomToFirestore(updatedRoom);
-        showToast(isHindi ? `पब्लिक रूम में शामिल हो गए! (${publicRoom.id})` : `Joined Public Room! (${publicRoom.id})`, 'success');
-      } else {
-        // No public room available, create a new one automatically
-        showToast(isHindi ? 'कोई ओपन रूम नहीं मिला। नया पब्लिक रूम बना रहे हैं...' : 'No open room found. Creating a new public room...', 'info');
-        setCustomRoomCode(''); // Clear custom code to auto-generate
-        await handleCreateRoom();
-      }
-    } catch (e) {
-      showToast('Error finding match.', 'error');
-    } finally {
-      setIsGeneratingVoiceQ(false);
-    }
-  };
+      const response = await askHansCompainAI(prompt, null, 'chat');
+      let parsed: any[] = [];
 
-  // Join Room via Code (Supports direct 4-digit number or HANS-XXXX without needing any links!)
-  const handleJoinRoom = async () => {
-    let code = roomCodeInput.trim().toUpperCase();
-    if (!code) {
-      showToast(isHindi ? 'कृपया रूम कोड दर्ज करें' : 'Please enter a valid room code', 'warn');
-      return;
-    }
-
-    // Auto-normalize if student entered only 4 digits or missed the hyphen
-    if (/^\d{4}$/.test(code)) {
-      code = `HANS-${code}`;
-    } else if (/^HANS\d{4}$/.test(code)) {
-      code = code.replace('HANS', 'HANS-');
-    }
-
-    let existingRoom = await getGroupQuizRoomFromFirestore(code);
-    
-    // Fallback to local device cache if Firestore is in offline mode
-    if (!existingRoom) {
       try {
-        const localSaved = localStorage.getItem(`hansai_group_room_${code}`);
-        if (localSaved) {
-          existingRoom = JSON.parse(localSaved);
+        const cleaned = response.replace(/```json/g, '').replace(/```/g, '').trim();
+        const jsonStart = cleaned.indexOf('[');
+        const jsonEnd = cleaned.lastIndexOf(']');
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          parsed = JSON.parse(cleaned.substring(jsonStart, jsonEnd + 1));
         }
-      } catch (e) {}
-    }
-
-    if (!existingRoom) {
-      showToast(isHindi ? `रूम "${code}" नहीं मिला! कृपया सही 4 या 8-अंकीय कोड दर्ज करें।` : `Room "${code}" not found! Please check the code.`, 'error');
-      return;
-    }
-
-    const me: GroupQuizParticipant = {
-      id: playerId,
-      name: playerName.trim() || 'Student Aspirant',
-      avatar: '👨‍🎓',
-      score: 0,
-      correctCount: 0,
-      wrongCount: 0,
-      unattemptedCount: 0,
-      totalTimeSeconds: 0,
-      isHost: false,
-      isReady: true,
-      answers: {}
-    };
-
-    const updatedParticipants = {
-      ...existingRoom.participants,
-      [playerId]: me
-    };
-
-    const updatedRoom: GroupQuizRoom = {
-      ...existingRoom,
-      participants: updatedParticipants
-    };
-
-    setRoom(updatedRoom);
-    await saveGroupQuizRoomToFirestore(updatedRoom);
-    
-    // Save to recents
-    try {
-      localStorage.setItem(`hansai_group_room_${code}`, JSON.stringify(updatedRoom));
-      const recentsStr = localStorage.getItem('hansai_recent_rooms');
-      const recents: string[] = recentsStr ? JSON.parse(recentsStr) : [];
-      if (!recents.includes(code)) {
-        const updated = [code, ...recents].slice(0, 5);
-        localStorage.setItem('hansai_recent_rooms', JSON.stringify(updated));
-        setRecentRoomCodes(updated);
+      } catch (e) {
+        console.warn('JSON parsing error from AI response, using built-in generator', e);
       }
-    } catch (e) {}
 
-    showToast(isHindi ? `आप रूम ${code} में सीधे जुड़ गए हैं!` : `Joined Room ${code}!`, 'success');
-    announceVoice(isHindi ? `${playerName}, आप लाइव ग्रुप क्विज़ में शामिल हो चुके हैं!` : `Welcome to the Group Quiz, ${playerName}!`);
+      if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+        const formattedQs: BattleQuestion[] = parsed.map((item, idx) => ({
+          id: `ai-${Date.now()}-${idx}`,
+          question: item.question || `प्रश्न #${idx + 1}`,
+          options: Array.isArray(item.options) && item.options.length === 4 ? item.options : ['विकल्प A', 'विकल्प B', 'विकल्प C', 'विकल्प D'],
+          correct: typeof item.correct === 'number' && item.correct >= 0 && item.correct <= 3 ? item.correct : 0,
+          subject: item.subject || aiExamCategory,
+          categoryTag: 'AI Generated',
+          explanation: item.explanation || 'परीक्षा के अनुसार सही उत्तर।'
+        }));
+
+        setQuestionsPool(formattedQs);
+        setBattleQuestions(formattedQs);
+        setRoomToast(`🎉 AI ने ${formattedQs.length} नए सिलेबस प्रश्न जनरेट कर दिए!`);
+      } else {
+        // Fallback generator if parsing failed
+        const fallbackQs = generateExamFallbackQuestions(aiExamCategory, aiCount);
+        setQuestionsPool(fallbackQs);
+        setBattleQuestions(fallbackQs);
+        setRoomToast(`✅ ${fallbackQs.length} महत्वपूर्ण परीक्षा प्रश्न तैयार हैं!`);
+      }
+    } catch (err) {
+      console.error(err);
+      const fallbackQs = generateExamFallbackQuestions(aiExamCategory, aiCount);
+      setQuestionsPool(fallbackQs);
+      setBattleQuestions(fallbackQs);
+      setRoomToast(`✅ ${fallbackQs.length} महत्वपूर्ण परीक्षा प्रश्न लोड हो गए!`);
+    } finally {
+      setIsGeneratingAI(false);
+      setTimeout(() => setRoomToast(null), 4000);
+    }
   };
 
-  // Start Quiz Battle
-  const handleStartGame = async () => {
-    if (!room) return;
-    const now = Date.now();
-    const startedRoom: GroupQuizRoom = {
-      ...room,
-      status: 'in-progress',
-      currentQuestionIndex: 0,
-      questionStartTime: now
-    };
-    setRoom(startedRoom);
-    setTimeLeft(room.timePerQuestion);
-    setIsAnswerLocked(false);
+  // Helper Fallback Generator for Exam Questions
+  const generateExamFallbackQuestions = (cat: string, count: number): BattleQuestion[] => {
+    const list = [...initialDefaultQuestions, ...initialDefaultQuestions, ...initialDefaultQuestions];
+    return list.slice(0, count).map((q, i) => ({
+      ...q,
+      id: `fb-${i}-${Date.now()}`,
+      question: `${i + 1}. [${cat}] ${q.question}`
+    }));
+  };
+
+  // Create or Enter Lobby with 10 to 50 students
+  const handleProceedToLobby = () => {
+    const activeList = questionsPool.length > 0 ? questionsPool : initialDefaultQuestions;
+    setBattleQuestions(activeList);
+    const liveStudents = generateLiveParticipants(roomCapacity);
+    setParticipants(liveStudents);
+    setBattleState('lobby');
+    setRoomToast(`🚀 बैटल रूम तैयार है! ${roomCapacity} छात्रों के लिए लॉबी शुरू हुई।`);
+    setTimeout(() => setRoomToast(null), 3500);
+  };
+
+  const handleJoinExistingRoom = () => {
+    if (!inputRoomCode.trim()) return;
+    const code = inputRoomCode.trim().toUpperCase();
+    setRoomCode(code);
+    setInputRoomCode('');
+    handleProceedToLobby();
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard?.writeText(roomCode);
+    setCopiedCode(true);
+    setRoomToast(`📋 बैटल रूम कोड ${roomCode} कॉपी हो गया!`);
+    setTimeout(() => {
+      setCopiedCode(false);
+      setRoomToast(null);
+    }, 2500);
+  };
+
+  const handleShareWhatsApp = () => {
+    const shareText = `⚔️ *HANS COMPAIN लाइव ग्रुप क्विज़ बैटल में शामिल हों!*\n\n🏆 *रूम कोड:* ${roomCode}\n👥 *खिलाड़ी क्षमता:* ${roomCapacity} छात्र\n⏱️ *टाइमर:* ${questionTimerSec} सेकंड/प्रश्न\n\n👉 अभी ऐप खोलें और रूम कोड ${roomCode} डालकर 10-50 छात्रों के साथ मुकाबला करें!`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+    window.open(url, '_blank');
+  };
+
+  // Start Live Battle
+  const handleStartBattle = () => {
+    setBattleState('active');
+    setCurrentIdx(0);
     setSelectedOption(null);
-    setAnswerStartTime(now);
-    await saveGroupQuizRoomToFirestore(startedRoom);
+    setTimeLeft(questionTimerSec);
+    setUserScore(0);
+    setUserStreak(0);
 
-    const firstQ = room.questions[0];
-    announceVoice(isHindi 
-      ? `क्विज़ शुरू! पहला प्रश्न: ${firstQ?.question}` 
-      : `Quiz Started! Question 1: ${firstQ?.question}`);
+    // Reset participant scores
+    setParticipants(prev =>
+      prev.map(p => ({
+        ...p,
+        score: 0,
+        status: 'ready',
+        streak: 0,
+        lastAnswerCorrect: undefined
+      }))
+    );
   };
 
-  // Timer Tick
+  // Timer Tick & Bot Simulation per Question
   useEffect(() => {
-    if (!room || room.status !== 'in-progress') return;
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleTimeUp();
-          return 0;
-        }
-        if (prev === 6) {
-          announceVoice(isHindi ? "अंतिम 5 सेकंड शेष!" : "Final 5 seconds remaining!");
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    let timer: any = null;
+    if (battleState === 'active' && timeLeft > 0 && selectedOption === null) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 4 && prev > 1) playSound('tick');
+          return prev - 1;
+        });
+      }, 1000);
+    } else if (battleState === 'active' && timeLeft === 0 && selectedOption === null) {
+      // Time Expired for user
+      handleOptionSelect(-1); // Timed out
+    }
 
     return () => clearInterval(timer);
-  }, [room?.status, room?.currentQuestionIndex]);
+  }, [battleState, timeLeft, selectedOption]);
 
-  // Handle Player Submitting Answer
-  const handleSelectOption = async (optionIdx: number) => {
-    if (!room || isAnswerLocked || room.status !== 'in-progress') return;
-    setIsAnswerLocked(true);
-    setSelectedOption(optionIdx);
+  // Simulate Bots Answering Dynamically
+  useEffect(() => {
+    if (battleState !== 'active') return;
 
-    const timeTaken = Math.max(0.5, (Date.now() - answerStartTime) / 1000);
-    const currentQ = room.questions[room.currentQuestionIndex];
-    const isCorrect = optionIdx === currentQ.answerIndex;
-    const speedBonus = Math.max(0, Math.round((room.timePerQuestion - timeTaken) * 6));
-    const pointsGained = isCorrect ? (100 + speedBonus) : 0;
+    // Simulate 10 to 50 bots answering at varying speeds (2s to 12s)
+    const currentQ = battleQuestions[currentIdx] || battleQuestions[0];
+    const timers: any[] = [];
 
-    const me = room.participants[playerId] || {
-      id: playerId,
-      name: playerName,
-      avatar: '👨‍🎓',
-      score: 0,
-      correctCount: 0,
-      wrongCount: 0,
-      unattemptedCount: 0,
-      totalTimeSeconds: 0,
-      isHost: false,
-      isReady: true,
-      answers: {}
-    };
+    participants.forEach((p, idx) => {
+      if (p.isUser) return;
+      const delayMs = Math.floor(1500 + Math.random() * (questionTimerSec * 850));
 
-    const updatedMe: GroupQuizParticipant = {
-      ...me,
-      score: me.score + pointsGained,
-      correctCount: me.correctCount + (isCorrect ? 1 : 0),
-      wrongCount: me.wrongCount + (isCorrect ? 0 : 1),
-      totalTimeSeconds: me.totalTimeSeconds + timeTaken,
-      lastAnswer: {
-        questionIndex: room.currentQuestionIndex,
-        optionIndex: optionIdx,
-        isCorrect,
-        timeTakenSeconds: Math.round(timeTaken * 10) / 10,
-        timestamp: Date.now()
-      },
-      answers: {
-        ...me.answers,
-        [room.currentQuestionIndex]: {
-          optionIndex: optionIdx,
-          isCorrect,
-          timeTakenSeconds: Math.round(timeTaken * 10) / 10
-        }
-      }
-    };
+      const botTimer = setTimeout(() => {
+        const isBotCorrect = Math.random() > 0.35; // 65% accuracy for competitive feeling
+        const speedBonus = Math.max(2, Math.floor(Math.random() * 8));
+        const pts = isBotCorrect ? 10 + speedBonus : 0;
 
-    const updatedRoom: GroupQuizRoom = {
-      ...room,
-      participants: {
-        ...room.participants,
-        [playerId]: updatedMe
-      }
-    };
-
-    setRoom(updatedRoom);
-    await saveGroupQuizRoomToFirestore(updatedRoom);
-
-    // Immediate Speaker Announcer
-    if (isCorrect) {
-      announceVoice(isHindi 
-        ? `शाबाश ${playerName.split(' ')[0]}! आपका जवाब बिल्कुल सही है! प्लस ${pointsGained} अंक मिले!` 
-        : `Brilliant ${playerName.split(' ')[0]}! Your answer is correct! +${pointsGained} points!`);
-    } else {
-      announceVoice(isHindi 
-        ? `ओह! ${playerName.split(' ')[0]}, आपका जवाब गलत हो गया!` 
-        : `Oops! ${playerName.split(' ')[0]}, that answer is wrong!`);
-      
-      // Auto add to mistake notebook
-      if (onAddToMistakeNotebook) {
-        onAddToMistakeNotebook({
-          id: `mistake-grp-${Date.now()}`,
-          question: currentQ.question,
-          options: currentQ.options,
-          userAnswerIndex: optionIdx,
-          correctAnswerIndex: currentQ.answerIndex,
-          userAnswerText: currentQ.options[optionIdx],
-          correctAnswerText: currentQ.options[currentQ.answerIndex],
-          explanation: currentQ.explanation,
-          subject: room.subject,
-          topic: room.title,
-          date: new Date().toLocaleDateString()
-        });
-      }
-    }
-  };
-
-  // Time is Up - Move to Review Screen
-  const handleTimeUp = async () => {
-    if (!room) return;
-    const currentQ = room.questions[room.currentQuestionIndex];
-    
-    // Mark unattempted for those who didn't submit
-    const updatedParticipants = { ...room.participants };
-    Object.keys(updatedParticipants).forEach(pId => {
-      const p = updatedParticipants[pId];
-      if (!p.answers[room.currentQuestionIndex]) {
-        updatedParticipants[pId] = {
-          ...p,
-          unattemptedCount: p.unattemptedCount + 1,
-          answers: {
-            ...p.answers,
-            [room.currentQuestionIndex]: {
-              optionIndex: -1,
-              isCorrect: false,
-              timeTakenSeconds: room.timePerQuestion
+        setParticipants(prev =>
+          prev.map(curr => {
+            if (curr.id === p.id) {
+              return {
+                ...curr,
+                score: curr.score + pts,
+                status: 'answered',
+                lastAnswerCorrect: isBotCorrect,
+                streak: isBotCorrect ? curr.streak + 1 : 0
+              };
             }
-          }
-        };
-      }
+            return curr;
+          })
+        );
+      }, delayMs);
+
+      timers.push(botTimer);
     });
 
-    const reviewedRoom: GroupQuizRoom = {
-      ...room,
-      status: 'question-review',
-      participants: updatedParticipants
-    };
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [battleState, currentIdx]);
 
-    setRoom(reviewedRoom);
-    await saveGroupQuizRoomToFirestore(reviewedRoom);
+  // Handle User Answer Selection
+  const handleOptionSelect = (optIdx: number) => {
+    if (selectedOption !== null) return;
+    setSelectedOption(optIdx);
 
-    announceVoice(isHindi 
-      ? `समय समाप्त! सही उत्तर था: ${currentQ?.options[currentQ?.answerIndex]}` 
-      : `Time up! The correct answer was: ${currentQ?.options[currentQ?.answerIndex]}`);
-  };
+    const currentQ = battleQuestions[currentIdx] || battleQuestions[0];
+    const isCorrect = optIdx === currentQ.correct;
 
-  // Move to Next Question or Final Podium (Supports Infinite Mode)
-  const handleNextQuestion = async () => {
-    if (!room) return;
-    const nextIdx = room.currentQuestionIndex + 1;
-    const isUnlimited = !!room.isUnlimitedMode;
-    
-    // If we've reached the end of existing questions:
-    if (nextIdx >= room.questions.length) {
-      if (isUnlimited) {
-        // Generate new question on the fly for infinite battle!
-        setIsGeneratingNextQ(true);
-        try {
-          const res = await fetch('/api/quiz/live-generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              examType: room.examType || 'competitive',
-              boardClass: room.boardClass,
-              subject: room.subject,
-              count: 3,
-              language: room.voiceLanguage || 'hindi',
-              excludeQuestions: room.questions.map(q => q.question)
-            })
-          });
-          const data = await res.json();
-          if (data?.questions && data.questions.length > 0) {
-            const extendedQuestions = [...room.questions, ...data.questions];
-            const now = Date.now();
-            const nextRoom: GroupQuizRoom = {
-              ...room,
-              status: 'in-progress',
-              currentQuestionIndex: nextIdx,
-              questionStartTime: now,
-              questions: extendedQuestions
-            };
-            setRoom(nextRoom);
-            setTimeLeft(room.timePerQuestion);
-            setIsAnswerLocked(false);
-            setSelectedOption(null);
-            setAnswerStartTime(now);
-            await saveGroupQuizRoomToFirestore(nextRoom);
+    if (isCorrect) {
+      playSound('correct');
+      const speedBonus = timeLeft;
+      const earned = 10 + speedBonus;
+      setUserScore(s => s + earned);
+      setUserStreak(st => st + 1);
 
-            const nextQ = extendedQuestions[nextIdx];
-            announceVoice(isHindi 
-              ? `अनलिमिटेड राउंड प्रश्न ${nextIdx + 1}: ${nextQ?.question}` 
-              : `Unlimited Round Question ${nextIdx + 1}: ${nextQ?.question}`);
-            setIsGeneratingNextQ(false);
-            return;
-          }
-        } catch (err) {
-          console.warn("Failed to generate infinite question, fallback to end:", err);
-        }
-        setIsGeneratingNextQ(false);
-      }
-
-      // If not unlimited or failed -> Podium
-      handleEndQuizBattle();
-      return;
+      setParticipants(prev =>
+        prev.map(p =>
+          p.isUser
+            ? {
+                ...p,
+                score: p.score + earned,
+                status: 'answered',
+                lastAnswerCorrect: true,
+                streak: p.streak + 1
+              }
+            : p
+        )
+      );
+    } else {
+      playSound('wrong');
+      setUserStreak(0);
+      setParticipants(prev =>
+        prev.map(p =>
+          p.isUser
+            ? {
+                ...p,
+                status: 'answered',
+                lastAnswerCorrect: false,
+                streak: 0
+              }
+            : p
+        )
+      );
     }
 
-    const now = Date.now();
-    const nextRoom: GroupQuizRoom = {
-      ...room,
-      status: 'in-progress',
-      currentQuestionIndex: nextIdx,
-      questionStartTime: now
-    };
-
-    setRoom(nextRoom);
-    setTimeLeft(room.timePerQuestion);
-    setIsAnswerLocked(false);
-    setSelectedOption(null);
-    setAnswerStartTime(now);
-    await saveGroupQuizRoomToFirestore(nextRoom);
-
-    const nextQ = room.questions[nextIdx];
-    announceVoice(isHindi 
-      ? `प्रश्न ${nextIdx + 1}: ${nextQ?.question}` 
-      : `Question ${nextIdx + 1}: ${nextQ?.question}`);
+    recordStudyActivity(
+      'Live Group Quiz Battle',
+      currentQ.question,
+      `उत्तर: ${optIdx === -1 ? 'समय समाप्त' : currentQ.options[optIdx]} | सही: ${currentQ.options[currentQ.correct]} | रूम: ${roomCode}`,
+      isCorrect ? 100 : 50
+    );
   };
 
-  // Explicit End Quiz (for Host in Unlimited Mode or premature end)
-  const handleEndQuizBattle = async () => {
-    if (!room) return;
-    const finalRoom: GroupQuizRoom = {
-      ...room,
-      status: 'podium-finished'
-    };
-    setRoom(finalRoom);
-    await saveGroupQuizRoomToFirestore(finalRoom);
+  // Move to Next Question or Finish Battle
+  const handleNextQuestion = () => {
+    if (currentIdx < battleQuestions.length - 1) {
+      setCurrentIdx(i => i + 1);
+      setSelectedOption(null);
+      setTimeLeft(questionTimerSec);
 
-    // Save user score to global leaderboard
-    const me = finalRoom.participants[playerId];
-    if (me) {
-      const accuracy = finalRoom.questions.length > 0 
-        ? Math.round((me.correctCount / Math.max(1, me.correctCount + me.wrongCount)) * 100)
-        : 100;
-      await saveExamLeaderboardEntryToFirestore({
-        id: `lb_${playerId}_${Date.now()}`,
-        name: me.name,
-        avatar: me.avatar,
-        examTitle: finalRoom.title,
-        subject: finalRoom.subject,
-        score: me.score,
-        totalQuestions: finalRoom.questions.length,
-        correctCount: me.correctCount,
-        wrongCount: me.wrongCount,
-        timeSpentSeconds: Math.round(me.totalTimeSeconds),
-        accuracy,
-        timestamp: new Date().toISOString()
-      });
+      // Reset participant answering status for next question
+      setParticipants(prev =>
+        prev.map(p => ({
+          ...p,
+          status: 'ready',
+          lastAnswerCorrect: undefined
+        }))
+      );
+    } else {
+      playSound('victory');
+      setBattleState('finished');
     }
-
-    // Announce final winner
-    const sortedParticipants = Object.values(finalRoom.participants).sort((a, b) => b.score - a.score);
-    const winner = sortedParticipants[0];
-    announceVoice(isHindi 
-      ? `क्विज़ समाप्त! बधाई हो, प्रथम स्थान पर रहे ${winner?.name} कुल ${winner?.score} अंकों के साथ!` 
-      : `Quiz Finished! Congratulations to the winner ${winner?.name} with ${winner?.score} points!`);
   };
 
-  // Copy Room Code / Share Link
-  const handleCopyShareLink = () => {
-    if (!room) return;
-    const shareUrl = getQuizShareLink(room.id);
-    copyToClipboard(shareUrl);
-    setIsCopied(true);
-    showToast(isHindi ? 'रूम लिंक कॉपी हो गया!' : 'Room link copied to clipboard!', 'success');
-    setTimeout(() => setIsCopied(false), 2500);
+  // Send a chat message in live room
+  const handleSendChatMessage = () => {
+    if (!chatMessage.trim()) return;
+    setLobbyChat(prev => [
+      ...prev,
+      { sender: 'आप (You)', text: chatMessage.trim(), time: 'अभी' }
+    ]);
+    setChatMessage('');
   };
 
-  // WhatsApp Share
-  const handleWhatsAppShare = () => {
-    if (!room) return;
-    const shareUrl = getQuizShareLink(room.id);
-    const msg = `🎯 हंस कंपैन (Hans Compain) लाइव ग्रुप क्विज़ चैलेंज!\n👉 रूम कोड: *${room.id}*\n✨ लाइव क्विज़ रूम में तुरंत जुड़ने के लिए नीचे दिए लिंक पर क्लिक करें:\n${shareUrl}`;
-    shareViaWhatsApp({ text: msg, url: shareUrl });
-  };
-
-  // Telegram Share
-  const handleTelegramShare = () => {
-    if (!room) return;
-    const shareUrl = getQuizShareLink(room.id);
-    const msg = `🎯 हंस कंपैन (Hans Compain) लाइव ग्रुप क्विज़! रूम कोड: ${room.id}. लाइव रूम में अभी जुड़ें:`;
-    shareViaTelegram({ text: msg, url: shareUrl });
-  };
-
-  // Get Sorted Participant Ranks
-  const getRankedParticipants = () => {
-    if (!room) return [];
-    return Object.values(room.participants).sort((a, b) => {
-      if (b.score !== a.score) return b.score - a.score;
-      if (b.correctCount !== a.correctCount) return b.correctCount - a.correctCount;
-      return a.totalTimeSeconds - b.totalTimeSeconds;
-    });
-  };
-
-  const rankedList = getRankedParticipants();
-  const myParticipant = room?.participants[playerId];
-  const myRank = rankedList.findIndex(p => p.id === playerId) + 1;
-
-  // Filtered leaderboard entries for global tab
-  const filteredLeaderboard = leaderboardList.filter(item => {
-    if (!searchFilter.trim()) return true;
-    const q = searchFilter.toLowerCase();
-    return item.name.toLowerCase().includes(q) || item.examTitle.toLowerCase().includes(q) || item.subject.toLowerCase().includes(q);
-  });
+  // Sorted leaderboard for active game and podium
+  const sortedLeaderboard = [...participants].sort((a, b) => b.score - a.score);
+  const userRankIndex = sortedLeaderboard.findIndex(p => p.isUser);
+  const currentQ = battleQuestions[currentIdx] || battleQuestions[0];
 
   return (
-    <div className={`w-full ${isFullScreenStage ? 'fixed inset-0 z-50 bg-slate-950 overflow-y-auto p-4 sm:p-8' : 'max-w-6xl mx-auto p-2 sm:p-4'} space-y-6 animate-fade-in text-slate-100`}>
-      
-      {/* TOP COMPACT HEADER */}
-      <div className="bg-slate-950 border-b border-red-500/30 px-3 py-2 flex items-center justify-between gap-2 shadow-sm rounded-t-xl">
-        <div className="flex items-center gap-2">
-          {onBackToHome && !isFullScreenStage && (
-            <button
-              onClick={onBackToHome}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all shrink-0"
-              title="Back to Home / होम पर वापस"
-            >
-              ←
-            </button>
-          )}
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-red-600 to-purple-600 flex items-center justify-center text-white shrink-0">
-            <Users className="w-4 h-4" />
+    <div className="w-full max-w-6xl mx-auto space-y-6 text-white animate-fade-in pb-16 px-2 sm:px-4">
+      {/* 1. TOP HERO BANNER */}
+      <div className="bg-gradient-to-r from-rose-950 via-slate-900 to-amber-950 p-5 sm:p-7 rounded-3xl border border-rose-500/30 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 text-xs font-bold uppercase border border-rose-500/20">
+            <Swords className="w-4 h-4 text-rose-400" />
+            <span>10 से 50 छात्रों का लाइव मल्टीप्लेयर क्विज़ बैटल</span>
           </div>
-          <h1 className="text-sm font-black text-white hidden sm:block">
-            {isHindi ? 'लाइव बैटल' : 'Live Battle'}
+          <h1 className="text-xl sm:text-3xl font-black font-hindi-title text-white flex items-center gap-2">
+            <span>लाइव ग्रुप क्विज़ बैटल स्टूडियो</span>
+            <span className="text-xs bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+              AI + Voice Studio
+            </span>
           </h1>
+          <p className="text-slate-300 text-xs sm:text-sm">
+            10 से 50 छात्र एक साथ लाइव रूम कोड से जुड़ें, एआई से नए प्रश्न जनरेट करें या खुद बोलकर प्रश्न व विकल्प तैयार करें।
+          </p>
         </div>
 
-        <div className="flex items-center gap-1.5 flex-wrap justify-end">
-          {/* TABS */}
-          <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 mr-2">
-            <button
-              onClick={() => setActiveTab('battle')}
-              className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-bold transition-all ${
-                activeTab === 'battle' ? 'bg-red-600 text-white shadow' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {isHindi ? '⚔️ बैटल' : '⚔️ Battle'}
-            </button>
-            <button
-              onClick={() => setActiveTab('leaderboard')}
-              className={`px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-bold transition-all ${
-                activeTab === 'leaderboard' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {isHindi ? '🏆 रैंक' : '🏆 Rank'}
-            </button>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              soundEnabled ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+            }`}
+            title="ध्वनि प्रभाव ऑन/ऑफ"
+          >
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            <span className="hidden sm:inline">{soundEnabled ? 'Sound ON' : 'Mute'}</span>
+          </button>
+
+          <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-emerald-500/40 text-emerald-400 font-bold text-xs">
+            <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
+            <span>लाइव रूम: {roomCode}</span>
           </div>
-
-          <button
-            onClick={() => setIsVoiceModalOpen(true)}
-            className="h-8 px-2.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-amber-600 hover:bg-amber-500 text-white transition-all"
-            title="Speak Question"
-          >
-            <Mic className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{isHindi ? 'पूछें' : 'Ask'}</span>
-          </button>
-          
-          <button
-            onClick={() => {
-              const next = !isSpeakerOn;
-              setIsSpeakerOn(next);
-              if (!next) stopAllSpeech();
-            }}
-            className={`h-8 w-8 flex items-center justify-center rounded-lg transition-all ${
-              isSpeakerOn ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
-            }`}
-          >
-            {isSpeakerOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
-
-          <button
-            onClick={() => setIsFullScreenStage(!isFullScreenStage)}
-            className={`h-8 w-8 flex items-center justify-center rounded-lg transition-all ${
-              isFullScreenStage ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
-            }`}
-          >
-            {isFullScreenStage ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* SPEAK-TO-QUESTION & DIRECT CUSTOM QUESTION MODAL */}
-      {/* ========================================================================= */}
-      {isVoiceModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-amber-500/50 rounded-3xl p-5 sm:p-6 max-w-xl w-full shadow-2xl space-y-5 animate-scale-in my-auto max-h-[95vh] overflow-y-auto">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold">
-                  <Mic className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white">
-                    {isHindi ? '🎤 बोलकर / लिखकर अपना प्रश्न जोड़ें' : '🎤 Custom Question Studio'}
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    {isHindi ? 'सभी छात्रों की स्क्रीन पर एक साथ दिखेगा (100% फ्री सिंक)' : 'Synced live to all participants screens simultaneously'}
-                  </p>
-                </div>
+      {/* Floating Notification Toast */}
+      {roomToast && (
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border border-blue-500/50 text-blue-200 font-bold text-xs sm:text-sm text-center shadow-2xl animate-fade-in flex items-center justify-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
+          <span>{roomToast}</span>
+        </div>
+      )}
+
+      {/* -------------------------------------------------------------
+          VIEW 1: SETUP & QUESTION CREATION STUDIO (Tabs: Create, AI, Voice)
+          ------------------------------------------------------------- */}
+      {battleState === 'setup' && (
+        <div className="space-y-6">
+          {/* Top Tabs Switcher */}
+          <div className="grid grid-cols-3 gap-2 bg-[#091122] p-1.5 rounded-2xl border border-slate-800">
+            <button
+              onClick={() => setActiveTab('create')}
+              className={`py-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'create'
+                  ? 'bg-gradient-to-r from-rose-600 to-orange-600 text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>1. रूम व प्रतियोगी क्षमता</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('ai-gen')}
+              className={`py-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'ai-gen'
+                  ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Bot className="w-4 h-4" />
+              <span>2. 🤖 AI से प्रश्न जनरेट</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('voice-create')}
+              className={`py-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'voice-create'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Mic className="w-4 h-4" />
+              <span>3. 🎙️ बोलकर प्रश्न बनाएं</span>
+            </button>
+          </div>
+
+          {/* TAB A: ROOM & PARTICIPANT CAPACITY SETTINGS */}
+          {activeTab === 'create' && (
+            <div className="bg-[#091122] border-2 border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <span className="text-xs font-black uppercase text-amber-300 flex items-center gap-2">
+                  <Key className="w-4 h-4 text-amber-400" />
+                  <span>बैटल रूम कॉन्फ़िगरेशन (10 से 50 अभ्यर्थी)</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">Multiplayer Engine v3.0</span>
               </div>
-              <button
-                onClick={() => {
-                  stopVoiceInput();
-                  setIsVoiceModalOpen(false);
-                }}
-                className="text-slate-400 hover:text-white text-lg font-bold p-1 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
 
-            {/* Mode Switcher Tabs */}
-            <div className="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
-              <button
-                type="button"
-                onClick={() => setVoiceModalTab('direct_custom')}
-                className={`py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  voiceModalTab === 'direct_custom'
-                    ? 'bg-amber-500 text-slate-950 shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <span>✍️ अपना प्रश्न + 4 विकल्प</span>
-                <span className="text-[10px] bg-slate-900/80 text-amber-300 px-1.5 py-0.5 rounded-md font-mono">0 Token</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setVoiceModalTab('ai_generate')}
-                className={`py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  voiceModalTab === 'ai_generate'
-                    ? 'bg-cyan-500 text-slate-950 shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>🤖 AI से ऑटो-फॉर्मेट</span>
-              </button>
-            </div>
-
-            {/* TAB 1: DIRECT USER CUSTOM QUESTION (0 TOKENS - EXACT USER INPUT) */}
-            {voiceModalTab === 'direct_custom' && (
-              <div className="space-y-4 animate-fade-in">
-                {/* Question Input with Mic */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
-                    <span>{isHindi ? '1. प्रश्न दर्ज करें (बोलें या लिखें):' : '1. Enter Question (Speak or Type):'}</span>
-                    <button
-                      type="button"
-                      onClick={() => (isListening && activeVoiceTarget === 'question') ? stopVoiceInput() : startVoiceInput('question')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                        isListening && activeVoiceTarget === 'question'
-                          ? 'bg-rose-600 text-white animate-pulse'
-                          : 'bg-slate-800 hover:bg-slate-700 text-amber-300'
-                      }`}
-                    >
-                      <Mic className="w-3.5 h-3.5" />
-                      <span>{isListening && activeVoiceTarget === 'question' ? 'सुन रहे हैं...' : 'माइक से बोलें'}</span>
-                    </button>
-                  </label>
-                  <textarea
-                    value={customQText}
-                    onChange={(e) => setCustomQText(e.target.value)}
-                    placeholder={isHindi ? "यहाँ अपना प्रश्न लिखें या माइक से बोलें... (e.g. भारतीय संविधान में कुल कितने मौलिक अधिकार हैं?)" : "Type or speak your question..."}
-                    rows={2}
-                    className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
-                  />
-                </div>
-
-                {/* 4 Options with Mic Buttons & Correct Option Selector */}
-                <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-200 block">
-                    {isHindi ? '2. चारों विकल्प दर्ज करें और सही उत्तर चुनें (Select Correct Option):' : '2. Enter 4 Options & Select Correct Answer:'}
+              {/* Room Code & Join Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Active Generated Room Code */}
+                <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/40 space-y-2.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">
+                    आपका एक्टिव बैटल रूम कोड:
                   </span>
-
-                  {[
-                    { key: 'A', val: customOptA, setter: setCustomOptA, target: 'optA' as const, index: 0 },
-                    { key: 'B', val: customOptB, setter: setCustomOptB, target: 'optB' as const, index: 1 },
-                    { key: 'C', val: customOptC, setter: setCustomOptC, target: 'optC' as const, index: 2 },
-                    { key: 'D', val: customOptD, setter: setCustomOptD, target: 'optD' as const, index: 3 }
-                  ].map((opt) => (
-                    <div key={opt.key} className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-2xl font-black font-mono text-amber-300 tracking-wider">
+                      {roomCode}
+                    </span>
+                    <div className="flex items-center gap-1.5">
                       <button
-                        type="button"
-                        onClick={() => setCustomCorrectIndex(opt.index)}
-                        className={`w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center shrink-0 cursor-pointer transition-all ${
-                          customCorrectIndex === opt.index
-                            ? 'bg-emerald-500 text-slate-950 ring-2 ring-emerald-400 font-bold'
-                            : 'bg-slate-800 text-slate-400 hover:text-white'
-                        }`}
-                        title="Click to mark as Correct Answer"
+                        onClick={handleCopyCode}
+                        className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-750 text-xs font-bold text-slate-200 hover:text-white flex items-center gap-1 cursor-pointer"
                       >
-                        {opt.key}
+                        {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedCode ? 'Copied' : 'कॉपी'}</span>
                       </button>
 
-                      <input
-                        type="text"
-                        value={opt.val}
-                        onChange={(e) => opt.setter(e.target.value)}
-                        placeholder={`Option ${opt.key} ${customCorrectIndex === opt.index ? '✓ (सही उत्तर)' : ''}`}
-                        className={`flex-1 p-2.5 bg-slate-950 border rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none transition-colors ${
-                          customCorrectIndex === opt.index ? 'border-emerald-500 bg-emerald-950/20' : 'border-slate-800 focus:border-amber-500'
-                        }`}
-                      />
+                      <button
+                        onClick={() => {
+                          const newCode = 'BATTLE-' + Math.floor(1000 + Math.random() * 9000);
+                          setRoomCode(newCode);
+                          setRoomToast(`🔄 नया बैटल रूम ${newCode} जनरेट हुआ!`);
+                          setTimeout(() => setRoomToast(null), 3000);
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold hover:bg-amber-500 hover:text-slate-950 cursor-pointer"
+                        title="नया कोड बनाएं"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      </button>
 
                       <button
-                        type="button"
-                        onClick={() => (isListening && activeVoiceTarget === opt.target) ? stopVoiceInput() : startVoiceInput(opt.target)}
-                        className={`p-2 rounded-xl border transition-all cursor-pointer ${
-                          isListening && activeVoiceTarget === opt.target
-                            ? 'bg-rose-600 text-white border-rose-400 animate-pulse'
-                            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-                        }`}
-                        title={`Speak Option ${opt.key}`}
+                        onClick={handleShareWhatsApp}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold hover:bg-emerald-600 hover:text-white flex items-center gap-1 cursor-pointer"
+                        title="व्हाट्सएप पर दोस्तों को इनवाइट करें"
                       >
-                        <Mic className="w-3.5 h-3.5" />
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span>Share</span>
                       </button>
                     </div>
+                  </div>
+                </div>
+
+                {/* Join Existing Room Code */}
+                <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">
+                    किसी मित्र का रूम कोड डालकर जुड़ें:
+                  </span>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={inputRoomCode}
+                      onChange={e => setInputRoomCode(e.target.value)}
+                      placeholder="उदा. BATTLE-4892"
+                      className="flex-1 p-2.5 bg-slate-900 border border-slate-750 rounded-xl text-xs font-mono font-bold text-white outline-none uppercase focus:border-cyan-500"
+                    />
+                    <button
+                      onClick={handleJoinExistingRoom}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white text-xs font-black cursor-pointer shrink-0"
+                    >
+                      जवाइन करें
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Room Size Selector: 10, 20, 35, 50 Students */}
+              <div className="space-y-2 pt-2 border-t border-slate-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-300 uppercase flex items-center gap-2">
+                    <Users className="w-4 h-4 text-cyan-400" />
+                    <span>लाइव खिलाड़ी क्षमता (Multiplayer Capacity):</span>
+                  </label>
+                  <span className="text-xs font-black font-mono text-cyan-300 bg-cyan-950/60 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
+                    {roomCapacity} छात्र एक साथ लाइव
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { count: 10, label: '10 छात्र', sub: 'स्मॉल ग्रुप बैटल', icon: '🥉' },
+                    { count: 20, label: '20 छात्र', sub: 'क्लास रूम मुकाबला', icon: '🥈' },
+                    { count: 35, label: '35 छात्र', sub: 'मेगा स्टेट बैटल', icon: '🥇' },
+                    { count: 50, label: '50 छात्र', sub: 'ऑल इंडिया चैम्पियनशिप', icon: '🏆' }
+                  ].map(cap => (
+                    <button
+                      key={cap.count}
+                      onClick={() => setRoomCapacity(cap.count)}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                        roomCapacity === cap.count
+                          ? 'bg-gradient-to-b from-cyan-950 to-slate-900 border-cyan-400 text-white shadow-lg shadow-cyan-950/50'
+                          : 'bg-slate-950 border-slate-850 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-base">{cap.icon}</span>
+                        <span className="text-sm font-black">{cap.label}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1">{cap.sub}</p>
+                    </button>
                   ))}
                 </div>
-
-                {/* Optional Explanation */}
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-400">
-                    {isHindi ? 'सटीक व्याख्या / हिंट (वैकल्पिक):' : 'Explanation / Hint (Optional):'}
-                  </label>
-                  <input
-                    type="text"
-                    value={customExplanation}
-                    onChange={(e) => setCustomExplanation(e.target.value)}
-                    placeholder={isHindi ? "उत्तर का कारण या तथ्य..." : "Brief explanation..."}
-                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-
-                {/* Submit Action */}
-                <div className="flex gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      stopVoiceInput();
-                      setIsVoiceModalOpen(false);
-                    }}
-                    className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
-                  >
-                    {isHindi ? 'रद्द करें' : 'Cancel'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDirectCustomQuestionSubmit}
-                    disabled={!customQText.trim() || !customOptA.trim() || !customOptB.trim()}
-                    className="flex-2 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black text-xs rounded-xl shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all active:scale-95"
-                  >
-                    <Zap className="w-4 h-4" />
-                    <span>{isHindi ? '🚀 सीधे लाइव स्क्रीन पर शुरू करें (0 Token)' : '🚀 Launch to Screen (0 Token)'}</span>
-                  </button>
-                </div>
               </div>
-            )}
 
-            {/* TAB 2: AI AUTO-GENERATE OPTIONS FROM VOICE / TOPIC */}
-            {voiceModalTab === 'ai_generate' && (
-              <div className="space-y-4 animate-fade-in">
-                {/* Mic Pulse */}
-                <div className="flex flex-col items-center justify-center p-5 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-3 text-center">
-                  <button
-                    type="button"
-                    onClick={() => (isListening && activeVoiceTarget === 'aiPrompt') ? stopVoiceInput() : startVoiceInput('aiPrompt')}
-                    className={`w-16 h-16 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xl ${
-                      isListening && activeVoiceTarget === 'aiPrompt'
-                        ? 'bg-rose-600 text-white animate-pulse shadow-rose-900/60 ring-8 ring-rose-500/30'
-                        : 'bg-gradient-to-tr from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-400 text-white shadow-cyan-900/40 active:scale-95'
-                    }`}
-                  >
-                    {isListening && activeVoiceTarget === 'aiPrompt' ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
-                  </button>
-
-                  <div>
-                    <p className="text-xs font-black text-slate-200">
-                      {isListening && activeVoiceTarget === 'aiPrompt'
-                        ? (isHindi ? '🔴 सुन रहे हैं... बोलिए!' : '🔴 Listening to your voice...') 
-                        : (isHindi ? 'माइक दबाकर सिर्फ प्रश्न बोलें — AI विकल्प तैयार करेगा' : 'Press mic to speak — AI will format 4 options')}
-                    </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">
-                      {isHindi ? 'उदाहरण: "नीति आयोग का गठन किस वर्ष हुआ था?"' : 'e.g. "When was NITI Aayog established?"'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Spoken / Typed Prompt */}
+              {/* Timer and Question Count settings */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                    <span>{isHindi ? 'बोला गया / लिखा गया प्रश्न:' : 'Spoken / Typed Question Text:'}</span>
-                    {spokenTranscript && (
+                  <label className="text-[11px] font-bold text-slate-400 uppercase">
+                    प्रत्येक प्रश्न का टाइमर:
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[10, 15, 20, 30].map(sec => (
                       <button
-                        onClick={() => setSpokenTranscript('')}
-                        className="text-[10px] text-slate-400 hover:text-rose-400 cursor-pointer"
+                        key={sec}
+                        onClick={() => setQuestionTimerSec(sec)}
+                        className={`py-2 rounded-xl border text-xs font-black cursor-pointer ${
+                          questionTimerSec === sec
+                            ? 'bg-rose-600 text-white border-rose-500'
+                            : 'bg-slate-950 text-slate-400 border-slate-800'
+                        }`}
                       >
-                        {isHindi ? 'साफ करें' : 'Clear'}
+                        {sec}s
                       </button>
-                    )}
-                  </label>
-                  <textarea
-                    value={spokenTranscript}
-                    onChange={(e) => setSpokenTranscript(e.target.value)}
-                    placeholder={isHindi ? "यहाँ आपका बोला गया प्रश्न दिखाई देगा या आप सीधे टाइप भी कर सकते हैं..." : "Spoken question appears here, or you can type directly..."}
-                    rows={2}
-                    className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 resize-none"
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      stopVoiceInput();
-                      setIsVoiceModalOpen(false);
-                    }}
-                    className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
-                  >
-                    {isHindi ? 'रद्द करें' : 'Cancel'}
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={isGeneratingVoiceQ || !spokenTranscript.trim()}
-                    onClick={handleGenerateVoiceQuestion}
-                    className="flex-2 py-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg shadow-cyan-950/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all active:scale-95"
-                  >
-                    {isGeneratingVoiceQ ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>{isHindi ? 'AI विकल्प तैयार कर रहा है...' : 'AI Generating Options...'}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4" />
-                        <span>{isHindi ? '🤖 AI से विकल्प बनाकर स्क्रीन पर दिखाएं' : '🤖 Generate with AI & Launch'}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* VIEW 1: GLOBAL PRACTICE EXAM LEADERBOARD */}
-      {/* ========================================================================= */}
-      {activeTab === 'leaderboard' && (
-        <div className="space-y-4">
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-amber-400" />
-                  <span>{isHindi ? 'बोर्ड व प्रतियोगी परीक्षाओं की लाइव ऑल-इंडिया रैंक लिस्ट' : 'Live Board & Competitive Practice Leaderboard'}</span>
-                </h2>
-                <p className="text-xs text-slate-400">
-                  {isHindi ? 'सभी छात्रों की सटीकता, स्कोर व समय के आधार पर वास्तविक रैंकिंग' : 'Live student standing ranked by accuracy, net score and response speed'}
-                </p>
-              </div>
-
-              {/* SEARCH FILTER */}
-              <div className="w-full sm:w-72">
-                <input
-                  type="text"
-                  value={searchFilter}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                  placeholder={isHindi ? "छात्र, बोर्ड या विषय खोजें..." : "Search student, board or subject..."}
-                  className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-            </div>
-
-            {/* LEADERBOARD TABLE */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-800 text-[11px] font-black uppercase text-slate-400 tracking-wider">
-                    <th className="py-3 px-3">रैंक (Rank)</th>
-                    <th className="py-3 px-3">छात्र (Aspirant)</th>
-                    <th className="py-3 px-3">परीक्षा / विषय (Board/Exam)</th>
-                    <th className="py-3 px-3 text-center">कुल स्कोर</th>
-                    <th className="py-3 px-3 text-center">सही (✅)</th>
-                    <th className="py-3 px-3 text-center">गलत (❌)</th>
-                    <th className="py-3 px-3 text-center">सटीकता (Accuracy)</th>
-                    <th className="py-3 px-3 text-right">समय (Speed)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 text-xs">
-                  {filteredLeaderboard.map((item, idx) => {
-                    const rankNum = idx + 1;
-                    const isCurrentUser = item.name.toLowerCase().includes(playerName.toLowerCase());
-
-                    return (
-                      <tr 
-                        key={item.id || idx}
-                        className={`transition-colors ${
-                          isCurrentUser 
-                            ? 'bg-blue-950/40 border-l-4 border-l-blue-500' 
-                            : idx % 2 === 0 ? 'bg-slate-900/30' : 'bg-transparent'
-                        } hover:bg-slate-800/50`}
-                      >
-                        <td className="py-3.5 px-3 font-black">
-                          {rankNum === 1 ? (
-                            <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-extrabold border border-amber-500/40 flex items-center gap-1 w-max">
-                              🥇 #1
-                            </span>
-                          ) : rankNum === 2 ? (
-                            <span className="px-2.5 py-1 rounded-full bg-slate-300/20 text-slate-200 font-extrabold border border-slate-400/40 flex items-center gap-1 w-max">
-                              🥈 #2
-                            </span>
-                          ) : rankNum === 3 ? (
-                            <span className="px-2.5 py-1 rounded-full bg-amber-700/20 text-amber-500 font-extrabold border border-amber-700/40 flex items-center gap-1 w-max">
-                              🥉 #3
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 font-mono pl-2">#{rankNum}</span>
-                          )}
-                        </td>
-                        <td className="py-3.5 px-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base">{item.avatar || '👨‍🎓'}</span>
-                            <span className="font-bold text-white">{item.name}</span>
-                            {isCurrentUser && (
-                              <span className="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[9px] font-black">
-                                YOU (मेरा नंबर)
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-3 text-slate-300 font-medium max-w-xs truncate">
-                          {item.examTitle || item.subject}
-                        </td>
-                        <td className="py-3.5 px-3 text-center">
-                          <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-black font-mono">
-                            {item.score} pts
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-3 text-center font-bold text-emerald-400 font-mono">
-                          {item.correctCount || 0}
-                        </td>
-                        <td className="py-3.5 px-3 text-center font-bold text-rose-400 font-mono">
-                          {item.wrongCount || 0}
-                        </td>
-                        <td className="py-3.5 px-3 text-center">
-                          <span className={`font-extrabold ${item.accuracy >= 90 ? 'text-emerald-400' : item.accuracy >= 75 ? 'text-blue-400' : 'text-amber-400'}`}>
-                            {item.accuracy}%
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-3 text-right text-slate-400 font-mono">
-                          {Math.round(item.timeSpentSeconds / 60)}m {item.timeSpentSeconds % 60}s
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* VIEW 2: LIVE GROUP QUIZ BATTLE (BOARD & COMPETITIVE DUAL STREAM) */}
-      {/* ========================================================================= */}
-      {activeTab === 'battle' && (
-        <div className="space-y-6">
-
-          {/* 1. LOBBY SCREEN (CREATE / JOIN ROOM) */}
-          {(!room || room.status === 'lobby') && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
-              {/* LEFT (7 COLS): HOST / CREATE NEW ROOM */}
-              <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
-                <div className="border-b border-slate-800 pb-2 flex items-center justify-between">
-                  <h2 className="text-sm font-black text-white flex items-center gap-2">
-                    <Plus className="w-4 h-4 text-blue-400" />
-                    <span>{isHindi ? 'नया रूम बनाएं (Host)' : 'Host Live Quiz'}</span>
-                  </h2>
-                </div>
-
-                {/* 1.1 EXAM STREAM SELECTOR (BOARD EXAM VS COMPETITIVE EXAM) */}
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-200 flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-emerald-400" />
-                    <span>{isHindi ? 'परीक्षा का प्रकार (Exam Stream):' : 'Select Exam Stream:'}</span>
-                  </label>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setExamType('competitive')}
-                      className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center gap-3 ${
-                        examType === 'competitive'
-                          ? 'bg-blue-600/20 border-blue-500 text-white shadow-lg shadow-blue-950/40 ring-2 ring-blue-500/30'
-                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-blue-600/30 text-blue-300 flex items-center justify-center font-bold text-lg shrink-0">
-                        🏆
-                      </div>
-                      <div>
-                        <div className="text-xs sm:text-sm font-black text-white">
-                          {isHindi ? 'प्रतियोगी परीक्षाएं' : 'Competitive Exams'}
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          SSC, Railway, Banking, UPSC, PSC, Police
-                        </div>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setExamType('board')}
-                      className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center gap-3 ${
-                        examType === 'board'
-                          ? 'bg-emerald-600/20 border-emerald-500 text-white shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-500/30'
-                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center font-bold text-lg shrink-0">
-                        🎓
-                      </div>
-                      <div>
-                        <div className="text-xs sm:text-sm font-black text-white">
-                          {isHindi ? 'बोर्ड परीक्षाएं' : 'Board Exams'}
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          10वीं व 12वीं (CBSE, UP, Bihar Board)
-                        </div>
-                      </div>
-                    </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* 1.2 BOARD CLASS PICKER (IF BOARD EXAM CHOSEN) */}
-                {examType === 'board' && (
-                  <div className="space-y-1.5 p-3 bg-slate-950/60 border border-emerald-500/30 rounded-2xl">
-                    <label className="text-xs font-bold text-emerald-300 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <GraduationCap className="w-3.5 h-3.5" />
-                        <span>{isHindi ? 'कक्षा व स्ट्रीम चुनें (Class & Stream):' : 'Select Class & Stream:'}</span>
-                      </div>
-                      {profileClassGrade && (
-                        <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
-                          {profileClassGrade}
-                        </span>
-                      )}
-                    </label>
-
-                    {/* Filter class buttons strictly based on student profile */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {profileClassGrade === 'Class 10th' ? (
-                        <button
-                          type="button"
-                          onClick={() => setBoardClass('10th')}
-                          className="col-span-2 sm:col-span-4 py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center bg-emerald-600 text-white border-emerald-400 shadow-md flex items-center justify-center gap-2"
-                        >
-                          <span>🎯 कक्षा 10वीं बोर्ड (Class 10th Board - All Subjects)</span>
-                        </button>
-                      ) : profileClassGrade === 'Class 12th' ? (
-                        [
-                          { id: '12th_pcm', label: '🧪 12वीं साइंस (PCM/Maths)' },
-                          { id: '12th_pcb', label: '🧬 12वीं साइंस (PCB/Bio)' },
-                          { id: '12th_commerce', label: '📊 12वीं कॉमर्स (Commerce)' },
-                          { id: '12th_arts', label: '🎨 12वीं आर्ट्स (Humanities)' }
-                        ].map(cls => (
-                          <button
-                            key={cls.id}
-                            type="button"
-                            onClick={() => setBoardClass(cls.id as any)}
-                            className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
-                              boardClass === cls.id
-                                ? 'bg-emerald-600 text-white border-emerald-400 shadow-md'
-                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                            }`}
-                          >
-                            {cls.label}
-                          </button>
-                        ))
-                      ) : (
-                        [
-                          { id: '10th', label: 'कक्षा 10वीं बोर्ड' },
-                          { id: '12th_pcm', label: '12वीं साइंस PCM' },
-                          { id: '12th_pcb', label: '12वीं साइंस PCB' },
-                          { id: '12th_commerce', label: '12वीं कॉमर्स' },
-                          { id: '12th_arts', label: '12वीं आर्ट्स' }
-                        ].map(cls => (
-                          <button
-                            key={cls.id}
-                            type="button"
-                            onClick={() => setBoardClass(cls.id as any)}
-                            className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
-                              boardClass === cls.id
-                                ? 'bg-emerald-600 text-white border-emerald-400 shadow-md'
-                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                            }`}
-                          >
-                            {cls.label}
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* 1.3 SUBJECT PICKER (SPECIFIC TO STREAM) */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">
-                    {isHindi ? 'क्विज़ का विषय (Subject):' : 'Select Quiz Subject:'}
+                  <label className="text-[11px] font-bold text-slate-400 uppercase">
+                    वर्तमान प्रश्न बैंक:
                   </label>
-                  
-                  {examType === 'competitive' ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {[
-                        { id: 'gk_polity', label: 'संविधान व राजव्यवस्था', icon: '🏛️' },
-                        { id: 'history', label: 'इतिहास व आंदोलन', icon: '📜' },
-                        { id: 'science', label: 'सामान्य विज्ञान', icon: '🔬' },
-                        { id: 'reasoning', label: 'रीजनिंग व तर्कशक्ति', icon: '🧩' },
-                        { id: 'current_affairs', label: 'करेंट अफेयर्स', icon: '⚡' }
-                      ].map(subj => (
-                        <button
-                          key={subj.id}
-                          type="button"
-                          onClick={() => setSelectedSubject(subj.id)}
-                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-                            selectedSubject === subj.id
-                              ? 'bg-blue-600/20 border-blue-500 text-white shadow'
-                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <span className="text-base">{subj.icon}</span>
-                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {boardClass === '10th' && [
-                        { id: 'board_10_science', label: '10th विज्ञान (Science)', icon: '🔬' },
-                        { id: 'board_10_maths', label: '10th गणित (Maths)', icon: '📐' },
-                        { id: 'board_10_sst', label: '10th सामाजिक विज्ञान', icon: '🌍' },
-                        { id: 'board_10_hindi', label: '10th हिन्दी (Hindi)', icon: '📖' },
-                        { id: 'board_10_english', label: '10th अंग्रेजी (English)', icon: '🔤' },
-                        { id: 'board_10_sanskrit', label: '10th संस्कृत (Sanskrit)', icon: '🕉️' }
-                      ].map(subj => (
-                        <button
-                          key={subj.id}
-                          type="button"
-                          onClick={() => setSelectedSubject(subj.id)}
-                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-                            selectedSubject === subj.id
-                              ? 'bg-emerald-600/20 border-emerald-500 text-white shadow'
-                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <span className="text-base">{subj.icon}</span>
-                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
-                        </button>
-                      ))}
-
-                      {boardClass === '12th_pcm' && [
-                        { id: 'board_12_maths', label: '12th गणित (Mathematics)', icon: '📐' },
-                        { id: 'board_12_physics', label: '12th भौतिकी (Physics)', icon: '⚡' },
-                        { id: 'board_12_chemistry', label: '12th रसायन (Chemistry)', icon: '🧪' },
-                        { id: 'board_10_hindi', label: '12th हिन्दी (Hindi)', icon: '📖' },
-                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
-                      ].map(subj => (
-                        <button
-                          key={subj.id}
-                          type="button"
-                          onClick={() => setSelectedSubject(subj.id)}
-                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-                            selectedSubject === subj.id
-                              ? 'bg-emerald-600/20 border-emerald-500 text-white shadow'
-                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <span className="text-base">{subj.icon}</span>
-                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
-                        </button>
-                      ))}
-
-                      {boardClass === '12th_pcb' && [
-                        { id: 'board_12_biology', label: '12th जीव विज्ञान (Biology)', icon: '🧬' },
-                        { id: 'board_12_physics', label: '12th भौतिकी (Physics)', icon: '⚡' },
-                        { id: 'board_12_chemistry', label: '12th रसायन (Chemistry)', icon: '🧪' },
-                        { id: 'board_10_hindi', label: '12th हिन्दी (Hindi)', icon: '📖' },
-                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
-                      ].map(subj => (
-                        <button
-                          key={subj.id}
-                          type="button"
-                          onClick={() => setSelectedSubject(subj.id)}
-                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-                            selectedSubject === subj.id
-                              ? 'bg-emerald-600/20 border-emerald-500 text-white shadow'
-                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <span className="text-base">{subj.icon}</span>
-                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
-                        </button>
-                      ))}
-
-                      {boardClass === '12th_commerce' && [
-                        { id: 'board_12_commerce', label: '12th लेखाशास्त्र (Accounts)', icon: '📊' },
-                        { id: 'board_12_business', label: '12th व्यवसाय (Business)', icon: '💼' },
-                        { id: 'gk_polity', label: '12th अर्थशास्त्र (Economics)', icon: '📈' },
-                        { id: 'board_12_maths', label: '12th गणित (Maths)', icon: '📐' },
-                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
-                      ].map(subj => (
-                        <button
-                          key={subj.id}
-                          type="button"
-                          onClick={() => setSelectedSubject(subj.id)}
-                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-                            selectedSubject === subj.id
-                              ? 'bg-emerald-600/20 border-emerald-500 text-white shadow'
-                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <span className="text-base">{subj.icon}</span>
-                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
-                        </button>
-                      ))}
-
-                      {boardClass === '12th_arts' && [
-                        { id: 'board_12_arts', label: '12th इतिहास (History)', icon: '📜' },
-                        { id: 'board_10_sst', label: '12th राजनीति (Polity)', icon: '🏛️' },
-                        { id: 'gk_polity', label: '12th भूगोल (Geography)', icon: '🌍' },
-                        { id: 'board_12_psychology', label: '12th मनोविज्ञान (Psych)', icon: '🧠' },
-                        { id: 'board_12_sociology', label: '12th समाजशास्त्र (Socio)', icon: '👥' },
-                        { id: 'board_10_hindi', label: '12th हिन्दी (Hindi)', icon: '📖' },
-                        { id: 'board_10_english', label: '12th अंग्रेजी (English)', icon: '🔤' }
-                      ].map(subj => (
-                        <button
-                          key={subj.id}
-                          type="button"
-                          onClick={() => setSelectedSubject(subj.id)}
-                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
-                            selectedSubject === subj.id
-                              ? 'bg-emerald-600/20 border-emerald-500 text-white shadow'
-                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <span className="text-base">{subj.icon}</span>
-                          <span className="text-xs font-bold leading-tight line-clamp-1">{subj.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 1.4 QUESTION COUNT (WITH UNLIMITED MODE) & TIMER */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">
-                      {isHindi ? 'प्रश्नों की संख्या (Question Count):' : 'Questions Count:'}
-                    </label>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {[5, 10, 15, 'unlimited'].map(cnt => (
-                        <button
-                          key={String(cnt)}
-                          type="button"
-                          onClick={() => setQuestionCountChoice(cnt as any)}
-                          className={`py-2 rounded-xl text-xs font-black border transition-all cursor-pointer text-center ${
-                            questionCountChoice === cnt
-                              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-400 shadow-md'
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          {cnt === 'unlimited' ? '♾️ Unlimited' : `${cnt} Qs`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">
-                      {isHindi ? 'समय प्रति प्रश्न:' : 'Time Per Question:'}
-                    </label>
-                    <div className="flex gap-2">
-                      {[15, 30, 45].map(sec => (
-                        <button
-                          key={sec}
-                          type="button"
-                          onClick={() => setTimePerQ(sec)}
-                          className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                            timePerQ === sec
-                              ? 'bg-blue-600 text-white border-blue-500'
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          {sec}s ⏱️
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Custom Room Code Box */}
-                <div className="pt-2 border-t border-slate-800/80 mt-2">
-                  <label className="text-xs font-bold text-slate-300 block mb-2">
-                    {isHindi ? 'अपना खुद का 4-अंकीय कोड बनाएं (वैकल्पिक):' : 'Create your own 4-digit code (Optional):'}
-                  </label>
-                  <input
-                    type="text"
-                    value={customRoomCode}
-                    onChange={(e) => setCustomRoomCode(e.target.value.toUpperCase())}
-                    placeholder="उदा. 4321"
-                    maxLength={10}
-                    className="w-full px-4 py-3 bg-slate-950 border-2 border-slate-700 focus:border-blue-500 rounded-xl text-center text-sm font-mono font-black text-white tracking-widest focus:outline-none transition-colors"
-                  />
-                  <p className="text-[10px] text-slate-500 mt-1 text-center">
-                    {isHindi ? '(खाली छोड़ने पर अपने आप कोड बन जाएगा)' : '(Leave blank to auto-generate)'}
-                  </p>
-                </div>
-
-                {/* CREATE ACTION BUTTONS */}
-                <div className="pt-2">
-                  <button
-                    onClick={handleCreateRoom}
-                    className="w-full py-4 px-4 bg-gradient-to-r from-blue-600 via-teal-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-black rounded-2xl text-sm shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
-                  >
-                    <Radio className="w-4 h-4 animate-pulse" />
-                    <span>{isHindi ? '🎯 नया लाइव क्विज़ रूम बनाएं (Create Battle Room)' : '🎯 Create Live Quiz Battle Room'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* RIGHT (5 COLS): JOIN EXISTING ROOM & ACTIVE ROOM LOBBY */}
-              <div className="lg:col-span-5 space-y-4">
-                
-                {/* JOIN BOX */}
-                {!room && (
-                  <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
-                    <div className="border-b border-slate-800 pb-3">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-base font-black text-white flex items-center gap-2">
-                          <Users className="w-5 h-5 text-emerald-400" />
-                          <span>{isHindi ? 'रूम कोड से जुड़ें (Join Room)' : 'Join Room with Code'}</span>
-                        </h2>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          {isHindi ? 'बिना लिंक के सीधा प्रवेश' : 'No Link Needed'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400">
-                        {isHindi ? 'दोस्त का 4-अंकीय कोड (जैसे 8921) या HANS-8921 डालकर बिना किसी लिंक के तुरंत मुकाबला शुरू करें।' : 'Enter your friend’s 4-digit number (e.g. 8921) or HANS-8921 to join live immediately.'}
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={roomCodeInput}
-                          onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                          placeholder="उदा. 8921 या HANS-8921"
-                          maxLength={9}
-                          className="flex-1 px-4 py-3 bg-slate-950 border-2 border-slate-700 focus:border-emerald-500 rounded-xl text-center text-base sm:text-lg font-mono font-black text-white tracking-widest focus:outline-none transition-colors"
-                        />
-                        <button
-                          onClick={() => setIsScannerOpen(true)}
-                          className="w-14 shrink-0 bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 flex flex-col items-center justify-center rounded-xl transition-colors"
-                          title="Scan QR Code"
-                        >
-                          <QrCode className="w-6 h-6 text-emerald-400" />
-                          <span className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Scan</span>
-                        </button>
-                      </div>
-                      <button
-                        onClick={handleJoinRoom}
-                        disabled={!roomCodeInput.trim()}
-                        className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 active:scale-95 transition-all"
-                      >
-                        <Play className="w-4 h-4" />
-                        <span>{isHindi ? 'क्विज़ रूम में शामिल हों' : 'Join Room Now'}</span>
-                      </button>
-
-                      {/* Find Match Button */}
-                      <button
-                        onClick={handleFindRandomMatch}
-                        disabled={isGeneratingVoiceQ}
-                        className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-purple-900/40 flex items-center justify-center gap-2 cursor-pointer mt-3 active:scale-95 transition-all"
-                      >
-                        <Zap className="w-4 h-4" />
-                        <span>{isHindi ? 'किसी भी अनजान छात्र के साथ खेलें (Find Match)' : 'Play with a Random Aspirant'}</span>
-                      </button>
-
-                      {/* Recent Room Chips for 1-Click Joining without link */}
-                      {recentRoomCodes.length > 0 && (
-                        <div className="pt-2 border-t border-slate-800/80">
-                          <span className="text-[10px] font-semibold text-slate-400 block mb-1.5">
-                            {isHindi ? '⚡ हाल के लाइव रूम्स (1-क्लिक में जुड़ें):' : '⚡ Recent Live Rooms (Tap to fill):'}
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {recentRoomCodes.map((c) => (
-                              <button
-                                key={c}
-                                type="button"
-                                onClick={() => setRoomCodeInput(c)}
-                                className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all ${
-                                  roomCodeInput === c 
-                                    ? 'bg-emerald-600 text-white border-emerald-400 shadow-sm' 
-                                    : 'bg-slate-950 hover:bg-slate-800 text-emerald-300 border-slate-700 hover:border-emerald-500/60'
-                                }`}
-                              >
-                                {c}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* CONNECTED LOBBY MEMBERS (WHEN ROOM IS OPEN) */}
-                {room && room.status === 'lobby' && (
-                  <div className="bg-slate-950/95 border-2 border-emerald-500/40 rounded-3xl p-5 shadow-2xl space-y-4">
-                    <div className="border-b border-slate-800 pb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                              ROOM ACTIVE {room.isUnlimitedMode ? '• ♾️ UNLIMITED' : ''}
-                            </span>
-                            <h3 className="text-xl sm:text-2xl font-black text-white font-mono mt-1">
-                              {room.id}
-                            </h3>
-                          </div>
-                          
-                          <div className="flex items-center gap-1.5 md:hidden">
-                            <button
-                              onClick={handleCopyShareLink}
-                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
-                            >
-                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                              <span>{isCopied ? (isHindi ? 'कॉपी!' : 'Copied!') : (isHindi ? 'लिंक' : 'Link')}</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Share Prompt */}
-                        <p className="text-[11px] text-emerald-300/90 mt-2 bg-emerald-950/40 p-2 rounded-xl border border-emerald-500/20 max-w-sm">
-                          {isHindi 
-                            ? '📲 अपने दोस्तों को WhatsApp या Telegram पर लिंक भेजें — वे सीधे आपके रूम में लाइव जुड़कर मुकाबला करेंगे!' 
-                            : '📲 Share the link with friends on WhatsApp or Telegram to invite them to this battle!'}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2 bg-slate-900 p-3 rounded-2xl border border-slate-800">
-                        <button
-                          onClick={handleWhatsAppShare}
-                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer shadow-md"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>{isHindi ? 'WhatsApp पर शेयर करें' : 'Share on WhatsApp'}</span>
-                        </button>
-                        <button
-                          onClick={handleCopyShareLink}
-                          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer shadow-md"
-                        >
-                          <Copy className="w-4 h-4" />
-                          <span>{isHindi ? 'लिंक कॉपी करें' : 'Copy Link'}</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* CONNECTED MEMBERS LIST */}
-                    <div className="space-y-2">
-                      <div className="text-xs font-bold text-slate-400 flex items-center justify-between">
-                        <span>{isHindi ? 'जुड़े हुए छात्र (Connected Aspirants):' : 'Connected Participants:'}</span>
-                        <span className="text-emerald-400 font-mono font-bold">{Object.keys(room.participants).length} Online</span>
-                      </div>
-                      
-                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                        {Object.values(room.participants).map(p => (
-                          <div key={p.id} className="p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-base">{p.avatar}</span>
-                              <span className="text-xs font-bold text-white">{p.name}</span>
-                              {p.isHost && (
-                                <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 text-[9px] font-bold rounded">
-                                  HOST
-                                </span>
-                              )}
-                              {p.id === playerId && (
-                                <span className="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 text-[9px] font-bold rounded">
-                                  YOU
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                              Ready
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* START BUTTON (HOST ONLY) */}
-                    {room.participants[playerId]?.isHost ? (
-                      <button
-                        onClick={handleStartGame}
-                        className="w-full py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-emerald-950/50 flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all"
-                      >
-                        <Play className="w-5 h-5 fill-white" />
-                        <span>{isHindi ? 'सब तैयार हैं — लाइव क्विज़ शुरू करें! (Start Quiz)' : 'Start Group Quiz Battle!'}</span>
-                      </button>
-                    ) : (
-                      <div className="p-3 bg-blue-950/30 border border-blue-500/20 rounded-xl text-center text-xs text-blue-300">
-                        {isHindi ? 'होस्ट द्वारा क्विज़ शुरू करने की प्रतीक्षा की जा रही है...' : 'Waiting for Host to start the quiz...'}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* 2. ACTIVE QUESTION SCREEN (LIVE IN-PROGRESS BATTLE) */}
-          {room && (room.status === 'in-progress' || room.status === 'question-review') && (
-            <div className="space-y-5 max-w-4xl mx-auto">
-              
-              {/* TOP HUD: QUESTION NUMBER, TIME CIRCLE, UNLIMITED BADGE, MY SCORE */}
-              <div className="bg-slate-950/95 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl flex items-center justify-between gap-4 flex-wrap">
-                
-                {/* QUESTION COUNTER */}
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-red-500/50 flex items-center justify-center font-black text-blue-300 font-mono text-sm">
-                    Q{room.currentQuestionIndex + 1}
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
-                      <span>{isHindi ? 'राउंड / प्रश्न' : 'Round / Question'}</span>
-                      {room.isUnlimitedMode && (
-                        <span className="px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 rounded text-[9px] font-mono font-bold">
-                          ♾️ UNLIMITED
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs sm:text-sm font-black text-white">
-                      {room.currentQuestionIndex + 1} {room.isUnlimitedMode ? `/ ♾️ (Round ${room.currentQuestionIndex + 1})` : `/ ${room.questions.length}`}
-                    </div>
-                  </div>
-                </div>
-
-                {/* COUNTDOWN TIMER */}
-                <div className="flex items-center gap-2">
-                  <div className={`px-4 py-2 rounded-2xl border flex items-center gap-2 font-mono font-black text-base sm:text-lg transition-all ${
-                    timeLeft <= 5 
-                      ? 'bg-rose-500/20 text-rose-300 border-rose-500 animate-pulse' 
-                      : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
-                  }`}>
-                    <Clock className="w-4 h-4" />
-                    <span>{timeLeft}s</span>
-                  </div>
-                </div>
-
-                {/* CURRENT USER LIVE SCORE & END BATTLE BUTTON */}
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase">
-                      {isHindi ? 'मेरा स्कोर' : 'My Score'}
-                    </div>
-                    <div className="text-xs sm:text-sm font-black text-emerald-400 font-mono">
-                      {myParticipant?.score || 0} pts
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center font-black text-emerald-300 font-mono text-sm">
-                    #{myRank || 1}
-                  </div>
-
-                  {room.isUnlimitedMode && (room.participants[playerId]?.isHost || true) && (
-                    <button
-                      onClick={handleEndQuizBattle}
-                      className="px-2.5 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 rounded-xl text-[11px] font-bold cursor-pointer transition-all"
-                      title="Conclude Battle / क्विज़ संपन्न करें"
-                    >
-                      {isHindi ? '🏁 क्विज़ समाप्त' : '🏁 End'}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* MAIN QUESTION CARD */}
-              {(() => {
-                const currentQ = room.questions[room.currentQuestionIndex];
-                if (!currentQ) return null;
-
-                return (
-                  <div className="bg-slate-950/95 border-2 border-red-500/50 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
-                    
-                    {/* QUESTION TEXT */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-slate-400">
-                        <span className="text-emerald-400 uppercase tracking-wider font-mono">
-                          {room.examType === 'board' ? `🎓 Board ${room.boardClass || '10th'}` : '🏆 Competitive Exam'} • {room.subject}
-                        </span>
-                        <button
-                          onClick={() => announceVoice(currentQ.question)}
-                          className="flex items-center gap-1 text-slate-400 hover:text-emerald-300 cursor-pointer transition-colors"
-                          title="Read question aloud"
-                        >
-                          <Volume2 className="w-3.5 h-3.5" />
-                          <span className="text-[11px]">{isHindi ? 'दोबारा सुनें' : 'Listen'}</span>
-                        </button>
-                      </div>
-                      <h2 className="text-base sm:text-2xl font-black text-white leading-relaxed whitespace-pre-line">
-                        {currentQ.question}
-                      </h2>
-                    </div>
-
-                    {/* OPTIONS GRID */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      {currentQ.options.map((opt, optIdx) => {
-                        const isSelected = selectedOption === optIdx;
-                        const isCorrectAnswer = optIdx === currentQ.answerIndex;
-                        const isReviewing = room.status === 'question-review';
-
-                        let btnStyle = 'bg-slate-950/80 border-slate-800 text-slate-200 hover:border-blue-500/60 hover:bg-slate-900';
-                        if (isReviewing) {
-                          if (isCorrectAnswer) {
-                            btnStyle = 'bg-emerald-950/80 border-emerald-500 text-emerald-200 font-black shadow-lg shadow-emerald-950/50 ring-2 ring-emerald-500/50';
-                          } else if (isSelected && !isCorrectAnswer) {
-                            btnStyle = 'bg-rose-950/80 border-rose-500 text-rose-200 font-bold';
-                          } else {
-                            btnStyle = 'bg-slate-950/40 border-slate-900 text-slate-500 opacity-60';
-                          }
-                        } else if (isSelected) {
-                          btnStyle = 'bg-blue-600/30 border-blue-400 text-white font-bold shadow-lg';
-                        }
-
-                        return (
-                          <button
-                            key={optIdx}
-                            type="button"
-                            disabled={isAnswerLocked || isReviewing}
-                            onClick={() => handleSelectOption(optIdx)}
-                            className={`p-4 sm:p-5 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${btnStyle} disabled:cursor-not-allowed`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center font-mono font-bold text-sm shrink-0">
-                                {String.fromCharCode(65 + optIdx)}
-                              </span>
-                              <span className="text-xs sm:text-base font-semibold">{opt}</span>
-                            </div>
-
-                            {isReviewing && isCorrectAnswer && (
-                              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
-                            )}
-                            {isReviewing && isSelected && !isCorrectAnswer && (
-                              <XCircle className="w-6 h-6 text-rose-400 shrink-0" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* LIVE PARTICIPANTS RESPONSE TELEMETRY BAR */}
-                    <div className="pt-2 border-t border-slate-800 space-y-2">
-                      <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        <span>{isHindi ? 'छात्रों के लाइव उत्तर व गति:' : 'Live Participant Responses:'}</span>
-                        <span className="text-emerald-400">{Object.values(room.participants).filter(p => p.answers[room.currentQuestionIndex]).length} / {Object.keys(room.participants).length} Responded</span>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {Object.values(room.participants).map(p => {
-                          const ans = p.answers[room.currentQuestionIndex];
-                          const hasAnswered = !!ans;
-                          const isReviewing = room.status === 'question-review';
-
-                          return (
-                            <div key={p.id} className="p-2 bg-slate-950/60 border border-slate-800/80 rounded-xl flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-1.5 truncate">
-                                <span className="text-sm">{p.avatar}</span>
-                                <span className="text-[11px] font-bold text-slate-200 truncate">{p.name.split(' ')[0]}</span>
-                              </div>
-
-                              {hasAnswered ? (
-                                isReviewing ? (
-                                  ans.isCorrect ? (
-                                    <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                                      ✅ {ans.timeTakenSeconds}s
-                                    </span>
-                                  ) : (
-                                    <span className="text-[10px] font-black text-rose-400 bg-rose-500/20 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                                      ❌ {ans.timeTakenSeconds}s
-                                    </span>
-                                  )
-                                ) : (
-                                  <span className="text-[10px] font-bold text-blue-400 bg-blue-500/20 px-1.5 py-0.5 rounded">
-                                    ⚡ {ans.timeTakenSeconds}s
-                                  </span>
-                                )
-                              ) : (
-                                <span className="text-[10px] text-slate-500 italic">Thinking...</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* EXPLANATION & NEXT ROUND BUTTON (IN REVIEW MODE) */}
-                    {room.status === 'question-review' && (
-                      <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-3 animate-fade-in">
-                        <div className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                          <strong className="text-emerald-400 font-bold">{isHindi ? 'व्याख्या (Explanation): ' : 'Explanation: '}</strong>
-                          {currentQ.explanation}
-                        </div>
-
-                        <div className="flex items-center justify-between pt-1">
-                          {/* QUICK VOICE DICTATE NEW QUESTION ON THE FLY */}
-                          <button
-                            onClick={() => setIsVoiceModalOpen(true)}
-                            className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <Mic className="w-3.5 h-3.5" />
-                            <span>{isHindi ? '🎤 बोलकर नया प्रश्न जोड़ें' : '🎤 Speak New Q'}</span>
-                          </button>
-
-                          <button
-                            disabled={isGeneratingNextQ}
-                            onClick={handleNextQuestion}
-                            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg flex items-center gap-2 cursor-pointer active:scale-95 transition-all disabled:opacity-50"
-                          >
-                            {isGeneratingNextQ ? (
-                              <>
-                                <RefreshCw className="w-4 h-4 animate-spin" />
-                                <span>{isHindi ? 'अगला राउंड जनरेट हो रहा है...' : 'Generating Next Round...'}</span>
-                              </>
-                            ) : (
-                              <>
-                                <span>
-                                  {room.isUnlimitedMode
-                                    ? (isHindi ? 'अगला अनलिमिटेड राउंड ➔' : 'Next Unlimited Round ➔')
-                                    : (room.currentQuestionIndex + 1 >= room.questions.length
-                                        ? (isHindi ? 'अंतिम परिणाम व रैंक देखें 🏆' : 'View Final Standings 🏆')
-                                        : (isHindi ? 'अगला प्रश्न ➔' : 'Next Question ➔'))}
-                                </span>
-                                <ChevronRight className="w-4 h-4" />
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                  </div>
-                );
-              })()}
-
-            </div>
-          )}
-
-          {/* 3. FINAL PODIUM & RESULTS SCREEN */}
-          {room && room.status === 'podium-finished' && (
-            <div className="space-y-6 max-w-4xl mx-auto animate-fade-in">
-              
-              {/* PODIUM HERO BANNER */}
-              <div className="bg-gradient-to-b from-blue-950/60 via-slate-900 to-slate-950 border-2 border-emerald-500/40 rounded-3xl p-6 shadow-2xl text-center space-y-5">
-                <div className="inline-flex p-3 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-3xl shadow-xl shadow-amber-500/10 animate-bounce">
-                  🏆
-                </div>
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                    {isHindi ? '🎉 ग्रुप क्विज़ संपन्न — परिणाम व रैंक' : '🎉 Group Quiz Finished — Final Standings'}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                    {isHindi ? 'सभी प्रतिभागियों के सही-गलत उत्तर, समय और रैंक का विस्तृत विश्लेषण' : 'Complete scorecard breakdown and leader ranks for this live battle'}
-                  </p>
-                </div>
-
-                {/* TOP 3 PODIUM */}
-                <div className="flex items-end justify-center gap-3 sm:gap-6 pt-4 pb-2">
-                  
-                  {/* #2 SILVER */}
-                  {rankedList[1] && (
-                    <div className="flex flex-col items-center">
-                      <span className="text-2xl">{rankedList[1].avatar}</span>
-                      <span className="text-xs font-black text-slate-200 mt-1 max-w-[90px] truncate">{rankedList[1].name}</span>
-                      <span className="text-[11px] font-mono text-emerald-400 font-black">{rankedList[1].score} pts</span>
-                      <div className="w-20 sm:w-24 h-24 bg-gradient-to-t from-slate-800 to-slate-700 rounded-t-2xl border-t-2 border-slate-400 flex items-center justify-center text-xl font-black text-slate-300 mt-2 shadow-lg">
-                        🥈 2nd
-                      </div>
-                    </div>
-                  )}
-
-                  {/* #1 GOLD WINNER */}
-                  {rankedList[0] && (
-                    <div className="flex flex-col items-center">
-                      <span className="text-3xl animate-bounce">{rankedList[0].avatar}</span>
-                      <span className="text-sm font-black text-amber-300 mt-1 max-w-[110px] truncate">{rankedList[0].name}</span>
-                      <span className="text-xs font-mono text-emerald-300 font-black">{rankedList[0].score} pts</span>
-                      <div className="w-24 sm:w-28 h-32 bg-gradient-to-t from-amber-600 to-yellow-500 rounded-t-2xl border-t-2 border-yellow-300 flex items-center justify-center text-2xl font-black text-slate-950 mt-2 shadow-xl shadow-amber-500/20">
-                        🥇 1st
-                      </div>
-                    </div>
-                  )}
-
-                  {/* #3 BRONZE */}
-                  {rankedList[2] && (
-                    <div className="flex flex-col items-center">
-                      <span className="text-2xl">{rankedList[2].avatar}</span>
-                      <span className="text-xs font-black text-amber-600 mt-1 max-w-[90px] truncate">{rankedList[2].name}</span>
-                      <span className="text-[11px] font-mono text-emerald-400 font-black">{rankedList[2].score} pts</span>
-                      <div className="w-20 sm:w-24 h-18 bg-gradient-to-t from-amber-950 to-amber-900 rounded-t-2xl border-t-2 border-amber-700 flex items-center justify-center text-lg font-black text-amber-500 mt-2 shadow-lg">
-                        🥉 3rd
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* PERSONAL SCORECARD */}
-              {myParticipant && (
-                <div className="bg-slate-950/95 border-2 border-blue-500/40 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-300 font-black text-lg">
-                        #{myRank}
-                      </div>
-                      <div>
-                        <h3 className="text-base font-black text-white">
-                          {isHindi ? 'आपका व्यक्तिगत रिपोर्ट कार्ड (Mera Number)' : 'Your Personal Report Card'}
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                          {isHindi ? `${myParticipant.name} का सम्पूर्ण विश्लेषण` : `Detailed stats for ${myParticipant.name}`}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-xl font-mono font-black text-xs">
-                      {Math.round((myParticipant.correctCount / Math.max(1, room.questions.length)) * 100)}% Accuracy
+                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+                    <span className="text-slate-300 font-bold">
+                      {questionsPool.length} प्रश्न उपलब्ध
+                    </span>
+                    <span className="text-[10px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                      Syllabus Ready
                     </span>
                   </div>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase">{isHindi ? 'कुल स्कोर' : 'Total Score'}</div>
-                      <div className="text-lg font-black text-emerald-400 font-mono mt-0.5">{myParticipant.score} pts</div>
-                    </div>
-                    <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase">{isHindi ? 'सही जवाब (✅)' : 'Correct'}</div>
-                      <div className="text-lg font-black text-emerald-400 font-mono mt-0.5">{myParticipant.correctCount} / {room.questions.length}</div>
-                    </div>
-                    <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase">{isHindi ? 'गलत जवाब (❌)' : 'Wrong'}</div>
-                      <div className="text-lg font-black text-rose-400 font-mono mt-0.5">{myParticipant.wrongCount}</div>
-                    </div>
-                    <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-center">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase">{isHindi ? 'औसत गति (⏱️)' : 'Avg Time'}</div>
-                      <div className="text-lg font-black text-blue-400 font-mono mt-0.5">{Math.round((myParticipant.totalTimeSeconds / Math.max(1, room.questions.length)) * 10) / 10}s</div>
-                    </div>
+              {/* Proceed to Lobby CTA */}
+              <button
+                onClick={handleProceedToLobby}
+                className="w-full py-4 bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 hover:opacity-95 text-white font-black text-sm rounded-2xl shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 transform hover:scale-101"
+              >
+                <Users className="w-5 h-5" />
+                <span>{roomCapacity} छात्रों के साथ लाइव बैटल लॉबी में प्रवेश करें (Enter Lobby)</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+
+          {/* TAB B: AI QUESTION GENERATOR STUDIO */}
+          {activeTab === 'ai-gen' && (
+            <div className="bg-[#091122] border-2 border-indigo-500/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <span className="text-xs font-black uppercase text-cyan-300 flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-cyan-400" />
+                  <span>AI प्रश्न जनरेटर (Gemini Syllabus Engine)</span>
+                </span>
+                <span className="text-[10px] text-cyan-400 font-mono">Instant AI Q-Maker</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Exam Category */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase">
+                    परीक्षा श्रेणी (Exam Category):
+                  </label>
+                  <select
+                    value={aiExamCategory}
+                    onChange={e => setAiExamCategory(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-white outline-none focus:border-cyan-500"
+                  >
+                    <option value="SSC CGL & CHSL">🏆 SSC CGL, CHSL, MTS</option>
+                    <option value="SSC Stenographer Grade C & D">✍️ SSC Stenographer Grade C &amp; D</option>
+                    <option value="Railway RRB NTPC & Group D">🚆 Railway RRB NTPC &amp; Group D</option>
+                    <option value="10th & 12th Board Exams">🎓 10वीं व 12वीं बोर्ड परीक्षा</option>
+                    <option value="General Science (Physics, Chem, Bio)">🔬 सामान्य विज्ञान (Physics, Chem, Bio)</option>
+                    <option value="Indian Polity & Constitution">🏛️ भारतीय राजव्यवस्था व संविधान</option>
+                    <option value="Current Affairs 2026">📰 ताजा करेंट अफेयर्स (Latest CA)</option>
+                  </select>
+                </div>
+
+                {/* Question Count */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase">
+                    प्रश्नों की संख्या:
+                  </label>
+                  <select
+                    value={aiCount}
+                    onChange={e => setAiCount(Number(e.target.value))}
+                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-white outline-none focus:border-cyan-500"
+                  >
+                    <option value={5}>5 प्रश्न (क्विक मुकाबला)</option>
+                    <option value={10}>10 प्रश्न (मानक बैटल)</option>
+                    <option value={15}>15 प्रश्न (विस्तृत टेस्ट)</option>
+                    <option value={20}>20 प्रश्न (फुल मॉक बैटल)</option>
+                  </select>
+                </div>
+
+                {/* Difficulty */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase">
+                    कठिनाई स्तर (Difficulty):
+                  </label>
+                  <select
+                    value={aiDifficulty}
+                    onChange={e => setAiDifficulty(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-white outline-none focus:border-cyan-500"
+                  >
+                    <option value="Easy">सरल (Easy - Foundation)</option>
+                    <option value="Medium">मध्यम (Medium - Official Exam Standard)</option>
+                    <option value="Hard">कठिन (Hard - Advanced / Topper Level)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Custom Topic Prompt with Mic Button */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase flex items-center justify-between">
+                  <span>विशिष्ट टॉपिक या अध्याय (लिखें या बोलकर बताएं):</span>
+                  {isRecording && recordingTarget === 'ai-prompt' && (
+                    <span className="text-rose-400 animate-pulse font-bold text-xs flex items-center gap-1">
+                      <Mic className="w-3.5 h-3.5" /> वॉयस रिकॉर्डिंग चालू है...
+                    </span>
+                  )}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={aiTopicPrompt}
+                    onChange={e => setAiTopicPrompt(e.target.value)}
+                    placeholder="उदा. प्रकाश का अपवर्तन, 1857 की क्रांति, मौलिक अधिकार, या आशुलिपि नियम"
+                    className="flex-1 p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-bold text-white outline-none focus:border-cyan-500"
+                  />
+                  <button
+                    onClick={() => startSpeechRecognition('ai-prompt')}
+                    className={`p-3 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                      isRecording && recordingTarget === 'ai-prompt'
+                        ? 'bg-rose-600 border-rose-500 text-white animate-pulse'
+                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
+                    }`}
+                    title="बोलकर टॉपिक बताएं"
+                  >
+                    <Mic className="w-4 h-4 text-cyan-400" />
+                    <span>बोलें</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Generate CTA */}
+              <button
+                onClick={handleGenerateQuestionsWithAI}
+                disabled={isGeneratingAI}
+                className={`w-full py-4 rounded-2xl font-black text-sm text-white shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  isGeneratingAI
+                    ? 'bg-slate-800 opacity-60 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-indigo-600 via-cyan-600 to-blue-600 hover:opacity-95 transform hover:scale-101'
+                }`}
+              >
+                {isGeneratingAI ? (
+                  <>
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    <span>AI प्रश्न तैयार कर रहा है... कृपया प्रतीक्षा करें</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5 text-amber-300" />
+                    <span>AI से {aiCount} प्रश्न सेट तुरंत जनरेट करें (Generate AI Quiz)</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* TAB C: VOICE-TO-QUESTION STUDIO (बोलकर प्रश्न और विकल्प तैयार करें) */}
+          {activeTab === 'voice-create' && (
+            <div className="bg-[#091122] border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <span className="text-xs font-black uppercase text-emerald-300 flex items-center gap-2">
+                  <Mic className="w-4 h-4 text-emerald-400" />
+                  <span>वॉयस प्रश्न क्रिएटर (Speak to Create Questions &amp; Options)</span>
+                </span>
+                <span className="text-[10px] text-emerald-400 font-mono">Speech-to-Quiz Engine</span>
+              </div>
+
+              {/* Voice Mode Selector: All-in-One Voice vs Step-by-Step Form */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  onClick={() => setVoiceMode('all-in-one')}
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    voiceMode === 'all-in-one'
+                      ? 'bg-emerald-950/80 border-emerald-400 text-white shadow-lg'
+                      : 'bg-slate-950 border-slate-850 text-slate-400 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-400" />
+                    <span className="text-xs font-black">ऑल-इन-वन वॉयस डिटेक्शन</span>
                   </div>
+                  <p className="text-[10px] text-slate-300 mt-1">
+                    एक ही बार बोलें: "प्रश्न ... विकल्प 1 ... विकल्प 2 ... विकल्प 3 ... विकल्प 4 ... सही उत्तर 2"
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => setVoiceMode('custom-form')}
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    voiceMode === 'custom-form'
+                      ? 'bg-emerald-950/80 border-emerald-400 text-white shadow-lg'
+                      : 'bg-slate-950 border-slate-850 text-slate-400 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Edit3 className="w-4 h-4 text-cyan-400" />
+                    <span className="text-xs font-black">स्टेप-बाय-स्टेप वॉयस फॉर्म</span>
+                  </div>
+                  <p className="text-[10px] text-slate-300 mt-1">
+                    प्रश्न और प्रत्येक विकल्प के माइक बटन पर क्लिक करके अलग-अलग बोलें या टाइप करें।
+                  </p>
+                </button>
+              </div>
+
+              {/* MODE 1: ALL-IN-ONE SPEECH DETECTOR */}
+              {voiceMode === 'all-in-one' && (
+                <div className="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                      <Mic className="w-4 h-4 text-emerald-400" />
+                      <span>माइक दबाएं और पूरा प्रश्न + 4 विकल्प + सही उत्तर एक साथ बोलें:</span>
+                    </span>
+                    <button
+                      onClick={() => startSpeechRecognition('all-in-one')}
+                      className={`px-4 py-2 rounded-xl font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-lg transition-all ${
+                        isRecording && recordingTarget === 'all-in-one'
+                          ? 'bg-rose-600 text-white animate-pulse'
+                          : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                      }`}
+                    >
+                      {isRecording && recordingTarget === 'all-in-one' ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                      <span>{isRecording && recordingTarget === 'all-in-one' ? 'रिकॉर्डिंग रोकें' : 'बोलना शुरू करें'}</span>
+                    </button>
+                  </div>
+
+                  {voiceTranscript && (
+                    <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-200">
+                      <strong className="text-amber-300">ट्रांसक्रिप्ट:</strong> {voiceTranscript}
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* ACTION BUTTONS: PLAY AGAIN OR EXPORT */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <button
-                  onClick={() => setRoom(null)}
-                  className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>{isHindi ? 'नया ग्रुप क्विज़ खेलें' : 'Play Another Live Battle'}</span>
-                </button>
+              {/* STEP-BY-STEP QUESTION & OPTIONS INPUT FORM */}
+              <div className="space-y-4">
+                {/* 1. Question Input with Mic */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase flex items-center justify-between">
+                    <span>प्रश्न टेक्स्ट (Question Text):</span>
+                    {isRecording && recordingTarget === 'q-text' && (
+                      <span className="text-rose-400 animate-pulse text-xs">सुन रहे हैं...</span>
+                    )}
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customQuestionText}
+                      onChange={e => setCustomQuestionText(e.target.value)}
+                      placeholder="उदा. भारत के प्रथम राष्ट्रपति कौन थे?"
+                      className="flex-1 p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-bold text-white outline-none focus:border-emerald-500"
+                    />
+                    <button
+                      onClick={() => startSpeechRecognition('q-text')}
+                      className={`p-3 rounded-xl border text-xs font-bold cursor-pointer shrink-0 ${
+                        isRecording && recordingTarget === 'q-text'
+                          ? 'bg-rose-600 text-white animate-pulse'
+                          : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
+                      }`}
+                      title="बोलकर प्रश्न बताएं"
+                    >
+                      <Mic className="w-4 h-4 text-emerald-400" />
+                    </button>
+                  </div>
+                </div>
 
-                {onExportPdf && (
-                  <button
-                    onClick={() => {
-                      onExportPdf(
-                        `${room.title} Result`,
-                        undefined,
-                        `Group Quiz Room: ${room.id}\nScore: ${myParticipant?.score || 0}\nCorrect: ${myParticipant?.correctCount || 0}/${room.questions.length}\nWrong: ${myParticipant?.wrongCount || 0}\nRank: #${myRank}`
-                      );
-                    }}
-                    className="py-3.5 px-6 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm rounded-2xl border border-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-all"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>{isHindi ? 'रिजल्ट डाउनलोड' : 'Export Scorecard'}</span>
-                  </button>
-                )}
+                {/* 2. 4 Options with Individual Mic Buttons */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase">
+                    4 विकल्प (बोलकर या टाइप करके दर्ज करें और सही विकल्प चुनें):
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {customOptions.map((opt, oIdx) => (
+                      <div key={oIdx} className="space-y-1">
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                          <span>विकल्प {String.fromCharCode(65 + oIdx)}</span>
+                          <label className="flex items-center gap-1 text-emerald-400 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="correctOption"
+                              checked={customCorrectIndex === oIdx}
+                              onChange={() => setCustomCorrectIndex(oIdx)}
+                              className="accent-emerald-500 cursor-pointer"
+                            />
+                            <span>सही उत्तर</span>
+                          </label>
+                        </div>
+                        <div className="flex gap-1.5">
+                          <input
+                            type="text"
+                            value={opt}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setCustomOptions(prev => {
+                                const next = [...prev];
+                                next[oIdx] = val;
+                                return next;
+                              });
+                            }}
+                            placeholder={`विकल्प ${String.fromCharCode(65 + oIdx)}...`}
+                            className={`flex-1 p-2.5 bg-slate-950 border rounded-xl text-xs font-bold text-white outline-none ${
+                              customCorrectIndex === oIdx ? 'border-emerald-500/80 bg-emerald-950/20' : 'border-slate-800'
+                            }`}
+                          />
+                          <button
+                            onClick={() => startSpeechRecognition(`opt${oIdx}` as any)}
+                            className={`p-2.5 rounded-xl border text-xs cursor-pointer shrink-0 ${
+                              isRecording && recordingTarget === `opt${oIdx}`
+                                ? 'bg-rose-600 text-white animate-pulse'
+                                : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            }`}
+                            title={`बोलकर विकल्प ${String.fromCharCode(65 + oIdx)} भरें`}
+                          >
+                            <Mic className="w-4 h-4 text-emerald-400" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Add to Battle Pool Button */}
+                <button
+                  onClick={handleAddCustomQuestion}
+                  className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-black text-xs sm:text-sm rounded-2xl shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>यह प्रश्न बैटल रूम में जोड़ें (Add Question)</span>
+                </button>
               </div>
 
+              {/* Custom Questions List Preview */}
+              {customQuestionsList.length > 0 && (
+                <div className="space-y-3 pt-3 border-t border-slate-800">
+                  <span className="text-xs font-bold text-amber-300">
+                    आपके द्वारा जोड़े गए प्रश्न ({customQuestionsList.length}):
+                  </span>
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {customQuestionsList.map((cq, i) => (
+                      <div key={i} className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
+                        <div className="space-y-0.5 max-w-[80%]">
+                          <p className="font-bold text-white truncate">{i + 1}. {cq.question}</p>
+                          <p className="text-[10px] text-emerald-400">सही: {cq.options[cq.correct]}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setCustomQuestionsList(prev => prev.filter((_, idx) => idx !== i));
+                            setQuestionsPool(prev => prev.filter(q => q.id !== cq.id));
+                          }}
+                          className="text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
-
         </div>
       )}
 
-      {/* QR SCANNER MODAL */}
-      {isScannerOpen && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-emerald-500/30 rounded-3xl p-5 sm:p-6 w-full max-w-sm shadow-2xl relative">
-            <button
-              onClick={() => setIsScannerOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white"
-            >
-              <XCircle className="w-6 h-6" />
-            </button>
-            <div className="text-center space-y-4">
-              <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
-                <QrCode className="w-6 h-6" />
+      {/* -------------------------------------------------------------
+          VIEW 2: LIVE MULTIPLAYER LOBBY (10 to 50 Students Waiting Room)
+          ------------------------------------------------------------- */}
+      {battleState === 'lobby' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Lobby Status Card */}
+          <div className="lg:col-span-2 bg-[#091122] border-2 border-amber-500/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⚔️</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">
+                    लाइव बैटल रूम लॉबी
+                  </h2>
+                </div>
+                <p className="text-slate-300 text-xs mt-1">
+                  रूम कोड: <strong className="text-amber-300 font-mono text-sm">{roomCode}</strong> • क्षमता: <strong className="text-cyan-300">{roomCapacity} छात्र</strong>
+                </p>
               </div>
-              <h3 className="text-lg font-black text-white">
-                {isHindi ? 'क्यूआर कोड स्कैन करें' : 'Scan QR Code'}
-              </h3>
-              <p className="text-xs text-slate-400">
-                {isHindi ? 'अपने दोस्त के फोन में दिखा हुआ QR कोड स्कैन करें' : 'Scan the QR code shown on your friend\'s phone'}
-              </p>
-              
-              <div className="bg-black/50 rounded-2xl overflow-hidden border-2 border-emerald-500/20 w-full h-64 mx-auto relative flex items-center justify-center">
-                <div id="qr-reader" className="w-full h-full object-cover"></div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyCode}
+                  className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-750 text-xs font-bold text-slate-200 hover:text-white flex items-center gap-1 cursor-pointer"
+                >
+                  {copiedCode ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  <span>{copiedCode ? 'Copied' : 'कोड कॉपी'}</span>
+                </button>
+                <button
+                  onClick={handleShareWhatsApp}
+                  className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black flex items-center gap-1 cursor-pointer shadow-md"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>व्हाट्सएप शेयर</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 10 to 50 Students Grid in Lobby */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-emerald-400" />
+                  <span>जुड़े हुए लाइव प्रतियोगी ({participants.length} / {roomCapacity}):</span>
+                </span>
+                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  🟢 सभी तैयार (Ready)
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto p-2 bg-slate-950/70 rounded-2xl border border-slate-850">
+                {participants.map((p, idx) => (
+                  <div
+                    key={p.id}
+                    className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
+                      p.isUser
+                        ? 'bg-amber-500/10 border-amber-500/50 shadow-md'
+                        : 'bg-slate-900/80 border-slate-800'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-full bg-gradient-to-tr ${p.avatarColor} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-inner`}>
+                      {p.name.charAt(0)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-white truncate">
+                        {p.name}
+                      </p>
+                      <p className="text-[9px] text-slate-400 truncate">{p.state}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Battle Info Cards */}
+            <div className="grid grid-cols-3 gap-3 p-3 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase block">कुल प्रश्न</span>
+                <span className="text-sm font-black text-amber-300 font-mono">{battleQuestions.length} Qs</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase block">प्रति प्रश्न टाइमर</span>
+                <span className="text-sm font-black text-rose-400 font-mono">{questionTimerSec}s</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase block">अधिकतम अंक</span>
+                <span className="text-sm font-black text-emerald-400 font-mono">{battleQuestions.length * (10 + questionTimerSec)} pts</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button
+                onClick={() => setBattleState('setup')}
+                className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-2xl border border-slate-750 cursor-pointer"
+              >
+                ⚙️ सेटिंग्स बदलें
+              </button>
+
+              <button
+                onClick={handleStartBattle}
+                className="flex-1 py-3.5 bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 hover:opacity-95 text-white font-black text-sm rounded-2xl shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 transform hover:scale-101"
+              >
+                <Play className="w-5 h-5 fill-current" />
+                <span>मुकाबला शुरू करें (Start Live Battle Now)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Lobby Live Chat & Rules Card */}
+          <div className="bg-[#091122] border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <MessageSquare className="w-4 h-4 text-cyan-400" />
+                  <span>लाइव रूम चैट व नियम</span>
+                </h3>
+                <span className="text-[10px] text-emerald-400 font-mono">LOBBY CHAT</span>
+              </div>
+
+              {/* Chat Messages */}
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {lobbyChat.map((msg, i) => (
+                  <div key={i} className="p-2.5 rounded-xl bg-slate-950 border border-slate-850 space-y-1 text-xs">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="font-bold text-amber-300">{msg.sender}</span>
+                      <span className="text-slate-500">{msg.time}</span>
+                    </div>
+                    <p className="text-slate-200">{msg.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Chat Input */}
+            <div className="space-y-2 pt-2 border-t border-slate-800">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={chatMessage}
+                  onChange={e => setChatMessage(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSendChatMessage()}
+                  placeholder="साथियों को मैसेज भेजें..."
+                  className="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-cyan-500"
+                />
+                <button
+                  onClick={handleSendChatMessage}
+                  className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl cursor-pointer"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* -------------------------------------------------------------
+          VIEW 3: ACTIVE LIVE BATTLE ARENA (Interactive In-Game Screen)
+          ------------------------------------------------------------- */}
+      {battleState === 'active' && (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Main Battle Question Column */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Top Bar with Question Count, Timer, and User Live Score */}
+            <div className="flex items-center justify-between bg-[#091122] border border-slate-800 p-4 rounded-2xl shadow-lg">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  प्रश्न {currentIdx + 1} / {battleQuestions.length}
+                </span>
+                <button
+                  onClick={() => playNaturalSpeech(currentQ.question + '. ' + currentQ.options.join('. '))}
+                  className="p-1.5 rounded-lg bg-slate-950 border border-slate-800 hover:text-rose-400 transition-colors cursor-pointer"
+                  title="प्रश्न आवाज में सुनें"
+                >
+                  <Volume2 className="w-4 h-4" />
+                </button>
+                <span className="text-[10px] bg-slate-950 text-cyan-300 px-2.5 py-0.5 rounded-full border border-slate-800 hidden sm:inline">
+                  {currentQ.subject || 'सामान्य अध्ययन'}
+                </span>
+              </div>
+
+              {/* Dynamic Countdown Timer with Color Pulse */}
+              <div className={`flex items-center gap-1.5 font-mono font-black text-sm sm:text-base px-3 py-1 rounded-xl border ${
+                timeLeft <= 4
+                  ? 'bg-rose-950 border-rose-500 text-rose-400 animate-pulse'
+                  : 'bg-slate-950 border-slate-800 text-amber-300'
+              }`}>
+                <Timer className="w-4 h-4" />
+                <span>{timeLeft}s</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {userStreak > 1 && (
+                  <span className="text-[10px] font-black text-orange-400 bg-orange-950/80 px-2 py-0.5 rounded-md border border-orange-500/40 flex items-center gap-1">
+                    <Flame className="w-3 h-3 text-orange-400 fill-current" />
+                    <span>{userStreak}x Streak</span>
+                  </span>
+                )}
+                <div className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                  आपका स्कोर: {userScore} pts
+                </div>
+              </div>
+            </div>
+
+            {/* Question Text & Options Card */}
+            <div className="bg-[#091122] border-2 border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+              <h3 className="text-lg sm:text-2xl font-bold text-white leading-relaxed">
+                {currentQ.question}
+              </h3>
+
+              {/* 4 Interactive Option Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {currentQ.options.map((opt, oIdx) => {
+                  const hasAnswered = selectedOption !== null;
+                  const isSelected = selectedOption === oIdx;
+                  const isCorrect = oIdx === currentQ.correct;
+
+                  let btnStyle = 'bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700';
+                  if (hasAnswered) {
+                    if (isCorrect) {
+                      btnStyle = 'bg-emerald-950/90 border-emerald-500 text-emerald-200 shadow-lg shadow-emerald-950/50';
+                    } else if (isSelected && !isCorrect) {
+                      btnStyle = 'bg-rose-950/90 border-rose-500 text-rose-200 shadow-lg shadow-rose-950/50';
+                    } else {
+                      btnStyle = 'bg-slate-950/40 border-slate-850 text-slate-500 opacity-60';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={oIdx}
+                      onClick={() => handleOptionSelect(oIdx)}
+                      disabled={hasAnswered}
+                      className={`p-4 sm:p-5 rounded-2xl border text-left text-sm sm:text-base font-semibold transition-all flex items-center justify-between cursor-pointer ${btnStyle}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center border ${
+                          hasAnswered && isCorrect
+                            ? 'bg-emerald-600 text-white border-emerald-400'
+                            : hasAnswered && isSelected && !isCorrect
+                            ? 'bg-rose-600 text-white border-rose-400'
+                            : 'bg-slate-900 text-slate-400 border-slate-800'
+                        }`}>
+                          {String.fromCharCode(65 + oIdx)}
+                        </span>
+                        <span className="leading-snug">{opt}</span>
+                      </div>
+                      {hasAnswered && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />}
+                      {hasAnswered && isSelected && !isCorrect && <XCircle className="w-5 h-5 text-rose-400 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Explanation & Next Question Button */}
+              {selectedOption !== null && (
+                <div className="space-y-4 pt-3 border-t border-slate-800 animate-fade-in">
+                  {currentQ.explanation && (
+                    <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 text-xs text-slate-300">
+                      <strong className="text-amber-300">व्याख्या:</strong> {currentQ.explanation}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-slate-400">
+                      आपकी वर्तमान रैंक: <strong className="text-amber-300 font-mono">#{userRankIndex + 1}</strong> / {participants.length}
+                    </div>
+
+                    <button
+                      onClick={handleNextQuestion}
+                      className="px-8 py-3 bg-gradient-to-r from-rose-600 to-orange-600 text-white font-black text-sm rounded-2xl flex items-center gap-2 cursor-pointer shadow-lg transform hover:scale-102 transition-all"
+                    >
+                      <span>{currentIdx < battleQuestions.length - 1 ? 'अगला मुकाबला (Next Q)' : 'बैटल परिणाम देखें (Result)'}</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Live 10 to 50 Multi-player Leaderboard Column */}
+          <div className="space-y-4">
+            <div className="bg-[#091122] border-2 border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-amber-400" />
+                  <span>लाइव लीडरबोर्ड ({participants.length})</span>
+                </h3>
+                <span className="text-[10px] text-emerald-400 font-mono font-bold">LIVE</span>
+              </div>
+
+              {/* Live Ranked List with Real-Time Dynamic Shifting */}
+              <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
+                {sortedLeaderboard.map((player, pIdx) => {
+                  const isTop3 = pIdx < 3;
+                  return (
+                    <div
+                      key={player.id}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${
+                        player.isUser
+                          ? 'bg-amber-500/15 border-amber-500/60 shadow-md'
+                          : 'bg-slate-950/80 border-slate-850'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${
+                          pIdx === 0
+                            ? 'bg-amber-400 text-slate-950 font-bold'
+                            : pIdx === 1
+                            ? 'bg-slate-300 text-slate-950 font-bold'
+                            : pIdx === 2
+                            ? 'bg-amber-700 text-white font-bold'
+                            : 'bg-slate-800 text-slate-400'
+                        }`}>
+                          {pIdx + 1}
+                        </span>
+                        <div className="min-w-0">
+                          <p className={`text-xs truncate ${player.isUser ? 'font-black text-amber-300' : 'font-bold text-white'}`}>
+                            {player.name}
+                          </p>
+                          <span className="text-[9px] text-slate-400">{player.state}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {player.status === 'answered' && (
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
+                            player.lastAnswerCorrect ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'
+                          }`}>
+                            {player.lastAnswerCorrect ? '✓' : '✗'}
+                          </span>
+                        )}
+                        <span className="font-mono text-xs font-black text-amber-300">
+                          {player.score} pts
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* -------------------------------------------------------------
+          VIEW 4: POST-BATTLE PODIUM & FULL RANK RESULTS
+          ------------------------------------------------------------- */}
+      {battleState === 'finished' && (
+        <div className="bg-[#091122] border-2 border-rose-500/40 rounded-3xl p-6 sm:p-10 space-y-8 shadow-2xl animate-fade-in">
+          {/* Podium Header */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-bold uppercase border border-amber-500/20">
+              <Trophy className="w-4 h-4 text-amber-400" />
+              <span>ग्रुप क्विज़ बैटल समाप्त</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black text-white font-hindi-title">
+              बैटल चैम्पियनशिप परिणाम (Grand Podium)
+            </h2>
+            <p className="text-slate-300 text-xs sm:text-sm">
+              रूम कोड: <strong className="text-amber-300 font-mono">{roomCode}</strong> • कुल प्रतियोगी: <strong className="text-cyan-300">{participants.length} छात्र</strong>
+            </p>
+          </div>
+
+          {/* Top 3 Grand Visual Podium */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-2xl mx-auto pt-6 items-end">
+            {/* Rank 2 - Silver */}
+            {sortedLeaderboard[1] && (
+              <div className="bg-slate-900 border border-slate-700 rounded-3xl p-4 text-center space-y-2 shadow-xl flex flex-col items-center">
+                <span className="text-2xl sm:text-3xl">🥈</span>
+                <span className="text-xs font-black text-slate-300 truncate w-full">
+                  {sortedLeaderboard[1].name}
+                </span>
+                <span className="text-[10px] text-slate-400">{sortedLeaderboard[1].state}</span>
+                <span className="font-mono text-xs sm:text-sm font-black text-amber-300">
+                  {sortedLeaderboard[1].score} pts
+                </span>
+                <span className="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold">
+                  रैंक #2
+                </span>
+              </div>
+            )}
+
+            {/* Rank 1 - Gold (Taller) */}
+            {sortedLeaderboard[0] && (
+              <div className="bg-gradient-to-b from-amber-950 via-slate-900 to-amber-950 border-2 border-amber-400 rounded-3xl p-5 text-center space-y-2.5 shadow-2xl flex flex-col items-center -translate-y-4">
+                <span className="text-3xl sm:text-4xl animate-bounce">🏆</span>
+                <span className="text-xs sm:text-sm font-black text-amber-300 truncate w-full">
+                  {sortedLeaderboard[0].name}
+                </span>
+                <span className="text-[10px] text-slate-300">{sortedLeaderboard[0].state}</span>
+                <span className="font-mono text-sm sm:text-base font-black text-amber-400">
+                  {sortedLeaderboard[0].score} pts
+                </span>
+                <span className="text-[10px] bg-amber-500 text-slate-950 px-2.5 py-0.5 rounded-full font-black uppercase">
+                  विजेता (1st Rank)
+                </span>
+              </div>
+            )}
+
+            {/* Rank 3 - Bronze */}
+            {sortedLeaderboard[2] && (
+              <div className="bg-slate-900 border border-amber-900/60 rounded-3xl p-4 text-center space-y-2 shadow-xl flex flex-col items-center">
+                <span className="text-2xl sm:text-3xl">🥉</span>
+                <span className="text-xs font-black text-amber-700 truncate w-full">
+                  {sortedLeaderboard[2].name}
+                </span>
+                <span className="text-[10px] text-slate-400">{sortedLeaderboard[2].state}</span>
+                <span className="font-mono text-xs sm:text-sm font-black text-amber-300">
+                  {sortedLeaderboard[2].score} pts
+                </span>
+                <span className="text-[9px] bg-slate-800 text-amber-500 px-2 py-0.5 rounded-full font-bold">
+                  रैंक #3
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* User Scorecard Banner */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-amber-500/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl font-black text-amber-300 font-mono">
+                #{userRankIndex + 1}
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">आपकी अंतिम रैंक</p>
+                <h4 className="text-base sm:text-lg font-black text-white">
+                  Rank #{userRankIndex + 1} / {participants.length} छात्र
+                </h4>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 text-center">
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase block">आपका कुल स्कोर</span>
+                <span className="text-lg font-black text-emerald-400 font-mono">{userScore} pts</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase block">सटीकता (Accuracy)</span>
+                <span className="text-lg font-black text-cyan-400 font-mono">
+                  {Math.round((userScore / Math.max(1, battleQuestions.length * (10 + questionTimerSec))) * 100)}%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Full Rank Table of All 10-50 Students */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <Users className="w-4 h-4 text-cyan-400" />
+              <span>सभी {participants.length} प्रतियोगियों की संपूर्ण रैंक सूची</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-80 overflow-y-auto pr-1">
+              {sortedLeaderboard.map((p, idx) => (
+                <div
+                  key={p.id}
+                  className={`p-2.5 rounded-xl border flex items-center justify-between text-xs ${
+                    p.isUser
+                      ? 'bg-amber-500/20 border-amber-500/60 font-black'
+                      : 'bg-slate-950 border-slate-850'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-mono text-slate-400 text-[10px] w-6">#{idx + 1}</span>
+                    <span className="text-white truncate">{p.name}</span>
+                  </div>
+                  <span className="font-mono text-amber-300 font-bold">{p.score} pts</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Post-Battle Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-800">
+            <button
+              onClick={() => {
+                setBattleState('setup');
+                setActiveTab('create');
+              }}
+              className="flex-1 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-black text-xs sm:text-sm rounded-2xl cursor-pointer shadow-lg flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>नया बैटल रूम बनाएं / पुनः खेलें (New Battle Room)</span>
+            </button>
+
+            <button
+              onClick={handleShareWhatsApp}
+              className="py-3.5 px-6 bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold text-xs sm:text-sm rounded-2xl border border-slate-750 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>परिणाम दोस्तों को शेयर करें</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+export default LiveGroupQuizStudio;
