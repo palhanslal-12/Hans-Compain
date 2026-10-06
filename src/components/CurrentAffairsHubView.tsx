@@ -730,38 +730,40 @@ export const CurrentAffairsHubView: React.FC = () => {
   };
 
   const handleShareArticle = (item: NewsEditorial) => {
-    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${item.headline}*\n\n${item.summary}\n\n🔗 *पूरा आर्टिकल व परीक्षा नोट्स पढ़ें:* https://hans-compain.onrender.com/\n\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
+    const appUrl = 'https://hans-compain.onrender.com/';
+    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${item.headline}*\n\n👉 *पूरा आर्टिकल पढ़ें (Click Link):*\n${appUrl}\n\n📝 *मुख्य सारांश:*\n${item.summary.slice(0, 140)}...\n\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
 
     if (navigator.share) {
       navigator
         .share({
           title: item.headline,
           text: shareText,
-          url: 'https://hans-compain.onrender.com/'
+          url: appUrl
         })
         .catch(() => {});
     } else {
       navigator.clipboard?.writeText(shareText);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
-      const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
       window.open(waUrl, '_blank');
     }
   };
 
   const handleShareToPlatform = (platform: 'wa' | 'insta' | 'tele') => {
     if (!activeArticle) return;
-    const shareText = `📰 *HANS COMPAIN CURRENT AFFAIRS 2026*\n\n📌 *${activeArticle.headline}*\n\n${activeArticle.summary.slice(0, 200)}...\n\n🔗 https://hans-compain.onrender.com/`;
+    const appUrl = 'https://hans-compain.onrender.com/';
+    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${activeArticle.headline}*\n\n👉 *पूरा आर्टिकल पढ़ें (Click Link):*\n${appUrl}\n\n📝 *मुख्य सारांश:*\n${activeArticle.summary.slice(0, 140)}...\n\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
 
     if (platform === 'wa') {
-      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
     } else if (platform === 'tele') {
-      window.open(`https://t.me/share/url?url=https://hans-compain.onrender.com/&text=${encodeURIComponent(shareText)}`, '_blank');
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(appUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
     } else {
       navigator.clipboard?.writeText(shareText);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
-      alert('📋 आर्टिकल का लिंक और मुख्य सारांश कॉपी हो गया है! अब इसे इंस्टाग्राम या किसी भी ग्रुप में साझा करें।');
+      alert('📋 पूरा लिंक और सारांश कॉपी हो गया है! अब आप इसे सीधे व्हाट्सएप स्टेटस या इंस्टाग्राम पर पेस्ट कर सकते हैं।');
     }
   };
 

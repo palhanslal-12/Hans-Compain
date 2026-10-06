@@ -51,13 +51,14 @@ export const WhatsAppStatusGeneratorModal: React.FC<WhatsAppStatusGeneratorModal
   };
 
   const handleShareToWhatsAppStatus = () => {
-    const statusText = `🌟 *HANS COMPAIN - आज का सुविचार (Daily Status)* 🌟\n\n"${currentSuvichar.quote}"\n\n${currentSuvichar.author}\n\n📲 *Hans Compain App पर अभ्यास करें:* https://hans-compain.onrender.com/\n\n#HansCompain #StudyMotivation #SSCSteno #BoardExams`;
+    const appUrl = 'https://hans-compain.onrender.com/';
+    const statusText = `🌟 *HANS COMPAIN - आज का सुविचार (Daily Status)* 🌟\n\n"${currentSuvichar.quote}"\n\n${currentSuvichar.author}\n\n👉 *ऐप खोलें व अभ्यास करें:*\n${appUrl}\n\n#HansCompain #StudyMotivation #SSCSteno #BoardExams`;
     
     navigator.clipboard?.writeText(statusText);
     setCopiedStatus(true);
     setTimeout(() => setCopiedStatus(false), 2500);
 
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(statusText)}`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(statusText)}`;
     window.open(waUrl, '_blank');
   };
 
