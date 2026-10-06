@@ -71,6 +71,35 @@ import { StudyPlanView } from './components/StudyPlanView';
 import { AffiliateStoreView } from './components/AffiliateStoreView';
 import { auth, signInWithGoogle, logoutUser } from './firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { trackVisitorAction } from './utils/userTracker';
+
+const viewFeatureMap: Record<string, string> = {
+  'home': 'होम डैशबोर्ड (Home Dashboard)',
+  'steno-master': 'आशुलिपि (Steno Master Studio)',
+  'steno': 'आशुलिपि (Steno Master Studio)',
+  'ca': 'करंट अफेयर्स PIB हब (Current Affairs)',
+  'current-affairs': 'करंट अफेयर्स PIB हब (Current Affairs)',
+  'mock': 'CBT मॉक टेस्ट सेंटर (Mock Test)',
+  'competitive': 'प्रतियोगी परीक्षा हब (Competitive Exams)',
+  'board-exam': 'बोर्ड परीक्षा टेस्ट बॉक्स (Board Exams)',
+  'board': 'बोर्ड परीक्षा टेस्ट बॉक्स (Board Exams)',
+  'group-quiz': 'लाइव ग्रुप क्विज़ बैटल (Live Quiz Battle)',
+  'battle': 'लाइव ग्रुप क्विज़ बैटल (Live Quiz Battle)',
+  'science-lab': 'साइंस फॉर्मूला वर्चुअल लैब (Science Lab)',
+  'mnemonics': 'AI निमोनिक्स ट्रिक जनरेटर (Mnemonics)',
+  'daily-goals': 'डेली स्टडी गोल्स (Daily Goals)',
+  'ai-chat': 'AI डाउट सॉल्वर चैट (Doubt Solver)',
+  'ocr-scan': 'हस्तलिखित नोट्स OCR स्कैनर (Photo OCR)',
+  'app-guide': 'ऐप गाइड असिस्टेंट (App Guide)',
+  'book-reader': 'स्मार्ट लाइब्रेरी व वॉइस रीडर (Book Reader)',
+  'study-plan': 'स्मार्ट स्टडी प्लानर (Study Plan)',
+  'edu-reels': 'एजु-रील्स (Edu Shorts)',
+  'flashcards': 'फ्लैशकार्ड्स (Flashcards)',
+  'bharati-bhawan': 'भारती भवन स्टडी हब (Bharati Bhawan)',
+  'pyq': 'अनलिमिटेड PYQ वॉल्ट (PYQ Vault)',
+  'sarkari': 'सरकारी रिजल्ट एलिजिबिलिटी (Sarkari Hub)',
+  'admin': 'ओनर एडमिन कंसोल (Admin Panel)'
+};
 
 export const App: React.FC = () => {
   // Navigation State: 'home' is the default dashboard screen
@@ -145,18 +174,19 @@ export const App: React.FC = () => {
   }, [activeView]);
 
   useEffect(() => {
+    try {
+      const featName = viewFeatureMap[activeView] || activeView;
+      trackVisitorAction(featName, `पेज देखा: ${featName}`);
+    } catch {
+      // ignore
+    }
+  }, [activeView, currentUser]);
+
+  useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setCurrentUser(u);
-      fetch('/api/user/ping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: u?.uid || 'hans_user',
-          email: u?.email || 'student@hanscompain.in',
-          displayName: u?.displayName || 'Hans Student',
-          lastTopic: 'App Active'
-        })
-      }).catch(() => {});
+      const featName = viewFeatureMap[activeView] || activeView;
+      trackVisitorAction(featName, u ? 'लॉगिन स्थिति सक्रिय' : 'अतिथि विजिटर सक्रिय');
     });
     return () => unsub();
   }, []);
@@ -219,6 +249,8 @@ export const App: React.FC = () => {
   const navigateTo = (viewId: string) => {
     setActiveView(viewId);
     setSidebarOpen(false);
+    const featName = viewFeatureMap[viewId] || viewId;
+    trackVisitorAction(featName, `नेविगेट किया: ${featName}`);
   };
 
   const sidebarMenuItems = [

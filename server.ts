@@ -181,45 +181,106 @@ Return JSON with keys: bookTitle, chapterTitle, author, category, content (array
   }
 });
 
-// 5. User Activity Ping & Background 24-Hour Auto-Email Inactivity System
+// 5. User & Guest Activity Ping & Live Admin Analytics Tracking
 app.post('/api/user/ping', (req, res) => {
-  const { userId = 'hans_student', email = 'student@hanscompain.in', displayName = 'Hans Student', lastTopic = 'Dashboard' } = req.body;
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-  const usersFile = path.join(dataDir, 'users.json');
+  try {
+    const {
+      userId = 'guest_visitor',
+      email = '',
+      displayName = '',
+      isLoggedIn = false,
+      userType = 'guest', // 'registered' | 'guest'
+      targetExam = 'SSC & Steno 2026',
+      lastTopic = 'Home Dashboard',
+      featureName = '',
+      actionDetail = '',
+      device = 'Web App'
+    } = req.body;
 
-  let users: Record<string, any> = {};
-  if (fs.existsSync(usersFile)) {
-    try {
-      users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
-    } catch (e) {
-      users = {};
+    const dataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    
+    const usersFile = path.join(dataDir, 'users.json');
+    const activitiesFile = path.join(dataDir, 'activities_stream.json');
+
+    let users: Record<string, any> = {};
+    if (fs.existsSync(usersFile)) {
+      try {
+        users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+      } catch {
+        users = {};
+      }
     }
+
+    let activities: any[] = [];
+    if (fs.existsSync(activitiesFile)) {
+      try {
+        activities = JSON.parse(fs.readFileSync(activitiesFile, 'utf-8'));
+      } catch {
+        activities = [];
+      }
+    }
+
+    const nowIso = new Date().toISOString();
+    const nowStr = new Date().toLocaleString('hi-IN', { timeZone: 'Asia/Kolkata' });
+    const effectiveType = isLoggedIn || (email && email !== 'student@hanscompain.in' && !userId.startsWith('guest_')) ? 'registered' : 'guest';
+    const effectiveName = displayName || (effectiveType === 'registered' ? 'पंजीकृत छात्र' : `अतिथि आगंतुक (${userId.slice(-4)})`);
+    const effectiveEmail = email || (effectiveType === 'registered' ? 'student@hanscompain.in' : 'बिना लॉगिन (Guest)');
+    const currentFeature = featureName || lastTopic || 'Home Dashboard';
+
+    const existingUser = users[userId] || {};
+    const existingHistory = existingUser.sessionHistory || [];
+    const existingFeatures: Record<string, number> = existingUser.featuresUsed || {};
+    existingFeatures[currentFeature] = (existingFeatures[currentFeature] || 0) + 1;
+
+    const newLogEntry = {
+      feature: currentFeature,
+      action: actionDetail || `देखा: ${currentFeature}`,
+      timestamp: nowStr,
+      isoTime: nowIso
+    };
+
+    users[userId] = {
+      userId,
+      userType: effectiveType,
+      isLoggedIn: effectiveType === 'registered',
+      email: effectiveEmail,
+      displayName: effectiveName,
+      targetExam: targetExam || existingUser.targetExam || 'SSC & Steno 2026',
+      firstSeen: existingUser.firstSeen || nowIso,
+      lastActive: nowIso,
+      lastActiveStr: nowStr,
+      lastTopic: currentFeature,
+      visitCount: (existingUser.visitCount || 0) + 1,
+      device: device || existingUser.device || 'Mobile/Browser',
+      featuresUsed: existingFeatures,
+      sessionHistory: [newLogEntry, ...existingHistory].slice(0, 20),
+      notificationCount: existingUser.notificationCount || 0,
+      autoEmailSentAt: existingUser.autoEmailSentAt || null
+    };
+
+    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+
+    // Record into real-time activity stream
+    const activityItem = {
+      id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      userId,
+      userType: effectiveType,
+      displayName: effectiveName,
+      email: effectiveEmail,
+      feature: currentFeature,
+      action: actionDetail || `फीचर उपयोग: ${currentFeature}`,
+      timestamp: nowStr,
+      isoTime: nowIso
+    };
+
+    activities.unshift(activityItem);
+    fs.writeFileSync(activitiesFile, JSON.stringify(activities.slice(0, 100), null, 2));
+
+    res.json({ success: true, loggedAt: nowStr, userType: effectiveType });
+  } catch (err) {
+    res.status(500).json({ error: 'Tracking log error' });
   }
-
-  const existingHistory = users[userId]?.sessionHistory || [];
-  const nowStr = new Date().toLocaleString('hi-IN', { timeZone: 'Asia/Kolkata' });
-
-  const newLogEntry = {
-    page: lastTopic || 'Home Dashboard',
-    timestamp: nowStr,
-    isoTime: new Date().toISOString()
-  };
-
-  users[userId] = {
-    userId,
-    email: email || users[userId]?.email || 'student@hanscompain.in',
-    displayName: displayName || users[userId]?.displayName || 'Hans Student',
-    lastActive: new Date().toISOString(),
-    lastActiveStr: nowStr,
-    lastTopic: lastTopic || users[userId]?.lastTopic || 'Home Dashboard',
-    notificationCount: users[userId]?.notificationCount || 0,
-    autoEmailSentAt: users[userId]?.autoEmailSentAt || null,
-    sessionHistory: [newLogEntry, ...existingHistory].slice(0, 10)
-  };
-
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-  res.json({ success: true, loggedAt: nowStr });
 });
 
 app.get('/api/admin/users', (req, res) => {
@@ -228,8 +289,30 @@ app.get('/api/admin/users', (req, res) => {
   try {
     const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
     return res.json(Object.values(users));
-  } catch (e) {
+  } catch {
     return res.json([]);
+  }
+});
+
+app.get('/api/admin/activities', (req, res) => {
+  const activitiesFile = path.join(process.cwd(), 'data', 'activities_stream.json');
+  if (!fs.existsSync(activitiesFile)) return res.json([]);
+  try {
+    const activities = JSON.parse(fs.readFileSync(activitiesFile, 'utf-8'));
+    return res.json(activities);
+  } catch {
+    return res.json([]);
+  }
+});
+
+app.post('/api/admin/clear-logs', (req, res) => {
+  try {
+    const dataDir = path.join(process.cwd(), 'data');
+    const activitiesFile = path.join(dataDir, 'activities_stream.json');
+    fs.writeFileSync(activitiesFile, JSON.stringify([], null, 2));
+    res.json({ success: true, message: 'Logs reset' });
+  } catch {
+    res.status(500).json({ error: 'Failed' });
   }
 });
 
