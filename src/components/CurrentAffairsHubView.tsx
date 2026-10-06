@@ -31,9 +31,16 @@ import {
   Play,
   Pause,
   Square,
-  FastForward
+  FastForward,
+  Lock,
+  Unlock,
+  LogIn,
+  User,
+  Share,
+  ArrowLeft
 } from 'lucide-react';
-import { recordStudyActivity } from '../firebase';
+import { recordStudyActivity, auth, signInWithGoogle } from '../firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import {
   playNaturalSpeech,
   stopNaturalSpeech,
@@ -81,7 +88,7 @@ export interface NewsEditorial {
   mainsQuestion: string;
 }
 
-const verifiedEditorials: NewsEditorial[] = [
+export const verifiedEditorials: NewsEditorial[] = [
   {
     id: 'news-p17a',
     categoryTag: 'DEFENSE & SECURITY',
@@ -139,164 +146,99 @@ const verifiedEditorials: NewsEditorial[] = [
       }
     ],
     practiceMcq: {
-      question: 'भारतीय नौसेना के प्रोजेक्ट 17A के तहत निर्मित युद्धपोत किस श्रेणी के हैं?',
+      question: 'भारतीय नौसेना के प्रोजेक्ट 17A (Project 17A) का मुख्य उद्देश्य क्या है?',
       options: [
-        'परमाणु पनडुब्बी (SSBN)',
-        'स्टेल्थ गाइडेड मिसाइल फ्रिगेट (Stealth Frigate)',
-        'विमानवाहक पोत (Aircraft Carrier)',
-        'तटीय गश्ती पोत (OPV)'
+        'परमाणु पनडुब्बियों का निर्माण',
+        'उन्नत स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स का स्वदेशी निर्माण',
+        'विमानवाहक पोत की मरम्मत',
+        'तटरक्षक नौकाओं की आपूर्ति'
       ],
       correct: 1,
-      explanation: 'प्रोजेक्ट 17A (नीलगिरि क्लास) भारतीय नौसेना के 7 स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स का स्वदेशी निर्माण प्रोजेक्ट है।'
+      explanation: 'प्रोजेक्ट 17A के तहत भारतीय नौसेना के लिए 7 उन्नत स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स का निर्माण किया जा रहा है।'
     },
     mainsQuestion:
-      '"हिंद-प्रशांत क्षेत्र में \'नेट सिक्योरिटी प्रोवाइडर\' के रूप में भारत की भूमिका और नौसैनिक स्वदेशीकरण (Naval Indigenization) के महत्व का मूल्यांकन कीजिए।"'
+      '"हिंद महासागर क्षेत्र (IOR) में भारत की सुरक्षा रणनीति और आत्मनिर्भर रक्षा उत्पादन में प्रोजेक्ट 17A के महत्व का समालोचनात्मक परीक्षण कीजिए।"'
   },
   {
-    id: 'news-chess',
-    categoryTag: 'SPORTS & AWARDS',
-    categoryFilter: 'Sports & Honors',
-    date: '6 अक्टूबर 2026',
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719108',
-    headline: 'शतरंज ओलंपियाड में भारत का ऐतिहासिक दोहरा स्वर्ण पदक और युवा ग्रैंडमास्टर्स का वैश्विक दबदबा',
-    summary:
-      '45वें फिडे शतरंज ओलंपियाड में भारतीय पुरुष (ओपन) और महिला दोनों टीमों ने ऐतिहासिक दोहरा स्वर्ण पदक जीतकर इतिहास रच दिया। डी. गुकेश और दिव्या देशमुख ने व्यक्तिगत स्वर्ण पदक भी जीते।',
-    background:
-      'हंगरी की राजधानी बुडापेस्ट में आयोजित 45वें शतरंज ओलंपियाड में भारत ने 1927 के बाद पहली बार ओपन और विमेन दोनों वर्गों में एक साथ गोल्ड मेडल जीतकर विश्व रिकॉर्ड बनाया।',
-    sourceMinistry: 'अंतर्राष्ट्रीय शतरंज महासंघ (FIDE) • अखिल भारतीय शतरंज महासंघ • PIB',
-    sourceUrl: 'https://fide.com',
-    imageUrl: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: FIDE Media • Sports Authority of India',
-    dimensions: [
-      'ओपन वर्ग टीम: डी. गुकेश, आर. प्रज्ञानानंद, अर्जुन एरिगैसी, विदित गुजराती, पी. हरिकृष्णा।',
-      'महिला वर्ग टीम: हरिका द्रोणावल्ली, आर. वैशाली, दिव्या देशमुख, वंतिका अग्रवाल, तानिया सचदेव।',
-      'गैपिलिंडेयर स्कोरिंग में भारत ने सर्वाधिक मैच प्वाइंट्स हासिल किए।'
-    ],
-    provisions: [
-      'डी. गुकेश विश्व चैंपियनशिप मैच खेलने वाले सबसे युवा चैलेंजर बने।',
-      'अर्जुन एरिगैसी ने 2800+ लाइव ईएलओ रेटिंग का मील का पत्थर पार किया।',
-      'भारतीय शतरंज महासंघ को उत्कृष्ट प्रदर्शन हेतु राष्ट्रीय खेल प्रोत्साहन पुरस्कार।'
-    ],
-    highYieldFact: '45वें शतरंज ओलंपियाड का आयोजन बुडापेस्ट (हंगरी) में हुआ और 46वां ओलंपियाड 2026 में ताशकंद (उज्बेकिस्तान) में प्रस्तावित है।',
-    vocabulary: [
-      {
-        word: 'Grandmaster',
-        pos: 'Noun',
-        exactHindi: 'शतरंज का सर्वोच्च खिताब',
-        definition: 'The highest title a chess player can attain, awarded by FIDE.',
-        synonyms: 'Chess Champion, Master, Maestro',
-        antonyms: 'Novice, Amateur',
-        examUsage: '"D. Gukesh became one of the youngest Grandmasters in world history."'
-      },
-      {
-        word: 'Unprecedented',
-        pos: 'Adjective',
-        exactHindi: 'अभूतपूर्व / पहले कभी न हुआ',
-        definition: 'Never done or known before.',
-        synonyms: 'Novel, Exceptional, Historic, Groundbreaking',
-        antonyms: 'Precedented, Common, Usual',
-        examUsage: '"India achieved an unprecedented double gold victory at the Chess Olympiad."'
-      },
-      {
-        word: 'Tactical',
-        pos: 'Adjective',
-        exactHindi: 'रणनीतिक / युक्तिपूर्ण',
-        definition: 'Showing adroit planning and strategy to gain advantage.',
-        synonyms: 'Strategic, Calculated, Shrewd',
-        antonyms: 'Impulsive, Random',
-        examUsage: '"His tactical brilliance on board 1 secured crucial victories."'
-      }
-    ],
-    practiceMcq: {
-      question: '45वें फिडे शतरंज ओलंपियाड का आयोजन किस शहर में हुआ था?',
-      options: ['चेन्नई, भारत', 'बुडापेस्ट, हंगरी', 'ताशकंद, उज्बेकिस्तान', 'बाकू, अजरबैजान'],
-      correct: 1,
-      explanation: '45वें शतरंज ओलंपियाड का आयोजन हंगरी की राजधानी बुडापेस्ट में संपन्न हुआ।'
-    },
-    mainsQuestion:
-      '"भारत में हाल के वर्षों में खेल अवसंरचना (Khelo India & TOPS) के विकास ने अंतर्राष्ट्रीय प्रतियोगिताओं में भारत के प्रदर्शन को कैसे पुनर्परिभाषित किया है?"'
-  },
-  {
-    id: 'news-sports-honors',
-    categoryTag: 'SPORTS & AWARDS',
-    categoryFilter: 'Sports & Honors',
+    id: 'news-bharat-6g',
+    categoryTag: 'SCIENCE & TECH',
+    categoryFilter: 'Science & Tech',
     date: '6 अक्टूबर 2026',
     readTime: '4 मिनट Read',
-    releaseId: '2065817912598719109',
-    headline: 'अंतर्राष्ट्रीय खेल जगत व राष्ट्रीय खेल पुरस्कार: प्रमुख टूर्नामेंट, ग्रैंड स्लैम विजेता और प्रतियोगी परीक्षाओं के अति-महत्वपूर्ण तथ्य',
+    releaseId: '2065817912598719108',
+    headline: 'भारत 6G विज़न और क्वांटम सुरक्षित संचार: दूरसंचार विभाग का आगामी राष्ट्रीय रोडमैप',
     summary:
-      'प्रतिस्पर्धी परीक्षाओं (SSC, BPSC, UPSC, Railway) में हालिया खेल प्रतियोगिताओं, ओलंपिक पदक विजेताओं, आईसीसी टूर्नामेंट्स और प्रतिष्ठित राष्ट्रीय खेल पुरस्कारों (मेजर ध्यानचंद खेल रत्न, अर्जुन पुरस्कार) से जुड़े प्रश्न अनिवार्य रूप से पूछे जाते हैं।',
+      'दूरसंचार विभाग (DoT) ने "भारत 6G अलायंस" के तहत 127 से अधिक वैश्विक पेटेंट दाखिल कर अगली पीढ़ी की वायरलेस तकनीक में भारत को वैश्विक मानक निर्माता के रूप में स्थापित किया है। यह नेटवर्क सब-टेराहर्ट्ज़ स्पेक्ट्रम और शून्य विलंबता (Zero Latency) पर आधारित है।',
     background:
-      'राष्ट्रीय खेल पुरस्कार प्रतिवर्ष 29 अगस्त को हॉकी के जादूगर मेजर ध्यानचंद की जयंती (राष्ट्रीय खेल दिवस) के अवसर पर राष्ट्रपति भवन में प्रदान किए जाते हैं।',
-    sourceMinistry: 'युवा कार्यक्रम और खेल मंत्रालय (MYAS) • Sports Authority of India',
-    sourceUrl: 'https://yas.nic.in',
-    imageUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: युवा कार्यक्रम और खेल मंत्रालय (MYAS)',
+      'प्रधानमंत्री द्वारा 2023 में भारत 6G विज़न दस्तावेज जारी किया गया था, जिसका उद्देश्य 2030 तक भारत को 6G प्रौद्योगिकी के विकास और पेटेंट निर्माण में अग्रणी बनाना है।',
+    sourceMinistry: 'संचार मंत्रालय • दूरसंचार विभाग (DoT) • PIB नई दिल्ली',
+    sourceUrl: 'https://pib.gov.in',
+    imageUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
+    imageCredit: 'स्रोत: दूरसंचार विभाग (DoT) • PIB नई दिल्ली',
     dimensions: [
-      'मेजर ध्यानचंद खेल रत्न पुरस्कार: भारत का सर्वोच्च खेल सम्मान, पुरस्कार राशि ₹25 लाख।',
-      'अर्जुन पुरस्कार: पिछले 4 वर्षों में निरंतर उत्कृष्ट प्रदर्शन हेतु, पुरस्कार राशि ₹15 लाख।',
-      'द्रोणाचार्य पुरस्कार: खेल प्रशिक्षकों (Coaches) के लिए लाइफटाइम व रेगुलर श्रेणी में ₹15 व ₹10 लाख।'
+      '1 Tbps तक की अल्ट्रा-हाई-स्पीड डेटा ट्रांसमिशन क्षमता जो होलोग्राफिक संचार को सक्षम बनाएगी।',
+      'क्वांटम की डिस्ट्रीब्यूशन (QKD) तकनीक से लैस 100% हैक-प्रूफ एंड-टू-एंड राष्ट्रीय सुरक्षा नेटवर्क।',
+      'उपग्रह और स्थलीय नेटवर्क का निर्बाध एकीकरण (Non-Terrestrial Networks - NTN)।'
     ],
     provisions: [
-      'पेरिस ओलंपिक पदक विजेता: नीरज चोपड़ा (रजत - भाला फेंक), मनु भाकर (दो कांस्य - शूटिंग)।',
-      'आईसीसी टी-20 विश्व कप विजेता: भारत (कप्तान: रोहित शर्मा, उपविजेता: दक्षिण अफ्रीका)।',
-      'विंबलडन एवं ऑस्ट्रेलियन ओपन टेनिस ग्रैंड स्लैम विजेताओं की सूची।'
+      'राष्ट्रीय 6G अनुसंधान एवं विकास कोष (R&D Fund) हेतु ₹10,000 करोड़ का प्रावधान।',
+      'आईआईटी मद्रास, आईआईटी दिल्ली और आईआईएससी बैंगलोर में 6G टेस्टबेड और पेटेंट इनक्यूबेटर की स्थापना।',
+      'अंतर्राष्ट्रीय दूरसंचार संघ (ITU) के 6G फ्रेमवर्क में भारतीय मानकों को शामिल कराना।'
     ],
-    highYieldFact: 'मनु भाकर स्वतंत्र भारत के इतिहास में एक ही ओलंपिक खेल में दो पदक जीतने वाली पहली भारतीय एथलीट बनीं।',
+    highYieldFact: 'भारत 6G विज़न दस्तावेज के अनुसार 6G का क्रियान्वयन दो चरणों (2023-25 और 2025-30) में पूरा किया जा रहा है।',
     vocabulary: [
       {
-        word: 'Accolade',
+        word: 'Terahertz',
         pos: 'Noun',
-        exactHindi: 'सम्मान / पुरस्कार / प्रशंसा',
-        definition: 'An award or privilege granted as a special honor or as an acknowledgment of merit.',
-        synonyms: 'Honor, Distinction, Tribute, Recognition',
-        antonyms: 'Criticism, Disapproval',
-        examUsage: '"Winning the Khel Ratna is the highest sporting accolade in India."'
+        exactHindi: 'टेराहर्ट्ज़ (अति-उच्च आवृत्ति स्पेक्ट्रम)',
+        definition: 'A unit of frequency equal to one trillion hertz, used in advanced next-gen communication.',
+        synonyms: 'Ultra-high frequency, Sub-millimeter band',
+        antonyms: 'Low-frequency band',
+        examUsage: '"Terahertz spectrum provides bandwidth necessary for 6G holographic streaming."'
       },
       {
-        word: 'Resilience',
+        word: 'Latency',
         pos: 'Noun',
-        exactHindi: 'प्रत्यास्थता / विपरीत परिस्थितियों से उबरने की क्षमता',
-        definition: 'The capacity to recover quickly from difficulties; toughness.',
-        synonyms: 'Endurance, Fortitude, Tenacity',
-        antonyms: 'Fragility, Weakness',
-        examUsage: '"The athlete displayed remarkable resilience after injury."'
+        exactHindi: 'विलंबता / डेटा संचरण में लगने वाला समय',
+        definition: 'The delay before a transfer of data begins following an instruction for its transfer.',
+        synonyms: 'Lag, Delay, Response interval',
+        antonyms: 'Instantaneity, Promptness',
+        examUsage: '"Near-zero latency in 6G enables instantaneous remote robotic surgery."'
       },
       {
-        word: 'Pinnacle',
+        word: 'Interoperability',
         pos: 'Noun',
-        exactHindi: 'शिखर / सर्वोच्च बिंदु',
-        definition: 'The most successful point; the culmination.',
-        synonyms: 'Apex, Zenith, Peak, Summit',
-        antonyms: 'Nadir, Bottom',
-        examUsage: '"Olympic gold is regarded as the pinnacle of athletic achievement."'
+        exactHindi: 'अंतर-प्रचालनीयता / आपसी समन्वय क्षमता',
+        definition: 'The ability of computer systems or software to exchange and make use of information.',
+        synonyms: 'Compatibility, Integration, Interconnection',
+        antonyms: 'Incompatibility, Isolation',
+        examUsage: '"Seamless interoperability between satellite and telecom towers is crucial for 6G NTN."'
       }
     ],
     practiceMcq: {
-      question: 'राष्ट्रीय खेल दिवस किस तिथि को मनाया जाता है?',
-      options: ['15 अगस्त', '29 अगस्त', '2 अक्टूबर', '12 जनवरी'],
-      correct: 1,
-      explanation: 'हॉकी के जादूगर मेजर ध्यानचंद के जन्मदिवस पर 29 अगस्त को राष्ट्रीय खेल दिवस मनाया जाता है।'
+      question: 'भारत 6G विज़न दस्तावेज के अनुसार भारत में 6G सेवाओं के व्यावसायिक रोलआउट का लक्षित वर्ष क्या है?',
+      options: ['2027', '2028', '2030', '2035'],
+      correct: 2,
+      explanation: 'भारत सरकार के आधिकारिक 6G विज़न दस्तावेज के अनुसार 2030 तक 6G तकनीक को पूरी तरह लागू करने का लक्ष्य है।'
     },
     mainsQuestion:
-      '"टारगेट ओलंपिक पोडियम योजना (TOPS) ने भारत के ओलंपिक पदक जीतने की क्षमता को किस प्रकार सुदृढ़ किया है? समालोचनात्मक परीक्षण कीजिए।"'
+      '"6G प्रौद्योगिकी में वैश्विक पेटेंट नेतृत्व भारत की डिजिटल संप्रभुता और आर्थिक विकास में क्या भूमिका निभा सकता है? विश्लेषण कीजिए।"'
   },
   {
-    id: 'news-rbi-cbdc',
+    id: 'news-e-rupee-cbdc',
     categoryTag: 'ECONOMY & BANKING',
     categoryFilter: 'Economy & Banking',
     date: '6 अक्टूबर 2026',
     readTime: '3 मिनट Read',
-    releaseId: '2065817912598719110',
-    headline: 'भारतीय रिजर्व बैंक (RBI) द्वारा डिजिटल रुपया (CBDC) और यूपीआई का व्यापक इंटरऑपरेबिलिटी विस्तार',
+    releaseId: '2065817912598719109',
+    headline: 'डिजिटल रुपया (e₹-CBDC) और यूपीआई इंटरऑपरेबिलिटी: भारतीय वित्तीय प्रणाली में वैश्विक क्रांति',
     summary:
-      'भारतीय रिजर्व बैंक ने सेंट्रल बैंक डिजिटल करेंसी (e₹) और यूनिफाइड पेमेंट्स इंटरफेस (UPI) के बीच क्रॉस-सिस्टम इंटरऑपरेबिलिटी को बढ़ावा देने के लिए नए दिशानिर्देश जारी किए हैं। इससे ऑफ़लाइन एवं सीमा पार भुगतानों में क्रांति आई है।',
+      'भारतीय रिजर्व बैंक (RBI) द्वारा जारी सेंट्रल बैंक डिजिटल करेंसी (CBDC) और UPI क्यूआर कोड के पूर्ण एकीकरण से खुदरा डिजिटल रुपये के दैनिक लेन-देन में रिकॉर्ड वृद्धि दर्ज की गई है। इससे कैश हैंडलिंग लागत में सालाना ₹4,000+ करोड़ की बचत हो रही है।',
     background:
-      'RBI ने 2022 में डिजिटल रुपया (e₹-W होलसेल और e₹-R रिटेल) पायलट प्रोजेक्ट शुरू किया था। अब इसे सामान्य UPI क्यूआर कोड से सीधे लिंक कर दिया गया है।',
-    sourceMinistry: 'भारतीय रिजर्व बैंक (RBI) आधिकारिक प्रेस विज्ञप्ति • The Economic Times',
+      'आरबीआई ने 1 दिसंबर 2022 को रिटेल डिजिटल रुपया (e₹-R) पायलट प्रोजेक्ट शुरू किया था, जिसे अब पूरे देश के बैंकों और मर्चेंट नेटवर्क में लागू कर दिया गया है।',
+    sourceMinistry: 'भारतीय रिजर्व बैंक (RBI) • वित्त मंत्रालय • PIB',
     sourceUrl: 'https://rbi.org.in',
-    imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
     imageCredit: 'स्रोत: RBI Press Cell • NPCI Data',
     dimensions: [
       'डिजिटल रुपया (CBDC) सॉवरेन लीगल टेंडर है, जो ब्लॉकचेन आधारित DLT तकनीक पर कार्य करता है।',
@@ -619,7 +561,19 @@ const verifiedEditorials: NewsEditorial[] = [
   }
 ];
 
-export const CurrentAffairsHubView: React.FC = () => {
+interface CurrentAffairsHubProps {
+  initialArticleId?: string | null;
+  currentUser?: FirebaseUser | null;
+  onLoginRequired?: () => void;
+  onReturnHome?: () => void;
+}
+
+export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
+  initialArticleId,
+  currentUser: initialUser,
+  onLoginRequired,
+  onReturnHome
+}) => {
   const [editorials, setEditorials] = useState<NewsEditorial[]>(verifiedEditorials);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -628,6 +582,9 @@ export const CurrentAffairsHubView: React.FC = () => {
   const [showLiveQuizModal, setShowLiveQuizModal] = useState<boolean>(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [isGeneratingAiArticle, setIsGeneratingAiArticle] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(initialUser || auth.currentUser);
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Article Reader Detail Page Controls
   const [readerTheme, setReaderTheme] = useState<'pib' | 'dark'>('pib');
@@ -646,6 +603,122 @@ export const CurrentAffairsHubView: React.FC = () => {
   const [speakingSentencePreview, setSpeakingSentencePreview] = useState<string>('');
   const [audioProgress, setAudioProgress] = useState<{ current: number; total: number } | null>(null);
   const [speechSpeed, setSpeechSpeed] = useState<number>(0.93);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(prev => (prev === msg ? null : prev));
+    }, 3500);
+  };
+
+  // Sync auth state
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, u => {
+      setCurrentUser(u);
+    });
+    return () => unsub();
+  }, []);
+
+  // Direct Article Deep Linking check on mount & hash/query change
+  useEffect(() => {
+    const checkDirectArticleLink = () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryArticleId = initialArticleId || urlParams.get('article') || urlParams.get('articleId');
+        let hashArticleId = '';
+        if (window.location.hash) {
+          const match = window.location.hash.match(/article=([^&]+)/);
+          if (match && match[1]) {
+            hashArticleId = decodeURIComponent(match[1]);
+          }
+        }
+
+        const targetId = queryArticleId || hashArticleId;
+        if (targetId) {
+          const found = editorials.find(item => item.id === targetId || item.id.toLowerCase() === targetId.toLowerCase());
+          if (found) {
+            setActiveArticle(found);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }
+      } catch (e) {
+        console.warn('URL article parse error:', e);
+      }
+    };
+
+    checkDirectArticleLink();
+
+    const handlePopState = () => {
+      checkDirectArticleLink();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [editorials, initialArticleId]);
+
+  const handleOpenArticle = (item: NewsEditorial) => {
+    setActiveArticle(item);
+    setMcqSelected(null);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('article', item.id);
+      window.history.pushState({}, '', url.toString());
+    } catch {
+      // fallback
+    }
+    recordStudyActivity('current-affairs', item.headline, item.summary, 100);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseArticle = () => {
+    setActiveArticle(null);
+    if (isAudioActive) {
+      stopNaturalSpeech();
+      setIsAudioActive(false);
+      setIsAudioPaused(false);
+      setAudioProgress(null);
+      setSpeakingSentencePreview('');
+      setActiveAudioTitle('');
+    }
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('article');
+      url.searchParams.delete('articleId');
+      window.history.pushState({}, '', url.pathname + (url.search ? url.search : ''));
+    } catch {
+      // fallback
+    }
+  };
+
+  const getDirectArticleUrl = (item: NewsEditorial) => {
+    try {
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
+      return `${origin}${pathname}?article=${encodeURIComponent(item.id)}`;
+    } catch {
+      return `https://hans-compain.onrender.com/?article=${encodeURIComponent(item.id)}`;
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      const u = await signInWithGoogle();
+      if (u) {
+        setCurrentUser(u);
+        showToast(`🎉 नमस्ते ${u.displayName || 'साथी'}! पूरा आर्टिकल व परीक्षा नोट्स अनलॉक हो गए हैं।`);
+      }
+    } catch (e) {
+      console.warn('Login error:', e);
+      if (onLoginRequired) {
+        onLoginRequired();
+      } else {
+        showToast('लॉगिन विफल रहा। कृपया पुनः प्रयास करें।');
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   const filtered = editorials.filter(item => {
     const catMatch = selectedCategory === 'All' || item.categoryFilter === selectedCategory;
@@ -730,21 +803,27 @@ export const CurrentAffairsHubView: React.FC = () => {
   };
 
   const handleShareArticle = (item: NewsEditorial) => {
-    const appUrl = 'https://hans-compain.onrender.com/';
-    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${item.headline}*\n\n👉 *पूरा आर्टिकल पढ़ें (Click Link):*\n${appUrl}\n\n📝 *मुख्य सारांश:*\n${item.summary.slice(0, 140)}...\n\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
+    const directUrl = getDirectArticleUrl(item);
+    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${item.headline}*\n\n👉 *सीधे यह पूरा आर्टिकल पढ़ने के लिए लिंक पर क्लिक करें:*\n🔗 ${directUrl}\n\n📝 *मुख्य सारांश (Quick Summary):*\n${item.summary.slice(0, 160)}...\n\n🏛️ *स्रोत:* ${item.sourceMinistry}\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
 
     if (navigator.share) {
       navigator
         .share({
           title: item.headline,
           text: shareText,
-          url: appUrl
+          url: directUrl
         })
-        .catch(() => {});
+        .catch(() => {
+          navigator.clipboard?.writeText(shareText);
+          setCopiedLink(true);
+          setTimeout(() => setCopiedLink(false), 2500);
+          showToast('🔗 डायरेक्ट आर्टिकल लिंक कॉपी हो गया है!');
+        });
     } else {
       navigator.clipboard?.writeText(shareText);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
+      showToast('🔗 डायरेक्ट आर्टिकल लिंक कॉपी हो गया है! अब आप इसे सीधे व्हाट्सएप स्टेटस या सोशल मीडिया पर शेयर कर सकते हैं।');
       const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
       window.open(waUrl, '_blank');
     }
@@ -752,18 +831,18 @@ export const CurrentAffairsHubView: React.FC = () => {
 
   const handleShareToPlatform = (platform: 'wa' | 'insta' | 'tele') => {
     if (!activeArticle) return;
-    const appUrl = 'https://hans-compain.onrender.com/';
-    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${activeArticle.headline}*\n\n👉 *पूरा आर्टिकल पढ़ें (Click Link):*\n${appUrl}\n\n📝 *मुख्य सारांश:*\n${activeArticle.summary.slice(0, 140)}...\n\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
+    const directUrl = getDirectArticleUrl(activeArticle);
+    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${activeArticle.headline}*\n\n👉 *सीधे यह पूरा आर्टिकल पढ़ने के लिए लिंक पर टैप करें:*\n🔗 ${directUrl}\n\n📝 *मुख्य सारांश (Quick Summary):*\n${activeArticle.summary.slice(0, 160)}...\n\n🏛️ *स्रोत:* ${activeArticle.sourceMinistry}\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
 
     if (platform === 'wa') {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
     } else if (platform === 'tele') {
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(appUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(directUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
     } else {
       navigator.clipboard?.writeText(shareText);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
-      alert('📋 पूरा लिंक और सारांश कॉपी हो गया है! अब आप इसे सीधे व्हाट्सएप स्टेटस या इंस्टाग्राम पर पेस्ट कर सकते हैं।');
+      showToast('📋 पूरा डायरेक्ट लिंक और सारांश कॉपी हो गया है! अब आप इसे सीधे व्हाट्सएप स्टेटस या इंस्टाग्राम पर पेस्ट कर सकते हैं।');
     }
   };
 
@@ -887,7 +966,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
       };
 
       setEditorials(prev => [newEd, ...prev]);
-      setActiveArticle(newEd);
+      handleOpenArticle(newEd);
     } catch {
       // fallback
     } finally {
@@ -895,8 +974,18 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
     }
   };
 
+  const isUserAuthenticated = !!currentUser;
+
   return (
     <div className="w-full space-y-5 animate-fade-in pb-16">
+      {/* Toast Banner */}
+      {toastMessage && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#0F172A] border border-cyan-500 text-white text-xs font-bold px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2 animate-fade-in">
+          <Sparkles className="w-4 h-4 text-cyan-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* -------------------------------------------------------------
           VIEW A: FULL ARTICLE PIB DETAIL VIEW (EXACT MATCH TO SCREENSHOTS 2 & 3)
           ------------------------------------------------------------- */}
@@ -1002,13 +1091,14 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                 <Bookmark className="w-3.5 h-3.5" />
               </button>
 
-              {/* Share */}
+              {/* Direct Share Link */}
               <button
                 onClick={() => handleShareArticle(activeArticle)}
-                className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1 cursor-pointer hover:bg-amber-500 hover:text-slate-950"
+                className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1 cursor-pointer hover:bg-amber-500 hover:text-slate-950 transition-all"
+                title="डायरेक्ट आर्टिकल लिंक शेयर करें"
               >
                 <Share2 className="w-3.5 h-3.5" />
-                <span>शेयर करें</span>
+                <span>डायरेक्ट लिंक शेयर</span>
               </button>
 
               {/* English Translate */}
@@ -1022,13 +1112,28 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
 
               {/* Close Button */}
               <button
-                onClick={() => setActiveArticle(null)}
+                onClick={handleCloseArticle}
                 className="p-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500 hover:text-white cursor-pointer ml-1"
-                title="बंद करें"
+                title="आर्टिकल बंद करें व वापस जाएं"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
+          </div>
+
+          {/* Direct Link Banner */}
+          <div className="p-3 bg-[#0B1426] border border-cyan-500/30 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 text-cyan-300 font-bold min-w-0">
+              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="truncate">🔗 यह डायरेक्ट आर्टिकल लिंक है जिसे कहीं भी साझा किया जा सकता है</span>
+            </div>
+            <button
+              onClick={() => handleShareArticle(activeArticle)}
+              className="px-3 py-1 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow shrink-0"
+            >
+              <Copy className="w-3 h-3" />
+              <span>{copiedLink ? 'लिंक कॉपी हो गया!' : 'डायरेक्ट लिंक कॉपी करें'}</span>
+            </button>
           </div>
 
           {/* 2. OFFICIAL PIB EMBLEM ARTICLE CONTAINER (EXACT MATCH TO SCREENSHOTS 2 & 3) */}
@@ -1138,31 +1243,35 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
               <div className="p-3.5 rounded-2xl bg-slate-100/90 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
                 <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Share2 className="w-3.5 h-3.5 text-slate-500" />
-                  <span>दोस्तों व स्टडी ग्रुप्स के साथ साझा करें:</span>
+                  <span>दोस्तों व स्टडी ग्रुप्स के साथ डायरेक्ट आर्टिकल लिंक साझा करें:</span>
                 </span>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => handleShareToPlatform('wa')}
                     className="px-3 py-1.5 rounded-xl bg-[#25D366] text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:opacity-90"
+                    title="व्हाट्सएप स्टेटस / चैट पर भेजें"
                   >
                     <span>WhatsApp</span>
                   </button>
                   <button
                     onClick={() => handleShareToPlatform('insta')}
                     className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:opacity-90"
+                    title="इंस्टाग्राम पर शेयर करें"
                   >
                     <span>Instagram</span>
                   </button>
                   <button
                     onClick={() => handleShareToPlatform('tele')}
                     className="px-3 py-1.5 rounded-xl bg-[#0088cc] text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:opacity-90"
+                    title="टेलीग्राम पर भेजें"
                   >
                     <span>Telegram</span>
                   </button>
                   <button
                     onClick={() => handleShareToPlatform('insta')}
                     className="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:bg-slate-800"
+                    title="लिंक कॉपी करें"
                   >
                     {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedLink ? 'Copied' : 'लिंक कॉपी'}</span>
@@ -1195,7 +1304,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                 </a>
               </div>
 
-              {/* 1. मुख्य सारांश (EXECUTIVE SUMMARY) Matching Screenshot 2 */}
+              {/* 1. मुख्य सारांश (EXECUTIVE SUMMARY) - PREVIEW 2-4 LINES ALWAYS VISIBLE */}
               <div className="p-5 rounded-2xl bg-amber-50/80 border-l-4 border-amber-500 shadow-sm space-y-2">
                 <h3 className="text-xs font-black uppercase text-amber-900 tracking-wider flex items-center gap-2">
                   <FileText className="w-4 h-4 text-amber-700" />
@@ -1206,238 +1315,306 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                 </p>
               </div>
 
-              {/* 2. पृष्ठभूमि व ऐतिहासिक संदर्भ (BACKGROUND & GENESIS) Matching Screenshot 2 */}
-              <div className="p-5 rounded-2xl bg-sky-50/70 border-l-4 border-sky-500 shadow-sm space-y-2">
-                <h3 className="text-xs font-black uppercase text-sky-900 tracking-wider flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-sky-700" />
-                  <span>2. पृष्ठभूमि व ऐतिहासिक संदर्भ (BACKGROUND &amp; GENESIS)</span>
-                </h3>
-                <p className={`text-slate-900 leading-relaxed font-medium ${fontSizeLevel === 'sm' ? 'text-xs' : fontSizeLevel === 'lg' ? 'text-base' : 'text-sm'}`}>
-                  {activeArticle.background}
-                </p>
-              </div>
+              {/* -----------------------------------------------------------
+                  ACCESS CONTROL GATE: IF USER NOT LOGGED IN, SHOW LOGIN GATE
+                  ----------------------------------------------------------- */}
+              {!isUserAuthenticated ? (
+                <div className="relative mt-6 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-950 via-[#091122] to-slate-950 border-2 border-amber-500/60 shadow-2xl text-center space-y-5 text-white overflow-hidden">
+                  <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 transform -translate-x-4 translate-y-4 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
 
-              {/* VOCABULARY, SYNONYMS & ANTONYMS STUDIO Matching Screenshot 2 & 3 */}
-              <div className="p-5 sm:p-6 rounded-3xl bg-slate-100/90 border border-slate-300 space-y-4 shadow-sm">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2 text-xs font-black text-slate-800 uppercase tracking-wider">
-                    <BookOpen className="w-4 h-4 text-indigo-600" />
-                    <span>संपादकीय शब्दावली, पर्यायवाची व विलोम शब्द (VOCABULARY, SYNONYMS &amp; ANTONYMS)</span>
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 shadow-lg">
+                    <Lock className="w-7 h-7" />
                   </div>
-                  <p className="text-[11px] text-slate-500">
-                    द हिन्दू व PIB संपादकीय में प्रयुक्त कठिन शब्दों का परीक्षा विश्लेषण
-                  </p>
-                </div>
 
-                {/* 3 Dark Vocabulary Cards Matching Screenshot 2 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                  {activeArticle.vocabulary.map((vocab, vIdx) => (
-                    <div
-                      key={vIdx}
-                      className="p-4 rounded-2xl bg-[#091122] text-white border border-slate-850 space-y-2 shadow-md flex flex-col justify-between"
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className="font-black text-sm text-cyan-300">
-                            {vIdx + 1}. {vocab.word}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold">
-                              {vocab.pos}
-                            </span>
-                            <button
-                              onClick={() => speakText(`${vocab.word}. ${vocab.exactHindi}. ${vocab.definition}`)}
-                              className="p-1 text-slate-400 hover:text-white"
-                              title="सुनें"
-                            >
-                              <Volume2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="text-xs text-amber-300 font-bold">
-                          सटीक अर्थ: <span className="text-white font-normal">{vocab.exactHindi}</span>
-                        </div>
-
-                        <p className="text-[11px] text-slate-300 italic leading-snug">
-                          <strong className="text-slate-400 not-italic">Def:</strong> {vocab.definition}
-                        </p>
-
-                        <div className="text-[10px] text-slate-300 space-y-0.5 pt-1 border-t border-slate-800">
-                          <div>
-                            <strong className="text-emerald-400">Synonyms:</strong> {vocab.synonyms}
-                          </div>
-                          <div>
-                            <strong className="text-rose-400">Antonyms:</strong> {vocab.antonyms}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="text-[10px] text-slate-400 italic pt-1.5 border-t border-slate-800/80">
-                        <strong className="text-cyan-300 not-italic">Exam Usage:</strong> {vocab.examUsage}
-                      </div>
+                  <div className="space-y-2 max-w-lg mx-auto">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-black uppercase">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>HANS COMPAIN 100% FREE ACCESS</span>
                     </div>
-                  ))}
-                </div>
-
-                {/* AI WORD DETECTOR & VOCABULARY SEARCH (ANTO-SYNO EXPLORER) Matching Screenshot 3 */}
-                <div className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-black text-slate-800 uppercase flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                      <span>AI वर्ड डिटेक्टर व वोकैबुलरी खोज (ANTO-SYNO EXPLORER)</span>
-                    </span>
-                    <span className="text-slate-400 text-[10px]">आर्टिकल का कोई भी शब्द लिखें</span>
+                    <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                      🔐 पूरा आर्टिकल, विस्तृत आयाम व परीक्षा नोट्स अनलॉक करें
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      आपने प्रारंभिक 2-4 लाइन सारांश पढ़ लिया है। आगे के सभी महत्वपूर्ण अनुभाग (पृष्ठभूमि, नीतिगत प्रावधान, परीक्षा फैक्ट्स, वोकैबुलरी और Prelims MCQ) 100% निःशुल्क अनलॉक करने के लिए कृपया 1-क्लिक लॉगिन करें।
+                    </p>
                   </div>
 
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={vocabSearchWord}
-                      onChange={e => setVocabSearchWord(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handleVocabSearch()}
-                      placeholder="उदा. Autonomous, Sovereign, Disinflation..."
-                      className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-indigo-500"
-                    />
+                  {/* Feature Checklist inside Unlock Card */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto text-left text-xs text-slate-300">
+                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>विस्तृत आयाम (In-depth Dimensions)</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>नीतिगत प्रावधान (Key Provisions)</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>संपादकीय Anto-Syno वोकैबुलरी</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>इंटरएक्टिव Prelims MCQ & मुख्य प्रश्न</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
                     <button
-                      onClick={handleVocabSearch}
-                      disabled={isSearchingVocab}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow hover:opacity-95 shrink-0"
+                      onClick={handleGoogleLogin}
+                      disabled={isLoggingIn}
+                      className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-xl hover:scale-[1.02] transition-all cursor-pointer"
                     >
-                      <Sparkles className="w-3 h-3 text-amber-300" />
-                      <span>{isSearchingVocab ? 'खोज रहे हैं...' : 'अर्थ व Anto-Syno'}</span>
+                      <User className="w-4 h-4" />
+                      <span>{isLoggingIn ? 'लॉगिन हो रहा है...' : 'Google से 1-क्लिक लॉगिन करें (100% Free)'}</span>
                     </button>
                   </div>
 
-                  {vocabSearchResult && (
-                    <div className="p-3 bg-slate-900 text-white rounded-xl text-xs space-y-1 animate-fade-in border border-indigo-500/40">
-                      <div className="flex items-center justify-between">
-                        <span className="font-black text-cyan-300 text-sm">
-                          {vocabSearchResult.word} ({vocabSearchResult.pos})
-                        </span>
-                        <span className="text-amber-300 font-bold">{vocabSearchResult.exactHindi}</span>
+                  <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>100% सुरक्षित • कोई क्रेडिट कार्ड या भुगतान नहीं</span>
+                  </p>
+                </div>
+              ) : (
+                /* -----------------------------------------------------------
+                   FULL UNLOCKED ARTICLE CONTENT (FOR AUTHENTICATED USERS)
+                   ----------------------------------------------------------- */
+                <div className="space-y-6 animate-fade-in">
+                  {/* 2. पृष्ठभूमि व ऐतिहासिक संदर्भ (BACKGROUND & GENESIS) Matching Screenshot 2 */}
+                  <div className="p-5 rounded-2xl bg-sky-50/70 border-l-4 border-sky-500 shadow-sm space-y-2">
+                    <h3 className="text-xs font-black uppercase text-sky-900 tracking-wider flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-sky-700" />
+                      <span>2. पृष्ठभूमि व ऐतिहासिक संदर्भ (BACKGROUND &amp; GENESIS)</span>
+                    </h3>
+                    <p className={`text-slate-900 leading-relaxed font-medium ${fontSizeLevel === 'sm' ? 'text-xs' : fontSizeLevel === 'lg' ? 'text-base' : 'text-sm'}`}>
+                      {activeArticle.background}
+                    </p>
+                  </div>
+
+                  {/* VOCABULARY, SYNONYMS & ANTONYMS STUDIO Matching Screenshot 2 & 3 */}
+                  <div className="p-5 sm:p-6 rounded-3xl bg-slate-100/90 border border-slate-300 space-y-4 shadow-sm">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2 text-xs font-black text-slate-800 uppercase tracking-wider">
+                        <BookOpen className="w-4 h-4 text-indigo-600" />
+                        <span>संपादकीय शब्दावली, पर्यायवाची व विलोम शब्द (VOCABULARY, SYNONYMS &amp; ANTONYMS)</span>
                       </div>
-                      <p className="text-slate-300 text-[11px]">{vocabSearchResult.definition}</p>
-                      <div className="text-[10px] text-slate-300">
-                        <strong className="text-emerald-400">Synonyms:</strong> {vocabSearchResult.synonyms} |{' '}
-                        <strong className="text-rose-400">Antonyms:</strong> {vocabSearchResult.antonyms}
-                      </div>
-                      <p className="text-[10px] text-slate-400 italic">
-                        <strong>Exam Usage:</strong> {vocabSearchResult.examUsage}
+                      <p className="text-[11px] text-slate-500">
+                        द हिन्दू व PIB संपादकीय में प्रयुक्त कठिन शब्दों का परीक्षा विश्लेषण
                       </p>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              {/* 3. विस्तृत आयाम व मुख्य बिंदु (IN-DEPTH DIMENSIONS) Matching Screenshot 3 */}
-              <div className="p-5 rounded-2xl bg-emerald-50/80 border-l-4 border-emerald-500 shadow-sm space-y-3">
-                <h3 className="text-xs font-black uppercase text-emerald-950 tracking-wider flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-emerald-700" />
-                  <span>3. विस्तृत आयाम व मुख्य बिंदु (IN-DEPTH DIMENSIONS)</span>
-                </h3>
-                <div className="space-y-2">
-                  {activeArticle.dimensions.map((dim, dIdx) => (
-                    <div key={dIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-900 font-medium">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 font-black" />
-                      <span>{dim}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 4. प्रमुख नीतिगत प्रावधान (KEY PROVISIONS & DATA) Matching Screenshot 3 */}
-              <div className="p-5 rounded-2xl bg-indigo-50/70 border-l-4 border-indigo-500 shadow-sm space-y-3">
-                <h3 className="text-xs font-black uppercase text-indigo-950 tracking-wider flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-indigo-700" />
-                  <span>4. प्रमुख नीतिगत प्रावधान (KEY PROVISIONS &amp; DATA)</span>
-                </h3>
-                <div className="space-y-2">
-                  {activeArticle.provisions.map((prov, pIdx) => (
-                    <div key={pIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-900 font-medium">
-                      <span className="w-2 h-2 rounded-full bg-indigo-600 shrink-0 mt-1.5" />
-                      <span>{prov}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* HIGH-YIELD EXAM FACT CALLOUT Matching Screenshot 3 */}
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 shadow-sm space-y-1.5">
-                <div className="text-xs font-black text-amber-900 uppercase flex items-center gap-1.5">
-                  <Target className="w-4 h-4 text-amber-600" />
-                  <span>हाई-यील्ड एग्जाम फैक्ट (HIGH-YIELD EXAM FACT):</span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-900 font-bold leading-relaxed">
-                  {activeArticle.highYieldFact}
-                </p>
-              </div>
-
-              {/* INTERACTIVE PRACTICE MCQ Matching Screenshot 3 */}
-              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-md space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <div className="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
-                    <HelpCircle className="w-4 h-4 text-cyan-600" />
-                    <span>अभ्यास प्रश्न (INTERACTIVE PRACTICE MCQ)</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
-                    Prelims Level
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="text-xs sm:text-sm font-black text-slate-900">
-                    {activeArticle.practiceMcq.question}
-                  </h4>
-
-                  <div className="space-y-2">
-                    {activeArticle.practiceMcq.options.map((opt, oIdx) => {
-                      const isPicked = mcqSelected === oIdx;
-                      const isRight = oIdx === activeArticle.practiceMcq.correct;
-
-                      let btnStyle = 'bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300';
-                      if (mcqSelected !== null) {
-                        if (isRight) btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold';
-                        else if (isPicked) btnStyle = 'bg-rose-50 border-rose-500 text-rose-900';
-                        else btnStyle = 'bg-slate-50/60 border-slate-200 text-slate-400 opacity-60';
-                      }
-
-                      return (
-                        <button
-                          key={oIdx}
-                          onClick={() => setMcqSelected(oIdx)}
-                          className={`w-full p-3.5 rounded-xl border text-left text-xs sm:text-sm font-semibold flex items-center justify-between cursor-pointer transition-all ${btnStyle}`}
+                    {/* 3 Dark Vocabulary Cards Matching Screenshot 2 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                      {activeArticle.vocabulary.map((vocab, vIdx) => (
+                        <div
+                          key={vIdx}
+                          className="p-4 rounded-2xl bg-[#091122] text-white border border-slate-850 space-y-2 shadow-md flex flex-col justify-between"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">
-                              {String.fromCharCode(65 + oIdx)}
-                            </span>
-                            <span>{opt}</span>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="font-black text-sm text-cyan-300">
+                                {vIdx + 1}. {vocab.word}
+                              </span>
+                              <div className="flex items-center gap-1">
+                                <span className="text-[9px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold">
+                                  {vocab.pos}
+                                </span>
+                                <button
+                                  onClick={() => speakText(`${vocab.word}. ${vocab.exactHindi}. ${vocab.definition}`)}
+                                  className="p-1 text-slate-400 hover:text-white cursor-pointer"
+                                  title="सुनें"
+                                >
+                                  <Volume2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="text-xs text-amber-300 font-bold">
+                              सटीक अर्थ: <span className="text-white font-normal">{vocab.exactHindi}</span>
+                            </div>
+
+                            <p className="text-[11px] text-slate-300 italic leading-snug">
+                              <strong className="text-slate-400 not-italic">Def:</strong> {vocab.definition}
+                            </p>
+
+                            <div className="text-[10px] text-slate-300 space-y-0.5 pt-1 border-t border-slate-800">
+                              <div>
+                                <strong className="text-emerald-400">Synonyms:</strong> {vocab.synonyms}
+                              </div>
+                              <div>
+                                <strong className="text-rose-400">Antonyms:</strong> {vocab.antonyms}
+                              </div>
+                            </div>
                           </div>
-                          {mcqSelected !== null && isRight && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-                          {mcqSelected !== null && isPicked && !isRight && <XCircle className="w-4 h-4 text-rose-600" />}
+
+                          <div className="text-[10px] text-slate-400 italic pt-1.5 border-t border-slate-800/80">
+                            <strong className="text-cyan-300 not-italic">Exam Usage:</strong> {vocab.examUsage}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* AI WORD DETECTOR & VOCABULARY SEARCH (ANTO-SYNO EXPLORER) Matching Screenshot 3 */}
+                    <div className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-black text-slate-800 uppercase flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                          <span>AI वर्ड डिटेक्टर व वोकैबुलरी खोज (ANTO-SYNO EXPLORER)</span>
+                        </span>
+                        <span className="text-slate-400 text-[10px]">आर्टिकल का कोई भी शब्द लिखें</span>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={vocabSearchWord}
+                          onChange={e => setVocabSearchWord(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && handleVocabSearch()}
+                          placeholder="उदा. Autonomous, Sovereign, Disinflation..."
+                          className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-indigo-500"
+                        />
+                        <button
+                          onClick={handleVocabSearch}
+                          disabled={isSearchingVocab}
+                          className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow hover:opacity-95 shrink-0"
+                        >
+                          <Sparkles className="w-3 h-3 text-amber-300" />
+                          <span>{isSearchingVocab ? 'खोज रहे हैं...' : 'अर्थ व Anto-Syno'}</span>
                         </button>
-                      );
-                    })}
+                      </div>
+
+                      {vocabSearchResult && (
+                        <div className="p-3 bg-slate-900 text-white rounded-xl text-xs space-y-1 animate-fade-in border border-indigo-500/40">
+                          <div className="flex items-center justify-between">
+                            <span className="font-black text-cyan-300 text-sm">
+                              {vocabSearchResult.word} ({vocabSearchResult.pos})
+                            </span>
+                            <span className="text-amber-300 font-bold">{vocabSearchResult.exactHindi}</span>
+                          </div>
+                          <p className="text-slate-300 text-[11px]">{vocabSearchResult.definition}</p>
+                          <div className="text-[10px] text-slate-300">
+                            <strong className="text-emerald-400">Synonyms:</strong> {vocabSearchResult.synonyms} |{' '}
+                            <strong className="text-rose-400">Antonyms:</strong> {vocabSearchResult.antonyms}
+                          </div>
+                          <p className="text-[10px] text-slate-400 italic">
+                            <strong>Exam Usage:</strong> {vocabSearchResult.examUsage}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {mcqSelected !== null && (
-                    <div className="p-3.5 bg-indigo-50 rounded-xl border border-indigo-200 text-xs text-indigo-950 animate-fade-in">
-                      <strong className="text-indigo-900">उत्तर व्याख्या:</strong> {activeArticle.practiceMcq.explanation}
+                  {/* 3. विस्तृत आयाम व मुख्य बिंदु (IN-DEPTH DIMENSIONS) Matching Screenshot 3 */}
+                  <div className="p-5 rounded-2xl bg-emerald-50/80 border-l-4 border-emerald-500 shadow-sm space-y-3">
+                    <h3 className="text-xs font-black uppercase text-emerald-950 tracking-wider flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-emerald-700" />
+                      <span>3. विस्तृत आयाम व मुख्य बिंदु (IN-DEPTH DIMENSIONS)</span>
+                    </h3>
+                    <div className="space-y-2">
+                      {activeArticle.dimensions.map((dim, dIdx) => (
+                        <div key={dIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-900 font-medium">
+                          <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 font-black" />
+                          <span>{dim}</span>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              {/* MAINS ANALYTICAL QUESTION Matching Screenshot 3 */}
-              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm space-y-1.5">
-                <div className="text-xs font-black text-slate-800 uppercase flex items-center gap-1.5">
-                  <span>✍️ मुख्य परीक्षा संभावित प्रश्न (MAINS ANALYTICAL QUESTION):</span>
+                  {/* 4. प्रमुख नीतिगत प्रावधान (KEY PROVISIONS & DATA) Matching Screenshot 3 */}
+                  <div className="p-5 rounded-2xl bg-indigo-50/70 border-l-4 border-indigo-500 shadow-sm space-y-3">
+                    <h3 className="text-xs font-black uppercase text-indigo-950 tracking-wider flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-indigo-700" />
+                      <span>4. प्रमुख नीतिगत प्रावधान (KEY PROVISIONS &amp; DATA)</span>
+                    </h3>
+                    <div className="space-y-2">
+                      {activeArticle.provisions.map((prov, pIdx) => (
+                        <div key={pIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-900 font-medium">
+                          <span className="w-2 h-2 rounded-full bg-indigo-600 shrink-0 mt-1.5" />
+                          <span>{prov}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* HIGH-YIELD EXAM FACT CALLOUT Matching Screenshot 3 */}
+                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 shadow-sm space-y-1.5">
+                    <div className="text-xs font-black text-amber-900 uppercase flex items-center gap-1.5">
+                      <Target className="w-4 h-4 text-amber-600" />
+                      <span>हाई-यील्ड एग्जाम फैक्ट (HIGH-YIELD EXAM FACT):</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-900 font-bold leading-relaxed">
+                      {activeArticle.highYieldFact}
+                    </p>
+                  </div>
+
+                  {/* INTERACTIVE PRACTICE MCQ Matching Screenshot 3 */}
+                  <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-md space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <div className="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+                        <HelpCircle className="w-4 h-4 text-cyan-600" />
+                        <span>अभ्यास प्रश्न (INTERACTIVE PRACTICE MCQ)</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
+                        Prelims Level
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900">
+                        {activeArticle.practiceMcq.question}
+                      </h4>
+
+                      <div className="space-y-2">
+                        {activeArticle.practiceMcq.options.map((opt, oIdx) => {
+                          const isPicked = mcqSelected === oIdx;
+                          const isRight = oIdx === activeArticle.practiceMcq.correct;
+
+                          let btnStyle = 'bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300';
+                          if (mcqSelected !== null) {
+                            if (isRight) btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold';
+                            else if (isPicked) btnStyle = 'bg-rose-50 border-rose-500 text-rose-900';
+                            else btnStyle = 'bg-slate-50/60 border-slate-200 text-slate-400 opacity-60';
+                          }
+
+                          return (
+                            <button
+                              key={oIdx}
+                              onClick={() => setMcqSelected(oIdx)}
+                              className={`w-full p-3.5 rounded-xl border text-left text-xs sm:text-sm font-semibold flex items-center justify-between cursor-pointer transition-all ${btnStyle}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">
+                                  {String.fromCharCode(65 + oIdx)}
+                                </span>
+                                <span>{opt}</span>
+                              </div>
+                              {mcqSelected !== null && isRight && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                              {mcqSelected !== null && isPicked && !isRight && <XCircle className="w-4 h-4 text-rose-600" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {mcqSelected !== null && (
+                        <div className="p-3.5 bg-indigo-50 rounded-xl border border-indigo-200 text-xs text-indigo-950 animate-fade-in">
+                          <strong className="text-indigo-900">उत्तर व्याख्या:</strong> {activeArticle.practiceMcq.explanation}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* MAINS ANALYTICAL QUESTION Matching Screenshot 3 */}
+                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm space-y-1.5">
+                    <div className="text-xs font-black text-slate-800 uppercase flex items-center gap-1.5">
+                      <span>✍️ मुख्य परीक्षा संभावित प्रश्न (MAINS ANALYTICAL QUESTION):</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-800 italic leading-relaxed font-medium">
+                      {activeArticle.mainsQuestion}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-800 italic leading-relaxed font-medium">
-                  {activeArticle.mainsQuestion}
-                </p>
-              </div>
+              )}
 
               {/* Bottom Actions Matching Screenshot 3 */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200">
@@ -1452,7 +1629,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                 </button>
 
                 <button
-                  onClick={() => setActiveArticle(null)}
+                  onClick={handleCloseArticle}
                   className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm cursor-pointer"
                 >
                   वापस करंट अफेयर्स सूची पर जाएं
@@ -1595,7 +1772,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                         <button
                           onClick={() => handleShareArticle(item)}
                           className="w-8 h-8 rounded-full border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer"
-                          title="शेयर करें (हेडलाइन व सारांश लिंक सहित)"
+                          title="डायरेक्ट आर्टिकल लिंक शेयर करें"
                         >
                           <Share2 className="w-3.5 h-3.5 text-emerald-600" />
                         </button>
@@ -1603,7 +1780,10 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                     </div>
 
                     {/* Bold Hindi Editorial Headline */}
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 leading-snug hover:text-blue-600 transition-colors cursor-pointer" onClick={() => setActiveArticle(item)}>
+                    <h2
+                      className="text-base sm:text-lg font-black text-slate-900 leading-snug hover:text-blue-600 transition-colors cursor-pointer"
+                      onClick={() => handleOpenArticle(item)}
+                    >
                       {item.headline}
                     </h2>
 
@@ -1632,10 +1812,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                     </div>
 
                     <button
-                      onClick={() => {
-                        setActiveArticle(item);
-                        recordStudyActivity('current-affairs', item.headline, item.summary, 100);
-                      }}
+                      onClick={() => handleOpenArticle(item)}
                       className="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-white text-[11px] font-black uppercase tracking-wider cursor-pointer shadow flex items-center gap-1"
                     >
                       <span>READ ARTICLE</span>
@@ -1709,6 +1886,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
           </div>
         </div>
       )}
+
       {/* FLOATING PERSISTENT AUDIO PLAYER BAR */}
       {isAudioActive && (
         <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-3xl bg-[#091122]/95 backdrop-blur-xl border-2 border-emerald-500/80 rounded-3xl p-3.5 sm:p-4 shadow-2xl text-white animate-fade-in space-y-2.5">

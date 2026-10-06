@@ -132,6 +132,10 @@
     "/broadcasts/{broadcastId}": {
       "schema": { "$ref": "#/entities/AdminBroadcast" },
       "description": "Admin announcements and WhatsApp integration settings"
+    },
+    "/test/{testId}": {
+      "schema": { "$ref": "#/entities/AdminBroadcast" },
+      "description": "Connection test document"
     }
   }
 }

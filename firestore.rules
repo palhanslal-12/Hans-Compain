@@ -76,6 +76,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /test/{testId} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if false;
+    }
+
     match /users/{userId} {
       allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
       allow list: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);

@@ -101,6 +101,38 @@ export const App: React.FC = () => {
   // Chat history state in sidebar
   const [chatHistory, setChatHistory] = useState<{ id: number; query: string }[]>([]);
 
+  // Initial direct article & view routing from URL params
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const articleParam = params.get('article') || params.get('articleId');
+      const viewParam = params.get('view');
+      const hash = window.location.hash;
+
+      if (articleParam || (hash && hash.includes('article='))) {
+        setActiveView('current-affairs');
+      } else if (viewParam) {
+        setActiveView(viewParam);
+      }
+
+      const handlePopState = () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        const art = currentParams.get('article') || currentParams.get('articleId');
+        const vw = currentParams.get('view');
+        if (art) {
+          setActiveView('current-affairs');
+        } else if (vw) {
+          setActiveView(vw);
+        }
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('hans_chat_history') || '[]');
@@ -752,7 +784,13 @@ export const App: React.FC = () => {
             )}
 
             {(activeView === 'steno-master' || activeView === 'steno') && <DedicatedStenoMasterStudio />}
-            {(activeView === 'ca' || activeView === 'current-affairs') && <CurrentAffairsHubView />}
+            {(activeView === 'ca' || activeView === 'current-affairs') && (
+              <CurrentAffairsHubView
+                currentUser={currentUser}
+                onLoginRequired={() => signInWithGoogle(targetExam)}
+                onReturnHome={() => setActiveView('home')}
+              />
+            )}
             {(activeView === 'mock' || activeView === 'competitive') && <MockTestsView />}
             {(activeView === 'board-exam' || activeView === 'board') && <BoardExamSingleTestBox />}
             {(activeView === 'group-quiz' || activeView === 'battle' || activeView === 'quiz-battle' || activeView === 'battle-quiz' || activeView === 'group-battle') && <LiveGroupQuizStudio />}
