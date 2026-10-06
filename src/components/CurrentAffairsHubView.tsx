@@ -32,11 +32,7 @@ import {
   Pause,
   Square,
   FastForward,
-  Lock,
-  Unlock,
-  LogIn,
   User,
-  Share,
   ArrowLeft
 } from 'lucide-react';
 import { recordStudyActivity, auth, signInWithGoogle } from '../firebase';
@@ -584,7 +580,6 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
   const [isGeneratingAiArticle, setIsGeneratingAiArticle] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(initialUser || auth.currentUser);
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Article Reader Detail Page Controls
   const [readerTheme, setReaderTheme] = useState<'pib' | 'dark'>('pib');
@@ -603,13 +598,6 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
   const [speakingSentencePreview, setSpeakingSentencePreview] = useState<string>('');
   const [audioProgress, setAudioProgress] = useState<{ current: number; total: number } | null>(null);
   const [speechSpeed, setSpeechSpeed] = useState<number>(0.93);
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(prev => (prev === msg ? null : prev));
-    }, 3500);
-  };
 
   // Sync auth state
   useEffect(() => {
@@ -706,14 +694,11 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
       const u = await signInWithGoogle();
       if (u) {
         setCurrentUser(u);
-        showToast(`🎉 नमस्ते ${u.displayName || 'साथी'}! पूरा आर्टिकल व परीक्षा नोट्स अनलॉक हो गए हैं।`);
       }
     } catch (e) {
       console.warn('Login error:', e);
       if (onLoginRequired) {
         onLoginRequired();
-      } else {
-        showToast('लॉगिन विफल रहा। कृपया पुनः प्रयास करें।');
       }
     } finally {
       setIsLoggingIn(false);
@@ -804,7 +789,7 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
 
   const handleShareArticle = (item: NewsEditorial) => {
     const directUrl = getDirectArticleUrl(item);
-    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${item.headline}*\n\n👉 *सीधे यह पूरा आर्टिकल पढ़ने के लिए लिंक पर क्लिक करें:*\n🔗 ${directUrl}\n\n📝 *मुख्य सारांश (Quick Summary):*\n${item.summary.slice(0, 160)}...\n\n🏛️ *स्रोत:* ${item.sourceMinistry}\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
+    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${item.headline}*\n\n👉 *पूरा आर्टिकल पढ़ें (Click Link):*\n${directUrl}\n\n📝 *मुख्य सारांश:*\n${item.summary.slice(0, 160)}...\n\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
 
     if (navigator.share) {
       navigator
@@ -816,14 +801,12 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
         .catch(() => {
           navigator.clipboard?.writeText(shareText);
           setCopiedLink(true);
-          setTimeout(() => setCopiedLink(false), 2500);
-          showToast('🔗 डायरेक्ट आर्टिकल लिंक कॉपी हो गया है!');
+          setTimeout(() => setCopiedLink(false), 2000);
         });
     } else {
       navigator.clipboard?.writeText(shareText);
       setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
-      showToast('🔗 डायरेक्ट आर्टिकल लिंक कॉपी हो गया है! अब आप इसे सीधे व्हाट्सएप स्टेटस या सोशल मीडिया पर शेयर कर सकते हैं।');
+      setTimeout(() => setCopiedLink(false), 2000);
       const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
       window.open(waUrl, '_blank');
     }
@@ -832,7 +815,7 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
   const handleShareToPlatform = (platform: 'wa' | 'insta' | 'tele') => {
     if (!activeArticle) return;
     const directUrl = getDirectArticleUrl(activeArticle);
-    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${activeArticle.headline}*\n\n👉 *सीधे यह पूरा आर्टिकल पढ़ने के लिए लिंक पर टैप करें:*\n🔗 ${directUrl}\n\n📝 *मुख्य सारांश (Quick Summary):*\n${activeArticle.summary.slice(0, 160)}...\n\n🏛️ *स्रोत:* ${activeArticle.sourceMinistry}\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
+    const shareText = `📰 *HANS COMPAIN PIB NEWS HUB*\n\n📌 *${activeArticle.headline}*\n\n👉 *पूरा आर्टिकल पढ़ें (Click Link):*\n${directUrl}\n\n📝 *मुख्य सारांश:*\n${activeArticle.summary.slice(0, 160)}...\n\n_HANS COMPAIN - Official Competitive Exams & Steno Hub_`;
 
     if (platform === 'wa') {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
@@ -841,8 +824,7 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
     } else {
       navigator.clipboard?.writeText(shareText);
       setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
-      showToast('📋 पूरा डायरेक्ट लिंक और सारांश कॉपी हो गया है! अब आप इसे सीधे व्हाट्सएप स्टेटस या इंस्टाग्राम पर पेस्ट कर सकते हैं।');
+      setTimeout(() => setCopiedLink(false), 2000);
     }
   };
 
@@ -978,14 +960,6 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
 
   return (
     <div className="w-full space-y-5 animate-fade-in pb-16">
-      {/* Toast Banner */}
-      {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#0F172A] border border-cyan-500 text-white text-xs font-bold px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2 animate-fade-in">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       {/* -------------------------------------------------------------
           VIEW A: FULL ARTICLE PIB DETAIL VIEW (EXACT MATCH TO SCREENSHOTS 2 & 3)
           ------------------------------------------------------------- */}
@@ -1095,10 +1069,10 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
               <button
                 onClick={() => handleShareArticle(activeArticle)}
                 className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1 cursor-pointer hover:bg-amber-500 hover:text-slate-950 transition-all"
-                title="डायरेक्ट आर्टिकल लिंक शेयर करें"
+                title="शेयर करें"
               >
                 <Share2 className="w-3.5 h-3.5" />
-                <span>डायरेक्ट लिंक शेयर</span>
+                <span>शेयर करें</span>
               </button>
 
               {/* English Translate */}
@@ -1114,26 +1088,11 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
               <button
                 onClick={handleCloseArticle}
                 className="p-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500 hover:text-white cursor-pointer ml-1"
-                title="आर्टिकल बंद करें व वापस जाएं"
+                title="बंद करें"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-          </div>
-
-          {/* Direct Link Banner */}
-          <div className="p-3 bg-[#0B1426] border border-cyan-500/30 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2 text-cyan-300 font-bold min-w-0">
-              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span className="truncate">🔗 यह डायरेक्ट आर्टिकल लिंक है जिसे कहीं भी साझा किया जा सकता है</span>
-            </div>
-            <button
-              onClick={() => handleShareArticle(activeArticle)}
-              className="px-3 py-1 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow shrink-0"
-            >
-              <Copy className="w-3 h-3" />
-              <span>{copiedLink ? 'लिंक कॉपी हो गया!' : 'डायरेक्ट लिंक कॉपी करें'}</span>
-            </button>
           </div>
 
           {/* 2. OFFICIAL PIB EMBLEM ARTICLE CONTAINER (EXACT MATCH TO SCREENSHOTS 2 & 3) */}
@@ -1243,35 +1202,31 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
               <div className="p-3.5 rounded-2xl bg-slate-100/90 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
                 <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Share2 className="w-3.5 h-3.5 text-slate-500" />
-                  <span>दोस्तों व स्टडी ग्रुप्स के साथ डायरेक्ट आर्टिकल लिंक साझा करें:</span>
+                  <span>दोस्तों व स्टडी ग्रुप्स के साथ साझा करें:</span>
                 </span>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => handleShareToPlatform('wa')}
                     className="px-3 py-1.5 rounded-xl bg-[#25D366] text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:opacity-90"
-                    title="व्हाट्सएप स्टेटस / चैट पर भेजें"
                   >
                     <span>WhatsApp</span>
                   </button>
                   <button
                     onClick={() => handleShareToPlatform('insta')}
                     className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:opacity-90"
-                    title="इंस्टाग्राम पर शेयर करें"
                   >
                     <span>Instagram</span>
                   </button>
                   <button
                     onClick={() => handleShareToPlatform('tele')}
                     className="px-3 py-1.5 rounded-xl bg-[#0088cc] text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:opacity-90"
-                    title="टेलीग्राम पर भेजें"
                   >
                     <span>Telegram</span>
                   </button>
                   <button
                     onClick={() => handleShareToPlatform('insta')}
                     className="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm hover:bg-slate-800"
-                    title="लिंक कॉपी करें"
                   >
                     {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedLink ? 'Copied' : 'लिंक कॉपी'}</span>
@@ -1304,7 +1259,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                 </a>
               </div>
 
-              {/* 1. मुख्य सारांश (EXECUTIVE SUMMARY) - PREVIEW 2-4 LINES ALWAYS VISIBLE */}
+              {/* 1. मुख्य सारांश (EXECUTIVE SUMMARY) */}
               <div className="p-5 rounded-2xl bg-amber-50/80 border-l-4 border-amber-500 shadow-sm space-y-2">
                 <h3 className="text-xs font-black uppercase text-amber-900 tracking-wider flex items-center gap-2">
                   <FileText className="w-4 h-4 text-amber-700" />
@@ -1315,71 +1270,26 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                 </p>
               </div>
 
-              {/* -----------------------------------------------------------
-                  ACCESS CONTROL GATE: IF USER NOT LOGGED IN, SHOW LOGIN GATE
-                  ----------------------------------------------------------- */}
+              {/* If user is not logged in: Clean standard login button */}
               {!isUserAuthenticated ? (
-                <div className="relative mt-6 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-950 via-[#091122] to-slate-950 border-2 border-amber-500/60 shadow-2xl text-center space-y-5 text-white overflow-hidden">
-                  <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 transform -translate-x-4 translate-y-4 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
-
-                  <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 shadow-lg">
-                    <Lock className="w-7 h-7" />
+                <div className="my-6 p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center space-y-3">
+                  <div className="text-sm font-black text-amber-900">
+                    पूरा आर्टिकल व परीक्षा सामग्री पढ़ने के लिए लॉगिन करें
                   </div>
-
-                  <div className="space-y-2 max-w-lg mx-auto">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-black uppercase">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      <span>HANS COMPAIN 100% FREE ACCESS</span>
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
-                      🔐 पूरा आर्टिकल, विस्तृत आयाम व परीक्षा नोट्स अनलॉक करें
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      आपने प्रारंभिक 2-4 लाइन सारांश पढ़ लिया है। आगे के सभी महत्वपूर्ण अनुभाग (पृष्ठभूमि, नीतिगत प्रावधान, परीक्षा फैक्ट्स, वोकैबुलरी और Prelims MCQ) 100% निःशुल्क अनलॉक करने के लिए कृपया 1-क्लिक लॉगिन करें।
-                    </p>
-                  </div>
-
-                  {/* Feature Checklist inside Unlock Card */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto text-left text-xs text-slate-300">
-                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>विस्तृत आयाम (In-depth Dimensions)</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>नीतिगत प्रावधान (Key Provisions)</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>संपादकीय Anto-Syno वोकैबुलरी</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>इंटरएक्टिव Prelims MCQ & मुख्य प्रश्न</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
-                    <button
-                      onClick={handleGoogleLogin}
-                      disabled={isLoggingIn}
-                      className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-xl hover:scale-[1.02] transition-all cursor-pointer"
-                    >
-                      <User className="w-4 h-4" />
-                      <span>{isLoggingIn ? 'लॉगिन हो रहा है...' : 'Google से 1-क्लिक लॉगिन करें (100% Free)'}</span>
-                    </button>
-                  </div>
-
-                  <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>100% सुरक्षित • कोई क्रेडिट कार्ड या भुगतान नहीं</span>
+                  <p className="text-xs text-slate-600">
+                    विस्तृत आयाम, नीतिगत प्रावधान, वोकैबुलरी व प्रैक्टिस टेस्ट जारी रखने के लिए लॉगिन करें।
                   </p>
+                  <button
+                    onClick={handleGoogleLogin}
+                    disabled={isLoggingIn}
+                    className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs cursor-pointer shadow inline-flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>{isLoggingIn ? 'लॉगिन हो रहा है...' : 'लॉगिन करें'}</span>
+                  </button>
                 </div>
               ) : (
-                /* -----------------------------------------------------------
-                   FULL UNLOCKED ARTICLE CONTENT (FOR AUTHENTICATED USERS)
-                   ----------------------------------------------------------- */
+                /* FULL ARTICLE CONTENT */
                 <div className="space-y-6 animate-fade-in">
                   {/* 2. पृष्ठभूमि व ऐतिहासिक संदर्भ (BACKGROUND & GENESIS) Matching Screenshot 2 */}
                   <div className="p-5 rounded-2xl bg-sky-50/70 border-l-4 border-sky-500 shadow-sm space-y-2">
@@ -1772,7 +1682,7 @@ Format response in JSON with keys: word, pos, exactHindi, definition, synonyms, 
                         <button
                           onClick={() => handleShareArticle(item)}
                           className="w-8 h-8 rounded-full border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer"
-                          title="डायरेक्ट आर्टिकल लिंक शेयर करें"
+                          title="शेयर करें"
                         >
                           <Share2 className="w-3.5 h-3.5 text-emerald-600" />
                         </button>
