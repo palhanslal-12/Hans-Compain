@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 
 dotenv.config();
 
@@ -170,7 +170,7 @@ app.post('/api/current-affairs/daily', async (req, res) => {
 // 2. AI Chat & Hans Compain App Guide Assistant API (Adaptive Language Persona)
 app.post('/api/ai/doubt-solver', async (req, res) => {
   try {
-    const { questionText, examTarget = 'SSC & Steno 2026', subject = 'General', mode = 'chat' } = req.body;
+    const { questionText, examTarget = 'SSC & Steno 2026', subject = 'General', mode = 'chat', imageBase64 } = req.body;
     if (ai) {
       const systemContext = `You are HANS COMPAIN AI, the official intelligent assistant and study mentor of the HANS COMPAIN platform (created by Hanslal Pal).
 
@@ -196,13 +196,90 @@ Core Knowledge Base:
   11. Handwritten Notes Photo Scanner (OCR): Camera icon in Chat to scan handwritten questions.
   12. Background 24h Auto-Email Alert: Reminds inactive students automatically.`;
 
-      const prompt = `${systemContext}\n\nMode: ${mode}\nExam Target: ${examTarget}\nSubject: ${subject}\nUser Question: "${questionText}"`;
-      const result = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
-      if (result && result.text) return res.json({ solution: result.text });
+      const promptText = `${systemContext}\n\nMode: ${mode}\nExam Target: ${examTarget}\nSubject: ${subject}\nUser Question: "${questionText || 'इस तस्वीर का हल बताएं'}"`;
+
+      let contents: any;
+      if (imageBase64) {
+        let mimeType = 'image/png';
+        let pureBase64 = '';
+        if (imageBase64.includes(';base64,')) {
+          const parts = imageBase64.split(';base64,');
+          mimeType = parts[0].replace('data:', '');
+          pureBase64 = parts[1];
+        } else {
+          pureBase64 = imageBase64;
+        }
+
+        contents = {
+          parts: [
+            { inlineData: { mimeType, data: pureBase64 } },
+            { text: promptText }
+          ]
+        };
+      } else {
+        contents = promptText;
+      }
+
+      const result = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: contents
+      });
+
+      if (result && result.text) {
+        return res.json({ solution: result.text, answer: result.text });
+      }
     }
     res.json({ solution: 'हंस कॉम्पैन एआई सहायक सक्रिय है।/ Hans Compain AI active. Please ask your query.' });
   } catch (err) {
+    console.error('Doubt solver error:', err);
     res.status(500).json({ error: 'Internal Error' });
+  }
+});
+
+// 2c. Dedicated /api/ai/solve route for handwritten OCR photo scanning and analysis
+app.post('/api/ai/solve', async (req, res) => {
+  try {
+    const { prompt, imageBase64, mode = 'ocr' } = req.body;
+    if (!ai) {
+      return res.status(500).json({ error: 'AI Client not initialized' });
+    }
+
+    let contents: any;
+
+    if (imageBase64) {
+      let mimeType = 'image/png';
+      let pureBase64 = '';
+      if (imageBase64.includes(';base64,')) {
+        const parts = imageBase64.split(';base64,');
+        mimeType = parts[0].replace('data:', '');
+        pureBase64 = parts[1];
+      } else {
+        pureBase64 = imageBase64;
+      }
+
+      contents = {
+        parts: [
+          { inlineData: { mimeType, data: pureBase64 } },
+          { text: prompt || 'इस फोटो/हस्तलिखित नोट्स में लिखे सभी शब्दों, सूत्रों और बिंदुओं को साफ-साफ डिजिटल हिंदी/अंग्रेजी टेक्स्ट में बदलें (OCR) और मुख्य परीक्षा बिंदु बताएं।' }
+        ]
+      };
+    } else {
+      contents = prompt || 'कृपया सामग्री प्रदान करें।';
+    }
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: contents,
+      config: {
+        systemInstruction: 'You are HANS COMPAIN AI OCR & Handwritten Note Analyzer. Read printed/handwritten questions, study notes, or math equations with extreme precision. Output only the extracted clean text, solved steps, and key highlights in a clean layout.'
+      }
+    });
+
+    const resultText = response.text || 'OCR विश्लेषण करने में असमर्थ। कृपया दूसरी स्पष्ट फोटो अपलोड करें।';
+    return res.json({ success: true, answer: resultText, solution: resultText });
+  } catch (err) {
+    console.error('OCR Solve Route Error:', err);
+    res.status(500).json({ error: 'OCR processing failed' });
   }
 });
 
@@ -237,6 +314,62 @@ app.post('/api/report-question', (req, res) => {
     res.json({ success: true, message: 'त्रुटि रिपोर्ट hanscompain@gmail.com पर सफलता से भेज दी गई है।' });
   } catch (err) {
     res.status(500).json({ error: 'Report dispatch error' });
+  }
+});
+
+// 2d. Dedicated Full Exam board questions generator route
+app.post('/api/board/full-exam', async (req, res) => {
+  try {
+    const { board = 'BSEB', classLevel = '10th', subject = 'Science', language = 'hindi' } = req.body;
+    if (!ai) {
+      return res.status(500).json({ error: 'AI Client not initialized' });
+    }
+
+    const examLength = board === 'BSEB' ? 40 : 20;
+
+    const systemInstruction = `You are an elite syllabus setter for ${board} ${classLevel} ${subject} board exams.
+Generate a set of exactly ${examLength} highly realistic, syllabus-perfect, curriculum-accurate board exam multiple-choice questions (MCQs).
+Crucial constraints:
+1. Do not repeat any questions.
+2. The entire output must be in a single clean language matching "${language}" only!
+   - If language is 'hindi', the question, options, and explanations must be 100% in pure Hindi (Devanagari). No English translations in parentheses.
+   - If language is 'english', the question, options, and explanations must be 100% in English. No Hindi translations in parentheses.
+3. Keep the content appropriate for CBSE, BSEB, or UP Board based on "${board}".
+4. You must return a valid JSON object adhering strictly to this schema:
+{
+  "questions": [
+    {
+      "id": "gen_q_1",
+      "question": "A clear, realistic question text...",
+      "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
+      "correctAnswer": 0, // 0-indexed correct option (0, 1, 2, or 3)
+      "explanation": "Detailed explanation of why this option is correct...",
+      "yearTag": "${board} ${classLevel} board exam predicted"
+    }
+  ]
+}
+Return exactly ${examLength} elements in the "questions" array.
+Do not return any markdown wraps or comments outside the JSON object. Just the clean JSON.`;
+
+    const result = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: `Generate exactly ${examLength} unique questions. Topic coverage should span the entire syllabus of ${subject}. Make sure questions change automatically, are diverse, and have real board difficulty.`,
+      config: {
+        systemInstruction,
+        responseMimeType: 'application/json'
+      }
+    });
+
+    if (result && result.text) {
+      const parsed = JSON.parse(result.text.trim());
+      if (parsed && Array.isArray(parsed.questions)) {
+        return res.json({ success: true, questions: parsed.questions });
+      }
+    }
+    res.status(400).json({ success: false, error: 'Failed to generate questions' });
+  } catch (err) {
+    console.error('Board exam generation error:', err);
+    res.status(500).json({ success: false, error: 'Internal server error' });
   }
 });
 
@@ -416,6 +549,61 @@ app.post('/api/admin/clear-logs', (req, res) => {
     res.json({ success: true, message: 'Logs reset' });
   } catch {
     res.status(500).json({ error: 'Failed' });
+  }
+});
+
+// 6. Global Feature Toggles Configuration Manager
+const getFeatureToggles = () => {
+  const togglesFile = path.join(process.cwd(), 'data', 'feature_toggles.json');
+  const defaults = {
+    "steno-master": true,
+    "current-affairs": true,
+    "group-quiz": true,
+    "ai-chat": true,
+    "science-lab": true,
+    "board-exams": true,
+    "mnemonics": true,
+    "library": true
+  };
+  if (!fs.existsSync(togglesFile)) {
+    try {
+      const dataDir = path.dirname(togglesFile);
+      if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+      fs.writeFileSync(togglesFile, JSON.stringify(defaults, null, 2));
+    } catch {
+      // ignore
+    }
+    return defaults;
+  }
+  try {
+    return JSON.parse(fs.readFileSync(togglesFile, 'utf-8'));
+  } catch {
+    return defaults;
+  }
+};
+
+app.get('/api/admin/features', (req, res) => {
+  try {
+    const toggles = getFeatureToggles();
+    res.json({ success: true, toggles });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read features config' });
+  }
+});
+
+app.post('/api/admin/features/toggle', (req, res) => {
+  try {
+    const { featureId, status } = req.body;
+    if (typeof featureId !== 'string' || typeof status !== 'boolean') {
+      return res.status(400).json({ error: 'Invalid featureId or status' });
+    }
+    const togglesFile = path.join(process.cwd(), 'data', 'feature_toggles.json');
+    const toggles = getFeatureToggles();
+    toggles[featureId] = status;
+    fs.writeFileSync(togglesFile, JSON.stringify(toggles, null, 2));
+    res.json({ success: true, toggles, message: `Feature '${featureId}' updated` });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update feature toggles' });
   }
 });
 

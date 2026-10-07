@@ -831,7 +831,7 @@ export const App: React.FC = () => {
               />
             )}
             {(activeView === 'mock' || activeView === 'competitive') && <MockTestsView />}
-            {(activeView === 'board-exam' || activeView === 'board') && <BoardExamSingleTestBox />}
+            {(activeView === 'board-exam' || activeView === 'board') && <BoardExamSingleTestBox language={language} />}
             {(activeView === 'group-quiz' || activeView === 'battle' || activeView === 'quiz-battle' || activeView === 'battle-quiz' || activeView === 'group-battle') && <LiveGroupQuizStudio />}
             {activeView === 'science-lab' && <ScienceFormulaLabView />}
             {activeView === 'mnemonics' && <MnemonicsTrickGeneratorView />}

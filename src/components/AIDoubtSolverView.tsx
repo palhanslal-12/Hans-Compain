@@ -305,22 +305,67 @@ export const AIDoubtSolverView: React.FC<{
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt:
-              'इस फोटो/हस्तलिखित नोट्स में लिखे सभी शब्दों, सूत्रों और बिंदुओं को साफ-साफ डिजिटल हिंदी/अंग्रेजी टेक्स्ट में बदलें (OCR) और मुख्य परीक्षा बिंदु बताएं।',
+            prompt: 'इस फोटो/हस्तलिखित नोट्स में लिखे सभी शब्दों, सूत्रों और बिंदुओं को साफ-साफ डिजिटल हिंदी/अंग्रेजी टेक्स्ट में बदलें (OCR) और मुख्य परीक्षा बिंदु बताएं।',
             imageBase64: dataUrl,
             mode: 'ocr'
           })
         });
         const data = await res.json();
-        const extracted = data.answer || selectedNote.extractedText;
-        setCustomScannedText(extracted);
+        const extracted = data.answer || data.solution || '';
+        
+        if (extracted) {
+          // Dynamically construct revision materials based on user's actual scanned text
+          const cleanLines = extracted.split('\n').map((l: string) => l.trim()).filter(Boolean);
+          const dynamicNote: SampleHandwrittenNote = {
+            id: `custom-${Date.now()}`,
+            title: 'सफलतापूर्वक स्कैन किया गया पन्ना (My Analyzed Page)',
+            subject: 'हस्तलिखित नोट्स / स्कैन दस्तावेज',
+            badge: 'LIVE AI ANALYSIS',
+            extractedText: extracted,
+            keyFormulas: [
+              cleanLines[0] ? cleanLines[0].slice(0, 70) : 'विशेष सूत्र/सिद्धांत बिंदु 1',
+              cleanLines[1] ? cleanLines[1].slice(0, 70) : 'विशेष सूत्र/सिद्धांत बिंदु 2',
+              cleanLines[2] ? cleanLines[2].slice(0, 70) : 'विशेष सूत्र/सिद्धांत बिंदु 3',
+              'पिटमैन शॉर्टहैंड व परीक्षा की दृष्टि से अति-महत्वपूर्ण अवधारणा'
+            ],
+            flashcards: [
+              {
+                q: 'अपलोड किए गए हस्तलिखित नोट्स/अवधारणा का मुख्य सारांश क्या है?',
+                a: extracted.slice(0, 180) + '...'
+              },
+              {
+                q: 'स्कैन किए गए पन्ने में प्रस्तुत मुख्य शिक्षण बिंदु क्या है?',
+                a: cleanLines[1] || 'कक्षा परीक्षा या कॉम्पिटिटिव एग्जाम्स के लिए शॉर्ट-नोट्स विश्लेषण।'
+              }
+            ],
+            quiz: [
+              {
+                q: 'उपरोक्त स्कैन किए गए डिजिटल टेक्स्ट में प्रस्तुत मुख्य विषय-वस्तु क्या है?',
+                options: [
+                  cleanLines[0] ? cleanLines[0].slice(0, 40) : 'शैक्षणिक सूत्र व सिद्धांत',
+                  'कोई अन्य असंबंधित सामान्य ज्ञान विषय',
+                  'अव्यवस्थित या अपठनीय मुद्रण',
+                  'केवल सामान्य रफ लेखन'
+                ],
+                ans: 0,
+                exp: 'AI विज़न स्कैनर ने आपके अपलोड किए गए दस्तावेज को सफलतापूर्वक एनालाइज कर डिजिटल पाठ और अभ्यास में रूपांतरित किया है।'
+              }
+            ]
+          };
+          setSelectedNote(dynamicNote);
+          setCustomScannedText(extracted);
+        } else {
+          setCustomScannedText(selectedNote.extractedText);
+        }
+        
         recordStudyActivity(
           'ocr',
           'हस्तलिखित नोट्स फोटो स्कैन (OCR)',
-          extracted.slice(0, 220),
+          extracted.slice(0, 220) || 'Uploaded Image',
           100
         );
-      } catch {
+      } catch (err) {
+        console.warn('Ocr upload scan error:', err);
         setCustomScannedText(selectedNote.extractedText);
       } finally {
         setIsScanningImage(false);
