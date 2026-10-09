@@ -22,6 +22,7 @@ import {
   Search
 } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 interface DictationPassage {
   id: string;
@@ -340,18 +341,18 @@ export const DedicatedStenoMasterStudio: React.FC<{ onBackHome?: () => void }> =
   };
 
   const toggleDictationAudio = () => {
-    if (!('speechSynthesis' in window)) return;
     if (isPlaying) {
-      window.speechSynthesis.cancel();
+      stopNaturalSpeech();
       setIsPlaying(false);
     } else {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(activeDictationText);
-      utter.lang = 'hi-IN';
-      utter.rate = selectedWpm === 60 ? 0.78 : selectedWpm === 80 ? 0.92 : selectedWpm === 100 ? 1.08 : 1.22;
-      utter.onend = () => setIsPlaying(false);
-      window.speechSynthesis.speak(utter);
+      const rate = selectedWpm === 60 ? 0.78 : selectedWpm === 80 ? 0.92 : selectedWpm === 100 ? 1.08 : 1.22;
       setIsPlaying(true);
+      playNaturalSpeech(
+        activeDictationText,
+        () => setIsPlaying(false),
+        undefined,
+        rate
+      );
     }
   };
 

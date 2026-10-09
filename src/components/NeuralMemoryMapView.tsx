@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrainCircuit, Sparkles, ChevronRight, Volume2, BookOpen, Layers, Plus } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 interface MindNode {
   id: string;
@@ -192,14 +193,17 @@ export const NeuralMemoryMapView: React.FC = () => {
     }
   };
 
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+
   const speakMap = () => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    if (isSpeaking) {
+      stopNaturalSpeech();
+      setIsSpeaking(false);
+      return;
+    }
     const text = `${currentMap.centralConcept}. ` + currentMap.branches.map(b => `${b.heading}: ${b.points.join(', ')}`).join('. ');
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'hi-IN';
-    utter.rate = 0.95;
-    window.speechSynthesis.speak(utter);
+    setIsSpeaking(true);
+    playNaturalSpeech(text, () => setIsSpeaking(false), undefined, 0.95);
   };
 
   return (

@@ -68,6 +68,7 @@ import { WeatherAlertView } from './components/WeatherAlertView';
 import { PeerChallengeArena } from './components/PeerChallengeArena';
 import { NeuralMemoryMapView } from './components/NeuralMemoryMapView';
 import { StudyPlanView } from './components/StudyPlanView';
+import { playNaturalSpeech, stopNaturalSpeech } from './utils/naturalSpeech';
 import { AffiliateStoreView } from './components/AffiliateStoreView';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { OfflineIndicator } from './components/OfflineIndicator';
@@ -158,7 +159,15 @@ export const App: React.FC = () => {
       };
 
       window.addEventListener('popstate', handlePopState);
-      return () => window.removeEventListener('popstate', handlePopState);
+      const handleCustomNav = (e: any) => {
+        if (e.detail) setActiveView(e.detail);
+      };
+      window.addEventListener('hans_navigate_view', handleCustomNav);
+
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+        window.removeEventListener('hans_navigate_view', handleCustomNav);
+      };
     } catch {
       // ignore
     }
@@ -239,11 +248,10 @@ export const App: React.FC = () => {
   const toggleOkHansVoice = () => {
     const next = !okHansActive;
     setOkHansActive(next);
-    if (next && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance('ओके हंस वॉयस कमांड सक्रिय है।');
-      utter.lang = 'hi-IN';
-      window.speechSynthesis.speak(utter);
+    if (next) {
+      playNaturalSpeech('ओके हंस वॉयस असिस्टेंट सक्रिय है। आप बोलकर नेविगेट या अध्ययन कर सकते हैं।');
+    } else {
+      stopNaturalSpeech();
     }
     showToast(next ? '✨ "ओके हंस" वॉयस असिस्टेंट सक्रिय (ON) हो गया है!' : '"ओके हंस" वॉयस मोड ऑफ़ (OFF) किया गया।');
   };

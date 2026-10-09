@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { History, Sparkles, MessageSquare, Volume2, BookOpen, Award, Send } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 interface HistoricalPersona {
   id: string;
@@ -123,12 +124,7 @@ export const TimeTravelSimulatorView: React.FC = () => {
   const currentDialogue = currentPersona.sampleDialogues[activePromptIndex] || currentPersona.sampleDialogues[0];
 
   const speakResponse = (text: string) => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'hi-IN';
-    utter.rate = 0.92;
-    window.speechSynthesis.speak(utter);
+    playNaturalSpeech(text, undefined, undefined, 0.94);
   };
 
   const handleAskCustomQuestion = async () => {

@@ -17,6 +17,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { getLocalActivities, LocalActivityLog } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 interface Reel {
   id: string;
@@ -157,25 +158,24 @@ export const EduReelsView: React.FC = () => {
   const isLiked = likedReels.includes(currentReel.id);
 
   const toggleSpeech = () => {
-    if ('speechSynthesis' in window) {
-      if (isPlayingAudio) {
-        window.speechSynthesis.cancel();
-        setIsPlayingAudio(false);
-      } else {
-        const text = `${currentReel.videoTitle}. ${currentReel.conceptBulletPoints.join('. ')}. ${currentReel.trickExplanation}`;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'hi-IN';
-        utterance.rate = 1.0;
-        utterance.onend = () => setIsPlayingAudio(false);
-        window.speechSynthesis.speak(utterance);
-        setIsPlayingAudio(true);
-      }
+    if (isPlayingAudio) {
+      stopNaturalSpeech();
+      setIsPlayingAudio(false);
+    } else {
+      const text = `${currentReel.videoTitle}. ${currentReel.conceptBulletPoints.join('. ')}. ${currentReel.trickExplanation}`;
+      setIsPlayingAudio(true);
+      playNaturalSpeech(
+        text,
+        () => setIsPlayingAudio(false),
+        undefined,
+        0.96
+      );
     }
   };
 
   const handleNext = () => {
-    if (isPlayingAudio && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    if (isPlayingAudio) {
+      stopNaturalSpeech();
       setIsPlayingAudio(false);
     }
     setProgress(0);
@@ -183,8 +183,8 @@ export const EduReelsView: React.FC = () => {
   };
 
   const handlePrev = () => {
-    if (isPlayingAudio && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    if (isPlayingAudio) {
+      stopNaturalSpeech();
       setIsPlayingAudio(false);
     }
     setProgress(0);

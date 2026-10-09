@@ -2,23 +2,63 @@
 <html lang="hi" class="h-full bg-slate-950 text-slate-100">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#03060E" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="HansCompain" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>HANS COMPAIN Shorthand | हंस कैंपेन शॉर्टहैंड</title>
     <meta name="description" content="Hans Compain Shorthand (हंस कैंपेन शॉर्टहैंड) by Hans Lal Pal. The best platform for Hans Compain, Compain Shorthand, Steno Dictation, and AI Learning." />
     <meta name="author" content="Hans Lal Pal" />
     <meta property="og:title" content="HANS COMPAIN Shorthand | हंस कैंपेन शॉर्टहैंड" />
     <meta property="og:description" content="Premier AI Academic Platform by Hans Lal Pal with Pitman Shorthand Steno Dictation, Syllabus Live Quizzes, AI Mistake Notebook & Interactive Science Lab." />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/og-image.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rozha+One&family=Yatra+One&display=swap" rel="stylesheet">
+    <script>
+      (function () {
+        window.addEventListener('unhandledrejection', function (event) {
+          var msg = event && event.reason ? (event.reason.message || String(event.reason)) : '';
+          if (msg.indexOf('WebSocket closed without opened') !== -1 || msg.indexOf('@vite/client') !== -1) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+          try {
+            fetch('/api/admin/auto-alert', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'error_alert',
+                title: 'Unhandled Promise Error in App',
+                details: msg.slice(0, 500)
+              })
+            }).catch(function () {});
+          } catch (e) {}
+        }, true);
+
+        window.addEventListener('error', function (event) {
+          var msg = event && event.message ? String(event.message) : '';
+          if (msg.indexOf('WebSocket closed without opened') !== -1) {
+            event.preventDefault();
+            return false;
+          }
+        }, true);
+      })();
+    </script>
   </head>
   <body class="h-full bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
     <div id="root" class="min-h-full flex flex-col"></div>

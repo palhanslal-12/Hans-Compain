@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Lightbulb, RefreshCw, Volume2, Copy, Check, Send } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 interface MnemonicData {
   title: string;
@@ -139,12 +140,7 @@ export const MnemonicsTrickGeneratorView: React.FC = () => {
   };
 
   const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'hi-IN';
-      window.speechSynthesis.speak(u);
-    }
+    playNaturalSpeech(text, undefined, undefined, 0.95);
   };
 
   const handleCopy = () => {

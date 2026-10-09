@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, RotateCw, ChevronLeft, ChevronRight, Volume2, Sparkles, CheckCircle2, Plus, Target, AlertTriangle } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 interface FlashcardItem {
   id: string;
@@ -142,12 +143,7 @@ export const FlashcardsView: React.FC = () => {
   };
 
   const speakCard = (text: string) => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'hi-IN';
-    utter.rate = 0.95;
-    window.speechSynthesis.speak(utter);
+    playNaturalSpeech(text, undefined, undefined, 0.95);
   };
 
   return (

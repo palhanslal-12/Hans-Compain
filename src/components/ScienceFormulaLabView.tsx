@@ -15,9 +15,17 @@ import {
   Minimize2,
   CheckCircle2,
   Sliders,
-  Award
+  Award,
+  Image as ImageIcon,
+  Table as TableIcon,
+  BookOpen,
+  PlusCircle,
+  Trash2
 } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { ScienceLabApparatusVisualizer } from './ScienceLabApparatusVisualizer';
+import { SCIENCE_LAB_DETAILS } from '../data/scienceLabDetails';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 export interface ScienceLabConfig {
   id: string;
@@ -1150,6 +1158,10 @@ export const ScienceFormulaLabView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedLabId, setSelectedLabId] = useState<string>('ohm-circuit');
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
+  const [benchTab, setBenchTab] = useState<'sim' | 'photo' | 'table' | 'manual'>('sim');
+  const [recordedObservations, setRecordedObservations] = useState<
+    Array<{ id: number; p1: number; p2: number; res1: string; res2: string; timestamp: string }>
+  >([]);
 
   const activeLab = ALL_28_SCIENCE_LABS.find(l => l.id === selectedLabId) || ALL_28_SCIENCE_LABS[0];
 
@@ -1160,6 +1172,7 @@ export const ScienceFormulaLabView: React.FC = () => {
     setSelectedLabId(lab.id);
     setP1(lab.param1Default);
     setP2(lab.param2Default);
+    setBenchTab('sim');
     setViewMode('bench');
     const res = lab.computeResult(lab.param1Default, lab.param2Default);
     recordStudyActivity(
@@ -1184,13 +1197,20 @@ export const ScienceFormulaLabView: React.FC = () => {
   const liveResult = activeLab.computeResult(p1, p2);
 
   const speakLab = () => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const text = `${activeLab.title}. सूत्र: ${activeLab.formula}. ${liveResult.primaryLabel}: ${liveResult.primaryValue}. ${liveResult.statusText}. ${activeLab.examFacts.join(' ')}`;
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'hi-IN';
-    utter.rate = 0.95;
-    window.speechSynthesis.speak(utter);
+    const text = `${activeLab.title}। सूत्र: ${activeLab.formula}। ${liveResult.primaryLabel} ${liveResult.primaryValue}। प्रायोगिक निष्कर्ष: ${liveResult.statusText}। मुख्य परीक्षा तथ्य: ${activeLab.examFacts.join('। ')}`;
+    playNaturalSpeech(text);
+  };
+
+  const handleRecordObservation = () => {
+    const newObs = {
+      id: Date.now(),
+      p1,
+      p2,
+      res1: liveResult.primaryValue,
+      res2: liveResult.secondaryValue,
+      timestamp: new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    };
+    setRecordedObservations(prev => [newObs, ...prev.slice(0, 19)]);
   };
 
   return (
@@ -1280,45 +1300,59 @@ export const ScienceFormulaLabView: React.FC = () => {
       </div>
 
       {/* =====================================================================
-          MODE 1: ALL 28 LABS DIRECTORY GRID (FULL-WIDTH)
+          MODE 1: ALL 28 LABS DIRECTORY GRID (FULL-WIDTH WITH REALISTIC PHOTOS)
       ===================================================================== */}
       {viewMode === 'hub' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
-          {filteredLabs.map(lab => (
-            <div
-              key={lab.id}
-              onClick={() => openLabBench(lab)}
-              className="bg-[#091122] border-2 border-slate-800/90 hover:border-cyan-400 rounded-3xl p-5 flex flex-col justify-between gap-4 cursor-pointer transition-all hover:-translate-y-0.5 shadow-lg group"
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-2xl">
-                    {lab.icon}
+          {filteredLabs.map(lab => {
+            const detail = SCIENCE_LAB_DETAILS[lab.id];
+            return (
+              <div
+                key={lab.id}
+                onClick={() => openLabBench(lab)}
+                className="bg-[#091122] border-2 border-slate-800/90 hover:border-cyan-400 rounded-3xl p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all hover:-translate-y-1 shadow-lg group overflow-hidden"
+              >
+                <div className="space-y-2.5">
+                  {/* Distinct Realistic Lab Practical Photo for Every Single Lab */}
+                  <div className="relative h-40 w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
+                    <img
+                      src={detail?.imageUrl || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80'}
+                      alt={detail?.imageAlt || lab.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                    <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-cyan-500/40 text-[10px] font-black text-cyan-300">
+                      LAB #{lab.number}
+                    </div>
+                    <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-amber-500/80 text-slate-950 text-[10px] font-black uppercase">
+                      {lab.badge}
+                    </div>
+                    <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-xs font-bold text-white">
+                      <span className="text-[11px] text-amber-300 font-bold truncate">{lab.categoryLabel}</span>
+                      <span className="text-xl shrink-0">{lab.icon}</span>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-slate-950 border border-cyan-500/30 text-cyan-300">
-                    LAB #{lab.number} • {lab.badge}
-                  </span>
+
+                  <div>
+                    <h3 className="text-sm sm:text-base font-black text-white group-hover:text-cyan-300 transition-colors leading-snug">
+                      {lab.title}
+                    </h3>
+                    <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">{lab.subtitle}</p>
+                  </div>
+
+                  <div className="p-2 rounded-xl bg-slate-950 border border-slate-850 font-mono text-[11px] text-emerald-300 truncate">
+                    {lab.formula}
+                  </div>
                 </div>
 
-                <div>
-                  <span className="text-[10px] font-bold text-amber-400 block">{lab.categoryLabel}</span>
-                  <h3 className="text-sm sm:text-base font-black text-white group-hover:text-cyan-300 transition-colors leading-snug mt-0.5">
-                    {lab.title}
-                  </h3>
-                  <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">{lab.subtitle}</p>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-850 font-mono text-[11px] text-emerald-300 truncate">
-                  {lab.formula}
+                <div className="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs font-black text-cyan-400 group-hover:text-white">
+                  <span>प्रयोगशाला बेंच खोलें (Open Bench)</span>
+                  <ChevronRight className="w-4 h-4" />
                 </div>
               </div>
-
-              <div className="pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs font-black text-cyan-400 group-hover:text-white">
-                <span>प्रयोगशाला खोलें (Open Full Lab)</span>
-                <ChevronRight className="w-4 h-4" />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -1,34 +1,101 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
+    <!-- Background Sapphire Gradient -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0F172A" />
-      <stop offset="100%" stop-color="#020617" />
+      <stop offset="50%" stop-color="#0A1128" />
+      <stop offset="100%" stop-color="#03060E" />
     </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F59E0B" />
+
+    <!-- Royal Gold Border Gradient -->
+    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D" />
+      <stop offset="50%" stop-color="#F59E0B" />
       <stop offset="100%" stop-color="#D97706" />
     </linearGradient>
-    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+    <!-- Swan & Pillar Blue Gradient -->
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#0284C7" />
+      <stop offset="50%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+
+    <!-- Emerald Success Gradient -->
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <!-- Golden Feather & Quill Gradient -->
+    <linearGradient id="quillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
     </linearGradient>
   </defs>
-  <!-- Background with Safe Margin -->
-  <rect width="512" height="512" rx="110" fill="url(#bgGrad)" />
-  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#F59E0B" stroke-width="6" stroke-opacity="0.4" />
-  
-  <!-- Outer Glow Circle -->
-  <circle cx="256" cy="240" r="150" fill="url(#goldGrad)" opacity="0.12" />
-  <circle cx="256" cy="240" r="120" fill="none" stroke="url(#cyanGrad)" stroke-width="8" stroke-dasharray="16 8" />
 
-  <!-- Central Target / Steno Feather & Shield Icon -->
-  <path d="M256 120 L340 180 L340 280 Q340 370 256 410 Q172 370 172 280 L172 180 Z" fill="url(#goldGrad)" />
-  <path d="M256 150 L315 195 L315 270 Q315 340 256 375 Q197 340 197 270 L197 195 Z" fill="#0F172A" />
+  <!-- Base Rounded Crest Container -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="14" y="14" width="484" height="484" rx="100" fill="none" stroke="url(#goldBorder)" stroke-width="6" />
+
+  <!-- Subtle Ambient Glow -->
+  <circle cx="256" cy="220" r="160" fill="#0284C7" opacity="0.12" />
+
+  <!-- HANS SWAN (हंस) & WISDOM WINGS EMBLEM -->
+  <!-- Left Wing (Shorthand / Steno Dynamic Arc) -->
+  <path d="M 140,240 C 110,180 145,130 195,120 C 175,155 180,210 215,245 C 185,255 155,250 140,240 Z" fill="url(#blueGrad)" opacity="0.95" />
   
-  <!-- Target Rings -->
-  <circle cx="256" cy="260" r="45" fill="none" stroke="#F59E0B" stroke-width="8" />
-  <circle cx="256" cy="260" r="22" fill="#38BDF8" />
+  <!-- Right Wing (Growth Emerald Arc) -->
+  <path d="M 372,240 C 402,180 367,130 317,120 C 337,155 332,210 297,245 C 327,255 357,250 372,240 Z" fill="url(#greenGrad)" opacity="0.95" />
+
+  <!-- Stylized "H" Pillars (Hans Pillars of Education) -->
+  <path d="M 190,140 L 225,130 L 225,270 L 190,265 Z" fill="url(#blueGrad)" rx="6" />
+  <path d="M 287,130 L 322,140 L 322,265 L 287,270 Z" fill="url(#greenGrad)" rx="6" />
   
-  <!-- Text Label -->
-  <text x="256" y="465" font-family="system-ui, sans-serif" font-size="42" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">HANS COMPAIN</text>
+  <!-- Center Bridge (Quill / Pen of Wisdom - Hans Compain Shorthand) -->
+  <path d="M 180,215 Q 256,180 332,215 Q 256,230 180,215 Z" fill="url(#quillGrad)" />
+
+  <!-- Center Swan Head & Crown / Steno Nib of Knowledge -->
+  <g transform="translate(256, 120)">
+    <!-- Swan Graceful Neck & Head -->
+    <path d="M -16,40 C -16,10 0,-15 12,-15 C 22,-15 28,-5 20,8 C 14,18 8,28 10,40 Z" fill="#FFFFFF" />
+    <!-- Golden Beak / Pen Nib Point -->
+    <polygon points="12,-15 28,-18 20,-8" fill="url(#quillGrad)" />
+    <!-- Eye of Focus -->
+    <circle cx="10" cy="-6" r="2.5" fill="#0A1128" />
+  </g>
+
+  <!-- GRADUATION CAP (ACADEMIC MASTERY) -->
+  <g transform="translate(295, 80)">
+    <polygon points="25,-5 55,5 25,15 -5,5" fill="#1E3A8A" stroke="#60A5FA" stroke-width="1.5" />
+    <polygon points="10,10 25,15 40,10 40,16 25,21 10,16" fill="#0F172A" />
+    <circle cx="25,5" r="2.5" fill="#F59E0B" />
+    <path d="M 25,5 Q 45,10 48,22" fill="none" stroke="#F59E0B" stroke-width="2" />
+  </g>
+
+  <!-- OPEN BOOK OF WISDOM (FOUNDATION) -->
+  <g transform="translate(156, 260)">
+    <!-- Left Book Page -->
+    <path d="M 100,32 C 60,38 20,32 0,22 C 16,42 55,54 100,42 Z" fill="url(#blueGrad)" />
+    <!-- Right Book Page -->
+    <path d="M 100,32 C 140,38 180,32 200,22 C 184,42 145,54 100,42 Z" fill="url(#greenGrad)" />
+    <!-- Book Center Spine -->
+    <line x1="100" y1="20" x2="100" y2="44" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- BRAND TYPOGRAPHY: HANS COMPAIN -->
+  <text x="256" y="375" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="38" letter-spacing="2">
+    <tspan fill="#38BDF8">HANS </tspan>
+    <tspan fill="#34D399">COMPAIN</tspan>
+  </text>
+
+  <!-- SUBTITLE: ACADEMIC & STENO ENGINE -->
+  <text x="256" y="415" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="16" fill="#FCD34D" letter-spacing="4">
+    हर सपने को मिलेगी उड़ान
+  </text>
+
+  <!-- Sleek Golden Accent Underline -->
+  <line x1="156" y1="432" x2="356" y2="432" stroke="url(#goldBorder)" stroke-width="2.5" stroke-linecap="round" />
 </svg>

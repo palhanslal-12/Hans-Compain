@@ -15,18 +15,31 @@ import {
   ArrowLeft,
   Layers,
   Zap,
-  Check
+  Check,
+  Mic,
+  MicOff,
+  Flag
 } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
 import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 import { askHansCompainAI } from '../utils/aiClientFallback';
 import { LucentTextFormatter } from './LucentTextFormatter';
 
+export interface AttachedFile {
+  id: string;
+  name: string;
+  type: string;
+  previewUrl: string;
+  base64: string;
+  sizeKb: number;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   text: string;
   imagePreview?: string;
+  attachedFiles?: AttachedFile[];
   modeTag?: string;
 }
 
@@ -266,8 +279,10 @@ export const AIDoubtSolverView: React.FC<{
 
   // Dedicated Chat State (Only used when in Chat mode)
   const [input, setInput] = useState('');
+  const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const ocrFileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -312,9 +327,40 @@ export const AIDoubtSolverView: React.FC<{
         });
         const data = await res.json();
         const extracted = data.answer || data.solution || '';
+        const structured = data.structuredOcr;
         
-        if (extracted) {
-          // Dynamically construct revision materials based on user's actual scanned text
+        if (structured && structured.extractedText) {
+          const dynamicNote: SampleHandwrittenNote = {
+            id: `custom-${Date.now()}`,
+            title: structured.title || 'सफलतापूर्वक स्कैन किया गया पन्ना (My Analyzed Page)',
+            subject: structured.subject || 'हस्तलिखित नोट्स / स्कैन दस्तावेज',
+            badge: 'LIVE AI ANALYSIS',
+            extractedText: structured.extractedText,
+            keyFormulas: Array.isArray(structured.keyFormulas) && structured.keyFormulas.length > 0
+              ? structured.keyFormulas
+              : ['स्कैन किए गए पन्ने के मुख्य बिंदु व सूत्र'],
+            flashcards: Array.isArray(structured.flashcards) && structured.flashcards.length > 0
+              ? structured.flashcards
+              : [
+                  {
+                    q: 'स्कैन किए गए पन्ने की मुख्य अवधारणा क्या है?',
+                    a: structured.extractedText.slice(0, 150) + '...'
+                  }
+                ],
+            quiz: Array.isArray(structured.quiz) && structured.quiz.length > 0
+              ? structured.quiz
+              : [
+                  {
+                    q: 'उपरोक्त स्कैन किए गए पन्ने में प्रस्तुत मुख्य विषय-वस्तु क्या है?',
+                    options: ['शैक्षणिक सूत्र व सिद्धांत', 'अन्य सामान्य ज्ञान', 'अपठनीय मुद्रण', 'रफ लेखन'],
+                    ans: 0,
+                    exp: 'AI विज़न स्कैनर ने आपकी फोटो का सटीक विश्लेषण किया है।'
+                  }
+                ]
+          };
+          setSelectedNote(dynamicNote);
+          setCustomScannedText(structured.extractedText);
+        } else if (extracted) {
           const cleanLines = extracted.split('\n').map((l: string) => l.trim()).filter(Boolean);
           const dynamicNote: SampleHandwrittenNote = {
             id: `custom-${Date.now()}`,
@@ -325,37 +371,32 @@ export const AIDoubtSolverView: React.FC<{
             keyFormulas: [
               cleanLines[0] ? cleanLines[0].slice(0, 70) : 'विशेष सूत्र/सिद्धांत बिंदु 1',
               cleanLines[1] ? cleanLines[1].slice(0, 70) : 'विशेष सूत्र/सिद्धांत बिंदु 2',
-              cleanLines[2] ? cleanLines[2].slice(0, 70) : 'विशेष सूत्र/सिद्धांत बिंदु 3',
               'पिटमैन शॉर्टहैंड व परीक्षा की दृष्टि से अति-महत्वपूर्ण अवधारणा'
             ],
             flashcards: [
               {
-                q: 'अपलोड किए गए हस्तलिखित नोट्स/अवधारणा का मुख्य सारांश क्या है?',
+                q: 'अपलोड किए गए नोट्स का मुख्य सारांश क्या है?',
                 a: extracted.slice(0, 180) + '...'
-              },
-              {
-                q: 'स्कैन किए गए पन्ने में प्रस्तुत मुख्य शिक्षण बिंदु क्या है?',
-                a: cleanLines[1] || 'कक्षा परीक्षा या कॉम्पिटिटिव एग्जाम्स के लिए शॉर्ट-नोट्स विश्लेषण।'
               }
             ],
             quiz: [
               {
-                q: 'उपरोक्त स्कैन किए गए डिजिटल टेक्स्ट में प्रस्तुत मुख्य विषय-वस्तु क्या है?',
+                q: 'स्कैन किए गए डिजिटल टेक्स्ट में मुख्य विषय क्या है?',
                 options: [
                   cleanLines[0] ? cleanLines[0].slice(0, 40) : 'शैक्षणिक सूत्र व सिद्धांत',
-                  'कोई अन्य असंबंधित सामान्य ज्ञान विषय',
-                  'अव्यवस्थित या अपठनीय मुद्रण',
-                  'केवल सामान्य रफ लेखन'
+                  'अन्य विषय',
+                  'अपठनीय',
+                  'रफ लेखन'
                 ],
                 ans: 0,
-                exp: 'AI विज़न स्कैनर ने आपके अपलोड किए गए दस्तावेज को सफलतापूर्वक एनालाइज कर डिजिटल पाठ और अभ्यास में रूपांतरित किया है।'
+                exp: 'AI विज़न स्कैनर द्वारा विश्लेषण किया गया।'
               }
             ]
           };
           setSelectedNote(dynamicNote);
           setCustomScannedText(extracted);
         } else {
-          setCustomScannedText(selectedNote.extractedText);
+          setCustomScannedText('फोटो का विश्लेषण पूर्ण हुआ। कृपया अधिक स्पष्ट फोटो अपलोड करें।');
         }
         
         recordStudyActivity(
@@ -374,36 +415,73 @@ export const AIDoubtSolverView: React.FC<{
     reader.readAsDataURL(file);
   };
 
-  // Chat Mode Image Upload
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setSelectedImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+  // Chat Mode Multi-Image & PDF Upload
+  const handleFilesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        const newFile: AttachedFile = {
+          id: `file_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          name: file.name,
+          type: isPdf ? 'application/pdf' : file.type || 'image/png',
+          previewUrl: isPdf ? '' : base64,
+          base64: base64,
+          sizeKb: Math.max(1, Math.round(file.size / 1024))
+        };
+        setAttachedFiles(prev => [...prev, newFile]);
+      };
+      reader.readAsDataURL(file);
+    });
+    if (e.target) e.target.value = '';
+  };
+
+  const removeAttachedFile = (fileId: string) => {
+    setAttachedFiles(prev => prev.filter(f => f.id !== fileId));
   };
 
   const handleSendQuery = async (customText?: string) => {
     const queryText = customText !== undefined ? customText : input.trim();
-    if (!queryText && !selectedImage) return;
+    if (!queryText && attachedFiles.length === 0 && !selectedImage) return;
 
-    const currentImage = selectedImage;
+    const currentFiles = [...attachedFiles];
+    if (selectedImage && !currentFiles.some(f => f.base64 === selectedImage)) {
+      currentFiles.push({
+        id: `img_${Date.now()}`,
+        name: 'Photo_Query.png',
+        type: 'image/png',
+        previewUrl: selectedImage,
+        base64: selectedImage,
+        sizeKb: 50
+      });
+    }
+
+    const hasPdf = currentFiles.some(f => f.type === 'application/pdf');
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      text: queryText || 'फोटो प्रश्न का हल बताएं',
-      imagePreview: currentImage || undefined
+      text: queryText || (hasPdf ? 'संलग्न PDF दस्तावेज़ का विश्लेषण व हल बताएं' : 'संलग्न फोटो प्रश्न का हल बताएं'),
+      imagePreview: currentFiles.find(f => f.previewUrl)?.previewUrl,
+      attachedFiles: currentFiles.length > 0 ? currentFiles : undefined
     };
 
     setMessages(prev => [...prev, userMsg]);
     if (customText === undefined) setInput('');
+    setAttachedFiles([]);
     setSelectedImage(null);
     setIsLoading(true);
 
     try {
-      const answerText = await askHansCompainAI(queryText, currentImage, 'chat');
+      const answerText = await askHansCompainAI(
+        queryText,
+        currentFiles.find(f => f.type.startsWith('image/'))?.base64,
+        'chat',
+        currentFiles.map(f => ({ name: f.name, type: f.type, base64: f.base64 }))
+      );
 
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -416,7 +494,7 @@ export const AIDoubtSolverView: React.FC<{
       try {
         const existing = JSON.parse(localStorage.getItem('hans_chat_history') || '[]');
         const updated = [
-          { id: Date.now(), query: queryText || 'Photo Doubt', answer: answerText.slice(0, 120), time: 'अभी' },
+          { id: Date.now(), query: queryText || (hasPdf ? 'PDF Doubt' : 'Photo Doubt'), answer: answerText.slice(0, 120), time: 'अभी' },
           ...existing.slice(0, 9)
         ];
         localStorage.setItem('hans_chat_history', JSON.stringify(updated));
@@ -426,12 +504,17 @@ export const AIDoubtSolverView: React.FC<{
 
       recordStudyActivity(
         'doubt',
-        queryText ? queryText.slice(0, 50) : 'AI Doubt Solved',
+        queryText ? queryText.slice(0, 50) : (hasPdf ? 'PDF Document Solved' : 'AI Doubt Solved'),
         answerText.slice(0, 220),
         100
       );
     } catch {
-      const fallbackAns = await askHansCompainAI(queryText, currentImage, 'chat');
+      const fallbackAns = await askHansCompainAI(
+        queryText,
+        currentFiles.find(f => f.type.startsWith('image/'))?.base64,
+        'chat',
+        currentFiles.map(f => ({ name: f.name, type: f.type, base64: f.base64 }))
+      );
       setMessages(prev => [
         ...prev,
         {
@@ -1051,13 +1134,50 @@ export const AIDoubtSolverView: React.FC<{
                 )}
               </div>
 
-              {msg.imagePreview && (
+              {/* Render Attached Images & PDF Files in Message Bubble */}
+              {msg.attachedFiles && msg.attachedFiles.length > 0 ? (
+                <div className="space-y-2 pt-1">
+                  {/* Images Gallery */}
+                  {msg.attachedFiles.some(f => f.type.startsWith('image/')) && (
+                    <div className="flex flex-wrap gap-2">
+                      {msg.attachedFiles
+                        .filter(f => f.type.startsWith('image/'))
+                        .map(img => (
+                          <img
+                            key={img.id}
+                            src={img.previewUrl || img.base64}
+                            alt={img.name}
+                            className="max-h-48 max-w-xs rounded-xl border border-white/20 object-contain bg-black/40"
+                          />
+                        ))}
+                    </div>
+                  )}
+
+                  {/* PDF Document Cards */}
+                  {msg.attachedFiles
+                    .filter(f => f.type === 'application/pdf')
+                    .map(pdf => (
+                      <div
+                        key={pdf.id}
+                        className="p-2.5 rounded-xl bg-red-950/40 border border-red-500/40 flex items-center gap-2.5 max-w-sm text-xs"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-red-600/30 text-red-400 border border-red-500/40 flex items-center justify-center font-black text-xs shrink-0">
+                          PDF
+                        </div>
+                        <div className="truncate">
+                          <span className="font-bold text-white block truncate">{pdf.name}</span>
+                          <span className="text-[10px] text-red-300 font-mono">{pdf.sizeKb} KB • दस्तावेज़ संलग्न</span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : msg.imagePreview ? (
                 <img
                   src={msg.imagePreview}
                   alt="Uploaded note"
                   className="max-h-48 rounded-xl border border-white/20 object-contain bg-black/40"
                 />
-              )}
+              ) : null}
 
               <div className="text-xs sm:text-sm leading-relaxed">
                 {msg.role === 'assistant' ? (
@@ -1066,6 +1186,29 @@ export const AIDoubtSolverView: React.FC<{
                   <div className="whitespace-pre-wrap">{msg.text}</div>
                 )}
               </div>
+
+              {msg.role === 'assistant' && (
+                <div className="pt-2 border-t border-slate-800/80 flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => handleSendQuery(`"${msg.text.slice(0, 60)}" पर आधारित 5 परीक्षा MCQ क्विज़ प्रश्न दें`)}
+                    className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] font-semibold text-cyan-300 border border-slate-750 cursor-pointer flex items-center gap-1"
+                  >
+                    📝 5 Live MCQs
+                  </button>
+                  <button
+                    onClick={() => handleSendQuery(`इस विषय की आसान मेमोरी ट्रिक या शॉर्टकट निमोनिक (Mnemonic rhyme) बताएं: "${msg.text.slice(0, 60)}"`)}
+                    className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] font-semibold text-amber-300 border border-slate-750 cursor-pointer flex items-center gap-1"
+                  >
+                    🎯 शॉर्ट ट्रिक
+                  </button>
+                  <button
+                    onClick={() => handleSendQuery(`इस विषय के 1-पेज त्वरित रिवीजन बुलेट पॉइंट्स बताएं: "${msg.text.slice(0, 60)}"`)}
+                    className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] font-semibold text-emerald-300 border border-slate-750 cursor-pointer flex items-center gap-1"
+                  >
+                    ⚡ की-पॉइंट्स
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -1080,20 +1223,41 @@ export const AIDoubtSolverView: React.FC<{
         )}
       </div>
 
-      {/* Selected Image Preview Banner */}
-      {selectedImage && (
-        <div className="px-4 py-2 bg-slate-950 border-t border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={selectedImage} alt="Preview" className="h-12 w-12 object-cover rounded-xl border border-cyan-500/50" />
-            <span className="text-xs text-emerald-300 font-bold">
-              📷 फोटो संलग्न है — प्रश्न भेजने के लिए Send दबाएं
-            </span>
+      {/* Attached Files (Multi-Image & PDF) Preview Banner */}
+      {attachedFiles.length > 0 && (
+        <div className="px-4 py-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-2 overflow-x-auto">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {attachedFiles.map(file => (
+              <div
+                key={file.id}
+                className="flex items-center gap-2 bg-[#091122] border border-cyan-500/40 rounded-xl px-2.5 py-1.5 shrink-0 text-xs"
+              >
+                {file.type === 'application/pdf' ? (
+                  <div className="w-6 h-6 rounded bg-red-600/30 text-red-400 border border-red-500/40 flex items-center justify-center font-bold text-[10px]">
+                    PDF
+                  </div>
+                ) : (
+                  <img src={file.previewUrl || file.base64} alt={file.name} className="w-6 h-6 object-cover rounded border border-white/20" />
+                )}
+                <div className="max-w-[120px] truncate">
+                  <span className="font-bold text-white block truncate text-[11px]">{file.name}</span>
+                  <span className="text-[9px] text-slate-400">{file.sizeKb} KB</span>
+                </div>
+                <button
+                  onClick={() => removeAttachedFile(file.id)}
+                  className="p-1 text-slate-400 hover:text-rose-400 cursor-pointer font-bold"
+                  title="हटाएं"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
           </div>
           <button
-            onClick={() => setSelectedImage(null)}
-            className="text-xs text-rose-400 font-bold hover:underline cursor-pointer"
+            onClick={() => setAttachedFiles([])}
+            className="text-[11px] text-rose-400 hover:underline shrink-0 font-bold cursor-pointer"
           >
-            हटाएं
+            सभी हटाएं
           </button>
         </div>
       )}
@@ -1102,19 +1266,55 @@ export const AIDoubtSolverView: React.FC<{
       <div className="p-3 sm:p-4 bg-slate-950 border-t border-slate-800 shrink-0">
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
+          multiple
           ref={fileInputRef}
-          onChange={handleImageUpload}
+          onChange={handleFilesUpload}
           className="hidden"
         />
         <div className="flex items-center gap-2 bg-[#091122] border border-slate-800 focus-within:border-cyan-500 rounded-2xl p-2 px-3">
           <button
             onClick={() => fileInputRef.current?.click()}
             className="p-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 flex items-center gap-1.5 text-xs font-bold cursor-pointer shrink-0"
-            title="फोटो संलग्न करें"
+            title="फोटो या PDF फाइल संलग्न करें (Multiple Images & PDF Supported)"
           >
             <Camera className="w-4 h-4" />
-            <span className="hidden sm:inline">फोटो जोड़ें</span>
+            <span className="hidden sm:inline">फोटो / PDF जोड़ें</span>
+          </button>
+
+          <button
+            onClick={() => {
+              const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+              if (!SpeechRecognition) {
+                alert('आपके ब्राउज़र में वॉइस स्पीच उपलब्ध नहीं है। कृपया टाइप करें।');
+                return;
+              }
+              if (isListening) {
+                setIsListening(false);
+                return;
+              }
+              try {
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'hi-IN';
+                recognition.interimResults = false;
+                recognition.onstart = () => setIsListening(true);
+                recognition.onresult = (event: any) => {
+                  const transcript = event.results[0][0].transcript;
+                  if (transcript) setInput(prev => (prev ? `${prev} ${transcript}` : transcript));
+                };
+                recognition.onend = () => setIsListening(false);
+                recognition.onerror = () => setIsListening(false);
+                recognition.start();
+              } catch {
+                setIsListening(false);
+              }
+            }}
+            className={`p-2 rounded-xl border flex items-center gap-1 text-xs font-bold cursor-pointer shrink-0 transition-colors ${
+              isListening ? 'bg-rose-500/20 border-rose-500 text-rose-300 animate-pulse' : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white'
+            }`}
+            title="बोलकर प्रश्न पूछें (Voice Input)"
+          >
+            {isListening ? <MicOff className="w-4 h-4 text-rose-400" /> : <Mic className="w-4 h-4 text-cyan-400" />}
           </button>
 
           <input
@@ -1122,7 +1322,7 @@ export const AIDoubtSolverView: React.FC<{
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSendQuery()}
-            placeholder="अपना सवाल यहाँ लिखें..."
+            placeholder="अपना सवाल यहाँ लिखें या बोलें..."
             className="flex-1 bg-transparent border-none outline-none text-white text-xs sm:text-sm px-2"
           />
 

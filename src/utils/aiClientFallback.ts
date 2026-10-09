@@ -6,7 +6,8 @@ import { GoogleGenAI } from '@google/genai';
 export async function askHansCompainAI(
   prompt: string,
   imageBase64?: string | null,
-  mode: string = 'chat'
+  mode: string = 'chat',
+  files?: { name: string; type: string; base64: string }[]
 ): Promise<string> {
   // 1. Try server endpoint first
   try {
@@ -16,7 +17,8 @@ export async function askHansCompainAI(
       body: JSON.stringify({
         questionText: prompt,
         mode: mode,
-        imageBase64: imageBase64 || undefined
+        imageBase64: imageBase64 || undefined,
+        files: files && files.length > 0 ? files : undefined
       })
     });
 
@@ -26,7 +28,7 @@ export async function askHansCompainAI(
       if (data.answer) return data.answer;
     }
   } catch (err) {
-    console.warn('Server API unavailable (Static host or GitHub Pages/Render). Switching to client-side AI fallback...', err);
+    console.warn('Server API unavailable. Switching to client-side AI fallback...', err);
   }
 
   // 1b. Try alternative server endpoint /api/ai/solve
