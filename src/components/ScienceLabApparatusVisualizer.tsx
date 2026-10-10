@@ -1679,6 +1679,147 @@ export const ScienceLabApparatusVisualizer: React.FC<VisualizerProps> = ({
     );
   }
 
+  // =========================================================================
+  // 29. TECTONIC PLATE & EARTHQUAKE LAB (GEOGRAPHY)
+  // =========================================================================
+  if (labId === 'geo-tectonic') {
+    const speed = p1;
+    const stress = p2;
+    const mag = Math.min(9.5, Math.max(2.0, (speed * 0.15) + (stress * 0.06)));
+    const isDestructive = mag >= 7.0;
+
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        <rect x="30" y="40" width="480" height="40" fill="#334155" stroke="#475569" strokeWidth="2" rx="4" />
+        <text x="50" y="65" fill="#94A3B8" fontSize="10" fontWeight="bold">ऊपरी भूपर्पटी (Continental Crust)</text>
+        <line x1="270" y1="40" x2="270" y2="180" stroke="#F43F5E" strokeWidth="3" strokeDasharray="6 4" />
+        <text x="278" y="110" fill="#FDA4AF" fontSize="9" fontWeight="bold">भ्रंश रेखा (Fault Line)</text>
+        <g transform="translate(160, 110)">
+          <polygon points="0,0 -20,-8 -20,8" fill="#38BDF8" />
+          <line x1="-20" y1="0" x2="-60" y2="0" stroke="#38BDF8" strokeWidth="4" />
+          <text x="-40" y="-12" fill="#38BDF8" fontSize="10" fontWeight="bold">प्लेट A (← {speed} cm/yr)</text>
+        </g>
+        <g transform="translate(380, 110)">
+          <polygon points="0,0 20,-8 20,8" fill="#10B981" />
+          <line x1="20" y1="0" x2="60" y2="0" stroke="#10B981" strokeWidth="4" />
+          <text x="40" y="-12" fill="#34D399" fontSize="10" fontWeight="bold">प्लेट B ({speed} cm/yr →)</text>
+        </g>
+        {mag >= 5.0 && (
+          <circle cx="270" cy="110" r={mag * 12} fill="none" stroke={isDestructive ? '#EF4444' : '#F59E0B'} strokeWidth="2" className="animate-ping" />
+        )}
+        <g transform="translate(320, 25)">
+          <rect x="0" y="0" width="190" height="75" rx="8" fill="#091122" stroke={isDestructive ? '#EF4444' : '#06B6D4'} strokeWidth="1.5" />
+          <text x="12" y="22" fill="#38BDF8" fontSize="10" fontWeight="bold">विवर्तनिक तनाव: {stress} MPa</text>
+          <text x="12" y="44" fill={isDestructive ? '#F43F5E' : '#34D399'} fontSize="12" fontWeight="black">
+            तीव्रता: {mag.toFixed(1)} Richter
+          </text>
+          <text x="12" y="64" fill="#CBD5E1" fontSize="8">{isDestructive ? '⚠️ महाविनाशकारी भूकंप' : '✓ सामान्य विवर्तनिक संचलन'}</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 30. WATER CYCLE LAB (GEOGRAPHY)
+  // =========================================================================
+  if (labId === 'geo-water-cycle') {
+    const temp = p1;
+    const hum = p2;
+    const precip = Math.min(100, Math.max(0, (temp * 0.6) + (hum * 0.4) - 25));
+
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        <rect x="30" y="150" width="480" height="40" fill="#0284C7" rx="6" />
+        <text x="270" y="175" fill="#FFFFFF" fontSize="11" fontWeight="bold" textAnchor="middle">महासागर (Ocean Evaporation Source)</text>
+        <line x1="150" y1="150" x2="150" y2="100" stroke="#38BDF8" strokeWidth="2" strokeDasharray="3 3" />
+        <polygon points="150,96 146,104 154,104" fill="#38BDF8" />
+        <line x1="390" y1="150" x2="390" y2="100" stroke="#38BDF8" strokeWidth="2" strokeDasharray="3 3" />
+        <polygon points="390,96 386,104 394,104" fill="#38BDF8" />
+        <text x="175" y="125" fill="#BAE6FD" fontSize="9">वाष्पीकरण (Temp: {temp}°C)</text>
+        <g transform="translate(240, 40)">
+          <ellipse cx="0" cy="0" rx="45" ry="20" fill="#94A3B8" />
+          <ellipse cx="25" cy="-8" rx="35" ry="18" fill="#CBD5E1" />
+          <text x="10" y="4" fill="#0F172A" fontSize="11" fontWeight="bold" textAnchor="middle">वर्षा मेघ (Clouds)</text>
+        </g>
+        {precip > 50 && (
+          <g className="animate-pulse">
+            <line x1="250" y1="70" x2="240" y2="110" stroke="#38BDF8" strokeWidth="2" />
+            <line x1="280" y1="70" x2="270" y2="110" stroke="#38BDF8" strokeWidth="2" />
+            <line x1="310" y1="70" x2="300" y2="110" stroke="#38BDF8" strokeWidth="2" />
+          </g>
+        )}
+        <g transform="translate(30, 20)">
+          <rect x="0" y="0" width="180" height="65" rx="6" fill="#091122" stroke="#38BDF8" strokeWidth="1.5" />
+          <text x="12" y="22" fill="#38BDF8" fontSize="10" fontWeight="bold">नमी (Humidity): {hum}%</text>
+          <text x="12" y="45" fill="#34D399" fontSize="12" fontWeight="black">वर्षा सूचकांक: {precip.toFixed(1)}%</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 31. PYTHAGORAS THEOREM LAB (MATHEMATICS)
+  // =========================================================================
+  if (labId === 'math-pythagoras') {
+    const a = p1;
+    const b = p2;
+    const c = Math.sqrt(a * a + b * b);
+    const scale = 3.5;
+    const startX = 120;
+    const startY = 170;
+    const endX = startX + a * scale;
+    const topY = startY - b * scale;
+
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        <polygon points={`${startX},${startY} ${endX},${startY} ${startX},${topY}`} fill="rgba(16, 185, 129, 0.2)" stroke="#10B981" strokeWidth="3" />
+        <rect x={startX} y={startY - 15} width="15" height="15" fill="none" stroke="#F59E0B" strokeWidth="2" />
+        <text x={(startX + endX) / 2} y={startY + 18} fill="#34D399" fontSize="11" fontWeight="bold" textAnchor="middle">आधार a = {a} cm</text>
+        <text x={startX - 28} y={(startY + topY) / 2} fill="#38BDF8" fontSize="11" fontWeight="bold" textAnchor="middle">लंब b = {b} cm</text>
+        <text x={(endX + startX) / 2 + 15} y={(startY + topY) / 2 - 10} fill="#FBBF24" fontSize="11" fontWeight="bold">कर्ण c = {c.toFixed(1)} cm</text>
+        <g transform="translate(310, 30)">
+          <rect x="0" y="0" width="200" height="85" rx="8" fill="#091122" stroke="#10B981" strokeWidth="1.5" />
+          <text x="14" y="22" fill="#34D399" fontSize="11" fontWeight="bold">पाइथागोरस प्रमेय सूत्र:</text>
+          <text x="14" y="44" fill="#FFFFFF" fontSize="13" fontWeight="black">a² + b² = c²</text>
+          <text x="14" y="68" fill="#FDE047" fontSize="10">{a * a} + {b * b} = {(c * c).toFixed(1)}</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 32. COORDINATE GEOMETRY SLOPE LAB (MATHEMATICS)
+  // =========================================================================
+  if (labId === 'math-coordinate') {
+    const m = p1;
+    const c = p2;
+    const originX = 270;
+    const originY = 110;
+
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        <line x1="40" y1={originY} x2="500" y2={originY} stroke="#475569" strokeWidth="2" />
+        <line x1={originX} y1="20" x2={originX} y2="200" stroke="#475569" strokeWidth="2" />
+        <text x="490" y={originY - 8} fill="#94A3B8" fontSize="10" fontWeight="bold">X</text>
+        <text x={originX + 10} y="30" fill="#94A3B8" fontSize="10" fontWeight="bold">Y</text>
+        <line
+          x1="50"
+          y1={originY - (m * (-110) + c * 8)}
+          x2="490"
+          y2={originY - (m * 110 + c * 8)}
+          stroke="#38BDF8"
+          strokeWidth="3.5"
+        />
+        <g transform="translate(310, 20)">
+          <rect x="0" y="0" width="200" height="75" rx="8" fill="#091122" stroke="#38BDF8" strokeWidth="1.5" />
+          <text x="14" y="22" fill="#38BDF8" fontSize="11" fontWeight="bold">रेखा समीकरण: y = mx + c</text>
+          <text x="14" y="46" fill="#34D399" fontSize="13" fontWeight="black">m = {m}, c = {c}</text>
+          <text x="14" y="64" fill="#FDE047" fontSize="9">{m > 0 ? 'धनात्मक ढाल (Rising Slope)' : m < 0 ? 'ऋणात्मक ढाल (Falling Slope)' : 'क्षैतिज रेखा (Horizontal)'}</text>
+        </g>
+      </svg>
+    );
+  }
+
   // Default fallback for any unexpected ID
   return (
     <div className="p-8 text-center text-slate-400">

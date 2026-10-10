@@ -30,7 +30,7 @@ import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 export interface ScienceLabConfig {
   id: string;
   number: number;
-  category: 'physics' | 'chemistry' | 'biology';
+  category: 'physics' | 'chemistry' | 'biology' | 'geography' | 'mathematics';
   categoryLabel: string;
   title: string;
   subtitle: string;
@@ -1148,13 +1148,158 @@ export const ALL_28_SCIENCE_LABS: ScienceLabConfig[] = [
       'पृथ्वी का पलायन वेग 11.2 किमी/सेकंड है; चंद्रमा पर कम पलायन वेग (2.38 km/s) के कारण वायुमंडल नहीं है।',
       'भू-स्थिर उपग्रह (Geostationary Satellite) पृथ्वी तल से 35,786 किमी (लगभग 36,000 किमी) की ऊँचाई पर 24 घंटे के आवर्तकाल से घूमता है।'
     ]
+  },
+  // ===================== GEOGRAPHY & EARTH SCIENCE (2 LABS) =====================
+  {
+    id: 'geo-tectonic',
+    number: 29,
+    category: 'geography',
+    categoryLabel: 'भूगोल एवं भूविज्ञान (Geography)',
+    title: 'विवर्तनिक प्लेट संचलन एवं भूकंपीय तीव्रता लैब',
+    subtitle: 'Tectonic Plate Collision & Richter Scale Magnitude Simulator',
+    icon: '🌋',
+    badge: 'GEOGRAPHY LAB',
+    formula: 'M = log₁₀(A) + 3   |   Stress = F / Area',
+    param1Label: 'प्लेट खिसकाव गति (Drift Speed)',
+    param1Unit: 'cm/yr',
+    param1Min: 1,
+    param1Max: 20,
+    param1Default: 5,
+    param2Label: 'भूपर्पटी तनाव बल (Crustal Stress)',
+    param2Unit: 'MPa',
+    param2Min: 10,
+    param2Max: 100,
+    param2Default: 40,
+    computeResult: (speed, stress) => {
+      const mag = Math.min(9.5, Math.max(2.0, (speed * 0.15) + (stress * 0.06)));
+      return {
+        primaryLabel: 'भूकंपीय तीव्रता (Richter Magnitude M)',
+        primaryValue: `${mag.toFixed(1)} Richter`,
+        secondaryLabel: 'ऊर्जा मुक्ति (Energy Release)',
+        secondaryValue: `${(Math.pow(10, mag) * 1.5).toExponential(1)} J`,
+        statusText: mag >= 7.0 ? 'विनाशकारी भूकंप (Destructive Earthquake): भारी तबाही की संभावना!' : mag >= 5.0 ? 'मध्यम भूकंप: झटके महसूस किए गए।' : 'सामान्य विवर्तनिक हलचल (Minor tremor).'
+      };
+    },
+    examFacts: [
+      'पृथ्वी का स्थलमंडल (Lithosphere) कई विवर्तनिक प्लेटों (Tectonic Plates) में विभाजित है जो दुर्बलतामंडल पर तैरती हैं।',
+      'भूकंप की तीव्रता मापने के लिए रिक्टर स्केल (Richter Scale) का उपयोग किया जाता है, जो एक लघुगणकीय पैमाना है।',
+      'सुनामी (Tsunami) समुद्र के भीतर आने वाले भूकंपों या विवर्तनिक प्लेट खिसकने के कारण उत्पन्न होती है।'
+    ]
+  },
+  {
+    id: 'geo-water-cycle',
+    number: 30,
+    category: 'geography',
+    categoryLabel: 'भूगोल एवं भूविज्ञान (Geography)',
+    title: 'जलीय चक्र (वाष्पीकरण, संघनन एवं वर्षा) लैब',
+    subtitle: 'Hydrological Water Cycle & Precipitation Simulator',
+    icon: '🌧️',
+    badge: 'HYDROLOGY LAB',
+    formula: 'P = Evaporation - Condensation + Runoff',
+    param1Label: 'तापमान (Surface Temp)',
+    param1Unit: '°C',
+    param1Min: 15,
+    param1Max: 45,
+    param1Default: 30,
+    param2Label: 'वायुमंडलीय नमी (Humidity)',
+    param2Unit: '%',
+    param2Min: 20,
+    param2Max: 100,
+    param2Default: 75,
+    computeResult: (temp, hum) => {
+      const precip = Math.min(100, Math.max(0, (temp * 0.6) + (hum * 0.4) - 25));
+      return {
+        primaryLabel: 'वर्षा की संभावना (Precipitation Index)',
+        primaryValue: `${precip.toFixed(1)}%`,
+        secondaryLabel: 'वाष्पीकरण दर (Evaporation Rate)',
+        secondaryValue: `${(temp * 0.12).toFixed(2)} mm/h`,
+        statusText: precip > 70 ? 'घनघोर वर्षा एवं बादलों का संघनन (Heavy Rainfall & Condensation)!' : 'सामान्य जल चक्र वाष्पीकरण जारी है।'
+      };
+    },
+    examFacts: [
+      'जल चक्र (Water Cycle) में वाष्पीकरण (Evaporation), वाष्पोत्सर्जन (Transpiration), संघनन (Condensation) और वर्षण (Precipitation) मुख्य चरण हैं।',
+      'क्षोभमंडल (Troposphere) में ही मौसम संबंधी सभी घटनाएं (वर्षा, आंधी, बादल) होती हैं।'
+    ]
+  },
+  // ===================== MATHEMATICS & GEOMETRY (2 LABS) =====================
+  {
+    id: 'math-pythagoras',
+    number: 31,
+    category: 'mathematics',
+    categoryLabel: 'गणित एवं ज्यामिति (Mathematics)',
+    title: 'पाइथागोरस प्रमेय एवं समकोण त्रिभुज क्षेत्रफल लैब',
+    subtitle: 'Pythagoras Theorem (a² + b² = c²) & Right Triangle Visualizer',
+    icon: '📐',
+    badge: 'GEOMETRY LAB',
+    formula: 'c = √(a² + b²)   |   Area = 1/2 × a × b',
+    param1Label: 'आधार (Base a)',
+    param1Unit: 'cm',
+    param1Min: 3,
+    param1Max: 30,
+    param1Default: 6,
+    param2Label: 'लंब (Perpendicular b)',
+    param2Unit: 'cm',
+    param2Min: 4,
+    param2Max: 40,
+    param2Default: 8,
+    computeResult: (a, b) => {
+      const c = Math.sqrt(a * a + b * b);
+      const area = 0.5 * a * b;
+      return {
+        primaryLabel: 'कर्ण की लंबाई (Hypotenuse c)',
+        primaryValue: `${c.toFixed(2)} cm`,
+        secondaryLabel: 'समकोण त्रिभुज का क्षेत्रफल (Area)',
+        secondaryValue: `${area.toFixed(1)} cm²`,
+        statusText: `पाइथागोरस त्रिक (Pythagorean Triple): ${a}² + ${b}² = ${c.toFixed(1)}² (${(a*a + b*b).toFixed(0)} = ${(c*c).toFixed(0)})`
+      };
+    },
+    examFacts: [
+      'समकोण त्रिभुज में कर्ण का वर्ग अन्य दो भुजाओं के वर्गों के योग के बराबर होता है (Hypotenuse² = Base² + Perpendicular²)।',
+      'प्रसिद्ध पाइथागोरस त्रिक (3, 4, 5), (5, 12, 13) और (8, 15, 17) हैं।'
+    ]
+  },
+  {
+    id: 'math-coordinate',
+    number: 32,
+    category: 'mathematics',
+    categoryLabel: 'गणित एवं ज्यामिति (Mathematics)',
+    title: 'निर्देशांक ज्यामिति - सरल रेखा की ढाल (Slope m) लैब',
+    subtitle: 'Coordinate Geometry Line Equation (y = mx + c) Simulator',
+    icon: '📈',
+    badge: 'COORDINATE LAB',
+    formula: 'm = (y₂ - y₁) / (x₂ - x₁)   |   y = mx + c',
+    param1Label: 'ढाल (Slope m)',
+    param1Unit: '',
+    param1Min: -5,
+    param1Max: 5,
+    param1Default: 2,
+    param2Label: 'y-अंतःखंड (Y-Intercept c)',
+    param2Unit: 'units',
+    param2Min: -10,
+    param2Max: 10,
+    param2Default: 3,
+    computeResult: (m, c) => {
+      const angleRad = Math.atan(m);
+      const angleDeg = (angleRad * 180) / Math.PI;
+      return {
+        primaryLabel: 'रेखा का समीकरण (Line Equation)',
+        primaryValue: `y = ${m}x ${c >= 0 ? '+ ' + c : '- ' + Math.abs(c)}`,
+        secondaryLabel: 'नति कोण (Angle of Inclination θ)',
+        secondaryValue: `${angleDeg.toFixed(1)}°`,
+        statusText: m > 0 ? 'रेखा ऊपर की ओर उठ रही है (धनात्मक ढाल)' : m < 0 ? 'रेखा नीचे की ओर झुक रही है (ऋणात्मक ढाल)' : 'रेखा X-अक्ष के समांतर है (m = 0)'
+      };
+    },
+    examFacts: [
+      'दो बिंदुओं (x₁, y₁) और (x₂, y₂) से गुजरने वाली रेखा की ढाल m = (y₂ - y₁) / (x₂ - x₁) होती है।',
+      'यदि दो रेखाएं परस्पर लंबवत हैं, तो उनकी ढाल का गुणनफल -1 होता है (m₁ × m₂ = -1)।'
+    ]
   }
 ];
 
 export const ScienceFormulaLabView: React.FC = () => {
   // View Mode: 'hub' (Grid of all 28 labs) or 'bench' (Full-page interactive lab bench)
   const [viewMode, setViewMode] = useState<'hub' | 'bench'>('hub');
-  const [categoryFilter, setCategoryFilter] = useState<'all' | 'physics' | 'chemistry' | 'biology'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'physics' | 'chemistry' | 'biology' | 'geography' | 'mathematics'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedLabId, setSelectedLabId] = useState<string>('ohm-circuit');
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
@@ -1261,10 +1406,12 @@ export const ScienceFormulaLabView: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-3 border-t border-slate-800">
           <div className="flex flex-wrap gap-2">
             {[
-              { id: 'all' as const, label: '🌐 सभी 28 प्रयोगशालाएं (All 28 Labs)' },
-              { id: 'physics' as const, label: '⚡ भौतिक विज्ञान (Physics - 10 Labs)' },
-              { id: 'chemistry' as const, label: '🧪 रसायन विज्ञान (Chemistry - 9 Labs)' },
-              { id: 'biology' as const, label: '🧬 जीव विज्ञान व अंतरिक्ष (Biology & Space - 9 Labs)' }
+              { id: 'all' as const, label: '🌐 सभी 32 प्रयोगशालाएं (All 32 Labs)' },
+              { id: 'physics' as const, label: '⚡ भौतिक विज्ञान (Physics)' },
+              { id: 'chemistry' as const, label: '🧪 रसायन विज्ञान (Chemistry)' },
+              { id: 'biology' as const, label: '🧬 जीव विज्ञान (Biology)' },
+              { id: 'geography' as const, label: '🌍 भूगोल एवं अंतरिक्ष (Geography)' },
+              { id: 'mathematics' as const, label: '📐 गणित एवं ज्यामिति (Math)' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -1313,24 +1460,19 @@ export const ScienceFormulaLabView: React.FC = () => {
                 className="bg-[#091122] border-2 border-slate-800/90 hover:border-cyan-400 rounded-3xl p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all hover:-translate-y-1 shadow-lg group overflow-hidden"
               >
                 <div className="space-y-2.5">
-                  {/* Distinct Realistic Lab Practical Photo for Every Single Lab */}
-                  <div className="relative h-40 w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-                    <img
-                      src={detail?.imageUrl || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80'}
-                      alt={detail?.imageAlt || lab.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-                    <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-cyan-500/40 text-[10px] font-black text-cyan-300">
-                      LAB #{lab.number}
+                  {/* Scientific Apparatus Technical Vector Card Header (No Photos) */}
+                  <div className="relative h-32 w-full rounded-2xl overflow-hidden border border-cyan-500/30 bg-gradient-to-br from-slate-950 via-[#0a1428] to-indigo-950/60 p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-[10px] font-black text-cyan-300">
+                        LAB #{lab.number}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black uppercase">
+                        {lab.badge}
+                      </span>
                     </div>
-                    <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-amber-500/80 text-slate-950 text-[10px] font-black uppercase">
-                      {lab.badge}
-                    </div>
-                    <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-xs font-bold text-white">
-                      <span className="text-[11px] text-amber-300 font-bold truncate">{lab.categoryLabel}</span>
-                      <span className="text-xl shrink-0">{lab.icon}</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-amber-300 font-bold truncate">{lab.categoryLabel}</span>
+                      <span className="text-3xl shrink-0 p-2 rounded-xl bg-slate-900/80 border border-slate-800">{lab.icon}</span>
                     </div>
                   </div>
 
@@ -1496,66 +1638,14 @@ export const ScienceFormulaLabView: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Dynamic Visual SVG Simulation Canvas */}
-                <div className="bg-[#040814] border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[210px]">
-                  <svg viewBox="0 0 500 180" className="w-full max-w-xl h-44">
-                    <defs>
-                      <linearGradient id="labBeam" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#00F2FE" />
-                        <stop offset="50%" stopColor="#4FACFE" />
-                        <stop offset="100%" stopColor="#00F260" />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Grid Lines */}
-                    <line x1="20" y1="90" x2="480" y2="90" stroke="#1E293B" strokeDasharray="4 4" />
-                    <line x1="250" y1="15" x2="250" y2="165" stroke="#1E293B" strokeDasharray="4 4" />
-
-                    {/* Animated Waveform / Ray / Apparatus Representation responsive to p1 & p2 */}
-                    <circle
-                      cx="110"
-                      cy="90"
-                      r={Math.min(55, Math.max(18, (p1 / activeLab.param1Max) * 52))}
-                      fill="rgba(6, 182, 212, 0.18)"
-                      stroke="#22D3EE"
-                      strokeWidth="2.5"
-                    />
-                    <text x="110" y="94" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="bold">
-                      {p1} {activeLab.param1Unit}
-                    </text>
-
-                    {/* Dynamic Connecting Wave / Ray */}
-                    <path
-                      d={`M 165 90 Q 250 ${90 - ((p1 - activeLab.param1Min) / (activeLab.param1Max - activeLab.param1Min || 1)) * 60} 335 90`}
-                      fill="none"
-                      stroke="url(#labBeam)"
-                      strokeWidth="4"
-                    />
-                    <path
-                      d={`M 165 90 Q 250 ${90 + ((p2 - activeLab.param2Min) / (activeLab.param2Max - activeLab.param2Min || 1)) * 60} 335 90`}
-                      fill="none"
-                      stroke="#F59E0B"
-                      strokeWidth="2.5"
-                      strokeDasharray="6 4"
-                    />
-
-                    {/* Output Node */}
-                    <circle
-                      cx="390"
-                      cy="90"
-                      r={Math.min(55, Math.max(18, (p2 / activeLab.param2Max) * 52))}
-                      fill="rgba(16, 185, 129, 0.18)"
-                      stroke="#10B981"
-                      strokeWidth="2.5"
-                    />
-                    <text x="390" y="94" textAnchor="middle" fill="#A7F3D0" fontSize="11" fontWeight="bold">
-                      {p2} {activeLab.param2Unit}
-                    </text>
-
-                    <text x="250" y="168" textAnchor="middle" fill="#94A3B8" fontSize="11" fontWeight="bold">
-                      {activeLab.title} — {activeLab.formula}
-                    </text>
-                  </svg>
+                {/* Dynamic Visual Apparatus Simulation Canvas (Dedicated per Lab) */}
+                <div className="bg-[#040814] border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[220px]">
+                  <ScienceLabApparatusVisualizer
+                    activeLab={activeLab}
+                    p1={p1}
+                    p2={p2}
+                    liveResult={liveResult}
+                  />
                 </div>
 
                 {/* Live Calculated Digital Meters */}

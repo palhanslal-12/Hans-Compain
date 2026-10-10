@@ -814,5 +814,95 @@ export const SCIENCE_LAB_DETAILS: Record<string, ScienceLabDetail> = {
       { name: 'Escape Velocity (v_e)', hindiName: 'पलायन वेग (11.2 km/s)', function: 'गुरुत्वाकर्षण क्षेत्र से हमेशा के लिए मुक्त होने का न्यूनतम वेग।' }
     ],
     observationHeaders: ['क्रम सं.', 'खगोलीय पिंड', 'पिंड द्रव्यमान (kg)', 'त्रिज्या (km)', 'पलायन वेग v_e (km/s)']
+  },
+
+  // 29. Tectonic Plates & Earthquake Lab (Geography)
+  'geo-tectonic': {
+    id: 'geo-tectonic',
+    number: 29,
+    imageUrl: 'https://images.unsplash.com/photo-152748937775c-66276708c338?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Tectonic Plates Fault Line Earthquake Simulator',
+    imageCaption: 'भूगोल एवं भूविज्ञान लैब: विवर्तनिक प्लेट संचलन, अभिसारी/अपसारी सीमाएं तथा रिक्टर स्केल भूकंपीय तीव्रता मापन',
+    aim: 'विवर्तनिक प्लेटों की गति (Drift Speed), भूपर्पटी पर तनाव बल (Crustal Stress) तथा रिक्टर स्केल पर भूकंपीय ऊर्जा मुक्ति (M = log₁₀A + 3) का अध्ययन करना।',
+    apparatusRequired: ['विवर्तनिक प्लेट सिमुलेटर', 'भ्रंश रेखा (Fault Line) मॉडल', 'रिक्टर तीव्रता मापक यंत्र'],
+    theory: 'पृथ्वी की ऊपरी पर्पटी (Lithosphere) कठोर विवर्तनिक प्लेटों में बंटी है जो संवहन धाराओं (Convection Currents) के कारण गति करती हैं। जब प्लेटें आपस में टकराती हैं या रगड़ खाती हैं, तो संचित ऊर्जा अचानक मुक्त होने पर भूकंपीय तरंगें (Seismic Waves - P, S, Surface Waves) उत्पन्न होती हैं। रिक्टर स्केल एक लघुगणकीय (logarithmic) पैमाना है।',
+    procedureSteps: [
+      'प्लेट खिसकाव गति (cm/yr) और तनाव बल (MPa) को स्लाइडर से सेट करें।',
+      'तनाव सीमा पार होने पर भ्रंश रेखा पर भूकंपीय तरंगें (Shockwaves) उत्पन्न होती हैं।',
+      'रिक्टर तीव्रता और ऊर्जा मुक्ति (Joules) का प्रेक्षण करें।'
+    ],
+    precautions: ['तनाव बल सीमा का सटीक निर्धारण करें।'],
+    parts: [
+      { name: 'Tectonic Plates', hindiName: 'विवर्तनिक प्लेटें', function: 'दुर्बलतामंडल पर तैरने वाली भूपर्पटी की विशाल चट्टानी परतें।' },
+      { name: 'Fault Line', hindiName: 'भ्रंश रेखा', function: 'वह कमजोर क्षेत्र जहां प्लेटों के खिसकने से सर्वाधिक घर्षण व ऊर्जा संचय होता है।' }
+    ],
+    observationHeaders: ['क्रम सं.', 'प्लेट गति (cm/yr)', 'तनाव (MPa)', 'रिक्टर तीव्रता (M)', 'ऊर्जा मुक्ति (J)']
+  },
+
+  // 30. Water Cycle Lab (Geography)
+  'geo-water-cycle': {
+    id: 'geo-water-cycle',
+    number: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Hydrological Water Cycle Evaporation Condensation Precipitation',
+    imageCaption: 'भूगोल जल चक्र लैब: महासागरीय वाष्पीकरण, बादलों का संघनन, आर्द्रता (%) तथा वर्षा सूचकांक सिमुलेशन',
+    aim: 'सतही तापमान और वायुमंडलीय आर्द्रता (Humidity) के आधार पर वाष्पीकरण दर और वर्षा (Precipitation) की संभावना का अध्ययन करना।',
+    apparatusRequired: ['हाइड्रोलॉजिकल जलीय चक्र सिमुलेटर', 'हाइग्रोमीटर (आर्द्रता मापी)', 'थर्मोमीटर'],
+    theory: 'जल चक्र (Hydrological Cycle) पृथ्वी पर जल के निरंतर संचलन की प्रक्रिया है। सूर्य की ऊष्मा से जल वाष्पीकृत होकर ऊपर उठता है, ठंडे वायुमंडल में संघनन (Condensation) से बादल बनते हैं, और वर्षण (Precipitation) द्वारा जल पुनः नदियों व महासागरों में लौटता है।',
+    procedureSteps: [
+      'तापमान (°C) और वायुमंडलीय आर्द्रता (%) सेट करें।',
+      'वाष्पीकरण दर और वर्षा सूचकांक (%) का लाइव प्रेक्षण करें।'
+    ],
+    precautions: ['आर्द्रता और तापमान का आनुपातिक संतुलन समझें।'],
+    parts: [
+      { name: 'Ocean Source', hindiName: 'महासागरीय स्रोत', function: 'वाष्पीकरण के लिए विशाल जलीय भंडार।' },
+      { name: 'Condensation Cloud', hindiName: 'संघनन मेघ', function: 'वाष्प से संतृप्त जल बूंदों का बादलों में बदलना।' }
+    ],
+    observationHeaders: ['क्रम सं.', 'तापमान (°C)', 'आर्द्रता (%)', 'वाष्पीकरण दर (mm/h)', 'वर्षा सूचकांक (%)']
+  },
+
+  // 31. Pythagoras Theorem Lab (Mathematics)
+  'math-pythagoras': {
+    id: 'math-pythagoras',
+    number: 31,
+    imageUrl: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Pythagoras Theorem Right Triangle Geometry',
+    imageCaption: 'गणित एवं ज्यामिति लैब: समकोण त्रिभुज, आधार (a), लंब (b) तथा कर्ण (c) - पाइथागोरस प्रमेय (a² + b² = c²)',
+    aim: 'समकोण त्रिभुज की दो भुजाओं (आधार और लंब) से पाइथागोरस प्रमेय का उपयोग कर कर्ण (Hypotenuse) और क्षेत्रफल ज्ञात करना।',
+    apparatusRequired: ['ज्यामितीय समकोण त्रिभुज सिमुलेटर', 'वर्ग क्षेत्रफल ग्रिड स्केल'],
+    theory: 'पाइथागोरस प्रमेय के अनुसार, किसी समकोण त्रिभुज में कर्ण का वर्ग अन्य दो भुजाओं के वर्गों के योग के बराबर होता है (Hypotenuse² = Base² + Perpendicular²)। समकोण त्रिभुज का क्षेत्रफल = (1/2) × आधार × लंब होता है।',
+    procedureSteps: [
+      'आधार (a) और लंब (b) के मान स्लाइडर से बदलें।',
+      'कर्ण c = √(a² + b²) और क्षेत्रफल का मान स्वतः परिकलन देखें।'
+    ],
+    precautions: ['केवल समकोण त्रिभुज (90° कोण) पर ही यह प्रमेय लागू होती है।'],
+    parts: [
+      { name: 'Base (a)', hindiName: 'आधार (Base)', function: 'समकोण त्रिभुज की क्षैतिज भुजा।' },
+      { name: 'Perpendicular (b)', hindiName: 'लंब (Perpendicular)', function: 'समकोण बनाने वाली ऊर्ध्वाधर भुजा।' },
+      { name: 'Hypotenuse (c)', hindiName: 'कर्ण (Hypotenuse)', function: 'समकोण के सामने की सबसे लंबी भुजा c = √(a² + b²)।' }
+    ],
+    observationHeaders: ['क्रम सं.', 'आधार a (cm)', 'लंब b (cm)', 'कर्ण c (cm)', 'क्षेत्रफल (cm²)']
+  },
+
+  // 32. Coordinate Geometry Slope Lab (Mathematics)
+  'math-coordinate': {
+    id: 'math-coordinate',
+    number: 32,
+    imageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=900&q=80',
+    imageAlt: 'Coordinate Geometry Slope Line Equation y = mx + c',
+    imageCaption: 'निर्देशांक ज्यामिति लैब: सरल रेखा का समीकरण y = mx + c, ढाल (Slope m) तथा Y-अंतःखंड (c)',
+    aim: 'कार्तीय तल (Cartesian Plane) पर सरल रेखा की ढाल (Slope m) और Y-intercept (c) के प्रभाव से रेखा के झुकाव (Angle of Inclination) का अध्ययन करना।',
+    apparatusRequired: ['निर्देशांक ज्यामिति گراف सिमुलेटर', 'कार्तीय तल (X-Y Plane) ग्रिड'],
+    theory: 'सरल रेखा का व्यापक समीकरण y = mx + c होता है, जहाँ m रेखा की ढाल (Slope = tan θ) है और c Y-अक्ष पर काटा गया अंतःखंड है। धनात्मक ढाल पर रेखा ऊपर उठती है और ऋणात्मक ढाल पर नीचे झुकती है।',
+    procedureSteps: [
+      'ढाल m और c के मान बदलें।',
+      'रेखा का समीकरण और झुकाव कोण θ का प्रेक्षण करें।'
+    ],
+    precautions: ['ढाल m = tan θ का मान θ = 90° पर अनंत (∞) हो जाता है।'],
+    parts: [
+      { name: 'Slope (m)', hindiName: 'ढाल (Slope / Gradient)', function: 'रेखा का X-अक्ष के साथ झुकाव m = tan θ।' },
+      { name: 'Y-Intercept (c)', hindiName: 'Y-अंतःखंड (Intercept)', function: 'वह बिंदु जहाँ रेखा Y-अक्ष को काटती है।' }
+    ],
+    observationHeaders: ['क्रम सं.', 'ढाल m', 'अंतःखंड c', 'समीकरण y = mx + c', 'नति कोण θ (Deg)']
   }
 };
