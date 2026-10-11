@@ -1,0 +1,40 @@
+{
+  "id": "/",
+  "name": "HANS COMPAIN Shorthand",
+  "short_name": "HansCompain",
+  "description": "HANS COMPAIN Shorthand (हंस कैंपेन शॉर्टहैंड) — Premier AI Academic Platform with Steno Dictation, Daily Current Affairs, Live Quiz Battle & Science Lab.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#03060E",
+  "theme_color": "#03060E",
+  "orientation": "portrait-primary",
+  "categories": ["education", "books", "productivity"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

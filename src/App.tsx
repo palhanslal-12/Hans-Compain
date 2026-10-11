@@ -184,15 +184,25 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('hans_chat_history') || '[]');
-      if (Array.isArray(saved) && saved.length > 0) {
-        setChatHistory(saved);
+    const syncChatHistory = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('hans_chat_history') || '[]');
+        if (Array.isArray(saved)) {
+          setChatHistory(saved);
+        } else {
+          setChatHistory([]);
+        }
+      } catch {
+        setChatHistory([]);
       }
-    } catch {
-      // ignore
-    }
-  }, [activeView]);
+    };
+
+    syncChatHistory();
+    window.addEventListener('hans_chat_history_updated', syncChatHistory);
+    return () => {
+      window.removeEventListener('hans_chat_history_updated', syncChatHistory);
+    };
+  }, [activeView, sidebarOpen]);
 
   useEffect(() => {
     try {
@@ -391,9 +401,9 @@ export const App: React.FC = () => {
 
       <div className="flex-1 min-h-0 flex overflow-hidden w-full relative">
         
-        {/* 2. SIDE-DRAWER / 3-LINE MENU (FULL-PAGE DRAWER ON CURRENT AFFAIRS & ADMIN PANEL) */}
+        {/* 2. SIDE-DRAWER / 3-LINE MENU (FULL-PAGE DRAWER ON CURRENT AFFAIRS, AI CHAT & ADMIN PANEL) */}
         <div className={`w-72 sm:w-80 border-r border-slate-850/80 bg-[#060913] flex flex-col justify-between flex-shrink-0 transition-all duration-300 z-30 ${
-          (activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin')
+          (activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin' || activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
             ? (sidebarOpen ? 'translate-x-0 fixed' : '-translate-x-full fixed')
             : (sidebarOpen ? 'translate-x-0 fixed lg:relative' : '-translate-x-full lg:translate-x-0 fixed lg:relative')
         } inset-y-0 left-0 top-0 h-full shadow-2xl`}>
@@ -486,36 +496,80 @@ export const App: React.FC = () => {
             {/* Stateful Chat History matching Screenshot 3 */}
             <div className="space-y-1.5 pt-2 border-t border-slate-800">
               <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold px-1">
-                <span>🕒 चैट इतिहास</span>
+                <span>🕒 चैट इतिहास ({chatHistory.length})</span>
                 <div className="flex items-center gap-1.5 text-cyan-400">
-                  <span onClick={() => navigateTo('ai-chat')} className="hover:underline cursor-pointer">पूरा देखें ↗</span>
-                  <span className="bg-slate-800 px-1 rounded text-white">{chatHistory.length}</span>
-                  <span
-                    onClick={() => {
-                      setChatHistory([]);
-                      localStorage.removeItem('hans_chat_history');
-                      showToast('चैट इतिहास साफ़ कर दिया गया है।');
-                    }}
-                    className="hover:underline cursor-pointer text-slate-500"
+                  <button
+                    type="button"
+                    onClick={() => navigateTo('ai-chat')}
+                    className="hover:underline cursor-pointer text-[10px] font-bold text-cyan-400"
                   >
-                    Clear
-                  </span>
+                    पूरा देखें ↗
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setChatHistory([]);
+                      setSubmittedHomeQuery('');
+                      try {
+                        localStorage.removeItem('hans_chat_history');
+                      } catch {
+                        // ignore
+                      }
+                      window.dispatchEvent(new Event('hans_clear_chat_history'));
+                      window.dispatchEvent(new Event('hans_chat_history_updated'));
+                      showToast('🗑️ चैट इतिहास पूरी तरह साफ़ (Clear) कर दिया गया है।');
+                    }}
+                    className="px-2 py-0.5 rounded-md bg-rose-950/80 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white text-[10px] font-black cursor-pointer transition-all"
+                    title="चैट इतिहास साफ़ करें"
+                  >
+                    Clear ✕
+                  </button>
                 </div>
               </div>
               <div className="space-y-1">
-                {chatHistory.slice(0, 3).map(item => (
-                  <div
-                    key={item.id}
-                    onClick={() => {
-                      setSubmittedHomeQuery(item.query);
-                      navigateTo('ai-chat');
-                    }}
-                    className="p-1.5 px-2 rounded-xl bg-slate-950/60 border border-slate-850 hover:border-slate-700 text-xs text-slate-300 cursor-pointer flex items-center gap-2 truncate"
-                  >
-                    <span>💬</span>
-                    <span className="truncate">{item.query}</span>
+                {chatHistory.length === 0 ? (
+                  <div className="p-2 rounded-xl bg-slate-950/40 border border-slate-900 text-[10px] text-slate-500 text-center">
+                    कोई चैट इतिहास नहीं है
                   </div>
-                ))}
+                ) : (
+                  chatHistory.slice(0, 3).map(item => (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        setSubmittedHomeQuery(item.query);
+                        navigateTo('ai-chat');
+                      }}
+                      className="p-1.5 px-2 rounded-xl bg-slate-950/60 border border-slate-850 hover:border-slate-700 text-xs text-slate-300 cursor-pointer flex items-center justify-between gap-2"
+                    >
+                      <div className="flex items-center gap-2 truncate min-w-0">
+                        <span>💬</span>
+                        <span className="truncate">{item.query}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const next = chatHistory.filter(h => h.id !== item.id);
+                          setChatHistory(next);
+                          try {
+                            if (next.length === 0) {
+                              localStorage.removeItem('hans_chat_history');
+                            } else {
+                              localStorage.setItem('hans_chat_history', JSON.stringify(next));
+                            }
+                          } catch {
+                            // ignore
+                          }
+                        }}
+                        className="text-[10px] text-slate-500 hover:text-rose-400 px-1 cursor-pointer shrink-0"
+                        title="यह हिस्ट्री हटाएं"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -523,10 +577,14 @@ export const App: React.FC = () => {
             <div className="space-y-1 pt-2 border-t border-slate-800 text-xs">
               <div className="grid grid-cols-2 gap-1.5">
                 <button 
-                  onClick={() => showToast('📲 HANS COMPAIN वेब-ऐप (PWA/APK) आपके डिवाइस के लिए तैयार है!')}
+                  onClick={() => {
+                    const cleanUrl = window.location.origin.replace('https://ais-dev-', 'https://ais-pre-');
+                    navigator.clipboard?.writeText(cleanUrl);
+                    showToast('📲 ऐप इंस्टॉल लिंक कॉपी हो गया! ऊपर "Install" बटन से 1-क्लिक में इंस्टॉल करें।');
+                  }}
                   className="p-1.5 rounded-xl bg-slate-950 border border-slate-850 hover:border-emerald-500/50 flex items-center justify-between text-[10px] font-bold text-emerald-300 cursor-pointer"
                 >
-                  <span>📲 APK इंस्टॉल</span>
+                  <span>📲 App इंस्टॉल</span>
                   <span className="text-[8px] bg-emerald-500/20 px-1 rounded">OFFICIAL</span>
                 </button>
                 <button 
@@ -550,15 +608,28 @@ export const App: React.FC = () => {
                   <span>यूट्यूब चैनल</span>
                 </button>
                 <button 
-                  onClick={() => {
-                    const shareUrl = 'https://hans-compain.onrender.com/';
+                  onClick={async () => {
+                    const shareUrl = window.location.origin.replace('https://ais-dev-', 'https://ais-pre-');
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: 'HANS COMPAIN Shorthand',
+                          text: 'HANS COMPAIN Shorthand (हंस कैंपेन शॉर्टहैंड) — AI स्टडी व आशुलिपि ऐप:',
+                          url: shareUrl
+                        });
+                        showToast('🤝 आधिकारिक ऐप लिंक शेयर किया गया! (+50 Coins)');
+                        return;
+                      } catch {
+                        // fallback to clipboard
+                      }
+                    }
                     navigator.clipboard?.writeText(shareUrl);
-                    showToast('🤝 मूल ऐप शेयर लिंक (https://hans-compain.onrender.com/) कॉपी हो गया! (+50 Coins)');
+                    showToast(`🤝 आधिकारिक ऐप लिंक (${shareUrl}) कॉपी हो गया! (+50 Coins)`);
                   }}
                   className="p-1.5 rounded-xl bg-slate-950 border border-slate-850 hover:border-amber-500/50 flex items-center gap-1.5 text-[10px] font-bold text-amber-300 cursor-pointer"
                 >
                   <span>🤝</span>
-                  <span>मूल शेयर लिंक (+50 Coins)</span>
+                  <span>ऐप लिंक शेयर (+50)</span>
                 </button>
               </div>
 
@@ -606,12 +677,12 @@ export const App: React.FC = () => {
         </div>
 
         {sidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-20 ${(activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin') ? '' : 'lg:hidden'} transition-opacity`} />
+          <div onClick={() => setSidebarOpen(false)} className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-20 ${(activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin' || activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') ? '' : 'lg:hidden'} transition-opacity`} />
         )}
 
         {/* 3. MAIN ROUTED VIEW AREA */}
         <main className="flex-1 w-full flex flex-col h-full overflow-hidden bg-[#03060E] relative">
-          <div className={`flex-1 w-full ${activeView === 'home' ? 'overflow-y-auto flex flex-col justify-between p-2 sm:p-3.5 lg:p-5' : activeView === 'admin' ? 'overflow-y-auto p-0' : (activeView === 'ca' || activeView === 'current-affairs') ? 'overflow-y-auto px-2 py-2 sm:px-4 sm:py-3' : 'overflow-y-auto px-3 py-3 sm:px-6 sm:py-6'} scrollbar-thin`}>
+          <div className={`flex-1 w-full ${activeView === 'home' ? 'overflow-y-auto flex flex-col justify-between p-2 sm:p-3.5 lg:p-5' : (activeView === 'admin' || activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') ? 'overflow-hidden p-0 flex flex-col h-full' : (activeView === 'ca' || activeView === 'current-affairs') ? 'overflow-y-auto px-2 py-2 sm:px-4 sm:py-3' : 'overflow-y-auto px-3 py-3 sm:px-6 sm:py-6'} scrollbar-thin`}>
             
             {/* --- HOME VIEW (DASHBOARD - RESPONSIVE FOR MOBILE, TABLET, LAPTOP & PC) --- */}
             {activeView === 'home' && (
@@ -817,20 +888,6 @@ export const App: React.FC = () => {
             )}
 
             {/* --- DEDICATED FEATURE VIEWS (ROUTED CLEANLY TO EACH DEDICATED UI) --- */}
-            {activeView !== 'home' && activeView !== 'admin' && !(activeView === 'ca' || activeView === 'current-affairs') && (
-              <div className="max-w-4xl mx-auto mb-3 flex items-center justify-between bg-slate-900/60 p-2.5 px-4 rounded-2xl border border-slate-800">
-                <button
-                  onClick={() => setActiveView('home')}
-                  className="text-xs font-bold text-cyan-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>← मुख्य होमपेज पर लौटें (Return to Home)</span>
-                </button>
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest hidden sm:inline">
-                  Hans Compain Engine Active Work Page
-                </span>
-              </div>
-            )}
 
             {/* Check if current view is disabled via Admin Feature Toggles */}
             {(() => {
@@ -924,7 +981,12 @@ export const App: React.FC = () => {
 
                   {/* Direct AI Chat ONLY when explicitly requested */}
                   {(activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') && (
-                    <AIDoubtSolverView initialMode="chat" initialQuery={submittedHomeQuery} onNavigate={navigateTo} />
+                    <AIDoubtSolverView
+                      initialMode="chat"
+                      initialQuery={submittedHomeQuery}
+                      onQueryConsumed={() => setSubmittedHomeQuery('')}
+                      onNavigate={navigateTo}
+                    />
                   )}
 
                   {/* Dedicated 3-Step Handwritten Notes OCR Scanner Studio */}
