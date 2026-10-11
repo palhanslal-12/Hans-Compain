@@ -1,37 +1,40 @@
 {
   "id": "/",
-  "name": "HANS COMPAIN Shorthand",
+  "name": "HansCompain — Study Companion",
   "short_name": "HansCompain",
-  "description": "HANS COMPAIN Shorthand (हंस कैंपेन शॉर्टहैंड) — Premier AI Academic Platform with Steno Dictation, Daily Current Affairs, Live Quiz Battle & Science Lab.",
+  "description": "HansCompain Study Companion by Hans Lal Pal — Pitman Shorthand Steno Dictation, Daily Current Affairs, Live Group Quiz Battle & Science Lab.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
-  "background_color": "#03060E",
-  "theme_color": "#03060E",
+  "display_override": ["standalone", "fullscreen"],
+  "background_color": "#060c16",
+  "theme_color": "#060c16",
   "orientation": "portrait-primary",
+  "lang": "hi",
+  "dir": "ltr",
   "categories": ["education", "books", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/pwa-192x192.png",
+      "src": "/pwa-192x192.png?v=3",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa-512x512.png",
+      "src": "/pwa-512x512.png?v=3",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa-maskable-512x512.png",
+      "src": "/pwa-maskable-512x512.png?v=3",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon.svg",
+      "src": "/icon.svg?v=3",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

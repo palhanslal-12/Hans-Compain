@@ -70,7 +70,9 @@ import { NeuralMemoryMapView } from './components/NeuralMemoryMapView';
 import { StudyPlanView } from './components/StudyPlanView';
 import { playNaturalSpeech, stopNaturalSpeech } from './utils/naturalSpeech';
 import { AffiliateStoreView } from './components/AffiliateStoreView';
-import { PWAInstallButton } from './components/PWAInstallButton';
+import { SplashScreen } from './components/SplashScreen';
+import { PWAInstallButton, getDirectDownloadUrl } from './components/PWAInstallButton';
+import { triggerGlobalAppInstall } from './hooks/usePWAInstall';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { auth, signInWithGoogle, logoutUser, getEffectiveUser, subscribeAuthChanges } from './firebase';
 import { User as FirebaseUser } from 'firebase/auth';
@@ -117,6 +119,7 @@ export const App: React.FC = () => {
   const [isListeningMic, setIsListeningMic] = useState<boolean>(false);
   const [isReadingArticle, setIsReadingArticle] = useState<boolean>(false);
   const [featureToggles, setFeatureToggles] = useState<Record<string, boolean>>(() => getStoredFeatureToggles());
+  const [showSplash, setShowSplash] = useState(true);
 
   // Modals state
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
@@ -577,15 +580,19 @@ export const App: React.FC = () => {
             <div className="space-y-1 pt-2 border-t border-slate-800 text-xs">
               <div className="grid grid-cols-2 gap-1.5">
                 <button 
-                  onClick={() => {
-                    const cleanUrl = window.location.origin.replace('https://ais-dev-', 'https://ais-pre-');
-                    navigator.clipboard?.writeText(cleanUrl);
-                    showToast('📲 ऐप इंस्टॉल लिंक कॉपी हो गया! ऊपर "Install" बटन से 1-क्लिक में इंस्टॉल करें।');
+                  onClick={async () => {
+                    const res = await triggerGlobalAppInstall();
+                    if (res === 'accepted') {
+                      showToast('📲 HANS COMPAIN ऐप सफलतापूर्वक डाउनलोड और इंस्टॉल हो रहा है!');
+                      return;
+                    }
+                    setSidebarOpen(false);
+                    window.dispatchEvent(new Event('hans_open_install_modal'));
                   }}
                   className="p-1.5 rounded-xl bg-slate-950 border border-slate-850 hover:border-emerald-500/50 flex items-center justify-between text-[10px] font-bold text-emerald-300 cursor-pointer"
                 >
-                  <span>📲 App इंस्टॉल</span>
-                  <span className="text-[8px] bg-emerald-500/20 px-1 rounded">OFFICIAL</span>
+                  <span>📥 App डाउनलोड</span>
+                  <span className="text-[8px] bg-emerald-500/20 px-1 rounded">DIRECT</span>
                 </button>
                 <button 
                   onClick={() => {
@@ -609,27 +616,27 @@ export const App: React.FC = () => {
                 </button>
                 <button 
                   onClick={async () => {
-                    const shareUrl = window.location.origin.replace('https://ais-dev-', 'https://ais-pre-');
+                    const shareUrl = getDirectDownloadUrl();
                     if (navigator.share) {
                       try {
                         await navigator.share({
-                          title: 'HANS COMPAIN Shorthand',
-                          text: 'HANS COMPAIN Shorthand (हंस कैंपेन शॉर्टहैंड) — AI स्टडी व आशुलिपि ऐप:',
+                          title: 'HANS COMPAIN Shorthand — Direct App Download',
+                          text: 'HANS COMPAIN Shorthand (हंस कैंपेन शॉर्टहैंड) आधिकारिक ऐप सीधे डाउनलोड व इंस्टॉल करने के लिए इस लिंक पर क्लिक करें:',
                           url: shareUrl
                         });
-                        showToast('🤝 आधिकारिक ऐप लिंक शेयर किया गया! (+50 Coins)');
+                        showToast('🤝 डायरेक्ट ऐप डाउनलोड लिंक शेयर किया गया! (+50 Coins)');
                         return;
                       } catch {
                         // fallback to clipboard
                       }
                     }
                     navigator.clipboard?.writeText(shareUrl);
-                    showToast(`🤝 आधिकारिक ऐप लिंक (${shareUrl}) कॉपी हो गया! (+50 Coins)`);
+                    showToast(`🤝 डायरेक्ट ऐप डाउनलोड लिंक कॉपी हो गया! (+50 Coins)`);
                   }}
                   className="p-1.5 rounded-xl bg-slate-950 border border-slate-850 hover:border-amber-500/50 flex items-center gap-1.5 text-[10px] font-bold text-amber-300 cursor-pointer"
                 >
                   <span>🤝</span>
-                  <span>ऐप लिंक शेयर (+50)</span>
+                  <span>ऐप डाउनलोड शेयर</span>
                 </button>
               </div>
 
