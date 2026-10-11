@@ -1,11 +1,18 @@
-// Production-Grade Natural Speech Engine for Hans Compain AI
-// Reads COMPLETE long articles from start to finish without pausing or stopping after 1 line.
-// Natural human news-anchor cadence in Hindi (hi-IN) and English (en-US).
+// Production-Grade Natural Human Bilingual Speech Engine for Hans Compain AI
+// Powered by Gemini 3.8 Neural TTS (`gemini-3.8-flash-lite-tts`) + Seamless Bilingual (Hindi + English) Voice Engine.
+// Reads COMPLETE long articles, English translations, mixed Hindi-English explanations, vocabulary, questions, and notes naturally.
 
 let isSpeakingActive = false;
+let isPausedState = false;
 let keepAliveTimer: any = null;
 let activeUtterancesList: SpeechSynthesisUtterance[] = [];
-let currentSpeechRate = 0.93; // Natural news anchor pacing
+let activeHtmlAudio: HTMLAudioElement | null = null;
+let currentAbortController: AbortController | null = null;
+let currentSpeechRate = 1.0;
+let serverTtsDownUntil = 0; // Prevents repeated network delays if server TTS is offline
+
+// In-memory LRU audio cache so repeated sentences/questions play instantaneously
+const ttsAudioCache = new Map<string, string>();
 
 export function cleanTextForSpeech(text: string): string {
   if (!text) return '';
@@ -16,42 +23,51 @@ export function cleanTextForSpeech(text: string): string {
     .replace(/`{1,3}[^`]*`{1,3}/g, '') // Remove code blocks
     .replace(/https?:\/\/\S+/g, '') // Remove links
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Markdown links
-    .replace(/[\(\)\[\]\{\}]/g, ' ') // Clean brackets
-    .replace(/\|\s*/g, ', ') // Replace table pipes with commas
+    .replace(/[•▪▸►◆◇]/g, '. ') // Bullet points to natural pause
+    .replace(/[\(\)\[\]\{\}]/g, ', ') // Natural pause for parenthetical English/Hindi terms
+    .replace(/\|\s*/g, '. ') // Replace pipes with sentence pause
     .replace(/—|–/g, ', ') // Replace dashes with pause
+    .replace(/,\s*,+/g, ', ')
+    .replace(/\.\s*\.+/g, '. ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 export function detectLanguage(text: string): 'hi-IN' | 'en-US' {
-  const devanagariRegex = /[\u0900-\u097F]/;
-  if (devanagariRegex.test(text)) {
+  const devanagariMatches = text.match(/[\u0900-\u097F]/g);
+  const latinMatches = text.match(/[a-zA-Z]/g);
+  const devCount = devanagariMatches ? devanagariMatches.length : 0;
+  const latCount = latinMatches ? latinMatches.length : 0;
+
+  if (devCount > 0 && devCount >= latCount * 0.35) {
+    return 'hi-IN';
+  }
+  if (devCount > 0 && latCount === 0) {
     return 'hi-IN';
   }
   return 'en-US';
 }
 
-// Split into complete natural sentence units (e.g. 60-140 chars per natural breath)
+// Split mixed Hindi + English text into natural bilingual clauses so BOTH languages are pronounced accurately
 export function splitIntoCompleteSentences(text: string): string[] {
   const cleaned = cleanTextForSpeech(text);
   if (!cleaned) return [];
 
-  // Split on Devanagari full stop (।), period, question mark, exclamation, or newline
-  const rawParts = cleaned.split(/(?<=[।\.\?\!\n])\s+/);
+  // Split on Devanagari full stop (।), period, question mark, exclamation, semicolon, or newline
+  const rawParts = cleaned.split(/(?<=[।\.\?\!\;\n])\s+/);
   const result: string[] = [];
 
   for (const part of rawParts) {
     const trimmed = part.trim();
     if (!trimmed) continue;
 
-    if (trimmed.length <= 140) {
+    if (trimmed.length <= 200) {
       result.push(trimmed);
     } else {
-      // Split long clauses by comma or semicolon
-      const subClauses = trimmed.split(/(?<=[,;:])\s+/);
+      const subClauses = trimmed.split(/(?<=[,:])\s+/);
       let buffer = '';
       for (const clause of subClauses) {
-        if ((buffer + ' ' + clause).length <= 140) {
+        if ((buffer + ' ' + clause).length <= 200) {
           buffer = buffer ? buffer + ' ' + clause : clause;
         } else {
           if (buffer.trim()) result.push(buffer.trim());
@@ -65,7 +81,41 @@ export function splitIntoCompleteSentences(text: string): string[] {
   return result.filter(r => r.length > 0);
 }
 
-// Select most natural human-like voice available
+// Further split a single sentence if it contains distinct Hindi and English script blocks
+function splitMixedScriptSubSegments(sentence: string): { text: string; lang: 'hi-IN' | 'en-US' }[] {
+  const hasHindi = /[\u0900-\u097F]/.test(sentence);
+  const hasEnglish = /[a-zA-Z]{3,}/.test(sentence);
+
+  if (!hasHindi) {
+    return [{ text: sentence, lang: 'en-US' }];
+  }
+  if (!hasEnglish) {
+    return [{ text: sentence, lang: 'hi-IN' }];
+  }
+
+  // Split by comma/colon/dash to see if clauses are in different languages
+  const clauses = sentence
+    .split(/(?<=[,:\-])\s+/)
+    .map(c => c.trim())
+    .filter(Boolean);
+
+  if (clauses.length <= 1) {
+    return [{ text: sentence, lang: detectLanguage(sentence) }];
+  }
+
+  const merged: { text: string; lang: 'hi-IN' | 'en-US' }[] = [];
+  for (const clause of clauses) {
+    const lang = detectLanguage(clause);
+    if (merged.length > 0 && merged[merged.length - 1].lang === lang) {
+      merged[merged.length - 1].text += ' ' + clause;
+    } else {
+      merged.push({ text: clause, lang });
+    }
+  }
+  return merged;
+}
+
+// Select most natural human-like voice available in browser for Hindi or English
 export function getBestNaturalVoice(lang: 'hi-IN' | 'en-US'): SpeechSynthesisVoice | undefined {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return undefined;
 
@@ -73,13 +123,12 @@ export function getBestNaturalVoice(lang: 'hi-IN' | 'en-US'): SpeechSynthesisVoi
   if (voices.length === 0) return undefined;
 
   if (lang === 'hi-IN') {
-    // 1. Prioritize natural neural Hindi voices
     const neuralHindi = voices.find(
       v =>
-        (v.lang.startsWith('hi') || v.lang.includes('IN') || v.name.toLowerCase().includes('hindi') || v.name.includes('हिन्दी')) &&
+        (v.lang.toLowerCase().startsWith('hi') || v.name.toLowerCase().includes('hindi') || v.name.includes('हिन्दी')) &&
         (v.name.includes('Natural') ||
           v.name.includes('Neural') ||
-          v.name.includes('Google हिन्दी') ||
+          v.name.includes('Google') ||
           v.name.includes('Swara') ||
           v.name.includes('Madhur') ||
           v.name.includes('Lekha') ||
@@ -88,33 +137,152 @@ export function getBestNaturalVoice(lang: 'hi-IN' | 'en-US'): SpeechSynthesisVoi
     );
     if (neuralHindi) return neuralHindi;
 
-    // 2. Any Hindi voice
     const anyHindi = voices.find(
-      v => v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi') || v.name.includes('हिन्दी')
+      v => v.lang.toLowerCase().startsWith('hi') || v.name.toLowerCase().includes('hindi') || v.name.includes('हिन्दी')
     );
     if (anyHindi) return anyHindi;
 
-    // 3. Any Indian English/multilingual voice
-    return voices.find(v => v.lang.includes('IN'));
+    // Indian English voice can often read Hindi + English fallback better than US voice
+    const indianVoice = voices.find(v => v.lang.includes('IN'));
+    if (indianVoice) return indianVoice;
+
+    return voices[0];
   } else {
-    // English Natural Voices
-    return (
-      voices.find(
-        v =>
-          v.lang.startsWith('en') &&
-          (v.name.includes('Natural') ||
-            v.name.includes('Neural') ||
-            v.name.includes('Google') ||
-            v.name.includes('Samantha') ||
-            v.name.includes('Jenny') ||
-            v.name.includes('Ava') ||
-            v.name.includes('Guy'))
-      ) || voices.find(v => v.lang.startsWith('en'))
+    const neuralIndianEnglish = voices.find(
+      v =>
+        (v.lang.toLowerCase() === 'en-in' || v.lang.includes('IN')) &&
+        v.lang.toLowerCase().startsWith('en') &&
+        (v.name.includes('Natural') ||
+          v.name.includes('Neural') ||
+          v.name.includes('Google') ||
+          v.name.includes('Neerja') ||
+          v.name.includes('Prabhat') ||
+          v.name.includes('Rishi'))
     );
+    if (neuralIndianEnglish) return neuralIndianEnglish;
+
+    const anyIndianEnglish = voices.find(v => v.lang.toLowerCase() === 'en-in');
+    if (anyIndianEnglish) return anyIndianEnglish;
+
+    const neuralEnglish = voices.find(
+      v =>
+        v.lang.toLowerCase().startsWith('en') &&
+        (v.name.includes('Natural') ||
+          v.name.includes('Neural') ||
+          v.name.includes('Google') ||
+          v.name.includes('Samantha') ||
+          v.name.includes('Jenny') ||
+          v.name.includes('Aria') ||
+          v.name.includes('Guy'))
+    );
+    if (neuralEnglish) return neuralEnglish;
+
+    return voices.find(v => v.lang.toLowerCase().startsWith('en')) || voices[0];
   }
 }
 
-// Main Play Function: Seamlessly reads the entire text from beginning to end
+async function fetchGeminiNeuralAudio(sentence: string, signal: AbortSignal): Promise<string | null> {
+  const cacheKey = sentence.trim();
+  if (ttsAudioCache.has(cacheKey)) {
+    return ttsAudioCache.get(cacheKey)!;
+  }
+
+  const timeoutController = new AbortController();
+  const timer = setTimeout(() => timeoutController.abort(), 8000);
+  const onParentAbort = () => timeoutController.abort();
+  signal.addEventListener('abort', onParentAbort, { once: true });
+
+  try {
+    const res = await fetch('/api/tts/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: sentence,
+        voiceName: 'Kore'
+      }),
+      signal: timeoutController.signal
+    });
+
+    clearTimeout(timer);
+    signal.removeEventListener('abort', onParentAbort);
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = await res.json();
+    if (data && data.audioBase64) {
+      const dataUrl = `data:${data.mimeType || 'audio/mpeg'};base64,${data.audioBase64}`;
+      if (ttsAudioCache.size > 100) {
+        const firstKey = ttsAudioCache.keys().next().value;
+        if (firstKey) ttsAudioCache.delete(firstKey);
+      }
+      ttsAudioCache.set(cacheKey, dataUrl);
+      return dataUrl;
+    }
+  } catch {
+    clearTimeout(timer);
+    signal.removeEventListener('abort', onParentAbort);
+  }
+  return null;
+}
+
+function speakSentenceWithBilingualBrowser(
+  sentence: string,
+  rate: number,
+  onDone: () => void
+) {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    onDone();
+    return;
+  }
+
+  const segments = splitMixedScriptSubSegments(sentence);
+  let segIdx = 0;
+
+  const speakNextSeg = () => {
+    if (!isSpeakingActive || segIdx >= segments.length) {
+      onDone();
+      return;
+    }
+
+    const seg = segments[segIdx];
+    const utterance = new SpeechSynthesisUtterance(seg.text);
+    utterance.lang = seg.lang;
+    utterance.rate = Math.max(0.75, Math.min(1.45, rate));
+    utterance.pitch = 1.0;
+
+    const bestVoice = getBestNaturalVoice(seg.lang);
+    if (bestVoice) {
+      utterance.voice = bestVoice;
+      if (bestVoice.lang) {
+        utterance.lang = bestVoice.lang;
+      }
+    }
+
+    let finished = false;
+    const finishSeg = () => {
+      if (finished) return;
+      finished = true;
+      segIdx++;
+      speakNextSeg();
+    };
+
+    utterance.onend = finishSeg;
+    utterance.onerror = finishSeg;
+
+    activeUtterancesList.push(utterance);
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      finishSeg();
+    }
+  };
+
+  speakNextSeg();
+}
+
+// Main Play Function: Seamlessly reads the entire text in BOTH Hindi & English with human neural voice
 export function playNaturalSpeech(
   text: string,
   onEnd?: () => void,
@@ -123,48 +291,58 @@ export function playNaturalSpeech(
 ) {
   stopNaturalSpeech();
 
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    console.warn('SpeechSynthesis is not supported in this environment.');
-    if (onEnd) onEnd();
-    return;
-  }
-
   const cleaned = cleanTextForSpeech(text);
   if (!cleaned) {
     if (onEnd) onEnd();
     return;
   }
 
-  const lang = detectLanguage(cleaned);
   const sentences = splitIntoCompleteSentences(cleaned);
-
   if (sentences.length === 0) {
     if (onEnd) onEnd();
     return;
   }
 
   isSpeakingActive = true;
-  if (customRate) currentSpeechRate = customRate;
+  isPausedState = false;
+  currentSpeechRate = customRate ? customRate : 1.0;
 
-  // Clear and prepare global references
   activeUtterancesList = [];
-  (window as any).__activeUtterances = activeUtterancesList;
-
-  // Start keep-alive pulse to prevent Chrome from freezing long speech
-  if (keepAliveTimer) clearInterval(keepAliveTimer);
-  keepAliveTimer = setInterval(() => {
-    if (isSpeakingActive && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
+  if (typeof window !== 'undefined') {
+    (window as any).__activeUtterances = activeUtterancesList;
+    // Keep Chrome speechSynthesis alive across long multi-minute articles
+    if ('speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.getVoices();
+      } catch {
+        // ignore
       }
+      keepAliveTimer = setInterval(() => {
+        if (isSpeakingActive && !isPausedState && window.speechSynthesis.speaking) {
+          try {
+            window.speechSynthesis.pause();
+            window.speechSynthesis.resume();
+          } catch {
+            // ignore
+          }
+        }
+      }, 10000);
     }
-  }, 4000);
+  }
+
+  const abortController = new AbortController();
+  currentAbortController = abortController;
 
   let currentIndex = 0;
 
-  const playNextSentence = () => {
-    if (!isSpeakingActive || currentIndex >= sentences.length) {
+  const prefetchSentence = (idx: number) => {
+    if (idx < sentences.length && isSpeakingActive && Date.now() >= serverTtsDownUntil) {
+      fetchGeminiNeuralAudio(sentences[idx], abortController.signal).catch(() => {});
+    }
+  };
+
+  const playNextSentence = async () => {
+    if (!isSpeakingActive || abortController.signal.aborted || currentIndex >= sentences.length) {
       stopNaturalSpeech();
       if (onEnd) onEnd();
       return;
@@ -175,20 +353,18 @@ export function playNaturalSpeech(
       onSentenceChange(currentIndex, sentences.length, currentSentence);
     }
 
-    const utterance = new SpeechSynthesisUtterance(currentSentence);
-    utterance.lang = lang;
-    utterance.rate = lang === 'hi-IN' ? currentSpeechRate : 0.98;
-    utterance.pitch = 1.0;
+    prefetchSentence(currentIndex + 1);
 
-    const bestVoice = getBestNaturalVoice(lang);
-    if (bestVoice) {
-      utterance.voice = bestVoice;
+    // 1. Try Gemini Neural Human Voice (Hindi + English bilingual natural voice)
+    const audioDataUrl = await fetchGeminiNeuralAudio(currentSentence, abortController.signal);
+
+    if (!isSpeakingActive || abortController.signal.aborted) {
+      return;
     }
 
-    utterance.onend = () => {
+    const advanceToNext = () => {
       currentIndex++;
-      if (isSpeakingActive && currentIndex < sentences.length) {
-        // Continue immediately to the next sentence without stopping
+      if (isSpeakingActive && !abortController.signal.aborted && currentIndex < sentences.length) {
         playNextSentence();
       } else {
         stopNaturalSpeech();
@@ -196,65 +372,104 @@ export function playNaturalSpeech(
       }
     };
 
-    utterance.onerror = (err) => {
-      if (err.error !== 'interrupted' && err.error !== 'canceled') {
-        console.warn('Utterance notice:', err.error);
-      }
-      currentIndex++;
-      if (isSpeakingActive && currentIndex < sentences.length) {
-        playNextSentence();
-      } else {
-        stopNaturalSpeech();
-        if (onEnd) onEnd();
-      }
-    };
+    if (audioDataUrl && typeof Audio !== 'undefined') {
+      try {
+        const audio = new Audio(audioDataUrl);
+        activeHtmlAudio = audio;
+        audio.playbackRate = Math.max(0.75, Math.min(1.5, currentSpeechRate));
 
-    // Keep reference in active list
-    activeUtterancesList.push(utterance);
+        audio.onended = () => {
+          activeHtmlAudio = null;
+          advanceToNext();
+        };
 
-    try {
-      window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.warn('SpeechSynthesis error:', e);
-      currentIndex++;
-      if (isSpeakingActive && currentIndex < sentences.length) {
-        playNextSentence();
-      } else {
-        stopNaturalSpeech();
-        if (onEnd) onEnd();
+        audio.onerror = () => {
+          activeHtmlAudio = null;
+          speakSentenceWithBilingualBrowser(currentSentence, currentSpeechRate, advanceToNext);
+        };
+
+        if (isPausedState) {
+          return;
+        }
+
+        await audio.play();
+        return;
+      } catch {
+        activeHtmlAudio = null;
       }
     }
+
+    // 2. Enhanced Bilingual (Hindi + English) Browser Voice Engine
+    speakSentenceWithBilingualBrowser(currentSentence, currentSpeechRate, advanceToNext);
   };
 
-  // Brief 40ms timeout ensures previous cancel is fully flushed in Chromium
-  setTimeout(() => {
-    if (isSpeakingActive) {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
-      playNextSentence();
-    }
-  }, 40);
+  playNextSentence();
 }
 
 export function pauseNaturalSpeech() {
+  isPausedState = true;
+  if (activeHtmlAudio && !activeHtmlAudio.paused) {
+    try {
+      activeHtmlAudio.pause();
+    } catch {
+      // ignore
+    }
+  }
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.pause();
+    try {
+      window.speechSynthesis.pause();
+    } catch {
+      // ignore
+    }
   }
 }
 
 export function resumeNaturalSpeech() {
+  isPausedState = false;
+  if (activeHtmlAudio && activeHtmlAudio.paused) {
+    try {
+      activeHtmlAudio.play();
+    } catch {
+      // ignore
+    }
+  }
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.resume();
+    try {
+      window.speechSynthesis.resume();
+    } catch {
+      // ignore
+    }
   }
 }
 
 export function stopNaturalSpeech() {
   isSpeakingActive = false;
+  isPausedState = false;
+
+  if (currentAbortController) {
+    try {
+      currentAbortController.abort();
+    } catch {
+      // ignore
+    }
+    currentAbortController = null;
+  }
+
+  if (activeHtmlAudio) {
+    try {
+      activeHtmlAudio.pause();
+      activeHtmlAudio.src = '';
+    } catch {
+      // ignore
+    }
+    activeHtmlAudio = null;
+  }
+
   if (keepAliveTimer) {
     clearInterval(keepAliveTimer);
     keepAliveTimer = null;
   }
+
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     try {
       window.speechSynthesis.cancel();
@@ -262,6 +477,7 @@ export function stopNaturalSpeech() {
       // ignore
     }
   }
+
   activeUtterancesList = [];
   if (typeof window !== 'undefined') {
     (window as any).__activeUtterances = [];
@@ -274,10 +490,14 @@ export function isSpeechPlaying(): boolean {
 
 // Pre-load voices on browser load
 if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-  window.speechSynthesis.getVoices();
-  if ('onvoiceschanged' in window.speechSynthesis) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      window.speechSynthesis.getVoices();
-    };
+  try {
+    window.speechSynthesis.getVoices();
+    if ('onvoiceschanged' in window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  } catch {
+    // ignore
   }
 }

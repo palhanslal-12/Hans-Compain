@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   Mic
 } from 'lucide-react';
-import { auth, signInWithGoogle, logoutUser } from '../firebase';
+import { getEffectiveUser, signInWithGoogle, logoutUser } from '../firebase';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   if (!isOpen) return null;
 
-  const currentUser = auth.currentUser;
+  const currentUser = getEffectiveUser();
 
   const exams = [
     'SSC & Steno 2026',

@@ -208,9 +208,7 @@ export const DedicatedStenoMasterStudio: React.FC<{ onBackHome?: () => void }> =
 
   useEffect(() => {
     return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      stopNaturalSpeech();
     };
   }, []);
 

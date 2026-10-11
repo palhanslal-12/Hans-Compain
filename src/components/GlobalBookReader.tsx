@@ -268,8 +268,8 @@ export const GlobalBookReader: React.FC<{ initialTab?: 'library' | 'voice-reader
               <button
                 key={b.id}
                 onClick={() => {
-                  if (isPlayingAudio && 'speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
+                  if (isPlayingAudio) {
+                    stopNaturalSpeech();
                     setIsPlayingAudio(false);
                   }
                   setSelectedBookIndex(idx);

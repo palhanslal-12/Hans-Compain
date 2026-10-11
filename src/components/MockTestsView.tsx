@@ -29,9 +29,11 @@ import {
   AlertCircle,
   BookOpen,
   Layers,
-  GraduationCap
+  GraduationCap,
+  Volume2
 } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 export interface MockQuestion {
   id: string;
@@ -583,7 +585,19 @@ export const MockTestsView: React.FC = () => {
       const filtered = pool.filter(q => q.subject.toLowerCase().includes(selectedSubjectFilter.toLowerCase()));
       if (filtered.length > 0) pool = filtered;
     }
-    const sliced = pool.slice(0, selectedQuestionCount);
+    let sliced: MockQuestion[] = [];
+    while (sliced.length < selectedQuestionCount && pool.length > 0) {
+      for (const q of pool) {
+        if (sliced.length >= selectedQuestionCount) break;
+        const setNum = Math.floor(sliced.length / pool.length) + 1;
+        sliced.push({
+          ...q,
+          id: `fb_${Date.now()}_${sliced.length + 1}`,
+          question: setNum > 1 ? `${q.question} (अभ्यास सेट ${setNum})` : q.question,
+          questionHi: q.questionHi ? (setNum > 1 ? `${q.questionHi} (अभ्यास सेट ${setNum})` : q.questionHi) : q.question
+        });
+      }
+    }
     const fallbackExam: ExamCategory = {
       id: `exam_${Date.now()}`,
       title: examTitle,
@@ -1058,6 +1072,19 @@ export const MockTestsView: React.FC = () => {
             <span className="font-bold text-slate-900 text-sm sm:text-base">Question</span>
           </div>
           <div className="flex items-center gap-2 text-xs font-bold">
+            <button
+              onClick={() => {
+                const optsSpoken = rawOpts
+                  .map((o, idx) => `${String.fromCharCode(65 + idx)}: ${cleanSingleLang(o, displayLanguage)}`)
+                  .join('. ');
+                playNaturalSpeech(`${qText}. ${optsSpoken}`);
+              }}
+              className="px-2.5 py-0.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center gap-1 cursor-pointer transition-all"
+              title="प्राकृतिक आवाज में प्रश्न व विकल्प सुनें (Listen in Natural Hindi/English Voice)"
+            >
+              <Volume2 className="w-3.5 h-3.5 text-indigo-600" />
+              <span>सुनें (Voice)</span>
+            </button>
             <span className="px-2.5 py-0.5 rounded-full bg-[#e6f7ed] text-[#16a34a]">
               +{selectedExam.positiveMarks.toFixed(1)}
             </span>
@@ -1539,10 +1566,25 @@ export const MockTestsView: React.FC = () => {
             </div>
 
             {showSolutionExplanation && (
-              <div className="pt-2 text-xs sm:text-sm text-slate-900 space-y-0.5 leading-snug">
-                <p className="font-bold">
-                  The Correct Answer is:({correctLetter}) {correctOptionText}
-                </p>
+              <div className="pt-2 text-xs sm:text-sm text-slate-900 space-y-1 leading-snug">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-bold">
+                    The Correct Answer is:({correctLetter}) {correctOptionText}
+                  </p>
+                  <button
+                    onClick={() => {
+                      const expText =
+                        displayLanguage === 'hi'
+                          ? currentQ.explanation
+                          : currentQ.explanationEn || currentQ.explanation;
+                      playNaturalSpeech(`${qText}. Correct Answer: ${correctOptionText}. Explanation: ${expText}`);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer shrink-0"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>व्याख्या सुनें</span>
+                  </button>
+                </div>
                 <p className="font-bold">Explanation:</p>
                 <p className="text-slate-700 line-clamp-3">
                   {displayLanguage === 'hi'

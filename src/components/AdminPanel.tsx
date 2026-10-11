@@ -3,35 +3,29 @@ import {
   ShieldCheck,
   Activity,
   Users,
-  Database,
   RefreshCw,
-  Trash2,
   CheckCircle2,
   Mail,
   MessageSquare,
   Bell,
   Send,
-  ExternalLink,
   ShieldAlert,
-  Coins,
   Lock,
   Cpu,
-  UserCheck,
-  UserX,
-  Clock,
-  Smartphone,
-  Laptop,
-  Flame,
   Search,
-  Zap,
   Eye,
   Check,
-  X,
   Unlock,
   Settings,
-  AlertTriangle
+  Download,
+  Power,
+  ToggleLeft,
+  ToggleRight,
+  ChevronDown,
+  ChevronUp,
+  ArrowLeft
 } from 'lucide-react';
-import { auth, signInWithGoogle, getLocalActivities } from '../firebase';
+import { getLocalActivities } from '../firebase';
 import { getSecurityAuditLogs, getClientIp } from '../utils/securityShield';
 import { AppHealthScannerModal } from './AppHealthScannerModal';
 
@@ -71,16 +65,137 @@ interface ActivityItem {
   isoTime: string;
 }
 
-interface FeatureToggle {
+export interface FeatureToggleConfig {
   id: string;
   name: string;
   hindiName: string;
-  icon: string;
-  status: boolean;
+  category: string;
   desc: string;
 }
 
-export const AdminPanel: React.FC = () => {
+export const ALL_CONTROLLABLE_FEATURES: FeatureToggleConfig[] = [
+  {
+    id: 'steno-master',
+    name: 'Steno Master Studio',
+    hindiName: 'सम्पूर्ण आशुलिपि (Steno Studio)',
+    category: 'मुख्य फीचर',
+    desc: '80/100 WPM ऑडियो डिक्टेशन व शॉर्टहैंड ट्रांसक्रिप्शन बोर्ड'
+  },
+  {
+    id: 'current-affairs',
+    name: 'Current Affairs Hub',
+    hindiName: 'करंट अफेयर्स 2026 (PIB हब)',
+    category: 'मुख्य फीचर',
+    desc: 'दैनिक समाचार विश्लेषण, द्विभाषी रीडर व डेली MCQ क्विज़'
+  },
+  {
+    id: 'group-quiz',
+    name: 'Live Group Quiz Battle',
+    hindiName: 'लाइव ग्रुप क्विज़ बैटल',
+    category: 'मुख्य फीचर',
+    desc: '10–50 छात्रों का मल्टीप्लेयर लाइव रैंकिंग क्विज़ और वॉइस रीडर'
+  },
+  {
+    id: 'science-lab',
+    name: 'Interactive Science Lab',
+    hindiName: 'इंटरएक्टिव साइंस लैब (42 Labs)',
+    category: 'मुख्य फीचर',
+    desc: 'भौतिकी, रसायन, जीव विज्ञान, भूगोल व गणित की वर्चुअल प्रयोगशालाएं'
+  },
+  {
+    id: 'ai-chat',
+    name: 'AI Doubt Solver',
+    hindiName: 'AI डाउट सॉल्वर चैट',
+    category: 'मुख्य फीचर',
+    desc: 'गणित, विज्ञान व सामान्य ज्ञान के प्रश्नों का त्वरित समाधान'
+  },
+  {
+    id: 'mnemonics',
+    name: 'AI Mnemonics Generator',
+    hindiName: 'AI निमोनिक्स ट्रिक जनरेटर',
+    category: 'अध्ययन टूल',
+    desc: 'कठिन तिथियों व सूत्रों को याद रखने की शॉर्ट ट्रिक्स'
+  },
+  {
+    id: 'daily-goals',
+    name: 'Daily Study Goals',
+    hindiName: 'दैनिक लक्ष्य (Daily Goals)',
+    category: 'अध्ययन टूल',
+    desc: 'GK, English और Math के दैनिक टारगेट व स्ट्रीक ट्रैकर'
+  },
+  {
+    id: 'competitive',
+    name: 'Competitive Exams Hub',
+    hindiName: 'प्रतियोगी परीक्षा व PYQ बैंक',
+    category: 'परीक्षा केंद्र',
+    desc: 'SSC, Railway, BPSC CBT मॉक टेस्ट व पिछले वर्षों के प्रश्न'
+  },
+  {
+    id: 'board-exams',
+    name: 'Board Exams Hub',
+    hindiName: '10th & 12th बोर्ड परीक्षा केंद्र',
+    category: 'परीक्षा केंद्र',
+    desc: 'बोर्ड परीक्षा OMR टेस्ट सीरीज़ व चैप्टर-वार प्रैक्टिस बॉक्स'
+  },
+  {
+    id: 'time-travel',
+    name: 'Time Travel Simulator',
+    hindiName: 'काल-यात्रा (ऐतिहासिक संवाद)',
+    category: 'अध्ययन टूल',
+    desc: 'इतिहास के महान व्यक्तित्वों और घटनाओं का सिमुलेशन'
+  },
+  {
+    id: 'library',
+    name: 'Smart Book Reader',
+    hindiName: 'स्मार्ट लाइब्रेरी व वॉइस रीडर',
+    category: 'अध्ययन टूल',
+    desc: 'NCERT व मानक पुस्तकों का डिजिटल अध्याय व ऑडियो रीडर'
+  },
+  {
+    id: 'ocr-scan',
+    name: 'Notes OCR Scanner',
+    hindiName: 'हस्तलिखित नोट्स फोटो स्कैनर',
+    category: 'अध्ययन टूल',
+    desc: 'कॉपी या किताब के पन्नों की फोटो से डिजिटल टेक्स्ट व सारांश'
+  },
+  {
+    id: 'edu-reels',
+    name: 'Edu-Reels Shorts',
+    hindiName: 'एजु-रील्स (Edu Shorts)',
+    category: 'क्विक रिवीजन',
+    desc: '60 सेकंड में महत्वपूर्ण परीक्षा तथ्यों का त्वरित रिवीजन'
+  },
+  {
+    id: 'flashcards',
+    name: 'Smart Flashcards',
+    hindiName: '1-मिनट रीकैप व फ्लैशकार्ड्स',
+    category: 'क्विक रिवीजन',
+    desc: 'महत्वपूर्ण शब्दावली और सूत्रों के मेमोरी कार्ड्स'
+  }
+];
+
+export const getStoredFeatureToggles = (): Record<string, boolean> => {
+  const defaults: Record<string, boolean> = {};
+  ALL_CONTROLLABLE_FEATURES.forEach(f => {
+    defaults[f.id] = true;
+  });
+  try {
+    const raw = localStorage.getItem('hans_global_feature_toggles');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { ...defaults, ...parsed };
+    }
+  } catch {
+    // ignore
+  }
+  return defaults;
+};
+
+interface AdminPanelProps {
+  onReturnHome?: () => void;
+}
+
+export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome }) => {
   // Password protection state
   const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
     return sessionStorage.getItem('hans_admin_authorized') === 'true';
@@ -89,61 +204,58 @@ export const AdminPanel: React.FC = () => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Core navigation tabs
-  const [activeTab, setActiveTab] = useState<'users' | 'activities' | 'features' | 'alerts' | 'security' | 'whatsapp' | 'broadcast'>('users');
+  // Navigation tabs - 'overview' shows both Feature Controls & Student Tracking cleanly
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'features' | 'users' | 'activities' | 'alerts' | 'security' | 'broadcast'
+  >('overview');
+
   const [userFilter, setUserFilter] = useState<'all' | 'registered' | 'guest'>('all');
   const [searchFilter, setSearchFilter] = useState('');
+  const [featureSearch, setFeatureSearch] = useState('');
   const [usersList, setUsersList] = useState<VisitorRecord[]>([]);
   const [activitiesStream, setActivitiesStream] = useState<ActivityItem[]>([]);
   const [emailAlerts, setEmailAlerts] = useState<any[]>([]);
-  const [questionReports, setQuestionReports] = useState<any[]>([]);
   const [securityLogs, setSecurityLogs] = useState(getSecurityAuditLogs());
-  const [localActivities, setLocalActivities] = useState(getLocalActivities());
   const [isHealthScannerOpen, setIsHealthScannerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Feature Toggles state
-  const [featureToggles, setFeatureToggles] = useState<Record<string, boolean>>({
-    "steno-master": true,
-    "current-affairs": true,
-    "group-quiz": true,
-    "ai-chat": true,
-    "science-lab": true,
-    "board-exams": true,
-    "mnemonics": true,
-    "library": true
-  });
+
+  // Feature Toggles state initialized from localStorage so it works immediately
+  const [featureToggles, setFeatureToggles] = useState<Record<string, boolean>>(() =>
+    getStoredFeatureToggles()
+  );
 
   const [whatsappGroupLink, setWhatsappGroupLink] = useState(
     localStorage.getItem('hans_whatsapp_group_url') || 'https://chat.whatsapp.com/HansCompainOfficial'
   );
-  const [whatsappBroadcastText, setWhatsappBroadcastText] = useState(
-    '🔥 *HANS COMPAIN DAILY STUDY ALERT* 🔥\nआज के 10 करेंट अफेयर्स फैक्ट्स, 80/100 WPM आशुलिपि डिक्टेशन और लाइव ग्रुप क्विज़ बैटल ऐप पर अपलोड हो चुके हैं! अभी अभ्यास करें।'
-  );
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
-
-  // Expands row for visitor trail details
   const [expandedUserIds, setExpandedUserIds] = useState<Record<string, boolean>>({});
 
   const toggleUserExpand = (userId: string) => {
     setExpandedUserIds(prev => ({ ...prev, [userId]: !prev[userId] }));
   };
 
+  const showNotice = (msg: string) => {
+    setStatusBanner(msg);
+    setTimeout(() => {
+      setStatusBanner(prev => (prev === msg ? null : prev));
+    }, 3500);
+  };
+
   const fetchAllAnalyticsData = () => {
     setIsLoading(true);
-    // 1. Fetch Users & Guests
     fetch('/api/admin/users')
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setUsersList(data.sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()));
+          setUsersList(
+            data.sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+          );
         }
       })
       .catch(() => {});
 
-    // 2. Fetch Real-time Feature Action Stream
     fetch('/api/admin/activities')
       .then(r => r.json())
       .then(data => {
@@ -153,51 +265,58 @@ export const AdminPanel: React.FC = () => {
       })
       .catch(() => {});
 
-    // 3. Fetch Global Feature Toggles
     fetch('/api/admin/features')
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.toggles) {
-          setFeatureToggles(data.toggles);
-          // Sync with local storage so client views pick it up instantly
-          localStorage.setItem('hans_global_feature_toggles', JSON.stringify(data.toggles));
+        if (data && data.success && data.toggles) {
+          setFeatureToggles(prev => {
+            const merged = { ...prev, ...data.toggles };
+            localStorage.setItem('hans_global_feature_toggles', JSON.stringify(merged));
+            return merged;
+          });
         }
       })
       .catch(() => {});
 
-    // 4. Fetch Automatic Email Alerts & Reports
     fetch('/api/admin/email-alerts')
       .then(r => r.json())
       .then(data => {
         if (data && data.success) {
           setEmailAlerts(data.alerts || []);
-          setQuestionReports(data.reports || []);
         }
       })
       .catch(() => {});
 
     setSecurityLogs(getSecurityAuditLogs());
-    setLocalActivities(getLocalActivities());
-    setIsLoading(false);
+    getLocalActivities();
+    setTimeout(() => setIsLoading(false), 300);
   };
 
   useEffect(() => {
     if (isAuthorized) {
       fetchAllAnalyticsData();
-      const timer = setInterval(fetchAllAnalyticsData, 15000); // live polling every 15s
+      const timer = setInterval(fetchAllAnalyticsData, 15000);
       return () => clearInterval(timer);
     }
   }, [isAuthorized]);
 
   const handleAdminLogin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const validPasswords = ['hans@admin2026', 'admin', 'hans', '2026', 'hans2026', 'hanslalpal', '1234'];
+    const validPasswords = [
+      'hans@admin2026',
+      'admin',
+      'hans',
+      '2026',
+      'hans2026',
+      'hanslalpal',
+      '1234'
+    ];
     if (validPasswords.includes(adminPassword.trim().toLowerCase()) || !adminPassword) {
       setIsAuthorized(true);
       sessionStorage.setItem('hans_admin_authorized', 'true');
       setPasswordError(null);
     } else {
-      setPasswordError('❌ अमान्य पासवर्ड! कृपया सही एडमिन पासवर्ड (जैसे hans@admin2026 या hans) दर्ज करें।');
+      setPasswordError('अमान्य पासवर्ड। कृपया सही एडमिन पासवर्ड दर्ज करें।');
     }
   };
 
@@ -207,40 +326,63 @@ export const AdminPanel: React.FC = () => {
     setPasswordError(null);
   };
 
+  // Instant optimistic toggle + backend sync
   const handleFeatureToggle = async (featureId: string, currentStatus: boolean) => {
     const nextStatus = !currentStatus;
+    const updated = { ...featureToggles, [featureId]: nextStatus };
+    setFeatureToggles(updated);
+    localStorage.setItem('hans_global_feature_toggles', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('hans_feature_toggles_updated', { detail: updated }));
+
+    const featObj = ALL_CONTROLLABLE_FEATURES.find(f => f.id === featureId);
+    const label = featObj ? featObj.hindiName : featureId;
+    showNotice(`${label} को ${nextStatus ? 'चालू (ON)' : 'बंद (OFF)'} कर दिया गया है।`);
+
     try {
-      const res = await fetch('/api/admin/features/toggle', {
+      await fetch('/api/admin/features/toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featureId, status: nextStatus })
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setFeatureToggles(data.toggles);
-          localStorage.setItem('hans_global_feature_toggles', JSON.stringify(data.toggles));
-          // Dispatch a custom storage event to alert other tabs/views in real-time
-          window.dispatchEvent(new Event('storage'));
-          setStatusBanner(`✅ फीचर '${featureId}' को सफलतापूर्वक ${nextStatus ? 'चालू' : 'बंद'} कर दिया गया है!`);
-          setTimeout(() => setStatusBanner(null), 3500);
-        }
-      }
     } catch {
-      setStatusBanner('❌ फीचर टॉगल करने में विफलता आई।');
-      setTimeout(() => setStatusBanner(null), 3000);
+      // LocalStorage already updated & active
+    }
+  };
+
+  const handleBulkFeatureToggle = async (enableAll: boolean) => {
+    const updated: Record<string, boolean> = {};
+    ALL_CONTROLLABLE_FEATURES.forEach(f => {
+      updated[f.id] = enableAll;
+    });
+    setFeatureToggles(updated);
+    localStorage.setItem('hans_global_feature_toggles', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('hans_feature_toggles_updated', { detail: updated }));
+    showNotice(
+      enableAll
+        ? 'सभी 14 ऐप फीचर्स को एक साथ चालू (ON) कर दिया गया है।'
+        : 'सभी ऐप फीचर्स को अस्थायी रूप से बंद (OFF) कर दिया गया है।'
+    );
+
+    try {
+      await Promise.all(
+        ALL_CONTROLLABLE_FEATURES.map(f =>
+          fetch('/api/admin/features/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ featureId: f.id, status: enableAll })
+          })
+        )
+      );
+    } catch {
+      // ignore
     }
   };
 
   const handleSaveWhatsAppConfig = () => {
     localStorage.setItem('hans_whatsapp_group_url', whatsappGroupLink.trim());
-    setStatusBanner('✅ आधिकारिक व्हाट्सएप ग्रुप लिंक सफलतापूर्वक अपडेट हो गया!');
-    setTimeout(() => setStatusBanner(null), 3000);
-  };
-
-  const handleShareToWhatsApp = () => {
-    const url = `https://wa.me/?text=${encodeURIComponent(whatsappBroadcastText)}`;
-    window.open(url, '_blank');
+    showNotice('व्हाट्सएप ग्रुप लिंक सफलतापूर्वक सेव हो गया है।');
   };
 
   const handlePublishNotice = () => {
@@ -255,25 +397,38 @@ export const AdminPanel: React.FC = () => {
     localStorage.setItem('hans_custom_notifications', JSON.stringify(existing.slice(0, 10)));
     setBroadcastTitle('');
     setBroadcastMessage('');
-    setStatusBanner('🔔 नया नोटिफिकेशन सभी छात्रों के बेल आइकॉन में पब्लिश कर दिया गया!');
-    setTimeout(() => setStatusBanner(null), 3000);
+    showNotice('नया नोटिस सभी छात्रों के नोटिफिकेशन पैनल में पब्लिश कर दिया गया है।');
   };
 
   const handleExportCSV = () => {
     if (usersList.length === 0) {
-      setStatusBanner('⚠️ एक्सपोर्ट के लिए कोई डेटा उपलब्ध नहीं है।');
-      setTimeout(() => setStatusBanner(null), 3000);
+      showNotice('एक्सपोर्ट के लिए अभी कोई रिकॉर्ड उपलब्ध नहीं है।');
       return;
     }
 
-    const headers = ['User ID', 'Name', 'Email', 'Type (Registered/Guest)', 'Target Exam', 'Visit Count', 'Device', 'Last Active Time', 'Last Topic', 'Features Used'];
+    const headers = [
+      'User ID',
+      'Name',
+      'Email',
+      'Type',
+      'Target Exam',
+      'Visit Count',
+      'Device',
+      'Last Active Time',
+      'Last Topic',
+      'Features Used'
+    ];
     const rows = usersList.map(u => {
-      const featStr = u.featuresUsed ? Object.entries(u.featuresUsed).map(([k, v]) => `${k}: ${v}x`).join('; ') : '';
+      const featStr = u.featuresUsed
+        ? Object.entries(u.featuresUsed)
+            .map(([k, v]) => `${k}: ${v}x`)
+            .join('; ')
+        : '';
       return [
         `"${u.userId}"`,
         `"${u.displayName.replace(/"/g, '""')}"`,
         `"${u.email}"`,
-        `"${u.userType === 'registered' || u.isLoggedIn ? 'Registered Student' : 'Guest Visitor'}"`,
+        `"${u.userType === 'registered' || u.isLoggedIn ? 'Registered' : 'Guest'}"`,
         `"${u.targetExam || 'SSC & Steno'}"`,
         u.visitCount || 1,
         `"${u.device || 'Web'}"`,
@@ -283,17 +438,20 @@ export const AdminPanel: React.FC = () => {
       ].join(',');
     });
 
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
+    const csvContent =
+      'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `hans_compain_students_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute(
+      'download',
+      `hans_compain_report_${new Date().toISOString().split('T')[0]}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    setStatusBanner('📥 छात्रों व विज़िटर्स की एक्सेल/CSV रिपोर्ट डाउनलोड हो गई है!');
-    setTimeout(() => setStatusBanner(null), 3000);
+    showNotice('छात्रों व विज़िटर्स की CSV रिपोर्ट डाउनलोड हो गई है।');
   };
 
   const filteredUsers = usersList.filter(u => {
@@ -313,58 +471,60 @@ export const AdminPanel: React.FC = () => {
     return matchesType && matchesSearch;
   });
 
+  const filteredFeatures = ALL_CONTROLLABLE_FEATURES.filter(f => {
+    const q = featureSearch.toLowerCase();
+    return (
+      !q ||
+      f.hindiName.toLowerCase().includes(q) ||
+      f.name.toLowerCase().includes(q) ||
+      f.desc.toLowerCase().includes(q)
+    );
+  });
+
   const registeredCount = usersList.filter(u => u.userType === 'registered' || u.isLoggedIn).length;
   const guestCount = usersList.filter(u => u.userType === 'guest' && !u.isLoggedIn).length;
-
-  const featuresList: FeatureToggle[] = [
-    { id: 'steno-master', name: 'All Stenographer', hindiName: 'सम्पूर्ण आशुलिपि (Steno Studio)', icon: '✍️', desc: '80/100 WPM ऑडियो डिक्टेशन व ट्रांसक्रिप्शन बोर्ड', status: featureToggles['steno-master'] ?? true },
-    { id: 'current-affairs', name: 'Current Affairs', hindiName: 'डेली करंट अफेयर्स हब', icon: '📰', desc: 'PIB समाचार गोल्डन वन-लाइनर्स, रीडर व डेली MCQ क्विज़', status: featureToggles['current-affairs'] ?? true },
-    { id: 'group-quiz', name: 'Group Quiz Battle', hindiName: 'लाइव ग्रुप क्विज़ बैटल', icon: '🔥', desc: 'मल्टीप्लेयर लाइव रैंकिंग क्विज़ और वाइस स्पीकर', status: featureToggles['group-quiz'] ?? true },
-    { id: 'ai-chat', name: 'AI Doubt Solver', hindiName: 'HANS COMPAIN AI डाउट सॉल्वर', icon: '💬', desc: 'कस्टम गणित/विज्ञान संदेह समाधान और फोटो स्कैनर (OCR)', status: featureToggles['ai-chat'] ?? true },
-    { id: 'science-lab', name: 'Interactive Science Lab', hindiName: 'इंटरैक्टिव साइंस लैब सिमुलेटर', icon: '🔬', desc: 'ओम का नियम, लेंस रे-डायग्राम, pH मीटर व 3D आवर्त सारणी', status: featureToggles['science-lab'] ?? true },
-    { id: 'board-exams', name: 'Board Exams Hub', hindiName: '10th & 12th बोर्ड परीक्षा केंद्र', icon: '🎓', desc: 'OMR टेस्ट सीरीज़, टॉपर नोट्स व चैप्टर प्रैक्टिस बॉक्स', status: featureToggles['board-exams'] ?? true },
-    { id: 'mnemonics', name: 'AI Mnemonics', hindiName: 'AI निमोनिक्स ट्रिक जनरेटर', icon: '⚡', desc: 'कठिन ऐतिहासिक तिथियों व सूत्रों को याद रखने की मजेदार कविताएँ', status: featureToggles['mnemonics'] ?? true },
-    { id: 'library', name: 'Global Library', hindiName: 'स्मार्ट लाइब्रेरी व वॉयस रीडर', icon: '📖', desc: 'एनसीईआरटी व विश्व की चुनिंदा किताबों का डिजिटल अध्याय रीडर', status: featureToggles['library'] ?? true }
-  ];
+  const enabledFeaturesCount = ALL_CONTROLLABLE_FEATURES.filter(
+    f => featureToggles[f.id] !== false
+  ).length;
 
   // ============================================================================
-  // SECURE PASSWORD PROTECTION SCREEN
+  // SECURE PASSWORD PROTECTION SCREEN (CLEAN MINIMAL EXECUTIVE MODAL)
   // ============================================================================
   if (!isAuthorized) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center p-4 text-white font-sans">
+      <div className="min-h-[85vh] w-full flex items-center justify-center p-4 bg-[#060A12] text-slate-100">
         <form
           onSubmit={handleAdminLogin}
-          className="w-full max-w-md bg-[#091122] border-2 border-amber-500/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl animate-fade-in"
+          className="w-full max-w-md bg-[#0B111E] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl"
         >
-          <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-300">
-              <Lock className="w-7 h-7" />
+          <div className="space-y-2">
+            <div className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-200">
+              <Lock className="w-5 h-5" />
             </div>
-            <h1 className="text-lg sm:text-xl font-black uppercase tracking-wider text-white">
-              एडमिन पैनल सुरक्षा द्वार
+            <h1 className="text-lg font-bold text-white pt-1">
+              एडमिनिस्ट्रेटर लॉगिन (Owner Console)
             </h1>
-            <p className="text-xs text-slate-400">
-              यह विभाग केवल स्वामी (Owner) हंसलाल पाल के लिए सुरक्षित है। एक्सेस करने के लिए पासवर्ड दर्ज करें।
+            <p className="text-xs text-slate-400 leading-relaxed">
+              यह कंट्रोल पैनल केवल एडमिन (हंसलाल पाल) के लिए सुरक्षित है। कृपया पासवर्ड दर्ज करें या डायरेक्ट लॉगिन चुनें।
             </p>
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-1.5 relative">
-              <label className="text-xs font-black text-slate-300">एडमिन पासवर्ड (Security Code):</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-slate-300">पासवर्ड (Security Key)</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={adminPassword}
                   onChange={e => setAdminPassword(e.target.value)}
-                  placeholder="एडमिन सुरक्षा पासवर्ड डालें..."
-                  className="w-full p-3 pr-10 rounded-xl bg-slate-950 border border-slate-800 text-sm outline-none focus:border-amber-500 text-white placeholder:text-slate-600 font-mono"
+                  placeholder="पासवर्ड दर्ज करें..."
+                  className="w-full p-3 pr-10 rounded-xl bg-[#060A12] border border-slate-800 text-sm outline-none focus:border-slate-600 text-white placeholder:text-slate-600"
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-400 hover:text-white"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-white cursor-pointer"
                 >
                   <Eye className="w-4 h-4" />
                 </button>
@@ -372,7 +532,7 @@ export const AdminPanel: React.FC = () => {
             </div>
 
             {passwordError && (
-              <div className="text-[11px] font-bold text-rose-400 bg-rose-950/20 border border-rose-500/30 p-2.5 rounded-xl">
+              <div className="text-xs text-rose-300 bg-rose-950/30 border border-rose-800/50 p-2.5 rounded-lg">
                 {passwordError}
               </div>
             )}
@@ -380,24 +540,19 @@ export const AdminPanel: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-98"
+                className="w-full py-2.5 bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
                 <Unlock className="w-4 h-4" />
-                <span>कंसोल अनलॉक करें</span>
+                <span>कंसोल खोलें</span>
               </button>
               <button
                 type="button"
                 onClick={handleQuickUnlock}
-                className="w-full py-3 bg-slate-900 hover:bg-slate-850 border border-amber-500/40 text-amber-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow cursor-pointer transition-all active:scale-98"
-                title="ओनर 1-क्लिक एक्सेस"
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
-                <span>⚡ ओनर डायरेक्ट लॉगिन</span>
+                <span>ओनर डायरेक्ट एक्सेस</span>
               </button>
             </div>
-          </div>
-
-          <div className="text-[10px] text-center text-slate-500 border-t border-slate-900 pt-3">
-            HANS COMPAIN Academic Platform © 2026 • Secure System (Pass: hans@admin2026)
           </div>
         </form>
       </div>
@@ -405,588 +560,751 @@ export const AdminPanel: React.FC = () => {
   }
 
   // ============================================================================
-  // UNLOCKED AUTHORIZED ADMIN PANEL CONSOLE
+  // REUSABLE SECTION: FEATURE ON/OFF CONTROL MANAGER
+  // ============================================================================
+  const renderFeatureControlSection = () => (
+    <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl overflow-hidden">
+      {/* Section Header */}
+      <div className="p-4 sm:p-5 border-b border-slate-800/90 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#0D1424]">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Settings className="w-4 h-4 text-slate-300" />
+            <h2 className="text-sm sm:text-base font-bold text-white">
+              फीचर ऑन-ऑफ़ कंट्रोल पैनल (Feature Access Control)
+            </h2>
+            <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-mono">
+              {enabledFeaturesCount} / {ALL_CONTROLLABLE_FEATURES.length} चालू
+            </span>
+          </div>
+          <p className="text-xs text-slate-400">
+            किसी भी फीचर को अपने हाथ से तुरंत चालू (ON) या बंद (OFF) करें। बंद किया गया फीचर छात्रों के लिए लॉक हो जाएगा।
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 bg-[#060A12] border border-slate-800 rounded-lg px-3 py-1.5">
+            <Search className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <input
+              type="text"
+              value={featureSearch}
+              onChange={e => setFeatureSearch(e.target.value)}
+              placeholder="फीचर खोजें..."
+              className="bg-transparent border-none outline-none text-xs text-white placeholder:text-slate-500 w-32 sm:w-40"
+            />
+          </div>
+
+          <button
+            onClick={() => handleBulkFeatureToggle(true)}
+            className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium cursor-pointer transition-colors"
+          >
+            सभी चालू करें (All ON)
+          </button>
+          <button
+            onClick={() => handleBulkFeatureToggle(false)}
+            className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-medium cursor-pointer transition-colors"
+          >
+            सभी बंद करें (All OFF)
+          </button>
+        </div>
+      </div>
+
+      {/* Clean 2-Column Structured Feature Switch Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:gap-px bg-slate-800/60">
+        {filteredFeatures.map(feat => {
+          const isEnabled = featureToggles[feat.id] !== false;
+          return (
+            <div
+              key={feat.id}
+              onClick={() => handleFeatureToggle(feat.id, isEnabled)}
+              className="bg-[#0B111E] hover:bg-[#0F172A] p-4 flex items-center justify-between gap-4 cursor-pointer transition-colors select-none"
+            >
+              <div className="min-w-0 space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${
+                      isEnabled ? 'bg-emerald-400' : 'bg-slate-600'
+                    }`}
+                  />
+                  <span className="font-semibold text-xs sm:text-sm text-white truncate">
+                    {feat.hindiName}
+                  </span>
+                  <span className="text-[10px] text-slate-400 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">
+                    {feat.category}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 line-clamp-1 pl-4">{feat.desc}</p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <span
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${
+                    isEnabled
+                      ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/50'
+                      : 'bg-slate-900 text-slate-400 border-slate-800'
+                  }`}
+                >
+                  {isEnabled ? 'ON (चालू)' : 'OFF (बंद)'}
+                </span>
+
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isEnabled}
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleFeatureToggle(feat.id, isEnabled);
+                  }}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    isEnabled ? 'bg-blue-600' : 'bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out ${
+                      isEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // ============================================================================
+  // REUSABLE SECTION: STUDENT & VISITOR TRACKING TABLE
+  // ============================================================================
+  const renderUsersSection = () => (
+    <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl overflow-hidden">
+      {/* Toolbar */}
+      <div className="p-4 sm:p-5 border-b border-slate-800/90 flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-[#0D1424]">
+        <div>
+          <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            <Users className="w-4 h-4 text-slate-300" />
+            <span>छात्र एवं विज़िटर लॉगिन रिकॉर्ड (Student &amp; Visitor Directory)</span>
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">
+            पंजीकृत छात्रों और अतिथि उपयोगकर्ताओं की उपस्थिति व फीचर उपयोग का विवरण।
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-lg bg-[#060A12] p-0.5 border border-slate-800">
+            {[
+              { id: 'all', label: `सभी (${usersList.length})` },
+              { id: 'registered', label: `रजिस्टर्ड (${registeredCount})` },
+              { id: 'guest', label: `अतिथि (${guestCount})` }
+            ].map(filt => (
+              <button
+                key={filt.id}
+                onClick={() => setUserFilter(filt.id as any)}
+                className={`px-3 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors ${
+                  userFilter === filt.id
+                    ? 'bg-slate-800 text-white font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {filt.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 bg-[#060A12] border border-slate-800 rounded-lg px-3 py-1.5">
+            <Search className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <input
+              type="text"
+              value={searchFilter}
+              onChange={e => setSearchFilter(e.target.value)}
+              placeholder="नाम या ईमेल खोजें..."
+              className="bg-transparent border-none outline-none text-xs text-white placeholder:text-slate-500 w-36 sm:w-44"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr className="border-b border-slate-800/90 bg-[#080D18] text-slate-400 font-semibold">
+              <th className="py-3 px-4">छात्र / उपयोगकर्ता</th>
+              <th className="py-3 px-4">खाता प्रकार</th>
+              <th className="py-3 px-4">अंतिम सक्रिय विषय</th>
+              <th className="py-3 px-4">अंतिम समय</th>
+              <th className="py-3 px-4">उपयोग संख्या</th>
+              <th className="py-3 px-4 text-right">विवरण</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800/70">
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((u, i) => {
+                const isReg = u.userType === 'registered' || u.isLoggedIn;
+                const isExpanded = !!expandedUserIds[u.userId];
+                const totalFeatures = u.featuresUsed
+                  ? Object.values(u.featuresUsed).reduce((a, b) => a + b, 0)
+                  : 1;
+
+                return (
+                  <React.Fragment key={u.userId || i}>
+                    <tr className="hover:bg-[#0F172A] transition-colors">
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-semibold text-slate-200 shrink-0">
+                            {(u.displayName?.[0] || 'U').toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-semibold text-white block truncate">
+                              {u.displayName}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-mono block truncate">
+                              {u.email}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[11px] font-medium border ${
+                            isReg
+                              ? 'bg-slate-900 text-slate-200 border-slate-700'
+                              : 'bg-slate-900/50 text-slate-400 border-slate-800'
+                          }`}
+                        >
+                          {isReg ? 'रजिस्टर्ड छात्र' : 'अतिथि (Guest)'}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-300">
+                        {u.lastTopic || 'Home Dashboard'}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-slate-400 text-[11px]">
+                        {u.lastActiveStr || new Date(u.lastActive).toLocaleString('hi-IN')}
+                      </td>
+                      <td className="py-3.5 px-4 font-medium text-slate-200">
+                        {totalFeatures} बार
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <button
+                          onClick={() => toggleUserExpand(u.userId)}
+                          className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg text-[11px] font-medium text-slate-300 hover:text-white inline-flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>{isExpanded ? 'बंद करें' : 'इतिहास'}</span>
+                          {isExpanded ? (
+                            <ChevronUp className="w-3 h-3" />
+                          ) : (
+                            <ChevronDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+
+                    {isExpanded && (
+                      <tr className="bg-[#080D18]">
+                        <td colSpan={6} className="p-4 border-t border-slate-800/80">
+                          <div className="space-y-3 pl-2 sm:pl-11 text-xs">
+                            <div className="text-[11px] text-slate-400 font-semibold">
+                              फीचर उपयोग सांख्यिकी:
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {u.featuresUsed && Object.keys(u.featuresUsed).length > 0 ? (
+                                Object.entries(u.featuresUsed).map(([feat, count], fIdx) => (
+                                  <span
+                                    key={fIdx}
+                                    className="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-[11px] text-slate-300"
+                                  >
+                                    {feat}: <strong className="text-white">{count}x</strong>
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-slate-500">कोई अतिरिक्त डेटा नहीं</span>
+                              )}
+                            </div>
+
+                            <div className="text-[11px] text-slate-400 font-semibold pt-2 border-t border-slate-800/80">
+                              हालिया गतिविधि लॉग्स:
+                            </div>
+                            <div className="space-y-1">
+                              {Array.isArray(u.sessionHistory) && u.sessionHistory.length > 0 ? (
+                                u.sessionHistory.slice(0, 6).map((hist, hIdx) => (
+                                  <div
+                                    key={hIdx}
+                                    className="flex items-center gap-2 text-slate-400 text-[11px] py-0.5"
+                                  >
+                                    <span className="font-mono text-slate-500">
+                                      [{hist.timestamp}]
+                                    </span>
+                                    <strong className="text-slate-200">{hist.feature}</strong>
+                                    <span>— {hist.action}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <span className="text-slate-500">कोई टाइमलाइन उपलब्ध नहीं है।</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-500">
+                  कोई उपयोगकर्ता रिकॉर्ड नहीं मिला।
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  // ============================================================================
+  // FULL-PAGE CLEAN PROFESSIONAL ADMIN CONSOLE
   // ============================================================================
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-6 animate-fade-in text-white font-sans">
-      
-      {/* 1. TOP MAIN HEADER */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-6 sm:p-7 rounded-3xl border border-slate-800 shadow-2xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-bold uppercase mb-2 border border-amber-500/20">
-            <ShieldCheck className="w-4 h-4 text-amber-400" /> Owner Admin Panel • Direct Page Access
+    <div className="w-full min-h-full bg-[#060A12] text-slate-100 font-sans pb-14">
+      {/* 1. FULL-WIDTH CLEAN EXECUTIVE TOP BAR */}
+      <div className="border-b border-slate-800/90 bg-[#090E1A] px-4 sm:px-6 py-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3">
+            {onReturnHome && (
+              <button
+                onClick={onReturnHome}
+                className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white cursor-pointer shrink-0 mt-0.5 sm:mt-0"
+                title="होमपेज पर लौटें"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  HANS COMPAIN • OWNER ADMIN CONSOLE
+                </span>
+              </div>
+              <h1 className="text-lg sm:text-xl font-bold text-white mt-0.5">
+                हंस कैंपेन एडमिनिस्ट्रेटर कंट्रोल सेंटर
+              </h1>
+            </div>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white">
-            हंस कैंपेन एडमिनिस्ट्रेटर डैशबोर्ड
-          </h1>
-          <p className="text-slate-400 text-xs mt-1">
-            छात्र लॉगिन ट्रैकिंग, लाइव फीचर ऑन-ऑफ़ स्विच, रियल-टाइम सुरक्षा ऑडिट एवं लाइव ब्रॉडकास्ट नोटिस हब।
-          </p>
-          <div className="pt-2.5 flex flex-wrap gap-2">
+
+          {/* Clean Uniform Action Toolbar */}
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setIsHealthScannerOpen(true)}
-              className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-black text-[11px] rounded-xl flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium text-xs rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
             >
-              <Cpu className="w-3.5 h-3.5 text-cyan-200" />
-              <span>🔬 संपूर्ण ऐप डायग्नोस्टिक स्कैनर</span>
+              <Cpu className="w-3.5 h-3.5 text-slate-400" />
+              <span>सिस्टम डायग्नोस्टिक स्कैनर</span>
             </button>
+
+            <button
+              onClick={handleExportCSV}
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-medium text-xs rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-400" />
+              <span>CSV रिपोर्ट</span>
+            </button>
+
             <button
               onClick={fetchAllAnalyticsData}
-              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 font-bold text-[11px] rounded-xl flex items-center gap-1.5 cursor-pointer shadow"
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-medium text-xs rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
             >
-              <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
               <span>डेटा रीफ्रेश</span>
             </button>
           </div>
         </div>
 
-        {/* Navigation Tabs - Compact, elegant pill bar */}
-        <div className="flex flex-wrap gap-1">
+        {/* 2. SINGLE-LINE PROFESSIONAL NAVIGATION TAB BAR */}
+        <div className="flex items-center gap-1 overflow-x-auto pt-4 mt-4 border-t border-slate-800/80 scrollbar-thin">
           {[
-            { id: 'users', label: '👥 स्टूडेंट ट्रैकिंग' },
-            { id: 'activities', label: '⚡ लाइव एक्टिविटी' },
-            { id: 'features', label: '⚙️ फीचर ऑन-ऑफ़' },
-            { id: 'alerts', label: '📧 ईमेल व त्रुटि अलर्ट' },
-            { id: 'security', label: '🛡️ सुरक्षा हब' },
-            { id: 'whatsapp', label: '💬 व्हाट्सएप ग्रुप' },
-            { id: 'broadcast', label: '🔔 नोटिस ब्रॉडकास्ट' }
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id as any)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === t.id
-                  ? 'bg-amber-500 text-slate-950 font-black shadow-lg'
-                  : 'bg-slate-900 border border-slate-850 text-slate-400 hover:text-white'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+            { id: 'overview', label: 'मुख्य कंट्रोल डैशबोर्ड (Overview)' },
+            { id: 'features', label: `फीचर ऑन-ऑफ़ (${enabledFeaturesCount}/${ALL_CONTROLLABLE_FEATURES.length})` },
+            { id: 'users', label: `स्टूडेंट रिकॉर्ड्स (${Math.max(1, usersList.length)})` },
+            { id: 'activities', label: `लाइव एक्टिविटी (${activitiesStream.length})` },
+            { id: 'alerts', label: 'ईमेल अलर्ट लॉग्स' },
+            { id: 'broadcast', label: 'नोटिस व व्हाट्सएप' },
+            { id: 'security', label: 'सुरक्षा ऑडिट' }
+          ].map(t => {
+            const active = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id as any)}
+                className={`px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  active
+                    ? 'bg-white text-slate-950 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                }`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {statusBanner && (
-        <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{statusBanner}</span>
-        </div>
-      )}
-
-      {/* -------------------------------------------------------------
-          TAB 1: INTEGRATED VISITOR & STUDENT TRACKING (DIRECT PAGE LIST VIEW)
-          ------------------------------------------------------------- */}
-      {activeTab === 'users' && (
-        <div className="space-y-5">
-          {/* Direct Non-Box Linear Page Metric Summary */}
-          <div className="py-4 border-y border-slate-900 grid grid-cols-2 md:grid-cols-4 gap-4 text-slate-300">
-            <div className="border-r border-slate-900 pr-2">
-              <span className="text-[11px] text-slate-400 block font-bold">कुल विज़िटर्स:</span>
-              <strong className="text-xl font-black text-white">{Math.max(1, usersList.length)} विज़िट</strong>
-            </div>
-            <div className="border-r border-slate-900 pr-2">
-              <span className="text-[11px] text-slate-400 block font-bold">रजिस्टर्ड स्टूडेंट्स:</span>
-              <strong className="text-xl font-black text-emerald-400">{registeredCount} छात्र</strong>
-            </div>
-            <div className="border-r border-slate-900 pr-2">
-              <span className="text-[11px] text-slate-400 block font-bold">अतिथि (बिना लॉगिन):</span>
-              <strong className="text-xl font-black text-amber-400">{guestCount} आगंतुक</strong>
-            </div>
-            <div>
-              <span className="text-[11px] text-slate-400 block font-bold">लाइव लॉग्स:</span>
-              <strong className="text-xl font-black text-cyan-400">{activitiesStream.length} एक्शन</strong>
-            </div>
-          </div>
-
-          {/* Table Filters Toolbar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-1">
-              {['all', 'registered', 'guest'].map(filt => (
-                <button
-                  key={filt}
-                  onClick={() => setUserFilter(filt as any)}
-                  className={`px-3 py-1.5 rounded-xl font-bold cursor-pointer transition-all ${
-                    userFilter === filt
-                      ? 'bg-amber-500 text-slate-950 font-black shadow'
-                      : 'bg-slate-900 text-slate-400 border border-slate-800'
-                  }`}
-                >
-                  {filt === 'all' ? `सभी (${usersList.length})` : filt === 'registered' ? `रजिस्टर्ड (${registeredCount})` : `बिना लॉगिन (${guestCount})`}
-                </button>
-              ))}
-            </div>
-
+      {/* MAIN CONTENT BODY (FULL WIDTH) */}
+      <div className="px-4 sm:px-6 pt-5 space-y-6">
+        {/* Status Toast Notification */}
+        {statusBanner && (
+          <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-xs font-medium flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleExportCSV}
-                className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl font-bold text-slate-300 flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>📥 CSV/Excel रिपोर्ट</span>
-              </button>
-
-              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-850 rounded-xl px-3 py-1 text-xs">
-                <Search className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <input
-                  type="text"
-                  value={searchFilter}
-                  onChange={e => setSearchFilter(e.target.value)}
-                  placeholder="छात्र नाम या ईमेल खोजें..."
-                  className="bg-transparent border-none outline-none text-xs text-white placeholder:text-slate-600 w-44"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* PAGE LIST LAYOUT: TABLE VIEW (Completely cardless, flat list directly on page) */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-900 text-slate-400 font-extrabold uppercase">
-                  <th className="py-3 px-2">छात्र / विजिटर विवरण</th>
-                  <th className="py-3 px-2">लॉगिन स्टेटस</th>
-                  <th className="py-3 px-2">सक्रियता टॉपिक</th>
-                  <th className="py-3 px-2">अंतिम सक्रिय समय</th>
-                  <th className="py-3 px-2">कुल फीचर्स</th>
-                  <th className="py-3 px-2 text-right">कार्रवाई</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-900">
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((u, i) => {
-                    const isReg = u.userType === 'registered' || u.isLoggedIn;
-                    const isExpanded = !!expandedUserIds[u.userId];
-                    const totalFeatures = u.featuresUsed ? Object.values(u.featuresUsed).reduce((a, b) => a + b, 0) : 1;
-
-                      return (
-                        <React.Fragment key={u.userId || i}>
-                          <tr className="hover:bg-slate-950/30 transition-colors">
-                            <td className="py-3.5 px-2">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black ${isReg ? 'bg-emerald-600/20 text-emerald-400' : 'bg-amber-600/20 text-amber-400'}`}>
-                                  {isReg ? (u.displayName[0] || 'U').toUpperCase() : '👤'}
-                                </div>
-                                <div>
-                                  <span className="font-bold text-white block text-sm">{u.displayName}</span>
-                                  <span className="text-[10px] text-slate-500 font-mono block">{u.email}</span>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-2">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-black ${isReg ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/20' : 'bg-amber-950/60 text-amber-300 border border-amber-500/20'}`}>
-                                {isReg ? 'REGISTERED' : 'GUEST VISITOR'}
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-2 font-medium text-slate-200">
-                              {u.lastTopic || 'Home Dashboard'}
-                            </td>
-                            <td className="py-3.5 px-2 font-mono text-cyan-400 text-[11px]">
-                              {u.lastActiveStr || new Date(u.lastActive).toLocaleString('hi-IN')}
-                            </td>
-                            <td className="py-3.5 px-2">
-                              <span className="font-bold text-amber-400">{totalFeatures} बार</span>
-                            </td>
-                            <td className="py-3.5 px-2 text-right">
-                              <button
-                                onClick={() => toggleUserExpand(u.userId)}
-                                className="px-2.5 py-1 bg-slate-950 border border-slate-900 rounded-lg hover:bg-slate-900 text-[10px] font-bold text-slate-300 hover:text-white cursor-pointer"
-                              >
-                                {isExpanded ? '⌃ बंद करें' : '⌄ ट्रेल देखें'}
-                              </button>
-                            </td>
-                          </tr>
-
-                          {/* Expanded Trail Detail Row - Pure Line Layout, No Cards */}
-                          {isExpanded && (
-                            <tr className="bg-transparent">
-                              <td colSpan={6} className="py-4 px-2 border-t border-slate-900">
-                                <div className="space-y-3 pl-11 text-xs">
-                                  <div className="text-[11px] text-slate-400 uppercase font-bold tracking-wider">
-                                    📊 फीचर उपयोग आवृत्ति (Feature Statistics):
-                                  </div>
-                                  <div className="flex flex-wrap gap-2">
-                                    {u.featuresUsed && Object.keys(u.featuresUsed).length > 0 ? (
-                                      Object.entries(u.featuresUsed).map(([feat, count], fIdx) => (
-                                        <span key={fIdx} className="px-2.5 py-1 rounded bg-slate-950 border border-slate-900 text-[11px] text-slate-300">
-                                          🚀 {feat}: <strong>{count} बार</strong>
-                                        </span>
-                                      ))
-                                    ) : (
-                                      <span className="text-slate-500">कोई डेटा उपलब्ध नहीं</span>
-                                    )}
-                                  </div>
-
-                                  <div className="text-[11px] text-slate-400 uppercase font-bold tracking-wider pt-2 border-t border-slate-900">
-                                    🕒 हालिया गतिविधि टाइमलाइन (Recent Navigation Trail):
-                                  </div>
-                                  <div className="space-y-1.5">
-                                    {Array.isArray(u.sessionHistory) && u.sessionHistory.length > 0 ? (
-                                      u.sessionHistory.slice(0, 8).map((hist, hIdx) => (
-                                        <div key={hIdx} className="flex items-center gap-2 text-slate-400 text-[11px] py-0.5">
-                                          <span className="text-cyan-400">•</span>
-                                          <span className="font-mono text-slate-500">[{hist.timestamp}]</span>
-                                          <strong className="text-slate-300">{hist.feature}</strong>
-                                          <span className="text-slate-500">- {hist.action}</span>
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <span className="text-slate-500">टाइमलाइन रिक्त है।</span>
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-slate-500">
-                      कोई रिकॉर्ड नहीं मिला।
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* -------------------------------------------------------------
-          TAB 2: REAL-TIME ACTIVITY STREAM
-          ------------------------------------------------------------- */}
-      {activeTab === 'activities' && (
-        <div className="overflow-x-auto space-y-4">
-          <div className="py-2.5 border-b border-slate-900 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                <Activity className="w-4 h-4 text-cyan-400" />
-                <span>लाइव फीचर उपयोग टाइमलाइन (Action Stream)</span>
-              </h3>
-            </div>
-            <span className="text-xs font-mono text-cyan-300 bg-cyan-950/40 px-2.5 py-1 rounded border border-cyan-500/20">{activitiesStream.length} लॉग्स</span>
-          </div>
-
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-slate-900 text-slate-400 uppercase font-black">
-                <th className="py-2 px-1">छात्र का नाम</th>
-                <th className="py-2 px-1">उपयोग किया गया फीचर</th>
-                <th className="py-2 px-1">सक्रिय एक्शन</th>
-                <th className="py-2 px-1 text-right">सक्रियता का समय</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-900">
-              {activitiesStream.length > 0 ? (
-                activitiesStream.map((act, idx) => (
-                  <tr key={idx} className="hover:bg-slate-950/20">
-                    <td className="py-3 px-1">
-                      <div className="font-bold text-white">{act.displayName}</div>
-                      <div className="text-[10px] text-slate-500">{act.email}</div>
-                    </td>
-                    <td className="py-3 px-1">
-                      <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-bold border border-cyan-500/20">
-                        {act.feature}
-                      </span>
-                    </td>
-                    <td className="py-3 px-1 text-slate-300">
-                      {act.action}
-                    </td>
-                    <td className="py-3 px-1 text-right font-mono text-slate-500">
-                      {act.timestamp}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="py-6 text-center text-slate-500">
-                    कोई लाइव एक्टिविटी दर्ज नहीं हुई है।
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* -------------------------------------------------------------
-          TAB 3: FEATURE MANAGEMENT (ON/OFF TOGGLES CONTROL CENTER)
-          ------------------------------------------------------------- */}
-      {activeTab === 'features' && (
-        <div className="bg-[#03060E] border border-slate-850 rounded-2xl p-5 sm:p-6 space-y-4">
-          <div className="border-b border-slate-850 pb-3.5">
-            <h3 className="text-base font-black text-white flex items-center gap-2">
-              <Settings className="w-5 h-5 text-amber-400" />
-              <span>ग्लोबल फीचर स्विच और एक्सेस कंट्रोल पैनल (Global Feature Manager)</span>
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              हंस कैंपेन ऐप के प्रमुख 8 फीचर्स को एक क्लिक में चालू या बंद करें। बंद किए गए फीचर छात्रों के लिए अस्थायी रूप से लॉक हो जाएंगे।
-            </p>
-          </div>
-
-          <div className="divide-y divide-slate-850">
-            {featuresList.map(feat => (
-              <div key={feat.id} className="py-4 flex items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl shrink-0">{feat.icon}</span>
-                    <strong className="text-white text-sm block">{feat.hindiName}</strong>
-                    <span className="text-[10px] text-slate-500 bg-slate-900 px-2 py-0.2 rounded font-mono">{feat.name}</span>
-                  </div>
-                  <p className="text-xs text-slate-400 pl-7">{feat.desc}</p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs font-black px-2.5 py-1 rounded-lg ${feat.status ? 'bg-emerald-950 text-emerald-300' : 'bg-rose-950 text-rose-300'}`}>
-                    {feat.status ? 'सक्रिय (ACTIVE)' : 'बंद (DISABLED)'}
-                  </span>
-                  
-                  {/* Custom Toggle Switch */}
-                  <button
-                    onClick={() => handleFeatureToggle(feat.id, feat.status)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none ${
-                      feat.status ? 'bg-emerald-500' : 'bg-slate-700'
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        feat.status ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* -------------------------------------------------------------
-          TAB: EMAIL ALERTS & 24H INACTIVITY DISPATCH
-          ------------------------------------------------------------- */}
-      {activeTab === 'alerts' && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-850 pb-3">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                <Mail className="w-4 h-4 text-amber-400" />
-                <span>24 घंटे निष्क्रियता व फीचर उपयोग ईमेल अलर्ट सिस्टम</span>
-              </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                छात्र द्वारा 24 घंटे ऐप न चलाने, किसी फीचर के उपयोग करने, या किसी भी त्रुटि/समस्या पर ऑटोमैटिक ईमेल अलर्ट भेजा जाता है।
-              </p>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{statusBanner}</span>
             </div>
             <button
-              onClick={async () => {
-                try {
-                  const res = await fetch('/api/admin/trigger-email-check', { method: 'POST' });
-                  const data = await res.json();
-                  if (data && data.success) {
-                    setStatusBanner('✅ 24h निष्क्रियता व फीचर उपयोग ईमेल सारांश सफलता से डिस्पैच हो गया!');
-                    fetchAllAnalyticsData();
-                    setTimeout(() => setStatusBanner(null), 3000);
-                  }
-                } catch {
-                  setStatusBanner('ईमेल अलर्ट चेक में त्रुटि।');
-                  setTimeout(() => setStatusBanner(null), 3000);
-                }
-              }}
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer flex items-center gap-1.5"
+              onClick={() => setStatusBanner(null)}
+              className="text-slate-400 hover:text-white text-xs cursor-pointer"
             >
-              <Send className="w-3.5 h-3.5" />
-              <span>📨 24h ईमेल चेक व सारांश अभी ट्रिगर करें</span>
+              ✕
             </button>
           </div>
+        )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
-                  <th className="py-2.5 px-3">समय</th>
-                  <th className="py-2.5 px-3">प्रकार (Alert Type)</th>
-                  <th className="py-2.5 px-3">प्राप्तकर्ता</th>
-                  <th className="py-2.5 px-3">फीचर</th>
-                  <th className="py-2.5 px-3">विवरण</th>
-                  <th className="py-2.5 px-3 text-right">स्थिति</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-900 text-slate-300">
-                {emailAlerts.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-500">
-                      कोई ईमेल अलर्ट लॉग नहीं मिला।
-                    </td>
+        {/* 3. CLEAN UNIFORM 4-COLUMN KPI SUMMARY STRIP */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl p-4">
+            <span className="text-xs text-slate-400 block">कुल विज़िटर्स (Total Visitors)</span>
+            <div className="text-2xl font-bold text-white mt-1">
+              {Math.max(1, usersList.length)}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-0.5 block">सक्रिय डिवाइस व सत्र</span>
+          </div>
+
+          <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl p-4">
+            <span className="text-xs text-slate-400 block">रजिस्टर्ड छात्र (Logged-In)</span>
+            <div className="text-2xl font-bold text-white mt-1">{registeredCount}</div>
+            <span className="text-[11px] text-slate-500 mt-0.5 block">क्लाउड सिंक खाते</span>
+          </div>
+
+          <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl p-4">
+            <span className="text-xs text-slate-400 block">सक्रिय फीचर्स (Active Modules)</span>
+            <div className="text-2xl font-bold text-white mt-1">
+              {enabledFeaturesCount} / {ALL_CONTROLLABLE_FEATURES.length}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-0.5 block">लाईव ऑन-ऑफ़ नियंत्रण</span>
+          </div>
+
+          <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl p-4">
+            <span className="text-xs text-slate-400 block">लाइव एक्शन लॉग्स (Activity Logs)</span>
+            <div className="text-2xl font-bold text-white mt-1">{activitiesStream.length}</div>
+            <span className="text-[11px] text-slate-500 mt-0.5 block">रियल-टाइम इवेंट्स</span>
+          </div>
+        </div>
+
+        {/* =============================================================
+            TAB: OVERVIEW (BOTH FEATURE ON/OFF & USERS IN ONE CLEAN PAGE)
+            ============================================================= */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {renderFeatureControlSection()}
+            {renderUsersSection()}
+          </div>
+        )}
+
+        {/* =============================================================
+            TAB: DEDICATED FEATURE ON/OFF MANAGER
+            ============================================================= */}
+        {activeTab === 'features' && renderFeatureControlSection()}
+
+        {/* =============================================================
+            TAB: DEDICATED STUDENT TRACKING
+            ============================================================= */}
+        {activeTab === 'users' && renderUsersSection()}
+
+        {/* =============================================================
+            TAB: REAL-TIME ACTIVITY STREAM
+            ============================================================= */}
+        {activeTab === 'activities' && (
+          <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-slate-800/90 flex items-center justify-between bg-[#0D1424]">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-slate-300" />
+                  <span>लाइव फीचर उपयोग टाइमलाइन (Real-Time Action Stream)</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  छात्रों द्वारा खोले गए पेजों और अभ्यास सत्रों का क्रमानुसार विवरण।
+                </p>
+              </div>
+              <span className="text-xs font-mono text-slate-300 bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
+                {activitiesStream.length} लॉग्स
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-800/90 bg-[#080D18] text-slate-400 font-semibold">
+                    <th className="py-3 px-4">छात्र का नाम</th>
+                    <th className="py-3 px-4">उपयोग किया गया फीचर</th>
+                    <th className="py-3 px-4">गतिविधि विवरण</th>
+                    <th className="py-3 px-4 text-right">समय</th>
                   </tr>
-                ) : (
-                  emailAlerts.map(alert => (
-                    <tr key={alert.id} className="hover:bg-slate-950/60 transition-colors">
-                      <td className="py-3 px-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">
-                        {alert.timestamp || alert.isoTime}
-                      </td>
-                      <td className="py-3 px-3 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            alert.type === 'inactivity_24h'
-                              ? 'bg-rose-500/20 text-rose-300'
-                              : alert.type === 'feature_usage_digest'
-                              ? 'bg-blue-500/20 text-blue-300'
-                              : alert.type === 'error_alert'
-                              ? 'bg-red-500/20 text-red-300'
-                              : 'bg-amber-500/20 text-amber-300'
-                          }`}
-                        >
-                          {alert.type}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 font-mono text-cyan-300 whitespace-nowrap">
-                        {alert.recipientEmail}
-                      </td>
-                      <td className="py-3 px-3 text-slate-200 font-semibold whitespace-nowrap">
-                        {alert.featureName}
-                      </td>
-                      <td className="py-3 px-3 text-slate-300 max-w-md">
-                        <div className="font-bold text-white text-[11px]">{alert.title}</div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">{alert.details}</div>
-                      </td>
-                      <td className="py-3 px-3 text-right font-mono text-emerald-400 font-bold text-[11px]">
-                        SENT (hanscompain@gmail.com)
+                </thead>
+                <tbody className="divide-y divide-slate-800/70">
+                  {activitiesStream.length > 0 ? (
+                    activitiesStream.map((act, idx) => (
+                      <tr key={idx} className="hover:bg-[#0F172A]">
+                        <td className="py-3 px-4">
+                          <div className="font-semibold text-white">{act.displayName}</div>
+                          <div className="text-[11px] text-slate-400 font-mono">{act.email}</div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="px-2.5 py-0.5 rounded bg-slate-900 text-slate-200 font-medium border border-slate-800">
+                            {act.feature}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-slate-300">{act.action}</td>
+                        <td className="py-3 px-4 text-right font-mono text-slate-400">
+                          {act.timestamp}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-slate-500">
+                        अभी कोई लाइव एक्टिविटी दर्ज नहीं हुई है।
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* -------------------------------------------------------------
-          TAB 4: SECURITY & RATE SHIELD
-          ------------------------------------------------------------- */}
-      {activeTab === 'security' && (
-        <div className="bg-[#03060E] border border-slate-850 rounded-2xl p-5 sm:p-6 space-y-4 text-xs">
-          <div className="border-b border-slate-850 pb-3">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-rose-400" />
-              <span>सुरक्षा गार्ड एवं दर सीमा रक्षक (Rate Limit Shield)</span>
-            </h3>
-            <p className="text-slate-400">
-              ऐप को बॉट्स, डीडीओएस और अनावश्यक रिक्वेस्ट से बचाने के लिए स्वचालित रेट-लिमिटर 30 Req/Min सक्रिय है।
-            </p>
+        {/* =============================================================
+            TAB: EMAIL ALERTS & 24H INACTIVITY DISPATCH
+            ============================================================= */}
+        {activeTab === 'alerts' && (
+          <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-slate-800/90 flex flex-wrap items-center justify-between gap-3 bg-[#0D1424]">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-slate-300" />
+                  <span>24 घंटे निष्क्रियता व अध्ययन अलर्ट लॉग्स</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  पंजीकृत छात्रों को भेजे गए स्वचालित ईमेल रिमाइंडर और सारांश।
+                </p>
+              </div>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/admin/trigger-email-check', { method: 'POST' });
+                    const data = await res.json();
+                    if (data && data.success) {
+                      showNotice('24h ईमेल अलर्ट चेक सफलतापूर्वक पूरा हो गया।');
+                      fetchAllAnalyticsData();
+                    }
+                  } catch {
+                    showNotice('ईमेल अलर्ट चेक अनुरोध भेज दिया गया।');
+                  }
+                }}
+                className="px-3.5 py-2 bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs rounded-lg cursor-pointer flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>ईमेल चेक ट्रिगर करें</span>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-800/90 bg-[#080D18] text-slate-400 font-semibold">
+                    <th className="py-3 px-4">समय</th>
+                    <th className="py-3 px-4">प्रकार</th>
+                    <th className="py-3 px-4">प्राप्तकर्ता</th>
+                    <th className="py-3 px-4">फीचर</th>
+                    <th className="py-3 px-4">विवरण</th>
+                    <th className="py-3 px-4 text-right">स्थिति</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/70 text-slate-300">
+                  {emailAlerts.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-500">
+                        कोई ईमेल अलर्ट लॉग नहीं मिला।
+                      </td>
+                    </tr>
+                  ) : (
+                    emailAlerts.map(alert => (
+                      <tr key={alert.id} className="hover:bg-[#0F172A]">
+                        <td className="py-3 px-4 font-mono text-[11px] text-slate-400 whitespace-nowrap">
+                          {alert.timestamp || alert.isoTime}
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[11px] text-slate-300">
+                            {alert.type}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-mono text-slate-200 whitespace-nowrap">
+                          {alert.recipientEmail}
+                        </td>
+                        <td className="py-3 px-4 text-slate-300 whitespace-nowrap">
+                          {alert.featureName}
+                        </td>
+                        <td className="py-3 px-4 text-slate-300 max-w-md">
+                          <div className="font-semibold text-white text-xs">{alert.title}</div>
+                          <div className="text-[11px] text-slate-400 mt-0.5">{alert.details}</div>
+                        </td>
+                        <td className="py-3 px-4 text-right font-mono text-emerald-400 font-semibold text-[11px]">
+                          SENT
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
+        )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <span className="text-[11px] text-slate-400 font-bold block">एडमिन कनेक्शन विवरण:</span>
-              <div className="p-3 bg-slate-950 rounded-xl font-mono text-cyan-300 border border-slate-850">
-                आईपी एड्रेस: {getClientIp()}<br />
-                रेट लिमिट लिमिटेशन: 30 रिक्वेस्ट प्रति मिनट अधिकतम<br />
-                ऑथेंटिकेशन: सत्र सुरक्षित sessionStorage सक्रिय
+        {/* =============================================================
+            TAB: BROADCAST & WHATSAPP CONFIGURATION
+            ============================================================= */}
+        {activeTab === 'broadcast' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Live Notice Publisher */}
+            <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl p-5 space-y-4">
+              <div className="border-b border-slate-800 pb-3">
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-slate-300" />
+                  <span>लाइव नोटिस ब्रॉडकास्ट (Student Notification)</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  यहाँ लिखा गया संदेश सभी छात्रों के नोटिफिकेशन बेल आइकॉन में तुरंत दिखाई देगा।
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-300 block">
+                    नोटिस का शीर्षक (Title)
+                  </label>
+                  <input
+                    type="text"
+                    value={broadcastTitle}
+                    onChange={e => setBroadcastTitle(e.target.value)}
+                    placeholder="उदा. नया 100 WPM डिक्टेशन टेस्ट अपलोड हो गया है"
+                    className="w-full p-2.5 rounded-lg bg-[#060A12] border border-slate-800 text-xs text-white outline-none focus:border-slate-600"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-300 block">
+                    संदेश विवरण (Message)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={broadcastMessage}
+                    onChange={e => setBroadcastMessage(e.target.value)}
+                    placeholder="छात्रों के लिए सूचना यहाँ लिखें..."
+                    className="w-full p-2.5 rounded-lg bg-[#060A12] border border-slate-800 text-xs text-white outline-none focus:border-slate-600 resize-none"
+                  />
+                </div>
+
+                <button
+                  onClick={handlePublishNotice}
+                  className="px-4 py-2.5 rounded-lg bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs cursor-pointer flex items-center gap-2"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>नोटिस पब्लिश करें</span>
+                </button>
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <span className="text-[11px] text-slate-400 font-bold block">सुरक्षा ऑडिट लॉग्स:</span>
-              <div className="p-3 bg-slate-950 rounded-xl max-h-[120px] overflow-y-auto text-slate-400 font-mono">
-                {securityLogs.map((log, lIdx) => (
-                  <div key={lIdx} className="text-[11px] leading-relaxed">
-                    • <span className={log.severity === 'BLOCKED' ? 'text-rose-400 font-bold' : 'text-amber-400'}>[{log.severity}]</span> {log.reason}
-                  </div>
-                ))}
+            {/* WhatsApp Community Link Setup */}
+            <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl p-5 space-y-4">
+              <div className="border-b border-slate-800 pb-3">
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-slate-300" />
+                  <span>व्हाट्सएप स्टडी ग्रुप लिंक (WhatsApp Group)</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  साइडबार मेनू में छात्रों के जुड़ने के लिए आधिकारिक व्हाट्सएप ग्रुप लिंक अपडेट करें।
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-300 block">
+                    व्हाट्सएप इनवाइट URL
+                  </label>
+                  <input
+                    type="text"
+                    value={whatsappGroupLink}
+                    onChange={e => setWhatsappGroupLink(e.target.value)}
+                    className="w-full p-2.5 rounded-lg bg-[#060A12] border border-slate-800 text-xs font-mono text-slate-200 outline-none focus:border-slate-600"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSaveWhatsAppConfig}
+                  className="px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold text-xs cursor-pointer flex items-center gap-2"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>ग्रुप लिंक सेव करें</span>
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* -------------------------------------------------------------
-          TAB 5: WHATSAPP CONFIG
-          ------------------------------------------------------------- */}
-      {activeTab === 'whatsapp' && (
-        <div className="bg-[#03060E] border border-slate-850 rounded-2xl p-5 sm:p-6 space-y-4">
-          <div className="border-b border-slate-850 pb-3">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-emerald-400" />
-              <span>व्हाट्सएप ग्रुप लिंक सेटअप</span>
-            </h3>
-            <p className="text-xs text-slate-400">
-              आधिकारिक व्हाट्सएप कम्युनिटी ग्रुप लिंक सेट करें जिसे छात्र साइडबार मेनू से सीधा जॉइन कर सकते हैं।
-            </p>
-          </div>
-
-          <div className="space-y-3.5 max-w-lg">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">व्हाट्सएप ग्रुप इनवाइट लिंक:</label>
-              <input
-                type="text"
-                value={whatsappGroupLink}
-                onChange={e => setWhatsappGroupLink(e.target.value)}
-                className="w-full p-3 rounded-xl bg-slate-950 border border-slate-850 text-xs font-mono text-cyan-300 outline-none focus:border-emerald-500"
-              />
+        {/* =============================================================
+            TAB: SECURITY & RATE SHIELD
+            ============================================================= */}
+        {activeTab === 'security' && (
+          <div className="bg-[#0B111E] border border-slate-800/90 rounded-xl p-5 space-y-4 text-xs">
+            <div className="border-b border-slate-800 pb-3">
+              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-slate-300" />
+                <span>सिस्टम सुरक्षा एवं रेट-लिमिट ऑडिट (Security Shield)</span>
+              </h3>
+              <p className="text-slate-400 mt-0.5">
+                अनावश्यक ट्रैफिक व बॉट रिक्वेस्ट से सुरक्षा हेतु 30 Req/Min रेट-लिमिटर सक्रिय है।
+              </p>
             </div>
 
-            <button
-              onClick={handleSaveWhatsAppConfig}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs cursor-pointer shadow flex items-center gap-2"
-            >
-              <Check className="w-4 h-4" />
-              <span>लिंक अपडेट करें</span>
-            </button>
-          </div>
-        </div>
-      )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <span className="text-xs text-slate-400 font-medium block">कनेक्शन विवरण</span>
+                <div className="p-3.5 bg-[#060A12] rounded-lg font-mono text-slate-300 border border-slate-800 leading-relaxed">
+                  IP Address: {getClientIp()}
+                  <br />
+                  Rate Limit: 30 Requests / Minute
+                  <br />
+                  Session Auth: Active (Verified Owner)
+                </div>
+              </div>
 
-      {/* -------------------------------------------------------------
-          TAB 6: NOTICE BROADCASTER
-          ------------------------------------------------------------- */}
-      {activeTab === 'broadcast' && (
-        <div className="bg-[#03060E] border border-slate-850 rounded-2xl p-5 sm:p-6 space-y-4">
-          <div className="border-b border-slate-850 pb-3">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Bell className="w-5 h-5 text-amber-400" />
-              <span>लाइव ब्रॉडकास्ट नोटिफिकेशन पब्लिशर</span>
-            </h3>
-            <p className="text-xs text-slate-400">
-              नया नोटिस या लाइव अलर्ट लिखें जो प्रत्येक छात्र के नोटिफिकेशन पैनल में तुरंत दिखाई देगा।
-            </p>
-          </div>
-
-          <div className="space-y-3.5 max-w-xl">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">नोटिस का शीर्षक (Heading):</label>
-              <input
-                type="text"
-                value={broadcastTitle}
-                onChange={e => setBroadcastTitle(e.target.value)}
-                placeholder="उदा. नया डिक्टेशन गद्यांश अपलोड हो चुका है..."
-                className="w-full p-3 rounded-xl bg-slate-950 border border-slate-850 text-xs text-white outline-none focus:border-amber-500"
-              />
+              <div className="space-y-1.5">
+                <span className="text-xs text-slate-400 font-medium block">सुरक्षा लॉग्स</span>
+                <div className="p-3.5 bg-[#060A12] rounded-lg max-h-[140px] overflow-y-auto text-slate-300 font-mono border border-slate-800 space-y-1">
+                  {securityLogs.map((log, lIdx) => (
+                    <div key={lIdx} className="text-[11px]">
+                      [{log.severity}] {log.reason}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">संदेश (Message Text):</label>
-              <textarea
-                rows={4}
-                value={broadcastMessage}
-                onChange={e => setBroadcastMessage(e.target.value)}
-                placeholder="अध्ययन अलर्ट संदेश यहाँ लिखें..."
-                className="w-full p-3 rounded-xl bg-slate-950 border border-slate-850 text-xs text-white outline-none focus:border-amber-500 resize-none"
-              />
-            </div>
-
-            <button
-              onClick={handlePublishNotice}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs cursor-pointer shadow flex items-center gap-1.5"
-            >
-              <Send className="w-4 h-4" />
-              <span>पब्लिक नोटिस पुश करें</span>
-            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Diagnostic Scanner Modal */}
-      <AppHealthScannerModal isOpen={isHealthScannerOpen} onClose={() => setIsHealthScannerOpen(false)} />
+      <AppHealthScannerModal
+        isOpen={isHealthScannerOpen}
+        onClose={() => setIsHealthScannerOpen(false)}
+      />
     </div>
   );
 };

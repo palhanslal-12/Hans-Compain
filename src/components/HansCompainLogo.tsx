@@ -155,16 +155,16 @@ export const HansCompainLogo = ({
   }
 
   return (
-    <div className="flex items-center gap-2 cursor-pointer select-none group">
+    <div className="flex items-center gap-2 cursor-pointer select-none group shrink-0">
       <div className="relative inline-flex items-center justify-center p-0.5 bg-[#0C1527] border border-cyan-500/40 rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105 shrink-0 overflow-hidden">
         <OfficialHansCompainLogoSVG className={className} />
       </div>
-      <div className="flex flex-col text-left leading-tight min-w-0">
-        <div className="font-black text-xs sm:text-sm tracking-wide group-hover:text-cyan-200 transition-colors uppercase font-brand truncate">
+      <div className="flex flex-col text-left leading-tight shrink-0">
+        <div className="font-black text-sm sm:text-base tracking-wide group-hover:text-cyan-200 transition-colors uppercase font-brand whitespace-nowrap">
           <span className="text-[#3B82F6]">HANS</span> <span className="text-[#10B981]">COMPAIN</span>
         </div>
         {showSubtitle && (
-          <span className="text-[8px] sm:text-[9px] text-cyan-400 font-extrabold tracking-wider uppercase mt-0.5 truncate">
+          <span className="text-[8px] sm:text-[9px] text-cyan-400 font-extrabold tracking-wider uppercase mt-0.5 whitespace-nowrap">
             हर सपने को मिलेगी उड़ान!
           </span>
         )}

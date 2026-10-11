@@ -1,11 +1,11 @@
 import React from 'react';
 import { X, Award, Flame, CheckCircle2, BookOpen } from 'lucide-react';
-import { auth, getLocalActivities } from '../firebase';
+import { getEffectiveUser, getLocalActivities } from '../firebase';
 
 export const UserProfileModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   if (!isOpen) return null;
 
-  const user = auth.currentUser;
+  const user = getEffectiveUser();
   const activities = getLocalActivities();
   const totalSolved = activities.length + 24;
   const avgAccuracy =

@@ -153,16 +153,55 @@ interface FeatureGuideItem {
 
 const appFeatureDirectory: FeatureGuideItem[] = [
   {
+    id: 'f-home-chat',
+    viewId: 'ai-chat',
+    location: 'home',
+    name: '💬 होमपेज स्मार्ट चैट बॉक्स एवं AI डाउट सॉल्वर',
+    badge: 'HOME BOTTOM BAR & 3-LINE MENU',
+    summary: 'होमपेज के नीचे स्थित ऑल-इन-वन स्मार्ट चैट बार: बोलकर (Mic), फोटो खींचकर (Camera OCR), PDF जोड़कर (Paperclip) या टाइप करके किसी भी विषय व ऐप के बारे में पूछें।',
+    steps: [
+      'Step 1: होमपेज के निचले चैट बॉक्स में अपना सवाल (गणित, विज्ञान, जीके, इंग्लिश, स्टेनोग्राफी या ऐप गाइड) लिखें या माइक 🎙️ दबाकर बोलें।',
+      'Step 2: हस्तलिखित नोट्स स्कैन करने के लिए 📷 कैमरा आइकन दबाएं या PDF/फोटो जोड़ने के लिए 📎 पेपरक्लिप दबाएं।',
+      'Step 3: AI तुरंत आपकी भाषा (हिंदी/English) में विस्तृत समाधान देगा, जिसे आप 🔊 सुन सकते हैं और उसी पर 5 Live MCQs व शॉर्ट ट्रिक बना सकते हैं।'
+    ]
+  },
+  {
     id: 'f-steno',
     viewId: 'steno-master',
     location: 'home',
     name: '✍️ ALL STENOGRAPHER • सम्पूर्ण आशुलिपि',
     badge: 'HOME BANNER & 3-LINE MENU',
-    summary: '80/100 WPM ऑडियो डिक्टेशन, ऋषि प्रणाली शब्द-चिह्न, तथा फुल-स्क्रीन (Full-Screen) ट्रांसक्रिप्शन व सटीकता जांच बोर्ड।',
+    summary: '60/80/100/120 WPM ऑडियो डिक्टेशन, ऋषि प्रणाली शब्द-चिह्न, तथा फुल-स्क्रीन (Full-Screen) ट्रांसक्रिप्शन व सटीकता जांच बोर्ड।',
     steps: [
       'Step 1: होमपेज के नीले कैप्सूल बैनर या 3-लाइन मेनू में "All Stenographer" पर क्लिक करें।',
       'Step 2: गति (60/80/100 WPM), गद्यांश या "⛶ फुल-स्क्रीन प्रैक्टिस बोर्ड" चुनें।',
       'Step 3: ऑडियो सुनकर शॉर्टहैंड लिखें, फिर टाइप करके लाइव WPM और त्रुटि प्रतिशत (Error %) जांचें।'
+    ]
+  },
+  {
+    id: 'f-ca',
+    viewId: 'ca',
+    location: 'home',
+    name: '📰 करंट अफेयर्स 2026 (Full-Page PIB & The Hindu Hub)',
+    badge: 'HOME GRID CARD #1',
+    summary: 'फुल-पेज एडिटोरियल रीडर, हिंदी ⇄ English अनुवाद, मानवीय आवाज़ में ऑडियो वाचन, AI नया आर्टिकल जनरेटर, क्लिकेबल वर्ड डिक्शनरी और इन-आर्टिकल डाउट सॉल्वर।',
+    steps: [
+      'Step 1: होमपेज पर "करंट अफेयर्स 2026" कार्ड खोलें और कोई भी PIB/The Hindu संपादकीय चुनें।',
+      'Step 2: ऊपर दिए गए टूलबार से फ़ॉन्ट आकार (छोटा/मध्यम/बड़ा), हिंदी ⇄ English अनुवाद, या 🔊 मानवीय न्यूरल वॉइस रीडर चलाएं।',
+      'Step 3: किसी भी शब्द पर क्लिक करके उसका हिंदी-अंग्रेजी अर्थ सुनें या नीचे दिए गए डाउट बॉक्स में आर्टिकल से जुड़ा कोई भी सवाल पूछें।'
+    ]
+  },
+  {
+    id: 'f-science',
+    viewId: 'science-lab',
+    location: 'home',
+    name: '🔬 42+ इंटरएक्टिव साइंस लैब (NCERT, NEET, JEE, SSC & UPSC)',
+    badge: 'HOME GRID CARD #4',
+    summary: 'भौतिकी, रसायन, जीव विज्ञान, भूगोल/अंतरिक्ष, गणित व क्वांटम/AI की 42 लाइव वर्चुअल प्रयोगशालाएं।',
+    steps: [
+      'Step 1: साइंस लैब खोलें और 6 श्रेणियों (Physics, Chemistry, Biology, Geography, Math, Future AI/Quantum) में से कोई भी प्रयोगशाला चुनें।',
+      'Step 2: दोनों स्लाइडर्स (Parameter 1 व Parameter 2) को हिलाकर मान बदलें।',
+      'Step 3: लाइव वैज्ञानिक उपकरण एनिमेशन, डिजिटल मीटर रीडिंग और परीक्षा वाइवा तथ्य देखें व सुनें।'
     ]
   },
   {
@@ -179,29 +218,16 @@ const appFeatureDirectory: FeatureGuideItem[] = [
     ]
   },
   {
-    id: 'f-ca',
-    viewId: 'ca',
-    location: 'home',
-    name: '📰 करंट अफेयर्स 2026 (Daily 10 Facts & Quiz)',
-    badge: 'HOME GRID CARD #1',
-    summary: 'डेली 10 गोल्डन वन-लाइनर्स, राष्ट्रीय/अंतर्राष्ट्रीय समाचार विश्लेषण और लाइव करंट अफेयर्स एमसीक्यू टेस्ट।',
+    id: 'f-admin',
+    viewId: 'admin',
+    location: 'drawer',
+    name: '🛡️ फुल-पेज एडमिन कंट्रोल पैनल (Feature ON/OFF Console)',
+    badge: '3-LINE MENU (ADMIN)',
+    summary: 'ऐप के सभी 14 फीचर्स को एक क्लिक में चालू (ON) या बंद (OFF) करने और लाइव छात्रों की गतिविधि देखने का क्लीन कंट्रोल सेंटर।',
     steps: [
-      'Step 1: होमपेज पर "करंट अफेयर्स 2026" कार्ड पर क्लिक करें।',
-      'Step 2: श्रेणी (राष्ट्रीय, आर्थिक, विज्ञान, खेल) चुनें या डेली 10 गोल्डन फैक्ट्स पढ़ें व सुनें।',
-      'Step 3: "लाइव क्विज़ मोड" टैब में जाकर आज के करंट अफेयर्स प्रश्नों का टेस्ट दें।'
-    ]
-  },
-  {
-    id: 'f-science',
-    viewId: 'science-lab',
-    location: 'home',
-    name: '🔬 इंटरएक्टिव साइंस लैब (Circuit, Lens & Periodic)',
-    badge: 'HOME GRID CARD #4',
-    summary: 'ओम का नियम सर्किट सिमुलेटर, उत्तल/अवतल लेंस रे-डायग्राम, pH स्केल और 118 तत्वों का 3D परमाणु मॉडल।',
-    steps: [
-      'Step 1: साइंस लैब खोलें और 4 प्रयोगशालाओं (सर्किट, ऑप्टिक्स लेंस, pH लैब, आवर्त सारणी) में से एक चुनें।',
-      'Step 2: स्लाइडर से वोल्टेज, प्रतिरोध, वस्तु दूरी (u) या pH मान बदलें।',
-      'Step 3: लाइव ग्राफ/किरण आरेख देखें और फॉर्मूला कैलकुलेटर से गणना करें।'
+      'Step 1: 3-लाइन मेनू में नीचे "Owner Admin Console" पर क्लिक करें।',
+      'Step 2: "फीचर्स ऑन/ऑफ कंट्रोल" टैब में किसी भी फीचर के सामने दिए गए बटन से उसे ON या OFF करें।',
+      'Step 3: "छात्र एवं विज़िटर रिकॉर्ड्स" टैब में पंजीकृत छात्रों और ईमेल अलर्ट्स की स्थिति देखें।'
     ]
   },
   {
@@ -858,8 +884,46 @@ export const AIDoubtSolverView: React.FC<{
                 ऐप इंस्ट्रक्शन व गाइड असिस्टेंट (Feature Map &amp; Workflow) 🧭
               </h1>
               <p className="text-xs sm:text-sm text-slate-300">
-                जानें कौन-सा फीचर कहाँ स्थित है (Home Dashboard, 3-Line Menu, Apps Launcher) और प्रत्येक टूल 3 चरणों में कैसे काम करता है।
+                जानें कौन-सा फीचर कहाँ स्थित है (Home Dashboard, 3-Line Menu, Apps Launcher) और होमपेज चैट बॉक्स में क्या-क्या बताया जाता है।
               </p>
+            </div>
+            <button
+              onClick={() =>
+                speakText(
+                  'नमस्ते! मैं हंस कॉम्पैन एआई हूँ। इस ऐप के संस्थापक हंसलाल पाल हैं। होमपेज पर दिए गए चैट बॉक्स में आप 7 प्रमुख कार्य कर सकते हैं: पहला, किसी भी विषय जैसे गणित, विज्ञान, जीके, इतिहास, संविधान और इंग्लिश ग्रामर के डाउट पूछना। दूसरा, शॉर्टहैंड और आशुलिपि के नियम व आउटलाइन पूछना। तीसरा, फोटो या पीडीएफ अपलोड करके हस्तलिखित नोट्स और सवालों का हल पाना। चौथा, माइक से बोलकर सवाल पूछना और नेचुरल आवाज में उत्तर सुनना। पांचवां, निमोनिक्स और याद करने की ट्रिक्स बनवाना। छठा, करंट अफेयर्स और परीक्षा सिलेबस की जानकारी लेना। और सातवां, ऐप के सभी 24 फीचर्स और 42 साइंस लैब्स की पूरी गाइड प्राप्त करना।'
+                )
+              }
+              className="px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-lg shrink-0 self-start sm:self-auto"
+            >
+              <Volume2 className="w-4 h-4" />
+              <span>🔊 ऐप व चैट बॉक्स का परिचय सुनें</span>
+            </button>
+          </div>
+
+          {/* Dedicated Overview Box: What the App & Home Page Chat Box Tell */}
+          <div className="p-4 rounded-2xl bg-slate-950/90 border border-cyan-500/30 space-y-2.5 text-xs text-slate-200">
+            <div className="font-black text-cyan-300 text-xs sm:text-sm flex items-center gap-2">
+              <span>💬 होमपेज के चैट बॉक्स ("हंस कॉम्पैन से कुछ भी पूछें...") में क्या-क्या बताया जाता है?</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] sm:text-xs text-slate-300">
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-amber-300">1. सभी विषयों का AI डाउट समाधान:</strong> गणित (Math), विज्ञान (Physics, Chemistry, Biology), इतिहास, भूगोल, संविधान (Polity), अर्थशास्त्र और English Grammar का स्टेप-बाय-स्टेप हल।
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-cyan-300">2. शॉर्टहैंड एवं आशुलिपि (Steno) गाइड:</strong> ऋषि प्रणाली (हिंदी) व पिटमैन (अंग्रेजी) के नियम, रेखाक्षर, आंकड़े, शब्द-चिन्ह और 60–120 WPM स्पीड बढ़ाने के टिप्स।
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-emerald-300">3. 📎 फोटो, PDF और हस्तलिखित नोट्स स्कैनर:</strong> चैट बॉक्स के पिन (📎) या कैमरा (📷) आइकन से किसी भी कठिन सवाल या कॉपी के पेज की फोटो/PDF भेजकर तुरंत उत्तर व व्याख्या पाएं।
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-purple-300">4. 🎙️ बोलकर पूछें व 🔊 आवाज में सुनें:</strong> माइक आइकन दबाकर हिंदी या अंग्रेजी में बोलकर सवाल पूछें और नेचुरल भारतीय आवाज में पूरा उत्तर सुनें।
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-rose-300">5. परीक्षा मार्गदर्शन व ट्रिक्स:</strong> SSC, UPSC, BPSC, Railway, Banking, NEET, JEE और 10th/12th बोर्ड परीक्षाओं के सूत्र, निमोनिक्स (Mnemonics) और तैयारी की रणनीति।
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-indigo-300">6. ऐप परिचय (Self-Guide):</strong> चैट बॉक्स में <em>"अपने बारे में बताओ"</em> लिखने पर यह पूरे HANS COMPAIN ऐप के 24+ टूल्स और 42 साइंस लैब्स की पूरी जानकारी देता है।
+              </div>
             </div>
           </div>
 
@@ -1089,7 +1153,16 @@ export const AIDoubtSolverView: React.FC<{
 
       {/* Quick Prompt Chips */}
       <div className="px-4 py-2.5 bg-slate-950/80 border-b border-slate-800/80 flex items-center gap-2 overflow-x-auto shrink-0">
+        {onNavigate && (
+          <button
+            onClick={() => onNavigate('app-guide')}
+            className="px-3 py-1 rounded-full bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/50 text-[11px] font-bold text-indigo-200 hover:text-white whitespace-nowrap cursor-pointer transition-all"
+          >
+            🧭 ऐप इंस्ट्रक्शन व गाइड खोलें
+          </button>
+        )}
         {[
+          'अपने बारे में और इस ऐप के सभी फीचर्स के बारे में बताओ',
           'ओम का नियम और सूत्र उदाहरण सहित समझाएं',
           'ऋषि प्रणाली में स-वृत्त और श-वृत्त का अंतर',
           'SSC Steno में क्लोज टेस्ट हल करने की ट्रिक',

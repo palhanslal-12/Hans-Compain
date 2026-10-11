@@ -30,7 +30,7 @@ import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 export interface ScienceLabConfig {
   id: string;
   number: number;
-  category: 'physics' | 'chemistry' | 'biology' | 'geography' | 'mathematics';
+  category: 'physics' | 'chemistry' | 'biology' | 'geography' | 'mathematics' | 'future';
   categoryLabel: string;
   title: string;
   subtitle: string;
@@ -1293,13 +1293,412 @@ export const ALL_28_SCIENCE_LABS: ScienceLabConfig[] = [
       'दो बिंदुओं (x₁, y₁) और (x₂, y₂) से गुजरने वाली रेखा की ढाल m = (y₂ - y₁) / (x₂ - x₁) होती है।',
       'यदि दो रेखाएं परस्पर लंबवत हैं, तो उनकी ढाल का गुणनफल -1 होता है (m₁ × m₂ = -1)।'
     ]
+  },
+  // ===================== ADVANCED COMPETITIVE & FUTURE-READY LABS (33–42) =====================
+  {
+    id: 'photoelectric-decay',
+    number: 33,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Modern Physics)',
+    title: 'आधुनिक भौतिकी: प्रकाश-विद्युत प्रभाव एवं रेडियोधर्मी क्षय लैब',
+    subtitle: 'Photoelectric Effect (E = hf - Φ) & Radioactive Half-Life Simulator',
+    icon: '☢️',
+    badge: 'MODERN PHYSICS',
+    formula: 'KE_max = hν - Φ₀   |   N(t) = N₀ (1/2)^(t / T₁/₂)',
+    param1Label: 'आपतित फोटॉन ऊर्जा (Photon Energy hν)',
+    param1Unit: 'eV',
+    param1Min: 1.0,
+    param1Max: 10.0,
+    param1Default: 5.0,
+    param2Label: 'धातु का कार्य फलन (Work Function Φ₀)',
+    param2Unit: 'eV',
+    param2Min: 1.5,
+    param2Max: 5.0,
+    param2Default: 2.2,
+    computeResult: (hv, phi) => {
+      const ke = Math.max(0, hv - phi);
+      return {
+        primaryLabel: 'अधिकतम गतिज ऊर्जा (KE_max)',
+        primaryValue: ke > 0 ? `${ke.toFixed(2)} eV (इलेक्ट्रॉन उत्सर्जित)` : '0.00 eV (उत्सर्जन नहीं)',
+        secondaryLabel: 'निरोधी विभव (Stopping Potential V₀)',
+        secondaryValue: `${ke.toFixed(2)} V`,
+        statusText:
+          hv >= phi
+            ? 'आइंस्टीन समीकरण सत्यापित: आपतित फोटॉन ऊर्जा कार्य फलन से अधिक है, फोटो-इलेक्ट्रॉन उत्सर्जन सक्रिय!'
+            : 'देहली आवृत्ति (Threshold Frequency) से कम ऊर्जा: कोई इलेक्ट्रॉन उत्सर्जित नहीं होगा।'
+      };
+    },
+    examFacts: [
+      'अल्बर्ट आइंस्टीन को 1921 का नोबेल पुरस्कार "प्रकाश-विद्युत प्रभाव" (Photoelectric Effect) की व्याख्या के लिए मिला था।',
+      'सीज़ियम (Cesium) का कार्य फलन सबसे कम (1.9 eV) होता है, इसलिए इसका उपयोग फोटो-सेल में किया जाता है।'
+    ]
+  },
+  {
+    id: 'carnot-thermodynamics',
+    number: 34,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Thermodynamics)',
+    title: 'ऊष्मागतिकी: कार्नो इंजन दक्षता एवं गैस नियम लैब',
+    subtitle: 'Heat Engine, Carnot Cycle Efficiency (η = 1 - T₂/T₁) & Ideal Gas Law',
+    icon: '🔥',
+    badge: 'THERMODYNAMICS',
+    formula: 'η = (1 - T_sink / T_source) × 100%   |   W = Q₁ - Q₂',
+    param1Label: 'स्रोत का तापमान (Source Temp T₁)',
+    param1Unit: 'K',
+    param1Min: 400,
+    param1Max: 1200,
+    param1Default: 800,
+    param2Label: 'सिंक का तापमान (Sink Temp T₂)',
+    param2Unit: 'K',
+    param2Min: 200,
+    param2Max: 500,
+    param2Default: 300,
+    computeResult: (t1, t2) => {
+      const eff = t1 > t2 ? ((t1 - t2) / t1) * 100 : 0;
+      return {
+        primaryLabel: 'कार्नो इंजन दक्षता (Efficiency η)',
+        primaryValue: `${eff.toFixed(1)}%`,
+        secondaryLabel: 'तापमान अंतर (ΔT = T₁ - T₂)',
+        secondaryValue: `${Math.max(0, t1 - t2)} K`,
+        statusText:
+          'किसी भी ऊष्मा इंजन की दक्षता 100% नहीं हो सकती क्योंकि T₂ (सिंक तापमान) शून्य केल्विन (0 K) संभव नहीं है।'
+      };
+    },
+    examFacts: [
+      'ऊष्मागतिकी का प्रथम नियम "ऊर्जा संरक्षण" (ΔQ = ΔU + ΔW) को दर्शाता है।',
+      'कार्नो चक्र (Carnot Cycle) में दो समतापी (Isothermal) और दो रुद्धोष्म (Adiabatic) प्रक्रम होते हैं।'
+    ]
+  },
+  {
+    id: 'inorganic-salt-analysis',
+    number: 35,
+    category: 'chemistry',
+    categoryLabel: 'रसायन विज्ञान (Inorganic Chemistry)',
+    title: 'अकार्बनिक रसायन: लवण विश्लेषण एवं ज्वाला परीक्षण लैब',
+    subtitle: 'Inorganic Salt Analysis, Flame Test & Qualitative Cation/Anion Titration',
+    icon: '🧪',
+    badge: 'SALT ANALYSIS',
+    formula: 'Cu²⁺ + 4NH₃ → [Cu(NH₃)₄]²⁺ (गहरा नीला) | Ba²⁺ (सेब जैसा हरा ज्वाला रंग)',
+    param1Label: 'धातु धनायन चयन (1=Cu²⁺, 2=Fe³⁺, 3=Ba²⁺, 4=Na⁺)',
+    param1Unit: 'Ion',
+    param1Min: 1,
+    param1Max: 4,
+    param1Default: 1,
+    param2Label: 'अभिकर्मक सांद्रता (Reagent Molarity)',
+    param2Unit: 'M',
+    param2Min: 0.5,
+    param2Max: 5.0,
+    param2Default: 2.0,
+    computeResult: (ionCode, mol) => {
+      const code = Math.round(ionCode);
+      const map: Record<number, { name: string; flame: string; ppt: string }> = {
+        1: { name: 'कॉपर (Cu²⁺)', flame: 'नीला-हरा (Bluish-Green)', ppt: 'गहरा नीला संकुल [Cu(NH₃)₄]²⁺' },
+        2: { name: 'फेरिक आयरन (Fe³⁺)', flame: 'सुनहरी चिंगारी', ppt: 'लाल-भूरा अवक्षेप Fe(OH)₃' },
+        3: { name: 'बेरियम (Ba²⁺)', flame: 'सेब जैसा हरा (Apple Green)', ppt: 'श्वेत अवक्षेप BaSO₄' },
+        4: { name: 'सोडियम (Na⁺)', flame: 'सुनहरा पीला (Golden Yellow)', ppt: 'जल में पूर्णतः विलेय' }
+      };
+      const item = map[code] || map[1];
+      return {
+        primaryLabel: `पहचाना गया धनायन: ${item.name}`,
+        primaryValue: `ज्वाला रंग: ${item.flame}`,
+        secondaryLabel: `अवक्षेप परिणाम (${mol.toFixed(1)} M पर)`,
+        secondaryValue: item.ppt,
+        statusText: 'बुन्सन बर्नर ज्वाला परीक्षण और समूह अभिकर्मक से लवण के अम्लीय व क्षारीय मूलकों की सटीक पहचान।'
+      };
+    },
+    examFacts: [
+      'बेरियम (Ba) के कारण आतिशबाजी में हरा रंग और स्ट्रॉन्शियम (Sr) के कारण गहरा लाल रंग उत्पन्न होता है।',
+      'भूरा वलय परीक्षण (Brown Ring Test) नाइट्रेट आयन (NO₃⁻) की पहचान के लिए किया जाता है।'
+    ]
+  },
+  {
+    id: 'microbiology-gram-stain',
+    number: 36,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Microbiology)',
+    title: 'सूक्ष्मजीव विज्ञान: ग्राम अभिरंजन एवं जीवाणु वृद्धि लैब',
+    subtitle: 'Microbiology Gram Staining (Positive vs Negative) & Bacterial Growth Curve',
+    icon: '🦠',
+    badge: 'MICROBIOLOGY LAB',
+    formula: 'N(t) = N₀ × 2^(t / g)   |   Crystal Violet + Iodine Stain',
+    param1Label: 'संवर्धन समय (Incubation Time t)',
+    param1Unit: 'hr',
+    param1Min: 1,
+    param1Max: 12,
+    param1Default: 5,
+    param2Label: 'जीवाणु प्रकार (1 = Gram +ve बैंगनी, 2 = Gram -ve गुलाबी)',
+    param2Unit: 'Type',
+    param2Min: 1,
+    param2Max: 2,
+    param2Default: 1,
+    computeResult: (hrs, typeCode) => {
+      const isPos = Math.round(typeCode) === 1;
+      const colonies = Math.pow(2, hrs);
+      return {
+        primaryLabel: isPos ? 'ग्राम-पॉजिटिव (Gram +ve Bacteria)' : 'ग्राम-नेगेटिव (Gram -ve Bacteria)',
+        primaryValue: isPos ? 'गहरा बैंगनी (Crystal Violet)' : 'गुलाबी-लाल (Safranin Counterstain)',
+        secondaryLabel: 'जीवाणु कॉलोनी गुणन (2ⁿ)',
+        secondaryValue: `${colonies}x वृद्धि (${hrs} घंटे में)`,
+        statusText: isPos
+          ? 'मोटी पेप्टिडोग्लाइकन (Peptidoglycan) कोशिका भित्ति के कारण क्रिस्टल वायलेट रंग बना रहता है।'
+          : 'पतली पेप्टिडोग्लाइकन व लिपिड परत के कारण अल्कोहल से धोने पर प्राथमिक रंग निकल जाता है।'
+      };
+    },
+    examFacts: [
+      'क्रिश्चियन ग्राम (Christian Gram) ने 1884 में जीवाणुओं के वर्गीकरण हेतु ग्राम स्टेनिंग तकनीक विकसित की।',
+      'पेनिसिलिन (Penicillin) एंटीबायोटिक जीवाणु की पेप्टिडोग्लाइकन कोशिका भित्ति के निर्माण को रोकता है।'
+    ]
+  },
+  {
+    id: 'atmosphere-coriolis',
+    number: 37,
+    category: 'geography',
+    categoryLabel: 'भूगोल एवं अंतरिक्ष (Atmosphere Lab)',
+    title: 'वायुमंडलीय परतें, दाब पेटियां एवं कोरिओलिस बल लैब',
+    subtitle: 'Atmosphere Layers, Pressure Belts & Coriolis Effect Deflection Simulator',
+    icon: '🌪️',
+    badge: 'ATMOSPHERE & CLIMATE',
+    formula: 'F_coriolis = 2 m v ω sin(φ)   |   Lapse Rate = -6.5°C / km',
+    param1Label: 'अक्षांश कोण (Latitude φ)',
+    param1Unit: '°',
+    param1Min: 0,
+    param1Max: 90,
+    param1Default: 45,
+    param2Label: 'ऊँचाई (Altitude above Sea Level)',
+    param2Unit: 'km',
+    param2Min: 1,
+    param2Max: 85,
+    param2Default: 12,
+    computeResult: (lat, alt) => {
+      const sinLat = Math.sin((lat * Math.PI) / 180);
+      const layer =
+        alt <= 15
+          ? 'क्षोभमंडल (Troposphere)'
+          : alt <= 50
+          ? 'समतापमंडल (Stratosphere - ओजोन परत)'
+          : 'मध्यमंडल (Mesosphere)';
+      return {
+        primaryLabel: 'सक्रिय वायुमंडलीय परत',
+        primaryValue: layer,
+        secondaryLabel: 'कोरिओलिस विक्षेपण सूचकांक (sin φ)',
+        secondaryValue: `${(sinLat * 100).toFixed(0)}% (ध्रुवों पर अधिकतम, विषुवत पर 0)`,
+        statusText:
+          'फेरेल के नियम अनुसार कोरिओलिस बल के कारण उत्तरी गोलार्ध में हवाएं अपनी दाईं ओर तथा दक्षिणी गोलार्ध में बाईं ओर मुड़ जाती हैं।'
+      };
+    },
+    examFacts: [
+      'विषुवत रेखा (Equator 0°) पर कोरिओलिस बल शून्य होता है, इसलिए वहाँ उष्णकटिबंधीय चक्रवात नहीं बनते।',
+      'समतापमंडल (Stratosphere) में 15-35 किमी की ऊँचाई पर ओजोन परत (O₃) पाई जाती है जो UV किरणों को रोकती है।'
+    ]
+  },
+  {
+    id: 'math-trigonometry-wave',
+    number: 38,
+    category: 'mathematics',
+    categoryLabel: 'गणित एवं ज्यामिति (Trigonometry)',
+    title: 'त्रिकोणमिति: इकाई वृत्त (Unit Circle) एवं साइन/कोसाइन तरंग लैब',
+    subtitle: 'Trigonometry Unit Circle, Sine/Cosine Wave Dynamics & sin²θ + cos²θ = 1',
+    icon: '〰️',
+    badge: 'TRIGONOMETRY LAB',
+    formula: 'sin²θ + cos²θ = 1   |   tan θ = sin θ / cos θ',
+    param1Label: 'कोण थीटा (Angle θ)',
+    param1Unit: '°',
+    param1Min: 0,
+    param1Max: 360,
+    param1Default: 60,
+    param2Label: 'तरंग आयाम (Wave Amplitude A)',
+    param2Unit: 'units',
+    param2Min: 1,
+    param2Max: 10,
+    param2Default: 5,
+    computeResult: (deg, amp) => {
+      const rad = (deg * Math.PI) / 180;
+      const s = Math.sin(rad);
+      const c = Math.cos(rad);
+      return {
+        primaryLabel: `sin(${deg}°) एवं cos(${deg}°)`,
+        primaryValue: `sin = ${s.toFixed(3)} | cos = ${c.toFixed(3)}`,
+        secondaryLabel: 'सर्वसमिका सत्यापन (sin²θ + cos²θ)',
+        secondaryValue: `${(s * s + c * c).toFixed(2)} (आयाम Y = ${(amp * s).toFixed(2)})`,
+        statusText: 'इकाई वृत्त (Unit Circle) पर किसी भी कोण θ के लिए X-निर्देशांक cos θ और Y-निर्देशांक sin θ दर्शाता है।'
+      };
+    },
+    examFacts: [
+      'प्रथम चतुर्थांश (0°–90°) में सभी त्रिकोणमितीय अनुपात धनात्मक (All Positive - ASTC Rule) होते हैं।',
+      'sin θ और cos θ का मान सदैव -1 और +1 के बीच रहता है।'
+    ]
+  },
+  {
+    id: 'math-probability-stats',
+    number: 39,
+    category: 'mathematics',
+    categoryLabel: 'गणित एवं सांख्यिकी (Statistics & Probability)',
+    title: 'सांख्यिकी एवं प्रायिकता: पासा, सिक्का वितरण व मानक विचलन लैब',
+    subtitle: 'Probability Distribution, Dice/Coin Toss & Standard Deviation Simulator',
+    icon: '🎲',
+    badge: 'PROBABILITY & STATS',
+    formula: 'P(E) = n(E) / n(S)   |   σ = √[ Σ(x - μ)² / N ]',
+    param1Label: 'कुल परीक्षण संख्या (Number of Trials N)',
+    param1Unit: 'rolls',
+    param1Min: 10,
+    param1Max: 500,
+    param1Default: 120,
+    param2Label: 'अनुकूल परिणाम लक्ष्य (Target Sum on 2 Dice)',
+    param2Unit: 'sum',
+    param2Min: 2,
+    param2Max: 12,
+    param2Default: 7,
+    computeResult: (trials, targetSum) => {
+      const s = Math.round(targetSum);
+      const ways = 6 - Math.abs(7 - s);
+      const prob = ways / 36;
+      const expected = Math.round(trials * prob);
+      return {
+        primaryLabel: `योग ${s} आने की सैद्धांतिक प्रायिकता P(E)`,
+        primaryValue: `${ways}/36 (${(prob * 100).toFixed(1)}%)`,
+        secondaryLabel: `${trials} उछालों में संभावित सफलता`,
+        secondaryValue: `≈ ${expected} बार`,
+        statusText:
+          s === 7
+            ? 'दो पासों को फेंकने पर योग 7 आने की प्रायिकता सर्वाधिक (6/36 = 1/6) होती है!'
+            : 'किसी भी घटना की प्रायिकता सदैव 0 और 1 के बीच होती है: 0 ≤ P(E) ≤ 1।'
+      };
+    },
+    examFacts: [
+      'दो पासों को एक साथ उछालने पर कुल संभावित परिणाम n(S) = 6² = 36 होते हैं।',
+      'प्रसरण (Variance) का धनात्मक वर्गमूल "मानक विचलन" (Standard Deviation σ) कहलाता है।'
+    ]
+  },
+  {
+    id: 'quantum-superposition',
+    number: 40,
+    category: 'future',
+    categoryLabel: 'भविष्य की प्रयोगशालाएं (Quantum & AI)',
+    title: 'क्वांटम भौतिकी: सुपरपोजिशन (Qubit) एवं एंटैंगलमेंट लैब',
+    subtitle: 'Quantum Superposition |ψ⟩ = α|0⟩ + β|1⟩ & Quantum Entanglement Visualizer',
+    icon: '⚛️',
+    badge: 'QUANTUM LAB',
+    formula: '|ψ⟩ = α|0⟩ + β|1⟩   |   |α|² + |β|² = 1',
+    param1Label: 'क्यूबिट कला कोण (Bloch Sphere θ)',
+    param1Unit: '°',
+    param1Min: 0,
+    param1Max: 180,
+    param1Default: 90,
+    param2Label: 'एंटैंगलमेंट सहसंबंध (Entanglement Coherence)',
+    param2Unit: '%',
+    param2Min: 10,
+    param2Max: 100,
+    param2Default: 95,
+    computeResult: (theta, coh) => {
+      const rad = (theta * Math.PI) / 180;
+      const p0 = Math.pow(Math.cos(rad / 2), 2) * 100;
+      const p1 = Math.pow(Math.sin(rad / 2), 2) * 100;
+      return {
+        primaryLabel: 'अवस्था प्रायिकता (|0⟩ बनाम |1⟩)',
+        primaryValue: `P(|0⟩) = ${p0.toFixed(1)}% | P(|1⟩) = ${p1.toFixed(1)}%`,
+        secondaryLabel: 'क्वांटम सुसंगतता (Bell Fidelity)',
+        secondaryValue: `${coh}% Entangled`,
+        statusText:
+          theta === 90
+            ? 'आदर्श हैडामार्ड सुपरपोजिशन (50% |0⟩ + 50% |1⟩): क्यूबिट एक साथ दोनों अवस्थाओं में है!'
+            : 'मापन (Measurement) करने पर तरंग फलन (Wavefunction) एक निश्चित अवस्था में सिमट जाता है।'
+      };
+    },
+    examFacts: [
+      'क्लासिकल कंप्यूटर बिट्स (0 या 1) पर काम करते हैं, जबकि क्वांटम कंप्यूटर क्यूबिट्स (Qubits) पर कार्य करते हैं।',
+      'भारत के "नेशनल क्वांटम मिशन" (NQM) का लक्ष्य मध्यवर्ती स्तर के क्वांटम कंप्यूटर विकसित करना है।'
+    ]
+  },
+  {
+    id: 'ai-robotics-logic',
+    number: 41,
+    category: 'future',
+    categoryLabel: 'भविष्य की प्रयोगशालाएं (AI & Robotics)',
+    title: 'AI एवं रोबोटिक्स: लॉजिक गेट्स (AND, OR, NAND, XOR) सर्किट लैब',
+    subtitle: 'Digital Logic Gates, Binary Circuit Routing & Microcontroller Truth Table',
+    icon: '🤖',
+    badge: 'AI & LOGIC GATES',
+    formula: 'AND = A·B  |  OR = A+B  |  NAND = ¬(A·B)  |  XOR = A⊕B',
+    param1Label: 'इनपुट A एवं B (0=00, 1=01, 2=10, 3=11)',
+    param1Unit: 'Binary',
+    param1Min: 0,
+    param1Max: 3,
+    param1Default: 3,
+    param2Label: 'लॉजिक गेट चयन (1=AND, 2=OR, 3=NAND, 4=XOR)',
+    param2Unit: 'Gate',
+    param2Min: 1,
+    param2Max: 4,
+    param2Default: 1,
+    computeResult: (inCode, gateCode) => {
+      const inp = Math.round(inCode);
+      const a = (inp >> 1) & 1;
+      const b = inp & 1;
+      const g = Math.round(gateCode);
+      const gates: Record<number, { name: string; out: number }> = {
+        1: { name: 'AND Gate (A · B)', out: a & b },
+        2: { name: 'OR Gate (A + B)', out: a | b },
+        3: { name: 'NAND Gate ¬(A · B)', out: (a & b) === 1 ? 0 : 1 },
+        4: { name: 'XOR Gate (A ⊕ B)', out: a ^ b }
+      };
+      const sel = gates[g] || gates[1];
+      return {
+        primaryLabel: `${sel.name} [A=${a}, B=${b}]`,
+        primaryValue: `आउटपुट Y = ${sel.out} (${sel.out === 1 ? 'HIGH / LED ON' : 'LOW / OFF'})`,
+        secondaryLabel: 'सार्वत्रिक गेट (Universal Gates)',
+        secondaryValue: 'NAND एवं NOR Gate',
+        statusText: 'NAND और NOR गेट को "यूनिवर्सल गेट" कहा जाता है क्योंकि इनसे कोई भी अन्य लॉजिक सर्किट बनाया जा सकता है।'
+      };
+    },
+    examFacts: [
+      'NAND और NOR गेट सार्वत्रिक (Universal) लॉजिक गेट्स हैं।',
+      'XOR गेट का आउटपुट तभी 1 (HIGH) होता है जब दोनों बाइनरी इनपुट एक-दूसरे से भिन्न हों।'
+    ]
+  },
+  {
+    id: 'carbon-global-warming',
+    number: 42,
+    category: 'future',
+    categoryLabel: 'पर्यावरण एवं भविष्य (Environmental Lab)',
+    title: 'पर्यावरण एवं कार्बन फुटप्रिंट: ग्लोबल वार्मिंग सिमुलेशन लैब',
+    subtitle: 'Carbon Footprint, CO₂ ppm Concentration & Greenhouse Temperature Rise Lab',
+    icon: '🌱',
+    badge: 'CLIMATE & CARBON LAB',
+    formula: 'ΔT = λ × ΔF   |   ΔF = 5.35 × ln(CO₂ / 280)',
+    param1Label: 'वायुमंडलीय CO₂ सांद्रता (CO₂ Concentration)',
+    param1Unit: 'ppm',
+    param1Min: 280,
+    param1Max: 700,
+    param1Default: 422,
+    param2Label: 'हरित ऊर्जा एवं वनीकरण स्तर (Green Mitigation)',
+    param2Unit: '%',
+    param2Min: 0,
+    param2Max: 100,
+    param2Default: 35,
+    computeResult: (co2, green) => {
+      const rawRise = 3.0 * (Math.log(co2 / 280) / Math.log(2));
+      const netRise = Math.max(0.4, rawRise * (1 - green * 0.004));
+      return {
+        primaryLabel: 'अनुमानित वैश्विक तापमान वृद्धि (ΔT)',
+        primaryValue: `+${netRise.toFixed(2)} °C`,
+        secondaryLabel: 'ग्रीनहाउस विकिरण प्रभाव',
+        secondaryValue: `${co2} ppm CO₂ (${green}% हरित नियंत्रण)`,
+        statusText:
+          netRise > 1.5
+            ? 'पेरिस जलवायु समझौते की +1.5°C सीमा पार: ग्लेशियर पिघलने व चरम मौसम का उच्च जोखिम!'
+            : 'नियंत्रित कार्बन उत्सर्जन: सतत विकास एवं नेट-ज़ीरो लक्ष्य के अनुकूल।'
+      };
+    },
+    examFacts: [
+      'मुख्य ग्रीनहाउस गैसें जलवाष्प (H₂O), कार्बन डाइऑक्साइड (CO₂), मीथेन (CH₄) और नाइट्रस ऑक्साइड (N₂O) हैं।',
+      'भारत ने वर्ष 2070 तक "नेट-ज़ीरो" (Net-Zero Carbon Emission) का लक्ष्य निर्धारित किया है।'
+    ]
   }
 ];
 
 export const ScienceFormulaLabView: React.FC = () => {
   // View Mode: 'hub' (Grid of all 28 labs) or 'bench' (Full-page interactive lab bench)
   const [viewMode, setViewMode] = useState<'hub' | 'bench'>('hub');
-  const [categoryFilter, setCategoryFilter] = useState<'all' | 'physics' | 'chemistry' | 'biology' | 'geography' | 'mathematics'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'physics' | 'chemistry' | 'biology' | 'geography' | 'mathematics' | 'future'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedLabId, setSelectedLabId] = useState<string>('ohm-circuit');
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
@@ -1372,10 +1771,10 @@ export const ScienceFormulaLabView: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-black uppercase border border-cyan-500/40 mb-1.5">
               <FlaskConical className="w-4 h-4" />
-              <span>HANS COMPAIN • 28+ वर्चुअल साइंस लैब सुइट (NCERT &amp; Competitive)</span>
+              <span>HANS COMPAIN • 42 वर्चुअल साइंस लैब सुइट (NCERT, NEET, JEE, SSC &amp; UPSC)</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              इंटरएक्टिव साइंस लैब (28 लाइव भौतिकी, रसायन, जीव विज्ञान व अंतरिक्ष प्रयोगशालाएं) 🔬
+              इंटरएक्टिव साइंस लैब (42 लाइव भौतिकी, रसायन, जीव विज्ञान, भूगोल, गणित व AI प्रयोगशालाएं) 🔬
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1">
               किसी भी प्रयोगशाला पर क्लिक करें और फुल-पेज वर्चुअल लैब बेंच पर स्लाइडर चलाकर लाइव प्रयोग करें।
@@ -1389,7 +1788,7 @@ export const ScienceFormulaLabView: React.FC = () => {
                 className="px-4 py-2.5 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs font-black flex items-center gap-1.5 cursor-pointer shadow"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>सभी 28 लैब्स देखें (All 28 Labs)</span>
+                <span>सभी 42 लैब्स देखें (All 42 Labs)</span>
               </button>
             )}
             <button
@@ -1406,12 +1805,13 @@ export const ScienceFormulaLabView: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-3 border-t border-slate-800">
           <div className="flex flex-wrap gap-2">
             {[
-              { id: 'all' as const, label: '🌐 सभी 32 प्रयोगशालाएं (All 32 Labs)' },
+              { id: 'all' as const, label: '🌐 सभी 42 प्रयोगशालाएं (All 42 Labs)' },
               { id: 'physics' as const, label: '⚡ भौतिक विज्ञान (Physics)' },
               { id: 'chemistry' as const, label: '🧪 रसायन विज्ञान (Chemistry)' },
               { id: 'biology' as const, label: '🧬 जीव विज्ञान (Biology)' },
               { id: 'geography' as const, label: '🌍 भूगोल एवं अंतरिक्ष (Geography)' },
-              { id: 'mathematics' as const, label: '📐 गणित एवं ज्यामिति (Math)' }
+              { id: 'mathematics' as const, label: '📐 गणित एवं ज्यामिति (Math)' },
+              { id: 'future' as const, label: '🤖 क्वांटम, AI एवं पर्यावरण (Future Labs)' }
             ].map(tab => (
               <button
                 key={tab.id}

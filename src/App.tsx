@@ -46,7 +46,7 @@ import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
 import { LiveGroupQuizStudio } from './components/LiveGroupQuizStudio';
 import { BoardExamSingleTestBox } from './components/BoardExamSingleTestBox';
 import { DailyGoalsView } from './components/DailyGoalsView';
-import { AdminPanel } from './components/AdminPanel';
+import { AdminPanel, getStoredFeatureToggles, ALL_CONTROLLABLE_FEATURES } from './components/AdminPanel';
 import { StudentGoalOnboardingModal } from './components/StudentGoalOnboardingModal';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { UserProfileModal } from './components/UserProfileModal';
@@ -72,8 +72,8 @@ import { playNaturalSpeech, stopNaturalSpeech } from './utils/naturalSpeech';
 import { AffiliateStoreView } from './components/AffiliateStoreView';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { OfflineIndicator } from './components/OfflineIndicator';
-import { auth, signInWithGoogle, logoutUser } from './firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth, signInWithGoogle, logoutUser, getEffectiveUser, subscribeAuthChanges } from './firebase';
+import { User as FirebaseUser } from 'firebase/auth';
 import { trackVisitorAction } from './utils/userTracker';
 
 const viewFeatureMap: Record<string, string> = {
@@ -110,11 +110,13 @@ export const App: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [language, setLanguage] = useState<'hindi' | 'english'>('hindi');
   const [targetExam, setTargetExam] = useState('SSC & Steno 2026');
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(() => getEffectiveUser());
   const [okHansActive, setOkHansActive] = useState<boolean>(false);
   const [sidebarSearch, setSidebarSearch] = useState<string>('');
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [isListeningMic, setIsListeningMic] = useState<boolean>(false);
+  const [isReadingArticle, setIsReadingArticle] = useState<boolean>(false);
+  const [featureToggles, setFeatureToggles] = useState<Record<string, boolean>>(() => getStoredFeatureToggles());
 
   // Modals state
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
@@ -164,9 +166,17 @@ export const App: React.FC = () => {
       };
       window.addEventListener('hans_navigate_view', handleCustomNav);
 
+      const syncFeatureToggles = () => {
+        setFeatureToggles(getStoredFeatureToggles());
+      };
+      window.addEventListener('storage', syncFeatureToggles);
+      window.addEventListener('hans_feature_toggles_updated', syncFeatureToggles);
+
       return () => {
         window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('hans_navigate_view', handleCustomNav);
+        window.removeEventListener('storage', syncFeatureToggles);
+        window.removeEventListener('hans_feature_toggles_updated', syncFeatureToggles);
       };
     } catch {
       // ignore
@@ -194,7 +204,7 @@ export const App: React.FC = () => {
   }, [activeView, currentUser]);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = subscribeAuthChanges((u) => {
       setCurrentUser(u);
       const featName = viewFeatureMap[activeView] || activeView;
       trackVisitorAction(featName, u ? 'लॉगिन स्थिति सक्रिय' : 'अतिथि विजिटर सक्रिय');
@@ -259,6 +269,9 @@ export const App: React.FC = () => {
   const navigateTo = (viewId: string) => {
     setActiveView(viewId);
     setSidebarOpen(false);
+    if (viewId !== 'ca' && viewId !== 'current-affairs') {
+      setIsReadingArticle(false);
+    }
     const featName = viewFeatureMap[viewId] || viewId;
     trackVisitorAction(featName, `नेविगेट किया: ${featName}`);
   };
@@ -303,82 +316,70 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden flex flex-col bg-[#03060E] text-white font-sans">
       
-      {/* 1. TOP HEADER (EXACT SCREENSHOT STYLE) */}
-      <header className="px-3 sm:px-4 h-14 sm:h-16 border-b border-slate-900 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md bg-[#03060E]/95 w-full">
-        <div className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 bg-[#091122] hover:bg-[#101B34] border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center justify-center shrink-0"
-            title="Open 3-Line Menu"
-          >
-            <Menu className="w-5 h-5 text-cyan-400" />
-          </button>
-
-          {activeView !== 'home' && (
+      {/* 1. TOP HEADER (HIDDEN WHEN READING AN ARTICLE SO TOOLBAR #2 MOVES TO THE TOP) */}
+      {!(isReadingArticle && (activeView === 'ca' || activeView === 'current-affairs')) && (
+        <header className="px-3 sm:px-4 h-14 sm:h-16 border-b border-slate-900 flex items-center justify-between gap-2 sticky top-0 z-40 backdrop-blur-md bg-[#03060E]/95 w-full">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
             <button
-              onClick={() => navigateTo('home')}
-              className="p-1.5 px-2 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/30 text-cyan-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
-              title="Return to Home Dashboard"
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 bg-[#091122] hover:bg-[#101B34] border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center justify-center shrink-0"
+              title="Open 3-Line Menu"
             >
-              <ArrowLeft className="w-4 h-4 text-cyan-400" />
+              <Menu className="w-5 h-5 text-cyan-400" />
             </button>
-          )}
 
-          <div onClick={() => navigateTo('home')} className="flex items-center gap-2 cursor-pointer select-none">
-            <HansCompainLogo className="w-7 h-7 sm:w-8 sm:h-8" />
-            <span className="font-black text-sm sm:text-base tracking-tight text-white hidden xs:inline">
-              HANS COMPAIN
-            </span>
+            {activeView !== 'home' && (
+              <button
+                onClick={() => navigateTo('home')}
+                className="p-1.5 px-2.5 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/30 text-cyan-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
+                title="Return to Home Dashboard"
+              >
+                <ArrowLeft className="w-4 h-4 text-cyan-400" />
+                <span className="hidden xs:inline">Home</span>
+              </button>
+            )}
+
+            <div onClick={() => navigateTo('home')} className="flex items-center cursor-pointer select-none shrink-0">
+              <HansCompainLogo className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" />
+            </div>
           </div>
-        </div>
 
-        {/* Header Right Icons Capsule matching Screenshot 1 */}
-        <div className="flex items-center gap-2 shrink-0">
-          <PWAInstallButton variant="header" />
+          {/* Clean Header Right Controls (Non-working voice buttons hidden so HANS COMPAIN is 100% clear) */}
+          <div className="flex items-center gap-2 shrink-0">
+            <PWAInstallButton variant="header" />
 
-          {activeView !== 'home' && (
-            <button
-              onClick={() => navigateTo('home')}
-              className="px-2.5 py-1 rounded-xl bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
-            >
-              <span>🌐 Home</span>
-            </button>
-          )}
-
-          <div className="flex items-center bg-[#070D1D] border border-slate-800 rounded-full p-1 pl-2 gap-1.5 shadow-md">
-            <button
-              onClick={toggleOkHansVoice}
-              className={`px-2 py-0.5 rounded-full border text-[10px] sm:text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                okHansActive
-                  ? 'bg-emerald-950 border-emerald-500/60 text-emerald-300'
-                  : 'bg-slate-900 border-slate-700/80 text-slate-300 hover:text-white'
-              }`}
-            >
-              <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span>{okHansActive ? '"ओके हंस" ऑन' : '"ओके हंस" ऑफ़'}</span>
-            </button>
-
-            <button
-              onClick={() => navigateTo('app-guide')}
-              className="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700/80 text-[10px] sm:text-[11px] font-bold text-slate-300 hover:text-white flex items-center gap-1 cursor-pointer transition-all"
-              title="Open App Feature Map & Guide Hub"
-            >
-              <Mic className="w-3 h-3 text-indigo-400" />
-              <span>Hey Compain</span>
-            </button>
+            {currentUser ? (
+              <button
+                onClick={() => setIsUserProfileModalOpen(true)}
+                className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-900/80 transition-all"
+                title="लॉगिन सक्रिय - प्रोफाइल देखें"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="max-w-[90px] sm:max-w-[140px] truncate">
+                  {currentUser.displayName || currentUser.email || 'Logged In'}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => signInWithGoogle(targetExam).catch(() => {})}
+                className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-black cursor-pointer shadow transition-all"
+              >
+                लॉगिन
+              </button>
+            )}
 
             <button
               onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative p-1 px-1.5 rounded-full bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white cursor-pointer transition-all"
+              className="relative p-2 rounded-full bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white cursor-pointer transition-all shrink-0"
             >
-              <Bell className="w-3.5 h-3.5" />
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-600 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-[#070D1D] animate-pulse">
+              <Bell className="w-4 h-4" />
+              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-rose-600 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-[#070D1D] animate-pulse">
                 3
               </span>
             </button>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Non-intrusive In-App Status Banner */}
       {statusBanner && (
@@ -390,18 +391,19 @@ export const App: React.FC = () => {
 
       <div className="flex-1 min-h-0 flex overflow-hidden w-full relative">
         
-        {/* 2. SIDE-DRAWER / 3-LINE MENU (EXACT SCREENSHOT 3 & 4 MATCH) */}
+        {/* 2. SIDE-DRAWER / 3-LINE MENU (FULL-PAGE DRAWER ON CURRENT AFFAIRS & ADMIN PANEL) */}
         <div className={`w-72 sm:w-80 border-r border-slate-850/80 bg-[#060913] flex flex-col justify-between flex-shrink-0 transition-all duration-300 z-30 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } fixed lg:relative inset-y-0 left-0 top-0 h-full shadow-2xl lg:shadow-none`}>
+          (activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin')
+            ? (sidebarOpen ? 'translate-x-0 fixed' : '-translate-x-full fixed')
+            : (sidebarOpen ? 'translate-x-0 fixed lg:relative' : '-translate-x-full lg:translate-x-0 fixed lg:relative')
+        } inset-y-0 left-0 top-0 h-full shadow-2xl`}>
           
           <div className="p-3.5 space-y-2.5 border-b border-slate-850/80">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <HansCompainLogo className="w-7 h-7" />
-                <span className="font-black text-sm text-white">HANS COMPAIN</span>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 text-slate-400 hover:text-white cursor-pointer">
+              <button onClick={() => setSidebarOpen(false)} className="p-1 text-slate-400 hover:text-white cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -604,16 +606,16 @@ export const App: React.FC = () => {
         </div>
 
         {sidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-20 lg:hidden transition-opacity" />
+          <div onClick={() => setSidebarOpen(false)} className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-20 ${(activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin') ? '' : 'lg:hidden'} transition-opacity`} />
         )}
 
         {/* 3. MAIN ROUTED VIEW AREA */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#03060E] relative">
-          <div className={`flex-1 ${activeView === 'home' ? 'overflow-hidden flex flex-col justify-between p-2 sm:p-3.5' : 'overflow-y-auto px-4 py-4 sm:px-6 sm:py-6'} scrollbar-thin`}>
+        <main className="flex-1 w-full flex flex-col h-full overflow-hidden bg-[#03060E] relative">
+          <div className={`flex-1 w-full ${activeView === 'home' ? 'overflow-y-auto flex flex-col justify-between p-2 sm:p-3.5 lg:p-5' : activeView === 'admin' ? 'overflow-y-auto p-0' : (activeView === 'ca' || activeView === 'current-affairs') ? 'overflow-y-auto px-2 py-2 sm:px-4 sm:py-3' : 'overflow-y-auto px-3 py-3 sm:px-6 sm:py-6'} scrollbar-thin`}>
             
-            {/* --- HOME VIEW (DASHBOARD - LOCKED SINGLE-PAGE VIEWPORT) --- */}
+            {/* --- HOME VIEW (DASHBOARD - RESPONSIVE FOR MOBILE, TABLET, LAPTOP & PC) --- */}
             {activeView === 'home' && (
-              <div className="max-w-2xl mx-auto w-full h-full flex flex-col justify-between items-center text-center space-y-1.5 sm:space-y-2.5 animate-fade-in overflow-hidden">
+              <div className="max-w-2xl lg:max-w-4xl mx-auto w-full my-auto flex flex-col justify-between items-center text-center space-y-2 sm:space-y-3 animate-fade-in">
                 
                 {/* Center Official 3D Mascot Logo */}
                 <HansCompainLogo variant="center" />
@@ -815,7 +817,7 @@ export const App: React.FC = () => {
             )}
 
             {/* --- DEDICATED FEATURE VIEWS (ROUTED CLEANLY TO EACH DEDICATED UI) --- */}
-            {activeView !== 'home' && (
+            {activeView !== 'home' && activeView !== 'admin' && !(activeView === 'ca' || activeView === 'current-affairs') && (
               <div className="max-w-4xl mx-auto mb-3 flex items-center justify-between bg-slate-900/60 p-2.5 px-4 rounded-2xl border border-slate-800">
                 <button
                   onClick={() => setActiveView('home')}
@@ -830,56 +832,133 @@ export const App: React.FC = () => {
               </div>
             )}
 
-            {(activeView === 'steno-master' || activeView === 'steno') && <DedicatedStenoMasterStudio />}
-            {(activeView === 'ca' || activeView === 'current-affairs') && (
-              <CurrentAffairsHubView
-                currentUser={currentUser}
-                onLoginRequired={() => signInWithGoogle(targetExam)}
-                onReturnHome={() => setActiveView('home')}
-              />
-            )}
-            {(activeView === 'mock' || activeView === 'competitive') && <MockTestsView />}
-            {(activeView === 'board-exam' || activeView === 'board') && <BoardExamSingleTestBox language={language} />}
-            {(activeView === 'group-quiz' || activeView === 'battle' || activeView === 'quiz-battle' || activeView === 'battle-quiz' || activeView === 'group-battle') && <LiveGroupQuizStudio />}
-            {activeView === 'science-lab' && <ScienceFormulaLabView />}
-            {activeView === 'mnemonics' && <MnemonicsTrickGeneratorView />}
-            {(activeView === 'daily-goals' || activeView === 'goals') && <DailyGoalsView />}
-            {activeView === 'time-travel' && <TimeTravelSimulatorView />}
+            {/* Check if current view is disabled via Admin Feature Toggles */}
+            {(() => {
+              const viewToToggleId: Record<string, string> = {
+                'steno-master': 'steno-master',
+                'steno': 'steno-master',
+                'ca': 'current-affairs',
+                'current-affairs': 'current-affairs',
+                'group-quiz': 'group-quiz',
+                'battle': 'group-quiz',
+                'quiz-battle': 'group-quiz',
+                'battle-quiz': 'group-quiz',
+                'group-battle': 'group-quiz',
+                'science-lab': 'science-lab',
+                'ai-chat': 'ai-chat',
+                'chat': 'ai-chat',
+                'doubt': 'ai-chat',
+                'photo-doubt': 'ai-chat',
+                'mnemonics': 'mnemonics',
+                'daily-goals': 'daily-goals',
+                'goals': 'daily-goals',
+                'mock': 'competitive',
+                'competitive': 'competitive',
+                'pyq': 'competitive',
+                'pyq-vault': 'competitive',
+                'board-exam': 'board-exams',
+                'board': 'board-exams',
+                'time-travel': 'time-travel',
+                'book-reader': 'library',
+                'global-reader': 'library',
+                'voice-reader': 'library',
+                'ocr-scan': 'ocr-scan',
+                'edu-reels': 'edu-reels',
+                'flashcards': 'flashcards'
+              };
+              const toggleKey = viewToToggleId[activeView];
+              const isFeatureDisabled = toggleKey && featureToggles[toggleKey] === false;
 
-            {/* Direct AI Chat ONLY when explicitly requested */}
-            {(activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') && (
-              <AIDoubtSolverView initialMode="chat" initialQuery={submittedHomeQuery} onNavigate={navigateTo} />
-            )}
+              if (isFeatureDisabled) {
+                const featConfig = ALL_CONTROLLABLE_FEATURES.find(f => f.id === toggleKey);
+                return (
+                  <div className="max-w-lg mx-auto my-12 bg-[#0B111E] border border-slate-800 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-xl">
+                    <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-400">
+                      <ShieldCheck className="w-6 h-6" />
+                    </div>
+                    <h2 className="text-base sm:text-lg font-bold text-white">
+                      {featConfig ? featConfig.hindiName : 'यह फीचर'} अभी बंद (OFF) है
+                    </h2>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      एडमिन कंट्रोल पैनल से इस फीचर को अस्थायी रूप से ऑफ़ किया गया है। आप इसे एडमिन पैनल से कभी भी एक क्लिक में वापस चालू (ON) कर सकते हैं।
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+                      <button
+                        onClick={() => setActiveView('admin')}
+                        className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs cursor-pointer"
+                      >
+                        एडमिन पैनल से चालू करें (Turn ON)
+                      </button>
+                      <button
+                        onClick={() => setActiveView('home')}
+                        className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-semibold text-xs cursor-pointer"
+                      >
+                        होमपेज पर लौटें
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
 
-            {/* Dedicated 3-Step Handwritten Notes OCR Scanner Studio */}
-            {activeView === 'ocr-scan' && (
-              <AIDoubtSolverView initialMode="ocr" onNavigate={navigateTo} />
-            )}
+              return (
+                <>
+                  {(activeView === 'steno-master' || activeView === 'steno') && <DedicatedStenoMasterStudio />}
+                  {(activeView === 'ca' || activeView === 'current-affairs') && (
+                    <CurrentAffairsHubView
+                      currentUser={currentUser}
+                      onLoginRequired={() => signInWithGoogle(targetExam)}
+                      onReturnHome={() => {
+                        setIsReadingArticle(false);
+                        setActiveView('home');
+                      }}
+                      onArticleOpenChange={(isOpen) => setIsReadingArticle(isOpen)}
+                    />
+                  )}
+                  {(activeView === 'mock' || activeView === 'competitive') && <MockTestsView />}
+                  {(activeView === 'board-exam' || activeView === 'board') && <BoardExamSingleTestBox language={language} />}
+                  {(activeView === 'group-quiz' || activeView === 'battle' || activeView === 'quiz-battle' || activeView === 'battle-quiz' || activeView === 'group-battle') && <LiveGroupQuizStudio />}
+                  {activeView === 'science-lab' && <ScienceFormulaLabView />}
+                  {activeView === 'mnemonics' && <MnemonicsTrickGeneratorView />}
+                  {(activeView === 'daily-goals' || activeView === 'goals') && <DailyGoalsView />}
+                  {activeView === 'time-travel' && <TimeTravelSimulatorView />}
 
-            {/* Dedicated 3-Step App Feature Map & Guide Hub */}
-            {activeView === 'app-guide' && (
-              <AIDoubtSolverView initialMode="app-guide" onNavigate={navigateTo} />
-            )}
+                  {/* Direct AI Chat ONLY when explicitly requested */}
+                  {(activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') && (
+                    <AIDoubtSolverView initialMode="chat" initialQuery={submittedHomeQuery} onNavigate={navigateTo} />
+                  )}
 
-            {activeView === 'mock-interview' && <MockInterviewView />}
-            {(activeView === 'analytics' || activeView === 'performance-analytics') && <AdminAnalyticsDashboard />}
-            {activeView === 'admin' && <AdminPanel />}
+                  {/* Dedicated 3-Step Handwritten Notes OCR Scanner Studio */}
+                  {activeView === 'ocr-scan' && (
+                    <AIDoubtSolverView initialMode="ocr" onNavigate={navigateTo} />
+                  )}
 
-            {/* FULL MODULE WORK PAGES FROM ZIP & RENDER PROJECT */}
-            {(activeView === 'bharati-bhawan' || activeView === 'bharti-bhawan' || activeView === 'bharatibhawan') && <BharatiBhawanStudyHub />}
-            {(activeView === 'pyq' || activeView === 'pyq-vault') && <UnlimitedPyqVaultView />}
-            {(activeView === 'sarkari' || activeView === 'sarkari-result') && <SarkariResultEligibilityHub />}
-            {activeView === 'flashcards' && <FlashcardsView />}
-            {activeView === 'edu-reels' && <EduReelsView />}
-            {(activeView === 'book-reader' || activeView === 'global-reader') && <GlobalBookReader initialTab="library" />}
-            {activeView === 'voice-reader' && <GlobalBookReader initialTab="voice-reader" />}
-            {(activeView === 'periodic' || activeView === 'periodic-table') && <InteractivePeriodicTable />}
-            {(activeView === 'music' || activeView === 'music-studio') && <MusicStudioView />}
-            {(activeView === 'weather' || activeView === 'weather-alerts') && <WeatherAlertView />}
-            {activeView === 'peer-challenge' && <PeerChallengeArena />}
-            {activeView === 'neural-map' && <NeuralMemoryMapView />}
-            {activeView === 'study-plan' && <StudyPlanView />}
-            {(activeView === 'store' || activeView === 'affiliate-store' || activeView === 'affiliate') && <AffiliateStoreView />}
+                  {/* Dedicated 3-Step App Feature Map & Guide Hub */}
+                  {activeView === 'app-guide' && (
+                    <AIDoubtSolverView initialMode="app-guide" onNavigate={navigateTo} />
+                  )}
+
+                  {activeView === 'mock-interview' && <MockInterviewView />}
+                  {(activeView === 'analytics' || activeView === 'performance-analytics') && <AdminAnalyticsDashboard />}
+                  {activeView === 'admin' && <AdminPanel onReturnHome={() => setActiveView('home')} />}
+
+                  {/* FULL MODULE WORK PAGES FROM ZIP & RENDER PROJECT */}
+                  {(activeView === 'bharati-bhawan' || activeView === 'bharti-bhawan' || activeView === 'bharatibhawan') && <BharatiBhawanStudyHub />}
+                  {(activeView === 'pyq' || activeView === 'pyq-vault') && <UnlimitedPyqVaultView />}
+                  {(activeView === 'sarkari' || activeView === 'sarkari-result') && <SarkariResultEligibilityHub />}
+                  {activeView === 'flashcards' && <FlashcardsView />}
+                  {activeView === 'edu-reels' && <EduReelsView />}
+                  {(activeView === 'book-reader' || activeView === 'global-reader') && <GlobalBookReader initialTab="library" />}
+                  {activeView === 'voice-reader' && <GlobalBookReader initialTab="voice-reader" />}
+                  {(activeView === 'periodic' || activeView === 'periodic-table') && <InteractivePeriodicTable />}
+                  {(activeView === 'music' || activeView === 'music-studio') && <MusicStudioView />}
+                  {(activeView === 'weather' || activeView === 'weather-alerts') && <WeatherAlertView />}
+                  {activeView === 'peer-challenge' && <PeerChallengeArena />}
+                  {activeView === 'neural-map' && <NeuralMemoryMapView />}
+                  {activeView === 'study-plan' && <StudyPlanView />}
+                  {(activeView === 'store' || activeView === 'affiliate-store' || activeView === 'affiliate') && <AffiliateStoreView />}
+                </>
+              );
+            })()}
 
           </div>
           

@@ -30,6 +30,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
+import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 export interface BoardQuestion {
   id: string;
@@ -597,6 +598,20 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs font-bold">
+            <button
+              onClick={() => {
+                const qSpoken = getLocalizedText(currentQ.question, examLang);
+                const optsSpoken = currentQ.options
+                  .map((o, idx) => `${String.fromCharCode(65 + idx)}: ${getLocalizedText(o, examLang)}`)
+                  .join('. ');
+                playNaturalSpeech(`${qSpoken}. ${optsSpoken}`);
+              }}
+              className="px-2.5 py-1 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center gap-1 cursor-pointer transition-all"
+              title="प्राकृतिक आवाज में प्रश्न व विकल्प सुनें (Listen in Natural Hindi/English Voice)"
+            >
+              <Volume2 className="w-3.5 h-3.5 text-indigo-600" />
+              <span>सुनें (Voice)</span>
+            </button>
             <span className="px-2.5 py-0.5 rounded-full bg-[#e6f7ed] text-[#16a34a]">+1.0 Mark</span>
             <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">No Negative</span>
           </div>
@@ -957,9 +972,23 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
 
             {/* Topper Solution & Concept Note */}
             <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2 mt-3">
-              <div className="text-xs font-extrabold text-amber-800 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <span>टॉपर व्याख्या व 100% बोर्ड अंक सूत्र (Topper Concept Tip):</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs font-extrabold text-amber-800 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  <span>टॉपर व्याख्या व 100% बोर्ड अंक सूत्र (Topper Concept Tip):</span>
+                </div>
+                <button
+                  onClick={() => {
+                    const qSpoken = getLocalizedText(solQ.question, examLang);
+                    const ansSpoken = getLocalizedText(solQ.options[solQ.correctAnswer], examLang);
+                    const expSpoken = getLocalizedText(solQ.explanation, examLang);
+                    playNaturalSpeech(`${qSpoken}. सही उत्तर: ${ansSpoken}. व्याख्या: ${expSpoken}`);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>व्याख्या सुनें</span>
+                </button>
               </div>
               <p className="text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">
                 {getLocalizedText(solQ.explanation, examLang)}

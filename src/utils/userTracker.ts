@@ -1,4 +1,4 @@
-import { auth } from '../firebase';
+import { getEffectiveUser } from '../firebase';
 
 export function getVisitorId(): string {
   try {
@@ -15,7 +15,7 @@ export function getVisitorId(): string {
 
 export function trackVisitorAction(featureName: string, actionDetail?: string) {
   try {
-    const user = auth.currentUser;
+    const user = getEffectiveUser();
     const isLogged = !!user;
     const visitorId = isLogged ? user.uid : getVisitorId();
     const displayName = user?.displayName || (isLogged ? 'पंजीकृत छात्र' : `अतिथि (#${visitorId.slice(-4)})`);
