@@ -875,26 +875,16 @@ export const verifiedEditorials: NewsEditorial[] = [
   }
 ];
 
-// Deterministic daily selector: Rotates articles every day based on date and stamps them with today's date
+// Deterministic daily selector: Loads all authentic daily articles without arbitrary 6-count cap
 export const getDailyRotatedEditorials = (): NewsEditorial[] => {
   const todayKey = getTodayDateKey();
   const todayHindi = getTodayHindiDate();
-  const daySeed = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-  const total = verifiedEditorials.length;
-  const dailyCount = 6; // Show 6 fresh distinct articles each day, rotating automatically every new day
-  const rotated: NewsEditorial[] = [];
-
-  for (let i = 0; i < dailyCount; i++) {
-    const idx = (daySeed * 3 + i) % total;
-    const item = verifiedEditorials[idx];
-    rotated.push({
-      ...item,
-      id: `${item.id}-${todayKey}`,
-      dateKey: todayKey,
-      date: todayHindi
-    });
-  }
-  return rotated;
+  return verifiedEditorials.map((item) => ({
+    ...item,
+    id: `${item.id}-${todayKey}`,
+    dateKey: todayKey,
+    date: todayHindi
+  }));
 };
 
 interface CurrentAffairsHubProps {
@@ -1107,18 +1097,16 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
-          const freshMap = new Map<string, NewsEditorial>();
-          data.articles
-            .filter((item: NewsEditorial) => !item.dateKey || item.dateKey === todayKey)
-            .forEach((item: NewsEditorial) =>
-              freshMap.set(item.id, { ...item, dateKey: todayKey, date: todayHindi })
-            );
-          const combined = Array.from(freshMap.values());
-          if (combined.length > 0) {
-            setEditorials(combined);
-            localStorage.setItem('hans_ca_active_date_key', todayKey);
-            localStorage.setItem('hans_synced_current_affairs', JSON.stringify(combined));
-          }
+          const freshArticles: NewsEditorial[] = data.articles.map((item: any, idx: number) => ({
+            ...item,
+            id: item.id || `ca-${todayKey}-${idx + 1}`,
+            dateKey: todayKey,
+            date: todayHindi
+          }));
+
+          setEditorials(freshArticles);
+          localStorage.setItem('hans_ca_active_date_key', todayKey);
+          localStorage.setItem('hans_synced_current_affairs', JSON.stringify(freshArticles));
         }
       }
     } catch (err) {

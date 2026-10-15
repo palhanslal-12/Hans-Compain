@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { recordStudyActivity } from '../firebase';
 import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
+import { getExactSubjectQuestions } from '../utils/syllabusQuestionBank';
 
 export interface BoardQuestion {
   id: string;
@@ -263,10 +264,14 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
   const activeSubjectName = customSubjectText.trim() || selectedSubject;
   const officialInfo = getBoardOfficialCount(selectedBoard, selectedClass, activeSubjectName);
 
-  // Auto-set recommended question count on board/subject change
+  const [hasUserManuallySetCount, setHasUserManuallySetCount] = useState<boolean>(false);
+
+  // Auto-set recommended question count on board/subject change unless user manually chose a count
   useEffect(() => {
-    setQuestionCount(officialInfo.standardAttempt);
-  }, [selectedBoard, selectedClass, selectedSubject]);
+    if (!hasUserManuallySetCount) {
+      setQuestionCount(officialInfo.standardAttempt);
+    }
+  }, [selectedBoard, selectedClass, selectedSubject, hasUserManuallySetCount]);
 
   // Countdown Timer Effect
   useEffect(() => {
@@ -374,10 +379,30 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
       console.warn('Live board generation error, using board syllabus fallback:', err);
     }
 
-    // Fallback strictly to Board Questions
-    const filtered = fallbackBoardQuestions.filter(q => q.classLevel === selectedClass);
-    const list = filtered.length > 0 ? filtered : fallbackBoardQuestions;
-    startBoardExamView(list, titleStr);
+    // Fallback strictly to Subject-Specific Syllabus Vault (Zero subject mixing, exact count)
+    const fallbackList = getExactSubjectQuestions({
+      subjectOrCategory: activeSubjectName,
+      topicOrChapter: targetTopicOrChapter,
+      level: 'board',
+      classLevel: selectedClass === '12th' ? '12th' : '10th',
+      board: selectedBoard,
+      count: targetCount
+    }).slice(0, targetCount).map((q, idx) => ({
+      id: `board_vault_${q.id}_${idx + 1}`,
+      classLevel: selectedClass,
+      board: selectedBoard,
+      subject: cleanSub,
+      chapter: q.chapter || targetTopicOrChapter || cleanSub,
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      yearTag: `${selectedBoard} Class ${selectedClass} Official Blueprint`,
+      avgTimeSec: 20,
+      correctPct: 75
+    }));
+
+    startBoardExamView(fallbackList, titleStr);
     setIsLoadingExam(false);
   };
 
@@ -1339,22 +1364,25 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
             </div>
           </div>
 
-          {/* 3. Open Custom Topic / Chapter Selection (User's freedom request) */}
+          {/* 3. Open Custom Topic / Chapter Selection (User-Tailored Exam Predictions) */}
           <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <label className="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>4. टॉपिक कवरेज चुनें (Topic & Chapter Selection):</span>
+                <span>4. अध्याय / टॉपिक चुनें (User-Tailored Chapter Practice):</span>
               </label>
 
               <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
                 <button
-                  onClick={() => setTopicMode('all-syllabus')}
+                  onClick={() => {
+                    setTopicMode('all-syllabus');
+                    setCustomTopicInput('');
+                  }}
                   className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                     topicMode === 'all-syllabus' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  🌐 सम्पूर्ण सिलेबस (All Syllabus)
+                  🌐 सम्पूर्ण सिलेबस
                 </button>
                 <button
                   onClick={() => setTopicMode('custom-chapter')}
@@ -1362,22 +1390,126 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
                     topicMode === 'custom-chapter' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  ✍️ खुद से कोई भी टॉपिक / चैप्टर लिखें
+                  📖 विशिष्ट अध्याय / टॉपिक
                 </button>
               </div>
             </div>
 
+            {/* Quick High-Yield Chapter Chips for Active Subject */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                <span>🔥 परीक्षा में सर्वाधिक पूछे जाने वाले अध्याय (क्लिक करके सीधे चुनें):</span>
+              </span>
+              <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                {(() => {
+                  const s = activeSubjectName.toLowerCase();
+                  let chips: string[] = [];
+                  if (s.includes('विज्ञान') || s.includes('science') || s.includes('भौतिकी') || s.includes('रसायन') || s.includes('जीव')) {
+                    chips = [
+                      'प्रकाश का परावर्तन तथा अपवर्तन',
+                      'मानव नेत्र तथा रंगबिरंगा संसार',
+                      'विद्युत एवं धारा के चुंबकीय प्रभाव',
+                      'अम्ल, क्षारक एवं लवण',
+                      'धातु एवं अधातु',
+                      'कार्बन एवं उसके यौगिक',
+                      'जैव प्रक्रम (Life Processes)',
+                      'आनुवंशिकता एवं जैव विकास',
+                      'हमारा पर्यावरण'
+                    ];
+                  } else if (s.includes('गणित') || s.includes('math')) {
+                    chips = [
+                      'वास्तविक संख्याएं',
+                      'बहुपद (Polynomials)',
+                      'दो चर वाले रैखिक समीकरण',
+                      'द्विघात समीकरण',
+                      'समांतर श्रेणियाँ (AP)',
+                      'त्रिकोणमिति का परिचय व अनुप्रयोग',
+                      'निर्देशांक ज्यामिति',
+                      'वृत्त एवं पृष्ठीय क्षेत्रफल',
+                      'सांख्यिकी एवं प्रायिकता'
+                    ];
+                  } else if (s.includes('हिन्दी') || s.includes('हिंदी') || s.includes('hindi')) {
+                    chips = [
+                      'संधि (स्वर, व्यंजन, विसर्ग)',
+                      'समास (द्वंद्व, द्विगु, तत्पुरुष, बहुव्रीहि)',
+                      'कारक एवं विभक्ति चिह्न',
+                      'मुहावरे एवं लोकोक्तियाँ',
+                      'उपसर्ग और प्रत्यय',
+                      'पर्यायवाची व विलोम शब्द',
+                      'रस, छंद एवं अलंकार',
+                      'वाक्य शुद्धि व वर्तनी'
+                    ];
+                  } else if (s.includes('सामाजिक') || s.includes('social') || s.includes('इतिहास') || s.includes('भूगोल')) {
+                    chips = [
+                      'यूरोप व भारत में राष्ट्रवाद',
+                      'संसाधन एवं विकास',
+                      'वन एवं वन्य जीव संसाधन',
+                      'कृषि एवं प्रमुख फसलें',
+                      'लोकतंत्र एवं राजनीतिक दल',
+                      'अर्थव्यवस्था के क्षेत्रक'
+                    ];
+                  } else if (s.includes('संस्कृत') || s.includes('sanskrit')) {
+                    chips = [
+                      'संधि एवं संधि-विच्छेद',
+                      'शब्द रूप एवं धातु रूप',
+                      'समास एवं प्रत्यय',
+                      'कारक एवं उपपद विभक्ति नियम',
+                      'संस्कृत अनुवाद'
+                    ];
+                  } else {
+                    chips = [
+                      'Tenses and Subject-Verb Agreement',
+                      'Active and Passive Voice',
+                      'Direct and Indirect Speech',
+                      'Prepositions and Determiners',
+                      'Vocabulary & Error Spotting'
+                    ];
+                  }
+
+                  return chips.map(chap => {
+                    const isSelected = topicMode === 'custom-chapter' && customTopicInput === chap;
+                    return (
+                      <button
+                        key={chap}
+                        onClick={() => {
+                          setTopicMode('custom-chapter');
+                          setCustomTopicInput(chap);
+                        }}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-all ${
+                          isSelected
+                            ? 'bg-amber-400 text-slate-950 font-black shadow-md ring-1 ring-amber-300'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
+                        }`}
+                      >
+                        {chap}
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+
             {topicMode === 'custom-chapter' ? (
-              <div className="space-y-1.5">
-                <input
-                  type="text"
-                  value={customTopicInput}
-                  onChange={e => setCustomTopicInput(e.target.value)}
-                  placeholder="किसी भी अध्याय, टॉपिक या सूत्र का नाम खुद से लिखें (जैसे: प्रकाश का परावर्तन, Trigonometry, विद्युत धारा, Organic Chemistry)..."
-                  className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-indigo-400"
-                />
-                <span className="text-[11px] text-indigo-300 block">
-                  AI आपके लिखे गए टॉपिक से सटीक, सिलेबस-अनुमोदित प्रश्न तैयार करेगा।
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={customTopicInput}
+                    onChange={e => setCustomTopicInput(e.target.value)}
+                    placeholder="या किसी भी अध्याय, टॉपिक या सूत्र का नाम खुद से लिखें..."
+                    className="w-full p-2.5 rounded-xl bg-slate-900 border border-amber-500/60 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-amber-400"
+                  />
+                  {customTopicInput && (
+                    <button
+                      onClick={() => setCustomTopicInput('')}
+                      className="px-2 py-1 text-slate-400 hover:text-white text-xs cursor-pointer"
+                    >
+                      हटाएं
+                    </button>
+                  )}
+                </div>
+                <span className="text-[11px] text-amber-300 block font-medium">
+                  🎯 चयनित अध्याय: "{customTopicInput || 'अभी लिखें'}" • AI इस अध्याय से परीक्षा में आने वाले सभी संभावित प्रश्न जनरेट करेगा।
                 </span>
               </div>
             ) : (
@@ -1416,13 +1548,19 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
               </label>
               <select
                 value={questionCount}
-                onChange={e => setQuestionCount(parseInt(e.target.value, 10))}
+                onChange={e => {
+                  setQuestionCount(parseInt(e.target.value, 10));
+                  setHasUserManuallySetCount(true);
+                }}
                 className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-emerald-300 outline-none"
               >
+                <option value={5}>5 Questions (सुपर क्विक टेस्ट - 4 मिनट)</option>
                 <option value={10}>10 Questions (Quick Chapter Test - 8 Mins)</option>
+                <option value={15}>15 Questions (अध्याय-वार विस्तृत टेस्ट)</option>
                 <option value={16}>16 Questions (CBSE Class 12 Science Pattern)</option>
                 <option value={20}>20 Questions (CBSE Class 10 / UP Board OMR Pattern)</option>
                 <option value={25}>25 Questions (Standard Practice Test)</option>
+                <option value={30}>30 Questions (गहन अभ्यास टेस्ट)</option>
                 <option value={35}>35 Questions (BSEB 12th Physics/Chem 35 Attempt Pattern)</option>
                 <option value={40}>40 Questions (BSEB 10th Science/SST 40 Attempt Pattern)</option>
                 <option value={50}>50 Questions (BSEB Math / Hindi Full 50 Attempt Pattern)</option>

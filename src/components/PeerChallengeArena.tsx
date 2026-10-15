@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Swords, Flame, Trophy, Timer, RotateCcw, Share2, CheckCircle2, User, Zap } from 'lucide-react';
+import { Swords, Flame, Trophy, Timer, RotateCcw, Share2, CheckCircle2, User, Zap, Sparkles } from 'lucide-react';
+import { getExactSubjectQuestions } from '../utils/syllabusQuestionBank';
 
 interface BattleQuestion {
   question: string;
@@ -9,40 +10,24 @@ interface BattleQuestion {
 
 export const PeerChallengeArena: React.FC = () => {
   const [inBattle, setInBattle] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('10th & 12th Board Exams - हिन्दी (Hindi)');
+  const [selectedCount, setSelectedCount] = useState<number>(5);
+  const [questions, setQuestions] = useState<BattleQuestion[]>(() =>
+    getExactSubjectQuestions({
+      subjectOrCategory: '10th & 12th Board Exams - हिन्दी (Hindi)',
+      count: 5
+    }).map(q => ({
+      question: q.question,
+      options: q.options,
+      correct: q.correctAnswer
+    }))
+  );
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [userScore, setUserScore] = useState(0);
   const [botScore, setBotScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
   const [battleFinished, setBattleFinished] = useState(false);
   const [selectedOpt, setSelectedOpt] = useState<number | null>(null);
-
-  const questions: BattleQuestion[] = [
-    {
-      question: 'भारत के वर्तमान मुख्य चुनाव आयुक्त (Chief Election Commissioner) कौन हैं?',
-      options: ['राजीव कुमार', 'सुनील अरोड़ा', 'ज्ञानेश कुमार', 'सुशील चंद्रा'],
-      correct: 0
-    },
-    {
-      question: 'विटामिन सी (Vitamin C) का रासायनिक नाम क्या है?',
-      options: ['रेटिनॉल', 'एस्कॉर्बिक एसिड', 'थायमिन', 'टोकोफेरॉल'],
-      correct: 1
-    },
-    {
-      question: 'ऋषि प्रणाली में "भारत सरकार" का संक्षिप्त वाक्यांश कैसे बनता है?',
-      options: ['भ + र + स वृत्त', 'भ रेखाक्षर काटकर स वृत्त', 'भारत लिखकर ग से काटना', 'केवल भ'],
-      correct: 2
-    },
-    {
-      question: 'पानीपत की तृतीय लड़ाई (Third Battle of Panipat) किस वर्ष हुई थी?',
-      options: ['1526', '1556', '1761', '1764'],
-      correct: 2
-    },
-    {
-      question: 'मानव शरीर में रक्तचाप (Blood Pressure) मापने का यंत्र कौन-सा है?',
-      options: ['बैरोमीटर', 'स्फिग्मोमैनोमीटर', 'थर्मामीटर', 'स्टेथोस्कोप'],
-      correct: 1
-    }
-  ];
 
   // Timer countdown
   useEffect(() => {
@@ -58,6 +43,15 @@ export const PeerChallengeArena: React.FC = () => {
   }, [inBattle, battleFinished, timeLeft]);
 
   const startBattle = () => {
+    const fresh = getExactSubjectQuestions({
+      subjectOrCategory: selectedCategory,
+      count: selectedCount
+    }).map(q => ({
+      question: q.question,
+      options: q.options,
+      correct: q.correctAnswer
+    }));
+    setQuestions(fresh.slice(0, selectedCount));
     setInBattle(true);
     setCurrentQIndex(0);
     setUserScore(0);
@@ -122,6 +116,40 @@ export const PeerChallengeArena: React.FC = () => {
             <p className="text-xs text-slate-400 mt-1">
               आपका मुकाबला लाइव ऑनलाइन छात्र (अमित - पटना जोन) के साथ होगा।
             </p>
+          </div>
+
+          {/* Subject & Question Count Controls */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-400 uppercase">विषय / परीक्षा श्रेणी:</label>
+              <select
+                value={selectedCategory}
+                onChange={e => setSelectedCategory(e.target.value)}
+                className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-white outline-none focus:border-orange-500"
+              >
+                <option value="10th & 12th Board Exams - हिन्दी (Hindi)">🎓 बोर्ड परीक्षा - हिन्दी (Hindi)</option>
+                <option value="10th & 12th Board Exams - विज्ञान (Science)">🎓 बोर्ड परीक्षा - विज्ञान (Science)</option>
+                <option value="10th & 12th Board Exams - गणित (Math)">🎓 बोर्ड परीक्षा - गणित (Math)</option>
+                <option value="10th & 12th Board Exams - सामाजिक विज्ञान">🎓 बोर्ड परीक्षा - सामाजिक विज्ञान</option>
+                <option value="हिन्दी भाषा, व्याकरण व साहित्य">📖 हिन्दी व्याकरण व साहित्य</option>
+                <option value="SSC CGL & CHSL">🏆 SSC CGL, CHSL, MTS</option>
+                <option value="Railway RRB NTPC & Group D">🚆 Railway RRB NTPC</option>
+                <option value="Indian Polity & Constitution">🏛️ भारतीय संविधान</option>
+                <option value="SSC Stenographer">✍️ आशुलिपि (Stenography)</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-400 uppercase">प्रश्नों की संख्या:</label>
+              <select
+                value={selectedCount}
+                onChange={e => setSelectedCount(Number(e.target.value))}
+                className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-emerald-300 outline-none focus:border-orange-500"
+              >
+                <option value={5}>5 तीव्र प्रश्न (क्विक मुकाबला)</option>
+                <option value={10}>10 प्रश्न (मानक मुकाबला)</option>
+                <option value={15}>15 प्रश्न (विस्तृत मुकाबला)</option>
+              </select>
+            </div>
           </div>
           <button
             onClick={startBattle}

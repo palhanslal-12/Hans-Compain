@@ -36,6 +36,7 @@ import {
 import { recordStudyActivity } from '../firebase';
 import { playNaturalSpeech } from '../utils/naturalSpeech';
 import { askHansCompainAI } from '../utils/aiClientFallback';
+import { getExactSubjectQuestions } from '../utils/syllabusQuestionBank';
 
 export interface BattleQuestion {
   id: string | number;
@@ -485,91 +486,87 @@ export const LiveGroupQuizStudio: React.FC = () => {
     setTimeout(() => setRoomToast(null), 3500);
   };
 
-  // AI Question Generator Engine (Gemini / askHansCompainAI with Fallback)
+  // AI Question Generator Engine (Dedicated Battle Generator API with Exact Count & Syllabus Guarantee)
   const handleGenerateQuestionsWithAI = async () => {
     setIsGeneratingAI(true);
     setRoomToast('🤖 AI आपके लिए सिलेबस के अनुसार उच्च गुणवत्ता के प्रश्न बना रहा है...');
 
-    const prompt = `Generate exactly ${aiCount} multiple choice battle quiz questions for the exam/topic: "${aiExamCategory} - ${aiTopicPrompt || 'Comprehensive Syllabus'}".
-Difficulty level: ${aiDifficulty}.
-Format: Return ONLY a valid JSON array of objects with the exact schema:
-[
-  {
-    "question": "Question text in Hindi or English (Bilingual preferred)",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correct": 0, // 0 for Option A, 1 for B, 2 for C, 3 for D
-    "subject": "${aiExamCategory}",
-    "explanation": "Short 1-line crisp reason for correct answer in Hindi"
-  }
-]
-Do not include markdown ticks \`\`\`json or extra introductory text. Return strict JSON.`;
-
     try {
-      const response = await askHansCompainAI(prompt, null, 'chat');
-      let parsed: any[] = [];
+      const res = await fetch('/api/battle/generate-questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: aiExamCategory,
+          topicOrChapter: aiTopicPrompt.trim(),
+          difficulty: aiDifficulty,
+          count: aiCount
+        })
+      });
 
-      try {
-        const cleaned = response.replace(/```json/g, '').replace(/```/g, '').trim();
-        const jsonStart = cleaned.indexOf('[');
-        const jsonEnd = cleaned.lastIndexOf(']');
-        if (jsonStart !== -1 && jsonEnd !== -1) {
-          parsed = JSON.parse(cleaned.substring(jsonStart, jsonEnd + 1));
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.questions) && data.questions.length > 0) {
+          const formattedQs: BattleQuestion[] = data.questions.slice(0, aiCount).map((item: any, idx: number) => ({
+            id: item.id || `battle-${Date.now()}-${idx + 1}`,
+            question: item.question,
+            options: Array.isArray(item.options) && item.options.length === 4 ? item.options : ['विकल्प A', 'विकल्प B', 'विकल्प C', 'विकल्प D'],
+            correct: typeof item.correct === 'number' && item.correct >= 0 && item.correct <= 3 ? item.correct : 0,
+            subject: item.subject || aiExamCategory,
+            categoryTag: item.categoryTag || 'AI Battle',
+            explanation: item.explanation || 'सिलेबस के अनुसार सही उत्तर।'
+          }));
+
+          setQuestionsPool(formattedQs);
+          setBattleQuestions(formattedQs);
+          setRoomToast(`🎉 AI ने ${formattedQs.length} नए सिलेबस प्रश्न जनरेट कर दिए!`);
+          return;
         }
-      } catch (e) {
-        console.warn('JSON parsing error from AI response, using built-in generator', e);
-      }
-
-      if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-        const formattedQs: BattleQuestion[] = parsed.map((item, idx) => ({
-          id: `ai-${Date.now()}-${idx}`,
-          question: item.question || `प्रश्न #${idx + 1}`,
-          options: Array.isArray(item.options) && item.options.length === 4 ? item.options : ['विकल्प A', 'विकल्प B', 'विकल्प C', 'विकल्प D'],
-          correct: typeof item.correct === 'number' && item.correct >= 0 && item.correct <= 3 ? item.correct : 0,
-          subject: item.subject || aiExamCategory,
-          categoryTag: 'AI Generated',
-          explanation: item.explanation || 'परीक्षा के अनुसार सही उत्तर।'
-        }));
-
-        setQuestionsPool(formattedQs);
-        setBattleQuestions(formattedQs);
-        setRoomToast(`🎉 AI ने ${formattedQs.length} नए सिलेबस प्रश्न जनरेट कर दिए!`);
-      } else {
-        // Fallback generator if parsing failed
-        const fallbackQs = generateExamFallbackQuestions(aiExamCategory, aiCount);
-        setQuestionsPool(fallbackQs);
-        setBattleQuestions(fallbackQs);
-        setRoomToast(`✅ ${fallbackQs.length} महत्वपूर्ण परीक्षा प्रश्न तैयार हैं!`);
       }
     } catch (err) {
-      console.error(err);
-      const fallbackQs = generateExamFallbackQuestions(aiExamCategory, aiCount);
-      setQuestionsPool(fallbackQs);
-      setBattleQuestions(fallbackQs);
-      setRoomToast(`✅ ${fallbackQs.length} महत्वपूर्ण परीक्षा प्रश्न लोड हो गए!`);
-    } finally {
-      setIsGeneratingAI(false);
-      setTimeout(() => setRoomToast(null), 4000);
+      console.warn('Battle questions API notice, using exact syllabus offline vault:', err);
     }
+
+    // High-Yield Authentic Offline Fallback (100% subject isolation & exact count)
+    const fallbackQs = generateExamFallbackQuestions(aiExamCategory, aiTopicPrompt, aiCount);
+    setQuestionsPool(fallbackQs);
+    setBattleQuestions(fallbackQs);
+    setRoomToast(`✅ ${fallbackQs.length} महत्वपूर्ण परीक्षा प्रश्न तैयार हैं!`);
+    setIsGeneratingAI(false);
+    setTimeout(() => setRoomToast(null), 4000);
   };
 
-  // Helper Fallback Generator for Exam Questions
-  const generateExamFallbackQuestions = (cat: string, count: number): BattleQuestion[] => {
-    const list = [...initialDefaultQuestions, ...initialDefaultQuestions, ...initialDefaultQuestions];
-    return list.slice(0, count).map((q, i) => ({
-      ...q,
-      id: `fb-${i}-${Date.now()}`,
-      question: `${i + 1}. [${cat}] ${q.question}`
+  // Helper Fallback Generator for Exam Questions (Strict Subject & Exact Count)
+  const generateExamFallbackQuestions = (cat: string, topic: string, count: number): BattleQuestion[] => {
+    const isBoard = cat.toLowerCase().includes('board') || cat.includes('10वीं') || cat.includes('12वीं');
+    const list = getExactSubjectQuestions({
+      subjectOrCategory: cat,
+      topicOrChapter: topic,
+      level: isBoard ? 'board' : 'competitive',
+      count: count
+    });
+    return list.slice(0, count).map((q, idx) => ({
+      id: `fb-${q.id}-${Date.now()}-${idx + 1}`,
+      question: q.question,
+      options: q.options,
+      correct: q.correctAnswer,
+      subject: q.subject,
+      categoryTag: isBoard ? 'Board' : 'Competitive',
+      explanation: q.explanation
     }));
   };
 
-  // Create or Enter Lobby with 10 to 50 students
+  // Create or Enter Lobby with 10 to 50 students (Enforces exact count & subject)
   const handleProceedToLobby = () => {
-    const activeList = questionsPool.length > 0 ? questionsPool : initialDefaultQuestions;
+    let activeList = questionsPool;
+    if (!activeList || activeList.length === 0 || activeList.length !== aiCount) {
+      activeList = generateExamFallbackQuestions(aiExamCategory, aiTopicPrompt, aiCount);
+      setQuestionsPool(activeList);
+    }
     setBattleQuestions(activeList);
     const liveStudents = generateLiveParticipants(roomCapacity);
     setParticipants(liveStudents);
     setBattleState('lobby');
-    setRoomToast(`🚀 बैटल रूम तैयार है! ${roomCapacity} छात्रों के लिए लॉबी शुरू हुई।`);
+    setRoomToast(`🚀 बैटल रूम तैयार है! ${activeList.length} सिलेबस प्रश्नों के साथ ${roomCapacity} छात्रों की लॉबी शुरू हुई।`);
     setTimeout(() => setRoomToast(null), 3500);
   };
 
@@ -1044,11 +1041,14 @@ Do not include markdown ticks \`\`\`json or extra introductory text. Return stri
                     onChange={e => setAiExamCategory(e.target.value)}
                     className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-white outline-none focus:border-cyan-500"
                   >
+                    <option value="10th & 12th Board - हिन्दी (Hindi Grammar & Sahitya)">📖 10वीं व 12वीं बोर्ड - हिन्दी (व्याकरण व साहित्य)</option>
+                    <option value="10th & 12th Board - विज्ञान (Science)">🔬 10वीं व 12वीं बोर्ड - विज्ञान (भौतिक, रसायन, जीव)</option>
+                    <option value="10th & 12th Board - गणित (Mathematics)">📐 10वीं व 12वीं बोर्ड - गणित (Mathematics)</option>
+                    <option value="10th & 12th Board - सामाजिक विज्ञान (Social Science)">🌍 10वीं बोर्ड - सामाजिक विज्ञान (SST)</option>
                     <option value="SSC CGL & CHSL">🏆 SSC CGL, CHSL, MTS</option>
                     <option value="SSC Stenographer Grade C & D">✍️ SSC Stenographer Grade C &amp; D</option>
                     <option value="Railway RRB NTPC & Group D">🚆 Railway RRB NTPC &amp; Group D</option>
-                    <option value="10th & 12th Board Exams">🎓 10वीं व 12वीं बोर्ड परीक्षा</option>
-                    <option value="General Science (Physics, Chem, Bio)">🔬 सामान्य विज्ञान (Physics, Chem, Bio)</option>
+                    <option value="General Science (Physics, Chem, Bio)">🔬 सामान्य विज्ञान (General Science)</option>
                     <option value="Indian Polity & Constitution">🏛️ भारतीय राजव्यवस्था व संविधान</option>
                     <option value="Current Affairs 2026">📰 ताजा करेंट अफेयर्स (Latest CA)</option>
                   </select>
@@ -1057,17 +1057,19 @@ Do not include markdown ticks \`\`\`json or extra introductory text. Return stri
                 {/* Question Count */}
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-400 uppercase">
-                    प्रश्नों की संख्या:
+                    प्रश्नों की संख्या (Exact Count):
                   </label>
                   <select
                     value={aiCount}
                     onChange={e => setAiCount(Number(e.target.value))}
                     className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-white outline-none focus:border-cyan-500"
                   >
-                    <option value={5}>5 प्रश्न (क्विक मुकाबला)</option>
-                    <option value={10}>10 प्रश्न (मानक बैटल)</option>
-                    <option value={15}>15 प्रश्न (विस्तृत टेस्ट)</option>
-                    <option value={20}>20 प्रश्न (फुल मॉक बैटल)</option>
+                    <option value={5}>5 प्रश्न (क्विक मुकाबला - 3 मिनट)</option>
+                    <option value={10}>10 प्रश्न (मानक बैटल - 6 मिनट)</option>
+                    <option value={15}>15 प्रश्न (विस्तृत टेस्ट - 10 मिनट)</option>
+                    <option value={20}>20 प्रश्न (फुल मॉक बैटल - 15 मिनट)</option>
+                    <option value={25}>25 प्रश्न (चैंपियनशिप बैटल - 20 मिनट)</option>
+                    <option value={30}>30 प्रश्न (मेगा मैराथन - 25 मिनट)</option>
                   </select>
                 </div>
 

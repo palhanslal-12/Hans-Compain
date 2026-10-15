@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+Allow: /logo.png
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /favicon-96x96.png
+Allow: /pwa-192x192.png
+Allow: /pwa-512x512.png
+Allow: /apple-touch-icon.png
+Allow: /og-image.png
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+Allow: /logo.png
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /favicon-96x96.png
+Allow: /pwa-192x192.png
+Allow: /pwa-512x512.png
+Allow: /og-image.png
+
+Sitemap: https://ais-pre-eja2hqh55k6pg6dfrk3z4m-1011428299500.asia-southeast1.run.app/sitemap.xml

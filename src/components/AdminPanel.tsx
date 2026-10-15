@@ -193,11 +193,25 @@ export const getStoredFeatureToggles = (): Record<string, boolean> => {
 
 interface AdminPanelProps {
   onReturnHome?: () => void;
+  currentUser?: any;
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome, currentUser }) => {
+  // Authorized email and strict password configuration
+  const AUTHORIZED_ADMIN_EMAIL = 'palhanslal4@gmail.com';
+  const ADMIN_AUTHORIZED_PASSWORD = 'Chhangur#@8084';
+
+  // Check if logged-in user is an unauthorized other email
+  const isOtherUserEmail =
+    !!currentUser?.email &&
+    currentUser.email.trim().toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase();
+
   // Password protection state
   const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
+    const email = currentUser?.email?.trim().toLowerCase();
+    if (email && email !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+      return false;
+    }
     return sessionStorage.getItem('hans_admin_authorized') === 'true';
   });
   const [adminPassword, setAdminPassword] = useState('');
@@ -302,28 +316,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome }) => {
 
   const handleAdminLogin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const validPasswords = [
-      'hans@admin2026',
-      'admin',
-      'hans',
-      '2026',
-      'hans2026',
-      'hanslalpal',
-      '1234'
-    ];
-    if (validPasswords.includes(adminPassword.trim().toLowerCase()) || !adminPassword) {
+    if (adminPassword.trim() === ADMIN_AUTHORIZED_PASSWORD) {
       setIsAuthorized(true);
       sessionStorage.setItem('hans_admin_authorized', 'true');
       setPasswordError(null);
     } else {
-      setPasswordError('अमान्य पासवर्ड। कृपया सही एडमिन पासवर्ड दर्ज करें।');
+      setPasswordError('अमान्य सिक्योरिटी पासवर्ड! केवल सही पासवर्ड (Chhangur#@8084) से ही एडमिन पैनल खोला जा सकता है।');
     }
   };
 
-  const handleQuickUnlock = () => {
-    setIsAuthorized(true);
-    sessionStorage.setItem('hans_admin_authorized', 'true');
-    setPasswordError(null);
+  const handleAdminLogout = () => {
+    sessionStorage.removeItem('hans_admin_authorized');
+    setIsAuthorized(false);
+    setAdminPassword('');
   };
 
   // Instant optimistic toggle + backend sync
@@ -488,37 +493,79 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome }) => {
   ).length;
 
   // ============================================================================
-  // SECURE PASSWORD PROTECTION SCREEN (CLEAN MINIMAL EXECUTIVE MODAL)
+  // 1. ACCESS DENIED: IF LOGGED IN WITH ANY OTHER EMAIL
+  // ============================================================================
+  if (isOtherUserEmail) {
+    return (
+      <div className="w-full min-h-full overflow-y-auto flex items-center justify-center p-4 bg-[#060A12] text-slate-100 py-12">
+        <div className="w-full max-w-md bg-[#0B111E] border border-rose-900/60 rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl text-center">
+          <div className="w-12 h-12 rounded-xl bg-rose-950/60 border border-rose-800/80 flex items-center justify-center mx-auto text-rose-400">
+            <ShieldAlert className="w-6 h-6" />
+          </div>
+          <div className="space-y-1.5">
+            <h1 className="text-lg font-bold text-white">
+              एक्सेस अस्वीकृत (Access Denied)
+            </h1>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              यह एडमिन पैनल केवल अधिकृत ईमेल (<span className="text-amber-300 font-semibold">{AUTHORIZED_ADMIN_EMAIL}</span>) के लिए आरक्षित है।
+            </p>
+          </div>
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1 text-left">
+            <div className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">वर्तमान लॉग-इन ईमेल:</div>
+            <div className="font-mono text-rose-300 truncate">{currentUser?.email}</div>
+          </div>
+          <p className="text-[11px] text-slate-500">
+            अन्य ईमेल से एडमिन पैनल एक्सेस करने की अनुमति नहीं है।
+          </p>
+          {onReturnHome && (
+            <button
+              type="button"
+              onClick={onReturnHome}
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-semibold text-xs rounded-xl cursor-pointer transition-colors"
+            >
+              होमपेज पर वापस जाएं
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // 2. SECURE PASSWORD PROTECTION SCREEN (Chhangur#@8084)
   // ============================================================================
   if (!isAuthorized) {
     return (
-      <div className="min-h-[85vh] w-full flex items-center justify-center p-4 bg-[#060A12] text-slate-100">
+      <div className="w-full min-h-full overflow-y-auto flex items-center justify-center p-4 bg-[#060A12] text-slate-100 py-12">
         <form
           onSubmit={handleAdminLogin}
           className="w-full max-w-md bg-[#0B111E] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl"
         >
           <div className="space-y-2">
-            <div className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-200">
+            <div className="w-11 h-11 rounded-xl bg-slate-900 border border-amber-500/40 flex items-center justify-center text-amber-400">
               <Lock className="w-5 h-5" />
             </div>
             <h1 className="text-lg font-bold text-white pt-1">
               एडमिनिस्ट्रेटर लॉगिन (Owner Console)
             </h1>
             <p className="text-xs text-slate-400 leading-relaxed">
-              यह कंट्रोल पैनल केवल एडमिन (हंसलाल पाल) के लिए सुरक्षित है। कृपया पासवर्ड दर्ज करें या डायरेक्ट लॉगिन चुनें।
+              यह कंट्रोल पैनल केवल एडमिन (हंसलाल पाल) के लिए सुरक्षित है। कृपया एडमिन सिक्योरिटी पासवर्ड दर्ज करें।
             </p>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-300">पासवर्ड (Security Key)</label>
+              <label className="text-xs font-medium text-slate-300">एडमिन पासवर्ड (Security Key)</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={adminPassword}
-                  onChange={e => setAdminPassword(e.target.value)}
-                  placeholder="पासवर्ड दर्ज करें..."
-                  className="w-full p-3 pr-10 rounded-xl bg-[#060A12] border border-slate-800 text-sm outline-none focus:border-slate-600 text-white placeholder:text-slate-600"
+                  onChange={e => {
+                    setAdminPassword(e.target.value);
+                    if (passwordError) setPasswordError(null);
+                  }}
+                  placeholder="एडमिन पासवर्ड दर्ज करें..."
+                  className="w-full p-3 pr-10 rounded-xl bg-[#060A12] border border-slate-800 text-sm outline-none focus:border-amber-500 text-white placeholder:text-slate-600"
                   autoFocus
                 />
                 <button
@@ -532,26 +579,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome }) => {
             </div>
 
             {passwordError && (
-              <div className="text-xs text-rose-300 bg-rose-950/30 border border-rose-800/50 p-2.5 rounded-lg">
-                {passwordError}
+              <div className="text-xs text-rose-300 bg-rose-950/40 border border-rose-800/60 p-2.5 rounded-lg flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{passwordError}</span>
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
               <button
                 type="submit"
-                className="w-full py-2.5 bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
                 <Unlock className="w-4 h-4" />
-                <span>कंसोल खोलें</span>
+                <span>कंसोल खोलें (Unlock)</span>
               </button>
-              <button
-                type="button"
-                onClick={handleQuickUnlock}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors"
-              >
-                <span>ओनर डायरेक्ट एक्सेस</span>
-              </button>
+              {onReturnHome && (
+                <button
+                  type="button"
+                  onClick={onReturnHome}
+                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>होमपेज</span>
+                </button>
+              )}
             </div>
           </div>
         </form>
@@ -865,9 +916,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome }) => {
   // FULL-PAGE CLEAN PROFESSIONAL ADMIN CONSOLE
   // ============================================================================
   return (
-    <div className="w-full min-h-full bg-[#060A12] text-slate-100 font-sans pb-14">
+    <div className="w-full min-h-full overflow-y-auto bg-[#060A12] text-slate-100 font-sans pb-28 scrollbar-thin">
       {/* 1. FULL-WIDTH CLEAN EXECUTIVE TOP BAR */}
-      <div className="border-b border-slate-800/90 bg-[#090E1A] px-4 sm:px-6 py-4">
+      <div className="border-b border-slate-800/90 bg-[#090E1A] px-4 sm:px-6 py-4 sticky top-0 z-10 shadow-md">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-3">
             {onReturnHome && (
@@ -916,6 +967,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome }) => {
             >
               <RefreshCw className={`w-3.5 h-3.5 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
               <span>डेटा रीफ्रेश</span>
+            </button>
+
+            <button
+              onClick={handleAdminLogout}
+              className="px-3 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/60 text-rose-300 font-medium text-xs rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+              title="एडमिन कंसोल लॉक करें"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>कंसोल लॉक करें</span>
             </button>
           </div>
         </div>

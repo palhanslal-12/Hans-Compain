@@ -11,8 +11,7 @@ let currentAbortController: AbortController | null = null;
 let currentSpeechRate = 1.0;
 let serverTtsDownUntil = 0; // Prevents repeated network delays if server TTS is offline
 
-// In-memory LRU audio cache so repeated sentences/questions play instantaneously
-const ttsAudioCache = new Map<string, string>();
+// Clean neural speech synthesis initialization
 
 export function cleanTextForSpeech(text: string): string {
   if (!text) return '';
@@ -182,13 +181,8 @@ export function getBestNaturalVoice(lang: 'hi-IN' | 'en-US'): SpeechSynthesisVoi
 }
 
 async function fetchGeminiNeuralAudio(sentence: string, signal: AbortSignal): Promise<string | null> {
-  const cacheKey = sentence.trim();
-  if (ttsAudioCache.has(cacheKey)) {
-    return ttsAudioCache.get(cacheKey)!;
-  }
-
   const timeoutController = new AbortController();
-  const timer = setTimeout(() => timeoutController.abort(), 8000);
+  const timer = setTimeout(() => timeoutController.abort(), 6000);
   const onParentAbort = () => timeoutController.abort();
   signal.addEventListener('abort', onParentAbort, { once: true });
 
@@ -213,11 +207,6 @@ async function fetchGeminiNeuralAudio(sentence: string, signal: AbortSignal): Pr
     const data = await res.json();
     if (data && data.audioBase64) {
       const dataUrl = `data:${data.mimeType || 'audio/mpeg'};base64,${data.audioBase64}`;
-      if (ttsAudioCache.size > 100) {
-        const firstKey = ttsAudioCache.keys().next().value;
-        if (firstKey) ttsAudioCache.delete(firstKey);
-      }
-      ttsAudioCache.set(cacheKey, dataUrl);
       return dataUrl;
     }
   } catch {

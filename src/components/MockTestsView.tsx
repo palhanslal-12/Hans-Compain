@@ -540,7 +540,8 @@ export const MockTestsView: React.FC = () => {
 
       const data = await res.json();
       if (data && data.success && Array.isArray(data.questions) && data.questions.length > 0) {
-        const liveQuestions: MockQuestion[] = data.questions.map((q: any, idx: number) => ({
+        const exactQuestions = data.questions.slice(0, selectedQuestionCount);
+        const liveQuestions: MockQuestion[] = exactQuestions.map((q: any, idx: number) => ({
           id: q.id || `live_comp_${Date.now()}_${idx}`,
           subject: q.subject || targetSubject,
           question: q.question,

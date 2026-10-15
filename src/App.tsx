@@ -640,16 +640,18 @@ export const App: React.FC = () => {
                 </button>
               </div>
 
-              <button 
-                onClick={() => navigateTo('admin')}
-                className="w-full p-2 rounded-xl bg-slate-950 border border-amber-500/30 hover:border-amber-400 flex items-center justify-between text-xs font-bold text-amber-300 cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Owner Admin Console</span>
-                </div>
-                <span className="text-[8px] bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded font-black">Admin</span>
-              </button>
+              {(!currentUser?.email || currentUser.email.toLowerCase() === 'palhanslal4@gmail.com') && (
+                <button 
+                  onClick={() => navigateTo('admin')}
+                  className="w-full p-2 rounded-xl bg-slate-950 border border-amber-500/30 hover:border-amber-400 flex items-center justify-between text-xs font-bold text-amber-300 cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Owner Admin Console</span>
+                  </div>
+                  <span className="text-[8px] bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded font-black">Admin</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -689,7 +691,17 @@ export const App: React.FC = () => {
 
         {/* 3. MAIN ROUTED VIEW AREA */}
         <main className="flex-1 w-full flex flex-col h-full overflow-hidden bg-[#03060E] relative">
-          <div className={`flex-1 w-full ${activeView === 'home' ? 'overflow-y-auto flex flex-col justify-between p-2 sm:p-3.5 lg:p-5' : (activeView === 'admin' || activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') ? 'overflow-hidden p-0 flex flex-col h-full' : (activeView === 'ca' || activeView === 'current-affairs') ? 'overflow-y-auto px-2 py-2 sm:px-4 sm:py-3' : 'overflow-y-auto px-3 py-3 sm:px-6 sm:py-6'} scrollbar-thin`}>
+          <div className={`flex-1 w-full ${
+            activeView === 'home'
+              ? 'overflow-y-auto flex flex-col justify-between p-2 sm:p-3.5 lg:p-5'
+              : (activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
+                ? 'overflow-hidden p-0 flex flex-col h-full'
+                : (activeView === 'admin')
+                  ? 'overflow-y-auto p-0 flex flex-col h-full'
+                  : (activeView === 'ca' || activeView === 'current-affairs')
+                    ? 'overflow-y-auto px-2 py-2 sm:px-4 sm:py-3'
+                    : 'overflow-y-auto px-3 py-3 sm:px-6 sm:py-6'
+          } scrollbar-thin`}>
             
             {/* --- HOME VIEW (DASHBOARD - RESPONSIVE FOR MOBILE, TABLET, LAPTOP & PC) --- */}
             {activeView === 'home' && (
@@ -947,12 +959,14 @@ export const App: React.FC = () => {
                       एडमिन कंट्रोल पैनल से इस फीचर को अस्थायी रूप से ऑफ़ किया गया है। आप इसे एडमिन पैनल से कभी भी एक क्लिक में वापस चालू (ON) कर सकते हैं।
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-                      <button
-                        onClick={() => setActiveView('admin')}
-                        className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs cursor-pointer"
-                      >
-                        एडमिन पैनल से चालू करें (Turn ON)
-                      </button>
+                      {(!currentUser?.email || currentUser.email.toLowerCase() === 'palhanslal4@gmail.com') && (
+                        <button
+                          onClick={() => setActiveView('admin')}
+                          className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs cursor-pointer"
+                        >
+                          एडमिन पैनल से चालू करें (Turn ON)
+                        </button>
+                      )}
                       <button
                         onClick={() => setActiveView('home')}
                         className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-semibold text-xs cursor-pointer"
@@ -1008,7 +1022,7 @@ export const App: React.FC = () => {
 
                   {activeView === 'mock-interview' && <MockInterviewView />}
                   {(activeView === 'analytics' || activeView === 'performance-analytics') && <AdminAnalyticsDashboard />}
-                  {activeView === 'admin' && <AdminPanel onReturnHome={() => setActiveView('home')} />}
+                  {activeView === 'admin' && <AdminPanel onReturnHome={() => setActiveView('home')} currentUser={currentUser} />}
 
                   {/* FULL MODULE WORK PAGES FROM ZIP & RENDER PROJECT */}
                   {(activeView === 'bharati-bhawan' || activeView === 'bharti-bhawan' || activeView === 'bharatibhawan') && <BharatiBhawanStudyHub />}
