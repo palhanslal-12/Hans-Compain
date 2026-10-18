@@ -164,16 +164,16 @@ export const HansCompainLogo = ({
   }
 
   return (
-    <div className="flex items-center gap-2 cursor-pointer select-none group shrink-0">
+    <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer select-none group shrink-0">
       <div className="relative inline-flex items-center justify-center bg-[#081220] border border-cyan-500/50 rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105 shrink-0 overflow-hidden">
         <OfficialHansCompainLogoSVG className={className} />
       </div>
       <div className="flex flex-col text-left leading-tight shrink-0">
-        <div className="font-black text-sm sm:text-base tracking-wide group-hover:text-cyan-200 transition-colors font-brand whitespace-nowrap">
+        <div className="font-black text-xs sm:text-base tracking-wide group-hover:text-cyan-200 transition-colors font-brand whitespace-nowrap">
           <span className="text-white">Hans</span><span className="text-[#76c843]">Compain</span>
         </div>
         {showSubtitle && (
-          <span className="text-[8px] sm:text-[9px] text-emerald-400 font-extrabold tracking-wider uppercase mt-0.5 whitespace-nowrap">
+          <span className="text-[7.5px] sm:text-[9px] text-emerald-400 font-extrabold tracking-wider uppercase mt-0.5 whitespace-nowrap hidden xs:inline">
             EXAM COMPANION • परीक्षा साथी
           </span>
         )}

@@ -18,7 +18,8 @@ import {
   Check,
   Mic,
   MicOff,
-  Flag
+  Flag,
+  Copy
 } from 'lucide-react';
 import { recordStudyActivity, getEffectiveUser } from '../firebase';
 import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
@@ -1199,15 +1200,30 @@ export const AIDoubtSolverView: React.FC<{
                 <span className="text-[10px] font-black uppercase tracking-wider text-cyan-300">
                   {msg.role === 'user' ? '👤 आपका प्रश्न' : '🤖 HANS COMPAIN AI'}
                 </span>
-                {msg.role === 'assistant' && (
-                  <button
-                    onClick={() => speakText(msg.text)}
-                    className="text-[10px] font-bold text-amber-300 hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <Volume2 className="w-3 h-3" />
-                    <span>सुनें</span>
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {msg.role === 'assistant' && (
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(msg.text);
+                        // Optional: add a temporary "copied" state/feedback
+                      }}
+                      className="text-[10px] font-bold text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      title="टेक्स्ट कॉपी करें"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>कॉपी</span>
+                    </button>
+                  )}
+                  {msg.role === 'assistant' && (
+                    <button
+                      onClick={() => speakText(msg.text)}
+                      className="text-[10px] font-bold text-amber-300 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <Volume2 className="w-3 h-3" />
+                      <span>सुनें</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Render Attached Images & PDF Files in Message Bubble */}

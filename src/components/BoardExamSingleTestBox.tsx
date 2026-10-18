@@ -32,6 +32,7 @@ import {
 import { recordStudyActivity } from '../firebase';
 import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 import { getExactSubjectQuestions } from '../utils/syllabusQuestionBank';
+import StudentAlertEngine from '../utils/studentAlertEngine';
 
 export interface BoardQuestion {
   id: string;
@@ -432,6 +433,15 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
     setShowPaletteDrawer(false);
     setResultSubView('summary');
 
+    // Save unfinished test session for smart auto-reminder
+    try {
+      StudentAlertEngine.saveUnfinishedSession({
+        type: 'board_exam',
+        title: title,
+        progressText: `${questions.length} प्रश्न`
+      });
+    } catch {}
+
     recordStudyActivity(
       'Board Exam Live Test Started',
       title,
@@ -445,6 +455,11 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
     setShowSubmitConfirmModal(false);
     setIsSubmitted(true);
     setResultSubView('summary');
+
+    // Clear unfinished session when submitted
+    try {
+      StudentAlertEngine.clearUnfinishedSession();
+    } catch {}
 
     // Sync wrong answers to Mistake Notebook
     try {

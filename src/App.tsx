@@ -45,13 +45,13 @@ import { ScienceFormulaLabView } from './components/ScienceFormulaLabView';
 import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
 import { LiveGroupQuizStudio } from './components/LiveGroupQuizStudio';
 import { FormulaVaultView } from './components/FormulaVaultView';
-import { TeacherNotesBroadcastView } from './components/TeacherNotesBroadcastView';
 import { AuthLoginModal } from './components/AuthLoginModal';
 import { BoardExamSingleTestBox } from './components/BoardExamSingleTestBox';
 import { DailyGoalsView } from './components/DailyGoalsView';
 import { AdminPanel, getStoredFeatureToggles, ALL_CONTROLLABLE_FEATURES } from './components/AdminPanel';
 import { StudentGoalOnboardingModal } from './components/StudentGoalOnboardingModal';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
+import StudentAlertEngine from './utils/studentAlertEngine';
 import { UserProfileModal } from './components/UserProfileModal';
 import { AllExamsSyllabusModal } from './components/AllExamsSyllabusModal';
 import { MockInterviewView } from './components/MockInterviewView';
@@ -134,7 +134,6 @@ export const App: React.FC = () => {
   const [isCompetitiveHubOpen, setIsCompetitiveHubOpen] = useState(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isFormulaVaultOpen, setIsFormulaVaultOpen] = useState(false);
-  const [isTeacherNotesOpen, setIsTeacherNotesOpen] = useState(false);
   const [isAuthLoginModalOpen, setIsAuthLoginModalOpen] = useState(false);
 
   // Home chat input bar state
@@ -228,6 +227,10 @@ export const App: React.FC = () => {
       const featName = viewFeatureMap[activeView] || activeView;
       trackVisitorAction(featName, u ? 'लॉगिन स्थिति सक्रिय' : 'अतिथि विजिटर सक्रिय');
     });
+    // Check 24-hour inactivity & incomplete study session alerts
+    try {
+      StudentAlertEngine.checkAndTriggerAlerts();
+    } catch {}
     return () => unsub();
   }, []);
 
@@ -349,51 +352,52 @@ export const App: React.FC = () => {
       
       {/* 1. TOP HEADER (HIDDEN WHEN READING AN ARTICLE SO TOOLBAR #2 MOVES TO THE TOP) */}
       {!(isReadingArticle && (activeView === 'ca' || activeView === 'current-affairs')) && (
-        <header className="px-3 sm:px-4 h-14 sm:h-16 border-b border-slate-900 flex items-center justify-between gap-2 sticky top-0 z-40 backdrop-blur-md bg-[#03060E]/95 w-full">
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+        <header className="px-2 sm:px-4 h-13 sm:h-16 border-b border-slate-900 flex items-center justify-between gap-1 sm:gap-2 sticky top-0 z-40 backdrop-blur-md bg-[#03060E]/95 w-full">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 bg-[#091122] hover:bg-[#101B34] border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center justify-center shrink-0"
+              className="p-1.5 sm:p-2 bg-[#091122] hover:bg-[#101B34] border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center justify-center shrink-0"
               title="Open 3-Line Menu"
             >
-              <Menu className="w-5 h-5 text-cyan-400" />
+              <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
             </button>
 
             {activeView !== 'home' && (
               <button
                 onClick={() => navigateTo('home')}
-                className="p-1.5 px-2.5 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/30 text-cyan-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
+                className="p-1 px-2 sm:p-1.5 sm:px-2.5 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/30 text-cyan-300 hover:text-white rounded-xl text-[11px] sm:text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-md shrink-0"
                 title="Return to Home Dashboard"
               >
-                <ArrowLeft className="w-4 h-4 text-cyan-400" />
+                <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
                 <span className="hidden xs:inline">Home</span>
               </button>
             )}
 
-            <div onClick={() => navigateTo('home')} className="flex items-center cursor-pointer select-none shrink-0">
-              <HansCompainLogo className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" />
+            <div onClick={() => navigateTo('home')} className="flex items-center cursor-pointer select-none shrink-0 min-w-0">
+              <HansCompainLogo className="w-6 h-6 sm:w-8 sm:h-8 shrink-0" />
             </div>
           </div>
 
-          {/* Clean Header Right Controls (Non-working voice buttons hidden so HANS COMPAIN is 100% clear) */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Clean Header Right Controls (Download, Share, Login, Bell 100% visible on mobile) */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <PWAInstallButton variant="header" />
 
             {currentUser ? (
               <button
                 onClick={() => setIsUserProfileModalOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-900/80 transition-all"
+                className="px-2 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[10px] sm:text-[11px] font-bold flex items-center gap-1 cursor-pointer hover:bg-emerald-900/80 transition-all shrink-0"
                 title="लॉगिन सक्रिय - प्रोफाइल देखें"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="max-w-[90px] sm:max-w-[140px] truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="max-w-[55px] sm:max-w-[120px] truncate">
                   {currentUser.displayName || currentUser.email || 'Logged In'}
                 </span>
               </button>
             ) : (
               <button
                 onClick={() => signInWithGoogle(targetExam).catch(() => {})}
-                className="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-black cursor-pointer shadow transition-all"
+                className="px-2.5 py-1 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-[10px] sm:text-[11px] font-black cursor-pointer shadow transition-all shrink-0"
+                title="Google से लॉगिन करें"
               >
                 लॉगिन
               </button>
@@ -401,9 +405,10 @@ export const App: React.FC = () => {
 
             <button
               onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative p-2 rounded-full bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white cursor-pointer transition-all shrink-0"
+              className="relative p-1.5 sm:p-2 rounded-full bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white cursor-pointer transition-all shrink-0"
+              title="सूचना व अलर्ट केंद्र"
             >
-              <Bell className="w-4 h-4" />
+              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
               <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-rose-600 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-[#070D1D] animate-pulse">
                 3
               </span>
@@ -763,22 +768,6 @@ export const App: React.FC = () => {
                     </span>
                   </div>
                   <button className="px-3 py-1 bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-amber-300 transition-colors pointer-events-none">
-                    OPEN
-                  </button>
-                </div>
-
-                {/* Emerald Pill Capsule: ONLINE CLASS NOTES & PDF BROADCAST */}
-                <div 
-                  onClick={() => setIsTeacherNotesOpen(true)}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-emerald-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <span className="text-base sm:text-lg">📂</span>
-                    <span className="text-[11px] sm:text-xs font-black text-white tracking-wide uppercase">
-                      ONLINE CLASS NOTES &amp; PDF • ऑनलाइन क्लास नोट्स और पीडीएफ
-                    </span>
-                  </div>
-                  <button className="px-3 py-1 bg-emerald-400 text-slate-950 font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-emerald-300 transition-colors pointer-events-none">
                     OPEN
                   </button>
                 </div>
@@ -1183,10 +1172,6 @@ export const App: React.FC = () => {
       <FormulaVaultView
         isOpen={isFormulaVaultOpen}
         onClose={() => setIsFormulaVaultOpen(false)}
-      />
-      <TeacherNotesBroadcastView
-        isOpen={isTeacherNotesOpen}
-        onClose={() => setIsTeacherNotesOpen(false)}
       />
       <AuthLoginModal
         isOpen={isAuthLoginModalOpen}
