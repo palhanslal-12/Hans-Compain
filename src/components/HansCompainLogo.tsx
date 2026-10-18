@@ -133,20 +133,20 @@ export const OfficialHansCompainLogoSVG = ({ className = "w-12 h-12" }: { classN
       <tspan fill="#76c843">Compain</tspan>
     </text>
 
-    {/* SUBTITLE: — STUDY COMPANION — */}
+    {/* SUBTITLE: — STUDY COMPANION • परीक्षा साथी — */}
     <g opacity="0.95">
-      <line x1="68" y1="452" x2="102" y2="452" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
-      <text x="256" y="458" textAnchor="middle" fontFamily="'Plus Jakarta Sans', Arial, sans-serif" fontWeight="800" fontSize="18.5" fill="#f1f5f9" letterSpacing="3.2">
-        STUDY COMPANION
+      <line x1="52" y1="452" x2="88" y2="452" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
+      <text x="256" y="458" textAnchor="middle" fontFamily="'Plus Jakarta Sans', Arial, sans-serif" fontWeight="800" fontSize="16" fill="#f1f5f9" letterSpacing="1.8">
+        STUDY COMPANION • परीक्षा साथी
       </text>
-      <line x1="410" y1="452" x2="444" y2="452" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="424" y1="452" x2="460" y2="452" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
     </g>
   </svg>
 );
 
 export const HansCompainLogo = ({
   className = "w-9 h-9",
-  showSubtitle = false,
+  showSubtitle = true,
   variant = "header"
 }: {
   className?: string;
@@ -173,8 +173,8 @@ export const HansCompainLogo = ({
           <span className="text-white">Hans</span><span className="text-[#76c843]">Compain</span>
         </div>
         {showSubtitle && (
-          <span className="text-[8px] sm:text-[9px] text-cyan-400 font-extrabold tracking-wider uppercase mt-0.5 whitespace-nowrap">
-            STUDY COMPANION
+          <span className="text-[8px] sm:text-[9px] text-emerald-400 font-extrabold tracking-wider uppercase mt-0.5 whitespace-nowrap">
+            EXAM COMPANION • परीक्षा साथी
           </span>
         )}
       </div>

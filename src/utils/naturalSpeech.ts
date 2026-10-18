@@ -238,8 +238,8 @@ function speakSentenceWithBilingualBrowser(
     const seg = segments[segIdx];
     const utterance = new SpeechSynthesisUtterance(seg.text);
     utterance.lang = seg.lang;
-    utterance.rate = Math.max(0.75, Math.min(1.45, rate));
-    utterance.pitch = 1.0;
+    utterance.rate = Math.max(0.75, Math.min(1.35, rate));
+    utterance.pitch = 0.7; // Deep, authoritative heavy voice ("भारी आवाज़") for a majestic and proud listening experience
 
     const bestVoice = getBestNaturalVoice(seg.lang);
     if (bestVoice) {

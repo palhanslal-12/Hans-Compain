@@ -44,6 +44,7 @@ import { MnemonicsTrickGeneratorView } from './components/MnemonicsTrickGenerato
 import { ScienceFormulaLabView } from './components/ScienceFormulaLabView';
 import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
 import { LiveGroupQuizStudio } from './components/LiveGroupQuizStudio';
+import { FormulaVaultView } from './components/FormulaVaultView';
 import { BoardExamSingleTestBox } from './components/BoardExamSingleTestBox';
 import { DailyGoalsView } from './components/DailyGoalsView';
 import { AdminPanel, getStoredFeatureToggles, ALL_CONTROLLABLE_FEATURES } from './components/AdminPanel';
@@ -130,6 +131,7 @@ export const App: React.FC = () => {
   const [isAppsLauncherOpen, setIsAppsLauncherOpen] = useState(false);
   const [isCompetitiveHubOpen, setIsCompetitiveHubOpen] = useState(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
+  const [isFormulaVaultOpen, setIsFormulaVaultOpen] = useState(false);
 
   // Home chat input bar state
   const [homeInput, setHomeInput] = useState('');
@@ -733,6 +735,22 @@ export const App: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Gold Pill Capsule: FORMULA VAULT & POMODORO TIMER */}
+                <div 
+                  onClick={() => setIsFormulaVaultOpen(true)}
+                  className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-amber-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
+                >
+                  <div className="flex items-center gap-2 text-left">
+                    <span className="text-base sm:text-lg">⚡</span>
+                    <span className="text-[11px] sm:text-xs font-black text-white tracking-wide uppercase">
+                      POCKET FORMULA &amp; TIMER • पॉकेट फॉर्मूला व फोकस टाइमर
+                    </span>
+                  </div>
+                  <button className="px-3 py-1 bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-amber-300 transition-colors pointer-events-none">
+                    OPEN
+                  </button>
+                </div>
+
                 {/* 2-Column Grid (8 Feature Cards) */}
                 <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 w-full text-left">
                   
@@ -1129,6 +1147,10 @@ export const App: React.FC = () => {
         isOpen={isCompetitiveHubOpen}
         onClose={() => setIsCompetitiveHubOpen(false)}
         onSelectOption={(viewId) => navigateTo(viewId)}
+      />
+      <FormulaVaultView
+        isOpen={isFormulaVaultOpen}
+        onClose={() => setIsFormulaVaultOpen(false)}
       />
 
       {/* Public AI Rules & Guidelines Modal */}
