@@ -45,6 +45,8 @@ import { ScienceFormulaLabView } from './components/ScienceFormulaLabView';
 import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
 import { LiveGroupQuizStudio } from './components/LiveGroupQuizStudio';
 import { FormulaVaultView } from './components/FormulaVaultView';
+import { TeacherNotesBroadcastView } from './components/TeacherNotesBroadcastView';
+import { AuthLoginModal } from './components/AuthLoginModal';
 import { BoardExamSingleTestBox } from './components/BoardExamSingleTestBox';
 import { DailyGoalsView } from './components/DailyGoalsView';
 import { AdminPanel, getStoredFeatureToggles, ALL_CONTROLLABLE_FEATURES } from './components/AdminPanel';
@@ -132,6 +134,8 @@ export const App: React.FC = () => {
   const [isCompetitiveHubOpen, setIsCompetitiveHubOpen] = useState(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isFormulaVaultOpen, setIsFormulaVaultOpen] = useState(false);
+  const [isTeacherNotesOpen, setIsTeacherNotesOpen] = useState(false);
+  const [isAuthLoginModalOpen, setIsAuthLoginModalOpen] = useState(false);
 
   // Home chat input bar state
   const [homeInput, setHomeInput] = useState('');
@@ -238,6 +242,18 @@ export const App: React.FC = () => {
   const handleHomeChatSubmit = (customQuery?: string) => {
     const q = (customQuery !== undefined ? customQuery : homeInput).trim();
     if (!q) return;
+
+    // Check if user is registered / logged in
+    const isRegistered = !!(currentUser && !currentUser.isAnonymous && (currentUser.email || currentUser.displayName));
+    if (!isRegistered) {
+      const trialCount = parseInt(localStorage.getItem('hans_trial_chat_count') || '0', 10);
+      if (trialCount >= 2) {
+        setIsAuthLoginModalOpen(true);
+        return;
+      }
+      localStorage.setItem('hans_trial_chat_count', (trialCount + 1).toString());
+    }
+
     setSubmittedHomeQuery(q);
     setHomeInput('');
     setActiveView('ai-chat');
@@ -751,6 +767,22 @@ export const App: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Emerald Pill Capsule: ONLINE CLASS NOTES & PDF BROADCAST */}
+                <div 
+                  onClick={() => setIsTeacherNotesOpen(true)}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-emerald-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
+                >
+                  <div className="flex items-center gap-2 text-left">
+                    <span className="text-base sm:text-lg">📂</span>
+                    <span className="text-[11px] sm:text-xs font-black text-white tracking-wide uppercase">
+                      ONLINE CLASS NOTES &amp; PDF • ऑनलाइन क्लास नोट्स और पीडीएफ
+                    </span>
+                  </div>
+                  <button className="px-3 py-1 bg-emerald-400 text-slate-950 font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-emerald-300 transition-colors pointer-events-none">
+                    OPEN
+                  </button>
+                </div>
+
                 {/* 2-Column Grid (8 Feature Cards) */}
                 <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 w-full text-left">
                   
@@ -1151,6 +1183,14 @@ export const App: React.FC = () => {
       <FormulaVaultView
         isOpen={isFormulaVaultOpen}
         onClose={() => setIsFormulaVaultOpen(false)}
+      />
+      <TeacherNotesBroadcastView
+        isOpen={isTeacherNotesOpen}
+        onClose={() => setIsTeacherNotesOpen(false)}
+      />
+      <AuthLoginModal
+        isOpen={isAuthLoginModalOpen}
+        onClose={() => setIsAuthLoginModalOpen(false)}
       />
 
       {/* Public AI Rules & Guidelines Modal */}

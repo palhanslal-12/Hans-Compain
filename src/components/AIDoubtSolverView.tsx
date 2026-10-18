@@ -20,10 +20,11 @@ import {
   MicOff,
   Flag
 } from 'lucide-react';
-import { recordStudyActivity } from '../firebase';
+import { recordStudyActivity, getEffectiveUser } from '../firebase';
 import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 import { askHansCompainAI } from '../utils/aiClientFallback';
 import { LucentTextFormatter } from './LucentTextFormatter';
+import { AuthLoginModal } from './AuthLoginModal';
 
 export interface AttachedFile {
   id: string;
@@ -312,6 +313,17 @@ export const AIDoubtSolverView: React.FC<{
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const ocrFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [trialCount, setTrialCount] = useState<number>(() => {
+    try {
+      return parseInt(localStorage.getItem('hans_trial_chat_count') || '0', 10);
+    } catch {
+      return 0;
+    }
+  });
+
+  const currentUser = getEffectiveUser();
+  const isRegistered = !!(currentUser && !currentUser.isAnonymous && (currentUser.email || currentUser.displayName));
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -490,6 +502,20 @@ export const AIDoubtSolverView: React.FC<{
   const handleSendQuery = async (customText?: string) => {
     const queryText = customText !== undefined ? customText : input.trim();
     if (!queryText && attachedFiles.length === 0 && !selectedImage) return;
+
+    // Check user registration status (allow only 2 trial chats)
+    const user = getEffectiveUser();
+    const registered = !!(user && !user.isAnonymous && (user.email || user.displayName));
+    if (!registered) {
+      const curCount = parseInt(localStorage.getItem('hans_trial_chat_count') || '0', 10);
+      if (curCount >= 2) {
+        setIsAuthModalOpen(true);
+        return;
+      }
+      const nextCount = curCount + 1;
+      setTrialCount(nextCount);
+      localStorage.setItem('hans_trial_chat_count', nextCount.toString());
+    }
 
     const currentFiles = [...attachedFiles];
     if (selectedImage && !currentFiles.some(f => f.base64 === selectedImage)) {
@@ -1315,6 +1341,20 @@ export const AIDoubtSolverView: React.FC<{
       {/* Bottom Input Area */}
       <div className="p-3 sm:p-4 bg-[#03060E] border-t border-slate-900 shrink-0">
         <div className="max-w-4xl mx-auto">
+          {!isRegistered && (
+            <div className="flex items-center justify-between text-[11px] px-3.5 py-1.5 mb-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 animate-fade-in">
+              <span className="flex items-center gap-1.5">
+                <span>⚡</span>
+                <span>मुफ़्त ट्रायल: <strong>{Math.min(2, trialCount)}/2 प्रश्न</strong> उपयोग किया गया</span>
+              </span>
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-500 px-2.5 py-0.5 rounded-lg cursor-pointer transition-all shadow"
+              >
+                अनलिमिटेड चैट के लिए लॉगिन करें
+              </button>
+            </div>
+          )}
         <input
           type="file"
           accept="image/*,application/pdf"
@@ -1388,6 +1428,12 @@ export const AIDoubtSolverView: React.FC<{
         </div>
         </div>
       </div>
+
+      {/* Registration / Login Modal after 2 trial chats */}
+      <AuthLoginModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </div>
   );
 };
