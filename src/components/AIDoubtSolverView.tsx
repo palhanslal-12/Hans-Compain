@@ -501,8 +501,13 @@ export const AIDoubtSolverView: React.FC<{
   };
 
   const handleSendQuery = async (customText?: string) => {
+    if (isLoading) return; // Prevent double submission
+    setIsLoading(true);
     const queryText = customText !== undefined ? customText : input.trim();
-    if (!queryText && attachedFiles.length === 0 && !selectedImage) return;
+    if (!queryText && attachedFiles.length === 0 && !selectedImage) {
+      setIsLoading(false);
+      return;
+    }
 
     // Check user registration status (allow only 2 trial chats)
     const user = getEffectiveUser();
@@ -511,6 +516,7 @@ export const AIDoubtSolverView: React.FC<{
       const curCount = parseInt(localStorage.getItem('hans_trial_chat_count') || '0', 10);
       if (curCount >= 2) {
         setIsAuthModalOpen(true);
+        setIsLoading(false);
         return;
       }
       const nextCount = curCount + 1;
