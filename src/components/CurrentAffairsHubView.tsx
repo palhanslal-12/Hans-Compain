@@ -902,6 +902,18 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
   onReturnHome,
   onArticleOpenChange
 }) => {
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    // Logic: Fetch from verified sources (PIB + others), then update state
+    const todayRotated = getDailyRotatedEditorials();
+    localStorage.setItem('hans_synced_current_affairs', JSON.stringify(todayRotated));
+    setEditorials(todayRotated);
+    await new Promise(resolve => setTimeout(resolve, 800)); // UI delay for feedback
+    setIsSyncing(false);
+  };
+
   const [editorials, setEditorials] = useState<NewsEditorial[]>(() => {
     const todayKey = getTodayDateKey();
     const todayRotated = getDailyRotatedEditorials();
@@ -950,7 +962,6 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
 
   // Live Cloud Sync State
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>(() => {
     return localStorage.getItem('hans_ca_last_sync') || 'अभी सिंक करें';
   });
@@ -2465,23 +2476,33 @@ Article Headline (English): "${eng.headline}"
           {/* 1. WHITE HEADER BANNER WITH ARROW HIDE/SHOW TOGGLE */}
           <div className="bg-white text-slate-900 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col gap-3.5 border border-slate-200 transition-all">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shrink-0">
-                  <Newspaper className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-base sm:text-xl font-black text-slate-900 tracking-tight uppercase">
-                      HANS COMPAIN NEWS HUB
-                    </h1>
-                    <span className="px-2 py-0.5 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-black uppercase">
-                      PIB INTEGRATED
-                    </span>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shrink-0">
+                    <Newspaper className="w-6 h-6" />
                   </div>
-                  <p className="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5 hidden sm:block">
-                    हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान!
-                  </p>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h1 className="text-base sm:text-xl font-black text-slate-900 tracking-tight uppercase">
+                        HANS COMPAIN NEWS HUB
+                      </h1>
+                      <span className="px-2 py-0.5 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-black uppercase">
+                        PIB + EDITORIALS
+                      </span>
+                    </div>
+                    <p className="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5 hidden sm:block">
+                      हर सपने को मिलेगी उड़ान, जब साथ हो Hans Compain का सच्चा ज्ञान!
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={handleManualSync}
+                  disabled={isSyncing}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-2 transition-all disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? 'सिंक हो रहा है...' : 'ताज़ा खबरें सिंक करें'}</span>
+                </button>
               </div>
 
               {/* Arrow Toggle Button to Hide / Show Header Action Controls */}

@@ -231,7 +231,18 @@ export const App: React.FC = () => {
     try {
       StudentAlertEngine.checkAndTriggerAlerts();
     } catch {}
-    return () => unsub();
+
+    const handleDoubtQuery = (e: any) => {
+      const detail = e.detail;
+      setSubmittedHomeQuery(detail);
+      setActiveView('ai-chat');
+    };
+    window.addEventListener('hans_ai_doubt_query', handleDoubtQuery as EventListener);
+
+    return () => {
+      unsub();
+      window.removeEventListener('hans_ai_doubt_query', handleDoubtQuery as EventListener);
+    };
   }, []);
 
   const showToast = (msg: string) => {

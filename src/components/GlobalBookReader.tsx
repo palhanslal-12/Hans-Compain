@@ -400,6 +400,30 @@ export const GlobalBookReader: React.FC<{ initialTab?: 'library' | 'voice-reader
               </div>
 
               <div className="flex items-center gap-2">
+                <select
+                  onChange={(e) => {
+                    if (e.target.value === 'simple') {
+                      toggleSpeech(`सरल भाषा में व्याख्या: ${currentBook.content.join(' ')}`);
+                    } else {
+                      toggleSpeech();
+                    }
+                  }}
+                  className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer"
+                >
+                  <option value="original">मूल पुस्तक शैली (Original Book Style)</option>
+                  <option value="simple">सरल भाषा में समझें (Simple Language)</option>
+                </select>
+                <button
+                  onClick={() => {
+                    const summaryPrompt = `कृपया "${currentBook.bookTitle}" के "${currentBook.chapterTitle}" के मुख्य बिंदु (Key Points) संक्षेप में बताएं।`;
+                    // Dispatch this prompt to the AI chat to generate summary
+                    window.dispatchEvent(new CustomEvent('hans_ai_doubt_query', { detail: summaryPrompt }));
+                  }}
+                  className="p-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-emerald-400 cursor-pointer flex items-center gap-1"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>मुख्य बिंदु (Key Points)</span>
+                </button>
                 <button
                   onClick={() => setFontSize(Math.max(13, fontSize - 1))}
                   className="p-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer"
