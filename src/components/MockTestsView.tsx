@@ -714,10 +714,10 @@ export const MockTestsView: React.FC = () => {
           questionText: displayLanguage === 'hi' ? currentQ.questionHi : currentQ.question,
           category: selectedExam.title,
           userNote: reportNote || 'Student reported question/option issue from CBT screen.',
-          reporterEmail: 'palhanslal4@gmail.com'
+          reporterEmail: 'support@hanscompain.in'
         })
       });
-      setReportSuccessMsg('✅ रिपोर्ट ऑटोमैटिक एडमिन (hanscompain@gmail.com) को भेज दी गई है!');
+      setReportSuccessMsg('✅ रिपोर्ट ऑटोमैटिक एडमिन (support@hanscompain.in) को भेज दी गई है!');
       setTimeout(() => {
         setReportSuccessMsg(null);
         setReportModalOpen(false);

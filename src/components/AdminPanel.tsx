@@ -199,7 +199,8 @@ interface AdminPanelProps {
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome, currentUser }) => {
   // Authorized emails and strict password configuration
   const AUTHORIZED_ADMIN_EMAILS = [
-    'palhanslal4@gmail.com',
+    'support@hanscompain.in',
+    'hanscompain@gmail.com',
     'hansrajpal310@gmail.com',
     'hanslalpal2005@gmail.com',
     'support.hans.compain@gmail.com'

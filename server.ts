@@ -2189,7 +2189,7 @@ Return strictly valid JSON with keys:
   }
 });
 
-// Helper: Automatic Email & Admin Alert Dispatcher (hanscompain@gmail.com & palhanslal4@gmail.com)
+// Helper: Automatic Email & Admin Alert Dispatcher (hanscompain@gmail.com & support@hanscompain.in)
 function recordEmailAndAdminAlert(payload: {
   type: 'error_alert' | 'question_report' | 'inactivity_24h' | 'feature_usage_digest';
   title: string;
@@ -2217,8 +2217,8 @@ function recordEmailAndAdminAlert(payload: {
       id: `alert_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       type: payload.type,
       title: payload.title,
-      adminRecipients: ['hanscompain@gmail.com', 'palhanslal4@gmail.com'],
-      recipientEmail: payload.recipientEmail || 'hanscompain@gmail.com',
+      adminRecipients: ['hanscompain@gmail.com', 'support@hanscompain.in'],
+      recipientEmail: payload.recipientEmail || 'support@hanscompain.in',
       userDisplayName: payload.userDisplayName || 'Student / System',
       featureName: payload.featureName || 'Platform Core',
       details: payload.details,

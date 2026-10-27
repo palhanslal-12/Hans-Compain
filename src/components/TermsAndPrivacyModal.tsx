@@ -181,7 +181,7 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
                   </h4>
                   <p className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
-                    <span>आधिकारिक सपोर्ट ईमेल: <span className="font-mono text-cyan-300 font-bold">palhanslal4@gmail.com</span></span>
+                    <span>आधिकारिक सपोर्ट ईमेल: <span className="font-mono text-cyan-300 font-bold">support@hanscompain.in</span> (व <span className="font-mono text-cyan-300 font-bold">hanscompain@gmail.com</span>)</span>
                   </p>
                   <p className="text-[11px] text-slate-400">
                     यदि आपको गोपनीयता या नियमों से संबंधित कोई भी प्रश्न या समस्या है, तो आप निसंकोच ऊपर दिए गए पते पर लिख सकते हैं।

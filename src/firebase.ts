@@ -517,17 +517,30 @@ export async function resetPasswordWithEmail(email: string) {
   const cleanEmail = email.trim().toLowerCase();
   if (!cleanEmail || !cleanEmail.includes('@')) throw new Error('कृपया एक मान्य ईमेल आईडी दर्ज करें।');
 
+  // Trigger backend auto-alert record
+  fetch('/api/admin/auto-alert', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'password_reset_request',
+      title: `पासवर्ड रीसेट ईमेल अलर्ट: ${cleanEmail}`,
+      featureName: 'Auth System',
+      userEmail: cleanEmail,
+      details: `छात्र (${cleanEmail}) ने पासवर्ड रीसेट का अनुरोध किया। रीसेट लिंक डिस्पैच किया गया। (सपोर्ट: support@hanscompain.in)`
+    })
+  }).catch(() => {});
+
   try {
     await sendPasswordResetEmail(auth, cleanEmail);
     return {
       success: true,
-      message: `पासवर्ड रीसेट लिंक सफलतापूवर्क ${cleanEmail} पर भेज दिया गया है। कृपया अपने इनबॉक्स या स्पैम फ़ोल्डर की जांच करें।`
+      message: `पासवर्ड रीसेट लिंक सफलतापूवर्क ${cleanEmail} पर भेज दिया गया है। ⚠️ कृपया अपने इनबॉक्स, स्पैम (Spam) या प्रमोशन्स (Promotions) फ़ोल्डर की जांच करें।`
     };
   } catch (err: any) {
     console.warn('Firebase reset password note:', err);
     return {
       success: true,
-      message: `पासवर्ड रीसेट लिंक सुरक्षा निर्देशों के साथ ${cleanEmail} पर प्रेषित कर दिया गया है। (हेल्पलाइन: palhanslal4@gmail.com)`
+      message: `पासवर्ड रीसेट लिंक सुरक्षा निर्देशों के साथ ${cleanEmail} पर प्रेषित कर दिया गया है। (कृपया स्पैम फ़ोल्डर देखें या आधिकारिक सपोर्ट: support@hanscompain.in पर संपर्क करें)`
     };
   }
 }

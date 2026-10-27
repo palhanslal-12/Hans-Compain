@@ -491,12 +491,17 @@ export const AuthLoginModal: React.FC<AuthLoginModalProps> = ({
             {/* TAB 3: FORGOT PASSWORD */}
             {mode === 'forgot' && (
               <form onSubmit={handleForgotPassword} className="space-y-3">
-                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs">
-                  <div className="font-bold flex items-center gap-1.5 mb-1 text-amber-300">
+                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-1.5">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-300">
                     <HelpCircle className="w-3.5 h-3.5" />
                     <span>पासवर्ड भूल गए? कोई बात नहीं!</span>
                   </div>
-                  अपना रजिस्टर्ड ईमेल नीचे दर्ज करें। हम आपको पासवर्ड रीसेट करने का सीधा लिंक प्रेषित करेंगे।
+                  <p className="text-[11px] leading-relaxed">
+                    अपना रजिस्टर्ड ईमेल नीचे दर्ज करें। हम आपको पासवर्ड रीसेट करने का सीधा लिंक प्रेषित करेंगे।
+                  </p>
+                  <p className="text-[10px] text-amber-300/90 font-medium bg-amber-500/10 p-1.5 rounded-lg border border-amber-500/20">
+                    ℹ️ <strong>ईमेल अलर्ट नोट:</strong> लिंक प्राप्त न होने पर कृपया Gmail का <strong>Spam (स्पैम)</strong> या <strong>Promotions (प्रमोशन्स)</strong> फ़ोल्डर अवश्य चेक करें।
+                  </p>
                 </div>
 
                 <div className="space-y-1">
@@ -618,7 +623,7 @@ export const AuthLoginModal: React.FC<AuthLoginModalProps> = ({
             <div className="text-center text-[9px] text-slate-400 flex items-center justify-center gap-2">
               <span>✓ 100% सुरक्षित डेटा एन्क्रिप्शन</span>
               <span>•</span>
-              <span>छात्र सहायता: palhanslal4@gmail.com</span>
+              <span>छात्र सहायता: support@hanscompain.in</span>
             </div>
           </div>
         </div>
