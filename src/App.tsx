@@ -323,6 +323,7 @@ export const App: React.FC = () => {
 
   const sidebarMenuItems = [
     { icon: Home, label: 'होम / मुख्य डैशबोर्ड', viewId: 'home' },
+    { icon: ShieldCheck, label: 'ओनर एडमिन कंट्रोल पैनल 🛡️', viewId: 'admin', badge: 'ADMIN' },
     { icon: Sparkles, label: 'एजु-रील्स (Edu Shorts)', viewId: 'edu-reels', badge: 'SHORTS' },
     { icon: BookOpen, label: 'स्मार्ट लाइब्रेरी व वाइस रीडर 📖', viewId: 'book-reader', badge: 'BOOKS' },
     { icon: Calendar, label: 'स्मार्ट स्टडी प्लानर', viewId: 'study-plan', badge: 'PLAN' },
@@ -490,6 +491,24 @@ export const App: React.FC = () => {
                 <span>पब्लिक एआई नियम व गाइडलाइन्स</span>
               </div>
               <span className="text-[8px] bg-amber-500/20 px-1.5 py-0.2 rounded font-black">RULES</span>
+            </button>
+
+            {/* Direct 1-Click Top Owner Admin Console Button */}
+            <button
+              onClick={() => {
+                navigateTo('admin');
+                setSidebarOpen(false);
+              }}
+              className="w-full py-2 px-3 bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 hover:from-amber-900/90 hover:to-slate-850 border border-amber-500/60 hover:border-amber-400 text-amber-300 rounded-xl text-xs font-black flex items-center justify-between cursor-pointer transition-all shadow-md group"
+              title="ओनर एडमिन कंट्रोल पैनल खोलें"
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+                <span>🛡️ ओनर एडमिन कंट्रोल पैनल</span>
+              </div>
+              <span className="text-[9px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded font-black uppercase tracking-wider">
+                ADMIN
+              </span>
             </button>
 
             {/* Interactive Sidebar Search Input */}
@@ -674,18 +693,16 @@ export const App: React.FC = () => {
                 </button>
               </div>
 
-              {(!currentUser?.email || currentUser.email.toLowerCase() === 'palhanslal4@gmail.com') && (
-                <button 
-                  onClick={() => navigateTo('admin')}
-                  className="w-full p-2 rounded-xl bg-slate-950 border border-amber-500/30 hover:border-amber-400 flex items-center justify-between text-xs font-bold text-amber-300 cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Owner Admin Console</span>
-                  </div>
-                  <span className="text-[8px] bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded font-black">Admin</span>
-                </button>
-              )}
+              <button 
+                onClick={() => navigateTo('admin')}
+                className="w-full p-2 rounded-xl bg-slate-950 border border-amber-500/40 hover:border-amber-400 flex items-center justify-between text-xs font-bold text-amber-300 cursor-pointer transition-all shadow-sm"
+              >
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                  <span>🛡️ Owner Admin Console</span>
+                </div>
+                <span className="text-[8px] bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded font-black">ADMIN</span>
+              </button>
             </div>
           </div>
 
@@ -1009,14 +1026,12 @@ export const App: React.FC = () => {
                       एडमिन कंट्रोल पैनल से इस फीचर को अस्थायी रूप से ऑफ़ किया गया है। आप इसे एडमिन पैनल से कभी भी एक क्लिक में वापस चालू (ON) कर सकते हैं।
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-                      {(!currentUser?.email || currentUser.email.toLowerCase() === 'palhanslal4@gmail.com') && (
-                        <button
-                          onClick={() => setActiveView('admin')}
-                          className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs cursor-pointer"
-                        >
-                          एडमिन पैनल से चालू करें (Turn ON)
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setActiveView('admin')}
+                        className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs cursor-pointer shadow-md"
+                      >
+                        🛡️ एडमिन पैनल खोलें (Admin Panel)
+                      </button>
                       <button
                         onClick={() => setActiveView('home')}
                         className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-semibold text-xs cursor-pointer"

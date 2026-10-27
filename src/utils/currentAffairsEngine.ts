@@ -1,5 +1,6 @@
 // Bilingual (Hindi + English) Current Affairs Translation, AI Article Generator, Word Detector & Doubt Resolver Engine
 import { NewsEditorial, VocabularyItem, getTodayDateKey, getTodayHindiDate } from '../components/CurrentAffairsHubView';
+import { resolveTopicImageUrl } from './currentAffairsImageResolver';
 
 export interface EnglishTranslatedArticle {
   headline: string;
@@ -912,8 +913,8 @@ export function buildSmartBilingualAiArticle(rawTopic: string): { article: NewsE
     background: backgroundHi,
     sourceMinistry: 'प्रेस सूचना ब्यूरो (PIB) • भारत सरकार • The Hindu Editorial Desk',
     sourceUrl: 'https://pib.gov.in',
-    imageUrl: picked.imageUrl,
-    imageCredit: 'स्रोत: PIB Official Media • HANS COMPAIN AI Editorial Desk',
+    imageUrl: resolveTopicImageUrl(headlineHi, picked.categoryTag, summaryHi).imageUrl,
+    imageCredit: resolveTopicImageUrl(headlineHi, picked.categoryTag, summaryHi).imageCredit,
     dimensions: dimensionsHi,
     provisions: provisionsHi,
     highYieldFact: highYieldFactHi,

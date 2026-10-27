@@ -197,20 +197,20 @@ interface AdminPanelProps {
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome, currentUser }) => {
-  // Authorized email and strict password configuration
-  const AUTHORIZED_ADMIN_EMAIL = 'palhanslal4@gmail.com';
+  // Authorized emails and strict password configuration
+  const AUTHORIZED_ADMIN_EMAILS = [
+    'palhanslal4@gmail.com',
+    'hansrajpal310@gmail.com',
+    'hanslalpal2005@gmail.com',
+    'support.hans.compain@gmail.com'
+  ];
   const ADMIN_AUTHORIZED_PASSWORD = 'Chhangur#@8084';
-
-  // Check if logged-in user is an unauthorized other email
-  const isOtherUserEmail =
-    !!currentUser?.email &&
-    currentUser.email.trim().toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase();
 
   // Password protection state
   const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
     const email = currentUser?.email?.trim().toLowerCase();
-    if (email && email !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-      return false;
+    if (email && AUTHORIZED_ADMIN_EMAILS.some(e => e.toLowerCase() === email)) {
+      return true;
     }
     return sessionStorage.getItem('hans_admin_authorized') === 'true';
   });
@@ -493,46 +493,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome, currentUse
   ).length;
 
   // ============================================================================
-  // 1. ACCESS DENIED: IF LOGGED IN WITH ANY OTHER EMAIL
-  // ============================================================================
-  if (isOtherUserEmail) {
-    return (
-      <div className="w-full min-h-full overflow-y-auto flex items-center justify-center p-4 bg-[#060A12] text-slate-100 py-12">
-        <div className="w-full max-w-md bg-[#0B111E] border border-rose-900/60 rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl text-center">
-          <div className="w-12 h-12 rounded-xl bg-rose-950/60 border border-rose-800/80 flex items-center justify-center mx-auto text-rose-400">
-            <ShieldAlert className="w-6 h-6" />
-          </div>
-          <div className="space-y-1.5">
-            <h1 className="text-lg font-bold text-white">
-              एक्सेस अस्वीकृत (Access Denied)
-            </h1>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              यह एडमिन पैनल केवल अधिकृत ईमेल (<span className="text-amber-300 font-semibold">{AUTHORIZED_ADMIN_EMAIL}</span>) के लिए आरक्षित है।
-            </p>
-          </div>
-          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1 text-left">
-            <div className="text-[11px] text-slate-500 uppercase font-bold tracking-wider">वर्तमान लॉग-इन ईमेल:</div>
-            <div className="font-mono text-rose-300 truncate">{currentUser?.email}</div>
-          </div>
-          <p className="text-[11px] text-slate-500">
-            अन्य ईमेल से एडमिन पैनल एक्सेस करने की अनुमति नहीं है।
-          </p>
-          {onReturnHome && (
-            <button
-              type="button"
-              onClick={onReturnHome}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-semibold text-xs rounded-xl cursor-pointer transition-colors"
-            >
-              होमपेज पर वापस जाएं
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // ============================================================================
-  // 2. SECURE PASSWORD PROTECTION SCREEN (Chhangur#@8084)
+  // SECURE PASSWORD PROTECTION SCREEN (Chhangur#@8084)
   // ============================================================================
   if (!isAuthorized) {
     return (

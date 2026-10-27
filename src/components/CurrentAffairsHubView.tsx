@@ -54,6 +54,7 @@ import {
   buildSmartBilingualAiArticle,
   buildBilingualArticleDoubtAnswer
 } from '../utils/currentAffairsEngine';
+import { resolveTopicImageUrl } from '../utils/currentAffairsImageResolver';
 
 export interface VocabularyItem {
   word: string;
@@ -99,6 +100,11 @@ export const getTodayDateKey = (): string => {
   return new Date().toISOString().split('T')[0];
 };
 
+export const getYesterdayDateKey = (): string => {
+  const d = new Date(Date.now() - 86400000);
+  return d.toISOString().split('T')[0];
+};
+
 export const getTodayHindiDate = (): string => {
   try {
     return new Date().toLocaleDateString('hi-IN', {
@@ -109,6 +115,42 @@ export const getTodayHindiDate = (): string => {
   } catch {
     return new Date().toISOString().split('T')[0];
   }
+};
+
+export const getYesterdayHindiDate = (): string => {
+  try {
+    const d = new Date(Date.now() - 86400000);
+    return d.toLocaleDateString('hi-IN', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  } catch {
+    return 'कल के घटनाक्रम';
+  }
+};
+
+// Strict anti-repetition deduplicator ensuring no two articles share the same headline and each has its matching image
+export const deduplicateEditorials = (list: NewsEditorial[]): NewsEditorial[] => {
+  const seen = new Set<string>();
+  const result: NewsEditorial[] = [];
+
+  for (const item of list) {
+    if (!item || !item.headline) continue;
+    const norm = item.headline.toLowerCase().replace(/[^a-zA-Z0-9\u0900-\u097F]/g, '');
+    const key = norm.slice(0, 24);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+
+    const imageMeta = resolveTopicImageUrl(item.headline, item.categoryTag, item.summary);
+    result.push({
+      ...item,
+      imageUrl: item.imageUrl || imageMeta.imageUrl,
+      imageCredit: item.imageCredit || imageMeta.imageCredit
+    });
+  }
+
+  return result;
 };
 
 export const verifiedEditorials: NewsEditorial[] = [
@@ -948,9 +990,10 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
     }
     localStorage.setItem('hans_ca_active_date_key', todayKey);
     localStorage.setItem('hans_synced_current_affairs', JSON.stringify(todayRotated));
-    return todayRotated;
+    return deduplicateEditorials(todayRotated);
   });
 
+  const [feedSectionTab, setFeedSectionTab] = useState<'today' | 'yesterday' | 'pib' | 'all'>('today');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeArticle, setActiveArticle] = useState<NewsEditorial | null>(null);
@@ -1085,7 +1128,7 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
       .filter(item => item.dateKey === todayKey)
       .forEach(item => map.set(item.id, { ...item, dateKey: todayKey, date: todayHindi }));
 
-    const refreshedList = Array.from(map.values());
+    const refreshedList = deduplicateEditorials(Array.from(map.values()));
     setEditorials(refreshedList);
     localStorage.setItem('hans_ca_active_date_key', todayKey);
     localStorage.setItem('hans_synced_current_affairs', JSON.stringify(refreshedList));
@@ -1108,12 +1151,14 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
-          const freshArticles: NewsEditorial[] = data.articles.map((item: any, idx: number) => ({
-            ...item,
-            id: item.id || `ca-${todayKey}-${idx + 1}`,
-            dateKey: todayKey,
-            date: todayHindi
-          }));
+          const freshArticles: NewsEditorial[] = deduplicateEditorials(
+            data.articles.map((item: any, idx: number) => ({
+              ...item,
+              id: item.id || `ca-${todayKey}-${idx + 1}`,
+              dateKey: todayKey,
+              date: todayHindi
+            }))
+          );
 
           setEditorials(freshArticles);
           localStorage.setItem('hans_ca_active_date_key', todayKey);
@@ -1255,14 +1300,58 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
     }
   };
 
-  const filtered = editorials.filter(item => {
+  const todayKey = getTodayDateKey();
+  const yesterdayKey = getYesterdayDateKey();
+  const yesterdayHindi = getYesterdayHindiDate();
+
+  // Deduplicate all active articles
+  const deduplicatedPool = deduplicateEditorials(editorials);
+
+  // Dedicated non-overlapping retrospective archive for yesterday
+  const yesterdayRetrospective: NewsEditorial[] = verifiedEditorials.slice(3, 10).map((item, idx) => {
+    const imgMeta = resolveTopicImageUrl(item.headline, item.categoryTag, item.summary);
+    return {
+      ...item,
+      id: `ca-${yesterdayKey}-archive-${idx + 1}`,
+      dateKey: yesterdayKey,
+      date: yesterdayHindi,
+      imageUrl: item.imageUrl || imgMeta.imageUrl,
+      imageCredit: item.imageCredit || imgMeta.imageCredit
+    };
+  });
+
+  const activePool = feedSectionTab === 'yesterday'
+    ? (() => {
+        const storedYesterday = deduplicatedPool.filter(i => i.dateKey === yesterdayKey || (i.dateKey && i.dateKey < todayKey));
+        return storedYesterday.length > 0 ? storedYesterday : yesterdayRetrospective;
+      })()
+    : deduplicatedPool;
+
+  const filtered = activePool.filter(item => {
+    // 1. Anti-Repeat Feed Section Filter
+    if (feedSectionTab === 'today') {
+      const isToday = !item.dateKey || item.dateKey === todayKey;
+      if (!isToday) return false;
+    } else if (feedSectionTab === 'pib') {
+      const isPib =
+        item.sourceMinistry?.toLowerCase().includes('pib') ||
+        item.sourceMinistry?.includes('प्रेस सूचना') ||
+        item.sourceUrl?.includes('pib.gov.in') ||
+        item.sourceMinistry?.includes('मंत्रालय');
+      if (!isPib) return false;
+    }
+
+    // 2. Category Filter
     const catMatch = selectedCategory === 'All' || item.categoryFilter === selectedCategory;
+
+    // 3. Search Query
     const q = searchQuery.toLowerCase();
     const searchMatch =
       !q ||
       item.headline.toLowerCase().includes(q) ||
       item.summary.toLowerCase().includes(q) ||
       item.categoryTag.toLowerCase().includes(q);
+
     return catMatch && searchMatch;
   });
 
@@ -2590,7 +2679,55 @@ Article Headline (English): "${eng.headline}"
             </div>
           )}
 
-          {/* 2. CATEGORY FILTER PILLS + SEARCH INPUT MATCHING SCREENSHOT 1 */}
+          {/* 2. ANTI-REPEAT DATE & OFFICIAL SOURCE FILTER TABS */}
+          <div className="flex flex-wrap items-center gap-2 bg-[#060B18] p-2 sm:p-2.5 rounded-2xl border border-slate-800 shadow-md">
+            <button
+              onClick={() => setFeedSectionTab('today')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 cursor-pointer transition-all ${
+                feedSectionTab === 'today'
+                  ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md font-black'
+                  : 'text-slate-400 hover:text-white bg-slate-950 border border-slate-800/80'
+              }`}
+            >
+              <span>🌟 आज के ताज़ा अफेयर्स (Today's Fresh)</span>
+              <span className="text-[9px] bg-slate-950/20 px-1.5 py-0.2 rounded font-mono">No Repeats</span>
+            </button>
+
+            <button
+              onClick={() => setFeedSectionTab('yesterday')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                feedSectionTab === 'yesterday'
+                  ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-md font-black'
+                  : 'text-slate-400 hover:text-white bg-slate-950 border border-slate-800/80'
+              }`}
+            >
+              <span>📅 कल के मुख्य घटनाक्रम (Yesterday's Archive)</span>
+            </button>
+
+            <button
+              onClick={() => setFeedSectionTab('pib')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                feedSectionTab === 'pib'
+                  ? 'bg-emerald-600 text-white shadow-md font-black'
+                  : 'text-slate-400 hover:text-white bg-slate-950 border border-slate-800/80'
+              }`}
+            >
+              <span>🏛️ PIB व सरकारी बुलेटिन (Govt Sync)</span>
+            </button>
+
+            <button
+              onClick={() => setFeedSectionTab('all')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                feedSectionTab === 'all'
+                  ? 'bg-slate-700 text-white shadow-md font-black'
+                  : 'text-slate-400 hover:text-white bg-slate-950 border border-slate-800/80'
+              }`}
+            >
+              <span>📰 सभी संपादकीय ({filtered.length})</span>
+            </button>
+          </div>
+
+          {/* 3. CATEGORY FILTER PILLS + SEARCH INPUT MATCHING SCREENSHOT 1 */}
           <div className="bg-[#091122] border border-slate-800 rounded-2xl p-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-thin">
               {['All', 'National', 'Sports & Honors', 'Economy & Banking', 'Schemes & Governance', 'Science & Tech'].map(cat => (
@@ -2620,10 +2757,13 @@ Article Headline (English): "${eng.headline}"
             </div>
           </div>
 
-          {/* 3. 2-COLUMN WHITE EDITORIAL CARDS GRID (EXACT MATCH TO SCREENSHOT 1) */}
+          {/* 4. 2-COLUMN WHITE EDITORIAL CARDS GRID (EXACT MATCH TO SCREENSHOT 1 WITH TOPIC IMAGES) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filtered.map(item => {
               const isSaved = bookmarkedIds.includes(item.id);
+              const cardImage = item.imageUrl || resolveTopicImageUrl(item.headline, item.categoryTag, item.summary).imageUrl;
+              const cardCredit = item.imageCredit || resolveTopicImageUrl(item.headline, item.categoryTag, item.summary).imageCredit;
+
               return (
                 <div
                   key={item.id}
@@ -2673,6 +2813,32 @@ Article Headline (English): "${eng.headline}"
                         >
                           <Share2 className="w-3.5 h-3.5 text-emerald-600" />
                         </button>
+                      </div>
+                    </div>
+
+                    {/* Topic-Related Verified News Image Thumbnail */}
+                    <div
+                      className="w-full h-44 sm:h-52 rounded-2xl overflow-hidden relative border border-slate-200 bg-slate-900 group cursor-pointer shadow-sm"
+                      onClick={() => handleOpenArticle(item)}
+                      title="पूरा आर्टिकल और परीक्षा विश्लेषण पढ़ने के लिए क्लिक करें"
+                    >
+                      <img
+                        src={cardImage}
+                        alt={item.headline}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider shadow">
+                          {item.categoryTag}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-950/85 backdrop-blur-md text-slate-200 text-[9px] font-bold">
+                          📅 {item.date}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-slate-950/85 backdrop-blur-md text-amber-300 text-[9px] font-medium truncate max-w-[220px]">
+                        {cardCredit}
                       </div>
                     </div>
 
