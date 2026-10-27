@@ -155,773 +155,1057 @@ export const deduplicateEditorials = (list: NewsEditorial[]): NewsEditorial[] =>
 
 export const verifiedEditorials: NewsEditorial[] = [
   {
-    id: 'news-p17a',
-    categoryTag: 'DEFENSE & SECURITY',
-    categoryFilter: 'Science & Tech',
-    date: '6 अक्टूबर 2026',
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719107',
-    headline: 'प्रोजेक्ट 17A नीलगिरि क्लास स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स और नौसेना का हिंद महासागर में दबदबा',
-    summary:
-      'भारतीय नौसेना के स्वदेशी "प्रोजेक्ट 17A" के तहत मझगांव डॉक शिपबिल्डर्स और जीआरएसई द्वारा निर्मित अत्याधुनिक स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स के समुद्री परीक्षण अंतिम चरण में हैं। यह युद्धपोत 75% स्वदेशी सामग्री और ब्रह्मोस सुपरसोनिक मिसाइल से लैस हैं।',
-    background:
-      'हिंद महासागर क्षेत्र (IOR) में समुद्री डकैती रोधी अभियानों, समुद्री व्यापार मार्गों की सुरक्षा और रणनीतिक संतुलन बनाए रखने के लिए भारतीय नौसेना अपने बेड़े का आधुनिकीकरण "मेक इन इंडिया" के तहत कर रही है।',
-    sourceMinistry: 'रक्षा मंत्रालय (MoD) • भारतीय नौसेना मीडिया सेल • The Hindu',
-    sourceUrl: 'https://pib.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: रक्षा मंत्रालय (MoD) • भारतीय नौसेना मीडिया सेल',
-    dimensions: [
-      'रडार क्रॉस-सेक्शन (RCS) को न्यूनतम करने के लिए उन्नत स्टेल्थ ज्योमेट्री और रडार-एब्जॉर्बेंट कोटिंग्स।',
-      'हथियार प्रणाली: ब्रह्मोस सुपरसोनिक क्रूज मिसाइल और लंबी दूरी की सतह से हवा में मार करने वाली बराक-8 (LRSAM) मिसाइलें।',
-      'कंबाइंड डीजल और गैस (CODAG) प्रणोदन प्रणाली से 28 समुद्री मील (Knots) से अधिक की शीर्ष गति।'
+    "id": "news-t20-world-cup-india",
+    "categoryTag": "🏆 खेलकूद (SPORTS)",
+    "categoryFilter": "Sports & Play",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024101",
+    "headline": "आईसीसी पुरुष टी20 विश्व कप: भारत ने दक्षिण अफ्रीका को हराकर 17 वर्ष बाद जीता दूसरा टी20 विश्व कप खिताब",
+    "summary": "केंसिंग्टन ओवल (बारबाडोस) में खेले गए रोमांचक फाइनल में भारत ने दक्षिण अफ्रीका को 7 रन से हराकर आईसीसी पुरुष टी20 विश्व कप का खिताब अपने नाम किया। भारत ने 2007 (महेंद्र सिंह धोनी के नेतृत्व) के बाद 17 वर्षों के अंतराल पर यह ऐतिहासिक उपलब्धि हासिल की।",
+    "background": "रोहित शर्मा की कप्तानी में भारत पूरे टूर्नामेंट में अजेय रहा। जसप्रीत बुमराह को उनकी असाधारण गेंदबाजी के लिए प्लेयर ऑफ द टूर्नामेंट चुना गया, जबकि विराट कोहली को फाइनल में 76 रनों की पारी हेतु प्लेयर ऑफ द मैच का सम्मान मिला।",
+    "sourceMinistry": "युवा कार्यक्रम और खेल मंत्रालय • ICC Media Release • The Hindu",
+    "sourceUrl": "https://pib.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1531415074868-036b107e775a?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: BCCI • ICC International Cricket Council",
+    "dimensions": [
+      "भारत ने निर्धारित 20 ओवरों में 7 विकेट पर 176 रन बनाए, जो टी20 विश्व कप फाइनल का सबसे बड़ा स्कोर है।",
+      "जसप्रीत बुमराह ने टूर्नामेंट में 15 विकेट मात्र 4.17 की इकॉनमी रेट से लिए और टूर्नामेंट के सर्वश्रेष्ठ खिलाड़ी बने।",
+      "भारत दो टी20 विश्व कप (2007, 2024) जीतने वाला वेस्टइंडीज और इंग्लैंड के साथ संयुक्त रूप से सफलतम देश बना।"
     ],
-    provisions: [
-      'इंटीग्रेटेड प्लेटफॉर्म मैनेजमेंट सिस्टम (IPMS) और स्वदेशी कॉम्बैट मैनेजमेंट सिस्टम (CMS)।',
-      'पनडुब्बी रोधी युद्ध (ASW) के लिए स्वदेशी हमसा-एनजी सोनार और रॉकेट लॉन्चर।',
-      'दो मल्टी-रोल हेलीकॉप्टरों (जैसे MH-60R सीहॉक) के संचालन की पूर्ण क्षमता।'
+    "provisions": [
+      "बीसीसीआई (BCCI) द्वारा विश्व विजेता भारतीय टीम हेतु ₹125 करोड़ की विशेष पुरस्कार राशि की घोषणा।",
+      "रोहित शर्मा, विराट कोहली और रवींद्र जडेजा ने टी20 अंतर्राष्ट्रीय क्रिकेट प्रारूप से संन्यास की घोषणा की।",
+      "आईसीसी द्वारा आगामी पुरुष टी20 विश्व कप 2026 की सह-मेजबानी भारत और श्रीलंका को सौंपी गई है।"
     ],
-    highYieldFact: 'प्रोजेक्ट 17A के सभी 7 युद्धपोतों का निर्माण मझगांव डॉक (MDL) और गार्डन रीच (GRSE) द्वारा किया गया है।',
-    vocabulary: [
+    "highYieldFact": "भारत दो टी20 विश्व कप (2007 और 2024) जीतने वाला वेस्टइंडीज और इंग्लैंड के बाद विश्व का तीसरा देश बना।",
+    "vocabulary": [
       {
-        word: 'Prerequisite',
-        pos: 'Noun / Adjective',
-        exactHindi: 'अनिवार्य पूर्व-शर्त / पूर्वापेक्षा',
-        definition: 'A thing that is required as a prior condition for something else to happen or exist.',
-        synonyms: 'Precondition, Requirement, Imperative, Sine qua non',
-        antonyms: 'Optional add-on, Superfluity, Inessential',
-        examUsage: '"Institutional transparency is a vital prerequisite for good democratic governance."'
+        "word": "Triumphant",
+        "pos": "Adjective",
+        "exactHindi": "विजयी / सफल",
+        "definition": "Having won a battle or contest; victorious.",
+        "synonyms": "Victorious, Successful, Conquering",
+        "antonyms": "Defeated, Vanquished",
+        "examUsage": "\"The triumphant Indian cricket squad received a grand reception in Mumbai.\""
       },
       {
-        word: 'Empowerment',
-        pos: 'Noun',
-        exactHindi: 'सशक्तीकरण / सामर्थ्य वृद्धि',
-        definition: "The process of becoming stronger and more confident, especially in controlling one's life and rights.",
-        synonyms: 'Enfranchisement, Elevation, Strengthening, Capacity-building',
-        antonyms: 'Marginalization, Disenfranchisement, Suppression',
-        examUsage: '"Digital literacy initiatives foster socio-economic empowerment across rural youth."'
-      },
-      {
-        word: 'Sustainable',
-        pos: 'Adjective',
-        exactHindi: 'सतत / पर्यावरण-अनुकूल टिकाऊ',
-        definition: 'Able to be maintained at a certain rate or level without depleting natural resources.',
-        synonyms: 'Viable, Renewable, Enduring, Eco-friendly',
-        antonyms: 'Unsustainable, Depleting, Short-lived, Wasteful',
-        examUsage: '"Clean energy transition ensures long-term sustainable growth for coming generations."'
+        "word": "Economical",
+        "pos": "Adjective",
+        "exactHindi": "किफायती / कम रन देने वाला",
+        "definition": "Giving good value or return for resources or runs conceded in sports.",
+        "synonyms": "Frugal, Tight, Efficient",
+        "antonyms": "Expensive, Extravagant",
+        "examUsage": "\"Jasprit Bumrah bowled exceptionally economical spells throughout the tournament.\""
       }
     ],
-    practiceMcq: {
-      question: 'भारतीय नौसेना के प्रोजेक्ट 17A (Project 17A) का मुख्य उद्देश्य क्या है?',
-      options: [
-        'परमाणु पनडुब्बियों का निर्माण',
-        'उन्नत स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स का स्वदेशी निर्माण',
-        'विमानवाहक पोत की मरम्मत',
-        'तटरक्षक नौकाओं की आपूर्ति'
+    "practiceMcq": {
+      "question": "आईसीसी पुरुष टी20 विश्व कप में प्लेयर ऑफ द टूर्नामेंट (Player of the Tournament) का खिताब किसे प्रदान किया गया?",
+      "options": [
+        "विराट कोहली",
+        "जसप्रीत बुमराह",
+        "रोहित शर्मा",
+        "हार्दिक पांड्या"
       ],
-      correct: 1,
-      explanation: 'प्रोजेक्ट 17A के तहत भारतीय नौसेना के लिए 7 उन्नत स्टेल्थ गाइडेड मिसाइल फ्रिगेट्स का निर्माण किया जा रहा है।'
+      "correct": 1,
+      "explanation": "जसप्रीत बुमराह को मात्र 4.17 की इकॉनमी से 15 विकेट लेने पर टूर्नामेंट का सर्वश्रेष्ठ खिलाड़ी (Player of the Tournament) चुना गया।"
     },
-    mainsQuestion:
-      '"हिंद महासागर क्षेत्र (IOR) में भारत की सुरक्षा रणनीति और आत्मनिर्भर रक्षा उत्पादन में प्रोजेक्ट 17A के महत्व का समालोचनात्मक परीक्षण कीजिए।"'
+    "mainsQuestion": "\"खेलों में भारत की हालिया अंतर्राष्ट्रीय उपलब्धियां और टारगेट ओलंपिक पोडियम स्कीम (TOPS) देश में खेल संस्कृति के विकास में किस प्रकार योगदान दे रही हैं?\""
   },
   {
-    id: 'news-bharat-6g',
-    categoryTag: 'SCIENCE & TECH',
-    categoryFilter: 'Science & Tech',
-    date: '6 अक्टूबर 2026',
-    readTime: '4 मिनट Read',
-    releaseId: '2065817912598719108',
-    headline: 'भारत 6G विज़न और क्वांटम सुरक्षित संचार: दूरसंचार विभाग का आगामी राष्ट्रीय रोडमैप',
-    summary:
-      'दूरसंचार विभाग (DoT) ने "भारत 6G अलायंस" के तहत 127 से अधिक वैश्विक पेटेंट दाखिल कर अगली पीढ़ी की वायरलेस तकनीक में भारत को वैश्विक मानक निर्माता के रूप में स्थापित किया है। यह नेटवर्क सब-टेराहर्ट्ज़ स्पेक्ट्रम और शून्य विलंबता (Zero Latency) पर आधारित है।',
-    background:
-      'प्रधानमंत्री द्वारा 2023 में भारत 6G विज़न दस्तावेज जारी किया गया था, जिसका उद्देश्य 2030 तक भारत को 6G प्रौद्योगिकी के विकास और पेटेंट निर्माण में अग्रणी बनाना है।',
-    sourceMinistry: 'संचार मंत्रालय • दूरसंचार विभाग (DoT) • PIB नई दिल्ली',
-    sourceUrl: 'https://pib.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: दूरसंचार विभाग (DoT) • PIB नई दिल्ली',
-    dimensions: [
-      '1 Tbps तक की अल्ट्रा-हाई-स्पीड डेटा ट्रांसमिशन क्षमता जो होलोग्राफिक संचार को सक्षम बनाएगी।',
-      'क्वांटम की डिस्ट्रीब्यूशन (QKD) तकनीक से लैस 100% हैक-प्रूफ एंड-टू-एंड राष्ट्रीय सुरक्षा नेटवर्क।',
-      'उपग्रह और स्थलीय नेटवर्क का निर्बाध एकीकरण (Non-Terrestrial Networks - NTN)।'
+    "id": "news-wimbledon-grand-slam",
+    "categoryTag": "🏆 खेलकूद (SPORTS)",
+    "categoryFilter": "Sports & Play",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024102",
+    "headline": "विंबलडन टेनिस चैंपियनशिप: कार्लोस अल्काराज और बारबोरा क्रेजकिकोवा ने जीते प्रतिष्ठित एकल खिताब",
+    "summary": "लंदन के ऑल इंग्लैंड लॉन टेनिस क्लब में आयोजित 137वीं विंबलडन चैंपियनशिप में स्पेन के कार्लोस अल्काराज ने नोवाक जोकोविच को सीधे सेटों में हराकर लगातार दूसरा विंबलडन पुरुष एकल खिताब जीता। महिला एकल में चेक गणराज्य की बारबोरा क्रेजकिकोवा ने अपना पहला विंबलडन खिताब हासिल किया।",
+    "background": "टेनिस के चार ग्रैंड स्लैम टूर्नामेंट्स का वार्षिक क्रम: ऑस्ट्रेलियन ओपन (हार्ड कोर्ट), फ्रेंच ओपन (क्ले कोर्ट), विंबलडन (ग्रास कोर्ट) और यूएस ओपन (हार्ड कोर्ट) है। विंबलडन दुनिया का सबसे पुराना टेनिस टूर्नामेंट है जिसकी शुरुआत 1877 में हुई थी।",
+    "sourceMinistry": "Wimbledon Official • Sports Authority of India • PIB",
+    "sourceUrl": "https://wimbledon.com",
+    "imageUrl": "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: Wimbledon Championship • ATP / WTA Media",
+    "dimensions": [
+      "21 वर्षीय कार्लोस अल्काराज ने एक ही वर्ष में फ्रेंच ओपन और विंबलडन (चैनल स्लैम) जीतकर इतिहास रचा।",
+      "महिला एकल उपविजेता इटली की जैस्मीन पाओलिनी रहीं, जो लगातार दो ग्रैंड स्लैम फाइनल में पहुंचने वाली खिलाड़ी बनीं।",
+      "विंबलडन चैंपियनशिप पारंपरिक रूप से प्राकृतिक घास (Grass Court) पर खेली जाने वाली एकमात्र ग्रैंड स्लैम प्रतियोगिता है।"
     ],
-    provisions: [
-      'राष्ट्रीय 6G अनुसंधान एवं विकास कोष (R&D Fund) हेतु ₹10,000 करोड़ का प्रावधान।',
-      'आईआईटी मद्रास, आईआईटी दिल्ली और आईआईएससी बैंगलोर में 6G टेस्टबेड और पेटेंट इनक्यूबेटर की स्थापना।',
-      'अंतर्राष्ट्रीय दूरसंचार संघ (ITU) के 6G फ्रेमवर्क में भारतीय मानकों को शामिल कराना।'
+    "provisions": [
+      "ऑल इंग्लैंड क्लब द्वारा एकल विजेताओं को रिकॉर्ड £2.7 मिलियन (लगभग ₹28.8 करोड़) की पुरस्कार राशि प्रदान की गई।",
+      "टेनिस इंटीग्रिटी यूनिट और आईटीएफ द्वारा डोपिंग व मैच फिक्सिंग रोधी कड़े डिजिटल नियम लागू।",
+      "भारतीय टेनिस में रोहन बोपन्ना द्वारा ऑस्ट्रेलियन ओपन डबल्स खिताब के बाद भारतीय खिलाड़ियों की वैश्विक रैंकिंग में सुधार।"
     ],
-    highYieldFact: 'भारत 6G विज़न दस्तावेज के अनुसार 6G का क्रियान्वयन दो चरणों (2023-25 और 2025-30) में पूरा किया जा रहा है।',
-    vocabulary: [
+    "highYieldFact": "विंबलडन चैंपियनशिप ग्रास (घास) कोर्ट पर खेली जाने वाली दुनिया की एकमात्र और सबसे पुरानी (1877) ग्रैंड स्लैम टेनिस प्रतियोगिता है।",
+    "vocabulary": [
       {
-        word: 'Terahertz',
-        pos: 'Noun',
-        exactHindi: 'टेराहर्ट्ज़ (अति-उच्च आवृत्ति स्पेक्ट्रम)',
-        definition: 'A unit of frequency equal to one trillion hertz, used in advanced next-gen communication.',
-        synonyms: 'Ultra-high frequency, Sub-millimeter band',
-        antonyms: 'Low-frequency band',
-        examUsage: '"Terahertz spectrum provides bandwidth necessary for 6G holographic streaming."'
-      },
-      {
-        word: 'Latency',
-        pos: 'Noun',
-        exactHindi: 'विलंबता / डेटा संचरण में लगने वाला समय',
-        definition: 'The delay before a transfer of data begins following an instruction for its transfer.',
-        synonyms: 'Lag, Delay, Response interval',
-        antonyms: 'Instantaneity, Promptness',
-        examUsage: '"Near-zero latency in 6G enables instantaneous remote robotic surgery."'
-      },
-      {
-        word: 'Interoperability',
-        pos: 'Noun',
-        exactHindi: 'अंतर-प्रचालनीयता / आपसी समन्वय क्षमता',
-        definition: 'The ability of computer systems or software to exchange and make use of information.',
-        synonyms: 'Compatibility, Integration, Interconnection',
-        antonyms: 'Incompatibility, Isolation',
-        examUsage: '"Seamless interoperability between satellite and telecom towers is crucial for 6G NTN."'
+        "word": "Predecessor",
+        "pos": "Noun",
+        "exactHindi": "पूर्वाधिकारी / पूर्ववर्ती",
+        "definition": "A person who held a job or office before the current holder.",
+        "synonyms": "Forerunner, Antecedent, Prior holder",
+        "antonyms": "Successor, Descendant",
+        "examUsage": "\"Carlos Alcaraz matched his legendary Spanish predecessor Rafael Nadal by winning on grass.\""
       }
     ],
-    practiceMcq: {
-      question: 'भारत 6G विज़न दस्तावेज के अनुसार भारत में 6G सेवाओं के व्यावसायिक रोलआउट का लक्षित वर्ष क्या है?',
-      options: ['2027', '2028', '2030', '2035'],
-      correct: 2,
-      explanation: 'भारत सरकार के आधिकारिक 6G विज़न दस्तावेज के अनुसार 2030 तक 6G तकनीक को पूरी तरह लागू करने का लक्ष्य है।'
-    },
-    mainsQuestion:
-      '"6G प्रौद्योगिकी में वैश्विक पेटेंट नेतृत्व भारत की डिजिटल संप्रभुता और आर्थिक विकास में क्या भूमिका निभा सकता है? विश्लेषण कीजिए।"'
-  },
-  {
-    id: 'news-e-rupee-cbdc',
-    categoryTag: 'ECONOMY & BANKING',
-    categoryFilter: 'Economy & Banking',
-    date: '6 अक्टूबर 2026',
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719109',
-    headline: 'डिजिटल रुपया (e₹-CBDC) और यूपीआई इंटरऑपरेबिलिटी: भारतीय वित्तीय प्रणाली में वैश्विक क्रांति',
-    summary:
-      'भारतीय रिजर्व बैंक (RBI) द्वारा जारी सेंट्रल बैंक डिजिटल करेंसी (CBDC) और UPI क्यूआर कोड के पूर्ण एकीकरण से खुदरा डिजिटल रुपये के दैनिक लेन-देन में रिकॉर्ड वृद्धि दर्ज की गई है। इससे कैश हैंडलिंग लागत में सालाना ₹4,000+ करोड़ की बचत हो रही है।',
-    background:
-      'आरबीआई ने 1 दिसंबर 2022 को रिटेल डिजिटल रुपया (e₹-R) पायलट प्रोजेक्ट शुरू किया था, जिसे अब पूरे देश के बैंकों और मर्चेंट नेटवर्क में लागू कर दिया गया है।',
-    sourceMinistry: 'भारतीय रिजर्व बैंक (RBI) • वित्त मंत्रालय • PIB',
-    sourceUrl: 'https://rbi.org.in',
-    imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: RBI Press Cell • NPCI Data',
-    dimensions: [
-      'डिजिटल रुपया (CBDC) सॉवरेन लीगल टेंडर है, जो ब्लॉकचेन आधारित DLT तकनीक पर कार्य करता है।',
-      'यूपीआई क्यूआर कोड इंटरऑपरेबिलिटी से ग्राहक किसी भी साधारण मर्चेंट क्यूआर पर डिजिटल रुपये से भुगतान कर सकते हैं।',
-      'ऑफ़लाइन सीबीडीसी लेनदेन सुविधा (बिना इंटरनेट के भुगतान) पहाड़ी व दूरदराज के क्षेत्रों में लागू।'
-    ],
-    provisions: [
-      'RBI अधिनियम 1934 की धारा 2 में संशोधन कर डिजिटल करेंसी को बैंक नोट की कानूनी परिभाषा में शामिल किया गया।',
-      'प्रोग्रामेबल मनी: विशिष्ट सरकारी सब्सिडी (जैसे खाद सब्सिडी या छात्रवृत्ति) केवल उसी उद्देश्य के लिए खर्च हो सकेगी।',
-      'सीमा पार क्रॉस-बॉर्डर भुगतान (Cross-border Remittances) में लागत व समय में 80% कमी।'
-    ],
-    highYieldFact: 'आरबीआई की स्थापना 1 अप्रैल 1935 को हिल्टन यंग आयोग की सिफारिश पर हुई थी और इसका राष्ट्रीयकरण 1 जनवरी 1949 को हुआ।',
-    vocabulary: [
-      {
-        word: 'Interoperability',
-        pos: 'Noun',
-        exactHindi: 'पारस्परिक संचालन क्षमता / अंतर-प्रचालनीयता',
-        definition: 'The ability of different systems or organizations to work together seamlessly.',
-        synonyms: 'Compatibility, Integration, Interconnection',
-        antonyms: 'Incompatibility, Isolation',
-        examUsage: '"Interoperability between CBDC and UPI enhances financial inclusion."'
-      },
-      {
-        word: 'Sovereign',
-        pos: 'Adjective / Noun',
-        exactHindi: 'संप्रभु / सर्वोच्च कानूनी सत्ता',
-        definition: 'Possessing supreme or ultimate power.',
-        synonyms: 'Autonomous, Supreme, Independent',
-        antonyms: 'Subordinate, Dependent',
-        examUsage: '"Central Bank Digital Currency carries the sovereign backing of RBI."'
-      },
-      {
-        word: 'Disinflation',
-        pos: 'Noun',
-        exactHindi: 'अपस्फीति / मुद्रास्फीति की दर में कमी',
-        definition: 'A reduction in the rate of inflation.',
-        synonyms: 'Slowing inflation, Price stabilization',
-        antonyms: 'Hyperinflation, Reflation',
-        examUsage: '"Monetary tightening resulted in steady disinflation across sectors."'
-      }
-    ],
-    practiceMcq: {
-      question: 'भारत में सेंट्रल बैंक डिजिटल करेंसी (CBDC) किसके द्वारा जारी की जाती है?',
-      options: ['नीति आयोग', 'भारतीय रिजर्व बैंक (RBI)', 'वित्त मंत्रालय', 'भारतीय स्टेट बैंक'],
-      correct: 1,
-      explanation: 'सीबीडीसी (डिजिटल रुपया) भारतीय रिजर्व बैंक (RBI) द्वारा जारी सॉवरेन डिजिटल लीगल टेंडर है।'
-    },
-    mainsQuestion:
-      '"सेंट्रल बैंक डिजिटल करेंसी (CBDC) और यूपीआई का एकीकरण भारत की बैंकिंग व्यवस्था और डॉलर पर निर्भरता कम करने में किस प्रकार सहायक हो सकता है?"'
-  },
-  {
-    id: 'news-gati-shakti',
-    categoryTag: 'SCHEMES & GOVERNANCE',
-    categoryFilter: 'Schemes & Governance',
-    date: '6 अक्टूबर 2026',
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719111',
-    headline: 'पीएम गति शक्ति राष्ट्रीय मास्टर प्लान: मल्टी-मॉडल कनेक्टिविटी और लॉजिस्टिक्स लागत घटाने में ऐतिहासिक प्रगति',
-    summary:
-      'पीएम गति शक्ति राष्ट्रीय मास्टर प्लान ने विभिन्न मंत्रालयों के बीच अवसंरचना परियोजनाओं के समन्वय को 100% डिजिटल कर लॉजिस्टिक्स लागत को सकल घरेलू उत्पाद (GDP) के 9% के नीचे लाने का ऐतिहासिक लक्ष्य हासिल किया है।',
-    background:
-      'पीएम गति शक्ति राष्ट्रीय मास्टर प्लान की शुरुआत अक्टूबर 2021 में ₹100 लाख करोड़ के विज़न के साथ की गई थी। इसमें भारतमाला, सागरमाला, उड़ान और रेलवे नेटवर्क को BISAG-N के GIS प्लेटफॉर्म पर एकीकृत किया गया है।',
-    sourceMinistry: 'वाणिज्य और उद्योग मंत्रालय • डीपीआईआईटी • प्रेस सूचना ब्यूरो (PIB)',
-    sourceUrl: 'https://pib.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: DPIIT • BISAG-N National GIS Portal',
-    dimensions: [
-      '7 इंजन: सड़क, रेलवे, एयरपोर्ट, बंदरगाह, जन परिवहन, जलमार्ग और लॉजिस्टिक्स अवसंरचना।',
-      '1460+ लेयर्स का एकीकृत जीआईएस प्लेटफॉर्म जो परियोजनाओं की डुप्लीकेसी रोकता है।',
-      'राष्ट्रीय लॉजिस्टिक्स नीति (NLP) के तहत लॉजिस्टिक्स परफॉर्मेंस इंडेक्स में भारत की रैंक में तीव्र सुधार।'
-    ],
-    provisions: [
-      'नेटवर्क प्लानिंग ग्रुप (NPG) द्वारा ₹500 करोड़ से अधिक की सभी परियोजनाओं की डिजिटल समीक्षा।',
-      'लास्ट-माइल कनेक्टिविटी के लिए पीएम गति शक्ति पोर्टल का राज्यों (State Master Plans) में विस्तार।',
-      'यूनिफाइड लॉजिस्टिक्स इंटरफेस प्लेटफॉर्म (ULIP) द्वारा कार्गो ट्रैकिंग में क्रांतिकारी सुगमता।'
-    ],
-    highYieldFact: 'पीएम गति शक्ति के GIS डिजिटल प्लेटफॉर्म का विकास BISAG-N (गांधीनगर, गुजरात) द्वारा अंतरिक्ष विभाग के सहयोग से किया गया है।',
-    vocabulary: [
-      {
-        word: 'Infrastructure',
-        pos: 'Noun',
-        exactHindi: 'अवसंरचना / बुनियादी ढांचा',
-        definition: 'The basic physical and organizational structures needed for the operation of a society.',
-        synonyms: 'Framework, Foundation, Backbone',
-        antonyms: 'Superstructure',
-        examUsage: '"Modern logistics infrastructure accelerates industrial export growth."'
-      },
-      {
-        word: 'Synergy',
-        pos: 'Noun',
-        exactHindi: 'सहक्रिया / तालमेल',
-        definition: 'The interaction of elements that when combined produce a total effect that is greater than the sum of the individual elements.',
-        synonyms: 'Collaboration, Harmony, Symbiosis',
-        antonyms: 'Discord, Antagonism',
-        examUsage: '"PM Gati Shakti creates inter-ministerial synergy to avoid delays."'
-      },
-      {
-        word: 'Efficiency',
-        pos: 'Noun',
-        exactHindi: 'दक्षता / कार्यकुशलता',
-        definition: 'The state or quality of being efficient; maximum productivity with minimum wasted effort.',
-        synonyms: 'Competence, Efficacy, Productivity',
-        antonyms: 'Inefficiency, Wastefulness',
-        examUsage: '"Digitized route planning enhances supply chain efficiency."'
-      }
-    ],
-    practiceMcq: {
-      question: 'पीएम गति शक्ति राष्ट्रीय मास्टर प्लान में कितने प्रमुख आर्थिक विकास इंजन शामिल हैं?',
-      options: ['5 इंजन', '7 इंजन', '10 इंजन', '12 इंजन'],
-      correct: 1,
-      explanation: 'पीएम गति शक्ति के 7 प्रमुख इंजन हैं: सड़क, रेलवे, एयरपोर्ट, बंदरगाह, जन परिवहन, जलमार्ग और लॉजिस्टिक्स।'
-    },
-    mainsQuestion:
-      '"पीएम गति शक्ति पोर्टल किस प्रकार अवसंरचना निर्माण में विभागीय सिलोस (Silos) को समाप्त कर भारत की लॉजिस्टिक्स लागत को वैश्विक स्तर पर प्रतिस्पर्धी बना रहा है?"'
-  },
-  {
-    id: 'news-gba',
-    categoryTag: 'INTERNATIONAL',
-    categoryFilter: 'National',
-    date: '6 अक्टूबर 2026',
-    readTime: '4 मिनट Read',
-    releaseId: '2065817912598719112',
-    headline: 'ग्लोबल बायोफ्यूल्स अलायंस (GBA) और अंतर्राष्ट्रीय स्वच्छ ऊर्जा संक्रमण का तीव्र विस्तार',
-    summary:
-      'भारत की अध्यक्षता में गठित ग्लोबल बायोफ्यूल्स अलायंस (GBA) में विश्व के प्रमुख 24 देश और 12 अंतर्राष्ट्रीय संगठन शामिल हो चुके हैं। इसका उद्देश्य 2030 तक स्थायी विमानन ईंधन (SAF) और 20% इथेनॉल मिश्रण को वैश्विक मानक बनाना है।',
-    background:
-      'नई दिल्ली G20 शिखर सम्मेलन (2023) के दौरान प्रधानमंत्री नरेंद्र मोदी द्वारा अमेरिका और ब्राजील के साथ मिलकर ग्लोबल बायोफ्यूल्स अलायंस का ऐतिहासिक शुभारंभ किया गया था।',
-    sourceMinistry: 'विदेश मंत्रालय (MEA) • पेट्रोलियम एवं प्राकृतिक गैस मंत्रालय • PIB',
-    sourceUrl: 'https://pib.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: MEA Official Portal • G20 Secretariat',
-    dimensions: [
-      'संस्थापक देश: भारत, ब्राजील और संयुक्त राज्य अमेरिका (वैश्विक इथेनॉल उत्पादन का 85% हिस्सा)।',
-      'सस्टेनेबल एविएशन फ्यूल (SAF) के उपयोग को बढ़ावा देकर विमानन उत्सर्जन में कमी।',
-      'कृषि अवशेषों (पराली व बगास) से 2G (सेकंड जेनरेशन) इथेनॉल निर्माण को वित्तीय प्रोत्साहन।'
-    ],
-    provisions: [
-      'भारत ने 20% इथेनॉल सम्मिश्रण (E20) का लक्ष्य समय से पूर्व हासिल किया।',
-      'कम्प्रेस्ड बायोगैस (CBG) और SATAT योजना का अंतर्राष्ट्रीय सहयोग मॉडल।',
-      'ग्लोबल बायोफ्यूल्स स्टैंडर्डाइजेशन और तकनीकी हस्तांतरण ढांचा।'
-    ],
-    highYieldFact: 'भारत, ब्राजील और अमेरिका मिलकर विश्व के कुल इथेनॉल उत्पादन का लगभग 85% और उपभोग का 81% नियंत्रित करते हैं।',
-    vocabulary: [
-      {
-        word: 'Biofuel',
-        pos: 'Noun',
-        exactHindi: 'जैव ईंधन (कृषि व जैविक स्रोतों से निर्मित ईंधन)',
-        definition: 'A fuel derived immediately from living matter such as agricultural crops.',
-        synonyms: 'Biomass fuel, Renewable fuel, Ethanol',
-        antonyms: 'Fossil fuel, Petroleum',
-        examUsage: '"Biofuels play a pivotal role in achieving net-zero carbon targets."'
-      },
-      {
-        word: 'Decarbonization',
-        pos: 'Noun',
-        exactHindi: 'डीकार्बोनाइजेशन / कार्बन उत्सर्जन में कमी',
-        definition: 'The reduction of carbon dioxide emissions through use of low carbon power sources.',
-        synonyms: 'Emissions reduction, Clean transition',
-        antonyms: 'Carbonization, Pollution',
-        examUsage: '"The alliance aims to accelerate the decarbonization of transport sectors."'
-      },
-      {
-        word: 'Multilateral',
-        pos: 'Adjective',
-        exactHindi: 'बहुपक्षीय / कई देशों की सहभागिता वाला',
-        definition: 'Agreed upon or participated in by three or more parties or governments.',
-        synonyms: 'Collective, International, Multi-party',
-        antonyms: 'Unilateral, Bilateral',
-        examUsage: '"GBA represents a strong multilateral platform for renewable energy."'
-      }
-    ],
-    practiceMcq: {
-      question: 'ग्लोबल बायोफ्यूल्स अलायंस (GBA) के तीन प्रमुख संस्थापक देश कौन-से हैं?',
-      options: [
-        'भारत, चीन और रूस',
-        'भारत, ब्राजील और संयुक्त राज्य अमेरिका (USA)',
-        'भारत, जापान और जर्मनी',
-        'भारत, ऑस्ट्रेलिया और ब्रिटेन'
+    "practiceMcq": {
+      "question": "विंबलडन टेनिस चैंपियनशिप में पुरुष एकल (Men's Singles) का खिताब किसने जीता?",
+      "options": [
+        "नोवाक जोकोविच",
+        "कार्लोस अल्काराज",
+        "यानिक सिनर",
+        "दानिल मेदवेदेव"
       ],
-      correct: 1,
-      explanation: 'ग्लोबल बायोफ्यूल्स अलायंस के संस्थापक देश भारत, ब्राजील और यूएसए हैं।'
+      "correct": 1,
+      "explanation": "स्पेन के युवा स्टार कार्लोस अल्काराज ने 24 बार के ग्रैंड स्लैम विजेता नोवाक जोकोविच को पराजित कर लगातार दूसरा विंबलडन खिताब जीता।"
     },
-    mainsQuestion:
-      '"ग्लोबल बायोफ्यूल्स अलायंस (GBA) भारत की ऊर्जा सुरक्षा और 2070 तक नेट-जीरो कार्बन उत्सर्जन के राष्ट्रीय लक्ष्य में किस प्रकार मील का पत्थर सिद्ध होगा?"'
+    "mainsQuestion": "\"विश्व टेनिस और वैश्विक एथलेटिक्स में उभरती युवा प्रतिभाओं के बीच भारत में लॉन टेनिस बुनियादी ढांचे की चुनौतियों और संभावनाओं का मूल्यांकन कीजिए।\""
   },
   {
-    id: 'news-pm-surya-ghar',
-    categoryTag: 'SCHEMES & GOVERNANCE',
-    categoryFilter: 'Schemes & Governance',
-    date: '6 अक्टूबर 2026',
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719113',
-    headline: 'पीएम सूर्य घर: मुफ्त बिजली योजना के तहत 1 करोड़ परिवारों को 300 यूनिट मुफ्त सौर ऊर्जा',
-    summary:
-      'केंद्रीय मंत्रिमंडल द्वारा ₹75,021 करोड़ के परिव्यय के साथ पीएम सूर्य घर: मुफ्त बिजली योजना को अभूतपूर्व गति दी गई है। इसके अंतर्गत आवासीय घरों की छतों पर सोलर पैनल लगाने हेतु 60% तक की सीधी केंद्रीय सब्सिडी दी जा रही है।',
-    background:
-      'प्रधानमंत्री नरेंद्र मोदी द्वारा 13 फरवरी 2024 को पीएम सूर्य घर: मुफ्त बिजली योजना की शुरुआत की गई थी, जिसका लक्ष्य 1 करोड़ परिवारों को हर महीने 300 यूनिट मुफ्त बिजली प्रदान करना है।',
-    sourceMinistry: 'नवीन और नवीकरणीय ऊर्जा मंत्रालय (MNRE) • pmsuryaghar.gov.in',
-    sourceUrl: 'https://pmsuryaghar.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: MNRE Official Portal • National Solar Mission',
-    dimensions: [
-      'सब्सिडी दरें: 1 kW पर ₹30,000, 2 kW पर ₹60,000 और 3 kW या अधिक पर ₹78,000 तक की सीधी डीबीटी सहायता।',
-      'DISCOMs को ग्रिड फीड-इन टैरिफ के माध्यम से अतिरिक्त सौर ऊर्जा बेचकर परिवारों की आय वृद्धि।',
-      'देशभर में 30 GW रूफटॉप सौर ऊर्जा क्षमता का संवर्धन और 720 मिलियन टन CO2 उत्सर्जन में कमी।'
+    "id": "news-chess-olympiad-double-gold",
+    "categoryTag": "🏆 खेलकूद (SPORTS)",
+    "categoryFilter": "Sports & Play",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024103",
+    "headline": "45वां फिडे शतरंज ओलंपियाड (बुडापेस्ट): भारत ने ओपन और महिला दोनों वर्गों में ऐतिहासिक दोहरा स्वर्ण पदक जीता",
+    "summary": "हंगरी की राजधानी बुडापेस्ट में आयोजित 45वें फिडे शतरंज ओलंपियाड में भारतीय पुरुष टीम (डी. गुकेश, आर. प्रज्ञानानंद, अर्जुन एरिगैसी, विदित गुजराती, पेंटाला हरिकृष्णा) और महिला टीम (हरिका द्रोणावल्ली, आर. वैशाली, दिव्या देशमुख, वंतिका अग्रवाल, तानिया सचदेव) दोनों ने स्वर्ण पदक जीतकर विश्व शतरंज में अभूतपूर्व इतिहास रचा।",
+    "background": "सोवियत संघ और चीन के बाद एक ही ओलंपियाड में ओपन और महिला दोनों स्वर्ण पदक जीतने वाला भारत विश्व का तीसरा देश बना। बोर्ड-1 पर डी. गुकेश और बोर्ड-3 पर अर्जुन एरिगैसी ने व्यक्तिगत स्वर्ण पदक भी जीते।",
+    "sourceMinistry": "FIDE • अखिल भारतीय शतरंज महासंघ (AICF) • युवा कार्यक्रम एवं खेल मंत्रालय",
+    "sourceUrl": "https://fide.com",
+    "imageUrl": "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: FIDE • All India Chess Federation",
+    "dimensions": [
+      "भारत ने 11 में से 10 मुकाबले जीतकर कुल 21 मैच अंकों के साथ ओपन वर्ग में शीर्ष स्थान प्राप्त किया।",
+      "महिला वर्ग में भारत ने अजरबैजान को फाइनल दौर में 3.5-0.5 से हराकर पहला ऐतिहासिक स्वर्ण पदक जीता।",
+      "डी. गुकेश ने बोर्ड-1 पर 3056 की असाधारण परफॉर्मेंस रेटिंग दर्ज की, जो ओलंपियाड इतिहास में दुर्लभ है।"
     ],
-    provisions: [
-      'राष्ट्रीय पोर्टल pmsuryaghar.gov.in पर सिंगल-विंडो ऑनलाइन आवेदन व वेंडर चयन।',
-      'शहरी स्थानीय निकायों और ग्राम पंचायतों को रूफटॉप सोलर को बढ़ावा देने हेतु विशेष प्रोत्साहन।',
-      'बिना किसी जमानत के 7% की रियायती ब्याज दर पर बैंकों से संपार्श्विक-मुक्त (Collateral-free) सोलर ऋण।'
+    "provisions": [
+      "भारत सरकार द्वारा शतरंज खिलाड़ियों को विशेष नकद पुरस्कार और उच्च स्तरीय प्रशिक्षण सुविधा की घोषणा।",
+      "खेलो इंडिया के तहत देश के 100 जिलों में आधुनिक शतरंज अकादमियों की स्थापना।",
+      "46वें फिडे शतरंज ओलंपियाड 2026 का आयोजन ताशकंद (उज्बेकिस्तान) में निर्धारित किया गया है।"
     ],
-    highYieldFact: 'पीएम सूर्य घर योजना का कुल बजट परिव्यय ₹75,021 करोड़ है और अधिकतम सब्सिडी ₹78,000 (3 kW क्षमता) निर्धारित है।',
-    vocabulary: [
+    "highYieldFact": "45वें शतरंज ओलंपियाड (बुडापेस्ट) में भारत ने ओपन और महिला दोनों श्रेणियों में स्वर्ण पदक जीतकर 97 वर्षों के इतिहास में पहली बार दोहरा खिताब जीता।",
+    "vocabulary": [
       {
-        word: 'Subsidy',
-        pos: 'Noun',
-        exactHindi: 'सब्सिडी / वित्तीय सहायता / अनुदान',
-        definition: 'A sum of money granted by the government to help an industry or business keep the price of a commodity low.',
-        synonyms: 'Grant, Financial aid, Subvention, Allowance',
-        antonyms: 'Tax, Surcharge, Penalty',
-        examUsage: '"Direct benefit transfer ensures transparent disbursement of solar subsidies."'
-      },
-      {
-        word: 'Decentralized',
-        pos: 'Adjective',
-        exactHindi: 'विकेंद्रीकृत',
-        definition: 'Controlled by several local offices or authorities rather than one single one.',
-        synonyms: 'Distributed, Dispersed, Devolved',
-        antonyms: 'Centralized, Concentrated',
-        examUsage: '"Rooftop solar empowers households through decentralized clean energy generation."'
-      },
-      {
-        word: 'Collateral',
-        pos: 'Noun',
-        exactHindi: 'जमानत / बंधक संपत्ति',
-        definition: 'Something pledged as security for repayment of a loan, to be forfeited in the event of a default.',
-        synonyms: 'Security, Guarantee, Pledge, Surety',
-        antonyms: 'Unsecured',
-        examUsage: '"Banks offer collateral-free low-interest loans for PM Surya Ghar installations."'
+        "word": "Prodigious",
+        "pos": "Adjective",
+        "exactHindi": "असाधारण / विलक्षण / विस्मयकारी",
+        "definition": "Remarkably or impressively great in extent, size, or degree.",
+        "synonyms": "Phenomenal, Extraordinary, Stupendous",
+        "antonyms": "Ordinary, Mediocre, Modest",
+        "examUsage": "\"Indian youngsters displayed prodigious tactical acumen to sweep the Chess Olympiad.\""
       }
     ],
-    practiceMcq: {
-      question: 'पीएम सूर्य घर: मुफ्त बिजली योजना के अंतर्गत 3 kW क्षमता के रूफटॉप सोलर पर अधिकतम कितनी केंद्रीय सब्सिडी देय है?',
-      options: ['₹30,000', '₹50,000', '₹60,000', '₹78,000'],
-      correct: 3,
-      explanation: '3 kW रूफटॉप सोलर सिस्टम पर अधिकतम ₹78,000 की वित्तीय सहायता DBT के माध्यम से दी जाती है।'
-    },
-    mainsQuestion:
-      '"रूफटॉप सोलर क्रांति भारत की ऊर्जा आत्मनिर्भरता, डिस्कॉम्स के वित्तीय घाटे को पाटने और ग्रामीण सशक्तिकरण में कैसे उत्प्रेरक सिद्ध हो सकती है?"'
-  },
-  {
-    id: 'news-bns-bnss-bsa',
-    categoryTag: 'NATIONAL',
-    categoryFilter: 'National',
-    date: '6 अक्टूबर 2026',
-    readTime: '4 मिनट Read',
-    releaseId: '2065817912598719114',
-    headline: 'भारतीय न्याय संहिता (BNS), BNSS और BSA: भारत की नई आपराधिक न्याय प्रणाली का ऐतिहासिक कार्यान्वयन',
-    summary:
-      'औपनिवेशिक काल के 160 वर्ष पुराने भारतीय दंड संहिता (IPC), CrPC और साक्ष्य अधिनियम के स्थान पर तीन नए आपराधिक कानून—भारतीय न्याय संहिता (BNS), भारतीय नागरिक सुरक्षा संहिता (BNSS) और भारतीय साक्ष्य अधिनियम (BSA) लागू हैं।',
-    background:
-      '1 जुलाई 2024 से संपूर्ण भारत में ब्रिटिश काल के 1860 के IPC, 1872 के साक्ष्य अधिनियम और 1973 के CrPC को समाप्त कर नए न्याय-केंद्रित आपराधिक कानून लागू किए गए।',
-    sourceMinistry: 'विधि और न्याय मंत्रालय • भारत का राजपत्र (Gazette of India) • PIB',
-    sourceUrl: 'https://mha.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: Ministry of Law & Justice • Gazette of India',
-    dimensions: [
-      'भारतीय न्याय संहिता (BNS 2023): 358 धाराएं (IPC की 511 धाराओं के स्थान पर)। राजद्रोह (Sedition) को समाप्त कर देशद्रोह (Treason) को स्पष्ट परिभाषित किया गया।',
-      'भारतीय नागरिक सुरक्षा संहिता (BNSS 2023): 531 धाराएं। 7 वर्ष या अधिक सजा वाले अपराधों में फॉरेंसिक साक्ष्य अनिवार्य।',
-      'भारतीय साक्ष्य अधिनियम (BSA 2023): 170 धाराएं। इलेक्ट्रॉनिक एवं डिजिटल साक्ष्यों को प्राथमिक साक्ष्य (Primary Evidence) के समकक्ष मान्यता।'
-    ],
-    provisions: [
-      'जीरो एफआईआर (Zero FIR) और ई-एफआईआर (e-FIR) को वैधानिक दर्जा दिया गया।',
-      'पहली बार छोटे-मोटे अपराधों के लिए दंड के रूप में "सामुदायिक सेवा" (Community Service) का प्रावधान।',
-      'पीड़ित केंद्रित न्याय: चार्जशीट दाखिल करने की 90 दिनों की समय-सीमा और त्वरित ट्रायल प्रावधान।'
-    ],
-    highYieldFact: 'तीनों नए आपराधिक कानून 1 जुलाई 2024 से संपूर्ण भारत में प्रभावी रूप से लागू हुए हैं।',
-    vocabulary: [
-      {
-        word: 'Jurisprudence',
-        pos: 'Noun',
-        exactHindi: 'न्यायशास्त्र / विधि दर्शन',
-        definition: 'The theory or philosophy of law; a legal system.',
-        synonyms: 'Legal philosophy, Law, Judicial science',
-        antonyms: 'Lawlessness',
-        examUsage: '"The new criminal codes reflect a shift toward citizen-centric jurisprudence."'
-      },
-      {
-        word: 'Forensic',
-        pos: 'Adjective',
-        exactHindi: 'न्यायालयिक / वैज्ञानिक अपराध अन्वेषण संबंधी',
-        definition: 'Relating to or denoting the application of scientific methods and techniques to the investigation of crime.',
-        synonyms: 'Scientific investigative, Juridical',
-        antonyms: 'Conjectural, Unscientific',
-        examUsage: '"BNSS makes forensic investigation mandatory for offenses punishable by 7 years or more."'
-      },
-      {
-        word: 'Admissibility',
-        pos: 'Noun',
-        exactHindi: 'स्वीकार्यता / कानूनी ग्राह्यता',
-        definition: 'The quality of being acceptable or valid, especially as evidence in a court of law.',
-        synonyms: 'Validity, Legitimacy, Acceptability',
-        antonyms: 'Inadmissibility, Invalidity',
-        examUsage: '"The Bharatiya Sakshya Adhiniyam broadens the admissibility of electronic evidence."'
-      }
-    ],
-    practiceMcq: {
-      question: 'भारतीय दंड संहिता (IPC 1860) के स्थान पर कौन-सा नया कानून लागू किया गया है?',
-      options: [
-        'भारतीय न्याय संहिता (BNS 2023)',
-        'भारतीय नागरिक सुरक्षा संहिता (BNSS 2023)',
-        'भारतीय साक्ष्य अधिनियम (BSA 2023)',
-        'भारतीय दंड विधान'
+    "practiceMcq": {
+      "question": "45वें फिडे शतरंज ओलंपियाड (FIDE Chess Olympiad) का आयोजन किस शहर में किया गया?",
+      "options": [
+        "चेन्नई (भारत)",
+        "बुडापेस्ट (हंगरी)",
+        "बाकू (अजरबैजान)",
+        "ताशकंद (उज्बेकिस्तान)"
       ],
-      correct: 0,
-      explanation: 'IPC 1860 के स्थान पर भारतीय न्याय संहिता (BNS 2023) लागू की गई है जिसमें कुल 358 धाराएं हैं।'
+      "correct": 1,
+      "explanation": "45वां फिडे शतरंज ओलंपियाड बुडापेस्ट (हंगरी) में आयोजित हुआ, जहां भारत ने ओपन और महिला दोनों वर्गों में स्वर्ण पदक जीता।"
     },
-    mainsQuestion:
-      '"भारतीय न्याय संहिता (BNS) और BNSS औपनिवेशिक \'दंड-आधारित\' न्याय प्रणाली को भारतीय संवैधानिक मूल्यों के अनुरूप \'न्याय-आधारित\' प्रणाली में कैसे रूपांतरित करते हैं?"'
+    "mainsQuestion": "\"शतरंज में भारत का विश्व महाशक्ति के रूप में उभरना देश के बौद्धिक पूंजी विकास और खेल विविधीकरण को किस प्रकार प्रतिबिंबित करता है?\""
   },
   {
-    id: 'news-isro-bas-2026',
-    categoryTag: 'SCIENCE & TECH',
-    categoryFilter: 'Science & Tech',
-    date: getTodayHindiDate(),
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719115',
-    headline: 'भारतीय अंतरिक्ष स्टेशन (BAS-1) और गगनयान मिशन: इसरो का स्वदेशी अंतरिक्ष डॉकिंग रोडमैप',
-    summary:
-      'भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO) ने SPADEX (Space Docking Experiment) की ऐतिहासिक सफलता के बाद भारतीय अंतरिक्ष स्टेशन (BAS) के प्रथम मॉड्यूल के प्रक्षेपण की तैयारी तेज कर दी है। भारत अंतरिक्ष डॉकिंग तकनीक हासिल करने वाला विश्व का चौथा देश बन गया है।',
-    background:
-      'केंद्रीय मंत्रिमंडल ने गगनयान कार्यक्रम के विस्तार और 2028 तक भारतीय अंतरिक्ष स्टेशन की पहली इकाई स्थापित करने हेतु ₹20,193 करोड़ के कुल बजट को मंजूरी दी है।',
-    sourceMinistry: 'अंतरिक्ष विभाग (DoS) • ISRO मुख्यालय बेंगलुरु • PIB',
-    sourceUrl: 'https://isro.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1517976487468-f20514c44533?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: ISRO Media Cell • Press Information Bureau',
-    dimensions: [
-      'SPADEX मिशन द्वारा दो उपग्रहों (Chaser और Target) का पृथ्वी की निचली कक्षा में सफल स्वचालित मिलन।',
-      'भारतीय अंतरिक्ष स्टेशन (BAS) का कुल द्रव्यमान लगभग 52 टन होगा जिसमें 5 मॉड्यूल शामिल होंगे।',
-      'नेक्स्ट जनरेशन लॉन्च व्हीकल (NGLV - Soorya) द्वारा भारी पेलोड को कक्षा में स्थापित करने की क्षमता।'
+    "id": "news-asian-champions-trophy-hockey",
+    "categoryTag": "🏆 खेलकूद (SPORTS)",
+    "categoryFilter": "Sports & Play",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024104",
+    "headline": "एशियाई चैंपियंस ट्रॉफी हॉकी: भारत ने चीन को 1-0 से हराकर रिकॉर्ड 5वीं बार जीता एशियाई खिताब",
+    "summary": "हु伦बुल (चीन) के मोकी हॉकी ट्रेनिंग बेस में खेले गए फाइनल मुकाबले में भारतीय पुरुष हॉकी टीम ने मेजबान चीन को 1-0 से हराकर रिकॉर्ड 5वीं बार एशियाई चैंपियंस ट्रॉफी का खिताब अपने नाम किया। निर्णायक गोल चौथे क्वार्टर में जुगराज सिंह ने किया।",
+    "background": "कप्तान हरमनप्रीत सिंह के नेतृत्व में पेरिस ओलंपिक में कांस्य पदक जीतने के बाद भारतीय हॉकी टीम ने पूरे टूर्नामेंट में अजेय रहते हुए यह जीत हासिल की। भारत अब तक 2011, 2016, 2018 (संयुक्त), 2023 और हालिया संस्करण जीत चुका है।",
+    "sourceMinistry": "हॉकी इंडिया (Hockey India) • युवा कार्यक्रम एवं खेल मंत्रालय • SAI",
+    "sourceUrl": "https://hockeyindia.org",
+    "imageUrl": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: Hockey India • Asian Hockey Federation",
+    "dimensions": [
+      "भारतीय कप्तान हरमनप्रीत सिंह को 7 गोल दागने के लिए प्लेयर ऑफ द टूर्नामेंट चुना गया।",
+      "कांस्य पदक मुकाबले में पाकिस्तान ने दक्षिण कोरिया को 5-2 से हराकर तीसरा स्थान प्राप्त किया।",
+      "भारतीय टीम ने पूरे टूर्नामेंट में 7 मैचों में कुल 27 गोल दागे और मात्र 5 गोल खाए।"
     ],
-    provisions: [
-      '2028 तक BAS-1 मॉड्यूल का प्रक्षेपण और 2035 तक पूर्ण अंतरिक्ष स्टेशन का संचालन।',
-      '2040 तक भारतीय अंतरिक्ष यात्री (गगनयात्री) को चंद्रमा की सतह पर उतारने का राष्ट्रीय लक्ष्य।',
-      'चंद्रयान-4 (Lunar Sample Return) और शुक्र ऑर्बिटर मिशन (VOM) को कैबिनेट की स्वीकृति।'
+    "provisions": [
+      "हॉकी इंडिया ने प्रत्येक खिलाड़ी को ₹3 लाख और सहयोगी स्टाफ को ₹1.5 लाख का नकद इनाम दिया।",
+      "भारतीय हॉकी टीम को एफआईएच (FIH) विश्व रैंकिंग में शीर्ष 5 में मजबूती मिली।",
+      "ओडिशा सरकार द्वारा भारतीय हॉकी टीमों के आधिकारिक प्रायोजन को 2036 तक बढ़ाया गया।"
     ],
-    highYieldFact: 'अमेरिका, रूस और चीन के बाद भारत अंतरिक्ष में स्वायत्त डॉकिंग (SPADEX) क्षमता रखने वाला दुनिया का चौथा देश है।',
-    vocabulary: [
+    "highYieldFact": "भारतीय पुरुष हॉकी टीम एशियाई चैंपियंस ट्रॉफी को रिकॉर्ड 5 बार (2011, 2016, 2018, 2023, 2024) जीतने वाली एशिया की सबसे सफल टीम है।",
+    "vocabulary": [
       {
-        word: 'Autonomous',
-        pos: 'Adjective',
-        exactHindi: 'स्वायत्त / स्व-नियंत्रित',
-        definition: 'Acting independently or having the freedom to do so without external control.',
-        synonyms: 'Self-governing, Independent, Automated',
-        antonyms: 'Dependent, Manual',
-        examUsage: '"ISRO demonstrated autonomous orbital docking during the SPADEX mission."'
-      },
-      {
-        word: 'Rendezvous',
-        pos: 'Noun',
-        exactHindi: 'अंतरिक्ष मिलन / पूर्व-निर्धारित मिलन बिंदु',
-        definition: 'A meeting at an agreed time and place, especially between two spacecraft in orbit.',
-        synonyms: 'Convergence, Docking, Encounter',
-        antonyms: 'Separation, Divergence',
-        examUsage: '"Orbital rendezvous is essential for crew transfer to space stations."'
+        "word": "Unvanquished",
+        "pos": "Adjective",
+        "exactHindi": "अपराजित / जिसे हराया न गया हो",
+        "definition": "Not conquered or overcome; unbeaten.",
+        "synonyms": "Undefeated, Invincible, Unbeaten",
+        "antonyms": "Vanquished, Defeated",
+        "examUsage": "\"The Indian hockey contingent remained unvanquished throughout the continental campaign.\""
       }
     ],
-    practiceMcq: {
-      question: 'अंतरिक्ष में दो उपग्रहों को जोड़ने के लिए इसरो द्वारा किए गए सफल प्रयोग का नाम क्या है?',
-      options: ['SPADEX (स्पैडेक्स)', 'RLV-LEX', 'POEM-4', 'XPoSat'],
-      correct: 0,
-      explanation: 'इसरो ने SPADEX (Space Docking Experiment) मिशन के तहत अंतरिक्ष में सफल डॉकिंग कर इतिहास रचा।'
+    "practiceMcq": {
+      "question": "भारतीय पुरुष हॉकी टीम ने एशियाई चैंपियंस ट्रॉफी रिकॉर्ड कितनी बार जीती है?",
+      "options": [
+        "3 बार",
+        "4 बार",
+        "5 बार",
+        "6 बार"
+      ],
+      "correct": 2,
+      "explanation": "भारत ने चीन को 1-0 से हराकर रिकॉर्ड 5वीं बार एशियाई चैंपियंस ट्रॉफी का खिताब जीता।"
     },
-    mainsQuestion:
-      '"भारतीय अंतरिक्ष स्टेशन (BAS) और SPADEX तकनीक वैश्विक अंतरिक्ष अर्थव्यवस्था में भारत की हिस्सेदारी को 2% से बढ़ाकर 8% करने में कैसे सहायक होगी?"'
+    "mainsQuestion": "\"भारतीय हॉकी के पुनरुत्थान में जमीनी स्तर के अकादमियों, कॉरपोरेट-राज्य प्रायोजन (ओडिशा मॉडल) और तकनीकी सुधारों की भूमिका का विश्लेषण कीजिए।\""
   },
   {
-    id: 'news-india-ai-mission',
-    categoryTag: 'SCIENCE & TECH',
-    categoryFilter: 'Science & Tech',
-    date: getTodayHindiDate(),
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719116',
-    headline: 'इंडियाएआई मिशन (IndiaAI Mission): 18,000+ जीपीयू कंप्यूट इंफ्रास्ट्रक्चर और स्वदेशी फाउंडेशनल मॉडल',
-    summary:
-      'इलेक्ट्रॉनिक्स और सूचना प्रौद्योगिकी मंत्रालय (MeitY) ने ₹10,371.92 करोड़ के "IndiaAI Mission" के अंतर्गत भारत के अपने स्वदेशी लार्ज लैंग्वेज मॉडल (LLM) और 18,000 से अधिक AI GPUs का राष्ट्रीय कंप्यूट क्लस्टर लाइव कर दिया है।',
-    background:
-      'कृत्रिम बुद्धिमत्ता (AI) में आत्मनिर्भरता और भारतीय भाषाओं (भाषिणी) के डेटासेट पर प्रशिक्षित एआई मॉडल विकसित करने के लिए कैबिनेट ने इंडियाएआई मिशन को स्वीकृति दी है।',
-    sourceMinistry: 'इलेक्ट्रॉनिक्स और आईटी मंत्रालय (MeitY) • IndiaAI Portal • PIB',
-    sourceUrl: 'https://indiaai.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: MeitY • Digital India Corporation',
-    dimensions: [
-      'IndiaAI Compute Capacity: स्टार्टअप्स और शोधकर्ताओं को रियायती दरों पर 18,000+ उच्च-स्तरीय GPUs की उपलब्धता।',
-      'IndiaAI Datasets Platform (AIKosh): गैर-व्यक्तिगत भारतीय डेटासेट का एकीकृत राष्ट्रीय भंडार।',
-      'स्वास्थ्य, कृषि, शिक्षा और जलवायु परिवर्तन के लिए स्वदेशी मल्टीमॉडल फाउंडेशन मॉडल का विकास।'
+    "id": "news-70th-national-film-phalke",
+    "categoryTag": "🎖️ सम्मान (AWARDS)",
+    "categoryFilter": "Awards & Honors",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024105",
+    "headline": "70वें राष्ट्रीय फिल्म पुरस्कार एवं 54वां दादा साहेब फाल्के पुरस्कार: मिथुन चक्रवर्ती को भारतीय सिनेमा का सर्वोच्च सम्मान",
+    "summary": "राष्ट्रपति द्रौपदी मुर्मू द्वारा नई दिल्ली के विज्ञान भवन में 70वें राष्ट्रीय फिल्म पुरस्कार प्रदान किए गए, जिसमें दिग्गज अभिनेता मिथुन चक्रवर्ती को भारतीय सिनेमा के सर्वोच्च सम्मान 54वें दादा साहेब फाल्के पुरस्कार से अलंकृत किया गया। सर्वश्रेष्ठ फीचर फिल्म का पुरस्कार मलयालम फिल्म आट्टम (Aattam) को मिला।",
+    "background": "दादा साहेब फाल्के पुरस्कार की स्थापना 1969 में हुई थी (प्रथम प्राप्तकर्ता देविका रानी)। इसमें एक स्वर्ण कमल (स्वर्ण पदक), एक शॉल और ₹15 लाख की नकद राशि दी जाती है। ऋषभ शेट्टी को फिल्म कांतारा के लिए सर्वश्रेष्ठ अभिनेता का पुरस्कार मिला।",
+    "sourceMinistry": "सूचना और प्रसारण मंत्रालय (MIB) • राष्ट्रीय फिल्म विकास निगम (NFDC) • PIB",
+    "sourceUrl": "https://pib.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1578269174936-2709b6aeb913?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: सूचना एवं प्रसारण मंत्रालय • PIB विज्ञान भवन",
+    "dimensions": [
+      "54वां दादा साहेब फाल्के पुरस्कार: प्रसिद्ध अभिनेता और पूर्व राज्यसभा सांसद मिथुन चक्रवर्ती को जीवनपर्यंत योगदान हेतु।",
+      "सर्वश्रेष्ठ फीचर फिल्म: आनंद एकार्शी द्वारा निर्देशित मलयालम फिल्म आट्टम (Aattam)।",
+      "सर्वश्रेष्ठ अभिनेता: ऋषभ शेट्टी (कांतारा - कन्नड़) एवं सर्वश्रेष्ठ निर्देशक: सूरज बड़जात्या (ऊंचाई - हिंदी)।"
     ],
-    provisions: [
-      'टीयर-2 और टीयर-3 शहरों में "IndiaAI FutureSkills" केंद्रों की स्थापना।',
-      'सुरक्षित और नैतिक एआई (Safe & Trusted AI) के लिए स्वदेशी गवर्नेंस फ्रेमवर्क।',
-      'डीप-टेक एआई स्टार्टअप्स के लिए ₹2,000 करोड़ का जोखिम पूंजी (Venture Financing) कोष।'
+    "provisions": [
+      "राष्ट्रीय फिल्म पुरस्कारों में इस वर्ष पुरस्कार राशि को युक्तिसंगत बनाकर स्वर्ण कमल हेतु ₹3 लाख और रजत कमल हेतु ₹2 लाख किया गया।",
+      "दादा साहेब फाल्के पुरस्कार की नकद राशि ₹10 लाख से बढ़ाकर ₹15 लाख की गई।",
+      "भारतीय क्षेत्रीय भाषाओं (मलयालम, कन्नड़, तमिल, मराठी, बंगाली) के सिनेमा को राष्ट्रीय स्तर पर शीर्ष सम्मान मिले।"
     ],
-    highYieldFact: 'IndiaAI मिशन का कुल परिव्यय ₹10,371.92 करोड़ है और इसका क्रियान्वयन डिजिटल इंडिया कॉर्पोरेशन (DIC) के तहत किया जा रहा है।',
-    vocabulary: [
+    "highYieldFact": "दादा साहेब फाल्के पुरस्कार भारतीय सिनेमा का सर्वोच्च सम्मान है, जिसकी प्रथम विजेता 1969 में देविका रानी थीं। वर्तमान में पुरस्कार राशि ₹15 लाख है।",
+    "vocabulary": [
       {
-        word: 'Foundational',
-        pos: 'Adjective',
-        exactHindi: 'आधारभूत / बुनियादी',
-        definition: 'Forming an essential base or core from which everything else develops.',
-        synonyms: 'Fundamental, Primary, Underlying',
-        antonyms: 'Secondary, Peripheral',
-        examUsage: '"India is building indigenous foundational AI models trained on regional languages."'
+        "word": "Conferment",
+        "pos": "Noun",
+        "exactHindi": "प्रदान करना / अर्पण / सम्मान देना",
+        "definition": "The act of granting or bestowing a title, award, degree, or benefit.",
+        "synonyms": "Bestowal, Awarding, Presentation",
+        "antonyms": "Revocation, Deprivation",
+        "examUsage": "\"The conferment of the Phalke Award recognized half a century of cinematic versatility.\""
       }
     ],
-    practiceMcq: {
-      question: 'केंद्रीय मंत्रिमंडल द्वारा स्वीकृत "IndiaAI Mission" का कुल वित्तीय परिव्यय कितना है?',
-      options: ['₹5,500 करोड़', '₹10,371.92 करोड़', '₹15,000 करोड़', '₹20,250 करोड़'],
-      correct: 1,
-      explanation: 'IndiaAI मिशन के लिए 5 वर्षों की अवधि हेतु ₹10,371.92 करोड़ का बजट आवंटित किया गया है।'
+    "practiceMcq": {
+      "question": "भारतीय सिनेमा के सर्वोच्च 54वें दादा साहेब फाल्के पुरस्कार (Dadasaheb Phalke Award) से किसे सम्मानित किया गया?",
+      "options": [
+        "अमिताभ बच्चन",
+        "मिथुन चक्रवर्ती",
+        "रजनीकांत",
+        "कमल हासन"
+      ],
+      "correct": 1,
+      "explanation": "प्रसिद्ध अभिनेता मिथुन चक्रवर्ती को 54वें दादा साहेब फाल्के पुरस्कार से सम्मानित किया गया।"
     },
-    mainsQuestion:
-      '"इंडियाएआई मिशन भारत को एआई के उपभोक्ता से बदलकर वैश्विक एआई नवाचार का निर्माता बनाने में किस प्रकार सक्षम करेगा?"'
+    "mainsQuestion": "\"सिनेमा और कला समाज के आईने के रूप में किस प्रकार राष्ट्रीय एकीकरण और सांस्कृतिक कूटनीति (Soft Power) को बढ़ावा देते हैं? परीक्षण कीजिए।\""
   },
   {
-    id: 'news-national-green-hydrogen',
-    categoryTag: 'ECONOMY & BANKING',
-    categoryFilter: 'Economy & Banking',
-    date: getTodayHindiDate(),
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719117',
-    headline: 'राष्ट्रीय हरित हाइड्रोजन मिशन (NGHM): प्रति वर्ष 5 MMT हरित हाइड्रोजन उत्पादन और निर्यात हब',
-    summary:
-      'नवीन एवं नवीकरणीय ऊर्जा मंत्रालय (MNRE) ने SIGHT (Strategic Interventions for Green Hydrogen Transition) कार्यक्रम के तहत इलेक्ट्रोलाइज़र निर्माण और हरित अमोनिया उत्पादन के लिए ₹19,744 करोड़ के प्रोत्साहन आवंटित किए हैं।',
-    background:
-      'भारत को स्वच्छ ऊर्जा का वैश्विक निर्यातक बनाने और जीवाश्म ईंधन के आयात में ₹1 लाख करोड़ से अधिक की कमी लाने हेतु राष्ट्रीय हरित हाइड्रोजन मिशन शुरू किया गया है।',
-    sourceMinistry: 'नवीन और नवीकरणीय ऊर्जा मंत्रालय (MNRE) • PIB नई दिल्ली',
-    sourceUrl: 'https://mnre.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: MNRE • Green Hydrogen Cell',
-    dimensions: [
-      '2030 तक प्रति वर्ष 5 मिलियन मीट्रिक टन (MMT) हरित हाइड्रोजन उत्पादन क्षमता का विकास।',
-      'लगभग 125 गीगावाट (GW) संबद्ध नवीकरणीय ऊर्जा क्षमता की वृद्धि और ₹8 लाख करोड़ से अधिक का निवेश।',
-      'कांडला (दीनदयाल), पारादीप और तूतीकोरिन (वी.ओ. चिदंबरनार) बंदरगाहों को ग्रीन हाइड्रोजन हब के रूप में विकसित करना।'
+    "id": "news-padma-awards-national",
+    "categoryTag": "🎖️ सम्मान (AWARDS)",
+    "categoryFilter": "Awards & Honors",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024106",
+    "headline": "पद्म सम्मान: गणतंत्र दिवस पर 132 विभूतियों को पद्म विभूषण, पद्म भूषण और पद्म श्री अलंकरण",
+    "summary": "राष्ट्रपति भवन में आयोजित नागरिक सम्मान समारोह में कला, सार्वजनिक मामलों, सामाजिक कार्य, विज्ञान और चिकित्सा क्षेत्र की 132 प्रतिष्ठित हस्तियों को पद्म पुरस्कार प्रदान किए गए। इनमें 5 पद्म विभूषण, 17 पद्म भूषण और 110 पद्म श्री शामिल हैं।",
+    "background": "पद्म पुरस्कारों की स्थापना 1954 में की गई थी। संविधान के अनुच्छेद 18(1) के तहत यह उपाधियां नहीं बल्कि नागरिक सम्मान हैं, जिन्हें नाम के आगे या पीछे उपसर्ग/प्रत्यय के रूप में इस्तेमाल नहीं किया जा सकता। पद्म विभूषण प्राप्तकर्ताओं में वैजयंतीमाला बाली, कोनिडेला चिरंजीवी, एम. वेंकैया नायडू और सुलभ इंटरनेशनल के संस्थापक स्वर्गीय बिंदेश्वर पाठक शामिल हैं।",
+    "sourceMinistry": "गृह मंत्रालय (MHA) • राष्ट्रपति सचिवालय • PIB नई दिल्ली",
+    "sourceUrl": "https://padmaawards.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1578269174936-2709b6aeb913?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: गृह मंत्रालय (MHA) • राष्ट्रपति भवन सम्मान प्रकोष्ठ",
+    "dimensions": [
+      "5 पद्म विभूषण: वैजयंतीमाला (कला), चिरंजीवी (कला), वेंकैया नायडू (सार्वजनिक मामले), बिंदेश्वर पाठक (मरणोपरांत-सामाजिक कार्य), पद्मा सुब्रह्मण्यम (कला)।",
+      "17 पद्म भूषण: एम. फातिमा बीवी (मरणोपरांत - भारत की पहली महिला सुप्रीम कोर्ट जज), मिथुन चक्रवर्ती, सीताराम जिंदल आदि।",
+      "जनजातीय और अनसंग हीरोज (Unsung Heroes) को प्राथमिकता: 30 महिलाओं और 8 विदेशी/एनआरआई को भी सम्मानित किया गया।"
     ],
-    provisions: [
-      'SIGHT योजना के अंतर्गत स्वदेशी इलेक्ट्रोलाइज़र निर्माण हेतु ₹17,490 करोड़ का सीधा वित्तीय प्रोत्साहन।',
-      'इस्पात, उर्वरक (रिफाइनरी) और लंबी दूरी के भारी परिवहन में हरित हाइड्रोजन का चरणबद्ध उपयोग।',
-      'ग्रीन हाइड्रोजन सर्टिफिकेशन और अंतर्राष्ट्रीय निर्यात मानकों का निर्धारण।'
+    "provisions": [
+      "पद्म पुरस्कार समिति की अध्यक्षता कैबिनेट सचिव द्वारा की जाती है और नामों की घोषणा प्रत्येक वर्ष 25 जनवरी को होती है।",
+      "अनुच्छेद 18 के अनुसार ये सम्मान किसी भी तरह की सामंती उपाधियां (Titles) नहीं हैं।",
+      "राष्ट्रीय एकता और समाज सेवा में योगदान हेतु सार्वजनिक नामांकन राष्ट्रीय पुरस्कार पोर्टल पर आमंत्रित किए जाते हैं।"
     ],
-    highYieldFact: 'राष्ट्रीय हरित हाइड्रोजन मिशन से 2030 तक सालाना लगभग 50 मिलियन मीट्रिक टन कार्बन डाइऑक्साइड (CO2) उत्सर्जन कम होगा।',
-    vocabulary: [
+    "highYieldFact": "पद्म पुरस्कार 1954 में शुरू हुए थे और संविधान के अनुच्छेद 18 के अनुसार यह उपाधियां (Titles) नहीं बल्कि नागरिक सम्मान हैं।",
+    "vocabulary": [
       {
-        word: 'Electrolysis',
-        pos: 'Noun',
-        exactHindi: 'विद्युत-अपघटन',
-        definition: 'Chemical decomposition produced by passing an electric current through a liquid or solution.',
-        synonyms: 'Ionization, Chemical splitting',
-        antonyms: 'Synthesis',
-        examUsage: '"Green hydrogen is produced by the electrolysis of water using renewable solar and wind power."'
+        "word": "Posthumous",
+        "pos": "Adjective",
+        "exactHindi": "मरणोपरांत",
+        "definition": "Occurring, awarded, or appearing after the death of the originator.",
+        "synonyms": "After-death, Post-mortem",
+        "antonyms": "Antemortem, Lifetime",
+        "examUsage": "\"Dr. Bindeshwar Pathak was honored with the prestigious posthumous Padma Vibhushan.\""
       }
     ],
-    practiceMcq: {
-      question: 'राष्ट्रीय हरित हाइड्रोजन मिशन के तहत वर्ष 2030 तक प्रतिवर्ष कितने मिलियन मीट्रिक टन (MMT) हरित हाइड्रोजन उत्पादन का लक्ष्य है?',
-      options: ['2 MMT', '5 MMT', '10 MMT', '15 MMT'],
-      correct: 1,
-      explanation: 'इस मिशन का लक्ष्य 2030 तक 5 MMT (मिलियन मीट्रिक टन) प्रति वर्ष हरित हाइड्रोजन उत्पादन क्षमता हासिल करना है।'
+    "practiceMcq": {
+      "question": "भारत में नागरिक सम्मानों (पद्म पुरस्कार एवं भारत रत्न) की शुरुआत किस वर्ष की गई थी?",
+      "options": [
+        "1947",
+        "1950",
+        "1954",
+        "1956"
+      ],
+      "correct": 2,
+      "explanation": "पद्म पुरस्कार और भारत रत्न की स्थापना वर्ष 1954 में की गई थी।"
     },
-    mainsQuestion:
-      '"हरित हाइड्रोजन भारत के भारी उद्योगों (इस्पात व उर्वरक) के डीकार्बोनाइजेशन और ऊर्जा सुरक्षा में क्या भूमिका निभा सकता है?"'
+    "mainsQuestion": "\"भारतीय संविधान के अनुच्छेद 18 के आलोक में नागरिक सम्मानों (पद्म पुरस्कार) की प्रकृति और लोकतांत्रिक समता के सिद्धांतों पर उनके प्रभाव की विवेचना कीजिए।\""
   },
   {
-    id: 'news-sports-chess-olympiad-india',
-    categoryTag: 'SPORTS & HONORS',
-    categoryFilter: 'Sports & Honors',
-    date: getTodayHindiDate(),
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719118',
-    headline: 'विश्व शतरंज और खेल महाशक्ति भारत: डी. गुकेश, प्रज्ञानानंद और फिडे ओलंपियाड में भारत का स्वर्णिम युग',
-    summary:
-      'भारतीय शतरंज ग्रैंडमास्टर डी. गुकेश के सबसे युवा विश्व शतरंज चैंपियन बनने और शतरंज ओलंपियाड के ओपन व महिला दोनों वर्गों में भारत के ऐतिहासिक स्वर्ण पदक जीतने के बाद युवा कार्यक्रम एवं खेल मंत्रालय ने "खेलो इंडिया टैलेंट आइडेंटिफिकेशन" का विस्तार किया है।',
-    background:
-      'भारत में अब 85 से अधिक ग्रैंडमास्टर्स हैं और 2036 के ग्रीष्मकालीन ओलंपिक खेलों की मेजबानी के लिए भारत ने अंतर्राष्ट्रीय ओलंपिक समिति (IOC) को औपचारिक आशय पत्र (Letter of Intent) सौंपा है।',
-    sourceMinistry: 'युवा कार्यक्रम और खेल मंत्रालय • भारतीय खेल प्राधिकरण (SAI) • PIB',
-    sourceUrl: 'https://yas.nic.in',
-    imageUrl: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: SAI Media • Ministry of Youth Affairs & Sports',
-    dimensions: [
-      '45वें फिडे (FIDE) शतरंज ओलंपियाड (बुडापेस्ट) में भारत ने पुरुष और महिला दोनों वर्गों में दोहरा स्वर्ण पदक जीता।',
-      'डी. गुकेश (18 वर्ष) विश्व शतरंज चैंपियनशिप जीतने वाले इतिहास के सबसे कम उम्र के खिलाड़ी बने।',
-      'टारगेट ओलंपिक पोडियम स्कीम (TOPS) के तहत एथलीटों को अंतर्राष्ट्रीय प्रशिक्षण और खेल विज्ञान सहायता।'
+    "id": "news-nobel-peace-economics",
+    "categoryTag": "🎖️ सम्मान (AWARDS)",
+    "categoryFilter": "Awards & Honors",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024107",
+    "headline": "नोबेल पुरस्कार: निहोन हिडंक्यो (शांति) और डेरॉन ऐसमोग्लू, साइमन जॉनसन व जेम्स रॉबिन्सन (अर्थशास्त्र) को सर्वोच्च वैश्विक सम्मान",
+    "summary": "नोबेल फाउंडेशन द्वारा घोषित प्रतिष्ठित पुरस्कारों में जापानी संगठन निहोन हिडंक्यो को परमाणु हथियारों से मुक्त विश्व के निर्माण हेतु नोबेल शांति पुरस्कार प्रदान किया गया। अर्थशास्त्र का नोबेल डेरॉन ऐसमोग्लू, साइमन जॉनसन और जेम्स ए. रॉबिन्सन को राष्ट्रों की समृद्धि में संस्थाओं की भूमिका के अध्ययन हेतु दिया गया।",
+    "background": "अल्फ्रेड नोबेल की 1895 की वसीयत के आधार पर 1901 से 5 क्षेत्रों (भौतिकी, रसायन, चिकित्सा, साहित्य, शांति) में नोबेल दिए जाते हैं। अर्थशास्त्र का स्वेरिगेस रिक्सबैंक पुरस्कार 1968 में स्थापित हुआ और पहली बार 1969 में प्रदान किया गया। शांति का नोबेल ओस्लो (नॉर्वे) में और अन्य सभी स्टॉकहोम (स्वीडन) में दिए जाते हैं।",
+    "sourceMinistry": "The Nobel Foundation (Stockholm & Oslo) • MEA India",
+    "sourceUrl": "https://nobelprize.org",
+    "imageUrl": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: Nobel Prize Press Outreach • The Royal Swedish Academy",
+    "dimensions": [
+      "शांति नोबेल: 1956 में गठित निहोन हिडंक्यो (Nihon Hidankyo) हिरोशिमा और नागासाकी परमाणु बम पीड़ितों (हिबाकुशा) का जमीनी आंदोलन है।",
+      "अर्थशास्त्र नोबेल: शोध में साबित किया गया कि समावेशी संस्थाएं (Inclusive Institutions) दीर्घकालिक समृद्धि लाती हैं, जबकि निष्कर्षण संस्थाएं गरीबी बढ़ाती हैं।",
+      "साहित्य नोबेल: दक्षिण कोरियाई लेखिका हान कांग (Han Kang) को उनके काव्यात्मक गद्य के लिए दिया गया।"
     ],
-    provisions: [
-      'देशभर में 1,000 से अधिक "खेलो इंडिया केंद्र" (KIC) पूर्व चैंपियन एथलीटों के नेतृत्व में संचालित।',
-      'राष्ट्रीय खेल प्रशासन विधेयक और डोपिंग रोधी (NADA) प्रोटोकॉल का सुदृढ़ीकरण।',
-      '2036 ओलंपिक मेजबानी की तैयारी हेतु विश्वस्तरीय स्पोर्ट्स सिटी और हाई-परफॉर्मेंस सेंटर।'
+    "provisions": [
+      "प्रत्येक नोबेल पुरस्कार में 11 मिलियन स्वीडिश क्रोनर (लगभग ₹8.9 करोड़), एक 18-कैरेट स्वर्ण पदक और डिप्लोमा दिया जाता है।",
+      "अल्फ्रेड नोबेल ने डायनामाइट का आविष्कार किया था और अपनी वसीयत में मानव जाति के कल्याण हेतु पुरस्कारों का प्रावधान किया।",
+      "शांति का नोबेल नॉर्वेजियन नोबेल समिति (ओस्लो) द्वारा दिया जाता है।"
     ],
-    highYieldFact: 'विश्वनाथन आनंद (1988) भारत के पहले ग्रैंडमास्टर थे, जबकि डी. गुकेश सबसे युवा विश्व शतरंज चैंपियन बने हैं।',
-    vocabulary: [
+    "highYieldFact": "नोबेल शांति पुरस्कार ओस्लो (नॉर्वे) में दिया जाता है, जबकि शेष सभी 5 क्षेत्रों के पुरस्कार स्टॉकहोम (स्वीडन) में प्रदान किए जाते हैं।",
+    "vocabulary": [
       {
-        word: 'Prodigy',
-        pos: 'Noun',
-        exactHindi: 'विलक्षण प्रतिभासंपन्न युवा',
-        definition: 'A young person with exceptional qualities or abilities.',
-        synonyms: 'Genius, Wunderkind, Mastermind',
-        antonyms: 'Novice, Amateur',
-        examUsage: '"Indian chess prodigy D. Gukesh scripted history on the global stage."'
+        "word": "Disarmament",
+        "pos": "Noun",
+        "exactHindi": "निरस्त्रीकरण / हथियारों में कमी या समाप्ति",
+        "definition": "The reduction or withdrawal of military forces and weapons.",
+        "synonyms": "Demilitarization, Arms reduction, Non-proliferation",
+        "antonyms": "Militarization, Armament, Escalation",
+        "examUsage": "\"Nihon Hidankyo spearheaded the global moral crusade for complete nuclear disarmament.\""
       }
     ],
-    practiceMcq: {
-      question: 'इतिहास में सबसे कम उम्र के विश्व शतरंज चैंपियन (World Chess Champion) बनने का गौरव किस भारतीय ग्रैंडमास्टर ने हासिल किया?',
-      options: ['आर. प्रज्ञानानंद', 'डी. गुकेश (D. Gukesh)', 'अर्जुन एरिगैसी', 'विदित गुजराती'],
-      correct: 1,
-      explanation: 'डी. गुकेश मात्र 18 वर्ष की आयु में विश्व शतरंज चैंपियन बनने वाले सबसे युवा खिलाड़ी हैं।'
+    "practiceMcq": {
+      "question": "परमाणु हथियारों के उन्मूलन के प्रयासों हेतु नोबेल शांति पुरस्कार (Nobel Peace Prize) से किस संगठन को सम्मानित किया गया?",
+      "options": [
+        "इंटरनेशनल एटॉमिक एनर्जी एजेंसी (IAEA)",
+        "निहोन हिडंक्यो (Nihon Hidankyo)",
+        "एमनेस्टी इंटरनेशनल",
+        "ग्रीनपीस"
+      ],
+      "correct": 1,
+      "explanation": "जापानी संगठन निहोन हिडंक्यो (Nihon Hidankyo) को परमाणु हथियारों से मुक्त विश्व बनाने के प्रयासों हेतु नोबेल शांति पुरस्कार दिया गया।"
     },
-    mainsQuestion:
-      '"भारत को 2036 ओलंपिक की मेजबानी और वैश्विक खेल महाशक्ति बनाने के लिए जमीनी स्तर के खेल बुनियादी ढांचे में किन सुधारों की आवश्यकता है?"'
+    "mainsQuestion": "\"डेरॉन ऐसमोग्लू और साथियों के संस्थागत अर्थशास्त्र के सिद्धांत (Inclusive vs Extractive Institutions) भारत के विकास पथ पर कैसे लागू होते हैं? आलोचनात्मक विश्लेषण कीजिए।\""
   },
   {
-    id: 'news-semicon-india-fab',
-    categoryTag: 'ECONOMY & BANKING',
-    categoryFilter: 'Economy & Banking',
-    date: getTodayHindiDate(),
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719119',
-    headline: 'सेमीकॉन इंडिया प्रोग्राम: धोलेरा, साणंद और मोरीगांव में भारत के स्वदेशी सेमीकंडक्टर चिप प्लांट्स',
-    summary:
-      'इंडिया सेमीकंडक्टर मिशन (ISM) के अंतर्गत ₹76,000 करोड़ के प्रोत्साहन पैकेज से गुजरात के धोलेरा व साणंद और असम के मोरीगांव में सेमीकंडक्टर फैब्रिकेशन और ATMP इकाइयों का निर्माण तेजी से चल रहा है, जिससे भारत वैश्विक चिप आपूर्ति श्रृंखला का प्रमुख केंद्र बन रहा है।',
-    background:
-      'इलेक्ट्रॉनिक्स, ऑटोमोबाइल, रक्षा और दूरसंचार क्षेत्रों में सिलिकॉन वेफर्स और माइक्रोचिप्स की बढ़ती मांग को पूरा करने के लिए 2021 में इंडिया सेमीकंडक्टर मिशन शुरू किया गया था।',
-    sourceMinistry: 'इलेक्ट्रॉनिक्स और सूचना प्रौद्योगिकी मंत्रालय (MeitY) • ISM • PIB',
-    sourceUrl: 'https://ism.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: India Semiconductor Mission (ISM) • PIB',
-    dimensions: [
-      'धोलेरा (गुजरात): टाटा इलेक्ट्रॉनिक्स और ताइवान की PSMC द्वारा भारत का पहला कॉमर्शियल सेमीकंडक्टर फैब (50,000 वेफर्स/माह)।',
-      'मोरीगांव (असम) और साणंद (गुजरात): प्रतिदिन करोड़ों स्वदेशी चिप्स की असेंबली, टेस्टिंग, मार्किंग और पैकेजिंग (ATMP/OSAT)।',
-      'मोहाली स्थित सेमी-कंडक्टर लेबोरेटरी (SCL) का आधुनिकीकरण और "चिप्स टू स्टार्टअप" (C2S) कार्यक्रम।'
+    "id": "news-chief-justice-india-appointment",
+    "categoryTag": "👥 नियुक्तियां (HEADS)",
+    "categoryFilter": "Appointments & Heads",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024108",
+    "headline": "भारत के मुख्य न्यायाधीश (CJI) की नियुक्ति और कॉलेजियम प्रणाली: संविधान के अनुच्छेद 124(2) के तहत संवैधानिक प्रक्रिया",
+    "summary": "संविधान के अनुच्छेद 124 के खंड (2) के तहत राष्ट्रपति द्वारा भारत के मुख्य न्यायाधीश (Chief Justice of India) की नियुक्ति की जाती है। वरिष्ठता सिद्धांत (Seniority Principle) और मेमोरेंडम ऑफ प्रोसीजर (MoP) के तहत वर्तमान मुख्य न्यायाधीश द्वारा अपने उत्तराधिकारी के नाम की आधिकारिक अनुशंसा विधि मंत्रालय को भेजी जाती है।",
+    "background": "सर्वोच्च न्यायालय की कॉलेजियम प्रणाली की उत्पत्ति 1981 (प्रथम न्यायाधीश मामला), 1993 (द्वितीय न्यायाधीश मामला) और 1998 (तृतीय न्यायाधीश मामला) के निर्णयों से हुई है। मुख्य न्यायाधीश की अध्यक्षता वाले इस कॉलेजियम में सर्वोच्च न्यायालय के चार वरिष्ठतम न्यायाधीश शामिल होते हैं। सर्वोच्च न्यायालय के न्यायाधीश 65 वर्ष की आयु में सेवानिवृत्त होते हैं।",
+    "sourceMinistry": "विधि एवं न्याय मंत्रालय • भारत का सर्वोच्च न्यायालय • Gazette of India",
+    "sourceUrl": "https://main.sci.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: Supreme Court of India • Ministry of Law & Justice",
+    "dimensions": [
+      "अनुच्छेद 124(2): राष्ट्रपति सर्वोच्च न्यायालय और उच्च न्यायालयों के न्यायाधीशों से परामर्श के बाद सीजेआई की नियुक्ति करते हैं।",
+      "वरिष्ठता परंपरा: द्वितीय न्यायाधीश मामले (1993) के बाद सर्वोच्च न्यायालय के वरिष्ठतम न्यायाधीश को ही सीजेआई नियुक्त करने की संवैधानिक परंपरा अनिवार्य है।",
+      "शपथ: संविधान की तीसरी अनुसूची के तहत राष्ट्रपति भारत के मुख्य न्यायाधीश को पद एवं गोपनीयता की शपथ दिलाते हैं।"
     ],
-    provisions: [
-      'सेमीकंडक्टर और डिस्प्ले फैब स्थापित करने के लिए परियोजना लागत का 50% राजकोषीय समर्थन (Pari-passu आधार पर)।',
-      'डिजाइन लिंक्ड इंसेंटिव (DLI) योजना के तहत भारतीय चिप डिजाइन स्टार्टअप्स को ₹50 करोड़ तक की सहायता।',
-      '85,000 उच्च कुशल सेमीकंडक्टर इंजीनियर्स तैयार करने हेतु 100+ विश्वविद्यालयों में विशेष VLSI पाठ्यक्रम।'
+    "provisions": [
+      "न्यायपालिका की स्वतंत्रता संविधान के मूल ढांचे (Basic Structure) का अभिन्न अंग है (केशवानंद भारती 1973)।",
+      "उच्च न्यायालयों के न्यायाधीश 62 वर्ष में, जबकि सर्वोच्च न्यायालय के न्यायाधीश 65 वर्ष की आयु में सेवानिवृत्त होते हैं।",
+      "अनुच्छेद 124(4) के तहत केवल सिद्ध कदाचार या असमर्थता के आधार पर संसद के विशेष बहुमत द्वारा ही महाभियोग (Removal) संभव है।"
     ],
-    highYieldFact: 'भारत का पहला कॉमर्शियल सेमीकंडक्टर फैब्रिकेशन प्लांट धोलेरा (गुजरात) में स्थापित किया जा रहा है।',
-    vocabulary: [
+    "highYieldFact": "संविधान के अनुच्छेद 124(2) के तहत राष्ट्रपति भारत के मुख्य न्यायाधीश (CJI) की नियुक्ति करते हैं और इनकी सेवानिवृत्ति आयु 65 वर्ष है।",
+    "vocabulary": [
       {
-        word: 'Fabrication',
-        pos: 'Noun',
-        exactHindi: 'विनिर्माण / चिप निर्माण प्रक्रिया',
-        definition: 'The action or process of manufacturing or inventing something, especially integrated circuits.',
-        synonyms: 'Manufacturing, Production, Assembly',
-        antonyms: 'Demolition, Dismantling',
-        examUsage: '"Semiconductor wafer fabrication requires ultra-clean room environments."'
+        "word": "Collegium",
+        "pos": "Noun",
+        "exactHindi": "कॉलेजियम / न्यायाधीशों का चयन मंडल",
+        "definition": "A group of senior judges responsible for recommending judicial appointments and transfers.",
+        "synonyms": "Judicial council, Advisory bench",
+        "antonyms": "Executive unilateralism",
+        "examUsage": "\"The Supreme Court collegium evaluates judicial competence and integrity.\""
       }
     ],
-    practiceMcq: {
-      question: 'टाटा इलेक्ट्रॉनिक्स द्वारा भारत का पहला व्यावसायिक सेमीकंडक्टर फैब्रिकेशन (Fab) प्लांट किस स्थान पर स्थापित किया जा रहा है?',
-      options: ['धोलेरा (गुजरात)', 'नोएडा (उत्तर प्रदेश)', 'हैदराबाद (तेलंगाना)', 'पुणे (महाराष्ट्र)'],
-      correct: 0,
-      explanation: 'गुजरात के धोलेरा में भारत का पहला कॉमर्शियल सेमीकंडक्टर फैब स्थापित किया जा रहा है।'
+    "practiceMcq": {
+      "question": "भारतीय संविधान के किस अनुच्छेद के तहत राष्ट्रपति सर्वोच्च न्यायालय के मुख्य न्यायाधीश की नियुक्ति करते हैं?",
+      "options": [
+        "अनुच्छेद 76",
+        "अनुच्छेद 124(2)",
+        "अनुच्छेद 148",
+        "अनुच्छेद 217"
+      ],
+      "correct": 1,
+      "explanation": "अनुच्छेद 124(2) के तहत राष्ट्रपति भारत के मुख्य न्यायाधीश एवं अन्य न्यायाधीशों की नियुक्ति करते हैं।"
     },
-    mainsQuestion:
-      '"सेमीकंडक्टर विनिर्माण में आत्मनिर्भरता भारत की राष्ट्रीय सुरक्षा और आर्थिक संप्रभुता के लिए क्यों अपरिहार्य है?"'
+    "mainsQuestion": "\"न्यायपालिका की स्वतंत्रता और कार्यपालिका की जवाबदेही के बीच संतुलन साधने में कॉलेजियम प्रणाली की शक्तियों और सीमाओं का समालोचनात्मक परीक्षण कीजिए।\""
   },
   {
-    id: 'news-one-nation-one-subscription',
-    categoryTag: 'SCHEMES & GOVERNANCE',
-    categoryFilter: 'Schemes & Governance',
-    date: getTodayHindiDate(),
-    readTime: '3 मिनट Read',
-    releaseId: '2065817912598719120',
-    headline: 'वन नेशन वन सब्सक्रिप्शन (ONOS) और अनुसंधान नेशनल रिसर्च फाउंडेशन (ANRF): उच्च शिक्षा में क्रांति',
-    summary:
-      'केंद्र सरकार ने देश के सभी सरकारी उच्च शिक्षण संस्थानों और R&D प्रयोगशालाओं के 1.8 करोड़ से अधिक छात्रों व शोधकर्ताओं को दुनिया के 13,000+ शीर्ष अंतर्राष्ट्रीय वैज्ञानिक जर्नल्स तक निशुल्क पहुंच देने के लिए ₹6,000 करोड़ की "One Nation One Subscription (ONOS)" योजना लागू की है।',
-    background:
-      'राष्ट्रीय शिक्षा नीति (NEP 2020) के लक्ष्यों के अनुरूप भारत में वैज्ञानिक अनुसंधान और नवाचार को विश्वस्तरीय बनाने के लिए ONOS और ANRF का गठन किया गया है।',
-    sourceMinistry: 'शिक्षा मंत्रालय • प्रधान वैज्ञानिक सलाहकार कार्यालय • PIB',
-    sourceUrl: 'https://education.gov.in',
-    imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1200&q=80',
-    imageCredit: 'स्रोत: Ministry of Education • INFLIBNET',
-    dimensions: [
-      '6,300 से अधिक सरकारी विश्वविद्यालयों, कॉलेजों, IITs, NITs और R&D संस्थानों को एकीकृत राष्ट्रीय सब्सक्रिप्शन।',
-      'INFLIBNET (गांधीनगर) द्वारा पूरी तरह डिजिटल और केंद्रीकृत पोर्टल के माध्यम से संचालन।',
-      'अनुसंधान नेशनल रिसर्च फाउंडेशन (ANRF) के साथ समन्वय कर टीयर-2 व टीयर-3 कॉलेजों में रिसर्च को बढ़ावा।'
+    "id": "news-chief-election-commissioner-eci",
+    "categoryTag": "👥 नियुक्तियां (HEADS)",
+    "categoryFilter": "Appointments & Heads",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024109",
+    "headline": "भारत के मुख्य चुनाव आयुक्त (CEC) और चुनाव आयुक्तों की नियुक्ति प्रक्रिया: नया वैधानिक ढांचा और अनुच्छेद 324",
+    "summary": "संसद द्वारा पारित मुख्य निर्वाचन आयुक्त और अन्य निर्वाचन आयुक्त (नियुक्ति, सेवा शर्तें और कार्यकाल) अधिनियम, 2023 के तहत निर्वाचन आयोग में नियुक्तियों की पारदर्शी प्रक्रिया प्रभावी है। प्रधानमंत्री की अध्यक्षता वाली तीन सदस्यीय चयन समिति की सिफारिश पर राष्ट्रपति द्वारा आयुक्तों की नियुक्ति की जाती है।",
+    "background": "संविधान के भाग 15 के अनुच्छेद 324 में स्वतंत्र एवं निष्पक्ष चुनाव कराने हेतु भारत निर्वाचन आयोग (ECI) का प्रावधान है। निर्वाचन आयोग की स्थापना 25 जनवरी 1950 को हुई थी (जिसे राष्ट्रीय मतदाता दिवस के रूप में मनाया जाता है)। सुकुमार सेन भारत के पहले मुख्य चुनाव आयुक्त थे। आयुक्तों का कार्यकाल 6 वर्ष या 65 वर्ष की आयु (जो भी पहले हो) तक होता है।",
+    "sourceMinistry": "भारत निर्वाचन आयोग (ECI) • विधि एवं न्याय मंत्रालय • PIB",
+    "sourceUrl": "https://eci.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: विधि एवं न्याय मंत्रालय • भारत निर्वाचन आयोग (ECI)",
+    "dimensions": [
+      "चयन समिति: प्रधानमंत्री (अध्यक्ष), लोकसभा में विपक्ष के नेता / सबसे बड़े विपक्षी दल के नेता, और एक केंद्रीय कैबिनेट मंत्री।",
+      "खोज समिति (Search Committee): केंद्रीय कानून मंत्री की अध्यक्षता में 5 उपयुक्त नामों का पैनल तैयार करती है।",
+      "समान दर्जा: मुख्य चुनाव आयुक्त और अन्य दो चुनाव आयुक्तों को सर्वोच्च न्यायालय के न्यायाधीश के समकक्ष वेतन और दर्जा प्राप्त है।"
     ],
-    provisions: [
-      'कैलेंडर वर्ष 2025, 2026 और 2027 के लिए कुल ₹6,000 करोड़ का केंद्रीय बजट आवंटन।',
-      '30 प्रमुख अंतर्राष्ट्रीय प्रकाशकों (Elsevier, Springer Nature, IEEE, Wiley आदि) के 13,000+ ई-जर्नल्स शामिल।',
-      'भारतीय शोधकर्ताओं को ओपन एक्सेस जर्नल्स में शोध पत्र प्रकाशित करने हेतु Article Processing Charges (APC) में सहायता।'
+    "provisions": [
+      "निर्वाचन आयोग 16 अक्टूबर 1989 तक एक-सदस्यीय निकाय था, जिसे 1993 से स्थायी रूप से तीन सदस्यीय (1 CEC + 2 EC) बनाया गया।",
+      "मुख्य चुनाव आयुक्त को केवल सर्वोच्च न्यायालय के न्यायाधीश के समान महाभियोग प्रक्रिया द्वारा ही हटाया जा सकता है।",
+      "चुनाव आयुक्तों को मुख्य चुनाव आयुक्त की सिफारिश के बिना पद से नहीं हटाया जा सकता (अनुच्छेद 324(5))।"
     ],
-    highYieldFact: 'ONOS योजना का समन्वय विश्वविद्यालय अनुदान आयोग (UGC) के स्वायत्त केंद्र INFLIBNET (गांधीनगर, गुजरात) द्वारा किया जाता है।',
-    vocabulary: [
+    "highYieldFact": "भारत के प्रथम मुख्य चुनाव आयुक्त सुकुमार सेन थे और 25 जनवरी 1950 को चुनाव आयोग की स्थापना के उपलक्ष्य में राष्ट्रीय मतदाता दिवस मनाया जाता है।",
+    "vocabulary": [
       {
-        word: 'Consortium',
-        pos: 'Noun',
-        exactHindi: 'संघ / कई संस्थानों का साझा समूह',
-        definition: 'An association, typically of several companies or institutions, for a shared purpose.',
-        synonyms: 'Alliance, Coalition, Syndicate, Federation',
-        antonyms: 'Individual entity',
-        examUsage: '"ONOS acts as a unified national consortium for academic journal access."'
+        "word": "Tenure",
+        "pos": "Noun",
+        "exactHindi": "कार्यकाल / पदावधि",
+        "definition": "The conditions or period under which an office, position, or land is held.",
+        "synonyms": "Term of office, Incumbency, Period",
+        "antonyms": "Vacancy",
+        "examUsage": "\"The Election Commissioners hold tenure for six years or until attaining 65 years of age.\""
       }
     ],
-    practiceMcq: {
-      question: '"वन नेशन वन सब्सक्रिप्शन" (ONOS) योजना का राष्ट्रीय समन्वय किस संस्था द्वारा किया जा रहा है?',
-      options: ['AICTE नई दिल्ली', 'INFLIBNET गांधीनगर', 'NCERT नई दिल्ली', 'CSIR नई दिल्ली'],
-      correct: 1,
-      explanation: 'यूजीसी के अंतर-विश्वविद्यालय केंद्र INFLIBNET (गांधीनगर) द्वारा ONOS पोर्टल का संचालन किया जा रहा है।'
+    "practiceMcq": {
+      "question": "भारत के मुख्य चुनाव आयुक्त (CEC) का कार्यकाल कितना होता है?",
+      "options": [
+        "5 वर्ष या 62 वर्ष की आयु",
+        "6 वर्ष या 65 वर्ष की आयु",
+        "5 वर्ष या 65 वर्ष की आयु",
+        "6 वर्ष या 62 वर्ष की आयु"
+      ],
+      "correct": 1,
+      "explanation": "मुख्य चुनाव आयुक्त एवं अन्य चुनाव आयुक्तों का कार्यकाल 6 वर्ष या 65 वर्ष की आयु (जो भी पहले हो) तक होता है।"
     },
-    mainsQuestion:
-      '"वन नेशन वन सब्सक्रिप्शन (ONOS) और अनुसंधान नेशनल रिसर्च फाउंडेशन (ANRF) भारत के विश्वविद्यालयों में शोध की गुणवत्ता को कैसे उन्नत करेंगे?"'
+    "mainsQuestion": "\"स्वतंत्र एवं निष्पक्ष निर्वाचन भारतीय लोकतंत्र की आधारशिला है। निर्वाचन आयोग की स्वायत्तता सुदृढ़ करने हेतु हालिया विधायी प्रावधानों का मूल्यांकन कीजिए।\""
+  },
+  {
+    "id": "news-cag-comptroller-auditor-general",
+    "categoryTag": "👥 नियुक्तियां (HEADS)",
+    "categoryFilter": "Appointments & Heads",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024110",
+    "headline": "नियंत्रक एवं महालेखापरीक्षक (CAG): सार्वजनिक वित्त की संरक्षा और संविधान का अनुच्छेद 148",
+    "summary": "संविधान के अनुच्छेद 148 के तहत राष्ट्रपति द्वारा नियुक्त नियंत्रक एवं महालेखापरीक्षक (CAG) केंद्र और राज्यों के सभी खातों का लेखा परीक्षण (Audit) कर लोक वित्त की शुचिता सुनिश्चित करते हैं। सीएजी की रिपोर्टें संसद की लोक लेखा समिति (PAC) द्वारा जांची जाती हैं, जिसमें सीएजी समिति के मित्र, दार्शनिक और मार्गदर्शक के रूप में कार्य करते हैं।",
+    "background": "डॉ. बी.आर. अंबेडकर ने सीएजी को भारतीय संविधान के तहत सबसे महत्वपूर्ण अधिकारी कहा था। सीएजी का कार्यकाल 6 वर्ष या 65 वर्ष की आयु तक होता है। सीएजी को उसी रीति और आधारों पर हटाया जा सकता है जैसे सर्वोच्च न्यायालय के न्यायाधीश को (अनुच्छेद 148(1))। वी. नरहरि राव भारत के पहले सीएजी (1948-1954) थे।",
+    "sourceMinistry": "नियंत्रक एवं महालेखापरीक्षक कार्यालय (CAG) • वित्त मंत्रालय • PIB",
+    "sourceUrl": "https://cag.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: Comptroller and Auditor General of India • Press Cell",
+    "dimensions": [
+      "अनुच्छेद 148: सीएजी की नियुक्ति, शपथ और सेवा शर्तों का संवैधानिक उपबंध।",
+      "अनुच्छेद 149: संसद द्वारा सीएजी के कर्तव्यों और शक्तियों (Audit of Receipts & Expenditure) का निर्धारण।",
+      "अनुच्छेद 151: सीएजी केंद्र की लेखा रिपोर्ट राष्ट्रपति को और राज्यों की रिपोर्ट राज्यपाल को सौंपते हैं, जो इसे सदन में रखवाते हैं।"
+    ],
+    "provisions": [
+      "पद छोड़ने के बाद सीएजी केंद्र या राज्य सरकार के अधीन किसी अन्य पद के पात्र नहीं होते (अनुच्छेद 148(4))।",
+      "सीएजी का प्रशासनिक व्यय और वेतन भारत की संचित निधि (Consolidated Fund of India) पर भारित (Charged) होता है।",
+      "लोक लेखा समिति (PAC) सीएजी की रिपोर्टों की जांच करती है और सीएजी पीएसी के गाइड, फ्रेंड और फिलॉसफर कहलाते हैं।"
+    ],
+    "highYieldFact": "डॉ. बी.आर. अंबेडकर ने नियंत्रक एवं महालेखापरीक्षक (CAG) को भारतीय संविधान के तहत सबसे महत्वपूर्ण संवैधानिक पद माना था। पद का उल्लेख अनुच्छेद 148 में है।",
+    "vocabulary": [
+      {
+        "word": "Propriety",
+        "pos": "Noun",
+        "exactHindi": "औचित्य / नीतिसंगतता",
+        "definition": "The condition of being right, appropriate, or fitting; conformity to moral standards.",
+        "synonyms": "Appropriateness, Righteousness, Legitimacy",
+        "antonyms": "Impropriety, Misconduct",
+        "examUsage": "\"CAG conducts performance audits to scrutinize propriety and efficiency of public expenditure.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "भारतीय संविधान के किस अनुच्छेद में नियंत्रक एवं महालेखापरीक्षक (CAG) के पद का प्रावधान है?",
+      "options": [
+        "अनुच्छेद 76",
+        "अनुच्छेद 148",
+        "अनुच्छेद 280",
+        "अनुच्छेद 324"
+      ],
+      "correct": 1,
+      "explanation": "अनुच्छेद 148 के तहत राष्ट्रपति भारत के नियंत्रक एवं महालेखापरीक्षक (CAG) की नियुक्ति करते हैं।"
+    },
+    "mainsQuestion": "\"सीएजी सार्वजनिक धन का संरक्षक और लोक लेखा समिति का मार्गदर्शक है। वित्तीय जवाबदेही सुनिश्चित करने में सीएजी की भूमिका का विश्लेषण कीजिए।\""
+  },
+  {
+    "id": "news-exercise-surya-kiran-india-nepal",
+    "categoryTag": "⚔️ युद्धाभ्यास (DEFENSE)",
+    "categoryFilter": "Defense & Exercises",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024111",
+    "headline": "भारत-नेपाल संयुक्त सैन्य अभ्यास सूर्य किरण XVIII: आतंकवाद रोधी अभियानों और आपदा राहत में रणनीतिक साझेदारी",
+    "summary": "भारत और नेपाल की सेनाओं के बीच 18वां संयुक्त सैन्य अभ्यास सूर्य किरण (Surya Kiran-XVIII) सफलतापूर्वक आयोजित किया गया। इस अभ्यास का उद्देश्य पहाड़ी युद्धकला, जंगल वॉरफेयर और मानवीय सहायता एवं आपदा राहत (HADR) अभियानों में अंतर-संचालनीयता (Interoperability) को सुदृढ़ करना है।",
+    "background": "सूर्य किरण अभ्यास का आयोजन प्रतिवर्ष दोनों देशों में बारी-बारी से किया जाता है। भारतीय सेना की ओर से कुमाऊं रेजिमेंट की टुकड़ियों ने भाग लिया। यह अभ्यास दोनों पड़ोसी देशों के बीच सदियों पुराने रक्षा सहयोग और रक्षा कूटनीति को मजबूती प्रदान करता है।",
+    "sourceMinistry": "रक्षा मंत्रालय (MoD) • भारतीय सेना (ADGPI) • PIB नई दिल्ली",
+    "sourceUrl": "https://pib.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: भारतीय सेना (ADGPI) • रक्षा मंत्रालय",
+    "dimensions": [
+      "पहाड़ी इलाकों में आतंकवाद विरोधी अभियानों और ड्रोन निगरानी का संयुक्त सिमुलेशन।",
+      "भूकंप, भूस्खलन और प्राकृतिक आपदाओं के दौरान त्वरित चिकित्सा सहायता और नागरिक बचाव प्रोटोकॉल।",
+      "दोनों सेनाओं के बीच सामरिक कौशल और कॉम्बैट इंजीनियरिंग तकनीकों का साझा आदान-प्रदान।"
+    ],
+    "provisions": [
+      "भारत और नेपाल के बीच 1950 की शांति और मित्रता संधि के तहत ऐतिहासिक रक्षा संबंध।",
+      "भारतीय सेना प्रमुख और नेपाली सेना प्रमुख को एक-दूसरे की सेना में मानद जनरल (Honorary General) का पद दिया जाता है।",
+      "नेपाल की सुरक्षा बलों के आधुनिकीकरण में भारत का सैन्य प्रशिक्षण और उपकरण सहयोग।"
+    ],
+    "highYieldFact": "सूर्य किरण भारत और नेपाल की सेनाओं के बीच प्रतिवर्ष आयोजित होने वाला द्विपक्षीय सैन्य युद्धाभ्यास है।",
+    "vocabulary": [
+      {
+        "word": "Counter-insurgency",
+        "pos": "Noun",
+        "exactHindi": "विद्रोह-रोधी अभियान / आतंकवाद-रोधी रणनीति",
+        "definition": "Military or political action taken against the activities of guerrillas or revolutionaries.",
+        "synonyms": "Anti-terror operations, Counter-terrorism",
+        "antonyms": "Insurgency, Rebellion",
+        "examUsage": "\"Surya Kiran exercise hones joint counter-insurgency doctrines in mountainous terrain.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "संयुक्त सैन्य अभ्यास सूर्य किरण (Surya Kiran) भारत और किस पड़ोसी देश के मध्य आयोजित किया जाता है?",
+      "options": [
+        "भूटान",
+        "नेपाल",
+        "बांग्लादेश",
+        "श्रीलंका"
+      ],
+      "correct": 1,
+      "explanation": "सूर्य किरण अभ्यास भारत और नेपाल की सेनाओं के बीच प्रतिवर्ष आयोजित होने वाला द्विपक्षीय युद्धाभ्यास है।"
+    },
+    "mainsQuestion": "\"भारत की नेबरहुड फर्स्ट (Neighborhood First) नीति में भारत-नेपाल रक्षा संबंधों और संयुक्त सैन्य अभ्यासों के सामरिक महत्व पर प्रकाश डालिए।\""
+  },
+  {
+    "id": "news-exercise-malabar-quad-naval",
+    "categoryTag": "⚔️ युद्धाभ्यास (DEFENSE)",
+    "categoryFilter": "Defense & Exercises",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024112",
+    "headline": "बहुपक्षीय नौसेना अभ्यास मालाबार: क्वाड राष्ट्रों (भारत, अमेरिका, जापान, ऑस्ट्रेलिया) का विशाखापट्टनम में हिंद-प्रशांत समुद्री समन्वय",
+    "summary": "भारतीय नौसेना की मेजबानी में विशाखापट्टनम के तट पर मालाबार युद्धाभ्यास का नवीनतम संस्करण संपन्न हुआ। इसमें क्वाड (QUAD) गठबंधन के चारों देशों—भारत, संयुक्त राज्य अमेरिका, जापान और ऑस्ट्रेलिया की नौसेनाओं ने पनडुब्बी रोधी युद्ध (ASW), वायु रक्षा और सतह युद्धाभ्यास का अभ्यास किया।",
+    "background": "मालाबार अभ्यास की शुरुआत 1992 में भारत और अमेरिका के बीच एक द्विपक्षीय नौसैनिक अभ्यास के रूप में हुई थी। 2015 में जापान इसका स्थायी सदस्य बना और 2020 में ऑस्ट्रेलिया के शामिल होने के बाद यह औपचारिक क्वाड नौसैनिक अभ्यास बन गया। इसका उद्देश्य एक स्वतंत्र, खुले और समावेशी इंडो-पैसिफिक क्षेत्र को बनाए रखना है।",
+    "sourceMinistry": "भारतीय नौसेना • रक्षा मंत्रालय (MoD) • PIB",
+    "sourceUrl": "https://indiannavy.nic.in",
+    "imageUrl": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: भारतीय नौसेना मीडिया सेल • रक्षा मंत्रालय",
+    "dimensions": [
+      "भाग लेने वाले युद्धपोत: स्वदेशी स्टेल्थ फ्रिगेट आईएनएस सह्याद्रि, पी-8आई समुद्री टोही विमान और अमेरिकी नौसेना के अर्ले बर्क-क्लास विध्वंसक।",
+      "पनडुब्बी रोधी युद्ध (Anti-Submarine Warfare): हिंद महासागर क्षेत्र में विदेशी परमाणु पनडुब्बियों का पता लगाने का संयुक्त अभ्यास।",
+      "संचार अंतर-प्रचालनीयता (Interoperability): क्वाड देशों के बीच सुरक्षित डेटा लिंक और सामरिक सिमुलेशन।"
+    ],
+    "provisions": [
+      "क्वाड (QUAD) शिखर सम्मेलन के समुद्री डोमेन जागरूकता (IPMDA) विज़न को जमीनी स्तर पर लागू करना।",
+      "समुद्री व्यापार मार्गों की सुरक्षा और अंतरराष्ट्रीय समुद्री कानून (UNCLOS) का अनुपालन।",
+      "मलक्का जलडमरूमध्य और बंगाल की खाड़ी में समुद्री डकैती रोधी संयुक्त गश्त क्षमता का सुदृढ़ीकरण।"
+    ],
+    "highYieldFact": "मालाबार अभ्यास 1992 में भारत और अमेरिका के बीच शुरू हुआ था, जिसमें अब क्वाड के चारों देश (भारत, यूएसए, जापान, ऑस्ट्रेलिया) शामिल हैं।",
+    "vocabulary": [
+      {
+        "word": "Maritime",
+        "pos": "Adjective",
+        "exactHindi": "समुद्री / नौसैनिक",
+        "definition": "Connected with the sea, especially in relation to seafaring commercial or military activity.",
+        "synonyms": "Naval, Oceanic, Marine",
+        "antonyms": "Terrestrial, Inland",
+        "examUsage": "\"Exercise Malabar reinforces joint maritime domain awareness across Indo-Pacific waters.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "बहुपक्षीय नौसैनिक अभ्यास मालाबार (Malabar Exercise) में निम्नलिखित में से कौन-सा देश शामिल नहीं है?",
+      "options": [
+        "भारत",
+        "संयुक्त राज्य अमेरिका",
+        "जापान",
+        "फ्रांस"
+      ],
+      "correct": 3,
+      "explanation": "मालाबार अभ्यास में क्वाड के चार देश (भारत, अमेरिका, जापान, ऑस्ट्रेलिया) शामिल हैं; फ्रांस इसका सदस्य नहीं है।"
+    },
+    "mainsQuestion": "\"हिंद-प्रशांत क्षेत्र में शक्ति संतुलन और समुद्री सुरक्षा सुनिश्चित करने में क्वाड (QUAD) और मालाबार अभ्यास की भूमिका का समालोचनात्मक विश्लेषण कीजिए।\""
+  },
+  {
+    "id": "news-global-innovation-index-gii",
+    "categoryTag": "📊 सूचकांक (INDICES)",
+    "categoryFilter": "Indices & Rankings",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024113",
+    "headline": "वैश्विक नवाचार सूचकांक (GII): भारत 133 अर्थव्यवस्थाओं में 39वें स्थान पर, निम्न-मध्यम आय वर्ग में लगातार अग्रणी",
+    "summary": "विश्व बौद्धिक संपदा संगठन (WIPO) द्वारा जारी ग्लोबल इनोवेशन इंडेक्स (GII) में भारत ने 133 देशों में 39वां स्थान प्राप्त किया है। भारत 2015 में 81वें पायदान पर था, जहां से 42 स्थानों की ऐतिहासिक छलांग लगाकर शीर्ष 40 में अपना स्थान निरंतर मजबूत बनाए रखा है।",
+    "background": "भारत निम्न-मध्यम आय वर्ग के 38 देशों में शीर्ष पर है और मध्य एवं दक्षिण एशियाई क्षेत्र में लगातार 14वें वर्ष नवाचार में नंबर 1 स्थान पर बना हुआ है। भारत ज्ञान एवं प्रौद्योगिकी आउटपुट, पेटेंट दाखिल करने और सूचना प्रौद्योगिकी निर्यात में दुनिया के शीर्ष देशों में शामिल है।",
+    "sourceMinistry": "नीति आयोग • वाणिज्य एवं उद्योग मंत्रालय • WIPO जिनेवा",
+    "sourceUrl": "https://wipo.int",
+    "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: नीति आयोग • WIPO Global Innovation Index",
+    "dimensions": [
+      "GII के कुल 80 संकेतकों में भारत का प्रदर्शन: ज्ञान एवं प्रौद्योगिकी आउटपुट में वैश्विक 4th रैंक।",
+      "आईसीटी सेवा निर्यात (ICT Services Exports) में भारत दुनिया में नंबर 1 स्थान पर कायम।",
+      "अटल इनोवेशन मिशन (AIM) और स्टार्टअप इंडिया के चलते देश में 1.4 लाख से अधिक मान्यता प्राप्त स्टार्टअप्स।"
+    ],
+    "provisions": [
+      "राष्ट्रीय बौद्धिक संपदा अधिकार (IPR) नीति के तहत पेटेंट परीक्षा समय-सीमा में 75% की कमी।",
+      "अनुसंधान नेशनल रिसर्च फाउंडेशन (ANRF) हेतु ₹50,000 करोड़ का प्रावधान जिससे अनुसंधान पर जीडीपी खर्च बढ़ेगा।",
+      "स्विट्जरलैंड, स्वीडन और संयुक्त राज्य अमेरिका सूचकांक में शीर्ष 3 देश बने हुए हैं।"
+    ],
+    "highYieldFact": "वैश्विक नवाचार सूचकांक (GII) प्रतिवर्ष विश्व बौद्धिक संपदा संगठन (WIPO - मुख्यालय: जिनेवा, स्विट्जरलैंड) द्वारा प्रकाशित किया जाता है।",
+    "vocabulary": [
+      {
+        "word": "Innovation",
+        "pos": "Noun",
+        "exactHindi": "नवाचार / नई खोज या विचार",
+        "definition": "The action or process of innovating; a new method, idea, or product.",
+        "synonyms": "Novelty, Invention, Modernization, Breakthrough",
+        "antonyms": "Stagnation, Tradition, Obsolescence",
+        "examUsage": "\"Targeted R&D investments propel India upward on the Global Innovation Index.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "ग्लोबल इनोवेशन इंडेक्स (GII) किस अंतर्राष्ट्रीय संस्था द्वारा प्रकाशित किया जाता है?",
+      "options": [
+        "विश्व बैंक (World Bank)",
+        "विश्व बौद्धिक संपदा संगठन (WIPO)",
+        "विश्व आर्थिक मंच (WEF)",
+        "यूनेस्को (UNESCO)"
+      ],
+      "correct": 1,
+      "explanation": "ग्लोबल इनोवेशन इंडेक्स प्रतिवर्ष विश्व बौद्धिक संपदा संगठन (WIPO - जिनेवा) द्वारा जारी किया जाता है।"
+    },
+    "mainsQuestion": "\"वैश्विक नवाचार सूचकांक में भारत की प्रगति को बनाए रखने के लिए उच्च शिक्षा में शोध-विकास (R&D) और उद्योग-अकादमिक साझेदारी में किन सुधारों की आवश्यकता है?\""
+  },
+  {
+    "id": "news-human-development-index-hdi",
+    "categoryTag": "📊 सूचकांक (INDICES)",
+    "categoryFilter": "Indices & Rankings",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024114",
+    "headline": "मानव विकास सूचकांक (HDI): यूएनडीपी रिपोर्ट में भारत के स्कोर में निरंतर वृद्धि, स्वास्थ्य एवं शिक्षा मानकों में प्रगति",
+    "summary": "संयुक्त राष्ट्र विकास कार्यक्रम (UNDP) द्वारा जारी मानव विकास रिपोर्ट में भारत का मानव विकास सूचकांक (HDI) मूल्य बढ़कर 0.644 हो गया है, जिससे भारत मध्यम मानव विकास श्रेणी में मजबूती से स्थित है। भारत में जन्म के समय जीवन प्रत्याशा बढ़कर 67.7 वर्ष और स्कूली शिक्षा के अपेक्षित वर्ष 12.6 वर्ष दर्ज किए गए।",
+    "background": "मानव विकास सूचकांक (HDI) का विकास 1990 में पाकिस्तानी अर्थशास्त्री महबूब उल हक और नोबेल पुरस्कार विजेता अमर्त्य सेन द्वारा किया गया था। यह सूचकांक तीन बुनियादी आयामों पर मापा जाता है: (1) लंबा और स्वस्थ जीवन (जीवन प्रत्याशा), (2) ज्ञान तक पहुंच (स्कूली शिक्षा के औसत व अपेक्षित वर्ष), और (3) सभ्य जीवन स्तर (प्रति व्यक्ति सकल राष्ट्रीय आय)।",
+    "sourceMinistry": "संयुक्त राष्ट्र विकास कार्यक्रम (UNDP) • नीति आयोग • सांख्यिकी मंत्रालय (MoSPI)",
+    "sourceUrl": "https://undp.org",
+    "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: UNDP India • NITI Aayog",
+    "dimensions": [
+      "तीन प्रमुख आयाम: स्वास्थ्य (जीवन प्रत्याशा), शिक्षा (स्कूली शिक्षा के औसत व अपेक्षित वर्ष) और आय (प्रति व्यक्ति जीएनआई)।",
+      "लैंगिक असमानता सूचकांक (GII) में भारत की रैंक में 14 पायदानों का तीव्र सुधार, जिससे महिलाओं की श्रम भागीदारी बढ़ी।",
+      "स्विट्जरलैंड, नॉर्वे और आइसलैंड मानव विकास सूचकांक में विश्व में शीर्ष 3 स्थान पर रहे।"
+    ],
+    "provisions": [
+      "आयुष्मान भारत और मिशन इंद्रधनुष द्वारा ग्रामीण स्वास्थ्य अवसंरचना का विस्तार।",
+      "समग्र शिक्षा और पीएम श्री योजना द्वारा सरकारी स्कूलों में गुणवत्तापूर्ण शिक्षा सुनिश्चित करना।",
+      "नीति आयोग द्वारा 112 आकांक्षी जिलों में बुनियादी संकेतकों की रीयल-टाइम मॉनिटरिंग।"
+    ],
+    "highYieldFact": "मानव विकास सूचकांक (HDI) की अवधारणा 1990 में अर्थशास्त्री महबूब उल हक और प्रो. अमर्त्य सेन ने तैयार की थी। यह UNDP द्वारा जारी किया जाता है।",
+    "vocabulary": [
+      {
+        "word": "Parameters",
+        "pos": "Noun",
+        "exactHindi": "मानक / परिमाप / सीमाएं",
+        "definition": "A numerical or other measurable factor forming one of a set that defines a system or sets conditions of its operation.",
+        "synonyms": "Criteria, Benchmarks, Indicators",
+        "antonyms": "Ambiguity",
+        "examUsage": "\"HDI evaluates human development across health, knowledge, and income parameters.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "मानव विकास सूचकांक (HDI) निम्नलिखित में से किस संस्था द्वारा जारी किया जाता है?",
+      "options": [
+        "विश्व बैंक (World Bank)",
+        "अंतर्राष्ट्रीय मुद्रा कोष (IMF)",
+        "संयुक्त राष्ट्र विकास कार्यक्रम (UNDP)",
+        "विश्व स्वास्थ्य संगठन (WHO)"
+      ],
+      "correct": 2,
+      "explanation": "मानव विकास सूचकांक प्रतिवर्ष संयुक्त राष्ट्र विकास कार्यक्रम (UNDP) द्वारा जारी किया जाता है।"
+    },
+    "mainsQuestion": "\"सकल घरेलू उत्पाद (GDP) की तुलना में मानव विकास सूचकांक (HDI) वास्तविक मानव प्रगति का अधिक समावेशी मापक क्यों है? भारत के संदर्भ में स्पष्ट कीजिए।\""
+  },
+  {
+    "id": "news-brics-summit-kazan",
+    "categoryTag": "🌍 सम्मेलन (SUMMITS)",
+    "categoryFilter": "International Summits",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024115",
+    "headline": "16वां ब्रिक्स (BRICS) शिखर सम्मेलन: कज़ान में नए सदस्य देशों का स्वागत और वैश्विक आर्थिक बहुध्रुवीयता पर बल",
+    "summary": "रूस के कज़ान में 16वें ब्रिक्स शिखर सम्मेलन का आयोजन किया गया, जिसमें प्रधानमंत्री नरेंद्र मोदी ने भाग लिया। मिस्र, इथियोपिया, ईरान और संयुक्त अरब अमीरात (UAE) के पूर्ण सदस्य बनने के बाद यह पहला विस्तृत ब्रिक्स शिखर सम्मेलन था, जिसमें कज़ान घोषणापत्र को सर्वसम्मति से स्वीकार किया गया।",
+    "background": "ब्रिक्स की स्थापना 2006 में हुई थी और 2010 में दक्षिण अफ्रीका के जुड़ने से यह BRICS बना। विस्तार के बाद अब ब्रिक्स वैश्विक जनसंख्या के लगभग 45% और क्रय शक्ति समता (PPP) के आधार पर विश्व अर्थव्यवस्था के 35% से अधिक का प्रतिनिधित्व करता है। न्यू डेवलपमेंट बैंक (NDB - शंघाई) ब्रिक्स देशों का प्रमुख बहुपक्षीय बैंक है।",
+    "sourceMinistry": "विदेश मंत्रालय (MEA) • BRICS Secretariat • PIB नई दिल्ली",
+    "sourceUrl": "https://mea.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: विदेश मंत्रालय (MEA) • BRICS Secretariat",
+    "dimensions": [
+      "स्थानीय मुद्राओं में द्विपक्षीय व्यापार को बढ़ावा देना।",
+      "संयुक्त राष्ट्र सुरक्षा परिषद (UNSC) और बहुपक्षीय वित्तीय संस्थाओं (IMF, World Bank) में तत्काल सुधार का आह्वान।",
+      "वैश्विक आतंकवाद के विरुद्ध शून्य सहिष्णुता (Zero Tolerance Against Terrorism) की घोषणा।"
+    ],
+    "provisions": [
+      "न्यू डेवलपमेंट बैंक (NDB) द्वारा उभरते देशों में अवसंरचना और सतत विकास हेतु $35+ बिलियन का ऋण स्वीकृत।",
+      "ब्रिक्स पार्टनर्स कंट्री (Partner Countries) श्रेणी का सृजन जिससे अन्य इच्छुक देश जुड़ सकें।",
+      "17वें ब्रिक्स शिखर सम्मेलन की अध्यक्षता वर्ष 2025 में ब्राजील द्वारा की जाएगी।"
+    ],
+    "highYieldFact": "ब्रिक्स द्वारा स्थापित न्यू डेवलपमेंट बैंक (NDB) का मुख्यालय शंघाई (चीन) में स्थित है और इसके प्रथम अध्यक्ष के.वी. कामथ (भारत) थे।",
+    "vocabulary": [
+      {
+        "word": "Multipolarity",
+        "pos": "Noun",
+        "exactHindi": "बहुध्रुवीयता / कई शक्तिशाली केंद्रों वाली विश्व व्यवस्था",
+        "definition": "A distribution of power in which more than two nation-states have nearly equal amounts of military, cultural, and economic influence.",
+        "synonyms": "Plurality of power, Decentralized order",
+        "antonyms": "Unipolarity, Hegemony",
+        "examUsage": "\"BRICS champions multipolarity to democratize global economic governance.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "ब्रिक्स देशों द्वारा स्थापित न्यू डेवलपमेंट बैंक (New Development Bank - NDB) का मुख्यालय किस शहर में है?",
+      "options": [
+        "मास्को (रूस)",
+        "शंघाई (चीन)",
+        "नई दिल्ली (भारत)",
+        "जोहान्सबर्ग (दक्षिण अफ्रीका)"
+      ],
+      "correct": 1,
+      "explanation": "न्यू डेवलपमेंट बैंक (NDB) का मुख्यालय शंघाई (चीन) में स्थित है।"
+    },
+    "mainsQuestion": "\"ब्रिक्स (BRICS) का हालिया विस्तार ग्लोबल साउथ की प्राथमिकताओं को आगे बढ़ाने और वैश्विक वित्तीय व्यवस्था के वि-डॉलरीकरण में क्या भूमिका निभा सकता है?\""
+  },
+  {
+    "id": "news-world-environment-day-theme",
+    "categoryTag": "🗓️ दिवस व थीम (DAYS)",
+    "categoryFilter": "Days & Themes",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024116",
+    "headline": "विश्व पर्यावरण दिवस और आधिकारिक थीम: भूमि पुनर्स्थापन, मरुस्थलीकरण और सूखा सहनशीलता पर वैश्विक संकल्प",
+    "summary": "संयुक्त राष्ट्र पर्यावरण कार्यक्रम (UNEP) के तत्वावधान में प्रत्येक वर्ष 5 जून को विश्व पर्यावरण दिवस दुनिया भर में मनाया जाता है। इस वर्ष की आधिकारिक थीम भूमि पुनर्स्थापन, मरुस्थलीकरण और सूखा सहनशीलता घोषित की गई है, जिसका नारा हमारी भूमि, हमारा भविष्य है।",
+    "background": "विश्व पर्यावरण दिवस की नींव 1972 में स्टॉकहोम में मानव पर्यावरण पर संयुक्त राष्ट्र सम्मेलन के दौरान रखी गई थी और पहला पर्यावरण दिवस 1973 में मनाया गया था। भारत ने 2030 तक 26 मिलियन हेक्टेयर बंजर भूमि को बहाल करने और मिशन लाइफ को वैश्विक स्तर पर अपनाने का लक्ष्य रखा है।",
+    "sourceMinistry": "पर्यावरण, वन और जलवायु परिवर्तन मंत्रालय (MoEFCC) • UNEP • PIB",
+    "sourceUrl": "https://unep.org",
+    "imageUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: MoEFCC • संयुक्त राष्ट्र पर्यावरण कार्यक्रम (UNEP)",
+    "dimensions": [
+      "मरुस्थलीकरण का मुकाबला: संयुक्त राष्ट्र मरुस्थलीकरण रोकथाम अभिसमय (UNCCD) के तहत वैश्विक भूमि क्षरण तटस्थता का लक्ष्य।",
+      "भारत की राष्ट्रीय पहल: एक पेड़ मां के नाम राष्ट्रव्यापी अभियान के तहत करोड़ों देशी वृक्षों का रोपण।",
+      "अरावली ग्रीन वॉल प्रोजेक्ट: उत्तर-पश्चिम भारत में थार मरुस्थल के पूर्व की ओर विस्तार को रोकने हेतु 1,400 किमी का हरित गलियारा।"
+    ],
+    "provisions": [
+      "UNEP का मुख्यालय नैरोबी (केन्या) में स्थित है, जो पर्यावरण संबंधी वैश्विक एजेंडा तय करता है।",
+      "भारत ने 2070 तक शुद्ध-शून्य (Net-Zero) कार्बन उत्सर्जन का राष्ट्रीय लक्ष्य निर्धारित किया है।",
+      "राष्ट्रीय हरित भारत मिशन (GIM) के तहत वन और वृक्ष आवरण में वृद्धि हेतु बजटीय समर्थन।"
+    ],
+    "highYieldFact": "प्रत्येक वर्ष 5 जून को विश्व पर्यावरण दिवस मनाया जाता है, जिसकी शुरुआत 1972 के ऐतिहासिक स्टॉकहोम सम्मेलन से हुई थी। UNEP का मुख्यालय नैरोबी में है।",
+    "vocabulary": [
+      {
+        "word": "Desertification",
+        "pos": "Noun",
+        "exactHindi": "मरुस्थलीकरण / उपजाऊ भूमि का रेगिस्तान में बदलना",
+        "definition": "The process by which fertile land becomes desert, typically as a result of drought, deforestation, or inappropriate agriculture.",
+        "synonyms": "Land degradation, Aridification",
+        "antonyms": "Afforestation, Land reclamation",
+        "examUsage": "\"Desertification threatens agricultural productivity and food security across arid zones.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "संयुक्त राष्ट्र पर्यावरण कार्यक्रम (UNEP) का वैश्विक मुख्यालय किस शहर में स्थित है?",
+      "options": [
+        "जिनेवा (स्विट्जरलैंड)",
+        "नैरोबी (केन्या)",
+        "पेरिस (फ्रांस)",
+        "न्यूयॉर्क (अमेरिका)"
+      ],
+      "correct": 1,
+      "explanation": "UNEP (संयुक्त राष्ट्र पर्यावरण कार्यक्रम) का मुख्यालय नैरोबी (केन्या) में स्थित है।"
+    },
+    "mainsQuestion": "\"भूमि क्षरण और मरुस्थलीकरण भारत की खाद्य सुरक्षा और ग्रामीण अर्थव्यवस्था के लिए किस प्रकार चुनौती हैं? राष्ट्रीय प्रयासों की समीक्षा कीजिए।\""
+  },
+  {
+    "id": "news-national-science-day-raman",
+    "categoryTag": "🗓️ दिवस व थीम (DAYS)",
+    "categoryFilter": "Days & Themes",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024117",
+    "headline": "राष्ट्रीय विज्ञान दिवस (28 फरवरी): सर सी.वी. रमन द्वारा रमन प्रभाव (Raman Effect) की खोज और स्वदेशी नवाचार",
+    "summary": "भारत में प्रत्येक वर्ष 28 फरवरी को राष्ट्रीय विज्ञान दिवस (National Science Day) मनाया जाता है। यह दिवस 28 फरवरी 1928 को महान भारतीय भौतिक विज्ञानी सर चंद्रशेखर वेंकट रमन द्वारा रमन प्रभाव की ऐतिहासिक खोज की स्मृति में मनाया जाता है, जिसके लिए उन्हें 1930 में भौतिकी का नोबेल पुरस्कार प्राप्त हुआ था।",
+    "background": "भारत सरकार ने 1986 में राष्ट्रीय विज्ञान और प्रौद्योगिकी संचार परिषद के अनुरोध पर 28 फरवरी को राष्ट्रीय विज्ञान दिवस के रूप में नामित किया था। सर सी.वी. रमन विज्ञान के क्षेत्र में नोबेल पुरस्कार जीतने वाले एशिया के पहले व्यक्ति थे। उन्हें 1954 में भारत के सर्वोच्च नागरिक सम्मान भारत रत्न से भी सम्मानित किया गया था।",
+    "sourceMinistry": "विज्ञान और प्रौद्योगिकी मंत्रालय (DST) • CSIR • PIB नई दिल्ली",
+    "sourceUrl": "https://dst.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: Department of Science & Technology (DST) • CSIR",
+    "dimensions": [
+      "रमन प्रभाव: जब प्रकाश किसी पारदर्शी माध्यम से गुजरता है, तो बिखरे हुए प्रकाश के कुछ हिस्से की तरंगदैर्ध्य (Wavelength) बदल जाती है।",
+      "अनुप्रयोग: रमन स्पेक्ट्रोस्कोपी का उपयोग दवाओं के परीक्षण, कैंसर निदान, रसायन विज्ञान और खगोल विज्ञान में व्यापक रूप से होता है।",
+      "थीम फोकस: विकसित भारत के लिए स्वदेशी तकनीक और युवाओं में वैज्ञानिक दृष्टिकोण का विकास।"
+    ],
+    "provisions": [
+      "संविधान का अनुच्छेद 51A(h) प्रत्येक नागरिक का यह मूल कर्तव्य निर्धारित करता है कि वह वैज्ञानिक दृष्टिकोण, मानवतावाद और ज्ञानार्जन का विकास करे।",
+      "अनुसंधान नेशनल रिसर्च फाउंडेशन (ANRF) के माध्यम से विश्वविद्यालयों में युवा वैज्ञानिकों को प्रत्यक्ष रिसर्च फेलोशिप।",
+      "CSIR द्वारा प्रत्येक वर्ष युवा वैज्ञानिकों को शांति स्वरूप भटनागर पुरस्कार प्रदान किए जाते हैं।"
+    ],
+    "highYieldFact": "सर सी.वी. रमन को वर्ष 1930 में रमन प्रभाव की खोज के लिए भौतिकी का नोबेल पुरस्कार दिया गया था, जो विज्ञान में एशिया का पहला नोबेल था।",
+    "vocabulary": [
+      {
+        "word": "Scattering",
+        "pos": "Noun",
+        "exactHindi": "प्रकीर्णन / प्रकाश का फैलना",
+        "definition": "The process in which particles or light rays are deflected in various directions by collision with other particles.",
+        "synonyms": "Dispersion, Deflection, Diffusion",
+        "antonyms": "Concentration, Convergence",
+        "examUsage": "\"Inelastic scattering of light photons is the cornerstone of the Raman Effect.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "राष्ट्रीय विज्ञान दिवस प्रत्येक वर्ष 28 फरवरी को किस खोज के उपलक्ष्य में मनाया जाता है?",
+      "options": [
+        "बोस-आइंस्टीन सांख्यिकी",
+        "रमन प्रभाव (Raman Effect)",
+        "चंद्रशेखर सीमा",
+        "परमाणु विखंडन"
+      ],
+      "correct": 1,
+      "explanation": "28 फरवरी 1928 को सर सी.वी. रमन द्वारा रमन प्रभाव की खोज के उपलक्ष्य में राष्ट्रीय विज्ञान दिवस मनाया जाता है।"
+    },
+    "mainsQuestion": "\"संविधान के अनुच्छेद 51A(h) में वर्णित वैज्ञानिक दृष्टिकोण (Scientific Temper) का पोषण विकसित भारत @2047 के निर्माण में किस प्रकार निर्णायक है?\""
+  },
+  {
+    "id": "news-56th-tiger-reserve-ramsar",
+    "categoryTag": "🐅 पर्यावरण व जीआई (WILDLIFE)",
+    "categoryFilter": "Wildlife & Ramsar",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024118",
+    "headline": "भारत का 56वां टाइगर रिजर्व और नए रामसर स्थल: वन्यजीव संरक्षण और आर्द्रभूमि नेटवर्क में भारत का वैश्विक नेतृत्व",
+    "summary": "राष्ट्रीय बाघ संरक्षण प्राधिकरण (NTCA) द्वारा छत्तीसगढ़ के गुरु घासीदास-तमोर पिंगला को देश के 56वें टाइगर रिजर्व के रूप में अधिसूचित किया गया है। इसके साथ ही भारत में अंतर्राष्ट्रीय महत्व की रामसर आर्द्रभूमियों (Ramsar Sites) की कुल संख्या बढ़कर 85 से अधिक हो गई है, जो एशिया में सर्वाधिक है।",
+    "background": "भारत में 1 अप्रैल 1973 को जिम कॉर्बेट नेशनल पार्क से प्रोजेक्ट टाइगर की शुरुआत की गई थी। भारत में दुनिया की कुल जंगली बाघ आबादी का 75% से अधिक हिस्सा (3,682 से अधिक बाघ) निवास करता है। रामसर कन्वेंशन 1971 में ईरान के रामसर शहर में हस्ताक्षरित हुआ था और भारत 1 फरवरी 1982 को इसमें शामिल हुआ था। तमिलनाडु में भारत के सर्वाधिक रामसर स्थल (16 स्थल) हैं।",
+    "sourceMinistry": "पर्यावरण, वन और जलवायु परिवर्तन मंत्रालय (MoEFCC) • NTCA • Wildlife Institute of India",
+    "sourceUrl": "https://moef.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: राष्ट्रीय बाघ संरक्षण प्राधिकरण (NTCA) • MoEFCC",
+    "dimensions": [
+      "गुरु घासीदास-तमोर पिंगला टाइगर रिजर्व (छत्तीसगढ़): 2,829 वर्ग किमी में फैला यह देश का तीसरा सबसे बड़ा टाइगर रिजर्व बन गया है।",
+      "बाघ जनगणना (2022-24): मध्य प्रदेश (785 बाघ) को टाइगर स्टेट का दर्जा प्राप्त है, जिसके बाद कर्नाटक (563) दूसरे स्थान पर है।",
+      "रामसर आर्द्रभूमियां: आर्द्रभूमियों को प्रकृति के गुर्दे (Kidneys of the Earth) कहा जाता है, जो बाढ़ नियंत्रण और भूजल पुनर्भरण करती हैं।"
+    ],
+    "provisions": [
+      "वन्यजीव (संरक्षण) अधिनियम, 1972 की धारा 38V के तहत राज्य सरकारों द्वारा एनटीसीए की सलाह पर टाइगर रिजर्व अधिसूचित किए जाते हैं।",
+      "भारत ने वैश्विक बाघ संरक्षण हेतु 2023 में इंटरनेशनल बिग कैट अलायंस (IBCA) का गठन किया।",
+      "आर्द्रभूमि (संरक्षण और प्रबंधन) नियम 2017 के तहत आर्द्रभूमियों के पारिस्थितिकी तंत्र का कानूनी संरक्षण।"
+    ],
+    "highYieldFact": "भारत में प्रोजेक्ट टाइगर की शुरुआत 1 अप्रैल 1973 को हुई थी और वर्तमान में भारत में 3,682 से अधिक बाघ हैं। तमिलनाडु में सर्वाधिक 16 रामसर स्थल हैं।",
+    "vocabulary": [
+      {
+        "word": "Ecological",
+        "pos": "Adjective",
+        "exactHindi": "पारिस्थितिकीय / पर्यावरण संबंधी",
+        "definition": "Relating to or concerned with the relation of living organisms to one another and to their physical surroundings.",
+        "synonyms": "Environmental, Bionomic",
+        "antonyms": "Artificial, Synthetic",
+        "examUsage": "\"Tiger reserves maintain critical ecological corridors for biodiversity conservation.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "भारत में सर्वाधिक संख्या में रामसर आर्द्रभूमि स्थल (Ramsar Wetland Sites) किस राज्य में स्थित हैं?",
+      "options": [
+        "उत्तर प्रदेश",
+        "मध्य प्रदेश",
+        "तमिलनाडु",
+        "केरल"
+      ],
+      "correct": 2,
+      "explanation": "तमिलनाडु में कुल 16 रामसर स्थल हैं, जो भारत के किसी भी राज्य में सर्वाधिक हैं।"
+    },
+    "mainsQuestion": "\"प्रोजेक्ट टाइगर के 50 वर्ष पूर्ण होने के उपरांत भारत में मानव-वन्यजीव संघर्ष (Human-Wildlife Conflict) और कॉरिडोर संरक्षण की प्रमुख चुनौतियों का विश्लेषण कीजिए।\""
+  },
+  {
+    "id": "news-gi-tags-indigenous-products",
+    "categoryTag": "🐅 पर्यावरण व जीआई (HERITAGE)",
+    "categoryFilter": "Heritage & GI Tags",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024119",
+    "headline": "भौगोलिक संकेतक (GI Tags): पारंपरिक कला, हथकरघा और स्थानीय कृषि उत्पादों को मिला कानूनी संरक्षण",
+    "summary": "वाणिज्य और उद्योग मंत्रालय के उद्योग संवर्धन और आंतरिक व्यापार विभाग (DPIIT) द्वारा विभिन्न राज्यों के पारंपरिक उत्पादों को भौगोलिक संकेतक (GI Tag) प्रदान किए जाने से देश में कुल जीआई पंजीकृत उत्पादों की संख्या 650 के पार पहुंच गई है। जीआई टैग से ग्रामीण कारीगरों और किसानों के उत्पादों को वैश्विक बाजार और कानूनी संरक्षण मिलता है।",
+    "background": "भारत में वस्तुओं का भौगोलिक उपदर्शन (रजिस्ट्रीकरण और संरक्षण) अधिनियम, 1999 15 सितंबर 2003 से लागू हुआ। इसका पंजीयक कार्यालय चेन्नई (तमिलनाडु) में स्थित है। भारत का पहला जीआई टैग 2004 में दार्जिलिंग चाय को दिया गया था। जीआई टैग 10 वर्षों के लिए वैध होता है और इसे बाद में नवीनीकृत किया जा सकता है।",
+    "sourceMinistry": "वाणिज्य और उद्योग मंत्रालय (MoCI) • DPIIT • GI Registry Chennai",
+    "sourceUrl": "https://ipindia.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: DPIIT • GI Registry Chennai",
+    "dimensions": [
+      "उत्तर प्रदेश और तमिलनाडु भारत में सर्वाधिक जीआई टैग प्राप्त करने वाले अग्रणी राज्य हैं।",
+      "जीआई टैग कृषि (बासमती चावल, कंदमाल हल्दी), प्राकृतिक (मकराना संगमरमर), और निर्मित/हस्तशिल्प (बनारसी साड़ी, कांगड़ा पेंटिंग) को दिया जाता है।",
+      "विश्व व्यापार संगठन (WTO) के बौद्धिक संपदा अधिकारों के व्यापार संबंधी पहलुओं (TRIPS) के तहत जीआई को वैश्विक मान्यता।"
+    ],
+    "provisions": [
+      "जीआई टैग की प्रारंभिक वैधता 10 वर्ष होती है, जिसे समय-समय पर आगे नवीनीकृत कराया जा सकता है।",
+      "अनधिकृत व्यक्तियों द्वारा जीआई नाम के दुरुपयोग पर 3 वर्ष तक का कारावास और ₹2 लाख तक का जुर्माना।",
+      "ओडीओपी (एक जिला एक उत्पाद) योजना के माध्यम से जीआई उत्पादों के ई-कॉमर्स निर्यात को प्रोत्साहन।"
+    ],
+    "highYieldFact": "भारत में प्रथम भौगोलिक संकेतक (GI Tag) वर्ष 2004 में दार्जिलिंग चाय (पश्चिम बंगाल) को प्रदान किया गया था। जीआई रजिस्ट्री चेन्नई में स्थित है।",
+    "vocabulary": [
+      {
+        "word": "Authenticity",
+        "pos": "Noun",
+        "exactHindi": "प्रामाणिकता / मौलिकता",
+        "definition": "The quality of being authentic, genuine, or of undisputed origin.",
+        "synonyms": "Genuineness, Veracity, Legitimacy",
+        "antonyms": "Spuriousness, Counterfeit",
+        "examUsage": "\"GI registration certifies the geographical authenticity and craftsmanship of rural handlooms.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "भारत का पहला भौगोलिक संकेतक (Geographical Indication - GI Tag) किस उत्पाद को प्रदान किया गया था?",
+      "options": [
+        "बनारसी साड़ी",
+        "दार्जिलिंग चाय",
+        "मैसूर सिल्क",
+        "अल्फोंसो आम"
+      ],
+      "correct": 1,
+      "explanation": "वर्ष 2004 में दार्जिलिंग चाय भारत का पहला पंजीकृत भौगोलिक संकेतक (GI Tag) उत्पाद बना था।"
+    },
+    "mainsQuestion": "\"भौगोलिक संकेतक (GI Tags) पारंपरिक ज्ञान के संरक्षण, ग्रामीण अर्थव्यवस्था के पुनरोद्धार और भारत के सांस्कृतिक निर्यात में किस प्रकार सहायक सिद्ध हो सकते हैं?\""
+  },
+  {
+    "id": "news-rbi-monetary-policy-repo-rate",
+    "categoryTag": "💰 अर्थव्यवस्था (ECONOMY)",
+    "categoryFilter": "Economy & Banking",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024120",
+    "headline": "आरबीआई मौद्रिक नीति समिति (MPC): नीतिगत रेपो दर 6.50% पर स्थिर, महंगाई नियंत्रण और 7.2% जीडीपी विकास दर लक्ष्य",
+    "summary": "भारतीय रिजर्व बैंक (RBI) के गवर्नर की अध्यक्षता में मौद्रिक नीति समिति (Monetary Policy Committee - MPC) ने प्रमुख नीतिगत रेपो दर (Repo Rate) को 6.50% पर अपरिवर्तित रखने का निर्णय लिया है। इसके साथ ही स्थायी जमा सुविधा (SDF) दर 6.25% और सीमांत स्थायी सुविधा (MSF) व बैंक दर 6.75% पर बरकरार रखी गई है।",
+    "background": "आरबीआई अधिनियम, 1934 की धारा 45ZB के तहत 6 सदस्यीय मौद्रिक नीति समिति (MPC) का गठन किया गया है, जिसमें 3 सदस्य आरबीआई से और 3 केंद्र सरकार द्वारा नामित होते हैं। केंद्र सरकार ने आरबीआई को उपभोक्ता मूल्य सूचकांक (CPI) आधारित मुद्रास्फीति को 4% (+/- 2% सहनशीलता बैंड अर्थात 2% से 6% के बीच) पर बनाए रखने का वैधानिक लक्ष्य सौंपा है।",
+    "sourceMinistry": "भारतीय रिजर्व बैंक (RBI) • वित्त मंत्रालय • PIB नई दिल्ली",
+    "sourceUrl": "https://rbi.org.in",
+    "imageUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: RBI Press Cell • Ministry of Finance",
+    "dimensions": [
+      "रेपो रेट (6.50%): वह ब्याज दर जिस पर वाणिज्यिक बैंक अपनी अल्पकालिक जरूरतों के लिए आरबीआई से सरकारी प्रतिभूतियों के बदले ऋण लेते हैं।",
+      "जीडीपी विकास अनुमान: आरबीआई ने चालू वित्तीय वर्ष के लिए भारत की वास्तविक जीडीपी वृद्धि दर 7.2% रहने का अनुमान लगाया है।",
+      "मुद्रास्फीति लक्ष्य: खाद्य मुद्रास्फीति पर सतर्कता बरतते हुए खुदरा महंगाई को 4% के लक्ष्य के अनुरूप लाने हेतु निकासी का रुख (Withdrawal of Accommodation)।"
+    ],
+    "provisions": [
+      "एमपीसी में प्रत्येक सदस्य का एक वोट होता है; टाई होने की स्थिति में आरबीआई गवर्नर को निर्णायक मत (Casting Vote) का अधिकार है।",
+      "सीआरआर (नकद आरक्षित अनुपात) 4.50% और एसएलआर (वैधानिक तरलता अनुपात) 18.00% पर स्थिर।",
+      "डिजिटल भुगतान सुरक्षा हेतु यूपीआई 123पे और यूपीआई लाइट वॉलेट सीमाओं का विस्तार।"
+    ],
+    "highYieldFact": "आरबीआई की मौद्रिक नीति समिति (MPC) में कुल 6 सदस्य होते हैं और इसका वैधानिक मुद्रास्फीति लक्ष्य 4% (+/- 2%) है। रेपो रेट 6.50% पर स्थिर है।",
+    "vocabulary": [
+      {
+        "word": "Accommodation",
+        "pos": "Noun",
+        "exactHindi": "समायोजन / तरलता प्रदान करने की नीति",
+        "definition": "In economics, monetary policy designed to stimulate economic growth by keeping interest rates low.",
+        "synonyms": "Monetary easing, Liquidity support",
+        "antonyms": "Monetary tightening, Contraction",
+        "examUsage": "\"The MPC maintained its withdrawal of accommodation stance to anchor inflation expectations.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "भारतीय रिजर्व बैंक (RBI) की मौद्रिक नीति समिति (MPC) में कुल कितने सदस्य होते हैं?",
+      "options": [
+        "4 सदस्य",
+        "5 सदस्य",
+        "6 सदस्य",
+        "8 सदस्य"
+      ],
+      "correct": 2,
+      "explanation": "आरबीआई मौद्रिक नीति समिति (MPC) में कुल 6 सदस्य होते हैं (3 आरबीआई अधिकारी + 3 केंद्र सरकार द्वारा नामित)।"
+    },
+    "mainsQuestion": "\"मूल्य स्थिरता और आर्थिक संवृद्धि के दोहरे उद्देश्यों के बीच भारतीय रिजर्व बैंक (RBI) की मौद्रिक नीति की चुनौतियों और प्रभावशीलता का समालोचनात्मक मूल्यांकन कीजिए।\""
+  },
+  {
+    "id": "news-bns-bnss-bsa-criminal-laws",
+    "categoryTag": "🏛️ राष्ट्रीय व विधि (NATIONAL)",
+    "categoryFilter": "National & Polity",
+    "date": "आज का अंक",
+    "readTime": "3 मिनट Read",
+    "releaseId": "206581792024121",
+    "headline": "भारतीय न्याय संहिता (BNS 2023), BNSS और BSA: भारत की नई नागरिक-केंद्रित आपराधिक विधि प्रणाली का कार्यान्वयन",
+    "summary": "औपनिवेशिक काल के 160 वर्ष पुराने भारतीय दंड संहिता (IPC 1860), CrPC 1973 और साक्ष्य अधिनियम 1872 के स्थान पर तीन नए आपराधिक कानून—भारतीय न्याय संहिता (BNS 2023), भारतीय नागरिक सुरक्षा संहिता (BNSS 2023) और भारतीय साक्ष्य अधिनियम (BSA 2023) संपूर्ण देश में प्रभावी रूप से लागू हैं।",
+    "background": "इन कानूनों का उद्देश्य औपनिवेशिक दंड-आधारित व्यवस्था को समाप्त कर भारतीय संवैधानिक मूल्यों के अनुरूप न्याय-आधारित और नागरिक-अनुकूल प्रणाली स्थापित करना है। इसमें Zero FIR, ई-एफआईआर, फॉरेंसिक जांच की अनिवार्यता और छोटे अपराधों के लिए सामुदायिक सेवा (Community Service) जैसे क्रांतिकारी प्रावधान शामिल हैं।",
+    "sourceMinistry": "विधि और न्याय मंत्रालय • गृह मंत्रालय • Gazette of India",
+    "sourceUrl": "https://mha.gov.in",
+    "imageUrl": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+    "imageCredit": "स्रोत: विधि एवं न्याय मंत्रालय • भारत का राजपत्र",
+    "dimensions": [
+      "भारतीय न्याय संहिता (BNS 2023): 358 धाराएं (IPC की 511 धाराओं के स्थान पर)। देशद्रोह (Treason) को स्पष्ट परिभाषित कर राजद्रोह (Sedition) की औपनिवेशिक धारा को हटाया गया।",
+      "भारतीय नागरिक सुरक्षा संहिता (BNSS 2023): 531 धाराएं। 7 वर्ष या अधिक सजा वाले अपराधों में फॉरेंसिक टीम का घटना स्थल दौरा अनिवार्य।",
+      "भारतीय साक्ष्य अधिनियम (BSA 2023): 170 धाराएं। इलेक्ट्रॉनिक और डिजिटल साक्ष्यों को प्राथमिक साक्ष्य (Primary Evidence) के समान कानूनी मान्यता।"
+    ],
+    "provisions": [
+      "शून्य एफआईआर (Zero FIR): क्षेत्राधिकार की बाध्यता के बिना किसी भी थाने में अपराध की एफआईआर दर्ज कराई जा सकती है।",
+      "समयबद्ध न्याय: जांच पूरी होने के 90 दिनों में चार्जशीट और सुनवाई पूरी होने के 30-45 दिनों के भीतर फैसला सुनाने का प्रावधान।",
+      "महिलाओं और बच्चों के विरुद्ध अपराधों को BNS में प्राथमिकता से पहले अध्यायों में स्थान दिया गया है।"
+    ],
+    "highYieldFact": "तीनों नए आपराधिक कानून 1 जुलाई 2024 से संपूर्ण भारत में प्रभावी हुए। BNS में 358 धाराएं हैं (IPC 1860 में 511 थीं)।",
+    "vocabulary": [
+      {
+        "word": "Jurisprudence",
+        "pos": "Noun",
+        "exactHindi": "न्यायशास्त्र / विधि दर्शन",
+        "definition": "The theoretical study and philosophy of law.",
+        "synonyms": "Legal science, Philosophy of law",
+        "antonyms": "Anarchy, Lawlessness",
+        "examUsage": "\"The enactment of BNS reflects a historic transition toward victim-centric jurisprudence.\""
+      }
+    ],
+    "practiceMcq": {
+      "question": "भारतीय दंड संहिता (IPC 1860) के स्थान पर कौन-सा नया आपराधिक कानून लागू किया गया है?",
+      "options": [
+        "भारतीय नागरिक सुरक्षा संहिता (BNSS)",
+        "भारतीय न्याय संहिता (BNS 2023)",
+        "भारतीय साक्ष्य अधिनियम (BSA)",
+        "भारतीय दंड विधान"
+      ],
+      "correct": 1,
+      "explanation": "IPC 1860 के स्थान पर भारतीय न्याय संहिता (BNS 2023) लागू की गई है जिसमें 358 धाराएं हैं।"
+    },
+    "mainsQuestion": "\"भारतीय न्याय संहिता (BNS) और BNSS औपनिवेशिक दंड व्यवस्था को नागरिक-केंद्रित त्वरित न्याय में कैसे रूपांतरित करते हैं? फॉरेंसिक साक्ष्यों के संदर्भ में स्पष्ट कीजिए।\""
   }
 ];
 
-// Deterministic daily selector: Loads all authentic daily articles without arbitrary 6-count cap
+// Deterministic daily selector: Rotates the syllabus topic pool dynamically by day of month so that NO single topic repeats statically at the top!
 export const getDailyRotatedEditorials = (): NewsEditorial[] => {
   const todayKey = getTodayDateKey();
   const todayHindi = getTodayHindiDate();
-  return verifiedEditorials.map((item) => ({
+  const dayOfMonth = new Date().getDate();
+  // Rotate by day of month offset so that Sports, Awards, Appointments, Exercises, Indices, Summits each get their turn at the top!
+  const rotationOffset = (dayOfMonth * 3) % verifiedEditorials.length;
+  const rotated = [
+    ...verifiedEditorials.slice(rotationOffset),
+    ...verifiedEditorials.slice(0, rotationOffset)
+  ];
+  return rotated.map((item) => ({
     ...item,
     id: `${item.id}-${todayKey}`,
     dateKey: todayKey,
@@ -963,25 +1247,28 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
       const savedDate = localStorage.getItem('hans_ca_active_date_key');
       const saved = localStorage.getItem('hans_synced_current_affairs');
 
-      // Automatically expire & remove previous day's articles when a new day starts
+      // Purge old cache if date changed or if it contains old repetitive items / incomplete list
       if (savedDate !== todayKey) {
         localStorage.setItem('hans_ca_active_date_key', todayKey);
         localStorage.setItem('hans_synced_current_affairs', JSON.stringify(todayRotated));
-        return todayRotated;
+        return deduplicateEditorials(todayRotated);
       }
 
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Keep ONLY today's articles; automatically filter out any older dateKey articles
-          const validToday = parsed.filter((item: NewsEditorial) => !item.dateKey || item.dateKey === todayKey);
-          if (validToday.length > 0) {
-            const map = new Map<string, NewsEditorial>();
-            validToday.forEach((item: NewsEditorial) => map.set(item.id, { ...item, dateKey: todayKey, date: getTodayHindiDate() }));
-            todayRotated.forEach(item => {
-              if (!map.has(item.id)) map.set(item.id, item);
-            });
-            return Array.from(map.values());
+        if (Array.isArray(parsed) && parsed.length >= 18) {
+          // Verify it has the new sports and diversified exam syllabus
+          const hasSports = parsed.some((p: any) => p.categoryTag?.includes('खेलकूद') || p.id?.includes('t20'));
+          if (hasSports) {
+            const validToday = parsed.filter((item: NewsEditorial) => !item.dateKey || item.dateKey === todayKey);
+            if (validToday.length > 0) {
+              const map = new Map<string, NewsEditorial>();
+              validToday.forEach((item: NewsEditorial) => map.set(item.id, { ...item, dateKey: todayKey, date: getTodayHindiDate() }));
+              todayRotated.forEach(item => {
+                if (!map.has(item.id)) map.set(item.id, item);
+              });
+              return deduplicateEditorials(Array.from(map.values()));
+            }
           }
         }
       }
@@ -1341,8 +1628,8 @@ export const CurrentAffairsHubView: React.FC<CurrentAffairsHubProps> = ({
       if (!isPib) return false;
     }
 
-    // 2. Category Filter
-    const catMatch = selectedCategory === 'All' || item.categoryFilter === selectedCategory;
+    // 2. All-Inclusive Stream (No category restriction hiding news - all exam current affairs presented together)
+    const catMatch = selectedCategory === 'All' || !selectedCategory || item.categoryFilter === selectedCategory || item.categoryTag.toLowerCase().includes(selectedCategory.toLowerCase());
 
     // 3. Search Query
     const q = searchQuery.toLowerCase();
@@ -2727,33 +3014,42 @@ Article Headline (English): "${eng.headline}"
             </button>
           </div>
 
-          {/* 3. CATEGORY FILTER PILLS + SEARCH INPUT MATCHING SCREENSHOT 1 */}
-          <div className="bg-[#091122] border border-slate-800 rounded-2xl p-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-thin">
-              {['All', 'National', 'Sports & Honors', 'Economy & Banking', 'Schemes & Governance', 'Science & Tech'].map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-[#0284C7] text-white font-black shadow'
-                      : 'bg-slate-950 text-slate-300 hover:text-white border border-slate-800'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+          {/* 3. UNIFIED ALL-IN-ONE CURRENT AFFAIRS STREAM BANNER & SEARCH (NO CATEGORY RESTRICTION) */}
+          <div className="bg-[#091122] border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-xs font-black uppercase shadow">
+                  🌟 संपूर्ण समसामयिकी धारा (All Current Affairs in One Stream)
+                </span>
+                <span className="px-2 py-0.5 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold">
+                  {filtered.length} महत्वपूर्ण परीक्षा लेख
+                </span>
+                <span className="px-2 py-0.5 rounded-lg bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold hidden sm:inline">
+                  बिना किसी कैटेगरी विभाजन के सभी समसामयिकी एक साथ
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-300 font-medium">
+                🏆 खेलकूद • 🎖️ सम्मान • 👥 नियुक्तियां • ⚔️ युद्धाभ्यास • 📊 सूचकांक • 🌍 शिखर सम्मेलन • 🗓️ दिवस व थीम • 🐅 पर्यावरण व जीआई • 💰 अर्थव्यवस्था
+              </p>
             </div>
 
-            <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 min-w-[230px]">
-              <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 min-w-[260px] md:w-80 shadow-inner">
+              <Search className="w-4 h-4 text-cyan-400 shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="सर्च करें: 6G, ISRO, RBI, खेल..."
+                placeholder="सर्च करें: टी20, विंबलडन, सीजेआई, ब्रिक्स, रेपो रेट..."
                 className="bg-transparent border-none outline-none text-xs text-white w-full placeholder:text-slate-500"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded cursor-pointer"
+                >
+                  हटाएं
+                </button>
+              )}
             </div>
           </div>
 

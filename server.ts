@@ -1236,30 +1236,199 @@ function getDailyDeterministicArticles(todayIso: string, todayHindi: string): an
 function resolveServerTopicImage(headline: string, categoryTag = '', summary = ''): { imageUrl: string; imageCredit: string } {
   const text = `${headline} ${categoryTag} ${summary}`.toLowerCase();
 
-  // Space & ISRO
-  if (text.includes('isro') || text.includes('space') || text.includes('चंद्रयान') || text.includes('अंतरिक्ष') || text.includes('गगनयान') || text.includes('rocket') || text.includes('satellite') || text.includes('spadex') || text.includes('bas')) {
-    if (text.includes('चंद्रमा') || text.includes('moon') || text.includes('chandrayaan')) {
+  // 1. Sports, Cricket, T20, Tennis, Wimbledon, Grand Slams, Olympics, Chess & Hockey
+  if (
+    text.includes('sport') ||
+    text.includes('खेल') ||
+    text.includes('cricket') ||
+    text.includes('क्रिकेट') ||
+    text.includes('t20') ||
+    text.includes('world cup') ||
+    text.includes('विंबलडन') ||
+    text.includes('wimbledon') ||
+    text.includes('ग्रैंड स्लैम') ||
+    text.includes('tennis') ||
+    text.includes('टेनिस') ||
+    text.includes('शतरंज') ||
+    text.includes('chess') ||
+    text.includes('गुकेश') ||
+    text.includes('हॉकी') ||
+    text.includes('hockey') ||
+    text.includes('olympic') ||
+    text.includes('ओलंपिक') ||
+    text.includes('पदक') ||
+    text.includes('trophy') ||
+    text.includes('ट्रॉफी')
+  ) {
+    if (text.includes('cricket') || text.includes('क्रिकेट') || text.includes('t20')) {
       return {
-        imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
-        imageCredit: 'स्रोत: ISRO Media Cell • अंतरिक्ष विभाग (DoS)'
+        imageUrl: 'https://images.unsplash.com/photo-1531415074868-036b107e775a?auto=format&fit=crop&w=1200&q=80',
+        imageCredit: 'स्रोत: BCCI • ICC International Cricket Council'
+      };
+    }
+    if (text.includes('विंबलडन') || text.includes('wimbledon') || text.includes('टेनिस') || text.includes('tennis')) {
+      return {
+        imageUrl: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&w=1200&q=80',
+        imageCredit: 'स्रोत: Wimbledon Championship • ATP / WTA Media'
+      };
+    }
+    if (text.includes('शतरंज') || text.includes('chess') || text.includes('गुकेश')) {
+      return {
+        imageUrl: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=1200&q=80',
+        imageCredit: 'स्रोत: FIDE • All India Chess Federation'
       };
     }
     return {
-      imageUrl: 'https://images.unsplash.com/photo-1517976487468-f20514c44533?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: ISRO • Department of Space, GOI'
+      imageUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: युवा कार्यक्रम एवं खेल मंत्रालय • Sports Authority of India (SAI)'
     };
   }
 
-  // Defense, Navy, Missiles
-  if (text.includes('नौसेना') || text.includes('navy') || text.includes('मिसाइल') || text.includes('missile') || text.includes('defense') || text.includes('रक्षा') || text.includes('frigate') || text.includes('नीलगिरि') || text.includes('brahmos') || text.includes('ब्रह्मोस') || text.includes('युद्धपोत') || text.includes('warship') || text.includes('army') || text.includes('drdo')) {
+  // 2. Awards & Honors (Dadasaheb Phalke, Padma, Nobel, Booker, Jnanpith)
+  if (
+    text.includes('सम्मान') ||
+    text.includes('पुरस्कार') ||
+    text.includes('award') ||
+    text.includes('पद्म') ||
+    text.includes('फाल्के') ||
+    text.includes('phalke') ||
+    text.includes('भारत रत्न') ||
+    text.includes('नोबेल') ||
+    text.includes('nobel') ||
+    text.includes('ज्ञानपीठ') ||
+    text.includes('बुकर')
+  ) {
     return {
-      imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: रक्षा मंत्रालय (MoD) • भारतीय नौसेना मीडिया सेल'
+      imageUrl: 'https://images.unsplash.com/photo-1578269174936-2709b6aeb913?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: गृह मंत्रालय (MHA) • राष्ट्रपति भवन सम्मान प्रकोष्ठ'
     };
   }
 
-  // Economy, RBI, Banking, Currency
-  if (text.includes('rbi') || text.includes('रिजर्व बैंक') || text.includes('rupee') || text.includes('रुपया') || text.includes('cbdc') || text.includes('मुद्रा') || text.includes('banking') || text.includes('बैंक') || text.includes('gdp') || text.includes('जीडीपी') || text.includes('inflation') || text.includes('मुद्रास्फीति') || text.includes('uli') || text.includes('अर्थव्यवस्था') || text.includes('budget') || text.includes('बजट')) {
+  // 3. Appointments & Constitutional Heads (CJI, CEC, CAG, Army Chiefs, SEBI, UPSC)
+  if (
+    text.includes('नियुक्त') ||
+    text.includes('appointment') ||
+    text.includes('मुख्य न्यायाधीश') ||
+    text.includes('cji') ||
+    text.includes('चुनाव आयुक्त') ||
+    text.includes('cec') ||
+    text.includes('कैग') ||
+    text.includes('cag') ||
+    text.includes('महान्यायवादी') ||
+    text.includes('प्रमुख') ||
+    text.includes('अध्यक्ष')
+  ) {
+    return {
+      imageUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: राष्ट्रपति भवन • भारत का राजपत्र (Gazette of India)'
+    };
+  }
+
+  // 4. Joint Military Exercises
+  if (
+    text.includes('अभ्यास') ||
+    text.includes('युद्धाभ्यास') ||
+    text.includes('exercise') ||
+    text.includes('सूर्य किरण') ||
+    text.includes('surya kiran') ||
+    text.includes('मालाबार') ||
+    text.includes('malabar') ||
+    text.includes('वरुण') ||
+    text.includes('गरुड़') ||
+    text.includes('युद्ध अभ्यास') ||
+    text.includes('yudh abhyas')
+  ) {
+    return {
+      imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: भारतीय सेना (ADGPI) • रक्षा मंत्रालय'
+    };
+  }
+
+  // 5. Global Indices & Rankings
+  if (
+    text.includes('सूचकांक') ||
+    text.includes('रैंकिंग') ||
+    text.includes('index') ||
+    text.includes('ranking') ||
+    text.includes('gii') ||
+    text.includes('hdi') ||
+    text.includes('भूख सूचकांक') ||
+    text.includes('खुशहाली')
+  ) {
+    return {
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: नीति आयोग • UNDP / WIPO Global Index'
+    };
+  }
+
+  // 6. International Summits (BRICS, G20, SCO, ASEAN, QUAD)
+  if (
+    text.includes('सम्मेलन') ||
+    text.includes('शिखर') ||
+    text.includes('summit') ||
+    text.includes('brics') ||
+    text.includes('ब्रिक्स') ||
+    text.includes('g20') ||
+    text.includes('sco') ||
+    text.includes('asean') ||
+    text.includes('quad')
+  ) {
+    return {
+      imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: विदेश मंत्रालय (MEA) • अंतर्राष्ट्रीय सचिवालय'
+    };
+  }
+
+  // 7. Important Days & Themes
+  if (
+    text.includes('दिवस') ||
+    text.includes('day') ||
+    text.includes('थीम') ||
+    text.includes('theme') ||
+    text.includes('पर्यावरण दिवस') ||
+    text.includes('विज्ञान दिवस') ||
+    text.includes('योग दिवस')
+  ) {
+    return {
+      imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: संयुक्त राष्ट्र (UN) • भारत सरकार आधिकारिक दिवस कैलेंडर'
+    };
+  }
+
+  // 8. Wildlife, Tiger Reserves & GI Tags
+  if (
+    text.includes('टाइगर रिजर्व') ||
+    text.includes('बाघ') ||
+    text.includes('रामसर') ||
+    text.includes('ramsar') ||
+    text.includes('जीआई टैग') ||
+    text.includes('gi tag')
+  ) {
+    return {
+      imageUrl: 'https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=1200&q=80',
+      imageCredit: 'स्रोत: राष्ट्रीय बाघ संरक्षण प्राधिकरण (NTCA) • MoEFCC'
+    };
+  }
+
+  // 9. Economy & Banking
+  if (
+    text.includes('rbi') ||
+    text.includes('रिजर्व बैंक') ||
+    text.includes('rupee') ||
+    text.includes('रुपया') ||
+    text.includes('cbdc') ||
+    text.includes('मुद्रा') ||
+    text.includes('banking') ||
+    text.includes('बैंक') ||
+    text.includes('gdp') ||
+    text.includes('जीडीपी') ||
+    text.includes('inflation') ||
+    text.includes('मुद्रास्फीति') ||
+    text.includes('repo') ||
+    text.includes('रेपो') ||
+    text.includes('मौद्रिक नीति') ||
+    text.includes('अर्थव्यवस्था')
+  ) {
     if (text.includes('डिजिटल') || text.includes('cbdc') || text.includes('upi')) {
       return {
         imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
@@ -1272,97 +1441,11 @@ function resolveServerTopicImage(headline: string, categoryTag = '', summary = '
     };
   }
 
-  // Judiciary & Constitution
-  if (text.includes('न्याय') || text.includes('bns') || text.includes('bnss') || text.includes('bsa') || text.includes('court') || text.includes('अदालत') || text.includes('संविधान') || text.includes('constitution') || text.includes('ipc') || text.includes('कानून') || text.includes('विधि') || text.includes('cji') || text.includes('justice')) {
+  // 10. Judiciary & Law
+  if (text.includes('न्याय') || text.includes('bns') || text.includes('bnss') || text.includes('bsa') || text.includes('court') || text.includes('संविधान') || text.includes('कानून')) {
     return {
       imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
       imageCredit: 'स्रोत: विधि एवं न्याय मंत्रालय • भारत का राजपत्र (Gazette of India)'
-    };
-  }
-
-  // Solar & Green Energy
-  if (text.includes('solar') || text.includes('सौर') || text.includes('हाइड्रोजन') || text.includes('hydrogen') || text.includes('सूर्य घर') || text.includes('nghm') || text.includes('renewable') || text.includes('नवीकरणीय') || text.includes('clean energy')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: नवीन एवं नवीकरणीय ऊर्जा मंत्रालय (MNRE) • National Solar Mission'
-    };
-  }
-
-  // Environment & Biodiversity
-  if (text.includes('पर्यावरण') || text.includes('environment') || text.includes('वन') || text.includes('forest') || text.includes('बायोस्फीयर') || text.includes('निकोबार') || text.includes('nicobar') || text.includes('गलाथिया') || text.includes('tiger') || text.includes('चीता') || text.includes('climate')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: पर्यावरण, वन एवं जलवायु परिवर्तन मंत्रालय (MoEFCC)'
-    };
-  }
-
-  // Sports & Chess
-  if (text.includes('शतरंज') || text.includes('chess') || text.includes('खेल') || text.includes('sport') || text.includes('ओलंपिक') || text.includes('olympiad') || text.includes('गुकेश') || text.includes('kirti') || text.includes('कीर्ति') || text.includes('cricket') || text.includes('पदक')) {
-    if (text.includes('शतरंज') || text.includes('chess')) {
-      return {
-        imageUrl: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=1200&q=80',
-        imageCredit: 'स्रोत: FIDE • अखिल भारतीय शतरंज महासंघ (AICF)'
-      };
-    }
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: युवा कार्यक्रम एवं खेल मंत्रालय • SAI Media'
-    };
-  }
-
-  // Health & Medicine
-  if (text.includes('आयुष्मान') || text.includes('स्वास्थ्य') || text.includes('health') || text.includes('medical') || text.includes('अस्पताल') || text.includes('hospital') || text.includes('वरिष्ठ नागरिक') || text.includes('vaccine') || text.includes('nha')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: स्वास्थ्य एवं परिवार कल्याण मंत्रालय • National Health Authority'
-    };
-  }
-
-  // Infrastructure & Railways
-  if (text.includes('गलियारा') || text.includes('railway') || text.includes('रेल') || text.includes('corridor') || text.includes('dfc') || text.includes('मालगाड़ी') || text.includes('logistics') || text.includes('expressway') || text.includes('port')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: रेल मंत्रालय • DFCCIL Official Media'
-    };
-  }
-
-  // Technology, Semiconductor & 6G
-  if (text.includes('सेमीकंडक्टर') || text.includes('semiconductor') || text.includes('6g') || text.includes('chip') || text.includes('चिप') || text.includes('फैब्रिकेशन') || text.includes('telecom') || text.includes('ai') || text.includes('quantum')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: इलेक्ट्रॉनिक्स एवं आईटी मंत्रालय (MeitY) • India Semiconductor Mission'
-    };
-  }
-
-  // Education & Research
-  if (text.includes('शिक्षा') || text.includes('education') || text.includes('onos') || text.includes('रिसर्च') || text.includes('research') || text.includes('जर्नल') || text.includes('anrf') || text.includes('विश्वविद्यालय')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: शिक्षा मंत्रालय • INFLIBNET गांधीनगर'
-    };
-  }
-
-  // Women & Parliament
-  if (text.includes('महिला') || text.includes('women') || text.includes('नारी शक्ति') || text.includes('आरक्षण') || text.includes('संसद') || text.includes('parliament')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: विधि एवं न्याय मंत्रालय • भारत निर्वाचन आयोग (ECI)'
-    };
-  }
-
-  // International & MEA
-  if (text.includes('विदेश') || text.includes('diplomacy') || text.includes('summit') || text.includes('सम्मेलन') || text.includes('g20') || text.includes('brics') || text.includes('un') || text.includes('संयुक्त राष्ट्र') || text.includes('mea')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: विदेश मंत्रालय (MEA) • United Nations Media'
-    };
-  }
-
-  // Tribal & Rural
-  if (text.includes('जनजातीय') || text.includes('tribal') || text.includes('pvtg') || text.includes('जनमन') || text.includes('आदिवासी') || text.includes('किसान') || text.includes('कृषि')) {
-    return {
-      imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80',
-      imageCredit: 'स्रोत: जनजातीय कार्य मंत्रालय • कृषि मंत्रालय'
     };
   }
 

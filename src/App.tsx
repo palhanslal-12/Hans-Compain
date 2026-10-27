@@ -46,6 +46,7 @@ import { TimeTravelSimulatorView } from './components/TimeTravelSimulatorView';
 import { LiveGroupQuizStudio } from './components/LiveGroupQuizStudio';
 import { FormulaVaultView } from './components/FormulaVaultView';
 import { AuthLoginModal } from './components/AuthLoginModal';
+import { TermsAndPrivacyModal } from './components/TermsAndPrivacyModal';
 import { BoardExamSingleTestBox } from './components/BoardExamSingleTestBox';
 import { DailyGoalsView } from './components/DailyGoalsView';
 import { AdminPanel, getStoredFeatureToggles, ALL_CONTROLLABLE_FEATURES } from './components/AdminPanel';
@@ -135,6 +136,7 @@ export const App: React.FC = () => {
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isFormulaVaultOpen, setIsFormulaVaultOpen] = useState(false);
   const [isAuthLoginModalOpen, setIsAuthLoginModalOpen] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   // Home chat input bar state
   const [homeInput, setHomeInput] = useState('');
@@ -491,6 +493,19 @@ export const App: React.FC = () => {
                 <span>पब्लिक एआई नियम व गाइडलाइन्स</span>
               </div>
               <span className="text-[8px] bg-amber-500/20 px-1.5 py-0.2 rounded font-black">RULES</span>
+            </button>
+
+            {/* Terms and Conditions & Privacy Policy Direct Link */}
+            <button
+              onClick={() => { setIsTermsModalOpen(true); setSidebarOpen(false); }}
+              className="w-full py-1.5 px-3 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/30 text-cyan-300 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
+              title="ऐप के नियम, शर्तें और गोपनीयता नीति पढ़ें"
+            >
+              <div className="flex items-center gap-1.5">
+                <span>📜</span>
+                <span>नियम, शर्तें व गोपनीयता नीति</span>
+              </div>
+              <span className="text-[8px] bg-cyan-500/20 px-1.5 py-0.2 rounded font-black">TERMS</span>
             </button>
 
             {/* Direct 1-Click Top Owner Admin Console Button */}
@@ -1202,6 +1217,10 @@ export const App: React.FC = () => {
       <AuthLoginModal
         isOpen={isAuthLoginModalOpen}
         onClose={() => setIsAuthLoginModalOpen(false)}
+      />
+      <TermsAndPrivacyModal
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
       />
 
       {/* Public AI Rules & Guidelines Modal */}
