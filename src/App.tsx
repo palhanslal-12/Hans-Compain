@@ -78,6 +78,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { PWAInstallButton, getDirectDownloadUrl } from './components/PWAInstallButton';
 import { triggerGlobalAppInstall } from './hooks/usePWAInstall';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { AppProblemReporterModal } from './components/AppProblemReporterModal';
 import { auth, signInWithGoogle, logoutUser, getEffectiveUser, subscribeAuthChanges } from './firebase';
 import { User as FirebaseUser } from 'firebase/auth';
 import { trackVisitorAction } from './utils/userTracker';
@@ -95,6 +96,7 @@ const viewFeatureMap: Record<string, string> = {
   'group-quiz': 'लाइव ग्रुप क्विज़ बैटल (Live Quiz Battle)',
   'battle': 'लाइव ग्रुप क्विज़ बैटल (Live Quiz Battle)',
   'science-lab': 'साइंस फॉर्मूला वर्चुअल लैब (Science Lab)',
+  'periodic-table': '118 तत्व आधुनिक आवर्त सारणी (Periodic Table)',
   'mnemonics': 'AI निमोनिक्स ट्रिक जनरेटर (Mnemonics)',
   'daily-goals': 'डेली स्टडी गोल्स (Daily Goals)',
   'ai-chat': 'AI डाउट सॉल्वर चैट (Doubt Solver)',
@@ -137,6 +139,7 @@ export const App: React.FC = () => {
   const [isFormulaVaultOpen, setIsFormulaVaultOpen] = useState(false);
   const [isAuthLoginModalOpen, setIsAuthLoginModalOpen] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isProblemModalOpen, setIsProblemModalOpen] = useState(false);
 
   // Home chat input bar state
   const [homeInput, setHomeInput] = useState('');
@@ -313,7 +316,55 @@ export const App: React.FC = () => {
     showToast(next ? '✨ "ओके हंस" वॉयस असिस्टेंट सक्रिय (ON) हो गया है!' : '"ओके हंस" वॉयस मोड ऑफ़ (OFF) किया गया।');
   };
 
+  const AUTHORIZED_ADMIN_EMAILS = [
+    'support@hanscompain.in',
+    'hanscompain@gmail.com',
+    'hansrajpal310@gmail.com',
+    'hanslalpal2005@gmail.com',
+    'support.hans.compain@gmail.com',
+    'palhanslal4@gmail.com'
+  ];
+  const userEmail = currentUser?.email?.toLowerCase()?.trim();
+  const isOwnerAdmin = !!(userEmail && AUTHORIZED_ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail)) || sessionStorage.getItem('hans_admin_authorized') === 'true';
+
+  // Helper to ensure features are strictly protected behind login
+  const checkAuthAndExecute = (action: () => void, featureName?: string) => {
+    const isRegistered = !!(currentUser && !currentUser.isAnonymous && (currentUser.email || currentUser.displayName));
+    if (isRegistered) {
+      action();
+      return;
+    }
+    setIsAuthLoginModalOpen(true);
+    showToast(`🔒 ${featureName || 'यह फीचर'} इस्तेमाल करने के लिए कृपया पहले लॉगिन या रजिस्ट्रेशन करें।`);
+  };
+
   const navigateTo = (viewId: string) => {
+    // Check login gating: unauthenticated users may ONLY access 'home', and 'ai-chat' up to 2 times
+    const isRegistered = !!(currentUser && !currentUser.isAnonymous && (currentUser.email || currentUser.displayName));
+    
+    if (!isRegistered) {
+      if (viewId === 'home') {
+        setActiveView('home');
+        setSidebarOpen(false);
+        return;
+      }
+      if (viewId === 'ai-chat' || viewId === 'chat' || viewId === 'doubt') {
+        const trialCount = parseInt(localStorage.getItem('hans_trial_chat_count') || '0', 10);
+        if (trialCount >= 2) {
+          setIsAuthLoginModalOpen(true);
+          showToast('🔒 बिना लॉगिन केवल 2 बार चैट की अनुमति है। कृपया सभी फीचर्स के लिए लॉगिन करें।');
+          return;
+        }
+        setActiveView(viewId);
+        setSidebarOpen(false);
+        return;
+      }
+      // Any other feature is blocked without login
+      setIsAuthLoginModalOpen(true);
+      showToast('🔒 बिना लॉगिन केवल होम और 2 चैट देख सकते हैं। कृपया सभी फीचर्स के लिए लॉगिन करें।');
+      return;
+    }
+
     setActiveView(viewId);
     setSidebarOpen(false);
     if (viewId !== 'ca' && viewId !== 'current-affairs') {
@@ -525,6 +576,26 @@ export const App: React.FC = () => {
                 ADMIN
               </span>
             </button>
+
+            {/* Owner-Only Email Bug & Problem Alert (Only shown to owner/admin) */}
+            {isOwnerAdmin && (
+              <button
+                onClick={() => {
+                  setIsProblemModalOpen(true);
+                  setSidebarOpen(false);
+                }}
+                className="w-full py-1.5 px-3 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/50 text-rose-300 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-all shadow-sm"
+                title="ओनर एडमिन: ऐप लैग, बग व ईमेल अलर्ट्स भेजें"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>🚨</span>
+                  <span>ईमेल अलर्ट व बग रिपोर्टर</span>
+                </div>
+                <span className="text-[8px] bg-rose-500/30 text-rose-200 px-1.5 py-0.2 rounded font-black">
+                  OWNER ONLY
+                </span>
+              </button>
+            )}
 
             {/* Interactive Sidebar Search Input */}
             <div className="flex items-center gap-2 p-1.5 bg-[#03060E] border border-slate-800 rounded-xl text-xs text-slate-400">
@@ -759,7 +830,7 @@ export const App: React.FC = () => {
         <main className="flex-1 w-full flex flex-col h-full overflow-hidden bg-[#03060E] relative">
           <div className={`flex-1 w-full ${
             activeView === 'home'
-              ? 'overflow-y-auto flex flex-col justify-between p-2 sm:p-3.5 lg:p-5'
+              ? 'overflow-y-auto flex flex-col justify-center items-center p-2.5 sm:p-4 min-h-full'
               : (activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
                 ? 'overflow-hidden p-0 flex flex-col h-full'
                 : (activeView === 'admin')
@@ -769,15 +840,17 @@ export const App: React.FC = () => {
                     : 'overflow-y-auto px-3 py-3 sm:px-6 sm:py-6'
           } scrollbar-thin`}>
             
-            {/* --- HOME VIEW (DASHBOARD - RESPONSIVE FOR MOBILE, TABLET, LAPTOP & PC) --- */}
+            {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
             {activeView === 'home' && (
-              <div className="max-w-2xl lg:max-w-4xl mx-auto w-full my-auto flex flex-col justify-between items-center text-center space-y-2 sm:space-y-3 animate-fade-in">
+              <div className="max-w-2xl lg:max-w-3xl mx-auto w-full flex flex-col justify-center items-center text-center space-y-2.5 sm:space-y-3.5 my-auto py-1 sm:py-2 animate-fade-in">
                 
-                {/* Center Official 3D Mascot Logo */}
-                <HansCompainLogo variant="center" />
+                {/* Center Official 3D Mascot Logo & Tagline */}
+                <div className="pt-0.5 sm:pt-1">
+                  <HansCompainLogo variant="center" />
+                </div>
 
                 {/* Main Headline */}
-                <h1 className="text-xs sm:text-xs md:text-sm font-extrabold tracking-tight text-slate-200 leading-snug flex items-center justify-center gap-1.5 bg-[#091122]/80 border border-slate-800/80 px-3 py-1 rounded-full shadow-sm">
+                <h1 className="text-xs sm:text-xs md:text-sm font-extrabold tracking-tight text-slate-200 leading-snug flex items-center justify-center gap-1.5 bg-[#091122]/90 border border-slate-800/80 px-3 py-1 rounded-full shadow-sm">
                   <span className="text-cyan-400 font-black tracking-wider">HANS COMPAIN</span>
                   <span className="text-slate-500">•</span>
                   <span className="text-slate-300">How can I help with Shorthand &amp; Exams today?</span>
@@ -801,7 +874,7 @@ export const App: React.FC = () => {
 
                 {/* Gold Pill Capsule: FORMULA VAULT & POMODORO TIMER */}
                 <div 
-                  onClick={() => setIsFormulaVaultOpen(true)}
+                  onClick={() => checkAuthAndExecute(() => setIsFormulaVaultOpen(true), 'पॉकेट फॉर्मूला व टाइमर')}
                   className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-amber-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
                 >
                   <div className="flex items-center gap-2 text-left">
@@ -869,8 +942,8 @@ export const App: React.FC = () => {
                       🔬
                     </div>
                     <div className="min-w-0">
-                      <div className="font-bold text-cyan-400 text-[11px] sm:text-xs truncate">साइंस लैब</div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">सर्किट, लेंस व पीरियोडिक</div>
+                      <div className="font-bold text-cyan-400 text-[11px] sm:text-xs truncate">साइंस लैब (52+ लैब्स)</div>
+                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">सर्किट, लेंस व 118 आवर्त सारणी</div>
                     </div>
                   </div>
 
@@ -890,7 +963,7 @@ export const App: React.FC = () => {
 
                   {/* Row 3, Col 2: प्रतियोगी परीक्षा */}
                   <div 
-                    onClick={() => setIsCompetitiveHubOpen(true)}
+                    onClick={() => checkAuthAndExecute(() => setIsCompetitiveHubOpen(true), 'प्रतियोगी परीक्षा हब')}
                     className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-emerald-900/60 hover:border-emerald-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
                   >
                     <div className="w-8 h-8 rounded-lg bg-emerald-900/40 border border-emerald-500/40 flex items-center justify-center shrink-0 text-base">
@@ -942,7 +1015,7 @@ export const App: React.FC = () => {
                   
                   {/* Syllabus */}
                   <div 
-                    onClick={() => setIsAllExamsSyllabusOpen(true)}
+                    onClick={() => checkAuthAndExecute(() => setIsAllExamsSyllabusOpen(true), 'सिलेबस केंद्र')}
                     className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-indigo-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
                   >
                     <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400 text-sm">
@@ -953,7 +1026,7 @@ export const App: React.FC = () => {
 
                   {/* Apps */}
                   <div 
-                    onClick={() => setIsAppsLauncherOpen(true)}
+                    onClick={() => checkAuthAndExecute(() => setIsAppsLauncherOpen(true), 'Apps लॉन्चर')}
                     className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-cyan-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
                   >
                     <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-sm">
@@ -1252,6 +1325,13 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Dedicated App Problem, Lag, Bug & Layout Informer Modal */}
+      <AppProblemReporterModal
+        isOpen={isProblemModalOpen}
+        onClose={() => setIsProblemModalOpen(false)}
+        activeViewName={viewFeatureMap[activeView] || activeView}
+      />
 
       {/* Offline Status Connectivity Banner */}
       <OfflineIndicator />

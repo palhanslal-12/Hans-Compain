@@ -2405,6 +2405,517 @@ export const ScienceLabApparatusVisualizer: React.FC<VisualizerProps> = ({
     );
   }
 
+  // =========================================================================
+  // 43. RUTHERFORD GOLD FOIL ALPHA SCATTERING (PHYSICS #43)
+  // =========================================================================
+  if (labId === 'rutherford-scattering') {
+    const foilThick = p1;
+    const alphaEnergy = p2;
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Radioactive Alpha Source Box */}
+        <g transform="translate(30, 70)">
+          <rect x="0" y="0" width="55" height="70" rx="6" fill="#1E293B" stroke="#F59E0B" strokeWidth="2" />
+          <circle cx="27" cy="35" r="10" fill="#DC2626" />
+          <text x="27" y="38" fill="#FFFFFF" fontSize="8" fontWeight="black" textAnchor="middle">α Ra</text>
+          <text x="27" y="60" fill="#FDE047" fontSize="7" textAnchor="middle">{alphaEnergy} MeV</text>
+        </g>
+
+        {/* Lead Collimator Slits */}
+        <rect x="110" y="40" width="6" height="50" fill="#64748B" />
+        <rect x="110" y="120" width="6" height="50" fill="#64748B" />
+
+        {/* Gold Foil Layer */}
+        <g transform="translate(240, 25)">
+          <rect x="0" y="0" width={Math.min(18, Math.max(4, foilThick / 30))} height="160" fill="#EAB308" stroke="#CA8A04" strokeWidth="1.5" rx="2" />
+          <text x="0" y="-8" fill="#FACC15" fontSize="9" fontWeight="bold" textAnchor="middle">Au स्वर्ण पत्र ({foilThick} nm)</text>
+          {/* Gold Nuclei in Foil */}
+          <circle cx="5" cy="40" r="5" fill="#EF4444" />
+          <circle cx="5" cy="80" r="5" fill="#EF4444" />
+          <circle cx="5" cy="120" r="5" fill="#EF4444" />
+        </g>
+
+        {/* Alpha Tracks: Straight, Deflected & Bounced */}
+        {/* Track 1: Straight through */}
+        <path d="M 85 100 L 240 100 L 440 100" fill="none" stroke="#22D3EE" strokeWidth="2" strokeDasharray="4 2" />
+        {/* Track 2: Slight Deflection */}
+        <path d="M 85 92 L 240 92 L 420 50" fill="none" stroke="#38BDF8" strokeWidth="2" />
+        {/* Track 3: Large Deflection (>90°) */}
+        <path d="M 85 110 L 240 110 L 150 170" fill="none" stroke="#F43F5E" strokeWidth="2.5" />
+        {/* Track 4: Backward Rebound (1 in 8000) */}
+        <path d="M 85 105 L 240 105 L 85 105" fill="none" stroke="#EF4444" strokeWidth="2" strokeDasharray="3 3" />
+
+        {/* Circular Zinc Sulfide (ZnS) Scintillation Screen */}
+        <path d="M 440 30 A 180 180 0 0 1 440 180" fill="none" stroke="#10B981" strokeWidth="4" />
+        <text x="460" y="105" fill="#34D399" fontSize="9" fontWeight="bold">ZnS स्क्रीन (Scintillation)</text>
+
+        {/* Key Physics Legend */}
+        <g transform="translate(290, 155)">
+          <rect x="0" y="0" width="220" height="45" rx="8" fill="#091122" stroke="#38BDF8" strokeWidth="1" />
+          <text x="10" y="16" fill="#67E8F9" fontSize="9" fontWeight="bold">निष्कर्ष: परमाणु का केंद्र धनावेशित व सघन है।</text>
+          <text x="10" y="32" fill="#FDE047" fontSize="8">नाभिक त्रिज्या ≈ 10⁻¹⁵ m (फर्मी)</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 44. DNA DOUBLE HELIX & BASE PAIRING (BIOLOGY #44)
+  // =========================================================================
+  if (labId === 'dna-double-helix') {
+    const gc = p1;
+    const turns = p2;
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Animated DNA Backbone Strands */}
+        <g transform="translate(50, 20)">
+          {/* Sugar-Phosphate Strands */}
+          <path d="M 20 80 Q 70 20 120 80 T 220 80 T 320 80 T 420 80" fill="none" stroke="#06B6D4" strokeWidth="4" />
+          <path d="M 20 80 Q 70 140 120 80 T 220 80 T 320 80 T 420 80" fill="none" stroke="#8B5CF6" strokeWidth="4" />
+
+          {/* Base Pair Rungs */}
+          {[40, 70, 95, 120, 145, 170, 195, 220, 245, 270, 295, 320, 345, 370, 395].map((x, i) => {
+            const isGC = i % 2 === 0;
+            const col1 = isGC ? '#10B981' : '#F59E0B';
+            const col2 = isGC ? '#06B6D4' : '#EF4444';
+            const y1 = 80 + Math.sin((x / 50) * Math.PI) * 45;
+            const y2 = 80 - Math.sin((x / 50) * Math.PI) * 45;
+            return (
+              <g key={i}>
+                <line x1={x} y1={y1} x2={x} y2={y2} stroke={isGC ? '#10B981' : '#F59E0B'} strokeWidth="3" />
+                <circle cx={x} cy={y1} r="3" fill={col1} />
+                <circle cx={x} cy={y2} r="3" fill={col2} />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Legend / Info Card */}
+        <g transform="translate(70, 165)">
+          <rect x="0" y="0" width="400" height="45" rx="8" fill="#091122" stroke="#06B6D4" strokeWidth="1" />
+          <text x="15" y="18" fill="#38BDF8" fontSize="10" fontWeight="black">
+            वाटसन-क्रिक नियम: A = T (2 हाइड्रोजन बंध) • G ≡ C (3 हाइड्रोजन बंध)
+          </text>
+          <text x="15" y="34" fill="#34D399" fontSize="9">
+            GC सांद्रता: {gc}% | कुल चक्र: {turns} (पिच = 3.4 nm प्रति 10 bp) | Tm गलन ताप: {(69.3 + 0.41 * gc).toFixed(1)}°C
+          </text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 45. PHOTOSYNTHESIS & HILL REACTION (BIOLOGY #45)
+  // =========================================================================
+  if (labId === 'photosynthesis-hill') {
+    const lux = p1;
+    const co2 = p2;
+    const rate = Math.min(100, Math.round((lux / 3000) * (co2 / 700) * 100));
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Sun & Light Rays */}
+        <g transform="translate(60, 45)">
+          <circle cx="0" cy="0" r="22" fill="#F59E0B" className="animate-pulse" />
+          <text x="0" y="4" fill="#FFFFFF" fontSize="8" fontWeight="black" textAnchor="middle">सूर्य प्रकाश</text>
+          <line x1="25" y1="15" x2="80" y2="45" stroke="#FDE047" strokeWidth="2.5" strokeDasharray="4 2" />
+          <line x1="20" y1="25" x2="70" y2="60" stroke="#FDE047" strokeWidth="2" strokeDasharray="4 2" />
+        </g>
+
+        {/* Chloroplast / Green Leaf Model */}
+        <g transform="translate(140, 60)">
+          <path d="M 0 50 Q 80 -40 160 50 Q 80 140 0 50 Z" fill="#15803D" stroke="#22C55E" strokeWidth="3" />
+          {/* Leaf Veins */}
+          <line x1="20" y1="50" x2="140" y2="50" stroke="#166534" strokeWidth="2" />
+          <line x1="50" y1="50" x2="70" y2="25" stroke="#166534" strokeWidth="1.5" />
+          <line x1="90" y1="50" x2="110" y2="25" stroke="#166534" strokeWidth="1.5" />
+          <line x1="50" y1="50" x2="70" y2="75" stroke="#166534" strokeWidth="1.5" />
+          <line x1="90" y1="50" x2="110" y2="75" stroke="#166534" strokeWidth="1.5" />
+          <text x="80" y="54" fill="#FFFFFF" fontSize="10" fontWeight="black" textAnchor="middle">क्लोरोफिल (Mg²⁺)</text>
+        </g>
+
+        {/* Inflowing CO2 + H2O and Outflowing O2 + Glucose */}
+        <text x="140" y="40" fill="#94A3B8" fontSize="10" fontWeight="bold">⬇ 6CO₂ ({co2} ppm) + 6H₂O</text>
+        <g transform="translate(320, 80)">
+          <circle cx="20" cy="10" r="14" fill="#0284C7" className="animate-bounce" />
+          <text x="20" y="14" fill="#FFFFFF" fontSize="9" fontWeight="black" textAnchor="middle">O₂ ↑</text>
+          <text x="50" y="15" fill="#38BDF8" fontSize="10" fontWeight="bold">ऑक्सीजन विमुक्ति</text>
+          <text x="50" y="35" fill="#34D399" fontSize="10" fontWeight="bold">+ C₆H₁₂O₆ (ग्लूकोज)</text>
+        </g>
+
+        {/* Rate Gauge Card */}
+        <g transform="translate(120, 165)">
+          <rect x="0" y="0" width="350" height="45" rx="8" fill="#091122" stroke="#22C55E" strokeWidth="1" />
+          <text x="15" y="18" fill="#22C55E" fontSize="10" fontWeight="black">
+            प्रकाश संश्लेषण दर: {rate}% (तीव्रता: {lux} Lux, CO₂: {co2} ppm)
+          </text>
+          <text x="15" y="34" fill="#CBD5E1" fontSize="9">
+            हिल अभिक्रिया (प्रकाश अपघटन): 2H₂O → 4H⁺ + 4e⁻ + O₂↑ (थाइलाकॉइड झिल्ली)
+          </text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 46. SIMPLE PENDULUM OSCILLATIONS (PHYSICS #46)
+  // =========================================================================
+  if (labId === 'simple-pendulum') {
+    const len = p1;
+    const gVal = p2;
+    const tPeriod = 2 * Math.PI * Math.sqrt(len / gVal);
+    const bobX = 270 + Math.sin(0.4) * (len * 50);
+    const bobY = 30 + Math.cos(0.4) * (len * 50);
+
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Rigid Ceiling Clamp */}
+        <line x1="200" y1="30" x2="340" y2="30" stroke="#64748B" strokeWidth="6" strokeLinecap="round" />
+        <circle cx="270" cy="30" r="4" fill="#EF4444" />
+
+        {/* Oscillation Arc Guideline */}
+        <path d="M 190 145 Q 270 160 350 145" fill="none" stroke="#334155" strokeDasharray="4 4" strokeWidth="1.5" />
+
+        {/* Pendulum String & Bob */}
+        <line x1="270" y1="30" x2={bobX} y2={bobY} stroke="#38BDF8" strokeWidth="2.5" />
+        <circle cx={bobX} cy={bobY} r="16" fill="#F59E0B" stroke="#CA8A04" strokeWidth="2" />
+        <text x={bobX} y={bobY + 4} fill="#000000" fontSize="9" fontWeight="black" textAnchor="middle">m</text>
+
+        {/* Rest Equilibrium Guideline */}
+        <line x1="270" y1="30" x2="270" y2="30 + len * 50" stroke="#475569" strokeDasharray="2 2" strokeWidth="1" />
+
+        {/* Readout Panels */}
+        <g transform="translate(30, 60)">
+          <rect x="0" y="0" width="150" height="90" rx="8" fill="#091122" stroke="#38BDF8" strokeWidth="1.5" />
+          <text x="12" y="22" fill="#67E8F9" fontSize="10" fontWeight="bold">लंबाई L: {len} m</text>
+          <text x="12" y="44" fill="#38BDF8" fontSize="10" fontWeight="bold">गुरुत्व g: {gVal} m/s²</text>
+          <text x="12" y="66" fill="#FDE047" fontSize="11" fontWeight="black">आवर्तकाल T: {tPeriod.toFixed(2)} s</text>
+          <text x="12" y="82" fill="#34D399" fontSize="9">f = {(1 / tPeriod).toFixed(2)} Hz</text>
+        </g>
+
+        <g transform="translate(360, 60)">
+          <rect x="0" y="0" width="155" height="90" rx="8" fill="#091122" stroke="#10B981" strokeWidth="1.5" />
+          <text x="12" y="22" fill="#34D399" fontSize="10" fontWeight="black">सेकंड लोलक नियम:</text>
+          <text x="12" y="42" fill="#CBD5E1" fontSize="9">पृथ्वी पर T = 2.0s हेतु</text>
+          <text x="12" y="58" fill="#FDE047" fontSize="10" fontWeight="bold">आवश्यक लंबाई L ≈ 99.3 cm</text>
+          <text x="12" y="78" fill="#94A3B8" fontSize="8">T द्रव्यमान पर निर्भर नहीं है।</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 47. ARCHIMEDES BUOYANCY & FLOTATION (PHYSICS #47)
+  // =========================================================================
+  if (labId === 'archimedes-buoyancy') {
+    const volLiters = p1;
+    const density = p2;
+    const buoyantForce = density * (volLiters / 1000) * 9.8;
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Transparent Water Tank */}
+        <g transform="translate(100, 30)">
+          <rect x="0" y="0" width="160" height="150" fill="none" stroke="#38BDF8" strokeWidth="3" rx="4" />
+          {/* Water Fill */}
+          <rect x="2" y="40" width="156" height="108" fill="#0284C7" fillOpacity="0.4" />
+          <line x1="2" y1="40" x2="158" y2="40" stroke="#38BDF8" strokeWidth="2" strokeDasharray="6 3" />
+          <text x="80" y="135" fill="#E0F2FE" fontSize="9" fontWeight="bold" textAnchor="middle">
+            तरल घनत्व ρ = {density} kg/m³
+          </text>
+
+          {/* Submerged Floating Block */}
+          <rect x="45" y="25" width="70" height="60" fill="#F59E0B" stroke="#B45309" strokeWidth="2" rx="4" />
+          <text x="80" y="58" fill="#FFFFFF" fontSize="9" fontWeight="black" textAnchor="middle">वस्तु V={volLiters} L</text>
+
+          {/* Upward Buoyancy Vector Arrow */}
+          <line x1="80" y1="95" x2="80" y2="65" stroke="#10B981" strokeWidth="3" markerEnd="url(#arrow)" />
+          <text x="92" y="85" fill="#34D399" fontSize="8" fontWeight="black">F_b</text>
+        </g>
+
+        {/* Right Info Matrix */}
+        <g transform="translate(290, 40)">
+          <rect x="0" y="0" width="220" height="135" rx="10" fill="#091122" stroke="#10B981" strokeWidth="1.5" />
+          <text x="15" y="25" fill="#38BDF8" fontSize="10" fontWeight="bold">उत्प्लावन बल गणना (F_buoyant):</text>
+          <text x="15" y="52" fill="#FDE047" fontSize="18" fontWeight="black">{buoyantForce.toFixed(1)} N (न्यूटन)</text>
+          <text x="15" y="76" fill="#CBD5E1" fontSize="9">विस्थापित द्रव भार = उत्प्लावन बल</text>
+          <text x="15" y="96" fill="#34D399" fontSize="9" fontWeight="bold">प्लवन की शर्त: वस्तु घनत्व &lt; द्रव घनत्व</text>
+          <text x="15" y="118" fill="#94A3B8" fontSize="8">जहाज खोखले आकार से अधिक पानी विस्थापित करता है।</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 48. HUMAN EYE VISION DEFECT & LENS CORRECTION (PHYSICS #48)
+  // =========================================================================
+  if (labId === 'eye-optics-defect') {
+    const isMyopia = Math.round(p1) === 1;
+    const distCm = p2;
+    const power = isMyopia ? -(100 / distCm) : (100 / 25) - (100 / distCm);
+
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Human Eyeball Contour */}
+        <g transform="translate(300, 105)">
+          <circle cx="0" cy="0" r="65" fill="#040814" stroke="#64748B" strokeWidth="2.5" />
+          {/* Cornea Bulge */}
+          <path d="M -60 -25 A 35 35 0 0 0 -60 25" fill="#0284C7" fillOpacity="0.4" stroke="#38BDF8" strokeWidth="2" />
+          {/* Eye Lens (Crystalline) */}
+          <ellipse cx="-45" cy="0" rx="8" ry="24" fill="#38BDF8" fillOpacity="0.7" stroke="#0284C7" strokeWidth="1.5" />
+          {/* Retina Wall */}
+          <path d="M 50 -45 A 65 65 0 0 1 50 45" fill="none" stroke="#EF4444" strokeWidth="4" />
+          <text x="55" y="4" fill="#F87171" fontSize="8" fontWeight="bold">रेटिना</text>
+        </g>
+
+        {/* Corrective Lens in front of eye */}
+        <g transform="translate(180, 105)">
+          {isMyopia ? (
+            /* Concave Lens (Thinner middle) */
+            <path d="M -6 -35 Q 2 0 -6 35 L 6 35 Q -2 0 6 -35 Z" fill="#06B6D4" stroke="#22D3EE" strokeWidth="1.5" />
+          ) : (
+            /* Convex Lens (Thicker middle) */
+            <path d="M -8 -35 Q 4 0 -8 35 L 8 35 Q -4 0 8 -35 Z" fill="#F59E0B" stroke="#FDE047" strokeWidth="1.5" />
+          )}
+          <text x="0" y="52" fill={isMyopia ? '#67E8F9' : '#FDE047'} fontSize="8" fontWeight="bold" textAnchor="middle">
+            {isMyopia ? 'अवतल लेंस' : 'उत्तल लेंस'}
+          </text>
+        </g>
+
+        {/* Incoming Light Rays */}
+        <line x1="60" y1="85" x2="175" y2="95" stroke="#FDE047" strokeWidth="1.5" />
+        <line x1="60" y1="125" x2="175" y2="115" stroke="#FDE047" strokeWidth="1.5" />
+
+        {/* Converged Rays onto Retina */}
+        <line x1="255" y1="95" x2="350" y2="105" stroke="#10B981" strokeWidth="1.5" />
+        <line x1="255" y1="115" x2="350" y2="105" stroke="#10B981" strokeWidth="1.5" />
+
+        {/* Left Information Card */}
+        <g transform="translate(30, 30)">
+          <rect x="0" y="0" width="135" height="145" rx="8" fill="#091122" stroke={isMyopia ? '#06B6D4' : '#F59E0B'} strokeWidth="1" />
+          <text x="10" y="22" fill="#FFFFFF" fontSize="10" fontWeight="black">
+            {isMyopia ? 'निकट दृष्टि (Myopia)' : 'दूर दृष्टि (Hypermetropia)'}
+          </text>
+          <text x="10" y="44" fill="#38BDF8" fontSize="9">दोष दूरी: {distCm} cm</text>
+          <text x="10" y="68" fill="#FDE047" fontSize="12" fontWeight="black">लेंस क्षमता P:</text>
+          <text x="10" y="90" fill={isMyopia ? '#67E8F9' : '#FBBF24'} fontSize="16" fontWeight="black">
+            {power.toFixed(2)} D
+          </text>
+          <text x="10" y="112" fill="#CBD5E1" fontSize="8">
+            {isMyopia ? 'दूर की वस्तु धुंधली' : 'पास की वस्तु धुंधली'}
+          </text>
+          <text x="10" y="130" fill="#94A3B8" fontSize="7">P = 1/f(m) डाइऑप्टर</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 49. DOPPLER EFFECT ACOUSTICS (PHYSICS #49)
+  // =========================================================================
+  if (labId === 'doppler-acoustic') {
+    const speed = p1;
+    const f0 = p2;
+    const vs = (speed * 1000) / 3600;
+    const fApp = f0 * (340 / (340 - vs));
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Moving Ambulance / Sound Source */}
+        <g transform="translate(260, 90)">
+          {/* Vehicle Body */}
+          <rect x="-25" y="-15" width="50" height="25" rx="4" fill="#EF4444" stroke="#B91C1C" strokeWidth="1.5" />
+          <rect x="5" y="-12" width="16" height="12" fill="#E0F2FE" />
+          <circle cx="-14" cy="12" r="6" fill="#1E293B" />
+          <circle cx="14" cy="12" r="6" fill="#1E293B" />
+          {/* Siren Light */}
+          <circle cx="0" cy="-18" r="4" fill="#38BDF8" className="animate-ping" />
+          <text x="0" y="2" fill="#FFFFFF" fontSize="8" fontWeight="black" textAnchor="middle">v={speed} km/h ➡</text>
+        </g>
+
+        {/* Compressed Wavefronts in Front (Approaching Listener on Right) */}
+        <circle cx="280" cy="95" r="35" fill="none" stroke="#06B6D4" strokeWidth="2" />
+        <circle cx="295" cy="95" r="60" fill="none" stroke="#06B6D4" strokeWidth="2" />
+        <circle cx="310" cy="95" r="85" fill="none" stroke="#06B6D4" strokeWidth="2" />
+
+        {/* Expanded Wavefronts Behind (Receding Listener on Left) */}
+        <circle cx="230" cy="95" r="45" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 2" />
+        <circle cx="200" cy="95" r="80" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 2" />
+        <circle cx="160" cy="95" r="115" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 2" />
+
+        {/* Observers on Left and Right */}
+        <g transform="translate(480, 85)">
+          <circle cx="0" cy="0" r="12" fill="#10B981" />
+          <text x="0" y="3" fill="#FFFFFF" fontSize="8" fontWeight="bold" textAnchor="middle">श्रोता A</text>
+          <text x="0" y="24" fill="#34D399" fontSize="9" fontWeight="black" textAnchor="middle">उच्च स्वर (f’={fApp.toFixed(0)} Hz)</text>
+        </g>
+        <g transform="translate(60, 85)">
+          <circle cx="0" cy="0" r="12" fill="#64748B" />
+          <text x="0" y="3" fill="#FFFFFF" fontSize="8" fontWeight="bold" textAnchor="middle">श्रोता B</text>
+          <text x="0" y="24" fill="#FBBF24" fontSize="9" fontWeight="bold" textAnchor="middle">निम्न स्वर (मंद्र आवाज)</text>
+        </g>
+
+        {/* Bottom Banner */}
+        <g transform="translate(100, 165)">
+          <rect x="0" y="0" width="340" height="45" rx="8" fill="#091122" stroke="#38BDF8" strokeWidth="1" />
+          <text x="15" y="18" fill="#38BDF8" fontSize="10" fontWeight="black">
+            डॉप्लर समीकरण: f’ = f₀ × [v / (v ∓ v_s)] (v_sound = 340 m/s)
+          </text>
+          <text x="15" y="34" fill="#CBD5E1" fontSize="9">
+            स्रोत गति: {speed} km/h ({(vs).toFixed(1)} m/s) | मूल आवृत्ति: {f0} Hz
+          </text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 50. RADIOACTIVE DECAY & HALF-LIFE (CHEMISTRY #50)
+  // =========================================================================
+  if (labId === 'radioactive-half-life') {
+    const elapsedYrs = p1;
+    const isoCode = Math.round(p2);
+    const halfLife = isoCode === 1 ? 5730 : isoCode === 2 ? 4468000000 : 8 / 365.25;
+    const remPercent = Math.pow(0.5, elapsedYrs / halfLife) * 100;
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Exponential Decay Graph Frame */}
+        <g transform="translate(60, 30)">
+          <line x1="0" y1="130" x2="220" y2="130" stroke="#64748B" strokeWidth="2" />
+          <line x1="0" y1="0" x2="0" y2="130" stroke="#64748B" strokeWidth="2" />
+          {/* Axis Labels */}
+          <text x="220" y="145" fill="#94A3B8" fontSize="8">समय (t)</text>
+          <text x="-5" y="-5" fill="#94A3B8" fontSize="8">N(t) %</text>
+
+          {/* Exponential Curve */}
+          <path d="M 0 10 Q 50 70 110 100 T 210 125" fill="none" stroke="#EF4444" strokeWidth="3" />
+
+          {/* Half-life markers */}
+          <line x1="60" y1="10" x2="60" y2="130" stroke="#F59E0B" strokeDasharray="3 3" />
+          <circle cx="60" cy="70" r="4" fill="#F59E0B" />
+          <text x="60" y="142" fill="#FDE047" fontSize="8" textAnchor="middle">1 T₁/₂ (50%)</text>
+
+          <line x1="120" y1="10" x2="120" y2="130" stroke="#10B981" strokeDasharray="3 3" />
+          <circle cx="120" cy="100" r="4" fill="#10B981" />
+          <text x="120" y="142" fill="#34D399" fontSize="8" textAnchor="middle">2 T₁/₂ (25%)</text>
+        </g>
+
+        {/* Right Nuclei Lattice Visualization */}
+        <g transform="translate(310, 35)">
+          <rect x="0" y="0" width="200" height="150" rx="10" fill="#091122" stroke="#EF4444" strokeWidth="1.5" />
+          <text x="15" y="24" fill="#F87171" fontSize="10" fontWeight="black">
+            ☢️ {isoCode === 1 ? 'C-14 कार्बन डेटिंग' : isoCode === 2 ? 'U-238 चट्टान डेटिंग' : 'I-131 मेडिकल'}
+          </text>
+          <text x="15" y="52" fill="#FDE047" fontSize="18" fontWeight="black">
+            {remPercent.toFixed(1)}% शेष
+          </text>
+          <text x="15" y="75" fill="#38BDF8" fontSize="9">बीता समय: {elapsedYrs} वर्ष</text>
+          <text x="15" y="95" fill="#34D399" fontSize="9">अर्द्ध-आयु T₁/₂: {halfLife} वर्ष</text>
+          <text x="15" y="118" fill="#CBD5E1" fontSize="8">क्षय स्थिरांक λ = 0.693 / T₁/₂</text>
+          <text x="15" y="136" fill="#94A3B8" fontSize="7">जीवाश्म आयु निर्धारण की प्रमाणिक विधि</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 51. ACID RAIN & SOIL NEUTRALIZATION (CHEMISTRY #51)
+  // =========================================================================
+  if (labId === 'acid-rain-soil') {
+    const rainPh = p1;
+    const limeKg = p2;
+    const finalPh = Math.min(7.2, rainPh + (limeKg / 150));
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Acid Rain Clouds & Droplets */}
+        <g transform="translate(100, 30)">
+          <ellipse cx="60" cy="20" rx="55" ry="22" fill="#475569" stroke="#64748B" strokeWidth="2" />
+          <ellipse cx="100" cy="25" rx="40" ry="18" fill="#334155" />
+          <text x="80" y="24" fill="#FCA5A5" fontSize="9" fontWeight="bold">अम्लीय बादल (SO₂ + NO₂)</text>
+
+          {/* Falling Acid Drops */}
+          {[20, 50, 80, 110, 140].map((x, i) => (
+            <line key={i} x1={x} y1="48" x2={x - 10} y2="80" stroke="#F87171" strokeWidth="2" strokeDasharray="4 2" />
+          ))}
+          <text x="80" y="75" fill="#EF4444" fontSize="9" fontWeight="black">वर्षा pH = {rainPh}</text>
+        </g>
+
+        {/* Agricultural Soil Layer with CaCO3 Treatment */}
+        <g transform="translate(50, 125)">
+          <rect x="0" y="0" width="250" height="60" fill="#78350F" stroke="#92400E" strokeWidth="2" rx="4" />
+          {/* Lime White Specks */}
+          <circle cx="40" cy="20" r="4" fill="#FFFFFF" />
+          <circle cx="90" cy="30" r="4" fill="#FFFFFF" />
+          <circle cx="160" cy="25" r="4" fill="#FFFFFF" />
+          <circle cx="210" cy="35" r="4" fill="#FFFFFF" />
+          <text x="125" y="25" fill="#FEF08A" fontSize="9" fontWeight="bold" textAnchor="middle">
+            मृदा + CaCO₃ चूना उपचार ({limeKg} kg/ha)
+          </text>
+          <text x="125" y="45" fill="#FFFFFF" fontSize="8" textAnchor="middle">
+            CaCO₃ + 2H⁺ → Ca²⁺ + CO₂↑ + H₂O
+          </text>
+        </g>
+
+        {/* Right pH Meter Readout */}
+        <g transform="translate(320, 40)">
+          <rect x="0" y="0" width="190" height="145" rx="10" fill="#091122" stroke={finalPh >= 6.0 ? '#10B981' : '#EF4444'} strokeWidth="1.5" />
+          <text x="15" y="25" fill="#38BDF8" fontSize="10" fontWeight="bold">मृदा का अंतिम pH मान:</text>
+          <text x="15" y="55" fill={finalPh >= 6.0 ? '#34D399' : '#F87171'} fontSize="20" fontWeight="black">
+            pH {finalPh.toFixed(2)}
+          </text>
+          <text x="15" y="80" fill={finalPh >= 6.0 ? '#10B981' : '#EF4444'} fontSize="9" fontWeight="bold">
+            {finalPh >= 6.0 && finalPh <= 7.2 ? '✅ उत्कृष्ट कृषि योग्य' : '⚠️ अम्लीय संक्षारक अवस्था'}
+          </text>
+          <text x="15" y="105" fill="#CBD5E1" fontSize="9">अम्लीय वर्षा सीमा: pH &lt; 5.6</text>
+          <text x="15" y="125" fill="#94A3B8" fontSize="8">ताजमहल 'स्टोन कैंसर': SO₂ के कारण</text>
+        </g>
+      </svg>
+    );
+  }
+
+  // =========================================================================
+  // 52. KEPLER'S PLANETARY LAWS (GEOGRAPHY & SPACE #52)
+  // =========================================================================
+  if (labId === 'kepler-planetary') {
+    const rAu = p1;
+    const ecc = p2;
+    const tYears = Math.sqrt(Math.pow(rAu, 3));
+    const vOrbital = 29.8 / Math.sqrt(rAu);
+    return (
+      <svg viewBox="0 0 540 220" className="w-full h-56 select-none">
+        {/* Solar System Elliptical Orbit */}
+        <g transform="translate(180, 105)">
+          {/* Elliptical Path */}
+          <ellipse cx="20" cy="0" rx={Math.min(140, Math.max(50, rAu * 40))} ry={Math.min(95, Math.max(35, rAu * 28))} fill="none" stroke="#38BDF8" strokeWidth="2" strokeDasharray="5 3" />
+
+          {/* Sun at Primary Focus */}
+          <circle cx="-15" cy="0" r="16" fill="#F59E0B" className="animate-pulse" />
+          <text x="-15" y="4" fill="#FFFFFF" fontSize="8" fontWeight="black" textAnchor="middle">सूर्य (Sun)</text>
+
+          {/* Swept Area Sector (Kepler 2nd Law) */}
+          <path d="M -15 0 L 80 -40 Q 110 0 80 40 Z" fill="#38BDF8" fillOpacity="0.15" />
+
+          {/* Orbiting Planet & Velocity Vector */}
+          <circle cx="80" cy="-40" r="8" fill="#10B981" />
+          <line x1="80" y1="-40" x2="110" y2="-55" stroke="#FDE047" strokeWidth="2" markerEnd="url(#arrow)" />
+          <text x="80" y="-52" fill="#E2E8F0" fontSize="8" fontWeight="bold">ग्रह (R={rAu} AU)</text>
+        </g>
+
+        {/* Orbital Mechanics Readout Card */}
+        <g transform="translate(340, 35)">
+          <rect x="0" y="0" width="180" height="150" rx="10" fill="#091122" stroke="#38BDF8" strokeWidth="1.5" />
+          <text x="12" y="24" fill="#67E8F9" fontSize="10" fontWeight="black">केप्लर का तृतीय नियम (T² ∝ R³):</text>
+          <text x="12" y="52" fill="#FDE047" fontSize="16" fontWeight="black">
+            T = {tYears.toFixed(2)} वर्ष
+          </text>
+          <text x="12" y="74" fill="#34D399" fontSize="9" fontWeight="bold">
+            कक्षीय वेग: {vOrbital.toFixed(1)} km/s
+          </text>
+          <text x="12" y="96" fill="#CBD5E1" fontSize="9">सूर्य दूरी R = {rAu} AU (खगोलीय इकाई)</text>
+          <text x="12" y="118" fill="#94A3B8" fontSize="8">उपसौर (Perihelion) पर वेग अधिकतम</text>
+          <text x="12" y="136" fill="#94A3B8" fontSize="8">अपसौर (Aphelion) पर वेग न्यूनतम</text>
+        </g>
+      </svg>
+    );
+  }
+
   // Interactive Universal Digital Oscilloscope & Apparatus Diagram for any custom lab
   return (
     <svg viewBox="0 0 540 220" className="w-full h-56 select-none">

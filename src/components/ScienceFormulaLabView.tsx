@@ -26,6 +26,7 @@ import { recordStudyActivity } from '../firebase';
 import { ScienceLabApparatusVisualizer } from './ScienceLabApparatusVisualizer';
 import { SCIENCE_LAB_DETAILS } from '../data/scienceLabDetails';
 import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
+import { InteractivePeriodicTable } from './InteractivePeriodicTable';
 
 export interface ScienceLabConfig {
   id: string;
@@ -1692,11 +1693,394 @@ export const ALL_28_SCIENCE_LABS: ScienceLabConfig[] = [
       'मुख्य ग्रीनहाउस गैसें जलवाष्प (H₂O), कार्बन डाइऑक्साइड (CO₂), मीथेन (CH₄) और नाइट्रस ऑक्साइड (N₂O) हैं।',
       'भारत ने वर्ष 2070 तक "नेट-ज़ीरो" (Net-Zero Carbon Emission) का लक्ष्य निर्धारित किया है।'
     ]
+  },
+
+  // ===================== EXPANDED HIGH-YIELD LABS (LABS 43 TO 52) =====================
+  {
+    id: 'rutherford-scattering',
+    number: 43,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Atomic Physics)',
+    title: 'रदरफोर्ड स्वर्ण पत्र अल्फा प्रकीर्णन एवं परमाणु नाभिकीय खोज',
+    subtitle: 'Rutherford Alpha Scattering Experiment & Nucleus Discovery Simulator',
+    icon: '🎯',
+    badge: 'ATOMIC NUCLEUS',
+    formula: 'N(θ) ∝ 1 / sin⁴(θ/2)   |   Impact Parameter b = k Ze² cot(θ/2) / E',
+    param1Label: 'स्वर्ण पत्र की मोटाई (Foil Thickness)',
+    param1Unit: 'nm',
+    param1Min: 50,
+    param1Max: 600,
+    param1Default: 200,
+    param2Label: 'अल्फा कण गतिज ऊर्जा (Alpha Kinetic Energy)',
+    param2Unit: 'MeV',
+    param2Min: 2,
+    param2Max: 10,
+    param2Default: 5.5,
+    computeResult: (thick, energy) => {
+      const largeAngleDeflections = Math.max(1, Math.round((thick / 200) * (5.5 / energy) * 8));
+      return {
+        primaryLabel: 'वृहद कोण (>90°) प्रकीर्णन प्रायिकता',
+        primaryValue: `1 इन ${Math.round(20000 / largeAngleDeflections)} अल्फा कण`,
+        secondaryLabel: 'नाभिक का अनुमानित आकार (r₀)',
+        secondaryValue: '≈ 10⁻¹⁵ m (1 फर्मी)',
+        statusText: 'अधिकांश अल्फा कण सीधे निकल जाते हैं, जिससे सिद्ध हुआ कि परमाणु का अधिकांश भाग खोखला है और केंद्र में धनावेशित नाभिक है।'
+      };
+    },
+    examFacts: [
+      'अर्नेस्ट रदरफोर्ड ने 1911 में अल्फा कण प्रकीर्णन प्रयोग द्वारा "परमाणु नाभिक" (Nucleus) की खोज की।',
+      'परमाणु की त्रिज्या लगभग 10⁻¹⁰ मीटर (1 Ångström) और नाभिक की त्रिज्या लगभग 10⁻¹⁵ मीटर (1 Fermi) होती है।'
+    ]
+  },
+  {
+    id: 'dna-double-helix',
+    number: 44,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Molecular Genetics)',
+    title: 'डीएनए द्विकुंडली संरचना एवं वाटसन-क्रिक बेस पेयरिंग लैब',
+    subtitle: 'DNA Double Helix, Chargaff Rule (A+G = T+C) & Hydrogen Bond Matrix',
+    icon: '🧬',
+    badge: 'GENETICS & DNA',
+    formula: 'Chargaff Rule: A = T (2 H-Bonds) | G ≡ C (3 H-Bonds) | Pitch = 3.4 nm',
+    param1Label: 'गुआनिन-साइटोसिन प्रतिशत (% GC Content)',
+    param1Unit: '%',
+    param1Min: 20,
+    param1Max: 80,
+    param1Default: 50,
+    param2Label: 'डीएनए हेलिक्स चक्र (Helical Turns)',
+    param2Unit: 'turns',
+    param2Min: 1,
+    param2Max: 8,
+    param2Default: 3,
+    computeResult: (gc, turns) => {
+      const at = 100 - gc;
+      const bpPerTurn = 10;
+      const totalBp = turns * bpPerTurn;
+      const tm = 69.3 + 0.41 * gc;
+      return {
+        primaryLabel: `डीएनए गलन तापमान (Melting Temp Tm)`,
+        primaryValue: `${tm.toFixed(1)} °C (${gc}% GC सांद्रता पर)`,
+        secondaryLabel: 'कुल क्षारक युग्म (Base Pairs) व लंबाई',
+        secondaryValue: `${totalBp} bp | ${(turns * 3.4).toFixed(1)} nm लंबाई`,
+        statusText: gc > 60
+          ? 'उच्च GC मात्रा के कारण 3 हाइड्रोजन बंधों से डीएनए अत्यंत स्थिर एवं उच्च तापमान सहनशील है।'
+          : 'संतुलित क्षारक युग्मन: A=T में दो तथा G≡C में तीन हाइड्रोजन बंध पाए जाते हैं।'
+      };
+    },
+    examFacts: [
+      'जेम्स वाटसन और फ्रांसिस क्रिक ने 1953 में डीएनए के द्विकुंडली मॉडल का प्रतिपादन किया जिसके लिए उन्हें 1962 में नोबेल पुरस्कार मिला।',
+      'चारगाफ के नियमानुसार, डीएनए में प्यूरीन (A + G) की मात्रा पिरीमिडीन (T + C) के बराबर होती है।'
+    ]
+  },
+  {
+    id: 'photosynthesis-hill',
+    number: 45,
+    category: 'biology',
+    categoryLabel: 'जीव विज्ञान (Plant Physiology)',
+    title: 'प्रकाश संश्लेषण दर, प्रकाश तीव्रता एवं CO₂ सांद्रता लैब',
+    subtitle: 'Photosynthesis Rate (6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂) & Hill Reaction',
+    icon: '🍃',
+    badge: 'PLANT PHYSIOLOGY',
+    formula: '6CO₂ + 6H₂O + hν → C₆H₁₂O₆ + 6O₂   |   Light & Dark Reactions',
+    param1Label: 'प्रकाश तीव्रता (Light Intensity)',
+    param1Unit: 'Lux',
+    param1Min: 500,
+    param1Max: 5000,
+    param1Default: 2500,
+    param2Label: 'कार्बन डाइऑक्साइड सांद्रता (CO₂ ppm)',
+    param2Unit: 'ppm',
+    param2Min: 200,
+    param2Max: 1000,
+    param2Default: 450,
+    computeResult: (lux, co2) => {
+      const lightFactor = Math.min(1.0, lux / 3000);
+      const co2Factor = Math.min(1.0, co2 / 700);
+      const rate = lightFactor * co2Factor * 100;
+      return {
+        primaryLabel: 'प्रकाश संश्लेषण दर (O₂ उत्पादन)',
+        primaryValue: `${rate.toFixed(1)}% इष्टतम क्षमता`,
+        secondaryLabel: 'सीमाकारी कारक (Blackman Limiting Factor)',
+        secondaryValue: lightFactor < co2Factor ? 'प्रकाश तीव्रता सीमाकारी है' : 'CO₂ सांद्रता सीमाकारी है',
+        statusText: 'प्रकाश अभिक्रिया क्लोरोप्लास्ट के थाइलाकॉइड (Thylakoid/Grana) में और अप्रकाशीय अभिक्रिया स्ट्रोमा (Stroma) में होती है।'
+      };
+    },
+    examFacts: [
+      'प्रकाश संश्लेषण में निर्मुक्त होने वाली ऑक्सीजन (O₂) गैस जल (H₂O) के प्रकाशीय अपघटन (Photolysis) से निकलती है, CO₂ से नहीं।',
+      'क्लोरोफिल के केंद्र में मैग्नीशियम (Mg) धातु का परमाणु उपस्थित होता है।'
+    ]
+  },
+  {
+    id: 'simple-pendulum',
+    number: 46,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Mechanics & Oscillations)',
+    title: 'सरल लोलक आवर्तकाल एवं गुरुत्वीय त्वरण (g) मापन लैब',
+    subtitle: 'Simple Pendulum Period T = 2π√(L/g) & Simple Harmonic Motion (SHM)',
+    icon: '⏱️',
+    badge: 'OSCILLATIONS & g',
+    formula: 'T = 2π √(L / g)   |   g = 4π² L / T²',
+    param1Label: 'लोलक की प्रभावकारी लंबाई (Length L)',
+    param1Unit: 'm',
+    param1Min: 0.25,
+    param1Max: 2.5,
+    param1Default: 1.0,
+    param2Label: 'गुरुत्वीय त्वरण (Gravity g)',
+    param2Unit: 'm/s²',
+    param2Min: 1.62,
+    param2Max: 24.8,
+    param2Default: 9.8,
+    computeResult: (len, gVal) => {
+      const t = 2 * Math.PI * Math.sqrt(len / gVal);
+      const f = 1 / t;
+      return {
+        primaryLabel: 'आवर्तकाल (Time Period T)',
+        primaryValue: `${t.toFixed(2)} सेकंड`,
+        secondaryLabel: 'दोलन आवृत्ति (Frequency f)',
+        secondaryValue: `${f.toFixed(2)} Hz (दोलन/सेकंड)`,
+        statusText: len === 1.0 && gVal === 9.8
+          ? '1 मीटर लंबे लोलक का पृथ्वी पर आवर्तकाल लगभग 2.01 सेकंड (सेकंड्स लोलक) होता है।'
+          : `लोलक का आवर्तकाल गोलक के द्रव्यमान पर निर्भर नहीं करता, केवल लंबाई L और गुरुत्व g पर निर्भर करता है।`
+      };
+    },
+    examFacts: [
+      'सेकंड लोलक (Seconds Pendulum) का आवर्तकाल ठीक 2 सेकंड होता है और इसकी लंबाई पृथ्वी पर लगभग 99.3 सेमी (1 मीटर) होती है।',
+      'गर्मियों में लोलक घड़ी की लंबाई बढ़ने के कारण आवर्तकाल बढ़ जाता है जिससे घड़ी सुस्त (Slow) हो जाती है।'
+    ]
+  },
+  {
+    id: 'archimedes-buoyancy',
+    number: 47,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Fluid Mechanics)',
+    title: 'आर्किमिडीज का उत्प्लावन बल एवं जहाज प्लवन सिद्धांत लैब',
+    subtitle: 'Archimedes Principle F_b = ρ · V · g & Law of Flotation Simulator',
+    icon: '🚢',
+    badge: 'FLUID MECHANICS',
+    formula: 'F_buoyant = ρ_fluid × V_displaced × g   |   Apparent Weight = W - F_b',
+    param1Label: 'विस्थापित द्रव का आयतन (Displaced Volume V)',
+    param1Unit: 'L',
+    param1Min: 2,
+    param1Max: 50,
+    param1Default: 10,
+    param2Label: 'तरल का घनत्व (Fluid Density ρ)',
+    param2Unit: 'kg/m³',
+    param2Min: 700,
+    param2Max: 1350,
+    param2Default: 1000,
+    computeResult: (volLiters, density) => {
+      const volM3 = volLiters / 1000;
+      const buoyantForce = density * volM3 * 9.8;
+      return {
+        primaryLabel: 'ऊर्ध्वमुखी उत्प्लावन बल (Buoyant Force)',
+        primaryValue: `${buoyantForce.toFixed(1)} N (न्यूटन)`,
+        secondaryLabel: 'तरल प्रकार एवं प्लवन क्षमता',
+        secondaryValue: density === 1000 ? 'शुद्ध जल (1000 kg/m³)' : density > 1000 ? 'समुद्री खारा जल (उच्च उत्प्लावन)' : 'अल्कोहल / तेल',
+        statusText: 'लोहे की भारी कील पानी में डूब जाती है जबकि लोहे का विशाल जहाज अपने खोखले आकार के कारण अधिक पानी हटाकर तैरता है।'
+      };
+    },
+    examFacts: [
+      'आर्किमिडीज के सिद्धांत के अनुसार, जब कोई वस्तु किसी तरल में पूर्णतः या आंशिक रूप से डुबोई जाती है, तो उसके भार में आई आभासी कमी विस्थापित तरल के भार के बराबर होती है।',
+      'दूध की शुद्धता मापने वाला लैक्टोमीटर और द्रवों का घनत्व मापने वाला हाइड्रोमीटर प्लवन के सिद्धांत पर कार्य करते हैं।'
+    ]
+  },
+  {
+    id: 'eye-optics-defect',
+    number: 48,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Human Eye Optics)',
+    title: 'मानव नेत्र दृष्टि दोष (निकट/दूर दृष्टि) एवं लेंस निवारण लैब',
+    subtitle: 'Myopia (Concave Lens) & Hypermetropia (Convex Lens) Vision Correction',
+    icon: '👁️',
+    badge: 'HUMAN EYE OPTICS',
+    formula: 'P = 1 / f (in meters)   |   Near Point D = 25 cm',
+    param1Label: 'दोष प्रकार (1=निकट दृष्टि Myopia, 2=दूर दृष्टि Hypermetropia)',
+    param1Unit: 'Defect',
+    param1Min: 1,
+    param1Max: 2,
+    param1Default: 1,
+    param2Label: 'दोषयुक्त दृष्टि बिंदु (Far / Near Distance)',
+    param2Unit: 'cm',
+    param2Min: 20,
+    param2Max: 150,
+    param2Default: 50,
+    computeResult: (typeCode, distCm) => {
+      const isMyopia = Math.round(typeCode) === 1;
+      const power = isMyopia ? -(100 / distCm) : (100 / 25) - (100 / distCm);
+      return {
+        primaryLabel: isMyopia ? 'निकट दृष्टि दोष (Myopia) निवारण' : 'दूर दृष्टि दोष (Hypermetropia) निवारण',
+        primaryValue: `${power.toFixed(2)} D (डाइऑप्टर)`,
+        secondaryLabel: 'आवश्यक सुधारात्मक लेंस',
+        secondaryValue: isMyopia ? 'अवतल लेंस (Concave Lens -ve)' : 'उत्तल लेंस (Convex Lens +ve)',
+        statusText: isMyopia
+          ? 'मायोपिया में प्रतिबिंब रेटिना से पहले बन जाता है; अवतल लेंस प्रकाश किरणों को अपसारित करके रेटिना पर केंद्रित करता है।'
+          : 'हाइपरमेट्रोपिया में प्रतिबिंब रेटिना के पीछे बनता है; उत्तल लेंस किरणों को अभिसरित करके रेटिना पर लाता है।'
+      };
+    },
+    examFacts: [
+      'स्वस्थ मानव नेत्र के लिए स्पष्ट दृष्टि की न्यूनतम दूरी (Least Distance of Distinct Vision) 25 सेमी और दूर बिंदु अनंत (∞) होता है।',
+      'जरा-दृष्टि दोष (Presbyopia) में द्विफोकसी लेंस (Bifocal Lens) का प्रयोग किया जाता है, जिसका ऊपरी भाग अवतल और निचला भाग उत्तल होता है।'
+    ]
+  },
+  {
+    id: 'doppler-acoustic',
+    number: 49,
+    category: 'physics',
+    categoryLabel: 'भौतिक विज्ञान (Wave & Acoustics)',
+    title: 'ध्वनि में डॉप्लर प्रभाव: गतिमान स्रोत एवं आभासी आवृत्ति लैब',
+    subtitle: 'Doppler Effect Acoustic Shift f’ = f₀ (v / (v ∓ v_s)) Simulator',
+    icon: '🚑',
+    badge: 'DOPPLER ACOUSTICS',
+    formula: 'f’ = f₀ × [v / (v ∓ v_s)]   |   Red Shift & Blue Shift in Astronomy',
+    param1Label: 'गतिमान स्रोत का वेग (Source Velocity)',
+    param1Unit: 'km/h',
+    param1Min: 0,
+    param1Max: 160,
+    param1Default: 72,
+    param2Label: 'मूल सायरन आवृत्ति (Original Frequency f₀)',
+    param2Unit: 'Hz',
+    param2Min: 200,
+    param2Max: 1200,
+    param2Default: 500,
+    computeResult: (speedKmh, f0) => {
+      const vs = (speedKmh * 1000) / 3600;
+      const vSound = 340;
+      const fApproaching = f0 * (vSound / (vSound - vs));
+      const fReceding = f0 * (vSound / (vSound + vs));
+      return {
+        primaryLabel: 'श्रोता की ओर आते समय आभासी आवृत्ति (Pitch)',
+        primaryValue: `${fApproaching.toFixed(1)} Hz (तीखी आवाज)`,
+        secondaryLabel: 'दूर जाते समय आभासी आवृत्ति',
+        secondaryValue: `${fReceding.toFixed(1)} Hz (मोटी आवाज)`,
+        statusText: 'स्रोत जब स्थिर श्रोता की ओर आता है तो तरंगदैर्घ्य दबने से आवृत्ति बढ़ती है, और दूर जाने पर घटती है।'
+      };
+    },
+    examFacts: [
+      'डॉप्लर प्रभाव की खोज क्रिश्चियन डॉप्लर ने 1842 में की। यह ध्वनि और प्रकाश दोनों प्रकार की तरंगों में लागू होता है।',
+      'खगोल विज्ञान में आकाशगंगाओं से आने वाले प्रकाश का "लाल विस्थापन" (Red Shift) दर्शाता है कि ब्रह्मांड का विस्तार हो रहा है।'
+    ]
+  },
+  {
+    id: 'radioactive-half-life',
+    number: 50,
+    category: 'chemistry',
+    categoryLabel: 'रसायन एवं परमाणु विज्ञान (Nuclear Decay)',
+    title: 'रेडियोधर्मी क्षय नियम, अर्द्ध-आयु (Half-Life) एवं कार्बन डेटिंग लैब',
+    subtitle: 'Radioactive Decay N(t) = N₀ · (1/2)^(t/T) & Carbon-14 Dating Matrix',
+    icon: '☢️',
+    badge: 'NUCLEAR HALF-LIFE',
+    formula: 'N(t) = N₀ × (1/2)^(t / T₁/₂)   |   λ = 0.693 / T₁/₂',
+    param1Label: 'बीता हुआ समय (Elapsed Time t)',
+    param1Unit: 'years',
+    param1Min: 100,
+    param1Max: 20000,
+    param1Default: 5730,
+    param2Label: 'रेडियोधर्मी समस्थानिक (1=C-14, 2=U-238, 3=I-131)',
+    param2Unit: 'Isotope',
+    param2Min: 1,
+    param2Max: 3,
+    param2Default: 1,
+    computeResult: (timeYrs, isoCode) => {
+      const code = Math.round(isoCode);
+      const halfLives: Record<number, { name: string; tHalf: number; unit: string }> = {
+        1: { name: 'कार्बन-14 (C-14 जीवाश्म डेटिंग)', tHalf: 5730, unit: 'वर्ष' },
+        2: { name: 'यूरेनियम-238 (U-238 पृथ्वी आयु)', tHalf: 4468000000, unit: 'वर्ष' },
+        3: { name: 'आयोडीन-131 (I-131 थायरॉयड उपचार)', tHalf: 8 / 365.25, unit: 'वर्ष (8 दिन)' }
+      };
+      const iso = halfLives[code] || halfLives[1];
+      const remainingPercent = Math.pow(0.5, timeYrs / iso.tHalf) * 100;
+      return {
+        primaryLabel: `${iso.name} की शेष मात्रा`,
+        primaryValue: `${remainingPercent.toFixed(2)}% अवशेष`,
+        secondaryLabel: `अर्द्ध-आयु (T₁/₂)`,
+        secondaryValue: `${iso.tHalf} ${iso.unit}`,
+        statusText: timeYrs === 5730 && code === 1
+          ? 'एक अर्द्ध-आयु (5730 वर्ष) बीतने पर C-14 की ठीक 50% मात्रा क्षय हो जाती है।'
+          : 'रेडियोधर्मी क्षय प्रथम कोटि की अभिक्रिया (First Order Kinetics) का पालन करता है।'
+      };
+    },
+    examFacts: [
+      'जीवाश्मों एवं प्राचीन काष्ठ की आयु ज्ञात करने के लिए कार्बन डेटिंग (C-14) विधि की खोज विलार्ड लिब्बी ने की थी।',
+      'पृथ्वी और प्राचीन चट्टानों की आयु निर्धारण के लिए यूरेनियम-लेड (Uranium-Lead) विधि का उपयोग किया जाता है।'
+    ]
+  },
+  {
+    id: 'acid-rain-soil',
+    number: 51,
+    category: 'chemistry',
+    categoryLabel: 'पर्यावरण रसायन (Environmental Chemistry)',
+    title: 'अम्लीय वर्षा (Acid Rain) प्रभाव एवं मृदा उदासीनीकरण (Liming) लैब',
+    subtitle: 'Acid Rain (pH < 5.6), SO₂/NO₂ Emissions & CaCO₃ Liming Neutralization',
+    icon: '🌧️',
+    badge: 'ACID RAIN & SOIL',
+    formula: 'SO₂ + H₂O → H₂SO₃ | 2NO₂ + H₂O → HNO₂ + HNO₃ | CaCO₃ + 2H⁺ → Ca²⁺ + CO₂ + H₂O',
+    param1Label: 'वर्षा जल का pH मान (Rainwater pH)',
+    param1Unit: 'pH',
+    param1Min: 3.0,
+    param1Max: 6.5,
+    param1Default: 4.2,
+    param2Label: 'चूना उपचार मात्रा (Lime Treatment CaCO₃)',
+    param2Unit: 'kg/ha',
+    param2Min: 50,
+    param2Max: 500,
+    param2Default: 200,
+    computeResult: (rainPh, limeKg) => {
+      const recoveredPh = Math.min(7.2, rainPh + (limeKg / 150));
+      return {
+        primaryLabel: 'मृदा का अंतिम संतुलित pH',
+        primaryValue: `pH ${recoveredPh.toFixed(2)} (${recoveredPh >= 6.0 && recoveredPh <= 7.0 ? 'उत्कृष्ट कृषि योग्य' : 'अम्लीय'})`,
+        secondaryLabel: 'अम्लता स्तर एवं संक्षारण प्रभाव',
+        secondaryValue: rainPh < 4.5 ? 'तीव्र अम्लीय वर्षा (संगमरमर संक्षारण)' : 'हल्की अम्लता',
+        statusText: 'अम्लीय वर्षा के कारण ताजमहल के संगमरमर का पीला पड़ना "स्टोन कैंसर" कहलाता है, जो SO₂ और NO₂ के कारण होता है।'
+      };
+    },
+    examFacts: [
+      'जब सामान्य वर्षा जल का pH मान 5.6 से कम हो जाता है, तो उसे "अम्लीय वर्षा" (Acid Rain) कहते हैं।',
+      'अम्लीय वर्षा के मुख्य घटक सल्फ्यूरिक अम्ल (H₂SO₄) और नाइट्रिक अम्ल (HNO₃) होते हैं।'
+    ]
+  },
+  {
+    id: 'kepler-planetary',
+    number: 52,
+    category: 'geography',
+    categoryLabel: 'भूगोल एवं अंतरिक्ष (Planetary Motion)',
+    title: 'केप्लर के ग्रहीय गति के नियम एवं कक्षीय वेग सिमुलेटर लैब',
+    subtitle: 'Kepler’s 3rd Law (T² ∝ R³), Orbital Speed v = √(GM/R) & Solar System',
+    icon: '🪐',
+    badge: 'KEPLER LAWS & ORBITS',
+    formula: 'T² = (4π² / GM) × R³   |   v_orbital = √(GM / R)',
+    param1Label: 'सूर्य से ग्रह की दूरी (Orbital Radius R)',
+    param1Unit: 'AU',
+    param1Min: 0.39,
+    param1Max: 9.54,
+    param1Default: 1.0,
+    param2Label: 'कक्षीय उत्केंद्रता (Orbital Eccentricity e)',
+    param2Unit: 'e',
+    param2Min: 0.0,
+    param2Max: 0.25,
+    param2Default: 0.017,
+    computeResult: (rAu, ecc) => {
+      const tYears = Math.sqrt(Math.pow(rAu, 3));
+      const vOrbital = 29.8 / Math.sqrt(rAu);
+      return {
+        primaryLabel: 'सूर्य की परिक्रमा अवधि (Orbital Period T)',
+        primaryValue: `${tYears.toFixed(2)} पृथ्वी वर्ष (${(tYears * 365.25).toFixed(0)} दिन)`,
+        secondaryLabel: 'कक्षीय चाल (Orbital Velocity)',
+        secondaryValue: `${vOrbital.toFixed(1)} km/s (किलोमीटर/सेकंड)`,
+        statusText: rAu === 1.0
+          ? 'पृथ्वी की कक्षा: सूर्य से 1 AU दूरी पर कक्षीय चाल लगभग 29.8 किमी/सेकंड और आवर्तकाल ठीक 1 वर्ष है।'
+          : `केप्लर के तृतीय नियम (T² ∝ R³) के अनुसार सूर्य से दूरी बढ़ने पर ग्रह की चाल घटती है और परिक्रमण काल बढ़ता है।`
+      };
+    },
+    examFacts: [
+      'जोहान्स केप्लर ने ग्रहों की गति के 3 नियम दिए: (1) दीर्घवृत्ताकार कक्षाओं का नियम, (2) क्षेत्रीय चाल नियत रहने का नियम, (3) आवर्तकाल का नियम (T² ∝ R³)।',
+      'सूर्य के सबसे निकटतम बिंदु को उपसौर (Perihelion - 3 जनवरी) और सबसे दूरस्थ बिंदु को अपसौर (Aphelion - 4 जुलाई) कहते हैं।'
+    ]
   }
 ];
 
 export const ScienceFormulaLabView: React.FC = () => {
-  // View Mode: 'hub' (Grid of all 28 labs) or 'bench' (Full-page interactive lab bench)
+  // Dual Mode: 'labs' (52 Virtual Labs) or 'periodic-table' (118 Elements with Block View)
+  const [activeLabTab, setActiveLabTab] = useState<'labs' | 'periodic-table'>('labs');
+  // View Mode: 'hub' (Grid of all 52 labs) or 'bench' (Full-page interactive lab bench)
   const [viewMode, setViewMode] = useState<'hub' | 'bench'>('hub');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'physics' | 'chemistry' | 'biology' | 'geography' | 'mathematics' | 'future'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -1771,24 +2155,24 @@ export const ScienceFormulaLabView: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-black uppercase border border-cyan-500/40 mb-1.5">
               <FlaskConical className="w-4 h-4" />
-              <span>HANS COMPAIN • 42 वर्चुअल साइंस लैब सुइट (NCERT, NEET, JEE, SSC &amp; UPSC)</span>
+              <span>HANS COMPAIN • 52+ वर्चुअल साइंस लैब सुइट (NCERT, NEET, JEE, SSC &amp; UPSC)</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white">
-              इंटरएक्टिव साइंस लैब (42 लाइव भौतिकी, रसायन, जीव विज्ञान, भूगोल, गणित व AI प्रयोगशालाएं) 🔬
+              इंटरएक्टिव साइंस लैब एवं 118 तत्व आवर्त सारणी सुइट 🔬
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              किसी भी प्रयोगशाला पर क्लिक करें और फुल-पेज वर्चुअल लैब बेंच पर स्लाइडर चलाकर लाइव प्रयोग करें।
+              52+ प्रयोगशालाओं में स्लाइडर चलाकर लाइव प्रयोग करें, अथवा 118 तत्वों की आवर्त सारणी में s, p, d, f ब्लॉक व 3D बोहर मॉडल देखें।
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {viewMode === 'bench' && (
+            {viewMode === 'bench' && activeLabTab === 'labs' && (
               <button
                 onClick={() => setViewMode('hub')}
                 className="px-4 py-2.5 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs font-black flex items-center gap-1.5 cursor-pointer shadow"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>सभी 42 लैब्स देखें (All 42 Labs)</span>
+                <span>सभी 52 लैब्स देखें (All 52 Labs)</span>
               </button>
             )}
             <button
@@ -1801,55 +2185,93 @@ export const ScienceFormulaLabView: React.FC = () => {
           </div>
         </div>
 
-        {/* Category Filter Tabs + Search Input */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-3 border-t border-slate-800">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'all' as const, label: '🌐 सभी 42 प्रयोगशालाएं (All 42 Labs)' },
-              { id: 'physics' as const, label: '⚡ भौतिक विज्ञान (Physics)' },
-              { id: 'chemistry' as const, label: '🧪 रसायन विज्ञान (Chemistry)' },
-              { id: 'biology' as const, label: '🧬 जीव विज्ञान (Biology)' },
-              { id: 'geography' as const, label: '🌍 भूगोल एवं अंतरिक्ष (Geography)' },
-              { id: 'mathematics' as const, label: '📐 गणित एवं ज्यामिति (Math)' },
-              { id: 'future' as const, label: '🤖 क्वांटम, AI एवं पर्यावरण (Future Labs)' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setCategoryFilter(tab.id);
-                  setViewMode('hub');
-                }}
-                className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
-                  categoryFilter === tab.id && viewMode === 'hub'
-                    ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-lg'
-                    : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        {/* Top Dual Switcher: 52 Labs vs Periodic Table */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+          <button
+            onClick={() => setActiveLabTab('labs')}
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 border ${
+              activeLabTab === 'labs'
+                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-400 shadow-md'
+                : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
+            }`}
+          >
+            <span>🔬</span>
+            <span>52+ वर्चुअल साइंस लैब्स (All 52 Science Labs)</span>
+            <span className="text-[9px] bg-cyan-400/20 text-cyan-200 px-1.5 py-0.2 rounded font-mono font-bold">52 LABS</span>
+          </button>
 
-          <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 min-w-[240px]">
-            <Search className="w-4 h-4 text-cyan-400 shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => {
-                setSearchQuery(e.target.value);
-                if (viewMode !== 'hub') setViewMode('hub');
-              }}
-              placeholder="28 लैब्स में से कोई भी प्रयोग या सूत्र खोजें..."
-              className="bg-transparent border-none outline-none text-xs text-white w-full placeholder:text-slate-500"
-            />
-          </div>
+          <button
+            onClick={() => setActiveLabTab('periodic-table')}
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 border ${
+              activeLabTab === 'periodic-table'
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-400 shadow-md'
+                : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
+            }`}
+          >
+            <span>🧪</span>
+            <span>आधुनिक आवर्त सारणी (118 Elements &amp; s, p, d, f Block Understanding)</span>
+            <span className="text-[9px] bg-purple-400/20 text-purple-200 px-1.5 py-0.2 rounded font-mono font-bold">118 ELEMENTS</span>
+          </button>
         </div>
+
+        {/* Category Filter Tabs + Search Input (Only when on Labs tab) */}
+        {activeLabTab === 'labs' && (
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'all' as const, label: '🌐 सभी 52 प्रयोगशालाएं (All 52 Labs)' },
+                { id: 'physics' as const, label: '⚡ भौतिक विज्ञान (Physics)' },
+                { id: 'chemistry' as const, label: '🧪 रसायन विज्ञान (Chemistry)' },
+                { id: 'biology' as const, label: '🧬 जीव विज्ञान (Biology)' },
+                { id: 'geography' as const, label: '🌍 भूगोल एवं अंतरिक्ष (Geography)' },
+                { id: 'mathematics' as const, label: '📐 गणित एवं ज्यामिति (Math)' },
+                { id: 'future' as const, label: '🤖 क्वांटम, AI एवं पर्यावरण (Future Labs)' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setCategoryFilter(tab.id);
+                    setViewMode('hub');
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer border ${
+                    categoryFilter === tab.id && viewMode === 'hub'
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-lg'
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-1.5 min-w-[240px]">
+              <Search className="w-4 h-4 text-cyan-400 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  if (viewMode !== 'hub') setViewMode('hub');
+                }}
+                placeholder="52+ लैब्स में से कोई भी प्रयोग या सूत्र खोजें..."
+                className="bg-transparent border-none outline-none text-xs text-white w-full placeholder:text-slate-500"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Render Periodic Table Mode directly inside Science Lab */}
+      {activeLabTab === 'periodic-table' && (
+        <div className="animate-fade-in">
+          <InteractivePeriodicTable />
+        </div>
+      )}
+
       {/* =====================================================================
-          MODE 1: ALL 28 LABS DIRECTORY GRID (FULL-WIDTH WITH REALISTIC PHOTOS)
+          MODE 1: ALL 52 LABS DIRECTORY GRID (FULL-WIDTH WITH REALISTIC PHOTOS)
       ===================================================================== */}
-      {viewMode === 'hub' && (
+      {activeLabTab === 'labs' && viewMode === 'hub' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
           {filteredLabs.map(lab => {
             const detail = SCIENCE_LAB_DETAILS[lab.id];
@@ -1901,7 +2323,7 @@ export const ScienceFormulaLabView: React.FC = () => {
       {/* =====================================================================
           MODE 2: FULL-PAGE INTERACTIVE VIRTUAL LAB BENCH
       ===================================================================== */}
-      {viewMode === 'bench' && (
+      {activeLabTab === 'labs' && viewMode === 'bench' && (
         <div className="space-y-5 animate-fade-in">
           {/* Quick Horizontal Lab Switcher Ribbon */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">

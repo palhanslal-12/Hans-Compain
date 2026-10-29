@@ -16,12 +16,16 @@
   [contenteditable="true"] {
     user-select: text;
     -webkit-user-select: text;
+    font-size: 16px !important;
   }
   button,
   a,
   input,
   select,
   textarea {
+    touch-action: manipulation !important;
+  }
+  * {
     touch-action: manipulation;
   }
   .font-brand {

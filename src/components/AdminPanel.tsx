@@ -28,6 +28,7 @@ import {
 import { getLocalActivities } from '../firebase';
 import { getSecurityAuditLogs, getClientIp } from '../utils/securityShield';
 import { AppHealthScannerModal } from './AppHealthScannerModal';
+import { AppProblemReporterModal } from './AppProblemReporterModal';
 
 interface VisitorRecord {
   userId: string;
@@ -232,6 +233,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome, currentUse
   const [emailAlerts, setEmailAlerts] = useState<any[]>([]);
   const [securityLogs, setSecurityLogs] = useState(getSecurityAuditLogs());
   const [isHealthScannerOpen, setIsHealthScannerOpen] = useState(false);
+  const [isProblemReporterOpen, setIsProblemReporterOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Feature Toggles state initialized from localStorage so it works immediately
@@ -916,6 +918,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome, currentUse
             </button>
 
             <button
+              onClick={() => setIsProblemReporterOpen(true)}
+              className="px-3.5 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-700/60 text-rose-300 font-medium text-xs rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+              title="ओनर एडमिन: ऐप लैग, बग व ईमेल अलर्ट्स भेजें"
+            >
+              <span>🚨</span>
+              <span>ईमेल अलर्ट व बग रिपोर्टर</span>
+            </button>
+
+            <button
               onClick={handleExportCSV}
               className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-medium text-xs rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
             >
@@ -1326,6 +1337,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onReturnHome, currentUse
       <AppHealthScannerModal
         isOpen={isHealthScannerOpen}
         onClose={() => setIsHealthScannerOpen(false)}
+      />
+
+      {/* Owner Problem & Email Alert Informer Modal */}
+      <AppProblemReporterModal
+        isOpen={isProblemReporterOpen}
+        onClose={() => setIsProblemReporterOpen(false)}
       />
     </div>
   );

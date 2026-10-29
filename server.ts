@@ -8,9 +8,25 @@ dotenv.config();
 const app = express();
 const portArgIndex = process.argv.indexOf('--port');
 const portArg = portArgIndex !== -1 ? parseInt(process.argv[portArgIndex + 1], 10) : null;
-const PORT = portArg || (process.env.PORT ? parseInt(process.env.PORT, 10) : 3000);
+const isCloudRun = !!process.env.K_SERVICE || process.env.NODE_ENV === 'production';
+const PORT = portArg || (isCloudRun && process.env.PORT ? parseInt(process.env.PORT, 10) : 3000);
+
+// Ensure data directory exists on startup
+const initialDataDir = path.join(process.cwd(), 'data');
+if (!fs.existsSync(initialDataDir)) {
+  try {
+    fs.mkdirSync(initialDataDir, { recursive: true });
+  } catch (err) {
+    console.warn('Initial data dir warning:', err);
+  }
+}
 
 app.use(express.json({ limit: '10mb' }));
+
+// Health check endpoints for Cloud Run container probes
+app.get(['/health', '/api/health', '/_health'], (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
 
 // Static SEO assets for Googlebot and Google Search Console
 app.get('/robots.txt', (req, res) => {
@@ -1897,41 +1913,29 @@ app.post('/api/ai/doubt-solver', async (req, res) => {
     } = req.body;
 
     if (ai) {
-      const systemContext = `You are HANS COMPAIN AI, the official intelligent assistant and study mentor of the HANS COMPAIN platform (created by Hanslal Pal).
+      const systemContext = `You are HANS COMPAIN AI, an exceptionally smart, helpful, and natural bilingual AI mentor and multi-disciplinary knowledge companion (created by Hanslal Pal).
 
-CRITICAL ADAPTIVE LANGUAGE PERSONA RULE:
-Regardless of the system's UI language setting, you MUST analyze the user's message and respond in the EXACT SAME language, script, and tone (Pure Hindi in Devanagari, Pure English, or casual Hinglish) that the user wrote in!
-- If the user writes in Devanagari Hindi (e.g. "ओम का नियम बताओ"), respond in clear, articulate Devanagari Hindi with structured points.
-- If the user writes in English (e.g. "Explain Ohm's Law with examples"), respond in natural, professional English.
-- If the user writes in Hinglish (e.g. "Ohm ka law kya hai batao"), respond in engaging Hinglish.
+CORE BEHAVIOR & ANTI-IRRITATION RULES:
+1. NATURAL HUMAN CONVERSATION & GREETINGS:
+   - When the user sends a greeting (e.g., "Hi", "Hello", "Hey", "नमस्ते", "हलो", "How are you?"):
+     Respond warmly, concisely, and naturally! (e.g., "नमस्ते! मैं हंस कॉम्पैन AI हूँ। मैं आपकी पढ़ाई, सवालों, नोट्स, किसी भी विषय या सामान्य जिज्ञासा में कैसे मदद कर सकता हूँ?")
+     NEVER treat "Hi" or casual greetings as an exam syllabus topic! NEVER say "यह बिंदु आगामी प्रतियोगी परीक्षाओं के नवीनतम सिलेबस के अनुसार अत्यंत महत्वपूर्ण है।" for greetings or casual text!
+2. DIRECT, PRECISE & KNOWLEDGEABLE ANSWERS FOR EVERYTHING:
+   - You know EVERYTHING across all academic and general subjects: Science, Physics, Chemistry, Biology, Mathematics, History, Geography, Indian Polity & Constitution, Shorthand/Stenography (Rishi & Pitman), Hindi Grammar, English Grammar, Reasoning, Current Affairs, World Affairs, and general knowledge.
+   - Answer the question directly, cleanly, and articulately without forcing unneeded exam headers or repetitive boilerplate.
+3. APP FEATURE RECOMMENDATION POLICY (STRICT USER RESTRICTION):
+   - DO NOT unsolicitedly list or promote all app features!
+   - ONLY recommend a specific app feature if the user explicitly asks about it (e.g., "App me kya hai?", "Steno kaise sikhein?", "Periodic table kahan hai?"), OR if the user's specific problem genuinely benefits from it (e.g., if asking about Ohm's law, you can casually mention: "💡 टिप: आप साइंस लैब में इसका लाइव सर्किट प्रयोग भी करके देख सकते हैं।").
+   - Otherwise, do NOT dump instructions or feature catalogs unprompted.
+4. ADAPTIVE LANGUAGE & TONE:
+   - Match the user's language: Pure Hindi (Devanagari), English, or natural Hinglish. Keep formatting clean with bullet points and bold text where helpful.
 
 Document and Image Analysis:
 - You have advanced multi-modal vision and document comprehension.
 - When the user uploads one or more images (photos of questions, diagrams, handwritten notes, textbook pages) or PDF documents, analyze ALL attached files carefully.
 - Provide step-by-step verified solutions, formula derivations, and clear explanations.
 
-Core Knowledge Base:
-- Founder & Creator: Hanslal Pal (हंसलाल पाल).
-- When the user asks about the app itself ("अपने बारे में बताओ", "ऐप गाइड", "इस ऐप में क्या-क्या है", "होमपेज चैट बॉक्स क्या करता है"), provide a complete, structured, proud overview of HANS COMPAIN and how to use each feature.
-- Home Page Chat Box Capabilities:
-  1. Ask Any Academic Doubt (Maths, Science, GK, Current Affairs, English Grammar, Shorthand/Steno) in Hindi, English, or Hinglish.
-  2. Camera OCR Icon (📷): Scans handwritten notebook pages or printed questions into digital text, formulas, flashcards, and MCQs in 3 steps.
-  3. Paperclip Attachment Icon (📎): Supports uploading multiple images and PDF documents for deep analysis and Q&A.
-  4. Voice Mic Input (🎙️): Hands-free bilingual speech-to-text query input.
-  5. Natural Human Audio Output (🔊) & Instant 5-MCQ / Short-Trick / Key-Points generators on every AI reply.
-- App Features:
-  1. All Stenographer (सम्पूर्ण आशुलिपि): 60-120 WPM Audio Dictation Studio, Rishi Pranali outlines & Full-Screen Practice Board with live Error % calculation.
-  2. Current Affairs 2026 (Full-Page PIB & The Hindu Hub): Daily fresh editorials, Small/Medium/Large font controls, Hindi ⇄ English full translation, Natural Neural Voice Reader, AI New Topic Editorial Generator, Interactive Click-any-Word Bilingual Dictionary, and In-Article Bilingual Doubt Solver.
-  3. Live Group Quiz Battle (10–50 Students): Multiplayer quiz arena with room codes, voice/AI question generation, and live leaderboard.
-  4. AI Mnemonics: Generates catchy rhymes/poems for dates, constitutional articles, formulas, and custom topics.
-  5. Interactive Science Lab Suite: 42 Live Virtual Labs across 6 categories (Physics, Chemistry, Biology, Geography & Space, Mathematics & Geometry, Quantum/AI/Environment) with interactive sliders, live SVG apparatus, and exam viva points.
-  6. Daily Goals: Study targets with Color Badges (Bronze, Silver, Gold, Diamond, Legend).
-  7. Single-Page CBT Real Exam Center & PYQ Vault: TCS iON style CBT exam mode with Question Palette, Auto-Sync Mistake Notebook, and Unlimited Previous Year Questions.
-  8. 10th & 12th Board Exam Hub: BSEB, UPMSP, and CBSE chapter-wise OMR tests & topper notes.
-  9. Edu-Reels: Auto-generates 60-second revision reels from student study activities.
-  10. Smart Global Library & Article Voice Reader: NCERT & World Books with adjustable font and natural voice read-aloud.
-  11. Apps Launcher: Bharati Bhawan (K.C. Sinha), PYQ Vault, Sarkari Result Eligibility Calculator, Time Travel Simulator, Peer Challenge, Music Studio, Affiliate Book Store.
-  12. Full-Page Owner Admin Console: Clean professional control center allowing the owner to turn any of the 14 app features ON or OFF in real time and monitor student records.`;
+Founder & Creator: Hanslal Pal (हंसलाल पाल).`;
 
       const promptText = `${systemContext}\n\nMode: ${mode}\nExam Target: ${examTarget}\nSubject: ${subject}\nUser Question: "${questionText || 'कृपया संलग्न फोटो/दस्तावेज़ का समाधान एवं व्याख्या प्रदान करें'}"`;
 
@@ -2900,24 +2904,145 @@ Return JSON with keys: title (string), rhyme (catchy 1-2 line Hindi poem/acronym
   }
 });
 
-// 4. Universal World Book Reader Synthesizer API
+// 4. Universal World Book Reader Synthesizer API with True Chapter Progression
 app.post('/api/books/read', async (req, res) => {
   try {
     const { query, chapter = 1 } = req.body;
-    if (ai && query) {
-      const prompt = `Provide a comprehensive, authentic educational reading chapter in Hindi (with English technical terms) for the book or subject: "${query}" (Chapter/Part ${chapter}).
-Return JSON with keys: bookTitle, chapterTitle, author, category, content (array of 6 detailed paragraphs covering core concepts, formulas, examples, or historical/literary text).`;
-      const result = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: { responseMimeType: 'application/json' }
-      });
-      if (result && result.text) {
-        return res.json(JSON.parse(result.text));
+    const chNum = Math.max(1, parseInt(chapter, 10) || 1);
+    const cleanQuery = (query || 'सामान्य अध्ययन व आशुलिपि').trim();
+
+    const chapterSyllabus: Record<number, { title: string; focus: string }> = {
+      1: {
+        title: `अध्याय 1: उत्पत्ति, ऐतिहासिक पृष्ठभूमि व मूल परिभाषाएं (Origins & Definitions)`,
+        focus: 'ऐतिहासिक पृष्ठभूमि, मूल परिभाषाएं, और प्रारंभिक आधारभूत संकल्पनाएं'
+      },
+      2: {
+        title: `अध्याय 2: प्राथमिक नियम, संरचनात्मक सिद्धांत व वर्गीकरण (Core Rules & Structure)`,
+        focus: 'मुख्य संरचनात्मक नियम, वर्गीकरण, सूत्र एवं आधारभूत वैज्ञानिक/व्याकरणिक सिद्धांत'
+      },
+      3: {
+        title: `अध्याय 3: विस्तृत कार्यप्रणाली, विश्लेषण व प्रायोगिक अनुप्रयोग (Deep Mechanism & Applications)`,
+        focus: 'विस्तृत कार्यप्रणाली, चरणबद्ध समीकरण, तार्किक विश्लेषण व वास्तविक दुनिया में व्यावहारिक अनुप्रयोग'
+      },
+      4: {
+        title: `अध्याय 4: महत्वपूर्ण केस स्टडी, प्रमाणिक उदाहरण व तुलनात्मक अध्ययन (Examples & Case Studies)`,
+        focus: 'प्रमाणिक उदाहरण, तुलनात्मक विश्लेषण, महत्वपूर्ण अपवाद और गहन केस स्टडीज'
+      },
+      5: {
+        title: `अध्याय 5: उच्च-स्तरीय परीक्षा विश्लेषण, PYQ प्रश्नोत्तरी व मुख्य निष्कर्ष (Exam Mastery & Summary)`,
+        focus: 'विगत 10 वर्षों के प्रतियोगी व बोर्ड परीक्षा प्रश्न, मुख्य परीक्षा उपयोगी सूत्र और अंतिम सार'
+      }
+    };
+
+    const currentSyllabus = chapterSyllabus[chNum] || {
+      title: `अध्याय ${chNum}: गहन अवधारणात्मक अध्ययन एवं उच्च-स्तरीय अभ्यास (Advanced Module ${chNum})`,
+      focus: `उन्नत तकनीकी संकल्पनाएं, व्यावहारिक अभ्यास और सूक्ष्म विश्लेषणात्मक तथ्य`
+    };
+
+    if (ai && cleanQuery) {
+      const prompt = `You are the Chief Academic Editor and Master Author for Hans Compain Digital Library.
+The student is reading: "${cleanQuery}".
+You are writing Chapter ${chNum}: "${currentSyllabus.title}".
+Chapter Specific Focus: "${currentSyllabus.focus}".
+
+STRICT ZERO-REPETITION MANDATE:
+- Every paragraph MUST contain fresh, deeply educational, factual, and informative text specifically aligned with Chapter ${chNum}.
+- Do NOT repeat, rephrase, or shuffle sentences from previous chapters.
+- Write in elegant, clear Hindi with technical terms in English brackets where appropriate.
+- Include authentic details, historical names/dates, scientific formulas, stenographic/grammatical rules, and real examination insights.
+
+Return strictly valid JSON with this exact schema:
+{
+  "bookTitle": "${cleanQuery}",
+  "chapterTitle": "${currentSyllabus.title}",
+  "author": "Hans Compain Digital Library Edition",
+  "category": "Academic & Competitive Studies",
+  "chapterNum": ${chNum},
+  "content": [
+    "Paragraph 1: Introducing this specific chapter topic with deep background and core scope...",
+    "Paragraph 2: Detailed foundational concepts, rules, or formulas for this chapter...",
+    "Paragraph 3: Deep dive into mechanisms, internal working principles, or historical sequences...",
+    "Paragraph 4: Practical worked examples, applications, or real-world demonstrations...",
+    "Paragraph 5: Critical analysis, comparisons, common mistakes students make, and exceptions...",
+    "Paragraph 6: High-yield exam takeaways, memory mnemonics, and summary of this chapter."
+  ]
+}`;
+
+      try {
+        const result = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt,
+          config: { responseMimeType: 'application/json' }
+        });
+        if (result && result.text) {
+          const parsed = safeJsonParse(result.text);
+          if (parsed && Array.isArray(parsed.content) && parsed.content.length > 0) {
+            return res.json({
+              bookTitle: parsed.bookTitle || cleanQuery,
+              chapterTitle: parsed.chapterTitle || currentSyllabus.title,
+              author: parsed.author || 'Hans Compain Digital Library Edition',
+              category: parsed.category || 'Academic Studies',
+              chapterNum: chNum,
+              content: parsed.content
+            });
+          }
+        }
+      } catch (genErr) {
+        console.warn('AI book synthesis warning, proceeding to rich progression fallback:', genErr);
       }
     }
-    res.status(400).json({ error: 'Book synthesis fallback' });
+
+    // Rich Topic-Aware Chapter Progression Fallback (Prevents repetitive shuffled words)
+    const fallbackChapters: Record<number, string[]> = {
+      1: [
+        `"${cleanQuery}" का ऐतिहासिक उद्भव और आधारभूत विकास: किसी भी विषय अथवा ज्ञान-धारा के मूल को समझने के लिए उसकी उत्पत्ति का अध्ययन अनिवार्य है। प्राचीन काल से लेकर आधुनिक युग तक इसके स्वरूप में व्यापक परिवर्तन हुए हैं।`,
+        `मूल परिभाषाएं एवं शब्दावली: इस विषय की प्राथमिक शब्दावली में मुख्य तकनीकी और सैद्धांतिक शब्दों का सटीक अर्थ समझना आवश्यक है। प्रतियोगी परीक्षाओं में अक्सर शब्दावली और संकल्पना-आधारित सीधे प्रश्न पूछे जाते हैं।`,
+        `महत्व एवं उपयोगिता: आधुनिक शैक्षणिक एवं प्रशासनिक संदर्भ में "${cleanQuery}" का अध्ययन न केवल परीक्षा में सर्वोच्च अंक दिलाने में सहायक है, बल्कि विषय की समग्र विश्लेषणात्मक समझ भी विकसित करता है।`,
+        `प्रमुख स्तंभ व प्रारंभिक दृष्टिकोण: इसके प्रथम चरण में बुनियादी नियमों को आत्मसात करना, रेखाचित्रों अथवा सिद्धांतों का अभ्यास करना और नियमित दोहराव करना सबसे प्रभावी रणनीति है।`,
+        `अध्याय 1 का परीक्षा सार: इस परिचयात्मक भाग से परिभाषा, महत्वपूर्ण विद्वानों के नाम, और प्रारंभिक तथ्यों पर विशेष ध्यान दें। अगले अध्याय में हम इसके मुख्य संरचनात्मक नियमों का अध्ययन करेंगे।`
+      ],
+      2: [
+        `अध्याय 2 - मुख्य संरचनात्मक नियम एवं आधारभूत सिद्धांत: पिछले अध्याय में परिचय के पश्चात अब हम "${cleanQuery}" के वास्तविक कार्य-नियमों और तकनीकी संरचना पर विस्तार से चर्चा करेंगे।`,
+        `नियम 1 (प्राथमिक संरचना): इसके अंतर्गत तत्वों का विभाजन, श्रेणीबद्ध व्यवस्था और आधारभूत सूत्रों का अनुपालन किया जाता है। प्रत्येक नियम का अपना विशिष्ट अनुप्रयोग क्षेत्र है।`,
+        `नियम 2 (व्यावहारिक संयोजन): जब दो या दो से अधिक संकल्पनाएं एक साथ आती हैं, तो उनके मध्य अंतर्संबंध को समझना अत्यंत महत्वपूर्ण हो जाता है। उदाहरण के लिए, जटिल समस्याओं को सरल चरणों में विभाजित करके हल किया जाता है।`,
+        `नियम 3 (अपवाद एवं विशेष परिस्थितियां): मानक नियमों के अतिरिक्त कुछ विशिष्ट अपवाद भी होते हैं जो परीक्षा में अक्सर 'ट्रिकी प्रश्नों' के रूप में पूछे जाते हैं। इन अपवादों को विशेष रूप से चिह्नित करें।`,
+        `अध्याय 2 का परीक्षा सार: संरचनात्मक नियमों की स्पष्टता होने पर ही आगे के जटिल अध्यायों को समझना सुगम होता है। इन सूत्रों को अपनी अध्ययन डायरी में अवश्य नोट करें।`
+      ],
+      3: [
+        `अध्याय 3 - विस्तृत कार्यप्रणाली, वैज्ञानिक विश्लेषण व अनुप्रयोग: इस अध्याय में "${cleanQuery}" के व्यावहारिक संचालन और वास्तविक जीवन तथा परीक्षा प्रश्नों में इसके अनुप्रयोग की पड़ताल की जाएगी।`,
+        `विस्तृत प्रक्रिया (Step-by-Step Mechanism): किसी भी जटिल संकल्पना को क्रियान्वित करने के लिए चरणबद्ध पद्धति का पालन करना आवश्यक है। प्रत्येक चरण अपने पूर्ववर्ती चरण पर आधारित होता है।`,
+        `गणितीय/तार्किक विश्लेषण: जहां भी संख्यात्मक मान, समीकरण अथवा तार्किक निगमन शामिल हैं, वहां शुद्धता (Accuracy) और गति (Speed) का संतुलन बनाए रखना आवश्यक है।`,
+        `वास्तविक परीक्षा परिदृश्यों में प्रयोग: TCS/NTA आधारित CBT परीक्षाओं में सीधे प्रश्न न पूछकर अनुप्रयोग-आधारित प्रश्न पूछे जाते हैं। इसलिए सिद्धांतों को केवल रटने के बजाय उनके प्रभाव को समझें।`,
+        `अध्याय 3 का मुख्य निष्कर्ष: गहराई से विश्लेषण करने पर ज्ञात होता है कि व्यावहारिक अभ्यास ही सफलता की कुंजी है। अगले अध्याय में हम प्रमाणिक केस स्टडीज देखेंगे।`
+      ],
+      4: [
+        `अध्याय 4 - प्रमाणिक उदाहरण, तुलनात्मक विश्लेषण व केस स्टडीज: पिछले अध्यायों के सिद्धांतों को पुष्ट करने के लिए इस अध्याय में वास्तविक उदाहरणों और ऐतिहासिक/शैक्षणिक केस स्टडीज का विश्लेषण किया गया है।`,
+        `केस स्टडी 1 (मानक उदाहरण): एक आदर्श स्थिति का विश्लेषण करते हुए यह देखा जाता है कि मुख्य सिद्धांत किस प्रकार कार्य करते हैं और परिणामों में क्या परिवर्तन आते हैं।`,
+        `तुलनात्मक तालिका व भेद: समान लगने वाले दो विभिन्न सिद्धांतों के बीच के बारीक अंतर को समझना। अधिकांश छात्र यहीं भ्रमित होते हैं, अतः तुलनात्मक अध्ययन अत्यंत लाभप्रद है।`,
+        `सामान्य त्रुटियां (Common Errors): विद्यार्थी अक्सर जल्दबाजी में किन गलतियों को दोहराते हैं और उनसे बचने के लिए किन जांच-बिंदुओं (Checkpoints) का ध्यान रखना चाहिए।`,
+        `अध्याय 4 का परीक्षा सारांश: केस स्टडी और तुलनात्मक प्रश्नों पर महारत हासिल करने से मुख्य परीक्षा (Mains/Descriptive) और बहुविकल्पीय दोनों में बढ़त मिलती है।`
+      ],
+      5: [
+        `अध्याय 5 - विगत 10 वर्षों के परीक्षा प्रश्न (PYQs), अंतिम दोहराव व मास्टर नोट्स: इस अध्याय में "${cleanQuery}" से संबंधित विगत वर्षों में पूछे गए प्रश्नों का वर्गीकरण और विश्लेषण प्रस्तुत है।`,
+        `PYQ पैटर्न 1 (अति-महत्वपूर्ण प्रश्न): वे प्रश्न जो बार-बार विभिन्न प्रतियोगी परीक्षाओं (SSC, Railway, Board) में दोहराए जाते हैं। इन प्रश्नों के उत्तर कंठस्थ होने चाहिए।`,
+        `PYQ पैटर्न 2 (कठिन व विश्लेषणात्मक प्रश्न): कट-ऑफ पार कराने वाले उच्च-कठिनाई वाले प्रश्न, जिनमें एकाधिक अवधारणाओं का मिश्रण होता है।`,
+        `1-मिनट क्विक रीकैप (Master Key Points): संपूर्ण विषय के सभी महत्वपूर्ण सूत्र, तिथियां, परिभाषाएं और नियम एक नज़र में।`,
+        `अध्याय 5 का अंतिम संदेश: नियमित मॉक टेस्ट देना, गलतियों की नोटबुक बनाना और इस डिजिटल लाइब्रेरी का निरंतर उपयोग आपको परीक्षा में शीर्ष स्थान दिलाएगा।`
+      ]
+    };
+
+    const selectedContent = fallbackChapters[chNum] || fallbackChapters[chNum % 5 || 5];
+
+    return res.json({
+      bookTitle: cleanQuery,
+      chapterTitle: currentSyllabus.title,
+      author: 'Hans Compain Digital Library Edition',
+      category: 'Academic Studies',
+      chapterNum: chNum,
+      content: selectedContent
+    });
   } catch (err) {
+    console.error('Book read route error:', err);
     res.status(500).json({ error: 'Book read error' });
   }
 });
@@ -3167,6 +3292,79 @@ app.get('/api/admin/email-alerts', (req, res) => {
     res.json({ success: true, alerts, reports });
   } catch {
     res.json({ success: true, alerts: [], reports: [] });
+  }
+});
+
+// Dedicated Problem, Bug, Lag & Layout Reporter API
+app.post('/api/admin/report-problem', (req, res) => {
+  try {
+    const {
+      issueType = 'other',
+      description = '',
+      viewName = 'Home',
+      deviceInfo = {},
+      userEmail = 'support.hans.compain@gmail.com',
+      userName = 'App User'
+    } = req.body;
+
+    const dataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    const problemsFile = path.join(dataDir, 'app_problems_log.json');
+
+    let problems: any[] = [];
+    if (fs.existsSync(problemsFile)) {
+      try {
+        problems = JSON.parse(fs.readFileSync(problemsFile, 'utf-8'));
+      } catch {
+        problems = [];
+      }
+    }
+
+    const reportId = `prob_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const nowIso = new Date().toISOString();
+    const nowStr = new Date().toLocaleString('hi-IN', { timeZone: 'Asia/Kolkata' });
+
+    const newReport = {
+      reportId,
+      issueType,
+      description,
+      viewName,
+      deviceInfo,
+      userEmail,
+      userName,
+      status: 'OPEN',
+      timestamp: nowStr,
+      isoTime: nowIso
+    };
+
+    problems.unshift(newReport);
+    fs.writeFileSync(problemsFile, JSON.stringify(problems.slice(0, 200), null, 2));
+
+    // Send immediate high-priority admin alert to Hans Compain support emails
+    recordEmailAndAdminAlert({
+      type: 'app_bug_report',
+      title: `🚨 ऐप समस्या रिपोर्ट: ${issueType.toUpperCase()} (${viewName})`,
+      recipientEmail: 'support.hans.compain@gmail.com',
+      userDisplayName: userName,
+      featureName: viewName,
+      details: `[रिपोर्ट ID: ${reportId}] उपयोगकर्ता: ${userName} (${userEmail}) ने "${viewName}" में समस्या दर्ज की: "${description}"। डिवाइस: ${deviceInfo.screenWidth || 'N/A'}x${deviceInfo.screenHeight || 'N/A'} px (${deviceInfo.isMobile ? 'Mobile' : deviceInfo.isTablet ? 'Tablet' : 'PC'})। समय: ${nowStr}। तत्काल निवारण आवश्यक!`
+    });
+
+    // Also trigger secondary notification to owner email
+    recordEmailAndAdminAlert({
+      type: 'app_bug_report',
+      title: `🚨 ऐप समस्या अलर्ट: [${issueType}] ${viewName}`,
+      recipientEmail: 'hanscompain@gmail.com',
+      userDisplayName: userName,
+      featureName: viewName,
+      details: `विवरण: "${description}" • स्क्रीन: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight} • स्थिति: ${deviceInfo.onlineStatus || 'Online'}`
+    });
+
+    console.log(`🚨 Problem reported and emailed to support.hans.compain@gmail.com: ${reportId}`);
+    return res.json({ success: true, reportId, message: 'Report recorded and emailed to technical team' });
+  } catch (err: any) {
+    console.error('Problem reporter error:', err);
+    return res.status(500).json({ error: 'Failed to record problem report' });
   }
 });
 
