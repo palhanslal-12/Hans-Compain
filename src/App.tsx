@@ -109,6 +109,7 @@ const viewFeatureMap: Record<string, string> = {
   'bharati-bhawan': 'भारती भवन स्टडी हब (Bharati Bhawan)',
   'pyq': 'अनलिमिटेड PYQ वॉल्ट (PYQ Vault)',
   'sarkari': 'सरकारी रिजल्ट एलिजिबिलिटी (Sarkari Hub)',
+  'about-creator': 'डेवलपर परिचय (About Creator)',
   'admin': 'ओनर एडमिन कंसोल (Admin Panel)'
 };
 
@@ -376,6 +377,8 @@ export const App: React.FC = () => {
 
   const sidebarMenuItems = [
     { icon: Home, label: 'होम / मुख्य डैशबोर्ड', viewId: 'home' },
+    { icon: MessageSquare, label: '💬 AI चैट (Doubt Solver & Hansa AI)', viewId: 'ai-chat', badge: 'AI GEM' },
+    { icon: User, label: '👨‍💻 डेवलपर परिचय (About Creator)', viewId: 'about-creator', badge: 'FOUNDER' },
     { icon: ShieldCheck, label: 'ओनर एडमिन कंट्रोल पैनल 🛡️', viewId: 'admin', badge: 'ADMIN' },
     { icon: Sparkles, label: 'एजु-रील्स (Edu Shorts)', viewId: 'edu-reels', badge: 'SHORTS' },
     { icon: BookOpen, label: 'स्मार्ट लाइब्रेरी व वाइस रीडर 📖', viewId: 'book-reader', badge: 'BOOKS' },
@@ -445,6 +448,15 @@ export const App: React.FC = () => {
 
           {/* Clean Header Right Controls (Download, Share, Login, Bell 100% visible on mobile) */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <button
+              onClick={() => navigateTo('ai-chat')}
+              className="px-2.5 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black flex items-center gap-1 shadow-md cursor-pointer transition-all shrink-0"
+              title="AI डाउट सॉल्वर चैट खोलें"
+            >
+              <span>💬</span>
+              <span className="hidden xs:inline">AI चैट</span>
+            </button>
+
             <PWAInstallButton variant="header" />
 
             {currentUser ? (
@@ -550,32 +562,16 @@ export const App: React.FC = () => {
             <button
               onClick={() => { setIsTermsModalOpen(true); setSidebarOpen(false); }}
               className="w-full py-1.5 px-3 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/30 text-cyan-300 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-              title="ऐप के नियम, शर्तें और गोपनीयता नीति पढ़ें"
+              title="नियम, शर्तें, क्रिएटर परिचय और रोडमैप पढ़ें"
             >
               <div className="flex items-center gap-1.5">
                 <span>📜</span>
-                <span>नियम, शर्तें व गोपनीयता नीति</span>
+                <span>नियम, शर्तें, क्रिएटर व रोडमैप</span>
               </div>
-              <span className="text-[8px] bg-cyan-500/20 px-1.5 py-0.2 rounded font-black">TERMS</span>
+              <span className="text-[8px] bg-cyan-500/20 px-1.5 py-0.2 rounded font-black">LEGAL & INFO</span>
             </button>
 
-            {/* Direct 1-Click Top Owner Admin Console Button */}
-            <button
-              onClick={() => {
-                navigateTo('admin');
-                setSidebarOpen(false);
-              }}
-              className="w-full py-2 px-3 bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 hover:from-amber-900/90 hover:to-slate-850 border border-amber-500/60 hover:border-amber-400 text-amber-300 rounded-xl text-xs font-black flex items-center justify-between cursor-pointer transition-all shadow-md group"
-              title="ओनर एडमिन कंट्रोल पैनल खोलें"
-            >
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-                <span>🛡️ ओनर एडमिन कंट्रोल पैनल</span>
-              </div>
-              <span className="text-[9px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded font-black uppercase tracking-wider">
-                ADMIN
-              </span>
-            </button>
+
 
             {/* Owner-Only Email Bug & Problem Alert (Only shown to owner/admin) */}
             {isOwnerAdmin && (
@@ -842,7 +838,7 @@ export const App: React.FC = () => {
             
             {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
             {activeView === 'home' && (
-              <div className="max-w-2xl lg:max-w-3xl mx-auto w-full flex flex-col justify-center items-center text-center space-y-2.5 sm:space-y-3.5 my-auto py-1 sm:py-2 animate-fade-in">
+              <div className="max-w-2xl lg:max-w-3xl mx-auto w-full flex flex-col justify-start items-center text-center space-y-2 sm:space-y-2.5 py-2 sm:py-3 animate-fade-in">
                 
                 {/* Center Official 3D Mascot Logo & Tagline */}
                 <div className="pt-0.5 sm:pt-1">
@@ -1175,6 +1171,55 @@ export const App: React.FC = () => {
 
                   {activeView === 'mock-interview' && <MockInterviewView />}
                   {(activeView === 'analytics' || activeView === 'performance-analytics') && <AdminAnalyticsDashboard />}
+                  {activeView === 'about-creator' && (
+                    <div className="max-w-3xl mx-auto p-4 sm:p-8 space-y-6 animate-fade-in my-auto w-full">
+                      <div className="bg-gradient-to-r from-amber-950/80 via-slate-900 to-blue-950/80 p-6 sm:p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-5 text-white">
+                        <div className="flex flex-col sm:flex-row items-center gap-5 border-b border-slate-800 pb-5">
+                          <img
+                            src="/public/assets/aistudio/file_0000000058f081f49120dae0de21f633_e6442101.png"
+                            alt="Hanslal Pal - Founder"
+                            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-amber-400 shadow-xl shrink-0"
+                          />
+                          <div className="text-center sm:text-left">
+                            <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-500 text-slate-950">
+                              FOUNDER & DEVELOPER • HANS AI
+                            </span>
+                            <h1 className="text-xl sm:text-2xl font-black text-white mt-1">
+                              Hanslal Pal
+                            </h1>
+                            <p className="text-xs sm:text-sm text-amber-300 font-bold">
+                              Undergraduate Student & Tech Enthusiast (Bihar, India)
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                          <p>
+                            <strong>About the Creator:</strong> Hanslal Pal is an undergraduate student and tech enthusiast based in Bihar, India. Balancing rigorous competitive exam preparation with software development, Hanslal built <strong>Hans Compain</strong> and <strong>Hansa AI</strong> to solve real-world learning challenges faced by students.
+                          </p>
+                          <p>
+                            <strong>Our Mission & Hans AI Vision:</strong> His mission is to bridge the gap between traditional study methods and modern digital tools, providing aspirants with smart, accessible, and high-performance resources (including Hans AI doubt solver) for competitive exams like SSC Stenographer, UPSC, Railway, Banking, and Board Exams.
+                          </p>
+                          <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+                            <h3 className="font-black text-cyan-300 text-xs sm:text-sm">💡 क्यों बनाया गया Hans Compain & Hans AI?</h3>
+                            <p className="text-xs text-slate-300 leading-relaxed">
+                              एक छात्र होने के नाते पढ़ाई के दौरान आने वाली कठिनाइयों (जैसे सही डिक्टेशन, त्वरित फॉर्मूले, सटीक नोट्स और Hans AI डाउट सॉल्विंग) को ध्यान में रखकर इस प्लेटफॉर्म को ज़मीन से तैयार किया गया है ताकि हर छात्र को उच्च गुणवत्तापूर्ण डिजिटल शिक्षा मिल सके।
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-slate-800 flex justify-end">
+                          <button
+                            onClick={() => setActiveView('home')}
+                            className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs cursor-pointer shadow-lg transition-all"
+                          >
+                            होमपेज पर लौटें
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {activeView === 'admin' && <AdminPanel onReturnHome={() => setActiveView('home')} currentUser={currentUser} />}
 
                   {/* FULL MODULE WORK PAGES FROM ZIP & RENDER PROJECT */}

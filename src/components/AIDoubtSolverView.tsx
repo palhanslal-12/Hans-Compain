@@ -330,7 +330,7 @@ export const AIDoubtSolverView: React.FC<{
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'नमस्ते! मैं HANS COMPAIN AI ट्यूटर हूँ। आप मुझसे गणित, विज्ञान, जीके, इंग्लिश ग्रामर या आशुलिपि (Shorthand) का कोई भी प्रश्न पूछ सकते हैं।'
+      text: 'नमस्ते! मैं "Hansa AI" हूँ — आपकी अपनी वर्चुअल स्टडी एवं प्रोफेशनल जेमिनी-ग्रेड गाइड। आप मुझसे किसी भी क्षेत्र (जैसे- SSC, UPSC, Shorthand, Science, Maths, GK, Coding या कोई भी जटिल कॉन्सेप्ट) के बारे में बेझिझक पूछ सकते हैं। मैं आपको एकदम स्पष्ट, बिंदुवार और सटीक समाधान दूंगा।'
     }
   ]);
 
@@ -348,7 +348,7 @@ export const AIDoubtSolverView: React.FC<{
         {
           id: 'welcome',
           role: 'assistant',
-          text: 'नमस्ते! मैं HANS COMPAIN AI ट्यूटर हूँ। आप मुझसे गणित, विज्ञान, जीके, इंग्लिश ग्रामर या आशुलिपि (Shorthand) का कोई भी प्रश्न पूछ सकते हैं।'
+          text: 'नमस्ते! मैं "Hansa AI" हूँ — आपकी अपनी वर्चुअल स्टडी एवं प्रोफेशनल जेमिनी-ग्रेड गाइड। आप मुझसे किसी भी क्षेत्र के बारे में पूछ सकते हैं।'
         }
       ]);
     };
@@ -1204,7 +1204,7 @@ export const AIDoubtSolverView: React.FC<{
             >
               <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-1.5">
                 <span className="text-[10px] font-black uppercase tracking-wider text-cyan-300">
-                  {msg.role === 'user' ? '👤 आपका प्रश्न' : '🤖 HANS COMPAIN AI'}
+                  {msg.role === 'user' ? '👤 आपका प्रश्न' : '🤖 HANSA AI (PROFESSIONAL GEMINI COMPANION)'}
                 </span>
                 <div className="flex items-center gap-2">
                   {msg.role === 'assistant' && (

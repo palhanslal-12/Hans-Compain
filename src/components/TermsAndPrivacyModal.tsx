@@ -5,7 +5,7 @@ import { HansCompainLogo } from './HansCompainLogo';
 interface TermsAndPrivacyModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialTab?: 'terms' | 'privacy';
+  initialTab?: 'terms' | 'privacy' | 'creator' | 'roadmap';
 }
 
 export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
@@ -13,7 +13,7 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
   onClose,
   initialTab = 'terms'
 }) => {
-  const [activeTab, setActiveTab] = useState<'terms' | 'privacy'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'terms' | 'privacy' | 'creator' | 'roadmap'>(initialTab);
 
   if (!isOpen) return null;
 
@@ -46,28 +46,50 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
         </div>
 
         {/* Tab switchers */}
-        <div className="flex border-b border-slate-800 bg-slate-950/60 shrink-0 px-4 pt-2 gap-2">
+        <div className="flex border-b border-slate-800 bg-slate-950/60 shrink-0 px-4 pt-2 gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('terms')}
-            className={`flex items-center gap-2 px-4 py-2.5 font-bold text-xs border-b-2 cursor-pointer transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2.5 font-bold text-xs border-b-2 cursor-pointer transition-all shrink-0 ${
               activeTab === 'terms'
                 ? 'border-cyan-400 text-cyan-300 bg-cyan-950/30 rounded-t-xl'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>📜 नियम एवं शर्तें (Terms & Conditions)</span>
+            <span>📜 नियम व शर्तें</span>
           </button>
           <button
             onClick={() => setActiveTab('privacy')}
-            className={`flex items-center gap-2 px-4 py-2.5 font-bold text-xs border-b-2 cursor-pointer transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2.5 font-bold text-xs border-b-2 cursor-pointer transition-all shrink-0 ${
               activeTab === 'privacy'
                 ? 'border-emerald-400 text-emerald-300 bg-emerald-950/30 rounded-t-xl'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <Lock className="w-4 h-4" />
-            <span>🔒 गोपनीयता नीति (Privacy Policy)</span>
+            <span>🔒 गोपनीयता नीति</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('creator')}
+            className={`flex items-center gap-1.5 px-3 py-2.5 font-bold text-xs border-b-2 cursor-pointer transition-all shrink-0 ${
+              activeTab === 'creator'
+                ? 'border-amber-400 text-amber-300 bg-amber-950/30 rounded-t-xl'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>👨‍💻</span>
+            <span>क्रिएटर परिचय (Hanslal)</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('roadmap')}
+            className={`flex items-center gap-1.5 px-3 py-2.5 font-bold text-xs border-b-2 cursor-pointer transition-all shrink-0 ${
+              activeTab === 'roadmap'
+                ? 'border-purple-400 text-purple-300 bg-purple-950/30 rounded-t-xl'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>🚀</span>
+            <span>रोडमैप (Roadmap)</span>
           </button>
         </div>
 
@@ -128,7 +150,7 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
                 </div>
               </div>
             </div>
-          ) : (
+          ) : activeTab === 'privacy' ? (
             <div className="space-y-4">
               <div className="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-200 text-xs">
                 <div className="font-bold text-emerald-300 flex items-center gap-2 mb-1">
@@ -186,6 +208,51 @@ export const TermsAndPrivacyModal: React.FC<TermsAndPrivacyModalProps> = ({
                   <p className="text-[11px] text-slate-400">
                     यदि आपको गोपनीयता या नियमों से संबंधित कोई भी प्रश्न या समस्या है, तो आप निसंकोच ऊपर दिए गए पते पर लिख सकते हैं।
                   </p>
+                </div>
+              </div>
+            </div>
+          ) : activeTab === 'creator' ? (
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/40 space-y-3">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <img
+                    src="/public/assets/aistudio/file_0000000058f081f49120dae0de21f633_e6442101.png"
+                    alt="Hanslal Pal - Founder"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-amber-400 shadow-xl shrink-0"
+                  />
+                  <div className="text-center sm:text-left">
+                    <h3 className="text-base font-black text-white">Hanslal Pal</h3>
+                    <p className="text-xs text-amber-300 font-bold">Founder, Developer & Hans AI Creator (Bihar, India)</p>
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  Hanslal Pal is an undergraduate student and tech enthusiast based in Bihar, India. Balancing rigorous competitive exam preparation with software development, Hanslal built <strong>Hans Compain</strong> and <strong>Hansa AI</strong> to solve real-world learning challenges faced by students.
+                </p>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  His mission is to bridge the gap between traditional study methods and modern digital tools, providing aspirants with smart, accessible, and high-performance resources for competitive exams like SSC Stenographer and Board Exams.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/40 space-y-3">
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <span>🚀</span>
+                  <span>Hans Compain - Product Roadmap</span>
+                </h3>
+                <div className="space-y-2.5 text-xs sm:text-sm">
+                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <strong className="text-purple-300 block mb-1">Phase 1 (Current):</strong>
+                    Core study modules, adaptive quizzes, stenography practice tools, science virtual labs, and AI doubt solver.
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <strong className="text-purple-300 block mb-1">Phase 2 (Upcoming):</strong>
+                    Advanced AI-powered personalization, student performance analytics dashboard, and smart study planner sync.
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <strong className="text-purple-300 block mb-1">Phase 3 (Future Scale):</strong>
+                    Community study groups, offline-first sync, and advanced mock test series tailored for competitive exams across India.
+                  </div>
                 </div>
               </div>
             </div>

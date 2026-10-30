@@ -668,6 +668,7 @@ function getExactSubjectQuestionsServer(params: {
   count: number;
 }): ServerSyllabusQuestion[] {
   const { subjectOrCategory, topicOrChapter, count } = params;
+  const rawTopic = (topicOrChapter || '').toLowerCase().trim();
   const combined = `${subjectOrCategory || ''} ${topicOrChapter || ''}`.toLowerCase();
   let pool: ServerSyllabusQuestion[] = [];
 
@@ -2512,7 +2513,7 @@ Strict Requirements:
 
     const randomSeed = Math.floor(Math.random() * 100000);
     const aiPromise = ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.8-flash',
       contents: `Generate exactly ${examLength} live board exam questions for Class ${classLevel} ${board} ${subject} ${chapterName ? `on chapter "${chapterName.trim()}" (High Probability Exam Questions)` : 'full syllabus'}. Random Seed: ${randomSeed}. Language: ${language}. Mode: ${mode}.`,
       config: {
         systemInstruction,
@@ -2522,7 +2523,7 @@ Strict Requirements:
     });
 
     const timeoutPromise = new Promise<any>((_, reject) =>
-      setTimeout(() => reject(new Error('AI generation timeout after 5s')), 5000)
+      setTimeout(() => reject(new Error('AI generation timeout after 25s')), 25000)
     );
 
     let result: any = null;
@@ -2658,7 +2659,7 @@ Strict Rules:
 
     const randomSeed = Math.floor(Math.random() * 100000);
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.8-flash',
       contents: `Generate exactly ${numQuestions} live competitive exam MCQs for ${targetDescription}. Random Seed: ${randomSeed}. Quality: ${qualityLevel}. Language: ${language}.`,
       config: {
         systemInstruction,
@@ -2801,7 +2802,7 @@ STRICT SUBJECT INTEGRITY:
 
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.8-flash',
           contents: `Generate exactly ${targetCount} battle quiz questions for ${levelDesc} on Subject: "${activeSubject}"${cleanTopic ? ` Chapter: "${cleanTopic}"` : ''}. Difficulty: ${difficulty}.`,
           config: {
             systemInstruction,
@@ -2890,7 +2891,7 @@ app.post('/api/ai/mnemonic', async (req, res) => {
       const prompt = `Create a catchy Hindi memory trick / rhyme (निमोनिक्स कविता/शॉर्टकट ट्रिक) for competitive exam students on the topic: "${topic}".
 Return JSON with keys: title (string), rhyme (catchy 1-2 line Hindi poem/acronym), breakdown (array of strings explaining each letter/word), tip (exam memory tip).`;
       const result = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: { responseMimeType: 'application/json' }
       });
@@ -2970,7 +2971,7 @@ Return strictly valid JSON with this exact schema:
 
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.8-flash',
           contents: prompt,
           config: { responseMimeType: 'application/json' }
         });
