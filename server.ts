@@ -2523,7 +2523,7 @@ Strict Requirements:
     });
 
     const timeoutPromise = new Promise<any>((_, reject) =>
-      setTimeout(() => reject(new Error('AI generation timeout after 25s')), 25000)
+      setTimeout(() => reject(new Error('AI generation timeout after 60s')), 60000)
     );
 
     let result: any = null;
