@@ -479,11 +479,10 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1.5 sm:px-3 sm:py-2 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/40 text-cyan-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
-              title="3-लाइन मेन्यू (Menu)"
+              className="p-1.5 sm:p-2 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/40 text-cyan-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center justify-center shrink-0"
+              title="Menu (3-Line Icon)"
             >
-              <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
-              <span className="hidden sm:inline text-xs font-black text-cyan-300 tracking-wide">3-लाइन मेन्यू</span>
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
             </button>
 
             {activeView !== 'home' && (
@@ -498,7 +497,7 @@ export const App: React.FC = () => {
             )}
 
             <div onClick={() => navigateTo('home')} className="flex items-center cursor-pointer select-none shrink-0 min-w-0">
-              <HansCompainLogo className="w-6 h-6 sm:w-8 sm:h-8 shrink-0" />
+              <HansCompainLogo className="w-7 h-7 sm:w-10 sm:h-10 shrink-0" />
             </div>
           </div>
 
@@ -522,7 +521,7 @@ export const App: React.FC = () => {
                 title="लॉगिन सक्रिय - प्रोफाइल देखें"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="max-w-[95px] sm:max-w-[160px] md:max-w-[220px] truncate">
+                <span className="max-w-[120px] sm:max-w-[200px] md:max-w-[300px] truncate">
                   {currentUser.displayName || currentUser.email || 'Logged In'}
                 </span>
               </button>
@@ -565,7 +564,7 @@ export const App: React.FC = () => {
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           
-          <div className="p-3.5 space-y-2.5 border-b border-slate-850/80">
+          <div className="p-4 sm:p-5 space-y-4 border-b border-slate-850/80">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <HansCompainLogo className="w-7 h-7" />
@@ -666,7 +665,7 @@ export const App: React.FC = () => {
           </div>
 
           {/* Navigation Links matching Screenshot 3 & 4 */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {/* Quick Section Collapsible Bar with Arrow Toggle */}
             <div className="flex items-center justify-between px-2.5 py-1 bg-[#091122]/90 border border-slate-800/80 rounded-xl text-[10px] text-slate-300">
               <span className="flex items-center gap-1.5 font-bold text-cyan-400">
@@ -733,7 +732,7 @@ export const App: React.FC = () => {
               </button>
 
               {!isMainToolsCollapsed && (
-                <div className="space-y-1 pt-0.5 animate-fade-in transition-all">
+                <div className="space-y-1.5 pt-1 animate-fade-in transition-all">
                   {filteredMenuItems.map(item => (
                     <NavItem
                       key={item.viewId}
@@ -919,28 +918,28 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-3 border-t border-slate-850/80 bg-[#04070F] flex items-center justify-between text-xs text-slate-400">
+          <div className="p-4 border-t border-slate-850/80 bg-[#04070F] flex items-center justify-between text-xs text-slate-400">
             <div
               onClick={() => setIsUserProfileModalOpen(true)}
-              className="flex items-center gap-2 min-w-0 cursor-pointer hover:text-cyan-300 transition-colors"
+              className="flex items-center gap-2.5 min-w-0 cursor-pointer hover:text-cyan-300 transition-colors"
               title="छात्र प्रोफाइल कार्ड खोलें"
             >
-              <div className="w-3.5 h-3.5 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
-              <span className="font-extrabold text-white text-[11px] truncate">
+              <div className="w-4 h-4 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
+              <span className="font-extrabold text-white text-xs truncate">
                 {currentUser ? currentUser.displayName || currentUser.email : 'HANS COMPAIN Core'}
               </span>
             </div>
             {currentUser ? (
               <button
                 onClick={() => logoutUser()}
-                className="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-rose-400 hover:text-white cursor-pointer shrink-0"
+                className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-bold text-rose-400 hover:text-white cursor-pointer shrink-0"
               >
                 Logout
               </button>
             ) : (
               <button
                 onClick={() => signInWithGoogle(targetExam).catch(() => {})}
-                className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-[10px] font-black text-white cursor-pointer shrink-0"
+                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-[10px] font-black text-white cursor-pointer shrink-0"
                 title="Register for 24h Auto-Email Study Alerts & Cloud Sync"
               >
                 Google लॉगिन
@@ -969,11 +968,11 @@ export const App: React.FC = () => {
             
             {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
             {activeView === 'home' && (
-              <div className="max-w-2xl lg:max-w-3xl mx-auto w-full flex flex-col justify-start items-center text-center space-y-2 sm:space-y-2.5 py-2 sm:py-3 animate-fade-in">
+              <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full flex flex-col justify-start items-center text-center space-y-4 sm:space-y-6 py-4 sm:py-8 animate-fade-in">
                 
                 {/* Center Official 3D Mascot Logo & Tagline */}
-                <div className="pt-0.5 sm:pt-1">
-                  <HansCompainLogo variant="center" />
+                <div className="pt-2 sm:pt-4">
+                  <HansCompainLogo variant="center" className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48" />
                 </div>
 
                 {/* Main Headline */}
@@ -1376,8 +1375,8 @@ export const App: React.FC = () => {
           
           {/* 4. BOTTOM INPUT BAR (ONLY ON HOME DASHBOARD) */}
           {activeView === 'home' && (
-            <div className="p-3 sm:p-4 border-t border-slate-900 bg-[#03060E] z-10 shrink-0">
-              <div className="max-w-2xl mx-auto flex flex-col gap-1.5">
+            <div className="p-4 sm:p-6 border-t border-slate-900 bg-[#03060E] z-10 shrink-0">
+              <div className="max-w-4xl mx-auto flex flex-col gap-2">
                 <div className="flex items-center gap-2 bg-[#091122] border border-slate-800 rounded-3xl p-2 px-3 shadow-lg focus-within:border-cyan-500/80 transition-all">
                   <button 
                     onClick={() => navigateTo('ocr-scan')}
