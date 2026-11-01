@@ -478,7 +478,7 @@ export const App: React.FC = () => {
         <header className="px-2 sm:px-4 h-13 sm:h-16 border-b border-slate-900 flex items-center justify-between gap-1 sm:gap-2 sticky top-0 z-40 backdrop-blur-md bg-[#03060E]/95 w-full">
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-1.5 sm:px-3 sm:py-2 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/40 text-cyan-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
               title="3-लाइन मेन्यू (Menu)"
             >
@@ -558,12 +558,12 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      <div className="flex-1 min-h-0 flex overflow-hidden w-full relative">
+      <div className="flex-1 min-h-0 relative w-full overflow-hidden">
         
         {/* 2. SIDE-DRAWER / 3-LINE MENU (OVERLAY ON ALL DEVICES SO ALL FEATURES ARE 100% FULL SCREEN) */}
-        <div className={`w-72 sm:w-80 border-r border-slate-850/80 bg-[#060913] flex flex-col justify-between flex-shrink-0 transition-all duration-300 z-50 ${
-          sidebarOpen ? 'translate-x-0 fixed' : '-translate-x-full fixed'
-        } inset-y-0 left-0 top-0 h-full shadow-2xl`}>
+        <div className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-[#060913] border-r border-slate-850/80 transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col justify-between ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
           
           <div className="p-3.5 space-y-2.5 border-b border-slate-850/80">
             <div className="flex items-center justify-between">
