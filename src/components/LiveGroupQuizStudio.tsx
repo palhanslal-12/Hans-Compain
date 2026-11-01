@@ -519,11 +519,15 @@ export const LiveGroupQuizStudio: React.FC = () => {
           setQuestionsPool(formattedQs);
           setBattleQuestions(formattedQs);
           setRoomToast(`🎉 AI ने ${formattedQs.length} नए सिलेबस प्रश्न जनरेट कर दिए!`);
+          setIsGeneratingAI(false);
+          setTimeout(() => setRoomToast(null), 3500);
           return;
         }
       }
     } catch (err) {
       console.warn('Battle questions API notice, using exact syllabus offline vault:', err);
+    } finally {
+      setIsGeneratingAI(false);
     }
 
     // High-Yield Authentic Offline Fallback (100% subject isolation & exact count)
@@ -762,7 +766,7 @@ export const LiveGroupQuizStudio: React.FC = () => {
   const currentQ = battleQuestions[currentIdx] || battleQuestions[0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 text-white animate-fade-in pb-16 px-2 sm:px-4">
+    <div className="w-full max-w-7xl mx-auto space-y-6 text-white animate-fade-in pb-16 px-2 sm:px-4 lg:px-6">
       {/* 1. TOP HERO BANNER */}
       <div className="bg-gradient-to-r from-rose-950 via-slate-900 to-amber-950 p-5 sm:p-7 rounded-3xl border border-rose-500/30 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1.5">

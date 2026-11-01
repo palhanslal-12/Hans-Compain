@@ -372,6 +372,110 @@ const SERVER_HINDI_QUESTIONS: ServerSyllabusQuestion[] = [
     correctAnswer: 0,
     explanation: 'एक ही शब्द "पानी" के तीन अलग-अलग प्रसंगों में तीन अर्थ हैं (मोती के लिए चमक, मनुष्य के लिए प्रतिष्ठा/सम्मान, चून के लिए जल), अतः श्लेष अलंकार है।',
     tag: 'काव्यशास्त्र - अलंकार'
+  },
+  {
+    id: 'hi_srv_lit_1',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'नेताजी का चश्मा (स्वयं प्रकाश)',
+    question: "'नेताजी का चश्मा' पाठ में चौराहे पर लगी नेताजी की मूर्ति पर चश्मा कौन बदलता था?",
+    options: ['कैप्टन चश्मेवाला', 'पानवाला', 'हालदार साहब', 'मास्टर मोतीलाल'],
+    correctAnswer: 0,
+    explanation: 'देशभक्त कैप्टन चश्मेवाला नेताजी की बिना चश्मे वाली मूर्ति पर अपनी ओर से वास्तविक चश्मा लगाता और बदलता रहता था।',
+    tag: 'कक्षा 10 हिन्दी - नेताजी का चश्मा'
+  },
+  {
+    id: 'hi_srv_lit_2',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'बालगोबिन भगत (रामवृक्ष बेनीपुरी)',
+    question: "बालगोबिन भगत का व्यक्तित्व कैसा था और वे किसे अपना साहब मानते थे?",
+    options: ['गृहस्थ साधु - संत कबीरदास', 'संन्यासी - तुलसीदास', 'कर्मकांडी ब्राह्मण - सूरदास', 'फकीर - गोरखनाथ'],
+    correctAnswer: 0,
+    explanation: 'बालगोबिन भगत गृहस्थ होते हुए भी सच्चे अर्थों में साधु थे और कबीर के पदों को गाते हुए उनके आदर्शों पर चलते थे।',
+    tag: 'कक्षा 10 हिन्दी - बालगोबिन भगत'
+  },
+  {
+    id: 'hi_srv_lit_3',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'लखनवी अंदाज़ (यशपाल)',
+    question: "'लखनवी अंदाज़' व्यंग्य में नवाब साहब ने खीरे की फांकों के साथ क्या किया?",
+    options: ['सूंघकर खिड़की से बाहर फेंक दिया', 'पूरा खीरा खा गए', 'लेखक को जबरन खिला दिया', 'गाड़ी से नीचे गिरा दिया'],
+    correctAnswer: 0,
+    explanation: 'नवाब साहब ने अपनी बनावटी सामंती नफासत का दिखावा करने के लिए खीरे की प्रत्येक फांक को सूंघा, डकार ली और खिड़की से बाहर फेंक दिया।',
+    tag: 'कक्षा 10 हिन्दी - लखनवी अंदाज़'
+  },
+  {
+    id: 'hi_srv_lit_4',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'माता का आँचल (शिवपूजन सहाय)',
+    question: "'माता का आँचल' पाठ में लेखक का बचपन का क्या नाम था?",
+    options: ['तारकेश्वरनाथ (भोलानाथ)', 'अमरनाथ', 'शिवकुमार', 'रमेश'],
+    correctAnswer: 0,
+    explanation: 'लेखक का नाम तारकेश्वरनाथ था, लेकिन पिता द्वारा माथे पर भभूत लगाने के कारण सब उन्हें "भोलानाथ" कहते थे।',
+    tag: 'कक्षा 10 हिन्दी - माता का आँचल'
+  },
+  {
+    id: 'hi_srv_lit_5',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '12th',
+    chapter: 'उसने कहा था (चंद्रधर शर्मा गुलेरी)',
+    question: "'उसने कहा था' कहानी में लहना सिंह किस रेजिमेंट में जमादार था?",
+    options: ['77 सिख राइफल्स', '34 गोरखा', '15 पंजाब', '8 राजपूत'],
+    correctAnswer: 0,
+    explanation: 'लहना सिंह नंबर 77 सिख राइफल्स में जमादार था, जिसने युद्ध के मैदान में अपने साथी सैनिकों और सूबेदारनी के बेटे की रक्षा की।',
+    tag: 'कक्षा 12 हिन्दी - उसने कहा था'
+  },
+  {
+    id: 'hi_srv_lit_6',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '12th',
+    chapter: 'बातचीत (बालकृष्ण भट्ट)',
+    question: "बालकृष्ण भट्ट के निबंध 'बातचीत' के अनुसार किसके बिना सृष्टि गूंगी प्रतीत होती है?",
+    options: ['वाक्-शक्ति (बोलने की क्षमता)', 'श्रवण-शक्ति', 'दृश्य-शक्ति', 'स्पर्श-शक्ति'],
+    correctAnswer: 0,
+    explanation: 'लेखक के अनुसार यदि मनुष्य में वाक्-शक्ति न होती तो यह समस्त चराचर जगत मूक और गूंगा प्रतीत होता।',
+    tag: 'कक्षा 12 हिन्दी - बातचीत'
+  },
+  {
+    id: 'hi_srv_lit_7',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '12th',
+    chapter: 'अर्धनारीश्वर (रामधारी सिंह दिनकर)',
+    question: "'अर्धनारीश्वर' निबंध में दिनकर जी ने किस आदर्श की स्थापना की है?",
+    options: ['स्त्री और पुरुष में पूर्ण समानता व पूरकता', 'पुरुष की श्रेष्ठता', 'स्त्री की श्रेष्ठता', 'पारंपरिक रूढ़िवादिता'],
+    correctAnswer: 0,
+    explanation: 'दिनकर जी के अनुसार नर और नारी एक ही द्रव्य की ढली दो प्रतिमाएं हैं, दोनों के गुणों का समन्वय ही मानवता को पूर्ण बनाता है।',
+    tag: 'कक्षा 12 हिन्दी - अर्धनारीश्वर'
+  },
+  {
+    id: 'hi_srv_lit_8',
+    subject: 'हिन्दी (Hindi)',
+    subjectKey: 'hindi',
+    level: 'both',
+    classLevel: '12th',
+    chapter: 'जूठन (ओमप्रकाश वाल्मीकि)',
+    question: "'जूठन' आत्मकथा में लेखक ने किस प्रधानाध्यापक के अत्याचारों का वर्णन किया है?",
+    options: ['कलीराम हेडमास्टर', 'दीनानाथ हेडमास्टर', 'राधेश्याम हेडमास्टर', 'मदनलाल हेडमास्टर'],
+    correctAnswer: 0,
+    explanation: 'स्कूल के हेडमास्टर कलीराम ने लेखक को जातिगत अपमान करते हुए पूरे स्कूल मैदान में झाड़ू लगाने को विवश किया था।',
+    tag: 'कक्षा 12 हिन्दी - जूठन'
   }
 ];
 
@@ -510,6 +614,19 @@ const SERVER_MATH_QUESTIONS: ServerSyllabusQuestion[] = [
     tag: 'गणित - बीजगणित'
   },
   {
+    id: 'ma_quad_2',
+    subject: 'गणित (Mathematics)',
+    subjectKey: 'math',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'द्विघात समीकरण (Quadratic Equations)',
+    question: 'द्विघात समीकरण x² - 7x + 12 = 0 के मूल (Roots) क्या होंगे?',
+    options: ['3 और 4', '-3 और -4', '2 और 6', '-2 और -6'],
+    correctAnswer: 0,
+    explanation: 'गुणनखंडन करने पर (x - 3)(x - 4) = 0 प्राप्त होता है, अतः x = 3, 4 मूल हैं।',
+    tag: 'गणित - बीजगणित'
+  },
+  {
     id: 'ma_ap_1',
     subject: 'गणित (Mathematics)',
     subjectKey: 'math',
@@ -521,6 +638,71 @@ const SERVER_MATH_QUESTIONS: ServerSyllabusQuestion[] = [
     correctAnswer: 0,
     explanation: 'AP का n-वां पद aₙ = a + (n - 1)d होता है, जबकि n पदों का योगफल Sₙ = n/2 [2a + (n-1)d] होता है।',
     tag: 'गणित - समांतर श्रेढ़ी'
+  },
+  {
+    id: 'ma_ap_2',
+    subject: 'गणित (Mathematics)',
+    subjectKey: 'math',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'समांतर श्रेढ़ी (Arithmetic Progression)',
+    question: 'समांतर श्रेढ़ी 3, 8, 13, 18, ... का 10वां पद क्या होगा?',
+    options: ['48', '53', '43', '50'],
+    correctAnswer: 0,
+    explanation: 'यहाँ a = 3, d = 5। 10वां पद a₁₀ = 3 + (10 - 1)×5 = 3 + 45 = 48 होगा।',
+    tag: 'गणित - समांतर श्रेढ़ी'
+  },
+  {
+    id: 'ma_coord_1',
+    subject: 'गणित (Mathematics)',
+    subjectKey: 'math',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'निर्देशांक ज्यामिति (Coordinate Geometry)',
+    question: 'मूल बिंदु (0, 0) से बिंदु (x, y) की दूरी का सूत्र क्या होता है?',
+    options: ['√(x² + y²)', 'x² + y²', '√(x - y)', 'x + y'],
+    correctAnswer: 0,
+    explanation: 'दूरी सूत्र d = √((x - 0)² + (y - 0)²) = √(x² + y²) होता है।',
+    tag: 'गणित - निर्देशांक ज्यामिति'
+  },
+  {
+    id: 'ma_stat_1',
+    subject: 'गणित (Mathematics)',
+    subjectKey: 'math',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'सांख्यिकी एवं प्रायिकता (Statistics & Probability)',
+    question: 'माध्य, माध्यक और बहुलक के बीच सही आनुभविक संबंध (Empirical Relationship) क्या है?',
+    options: ['बहुलक = 3 माध्यक - 2 माध्य', 'माध्य = 3 बहुलक - 2 माध्यक', 'माध्यक = 3 माध्य - 2 बहुलक', 'बहुलक = 2 माध्यक - 3 माध्य'],
+    correctAnswer: 0,
+    explanation: 'कार्ल पियर्सन का आनुभविक सूत्र Mode = 3 Median - 2 Mean (बहुलक = 3 माध्यक - 2 माध्य) होता है।',
+    tag: 'गणित - सांख्यिकी'
+  },
+  {
+    id: 'ma_prob_1',
+    subject: 'गणित (Mathematics)',
+    subjectKey: 'math',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'सांख्यिकी एवं प्रायिकता (Statistics & Probability)',
+    question: 'किसी निश्चित घटना (Sure Event) की प्रायिकता का मान कितना होता है?',
+    options: ['1', '0', '0.5', 'अनंत'],
+    correctAnswer: 0,
+    explanation: 'निश्चित घटना की प्रायिकता सदैव 1 होती है, जबकि असंभव घटना की प्रायिकता 0 होती है।',
+    tag: 'गणित - प्रायिकता'
+  },
+  {
+    id: 'ma_mens_1',
+    subject: 'गणित (Mathematics)',
+    subjectKey: 'math',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'क्षेत्रमिति (Mensuration & Surface Areas)',
+    question: 'त्रिज्या r वाले ठोस गोले का कुल पृष्ठीय क्षेत्रफल कितना होता है?',
+    options: ['4πr²', '2πr²', '3πr²', '(4/3)πr³'],
+    correctAnswer: 0,
+    explanation: 'ठोस गोले का संपूर्ण पृष्ठीय क्षेत्रफल 4πr² होता है, जबकि उसका आयतन (4/3)πr³ होता है।',
+    tag: 'गणित - क्षेत्रमिति'
   }
 ];
 
@@ -539,6 +721,32 @@ const SERVER_SOCIAL_QUESTIONS: ServerSyllabusQuestion[] = [
     tag: 'इतिहास - राष्ट्रीय आंदोलन'
   },
   {
+    id: 'sst_his_2',
+    subject: 'सामाजिक विज्ञान (Social Science)',
+    subjectKey: 'social_science',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'भारत में राष्ट्रवाद',
+    question: 'जलियांवाला बाग नरसंहार किस ऐतिहासिक तारीख को और किस शहर में हुआ था?',
+    options: ['13 अप्रैल 1919 (अमृतसर)', '10 मई 1857 (मेरठ)', '12 मार्च 1930 (दांडी)', '5 फरवरी 1922 (चौरी चौरा)'],
+    correctAnswer: 0,
+    explanation: '13 अप्रैल 1919 को अमृतसर के जलियांवाला बाग में बैसाखी के दिन जनरल डायर ने निहत्थी सभा पर गोलियां चलवाई थीं।',
+    tag: 'इतिहास - राष्ट्रीय आंदोलन'
+  },
+  {
+    id: 'sst_his_3',
+    subject: 'सामाजिक विज्ञान (Social Science)',
+    subjectKey: 'social_science',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'यूरोप में राष्ट्रवाद का उदय',
+    question: "'यंग इटली' (Young Italy) नामक गुप्त क्रांतिकारी संगठन की स्थापना किसने की थी?",
+    options: ['ज्युसेपे मेत्सिनी (Giuseppe Mazzini)', 'काउंट कावूर', 'ओटो वॉन बिस्मार्क', 'गैरीबाल्डी'],
+    correctAnswer: 0,
+    explanation: '1831 में ज्युसेपे मेत्सिनी ने मार्सेई में यंग इटली की स्थापना कर इटली के एकीकरण का वैचारिक आधार तैयार किया।',
+    tag: 'इतिहास - यूरोप में राष्ट्रवाद'
+  },
+  {
     id: 'sst_geo_1',
     subject: 'सामाजिक विज्ञान (Social Science)',
     subjectKey: 'social_science',
@@ -552,6 +760,32 @@ const SERVER_SOCIAL_QUESTIONS: ServerSyllabusQuestion[] = [
     tag: 'भूगोल - मृदा संसाधन'
   },
   {
+    id: 'sst_geo_2',
+    subject: 'सामाजिक विज्ञान (Social Science)',
+    subjectKey: 'social_science',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'संसाधन एवं विकास',
+    question: 'प्रथम अंतरराष्ट्रीय पृथ्वी शिखर सम्मेलन (Earth Summit) 1992 में किस देश के शहर में आयोजित हुआ था?',
+    options: ['रियो डी जेनेरियो (ब्राजील)', 'क्योटो (जापान)', 'स्टॉकहोम (स्वीडन)', 'पेरिस (फ्रांस)'],
+    correctAnswer: 0,
+    explanation: 'जून 1992 में ब्राजील के रियो डी जेनेरियो में सतत विकास के लिए एजेंडा 21 को मंजूरी दी गई थी।',
+    tag: 'भूगोल - पर्यावरण'
+  },
+  {
+    id: 'sst_geo_3',
+    subject: 'सामाजिक विज्ञान (Social Science)',
+    subjectKey: 'social_science',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'कृषि (Agriculture)',
+    question: 'भारत का कौन-सा राज्य चाय का सबसे बड़ा उत्पादक राज्य है?',
+    options: ['असम', 'पश्चिम बंगाल', 'केरल', 'तमिलनाडु'],
+    correctAnswer: 0,
+    explanation: 'भारत के कुल चाय उत्पादन का 50% से अधिक हिस्सा असम राज्य से प्राप्त होता है।',
+    tag: 'भूगोल - भारतीय कृषि'
+  },
+  {
     id: 'sst_civ_1',
     subject: 'सामाजिक विज्ञान (Social Science)',
     subjectKey: 'social_science',
@@ -563,6 +797,45 @@ const SERVER_SOCIAL_QUESTIONS: ServerSyllabusQuestion[] = [
     correctAnswer: 0,
     explanation: 'अनुच्छेद 17 अस्पृश्यता को समाप्त करता है और किसी भी रूप में इसका आचरण विधि के अनुसार दंडनीय अपराध घोषित करता है।',
     tag: 'नागरिक शास्त्र - मौलिक अधिकार'
+  },
+  {
+    id: 'sst_civ_2',
+    subject: 'सामाजिक विज्ञान (Social Science)',
+    subjectKey: 'social_science',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'सत्ता की साझेदारी व संघवाद',
+    question: 'बेल्जियम की राजधानी ब्रुसेल्स में डच और फ्रेंच भाषी आबादी का क्या अनुपात था?',
+    options: ['80% फ्रेंच और 20% डच', '50% फ्रेंच और 50% डच', '80% डच और 20% फ्रेंच', '10% फ्रेंच और 90% जर्मन'],
+    correctAnswer: 0,
+    explanation: 'राजधानी ब्रुसेल्स में 80% आबादी फ्रेंच और 20% डच थी, जबकि पूरे देश में 59% डच और 40% फ्रेंच थे।',
+    tag: 'नागरिक शास्त्र - संघवाद'
+  },
+  {
+    id: 'sst_eco_1',
+    subject: 'सामाजिक विज्ञान (Social Science)',
+    subjectKey: 'social_science',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'भारतीय अर्थव्यवस्था के क्षेत्रक',
+    question: 'कृषि, वानिकी, मत्स्य पालन और खनन अर्थव्यवस्था के किस क्षेत्रक (Sector) के अंतर्गत आते हैं?',
+    options: ['प्राथमिक क्षेत्रक (Primary Sector)', 'द्वितीयक क्षेत्रक (Secondary)', 'तृतीयक/सेवा क्षेत्रक (Tertiary)', 'चतुर्थक क्षेत्रक'],
+    correctAnswer: 0,
+    explanation: 'प्राकृतिक संसाधनों के सीधे दोहन पर आधारित गतिविधियां प्राथमिक क्षेत्रक में आती हैं।',
+    tag: 'अर्थशास्त्र'
+  },
+  {
+    id: 'sst_eco_2',
+    subject: 'सामाजिक विज्ञान (Social Science)',
+    subjectKey: 'social_science',
+    level: 'both',
+    classLevel: '10th',
+    chapter: 'मुद्रा और साख (Money and Credit)',
+    question: 'भारत में औपचारिक साख ऋणदाताओं (बैंकों व सहकारी समितियों) की कार्यप्रणाली पर कौन-सा संस्थान निगरानी रखता है?',
+    options: ['भारतीय रिज़र्व बैंक (RBI)', 'नीति आयोग', 'वित्त मंत्रालय', 'भारतीय स्टेट बैंक (SBI)'],
+    correctAnswer: 0,
+    explanation: 'आरबीआई बैंकों के पास नकदी आरक्षित अनुपात (CRR) और ऋण वितरण की प्राथमिकताओं पर प्रत्यक्ष नियंत्रण रखता है।',
+    tag: 'अर्थशास्त्र - बैंकिंग'
   }
 ];
 
@@ -580,6 +853,30 @@ const SERVER_COMPETITIVE_QUESTIONS: ServerSyllabusQuestion[] = [
     tag: 'Polity - Emergency Provisions'
   },
   {
+    id: 'comp_pol_2',
+    subject: 'Indian Polity & Constitution',
+    subjectKey: 'polity',
+    level: 'competitive',
+    chapter: 'संसद एवं न्यायपालिका',
+    question: 'भारतीय संविधान के किस अनुच्छेद को डॉ. भीमराव आंबेडकर ने "संविधान की आत्मा और हृदय" कहा था?',
+    options: ['अनुच्छेद 32 (संवैधानिक उपचारों का अधिकार)', 'अनुच्छेद 14 (समानता का अधिकार)', 'अनुच्छेद 21 (जीवन का अधिकार)', 'अनुच्छेद 19 (अभिव्यक्ति स्वतंत्रता)'],
+    correctAnswer: 0,
+    explanation: 'अनुच्छेद 32 नागरिकों को मौलिक अधिकारों के उल्लंघन पर सीधे सुप्रीम कोर्ट जाने और 5 रिटें प्राप्त करने का अधिकार देता है।',
+    tag: 'Polity - Fundamental Rights'
+  },
+  {
+    id: 'comp_pol_3',
+    subject: 'Indian Polity & Constitution',
+    subjectKey: 'polity',
+    level: 'competitive',
+    chapter: 'संविधान संशोधन एवं अनुसूचियां',
+    question: 'दल-बदल विरोधी कानून (Anti-Defection Law) संविधान की किस अनुसूची से संबंधित है?',
+    options: ['10वीं अनुसूची (52वां संशोधन 1985)', '8वीं अनुसूची', '7वीं अनुसूची', '11वीं अनुसूची'],
+    correctAnswer: 0,
+    explanation: '1985 के 52वें संविधान संशोधन द्वारा 10वीं अनुसूची जोड़कर सांसदों और विधायकों के दल-बदल पर अयोग्यता का प्रावधान किया गया।',
+    tag: 'Polity - Schedules'
+  },
+  {
     id: 'comp_steno_1',
     subject: 'Shorthand & Stenography',
     subjectKey: 'steno',
@@ -592,6 +889,18 @@ const SERVER_COMPETITIVE_QUESTIONS: ServerSyllabusQuestion[] = [
     tag: 'Stenography Core Principles'
   },
   {
+    id: 'comp_steno_2',
+    subject: 'Shorthand & Stenography',
+    subjectKey: 'steno',
+    level: 'competitive',
+    chapter: 'आशुलिपि स्वर व स्थान नियम',
+    question: 'ऋषि प्रणाली में तृतीय स्थान (Third Place) के स्वर का संकेत रेखाक्षर के किस स्थान पर लगाया जाता है?',
+    options: ['रेखाक्षर के अंत (अंतिम छोर) पर', 'रेखाक्षर के प्रारंभ में', 'रेखाक्षर के ठीक मध्य में', 'रेखाक्षर के ऊपर'],
+    correctAnswer: 0,
+    explanation: 'प्रथम स्थान स्वर रेखाक्षर के प्रारंभ में, द्वितीय स्थान मध्य में और तृतीय स्थान अंत में लगाया जाता है।',
+    tag: 'Stenography Vowels'
+  },
+  {
     id: 'comp_gk_1',
     subject: 'General Knowledge & Current Affairs',
     subjectKey: 'gk',
@@ -602,6 +911,30 @@ const SERVER_COMPETITIVE_QUESTIONS: ServerSyllabusQuestion[] = [
     correctAnswer: 0,
     explanation: 'लोथल गुजरात के भोगवा नदी के तट पर स्थित हड़प्पा सभ्यता का प्रमुख बंदरगाह था जहाँ जहाजों के लंगर डालने का कृत्रिम ईंटों का गोदीबाड़ा मिला है।',
     tag: 'SSC CGL / Railway History'
+  },
+  {
+    id: 'comp_gk_2',
+    subject: 'General Knowledge & Current Affairs',
+    subjectKey: 'gk',
+    level: 'competitive',
+    chapter: 'भूगोल एवं नदियां',
+    question: 'भारत की कौन-सी नदी कर्क रेखा को दो बार पार करती है?',
+    options: ['माही नदी (Mahi River)', 'नर्मदा नदी', 'ताप्ती नदी', 'गोदावरी नदी'],
+    correctAnswer: 0,
+    explanation: 'माही नदी मध्य प्रदेश के धार जिले से निकलकर राजस्थान और गुजरात से बहते हुए कर्क रेखा को दो बार काटती है।',
+    tag: 'Geography - Rivers'
+  },
+  {
+    id: 'comp_gk_3',
+    subject: 'General Knowledge & Current Affairs',
+    subjectKey: 'gk',
+    level: 'competitive',
+    chapter: 'विज्ञान एवं प्रौद्योगिकी',
+    question: 'मानव शरीर में रक्तचाप (Blood Pressure) मापने के लिए किस चिकित्सीय उपकरण का उपयोग किया जाता है?',
+    options: ['स्फिग्मोमैनोमीटर (Sphygmomanometer)', 'स्टेथोस्कोप', 'ईसीजी मशीन', 'गैल्वेनोमीटर'],
+    correctAnswer: 0,
+    explanation: 'स्फिग्मोमैनोमीटर द्वारा सिस्टोलिक (120 mmHg) और डायस्टोलिक (80 mmHg) रक्तचाप मापा जाता है।',
+    tag: 'General Science - Human Physiology'
   }
 ];
 
@@ -656,6 +989,52 @@ const SERVER_ENGLISH_QUESTIONS: ServerSyllabusQuestion[] = [
     correctAnswer: 0,
     explanation: 'Simple Past tense active voice ("punished") changes in passive voice to "was/were + past participle" (was punished).',
     tag: 'Active & Passive Voice'
+  },
+  {
+    id: 'eng_voice_2',
+    subject: 'English Grammar (Voice)',
+    subjectKey: 'english',
+    level: 'board',
+    chapter: 'Active and Passive Voice',
+    question: 'Choose the correct Passive Voice of: "Someone has stolen my pen."',
+    options: [
+      'My pen has been stolen.',
+      'My pen had been stolen by someone.',
+      'My pen is stolen.',
+      'Someone was stolen my pen.'
+    ],
+    correctAnswer: 0,
+    explanation: 'Present Perfect tense in passive voice uses "has/have + been + V₃". Indefinite pronouns like "someone" are dropped in passive voice.',
+    tag: 'Active & Passive Voice'
+  },
+  {
+    id: 'eng_sva_1',
+    subject: 'English Grammar (Subject-Verb Agreement)',
+    subjectKey: 'english',
+    level: 'board',
+    chapter: 'Subject-Verb Agreement',
+    question: 'Select the grammatically correct sentence:',
+    options: [
+      'Neither the principal nor the teachers were present in the meeting.',
+      'Neither the principal nor the teachers was present in the meeting.',
+      'Either he or you is responsible for this mistake.',
+      'Every students are working hard.'
+    ],
+    correctAnswer: 0,
+    explanation: 'When subjects are connected by "neither...nor", the verb agrees in number and person with the nearest subject (teachers -> plural -> were).',
+    tag: 'Subject-Verb Agreement'
+  },
+  {
+    id: 'eng_sva_2',
+    subject: 'English Grammar (Subject-Verb Agreement)',
+    subjectKey: 'english',
+    level: 'board',
+    chapter: 'Subject-Verb Agreement',
+    question: 'Fill in the blank: "One of my best friends _______ living in Canada."',
+    options: ['is', 'are', 'were', 'have been'],
+    correctAnswer: 0,
+    explanation: 'With "One of + plural noun", the subject is "One" which is singular, hence the singular verb "is" is used.',
+    tag: 'Subject-Verb Agreement'
   }
 ];
 
@@ -666,35 +1045,36 @@ function getExactSubjectQuestionsServer(params: {
   classLevel?: '10th' | '12th' | 'general';
   board?: string;
   count: number;
+  excludeQuestions?: string[];
 }): ServerSyllabusQuestion[] {
-  const { subjectOrCategory, topicOrChapter, count } = params;
+  const { subjectOrCategory, topicOrChapter, count, excludeQuestions = [] } = params;
   const rawTopic = (topicOrChapter || '').toLowerCase().trim();
   const combined = `${subjectOrCategory || ''} ${topicOrChapter || ''}`.toLowerCase();
   let pool: ServerSyllabusQuestion[] = [];
 
   if (/english|अंग्रेजी|grammar|vocabulary|voice|narration|active|passive|direct|indirect|speech|tenses|prepositions|articles/i.test(combined)) {
-    pool = SERVER_ENGLISH_QUESTIONS;
-  } else if (/hindi|हिन्दी|हिंदी|व्याकरण|संधि|समास|मुहावरे|रस|अलंकार|गद्य|पद्य|कबीर|प्रेमचंद|दिनकर/i.test(combined)) {
-    pool = SERVER_HINDI_QUESTIONS;
+    pool = [...SERVER_ENGLISH_QUESTIONS];
+  } else if (/hindi|हिन्दी|हिंदी|व्याकरण|संधि|समास|मुहावरे|रस|अलंकार|गद्य|पद्य|कबीर|प्रेमचंद|दिनकर|नेपाल|गुलेरी|लहना/i.test(combined)) {
+    pool = [...SERVER_HINDI_QUESTIONS];
   } else if (/math|गणित|trigonometry|algebra|त्रिकोणमिति|समीकरण|सांख्यिकी|ज्यामिति|समांतर/i.test(combined)) {
-    pool = SERVER_MATH_QUESTIONS;
+    pool = [...SERVER_MATH_QUESTIONS];
+  } else if (/sanskrit|संस्कृत/i.test(combined)) {
+    pool = SERVER_COMPETITIVE_QUESTIONS.filter(q => q.subjectKey === 'sanskrit' || /संस्कृत/i.test(q.chapter || ''));
+    if (pool.length === 0) pool = [...SERVER_HINDI_QUESTIONS]; // nearest linguistic root if empty
   } else if (/history|इतिहास|राष्ट्रवाद|मुगल|हड़प्पा|geography|भूगोल|सामाजिक|sst|social/i.test(combined)) {
-    pool = SERVER_SOCIAL_QUESTIONS.filter(q => /इतिहास|history|मुगल|हड़प्पा|राष्ट्रवाद|भूगोल|geography|सामाजिक|social/i.test(q.chapter + q.question + q.tag));
-    if (pool.length === 0) pool = SERVER_SOCIAL_QUESTIONS;
+    pool = [...SERVER_SOCIAL_QUESTIONS];
   } else if (/steno|आशुलिपि|डिक्टेशन|शॉर्टहैंड/i.test(combined)) {
     pool = SERVER_COMPETITIVE_QUESTIONS.filter(q => q.subjectKey === 'steno');
   } else if (/polity|संविधान|राजव्यवस्था|अनुच्छेद|संसद|राष्ट्रपति/i.test(combined)) {
     pool = SERVER_COMPETITIVE_QUESTIONS.filter(q => q.subjectKey === 'polity');
-  } else if (/ssc|railway|rrb|competitive/i.test(combined)) {
-    pool = SERVER_COMPETITIVE_QUESTIONS;
-  } else if (/science|विज्ञान|भौतिकी|रसायन|जीव विज्ञान|physics|chemistry|biology|प्रकाश|विद्युत|आवर्त|कोशिका|omr|रासायनिक|अम्ल/i.test(combined)) {
-    pool = SERVER_SCIENCE_QUESTIONS;
+  } else if (/ssc|railway|rrb|competitive|सामान्य ज्ञान|gk/i.test(combined)) {
+    pool = [...SERVER_COMPETITIVE_QUESTIONS];
   } else {
-    pool = SERVER_SCIENCE_QUESTIONS;
+    pool = [...SERVER_SCIENCE_QUESTIONS];
   }
 
-  // If a specific chapter or topic was requested, filter for it first
-  if (rawTopic && rawTopic.trim().length > 1) {
+  // Filter by topic/chapter if requested
+  if (rawTopic && rawTopic.length > 1) {
     const chapterFiltered = pool.filter(q =>
       q.chapter.toLowerCase().includes(rawTopic) ||
       rawTopic.includes(q.chapter.toLowerCase()) ||
@@ -705,26 +1085,58 @@ function getExactSubjectQuestionsServer(params: {
     }
   }
 
-  const result: ServerSyllabusQuestion[] = [];
-  const target = Math.max(1, count || 10);
-  for (let i = 0; i < target; i++) {
-    const item = pool[i % pool.length];
-    result.push({
-      ...item,
-      id: `${item.id}_${i + 1}`
-    });
+  // STRICT ZERO-REPETITION: Exclude recently seen question snippets
+  if (Array.isArray(excludeQuestions) && excludeQuestions.length > 0) {
+    const excludeSet = new Set(excludeQuestions.map(s => s.toLowerCase().trim().slice(0, 30)));
+    const freshPool = pool.filter(q => !excludeSet.has(q.question.toLowerCase().trim().slice(0, 30)));
+    if (freshPool.length >= count) {
+      pool = freshPool;
+    }
   }
 
-  return result.slice(0, target);
+  // Shuffle pool randomly
+  pool = [...pool].sort(() => Math.random() - 0.5);
+
+  const target = Math.max(1, count || 10);
+  const result: ServerSyllabusQuestion[] = [];
+  const usedTexts = new Set<string>();
+
+  for (let i = 0; i < pool.length && result.length < target; i++) {
+    const item = pool[i];
+    const textSig = item.question.trim().slice(0, 40);
+    if (!usedTexts.has(textSig)) {
+      usedTexts.add(textSig);
+      result.push({
+        ...item,
+        id: `${item.id}_${Date.now()}_${result.length + 1}`
+      });
+    }
+  }
+
+  // Ensure exact count within the same pool
+  if (result.length < target && pool.length > 0) {
+    let loopIdx = 0;
+    while (result.length < target) {
+      const template = pool[loopIdx % pool.length];
+      result.push({
+        ...template,
+        id: `${template.id}_rep_${result.length + 1}`
+      });
+      loopIdx++;
+    }
+  }
+
+  return result;
 }
 
-function generateFallbackBoardQuestions(board: string, classLevel: string, subject: string, examLength: number, language: string) {
+function generateFallbackBoardQuestions(board: string, classLevel: string, subject: string, examLength: number, language: string, excludeQuestions: string[] = []) {
   const list = getExactSubjectQuestionsServer({
     subjectOrCategory: subject,
     level: 'board',
     classLevel: (classLevel === '12th' ? '12th' : '10th') as any,
     board,
-    count: examLength
+    count: examLength,
+    excludeQuestions
   });
   return list.slice(0, examLength).map((q, idx) => ({
     id: `board_fallback_${q.id}_${idx + 1}`,
@@ -736,11 +1148,12 @@ function generateFallbackBoardQuestions(board: string, classLevel: string, subje
   }));
 }
 
-function generateFallbackCompQuestions(examCategory: string, subject: string, numQuestions: number, language: string) {
+function generateFallbackCompQuestions(examCategory: string, subject: string, numQuestions: number, language: string, excludeQuestions: string[] = []) {
   const list = getExactSubjectQuestionsServer({
     subjectOrCategory: `${examCategory} ${subject}`,
     level: 'competitive',
-    count: numQuestions
+    count: numQuestions,
+    excludeQuestions
   });
   return list.slice(0, numQuestions).map((q, idx) => ({
     id: `comp_fallback_${q.id}_${idx + 1}`,
@@ -2222,8 +2635,8 @@ function recordEmailAndAdminAlert(payload: {
       id: `alert_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       type: payload.type,
       title: payload.title,
-      adminRecipients: ['hanscompain@gmail.com', 'support@hanscompain.in'],
-      recipientEmail: payload.recipientEmail || 'support@hanscompain.in',
+      adminRecipients: ['palhanslal4@gmail.com', 'support.hans.compain@gmail.com', 'hanscompain@gmail.com', 'support@hanscompain.in'],
+      recipientEmail: payload.recipientEmail || 'palhanslal4@gmail.com',
       userDisplayName: payload.userDisplayName || 'Student / System',
       featureName: payload.featureName || 'Platform Core',
       details: payload.details,
@@ -2545,16 +2958,34 @@ Strict Requirements:
             id: q.id || `board_live_${Date.now()}_${idx + 1}`
           }));
 
-          // Strict Guarantee: Never return fewer than examLength
+          // Strict Guarantee: Never duplicate questions to fill shortfall!
+          // Draw unique non-repeating questions from curated vault
           if (finalQuestions.length < examLength) {
-            const shortfall = examLength - finalQuestions.length;
-            for (let i = 0; i < shortfall; i++) {
-              const baseQ = finalQuestions[i % finalQuestions.length];
-              finalQuestions.push({
-                ...baseQ,
-                id: `board_live_${Date.now()}_fill_${i + 1}`,
-                yearTag: `${board} ${classLevel} Blueprint Set ${i + 2}`
-              });
+            const usedSigs = new Set(finalQuestions.map((q: any) => (q.question || '').trim().slice(0, 35).toLowerCase()));
+            const backupQuestions = getExactSubjectQuestionsServer({
+              subjectOrCategory: subject,
+              topicOrChapter: chapterName,
+              level: 'board',
+              classLevel: (classLevel === '12th' ? '12th' : '10th') as any,
+              board,
+              count: examLength,
+              excludeQuestions: [...excludeQuestions, ...Array.from(usedSigs)]
+            });
+
+            for (const bq of backupQuestions) {
+              if (finalQuestions.length >= examLength) break;
+              const sig = bq.question.trim().slice(0, 35).toLowerCase();
+              if (!usedSigs.has(sig)) {
+                usedSigs.add(sig);
+                finalQuestions.push({
+                  id: `board_vault_${bq.id}_${finalQuestions.length + 1}`,
+                  question: bq.question,
+                  options: bq.options,
+                  correctAnswer: bq.correctAnswer,
+                  explanation: bq.explanation,
+                  yearTag: `${board} ${classLevel} Official Blueprint`
+                });
+              }
             }
           }
 
@@ -2578,7 +3009,7 @@ Strict Requirements:
     }
 
     // Fallback if AI output or parse failed
-    const fallbackQuestions = generateFallbackBoardQuestions(board, classLevel, subject, examLength, language);
+    const fallbackQuestions = generateFallbackBoardQuestions(board, classLevel, subject, examLength, language, excludeQuestions);
     return res.json({
       success: true,
       questions: fallbackQuestions,
@@ -2680,16 +3111,31 @@ Strict Rules:
             id: q.id || `comp_live_${Date.now()}_${idx + 1}`
           }));
 
-          // Strict Guarantee: Never return fewer than numQuestions
+          // Strict Guarantee: Never duplicate questions to fill shortfall!
+          // Draw unique non-repeating questions from curated vault
           if (finalQuestions.length < numQuestions) {
-            const shortfall = numQuestions - finalQuestions.length;
-            for (let i = 0; i < shortfall; i++) {
-              const baseQ = finalQuestions[i % finalQuestions.length];
-              finalQuestions.push({
-                ...baseQ,
-                id: `comp_live_${Date.now()}_fill_${i + 1}`,
-                examTag: `${examCategory} Exam Set ${i + 2}`
-              });
+            const usedSigs = new Set(finalQuestions.map((q: any) => (q.question || '').trim().slice(0, 35).toLowerCase()));
+            const backupQuestions = getExactSubjectQuestionsServer({
+              subjectOrCategory: `${examCategory} ${subject}`,
+              level: 'competitive',
+              count: numQuestions,
+              excludeQuestions: [...excludeQuestions, ...Array.from(usedSigs)]
+            });
+
+            for (const bq of backupQuestions) {
+              if (finalQuestions.length >= numQuestions) break;
+              const sig = bq.question.trim().slice(0, 35).toLowerCase();
+              if (!usedSigs.has(sig)) {
+                usedSigs.add(sig);
+                finalQuestions.push({
+                  id: `comp_vault_${bq.id}_${finalQuestions.length + 1}`,
+                  question: bq.question,
+                  options: bq.options,
+                  correctAnswer: bq.correctAnswer,
+                  explanation: bq.explanation,
+                  examTag: `${examCategory} 2026 Live Set`
+                });
+              }
             }
           }
 
@@ -2711,7 +3157,7 @@ Strict Rules:
       }
     }
 
-    const fallbackQuestions = generateFallbackCompQuestions(examCategory, subject, numQuestions, language);
+    const fallbackQuestions = generateFallbackCompQuestions(examCategory, subject, numQuestions, language, excludeQuestions);
     return res.json({
       success: true,
       questions: fallbackQuestions,
@@ -2721,7 +3167,7 @@ Strict Rules:
     });
   } catch (err: any) {
     console.error('Competitive live generator error:', err);
-    const fallbackQuestions = generateFallbackCompQuestions(examCategory, subject, numQuestions, language);
+    const fallbackQuestions = generateFallbackCompQuestions(examCategory, subject, numQuestions, language, excludeQuestions);
     return res.json({
       success: true,
       questions: fallbackQuestions,
@@ -2883,23 +3329,150 @@ STRICT SUBJECT INTEGRITY:
   }
 });
 
-// 3. Custom AI Mnemonic Generator API
+// 3. Custom AI Mnemonic Generator API (With Typo Correction & In-depth Explanation)
 app.post('/api/ai/mnemonic', async (req, res) => {
   try {
     const { topic } = req.body;
-    if (ai && topic) {
-      const prompt = `Create a catchy Hindi memory trick / rhyme (निमोनिक्स कविता/शॉर्टकट ट्रिक) for competitive exam students on the topic: "${topic}".
-Return JSON with keys: title (string), rhyme (catchy 1-2 line Hindi poem/acronym), breakdown (array of strings explaining each letter/word), tip (exam memory tip).`;
+    const cleanTopic = (topic || '').trim();
+    if (!cleanTopic) {
+      return res.status(400).json({ error: 'Topic is required' });
+    }
+
+    if (ai) {
+      const prompt = `You are India's top competitive examination faculty and memory coach (Super Memory Specialist).
+The user asked for a memory trick / mnemonic for: "${cleanTopic}".
+
+MANDATORY TYPO & INTENT RECOGNITION:
+- If the user made a spelling mistake or typed in phonetic Hinglish (e.g. "akbar navratan", "kark rekha", "pridic tabale", "mithocondria", "budh sangiti", "vitmin"), identify the EXACT intended academic/exam topic and correct it in "detectedTopic".
+- Do NOT output silly meaningless filler rhymes like "X का देखो कमाल".
+- Provide an AUTHENTIC, proven, or logically sound mnemonic acronym/poem used by toppers.
+- Every letter or word in the mnemonic MUST map directly to real factual entities.
+- Include a comprehensive conceptual explanation and a real exam question where this mnemonic is applied.
+
+Return strictly valid JSON with this schema:
+{
+  "detectedTopic": "Corrected Topic Name in Hindi & English (e.g., 'कर्क रेखा पर स्थित 8 भारतीय राज्य (Tropic of Cancer in India)')",
+  "title": "Clear catchy title",
+  "rhyme": "The exact viral/authentic mnemonic phrase or catchy 1-2 line rhyme",
+  "breakdown": [
+    "Word/Letter 1: Detailed fact, name, date, or formula",
+    "Word/Letter 2: Detailed fact, name, date, or formula",
+    "Word/Letter 3: Detailed fact, name, date, or formula"
+  ],
+  "explanation": "2-3 comprehensive sentences explaining the concept thoroughly so the student understands the underlying reality, not just the trick.",
+  "tip": "Concrete exam strategy on how to recall this under pressure (e.g., west-to-east sequence, odd-one-out elimination).",
+  "sampleQuestion": "Sample MCQ testing this topic: Question text? (a) ... (b) ... (c) ... (d) ... [सही उत्तर: ...]"
+}`;
+
       const result = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
         contents: prompt,
-        config: { responseMimeType: 'application/json' }
+        config: {
+          responseMimeType: 'application/json',
+          maxOutputTokens: 2048
+        }
       });
+
       if (result && result.text) {
-        return res.json(JSON.parse(result.text));
+        const parsed = safeJsonParse(result.text);
+        if (parsed && parsed.rhyme && parsed.breakdown) {
+          return res.json(parsed);
+        }
       }
     }
-    res.status(400).json({ error: 'Fallback required' });
+
+    // Comprehensive Fallback Knowledge Bank (Detects keywords and typos)
+    const lower = cleanTopic.toLowerCase();
+    let fallbackResult = null;
+
+    if (/कर्क|tropic|cancer|mitr|gujarat/i.test(lower)) {
+      fallbackResult = {
+        detectedTopic: 'कर्क रेखा पर स्थित 8 भारतीय राज्य (Tropic of Cancer)',
+        title: 'कर्क रेखा से गुजरने वाले 8 राज्य',
+        rhyme: '"मित्र पर गमछा झार (Mitr Par Gamchha Jhar)"',
+        breakdown: [
+          'मि = मिजोरम (Mizoram)',
+          'त्र = त्रिपुरा (Tripura)',
+          'प = पश्चिम बंगाल (West Bengal)',
+          'र = राजस्थान (Rajasthan)',
+          'ग = गुजरात (Gujarat)',
+          'म = मध्य प्रदेश (Madhya Pradesh)',
+          'छा = छत्तीसगढ़ (Chhattisgarh)',
+          'झार = झारखंड (Jharkhand)'
+        ],
+        explanation: 'कर्क रेखा (23.5° N अक्षांश) भारत के 8 राज्यों से होकर गुजरती है। मध्य प्रदेश में इसकी लंबाई सर्वाधिक है तथा राजस्थान में सबसे कम। माही नदी कर्क रेखा को दो बार काटती है।',
+        tip: 'पश्चिम से पूर्व का क्रम याद रखें: गुजरात → राजस्थान → मध्य प्रदेश → छत्तीसगढ़ → झारखंड → पश्चिम बंगाल → त्रिपुरा → मिजोरम।',
+        sampleQuestion: 'निम्न में से किस राज्य से कर्क रेखा नहीं गुजरती है? (A) राजस्थान (B) ओडिशा (C) त्रिपुरा (D) छत्तीसगढ़ [सही उत्तर: (B) ओडिशा]'
+      };
+    } else if (/अकबर|akbar|navratan|नवरत्न|birbal|tansen/i.test(lower)) {
+      fallbackResult = {
+        detectedTopic: 'मुगल सम्राट अकबर के 9 नवरत्न (Navratnas of Akbar)',
+        title: 'अकबर के 9 नवरत्न याद करने की मास्टर ट्रिक',
+        rhyme: '"BAT-BAT-MDH (बैट-बैट-एमडीएच)"',
+        breakdown: [
+          'B = बीरबल (Birbal - मुख्य सलाहकार व हाजिरजवाब)',
+          'A = अबुल फजल (Abul Fazl - आईन-ए-अकबरी के लेखक)',
+          'T = तानसेन (Tansen - महान संगीतकार, रामतनु पांडे)',
+          'B = भगवान दास (Bhagwan Das - आमेर के सेनापति)',
+          'A = अब्दुर रहीम खान-ए-खाना (Abdul Rahim - प्रसिद्ध कवि व सेनापति)',
+          'T = टोडरमल (Todarmal - वित्त मंत्री, दहशाला पद्धति)',
+          'M = मानसिंह (Man Singh - प्रधान सेनापति)',
+          'D = मुल्ला दो-प्याजा (Do-Piyaza - सलाहकार)',
+          'H = हकीम हुमाम (Hakim Humam - शाही हकीम/चिकित्सक)'
+        ],
+        explanation: 'मुगल शासक अकबर के दरबार में साहित्य, संगीत, प्रशासन और सैन्य कौशल में पारंगत 9 विशिष्ट व्यक्तियों का समूह था जिन्हें "नवरत्न" कहा जाता था। टोडरमल ने दहशाला भू-राजस्व प्रणाली शुरू की थी।',
+        tip: '"BAT BAT MDH" याद रखें। 3 "B", 3 "A", 3 "T/M/D/H" की संरचना से कोई भी नवरत्न परीक्षा में नहीं छूटेगा।',
+        sampleQuestion: 'अकबर के दरबार में दहशाला भू-राजस्व प्रणाली लागू करने वाले नवरत्न कौन थे? (A) बीरबल (B) टोडरमल (C) मानसिंह (D) अबुल फजल [सही उत्तर: (B) टोडरमल]'
+      };
+    } else if (/विटामिन|vitamin|vitmin|retinol|scurvy/i.test(lower)) {
+      fallbackResult = {
+        detectedTopic: 'विटामिन और उनके रासायनिक नाम (Vitamins A, B, C, D, E, K)',
+        title: 'विटामिन A से K तक रासायनिक नाम',
+        rhyme: '"रथ एक टॉफी (Rath Ek Taffee)"',
+        breakdown: [
+          'र = रेटिनॉल (विटामिन A - कमी से रतौंधी / Night Blindness)',
+          'थ = थायमिन (विटामिन B1 - कमी से बेरी-बेरी रोग)',
+          'ए = एस्कॉर्बिक एसिड (विटामिन C - कमी से स्कर्वी, खट्टे फल)',
+          'क = कैल्सीफेरॉल (विटामिन D - कमी से रिकेट्स, धूप)',
+          'टॉ = टोकोफेरॉल (विटामिन E - जनन क्षमता व ब्यूटी विटामिन)',
+          'फी = फिलोक्विनोन (विटामिन K - रक्त का थक्का बनाने में सहायक)'
+        ],
+        explanation: 'विटामिन कार्बनिक यौगिक हैं जो शरीर की उपापचयी क्रियाओं के लिए आवश्यक हैं। जल में घुलनशील विटामिन B और C हैं (ट्रिक: WBC), जबकि वसा में घुलनशील विटामिन K, E, D, A हैं (ट्रिक: KEDA)।',
+        tip: 'जल में घुलनशील (Water Soluble = B, C) और वसा में घुलनशील (Fat Soluble = K, E, D, A) का अंतर हमेशा ध्यान में रखें।',
+        sampleQuestion: 'रक्त का थक्का (Blood Clotting) बनने के लिए कौन-सा विटामिन आवश्यक है? (A) विटामिन A (B) विटामिन C (C) विटामिन K (D) विटामिन E [सही उत्तर: (C) विटामिन K]'
+      };
+    } else if (/बौद्ध|buddha|sangiti|council|rajgriha|vaishali/i.test(lower)) {
+      fallbackResult = {
+        detectedTopic: 'चार बौद्ध संगीतियां (Four Buddhist Councils - स्थान व शासक)',
+        title: '4 बौद्ध संगीतियों के स्थान व तत्कालीन शासक',
+        rhyme: '"स्थान: राजा वैशाली को पटाया कुंडल में | राजा: अक-अक"',
+        breakdown: [
+          '1st संगीति (483 ई.पू.): राजगृह (सप्तपर्णी गुफा) - शासक: अजातशत्रु (अ)',
+          '2nd संगीति (383 ई.पू.): वैशाली - शासक: कालाशोक (क)',
+          '3rd संगीति (250 ई.पू.): पाटलिपुत्र - शासक: अशोक (अ)',
+          '4th संगीति (प्रथम सदी): कुंडलवन (कश्मीर) - शासक: कनिष्क (क)'
+        ],
+        explanation: 'महात्मा बुद्ध के महापरिनिर्वाण के बाद बौद्ध धर्म की शिक्षाओं को संकलित करने हेतु 4 महासंगीतियां हुईं। चौथी संगीति में बौद्ध धर्म हीनयान और महायान दो संप्रदायों में विभाजित हो गया।',
+        tip: 'शासक याद रखने का सूत्र है "अ-का-अ-क" (अजातशत्रु, कालाशोक, अशोक, कनिष्क) और स्थान का सूत्र है "रा-वै-पा-कु"।',
+        sampleQuestion: 'चतुर्थ बौद्ध संगीति किसके शासनकाल में और कहाँ आयोजित हुई थी? [उत्तर: कनिष्क के शासनकाल में, कुंडलवन (कश्मीर)]'
+      };
+    } else {
+      fallbackResult = {
+        detectedTopic: cleanTopic,
+        title: `${cleanTopic} - परीक्षा स्पेशल मेमोरी ट्रिक`,
+        rhyme: `"${cleanTopic} की मुख्य अवधारणाएं एवं याद रखने की आसान विधि"`,
+        breakdown: [
+          `मूल घटक 1: ${cleanTopic} की आधारभूत परिभाषा और प्रमुख नियम`,
+          `मूल घटक 2: प्रमुख वर्गीकरण और परीक्षा में पूछे जाने वाले अपवाद`,
+          `मूल घटक 3: पिछले 10 वर्षों में आए हुए संभावित प्रश्न और उत्तर`
+        ],
+        explanation: `${cleanTopic} प्रतियोगी व बोर्ड परीक्षाओं के लिए एक अत्यंत उच्च-प्राथमिकता वाला विषय है। इसके मुख्य तथ्यों और सूत्रों को परस्पर जोड़कर याद करने से दीर्घकालिक स्मृति बनती है।`,
+        tip: 'इस विषय से संबंधित प्रश्नों को हल करते समय कीवर्ड एलिमिनेशन तकनीक का उपयोग करें।',
+        sampleQuestion: `${cleanTopic} से संबंधित अवधारणा पर सीधा प्रश्न पूछा जाता है। ध्यान से समझें और अभ्यास करें।`
+      };
+    }
+
+    return res.json(fallbackResult);
   } catch (err) {
     res.status(500).json({ error: 'Mnemonic generation error' });
   }

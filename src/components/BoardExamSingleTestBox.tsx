@@ -1222,7 +1222,7 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
   // C. BOARD EXAM CONFIGURATION & FREE OPEN CHAPTER GENERATOR SCREEN
   // ============================================================================
   return (
-    <div className="max-w-4xl mx-auto space-y-5 pb-12 text-white font-sans">
+    <div className="w-full max-w-7xl mx-auto space-y-5 pb-12 text-white font-sans px-2 sm:px-4 lg:px-6">
       {/* Top Banner */}
       <div className="bg-slate-900 border border-amber-500/30 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -1410,12 +1410,179 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
               </div>
             </div>
 
+            {/* Official Chapter Dropdown Selector (Dedicated for Board Exams) */}
+            <div className="space-y-2 pt-1">
+              <label className="text-xs font-extrabold text-amber-300 flex items-center justify-between">
+                <span>🎯 बोर्ड आधिकारिक चैप्टर ड्रॉपडाउन (Official Chapter List):</span>
+                {customTopicInput && (
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                    चैप्टर एक्टिव: {customTopicInput}
+                  </span>
+                )}
+              </label>
+
+              <select
+                value={topicMode === 'custom-chapter' ? customTopicInput : ''}
+                onChange={e => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    setTopicMode('all-syllabus');
+                    setCustomTopicInput('');
+                  } else {
+                    setTopicMode('custom-chapter');
+                    setCustomTopicInput(val);
+                  }
+                }}
+                className="w-full p-2.5 rounded-xl bg-slate-900 border border-indigo-400 text-xs font-bold text-white outline-none cursor-pointer focus:ring-2 focus:ring-amber-400"
+              >
+                <option value="">🌐 सम्पूर्ण सिलेबस (All Syllabus - सभी अध्यायों से प्रश्न)</option>
+
+                {(() => {
+                  const s = activeSubjectName.toLowerCase();
+                  if (s.includes('हिन्दी') || s.includes('हिंदी') || s.includes('hindi')) {
+                    return (
+                      <>
+                        <optgroup label="📖 गद्य खंड (Textbook Literature - Prose)">
+                          <option value="नेताजी का चश्मा (स्वयं प्रकाश)">नेताजी का चश्मा (स्वयं प्रकाश)</option>
+                          <option value="बालगोबिन भगत (रामवृक्ष बेनीपुरी)">बालगोबिन भगत (रामवृक्ष बेनीपुरी)</option>
+                          <option value="लखनवी अंदाज़ (यशपाल)">लखनवी अंदाज़ (यशपाल)</option>
+                          <option value="उसने कहा था (चंद्रधर शर्मा गुलेरी)">उसने कहा था (चंद्रधर शर्मा गुलेरी)</option>
+                          <option value="बातचीत (बालकृष्ण भट्ट)">बातचीत (बालकृष्ण भट्ट)</option>
+                          <option value="संपूर्ण क्रांति (जयप्रकाश नारायण)">संपूर्ण क्रांति (जयप्रकाश नारायण)</option>
+                          <option value="अर्धनारीश्वर (रामधारी सिंह दिनकर)">अर्धनारीश्वर (रामधारी सिंह दिनकर)</option>
+                          <option value="रोज (सच्चिदानंद हीरानंद वात्स्यायन अज्ञेय)">रोज (अज्ञेय - मालती व महेश्वर)</option>
+                          <option value="जूठन (ओमप्रकाश वाल्मीकि)">जूठन (आत्मकथा - ओमप्रकाश वाल्मीकि)</option>
+                          <option value="श्रम विभाजन और जाति प्रथा (भीमराव आंबेडकर)">श्रम विभाजन और जाति प्रथा (डॉ. आंबेडकर)</option>
+                        </optgroup>
+                        <optgroup label="🎭 पद्य खंड (Textbook Poetry - Kavya)">
+                          <option value="सूरदास के पद (उधो, तुम हौ अति बड़भागी)">सूरदास के पद (उधो तुम हौ अति बड़भागी)</option>
+                          <option value="राम-लक्ष्मण-परशुराम संवाद (तुलसीदास)">राम-लक्ष्मण-परशुराम संवाद (तुलसीदास)</option>
+                          <option value="उत्साह एवं अट नहीं रही है (निराला)">उत्साह एवं अट नहीं रही है (निराला)</option>
+                          <option value="यह दंतुरित मुसकान व फसल (नागार्जुन)">यह दंतुरित मुसकान व फसल (नागार्जुन)</option>
+                          <option value="कड़बक (मलिक मोहम्मद जायसी)">कड़बक (मलिक मोहम्मद जायसी)</option>
+                          <option value="छप्पय (नाभादास)">छप्पय (नाभादास - कबीर व सूरदास)</option>
+                          <option value="कवित्त (भूषण)">कवित्त (भूषण - शिवाजी महाराज)</option>
+                          <option value="अधिनायक (रघुवीर सहाय)">अधिनायक (रघुवीर सहाय - हरचरना)</option>
+                        </optgroup>
+                        <optgroup label="📚 पूरक पाठ्यपुस्तक (कृतिका / वर्णिका)">
+                          <option value="माता का आँचल (शिवपूजन सहाय)">माता का आँचल (शिवपूजन सहाय - भोलानाथ)</option>
+                          <option value="जॉर्ज पंचम की नाक (कमलेश्वर)">जॉर्ज पंचम की नाक (कमलेश्वर)</option>
+                          <option value="साना-साना हाथ जोड़ि (मधु कांकरिया)">साना-साना हाथ जोड़ि (मधु कांकरिया)</option>
+                        </optgroup>
+                        <optgroup label="📝 व्याकरण एवं काव्यशास्त्र (Grammar & Poetics)">
+                          <option value="संधि (स्वर, व्यंजन, विसर्ग)">संधि (स्वर, व्यंजन, विसर्ग)</option>
+                          <option value="समास (द्वंद्व, द्विगु, तत्पुरुष, बहुव्रीहि)">समास (द्वंद्व, द्विगु, तत्पुरुष, बहुव्रीहि)</option>
+                          <option value="कारक एवं विभक्ति चिह्न">कारक एवं विभक्ति चिह्न</option>
+                          <option value="मुहावरे एवं लोकोक्तियां">मुहावरे एवं लोकोक्तियां</option>
+                          <option value="उपसर्ग और प्रत्यय">उपसर्ग और प्रत्यय</option>
+                          <option value="पर्यायवाची व विलोम शब्द">पर्यायवाची व विलोम शब्द</option>
+                          <option value="रस (Rasa) एवं स्थायी भाव">रस (Rasa) एवं स्थायी भाव</option>
+                          <option value="अलंकार (अनुप्रास, यमक, श्लेष, रूपक)">अलंकार (अनुप्रास, यमक, श्लेष, रूपक)</option>
+                        </optgroup>
+                      </>
+                    );
+                  } else if (s.includes('गणित') || s.includes('math')) {
+                    return (
+                      <>
+                        <optgroup label="📐 संख्या पद्धति एवं बीजगणित">
+                          <option value="वास्तविक संख्याएं">वास्तविक संख्याएं (Real Numbers)</option>
+                          <option value="बहुपद (Polynomials)">बहुपद (Polynomials)</option>
+                          <option value="दो चर वाले रैखिक समीकरण युग्म">दो चर वाले रैखिक समीकरण युग्म</option>
+                          <option value="द्विघात समीकरण">द्विघात समीकरण (Quadratic Equations)</option>
+                          <option value="समांतर श्रेणियाँ (AP)">समांतर श्रेणियाँ (Arithmetic Progression)</option>
+                        </optgroup>
+                        <optgroup label="🔺 त्रिकोणमिति एवं ज्यामिति">
+                          <option value="त्रिकोणमिति का परिचय">त्रिकोणमिति का परिचय (Introduction to Trigonometry)</option>
+                          <option value="त्रिकोणमिति के कुछ अनुप्रयोग (ऊंचाई व दूरी)">त्रिकोणमिति के अनुप्रयोग (Heights & Distances)</option>
+                          <option value="निर्देशांक ज्यामिति (Coordinate Geometry)">निर्देशांक ज्यामिति (Coordinate Geometry)</option>
+                          <option value="त्रिभुज एवं वृत्त (Triangles & Circles)">त्रिभुज एवं वृत्त (Triangles & Circles)</option>
+                        </optgroup>
+                        <optgroup label="📊 सांख्यिकी, प्रायिकता एवं क्षेत्रमिति">
+                          <option value="सांख्यिकी (माध्य, माध्यक, बहुलक)">सांख्यिकी (माध्य, माध्यक, बहुलक)</option>
+                          <option value="प्रायिकता (Probability)">प्रायिकता (Probability)</option>
+                          <option value="वृत्तों से संबंधित क्षेत्रफल">वृत्तों से संबंधित क्षेत्रफल</option>
+                          <option value="पृष्ठीय क्षेत्रफल एवं आयतन">पृष्ठीय क्षेत्रफल एवं आयतन (Surface Areas & Volumes)</option>
+                        </optgroup>
+                      </>
+                    );
+                  } else if (s.includes('सामाजिक') || s.includes('social') || s.includes('इतिहास') || s.includes('भूगोल')) {
+                    return (
+                      <>
+                        <optgroup label="🏰 इतिहास (History)">
+                          <option value="यूरोप में राष्ट्रवाद का उदय">यूरोप में राष्ट्रवाद का उदय</option>
+                          <option value="भारत में राष्ट्रवाद">भारत में राष्ट्रवाद (सत्याग्रह व असहयोग आंदोलन)</option>
+                          <option value="भूमंडलीकृत विश्व का बनना">भूमंडलीकृत विश्व का बनना</option>
+                          <option value="औद्योगीकरण का युग">औद्योगीकरण का युग</option>
+                        </optgroup>
+                        <optgroup label="🌍 भूगोल (Geography)">
+                          <option value="संसाधन एवं विकास">संसाधन एवं विकास (मृदा व भूमि)</option>
+                          <option value="वन एवं वन्य जीव संसाधन">वन एवं वन्य जीव संसाधन</option>
+                          <option value="जल संसाधन एवं बहुउद्देशीय परियोजनाएं">जल संसाधन एवं बहुउद्देशीय परियोजनाएं</option>
+                          <option value="कृषि एवं प्रमुख फसलें">कृषि एवं प्रमुख फसलें (रबी, खरीफ, जायद)</option>
+                        </optgroup>
+                        <optgroup label="⚖️ राजनीति विज्ञान एवं अर्थशास्त्र">
+                          <option value="सत्ता की साझेदारी एवं संघवाद">सत्ता की साझेदारी एवं संघवाद</option>
+                          <option value="लोकतंत्र और विविधता">लोकतंत्र और विविधता</option>
+                          <option value="राजनीतिक दल एवं लोकतंत्र के परिणाम">राजनीतिक दल एवं लोकतंत्र के परिणाम</option>
+                          <option value="विकास एवं भारतीय अर्थव्यवस्था के क्षेत्रक">विकास एवं भारतीय अर्थव्यवस्था के क्षेत्रक</option>
+                          <option value="मुद्रा और साख (Money and Credit)">मुद्रा और साख (Money and Credit)</option>
+                        </optgroup>
+                      </>
+                    );
+                  } else if (s.includes('संस्कृत') || s.includes('sanskrit')) {
+                    return (
+                      <>
+                        <optgroup label="📜 पाठ्यपुस्तक पाठ (Literature)">
+                          <option value="शुचिपर्यावरणम् (शुद्ध पर्यावरण)">शुचिपर्यावरणम् (शुद्ध पर्यावरण)</option>
+                          <option value="बुद्धिर्बलवती सदा">बुद्धिर्बलवती सदा</option>
+                          <option value="जननी तुल्यवत्सला">जननी तुल्यवत्सला</option>
+                          <option value="सुभाषितानि (नीति श्लोक)">सुभाषितानि (नीति श्लोक)</option>
+                        </optgroup>
+                        <optgroup label="🔤 संस्कृत व्याकरण">
+                          <option value="संधि एवं संधि-विच्छेद">संधि एवं संधि-विच्छेद</option>
+                          <option value="शब्द रूप एवं धातु रूप">शब्द रूप एवं धातु रूप</option>
+                          <option value="समास एवं प्रत्यय">समास एवं प्रत्यय</option>
+                          <option value="कारक एवं उपपद विभक्ति नियम">कारक एवं उपपद विभक्ति नियम</option>
+                        </optgroup>
+                      </>
+                    );
+                  } else {
+                    return (
+                      <>
+                        <optgroup label="⚡ भौतिक विज्ञान (Physics)">
+                          <option value="प्रकाश का परावर्तन तथा अपवर्तन">प्रकाश का परावर्तन तथा अपवर्तन</option>
+                          <option value="मानव नेत्र तथा रंगबिरंगा संसार">मानव नेत्र तथा रंगबिरंगा संसार</option>
+                          <option value="विद्युत (ओम का नियम व प्रतिरोध)">विद्युत (ओम का नियम व प्रतिरोध)</option>
+                          <option value="विद्युत धारा के चुंबकीय प्रभाव">विद्युत धारा के चुंबकीय प्रभाव</option>
+                          <option value="ऊर्जा के स्रोत">ऊर्जा के स्रोत</option>
+                        </optgroup>
+                        <optgroup label="🧪 रसायन विज्ञान (Chemistry)">
+                          <option value="रासायनिक अभिक्रियाएँ एवं समीकरण">रासायनिक अभिक्रियाएँ एवं समीकरण</option>
+                          <option value="अम्ल, क्षारक एवं लवण">अम्ल, क्षारक एवं लवण (pH मान व सूचक)</option>
+                          <option value="धातु एवं अधातु">धातु एवं अधातु (सक्रियता श्रेणी)</option>
+                          <option value="कार्बन एवं उसके यौगिक">कार्बन एवं उसके यौगिक</option>
+                          <option value="तत्वों का आवर्त वर्गीकरण">तत्वों का आवर्त वर्गीकरण (आधुनिक आवर्त सारणी)</option>
+                        </optgroup>
+                        <optgroup label="🧬 जीव विज्ञान (Biology)">
+                          <option value="जैव प्रक्रम (पाचन, श्वसन, परिसंचरण)">जैव प्रक्रम (पाचन, श्वसन, परिसंचरण)</option>
+                          <option value="नियंत्रण एवं समन्वय (हार्मोन व तंत्रिका)">नियंत्रण एवं समन्वय (हार्मोन व तंत्रिका)</option>
+                          <option value="जीव जनन कैसे करते हैं">जीव जनन कैसे करते हैं</option>
+                          <option value="आनुवंशिकता एवं जैव विकास">आनुवंशिकता एवं जैव विकास (मेंडल के नियम)</option>
+                          <option value="हमारा पर्यावरण">हमारा पर्यावरण (पारिस्थितिक तंत्र)</option>
+                        </optgroup>
+                      </>
+                    );
+                  }
+                })()}
+              </select>
+            </div>
+
             {/* Quick High-Yield Chapter Chips for Active Subject */}
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 pt-1">
               <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
-                <span>🔥 परीक्षा में सर्वाधिक पूछे जाने वाले अध्याय (क्लिक करके सीधे चुनें):</span>
+                <span>🔥 लोकप्रिय चैप्टर चिप्स (क्लिक करके सीधे चुनें):</span>
               </span>
-              <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1 rounded-lg bg-slate-900/60 border border-slate-800/80">
+              <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
                 {(() => {
                   const s = activeSubjectName.toLowerCase();
                   let chips: string[] = [];
@@ -1427,7 +1594,7 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
                       'अम्ल, क्षारक एवं लवण',
                       'धातु एवं अधातु',
                       'कार्बन एवं उसके यौगिक',
-                      'जैव प्रक्रम (Life Processes)',
+                      'जैव प्रक्रम (पाचन, श्वसन, परिसंचरण)',
                       'आनुवंशिकता एवं जैव विकास',
                       'हमारा पर्यावरण'
                     ];
@@ -1435,41 +1602,47 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
                     chips = [
                       'वास्तविक संख्याएं',
                       'बहुपद (Polynomials)',
-                      'दो चर वाले रैखिक समीकरण',
+                      'दो चर वाले रैखिक समीकरण युग्म',
                       'द्विघात समीकरण',
                       'समांतर श्रेणियाँ (AP)',
-                      'त्रिकोणमिति का परिचय व अनुप्रयोग',
+                      'त्रिकोणमिति का परिचय',
                       'निर्देशांक ज्यामिति',
-                      'वृत्त एवं पृष्ठीय क्षेत्रफल',
-                      'सांख्यिकी एवं प्रायिकता'
+                      'सांख्यिकी (माध्य, माध्यक, बहुलक)',
+                      'प्रायिकता (Probability)'
                     ];
                   } else if (s.includes('हिन्दी') || s.includes('हिंदी') || s.includes('hindi')) {
                     chips = [
+                      'नेताजी का चश्मा (स्वयं प्रकाश)',
+                      'बालगोबिन भगत (रामवृक्ष बेनीपुरी)',
+                      'लखनवी अंदाज़ (यशपाल)',
+                      'माता का आँचल (शिवपूजन सहाय)',
+                      'सूरदास के पद (उधो तुम हौ अति बड़भागी)',
+                      'राम-लक्ष्मण-परशुराम संवाद (तुलसीदास)',
+                      'उसने कहा था (चंद्रधर शर्मा गुलेरी)',
+                      'बातचीत (बालकृष्ण भट्ट)',
+                      'जूठन (ओमप्रकाश वाल्मीकि)',
                       'संधि (स्वर, व्यंजन, विसर्ग)',
                       'समास (द्वंद्व, द्विगु, तत्पुरुष, बहुव्रीहि)',
-                      'कारक एवं विभक्ति चिह्न',
-                      'मुहावरे एवं लोकोक्तियाँ',
-                      'उपसर्ग और प्रत्यय',
-                      'पर्यायवाची व विलोम शब्द',
-                      'रस, छंद एवं अलंकार',
-                      'वाक्य शुद्धि व वर्तनी'
+                      'मुहावरे एवं लोकोक्तियां',
+                      'रस (Rasa) एवं स्थायी भाव',
+                      'अलंकार (अनुप्रास, यमक, श्लेष, रूपक)'
                     ];
                   } else if (s.includes('सामाजिक') || s.includes('social') || s.includes('इतिहास') || s.includes('भूगोल')) {
                     chips = [
-                      'यूरोप व भारत में राष्ट्रवाद',
+                      'यूरोप में राष्ट्रवाद का उदय',
+                      'भारत में राष्ट्रवाद',
                       'संसाधन एवं विकास',
-                      'वन एवं वन्य जीव संसाधन',
                       'कृषि एवं प्रमुख फसलें',
-                      'लोकतंत्र एवं राजनीतिक दल',
-                      'अर्थव्यवस्था के क्षेत्रक'
+                      'सत्ता की साझेदारी एवं संघवाद',
+                      'भारतीय अर्थव्यवस्था के क्षेत्रक'
                     ];
                   } else if (s.includes('संस्कृत') || s.includes('sanskrit')) {
                     chips = [
+                      'शुचिपर्यावरणम् (शुद्ध पर्यावरण)',
                       'संधि एवं संधि-विच्छेद',
                       'शब्द रूप एवं धातु रूप',
                       'समास एवं प्रत्यय',
-                      'कारक एवं उपपद विभक्ति नियम',
-                      'संस्कृत अनुवाद'
+                      'कारक एवं उपपद विभक्ति नियम'
                     ];
                   } else {
                     chips = [
@@ -1516,15 +1689,18 @@ export const BoardExamSingleTestBox: React.FC<{ language?: 'hindi' | 'english' }
                   />
                   {customTopicInput && (
                     <button
-                      onClick={() => setCustomTopicInput('')}
-                      className="px-2 py-1 text-slate-400 hover:text-white text-xs cursor-pointer"
+                      onClick={() => {
+                        setCustomTopicInput('');
+                        setTopicMode('all-syllabus');
+                      }}
+                      className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold rounded-lg cursor-pointer shrink-0"
                     >
                       हटाएं
                     </button>
                   )}
                 </div>
                 <span className="text-[11px] text-amber-300 block font-medium">
-                  🎯 चयनित अध्याय: "{customTopicInput || 'अभी लिखें'}" • AI इस अध्याय से परीक्षा में आने वाले सभी संभावित प्रश्न जनरेट करेगा।
+                  🎯 चयनित अध्याय: "{customTopicInput || 'अभी चुनें या लिखें'}" • 100% केवल इसी अध्याय के प्रश्न बोर्ड परीक्षा पैटर्न पर दिए जाएंगे।
                 </span>
               </div>
             ) : (

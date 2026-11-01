@@ -14,9 +14,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Book,
-  Bookmark
+  Bookmark,
+  ListFilter,
+  CheckCircle2,
+  Download,
+  Share2,
+  Lock,
+  LogIn
 } from 'lucide-react';
-import { recordStudyActivity } from '../firebase';
+import { recordStudyActivity, getEffectiveUser, signInWithGoogle } from '../firebase';
 import { playNaturalSpeech, stopNaturalSpeech } from '../utils/naturalSpeech';
 
 export interface BookChapter {
@@ -27,6 +33,8 @@ export interface BookChapter {
   category: string;
   chapterNum: number;
   content: string[];
+  summaryBullets?: string[];
+  keyFacts?: string[];
 }
 
 // Built-in Authoritative Multipage Multi-chapter Library

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, X, Share2, Copy, Check, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Download, X, Share2, Copy, Check, ShieldCheck, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { usePWAInstall, triggerGlobalAppInstall } from '../hooks/usePWAInstall';
 
 export const PUBLIC_RENDER_ORIGIN = 'https://hans-compain.onrender.com';
@@ -18,8 +18,19 @@ export function getDirectDownloadUrl(): string {
   return `${getCleanAppOrigin()}/?install=1`;
 }
 
-export const PWAInstallButton: React.FC<{ variant?: 'header' | 'sidebar' | 'banner' }> = ({ variant = 'header' }) => {
+export const PWAInstallButton: React.FC<{ 
+  variant?: 'header' | 'sidebar' | 'banner';
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+}> = ({ variant = 'header', isCollapsed: controlledCollapsed, onToggleCollapse }) => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+  const [internalCollapsed, setInternalCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hans_pwa_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [showModal, setShowModal] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
   const [installHint, setInstallHint] = useState<string | null>(null);
@@ -294,43 +305,93 @@ export const PWAInstallButton: React.FC<{ variant?: 'header' | 'sidebar' | 'bann
     );
   };
 
+  const isEffectiveCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed;
+
+  const handleToggle = () => {
+    if (onToggleCollapse) {
+      onToggleCollapse();
+    } else {
+      const next = !internalCollapsed;
+      setInternalCollapsed(next);
+      try {
+        localStorage.setItem('hans_pwa_sidebar_collapsed', String(next));
+      } catch {
+        // ignore
+      }
+    }
+  };
+
   if (variant === 'sidebar') {
     return (
       <>
-        <div className="p-3 bg-gradient-to-r from-blue-900/60 to-indigo-900/60 border border-blue-500/40 rounded-2xl space-y-2">
-          <div className="flex items-center justify-between gap-2 text-white font-bold text-xs">
-            <div className="flex items-center gap-2">
-              <img src="/logo.png?v=3" alt="HansCompain" className="w-6 h-6 rounded-md border border-cyan-400/50 object-cover" />
-              <span>HansCompain Official App</span>
+        {isEffectiveCollapsed ? (
+          /* Collapsed Mini-Card with Arrow to Expand */
+          <div className="p-2.5 bg-gradient-to-r from-blue-950/80 to-indigo-950/80 border border-blue-500/30 rounded-xl flex items-center justify-between gap-2 transition-all">
+            <div className="flex items-center gap-2 text-white font-bold text-xs truncate min-w-0">
+              <img src="/logo.png?v=3" alt="HansCompain" className="w-5 h-5 rounded-md border border-cyan-400/50 object-cover shrink-0" />
+              <span className="truncate text-[11px] text-cyan-200">HansCompain App</span>
+              {isInstalled && (
+                <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 rounded font-black shrink-0">INSTALLED</span>
+              )}
             </div>
-            {isInstalled && (
-              <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-black">INSTALLED</span>
-            )}
-          </div>
-          <p className="text-[11px] text-slate-300">
-            1-क्लिक में असली फुल-स्क्रीन मोबाइल ऐप डाउनलोड करें या डाउनलोड लिंक शेयर करें।
-          </p>
-
-          <div className="grid grid-cols-2 gap-1.5">
-            {!isInstalled && (
-              <button
-                onClick={handleHeaderOrSidebarDownloadClick}
-                disabled={isInstalling}
-                className="py-2 px-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-[11px] font-black flex items-center justify-center gap-1 shadow-md cursor-pointer transition-all"
-              >
-                <Download className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{isInstalling ? 'डाउनलोड...' : 'Download App'}</span>
-              </button>
-            )}
             <button
-              onClick={() => setShowModal(true)}
-              className={`${isInstalled ? 'col-span-2' : ''} py-2 px-2.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 cursor-pointer transition-all`}
+              type="button"
+              onClick={handleToggle}
+              className="p-1 px-2 rounded-lg bg-blue-600/30 hover:bg-blue-600/60 border border-blue-400/40 text-cyan-300 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all shrink-0"
+              title="ऐप कार्ड खोलें"
             >
-              <Share2 className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Share App</span>
+              <span>दिखाएं</span>
+              <ChevronDown className="w-3.5 h-3.5 -rotate-90" />
             </button>
           </div>
-        </div>
+        ) : (
+          /* Fully Expanded Card with Arrow to Hide/Collapse */
+          <div className="p-3 bg-gradient-to-r from-blue-900/60 to-indigo-900/60 border border-blue-500/40 rounded-2xl space-y-2 transition-all">
+            <div className="flex items-center justify-between gap-2 text-white font-bold text-xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <img src="/logo.png?v=3" alt="HansCompain" className="w-6 h-6 rounded-md border border-cyan-400/50 object-cover shrink-0" />
+                <span className="truncate">HansCompain Official App</span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {isInstalled && (
+                  <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-black">INSTALLED</span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleToggle}
+                  className="p-1 px-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-blue-400/30 text-cyan-300 text-[10px] font-semibold flex items-center gap-1 cursor-pointer transition-all"
+                  title="ऐप कार्ड छुपाएं"
+                >
+                  <span>छुपाएं</span>
+                  <ChevronUp className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-300">
+              1-क्लिक में असली फुल-स्क्रीन मोबाइल ऐप डाउनलोड करें या डाउनलोड लिंक शेयर करें।
+            </p>
+
+            <div className="grid grid-cols-2 gap-1.5">
+              {!isInstalled && (
+                <button
+                  onClick={handleHeaderOrSidebarDownloadClick}
+                  disabled={isInstalling}
+                  className="py-2 px-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-[11px] font-black flex items-center justify-center gap-1 shadow-md cursor-pointer transition-all"
+                >
+                  <Download className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isInstalling ? 'डाउनलोड...' : 'Download App'}</span>
+                </button>
+              )}
+              <button
+                onClick={() => setShowModal(true)}
+                className={`${isInstalled ? 'col-span-2' : ''} py-2 px-2.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 cursor-pointer transition-all`}
+              >
+                <Share2 className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">Share App</span>
+              </button>
+            </div>
+          </div>
+        )}
         <DownloadInstallModal />
       </>
     );

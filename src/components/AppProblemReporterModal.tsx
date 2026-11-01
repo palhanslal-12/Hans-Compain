@@ -137,7 +137,7 @@ export const AppProblemReporterModal: React.FC<AppProblemReporterModalProps> = (
                 ऐप समस्या, लैग व लेआउट रिपोर्टर 🚨
               </h2>
               <p className="text-[10px] sm:text-[11px] text-slate-400">
-                सीधे ओनर ईमेल पर सूचना: <span className="text-rose-300 font-mono">support.hans.compain@gmail.com</span>
+                सीधे ओनर ईमेल पर सूचना: <span className="text-rose-300 font-mono">palhanslal4@gmail.com</span>
               </p>
             </div>
           </div>
@@ -156,18 +156,27 @@ export const AppProblemReporterModal: React.FC<AppProblemReporterModalProps> = (
             </div>
             <h3 className="text-base font-bold text-white">रिपोर्ट सफलतापूर्वक दर्ज हो गई!</h3>
             <p className="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto">
-              आपकी रिपोर्ट और डिवाइस डायग्नोस्टिक्स (Screen: {window.innerWidth}×{window.innerHeight}, View: {activeViewName}) सीधे <strong className="text-cyan-300">support.hans.compain@gmail.com</strong> को भेज दी गई है। हमारी तकनीकी टीम इसे तुरंत ठीक करेगी।
+              आपकी रिपोर्ट और डिवाइस डायग्नोस्टिक्स (Screen: {window.innerWidth}×{window.innerHeight}, View: {activeViewName}) सीधे <strong className="text-cyan-300">palhanslal4@gmail.com</strong> को भेज दी गई है।
             </p>
-            <button
-              onClick={() => {
-                setIsSuccess(false);
-                setDescription('');
-                onClose();
-              }}
-              className="mt-3 px-6 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-black text-xs cursor-pointer shadow-lg"
-            >
-              ठीक है (Close)
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
+              <a
+                href={`mailto:palhanslal4@gmail.com?subject=${encodeURIComponent(`[HANS COMPAIN BUG] ${issueType.toUpperCase()} in ${activeViewName}`)}&body=${encodeURIComponent(`नमस्ते Hanslal Pal,\n\nमैंने Hans Compain ऐप में समस्या देखी:\n- प्रकार: ${issueType}\n- पेज: ${activeViewName}\n- स्क्रीन: ${window.innerWidth}x${window.innerHeight}\n- विवरण: ${description}\n- भेजा गया: ${effectiveEmail || 'Student'}`)}`}
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg"
+              >
+                <Mail className="w-4 h-4" />
+                <span>📧 Gmail ऐप में सीधे भेजें (Open in Gmail)</span>
+              </a>
+              <button
+                onClick={() => {
+                  setIsSuccess(false);
+                  setDescription('');
+                  onClose();
+                }}
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
+              >
+                बंद करें (Close)
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3.5">

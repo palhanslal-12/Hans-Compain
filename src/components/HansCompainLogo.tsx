@@ -155,9 +155,9 @@ export const HansCompainLogo = ({
 }) => {
   if (variant === "center") {
     return (
-      <div className="flex flex-col items-center justify-center cursor-pointer select-none group animate-fade-in shrink-0">
-        <div className="relative inline-flex items-center justify-center transition-transform duration-300 group-hover:scale-103">
-          <OfficialHansCompainLogoSVG className={className.includes("w-") ? className : "w-14 h-14 sm:w-16 sm:h-16 drop-shadow-[0_8px_20px_rgba(0,180,216,0.3)]"} />
+      <div className="flex flex-col items-center justify-center cursor-pointer select-none group animate-fade-in shrink-0 my-1">
+        <div className="relative inline-flex items-center justify-center p-1.5 rounded-3xl bg-gradient-to-b from-cyan-500/20 via-slate-900/90 to-blue-950/80 border-2 border-cyan-400/40 shadow-[0_0_35px_rgba(0,210,255,0.25)] transition-transform duration-300 group-hover:scale-105">
+          <OfficialHansCompainLogoSVG className={className.includes("w-") ? className : "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 drop-shadow-[0_10px_25px_rgba(0,180,216,0.4)]"} />
         </div>
       </div>
     );

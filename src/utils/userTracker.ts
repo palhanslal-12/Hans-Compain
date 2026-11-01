@@ -15,12 +15,22 @@ export function getVisitorId(): string {
 
 export function trackVisitorAction(featureName: string, actionDetail?: string) {
   try {
-    const user = getEffectiveUser();
-    const isLogged = !!user;
-    const visitorId = isLogged ? user.uid : getVisitorId();
-    const displayName = user?.displayName || (isLogged ? 'पंजीकृत छात्र' : `अतिथि (#${visitorId.slice(-4)})`);
-    const email = user?.email || (isLogged ? 'student@hanscompain.in' : 'बिना लॉगिन (Guest)');
+    let user = getEffectiveUser();
+    if (!user) {
+      try {
+        const raw = localStorage.getItem('hans_auth_session');
+        if (raw) user = JSON.parse(raw);
+      } catch {}
+    }
+
+    const isLogged = !!user && !user.isAnonymous && !!(user.email || user.displayName);
+    const visitorId = user?.uid || getVisitorId();
+    const displayName = user?.displayName || (user?.email ? user.email.split('@')[0] : `अतिथि छात्र (#${visitorId.slice(-4)})`);
+    const email = user?.email || (isLogged ? 'student@hanscompain.in' : 'अतिथि (Guest)');
     const targetExam = localStorage.getItem('hans_target_exam') || 'SSC & Steno 2026';
+
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1024;
+    const deviceType = width < 768 ? 'Mobile (फोन)' : width < 1024 ? 'Tablet (टैबलेट)' : 'Laptop / Desktop (लैपटॉप)';
 
     const payload = {
       userId: visitorId,
@@ -32,7 +42,7 @@ export function trackVisitorAction(featureName: string, actionDetail?: string) {
       lastTopic: featureName,
       featureName,
       actionDetail: actionDetail || `देखा: ${featureName}`,
-      device: typeof navigator !== 'undefined' ? (navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop/Tablet') : 'Web'
+      device: deviceType
     };
 
     fetch('/api/user/ping', {

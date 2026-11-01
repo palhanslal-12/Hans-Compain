@@ -748,7 +748,7 @@ export const MockTestsView: React.FC = () => {
   // ============================================================================
   if (!selectedExam) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6 pb-12 text-white font-sans">
+      <div className="w-full max-w-7xl mx-auto space-y-6 pb-12 text-white font-sans px-2 sm:px-4 lg:px-6">
         {/* Top Banner */}
         <div className="bg-slate-900/90 border border-slate-800 p-5 sm:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

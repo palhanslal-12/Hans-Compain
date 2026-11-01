@@ -90,3 +90,82 @@
   animation: fadeInText 0.8s ease-out 0.8s forwards;
   opacity: 0;
 }
+
+/* ============================================================================
+   HANS COMPAIN DYNAMIC COLOR THEMES
+   ============================================================================ */
+
+/* 1. Midnight Dark (Default) */
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  background-color: #03060E;
+  color: #f8fafc;
+}
+
+/* 2. Blue-Green Light Theme (High Contrast Reading) */
+html[data-theme="blue_green_light"],
+body[data-theme="blue_green_light"] {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+html[data-theme="blue_green_light"] header,
+html[data-theme="blue_green_light"] main,
+html[data-theme="blue_green_light"] .bg-\[\#03060E\] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+html[data-theme="blue_green_light"] .bg-\[\#091122\] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+html[data-theme="blue_green_light"] .text-white {
+  color: #0f172a !important;
+}
+html[data-theme="blue_green_light"] .text-slate-300,
+html[data-theme="blue_green_light"] .text-slate-400 {
+  color: #334155 !important;
+}
+
+/* 3. Warm Yellow / Eye-Care Reading Mode */
+html[data-theme="warm_yellow"],
+body[data-theme="warm_yellow"] {
+  background-color: #1a1612;
+  color: #fef3c7;
+}
+html[data-theme="warm_yellow"] .bg-\[\#03060E\] {
+  background-color: #1a1612 !important;
+}
+html[data-theme="warm_yellow"] .bg-\[\#091122\] {
+  background-color: #26211a !important;
+  border-color: #78350f !important;
+}
+
+/* 4. Eco Slate Gray */
+html[data-theme="eco_gray"],
+body[data-theme="eco_gray"] {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html[data-theme="eco_gray"] .bg-\[\#03060E\] {
+  background-color: #0f172a !important;
+}
+html[data-theme="eco_gray"] .bg-\[\#091122\] {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* 5. Cyber Blue Neon */
+html[data-theme="cyber_blue"],
+body[data-theme="cyber_blue"] {
+  background-color: #010816;
+  color: #38bdf8;
+}
+html[data-theme="cyber_blue"] .bg-\[\#03060E\] {
+  background-color: #010816 !important;
+}
+html[data-theme="cyber_blue"] .bg-\[\#091122\] {
+  background-color: #04142c !important;
+  border-color: #0284c7 !important;
+}
+

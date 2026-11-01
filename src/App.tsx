@@ -33,7 +33,9 @@ import {
   Globe,
   Clock,
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { HansCompainLogo } from './components/HansCompainLogo';
 import { DedicatedStenoMasterStudio } from './components/DedicatedStenoMasterStudio';
@@ -128,6 +130,36 @@ export const App: React.FC = () => {
   const [featureToggles, setFeatureToggles] = useState<Record<string, boolean>>(() => getStoredFeatureToggles());
   const [showSplash, setShowSplash] = useState(true);
 
+  // Screen Theme Color Mode State
+  const [colorMode, setColorMode] = useState<string>(() => {
+    try {
+      return localStorage.getItem('hans_color_theme') || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hans_color_theme', colorMode);
+      document.documentElement.setAttribute('data-theme', colorMode);
+      if (colorMode === 'light') {
+        document.body.classList.add('theme-light');
+        document.body.classList.remove('theme-cyberpunk', 'theme-midnight');
+      } else if (colorMode === 'cyberpunk') {
+        document.body.classList.add('theme-cyberpunk');
+        document.body.classList.remove('theme-light', 'theme-midnight');
+      } else if (colorMode === 'midnight') {
+        document.body.classList.add('theme-midnight');
+        document.body.classList.remove('theme-light', 'theme-cyberpunk');
+      } else {
+        document.body.classList.remove('theme-light', 'theme-cyberpunk', 'theme-midnight');
+      }
+    } catch {
+      // ignore
+    }
+  }, [colorMode]);
+
   // Modals state
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
@@ -148,6 +180,29 @@ export const App: React.FC = () => {
 
   // Chat history state in sidebar
   const [chatHistory, setChatHistory] = useState<{ id: number; query: string }[]>([]);
+
+  // Sidebar Arrow Collapsible / Hide State
+  const [isAppCardCollapsed, setIsAppCardCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hans_sidebar_app_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [isMainToolsCollapsed, setIsMainToolsCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hans_sidebar_tools_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [isChatHistoryCollapsed, setIsChatHistoryCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hans_sidebar_chat_history_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   // Initial direct article & view routing from URL params
   useEffect(() => {
@@ -424,10 +479,11 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-1.5 sm:p-2 bg-[#091122] hover:bg-[#101B34] border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center justify-center shrink-0"
-              title="Open 3-Line Menu"
+              className="p-1.5 sm:px-3 sm:py-2 bg-[#091122] hover:bg-[#101B34] border border-cyan-500/40 text-cyan-300 hover:text-white rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
+              title="3-लाइन मेन्यू (Menu)"
             >
               <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+              <span className="hidden sm:inline text-xs font-black text-cyan-300 tracking-wide">3-लाइन मेन्यू</span>
             </button>
 
             {activeView !== 'home' && (
@@ -466,7 +522,7 @@ export const App: React.FC = () => {
                 title="लॉगिन सक्रिय - प्रोफाइल देखें"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="max-w-[55px] sm:max-w-[120px] truncate">
+                <span className="max-w-[95px] sm:max-w-[160px] md:max-w-[220px] truncate">
                   {currentUser.displayName || currentUser.email || 'Logged In'}
                 </span>
               </button>
@@ -504,11 +560,9 @@ export const App: React.FC = () => {
 
       <div className="flex-1 min-h-0 flex overflow-hidden w-full relative">
         
-        {/* 2. SIDE-DRAWER / 3-LINE MENU (FULL-PAGE DRAWER ON CURRENT AFFAIRS, AI CHAT & ADMIN PANEL) */}
-        <div className={`w-72 sm:w-80 border-r border-slate-850/80 bg-[#060913] flex flex-col justify-between flex-shrink-0 transition-all duration-300 z-30 ${
-          (activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin' || activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
-            ? (sidebarOpen ? 'translate-x-0 fixed' : '-translate-x-full fixed')
-            : (sidebarOpen ? 'translate-x-0 fixed lg:relative' : '-translate-x-full lg:translate-x-0 fixed lg:relative')
+        {/* 2. SIDE-DRAWER / 3-LINE MENU (OVERLAY ON ALL DEVICES SO ALL FEATURES ARE 100% FULL SCREEN) */}
+        <div className={`w-72 sm:w-80 border-r border-slate-850/80 bg-[#060913] flex flex-col justify-between flex-shrink-0 transition-all duration-300 z-50 ${
+          sidebarOpen ? 'translate-x-0 fixed' : '-translate-x-full fixed'
         } inset-y-0 left-0 top-0 h-full shadow-2xl`}>
           
           <div className="p-3.5 space-y-2.5 border-b border-slate-850/80">
@@ -613,28 +667,103 @@ export const App: React.FC = () => {
 
           {/* Navigation Links matching Screenshot 3 & 4 */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
-            {/* In-App PWA Install Banner in Sidebar */}
-            <PWAInstallButton variant="sidebar" />
-
-            <div className="space-y-1">
-              <span className="text-[10px] font-extrabold text-cyan-400 uppercase tracking-widest px-1">
-                🚀 मुख्य स्टडी टूल्स व फीचर्स
+            {/* Quick Section Collapsible Bar with Arrow Toggle */}
+            <div className="flex items-center justify-between px-2.5 py-1 bg-[#091122]/90 border border-slate-800/80 rounded-xl text-[10px] text-slate-300">
+              <span className="flex items-center gap-1.5 font-bold text-cyan-400">
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isAppCardCollapsed && isMainToolsCollapsed ? '-rotate-90' : 'rotate-0'}`} />
+                <span>सेक्शन नेविगेशन</span>
               </span>
-              {filteredMenuItems.map(item => (
-                <NavItem
-                  key={item.viewId}
-                  icon={item.icon}
-                  label={item.label}
-                  viewId={item.viewId}
-                  badge={item.badge}
-                />
-              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const allCollapsed = isAppCardCollapsed && isMainToolsCollapsed;
+                  const next = !allCollapsed;
+                  setIsAppCardCollapsed(next);
+                  setIsMainToolsCollapsed(next);
+                  try {
+                    localStorage.setItem('hans_sidebar_app_collapsed', String(next));
+                    localStorage.setItem('hans_sidebar_tools_collapsed', String(next));
+                  } catch {}
+                }}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-950/80 hover:bg-blue-900 border border-blue-500/30 text-cyan-300 text-[10px] font-bold cursor-pointer transition-all"
+                title="ऐप कार्ड व मुख्य टूल्स को एक क्लिक में छुपाएं/दिखाएं"
+              >
+                <span>{isAppCardCollapsed && isMainToolsCollapsed ? 'दिखाएं' : 'छुपाएं'}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAppCardCollapsed && isMainToolsCollapsed ? '-rotate-90' : 'rotate-0'}`} />
+              </button>
+            </div>
+
+            {/* In-App PWA Install Banner in Sidebar with Arrow Collapsible */}
+            <PWAInstallButton 
+              variant="sidebar" 
+              isCollapsed={isAppCardCollapsed}
+              onToggleCollapse={() => {
+                const next = !isAppCardCollapsed;
+                setIsAppCardCollapsed(next);
+                try {
+                  localStorage.setItem('hans_sidebar_app_collapsed', String(next));
+                } catch {}
+              }}
+            />
+
+            {/* Main Study Tools with Interactive Collapsible Arrow */}
+            <div className="space-y-1">
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !isMainToolsCollapsed;
+                  setIsMainToolsCollapsed(next);
+                  try {
+                    localStorage.setItem('hans_sidebar_tools_collapsed', String(next));
+                  } catch {}
+                }}
+                className="w-full flex items-center justify-between text-[11px] font-extrabold text-cyan-400 uppercase tracking-widest px-2 py-1.5 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 border border-cyan-500/20 cursor-pointer transition-all group"
+                title="मुख्य स्टडी टूल्स सूची छुपाएं या खोलें"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>🚀 मुख्य स्टडी टूल्स व फीचर्स</span>
+                  <span className="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.2 rounded-full font-mono font-bold">
+                    {filteredMenuItems.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-slate-400 group-hover:text-cyan-300 text-[10px] font-bold">
+                  <span>{isMainToolsCollapsed ? 'दिखाएं' : 'छुपाएं'}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isMainToolsCollapsed ? '-rotate-90' : 'rotate-0'}`} />
+                </div>
+              </button>
+
+              {!isMainToolsCollapsed && (
+                <div className="space-y-1 pt-0.5 animate-fade-in transition-all">
+                  {filteredMenuItems.map(item => (
+                    <NavItem
+                      key={item.viewId}
+                      icon={item.icon}
+                      label={item.label}
+                      viewId={item.viewId}
+                      badge={item.badge}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Stateful Chat History matching Screenshot 3 */}
             <div className="space-y-1.5 pt-2 border-t border-slate-800">
               <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold px-1">
-                <span>🕒 चैट इतिहास ({chatHistory.length})</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !isChatHistoryCollapsed;
+                    setIsChatHistoryCollapsed(next);
+                    try {
+                      localStorage.setItem('hans_sidebar_chat_history_collapsed', String(next));
+                    } catch {}
+                  }}
+                  className="flex items-center gap-1.5 hover:text-cyan-300 cursor-pointer text-slate-400 font-bold"
+                >
+                  <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isChatHistoryCollapsed ? '-rotate-90' : 'rotate-0'}`} />
+                  <span>🕒 चैट इतिहास ({chatHistory.length})</span>
+                </button>
                 <div className="flex items-center gap-1.5 text-cyan-400">
                   <button
                     type="button"
@@ -665,13 +794,14 @@ export const App: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="space-y-1">
-                {chatHistory.length === 0 ? (
-                  <div className="p-2 rounded-xl bg-slate-950/40 border border-slate-900 text-[10px] text-slate-500 text-center">
-                    कोई चैट इतिहास नहीं है
-                  </div>
-                ) : (
-                  chatHistory.slice(0, 3).map(item => (
+              {!isChatHistoryCollapsed && (
+                <div className="space-y-1">
+                  {chatHistory.length === 0 ? (
+                    <div className="p-2 rounded-xl bg-slate-950/40 border border-slate-900 text-[10px] text-slate-500 text-center">
+                      कोई चैट इतिहास नहीं है
+                    </div>
+                  ) : (
+                    chatHistory.slice(0, 3).map(item => (
                     <div
                       key={item.id}
                       onClick={() => {
@@ -709,6 +839,7 @@ export const App: React.FC = () => {
                   ))
                 )}
               </div>
+              )}
             </div>
 
             {/* Community Links matching Screenshot 3 & 4 */}
@@ -819,21 +950,21 @@ export const App: React.FC = () => {
         </div>
 
         {sidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-20 ${(activeView === 'ca' || activeView === 'current-affairs' || activeView === 'admin' || activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') ? '' : 'lg:hidden'} transition-opacity`} />
+          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 transition-opacity" />
         )}
 
-        {/* 3. MAIN ROUTED VIEW AREA */}
+        {/* 3. MAIN ROUTED VIEW AREA - 100% FULL SCREEN ON PC/LAPTOP & MOBILE */}
         <main className="flex-1 w-full flex flex-col h-full overflow-hidden bg-[#03060E] relative">
           <div className={`flex-1 w-full ${
             activeView === 'home'
-              ? 'overflow-y-auto flex flex-col justify-center items-center p-2.5 sm:p-4 min-h-full'
+              ? 'overflow-y-auto flex flex-col justify-start items-center p-2.5 sm:p-4 min-h-full'
               : (activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
                 ? 'overflow-hidden p-0 flex flex-col h-full'
                 : (activeView === 'admin')
                   ? 'overflow-y-auto p-0 flex flex-col h-full'
                   : (activeView === 'ca' || activeView === 'current-affairs')
-                    ? 'overflow-y-auto px-2 py-2 sm:px-4 sm:py-3'
-                    : 'overflow-y-auto px-3 py-3 sm:px-6 sm:py-6'
+                    ? 'overflow-y-auto px-2 py-2 sm:px-6 sm:py-4 w-full'
+                    : 'overflow-y-auto px-2.5 py-3 sm:px-6 sm:py-6 w-full'
           } scrollbar-thin`}>
             
             {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
@@ -1317,6 +1448,8 @@ export const App: React.FC = () => {
         onSelectExam={setTargetExam}
         language={language}
         onSelectLanguage={setLanguage}
+        activeColorMode={colorMode}
+        onSelectColorMode={setColorMode}
       />
       <AppsLauncherModal 
         isOpen={isAppsLauncherOpen} 
