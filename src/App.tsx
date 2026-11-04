@@ -956,7 +956,7 @@ export const App: React.FC = () => {
         <main className="flex-1 w-full flex flex-col min-h-0 overflow-hidden bg-[#03060E] relative">
           <div className={`flex-1 w-full min-h-0 ${
             activeView === 'home'
-              ? 'overflow-y-auto flex flex-col justify-start items-center p-2.5 sm:p-4'
+              ? 'overflow-y-auto p-2.5 sm:p-4'
               : (activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
                 ? 'overflow-hidden p-0 flex flex-col h-full'
                 : (activeView === 'admin')
@@ -968,7 +968,7 @@ export const App: React.FC = () => {
             
             {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
             {activeView === 'home' && (
-              <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full flex flex-col justify-start items-center text-center space-y-4 sm:space-y-6 py-4 sm:py-8 pb-32 sm:pb-40 animate-fade-in">
+              <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full flex flex-col items-center text-center space-y-5 sm:space-y-6 py-4 sm:py-8 pb-48 sm:pb-56 animate-fade-in">
                 
                 {/* Center Official 3D Mascot Logo & Tagline */}
                 <div className="pt-2 sm:pt-4">
@@ -1137,7 +1137,7 @@ export const App: React.FC = () => {
                 </div>
 
                 {/* 4 Quick-Action Tiles */}
-                <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5 w-full">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2.5 w-full">
                   
                   {/* Syllabus */}
                   <div 
