@@ -1962,7 +1962,7 @@ Return JSON with an "articles" array where each object has:
 - mainsQuestion: string`;
 
       const aiPromise = ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-flash',
         contents: aiPrompt,
         config: { responseMimeType: 'application/json' }
       });
@@ -2289,7 +2289,7 @@ app.post('/api/current-affairs/daily', async (req, res) => {
       const prompt = `Generate 10 verified current affairs facts and articles for ${today} for competitive exams (SSC, UPSC, Railway, State Exams) in Hindi & English. Return an array of objects with keys: id, category, source, sourceUrl, imageUrl, titleHi, titleEn, summaryHi, summaryEn, date, readTime, examRelevance, keyFact, tag, deepAnalysisHi (array of strings), mcq (object with questionHi, questionEn, optionsHi (array of 4 strings), optionsEn (array of 4 strings), correctIndex (0-3), explanationHi, explanationEn).`;
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.0-flash',
           contents: prompt,
           config: { responseMimeType: 'application/json' }
         });
@@ -2327,35 +2327,21 @@ app.post('/api/ai/doubt-solver', async (req, res) => {
     } = req.body;
 
     if (ai) {
-      const systemContext = `You are HANS COMPAIN AI, an exceptionally smart, helpful, and natural bilingual AI mentor and multi-disciplinary knowledge companion (created by Hanslal Pal).
+      const systemContext = `You are HANSA AI (हंसा एआई), a friendly, expert, and natural human-like bilingual tutor created by Hanslal Pal for the HANS COMPAIN platform.
 
-CORE BEHAVIOR & ANTI-IRRITATION RULES:
-1. NATURAL HUMAN CONVERSATION & GREETINGS:
-   - When the user sends a greeting (e.g., "Hi", "Hello", "Hey", "नमस्ते", "हलो", "How are you?"):
-     Respond warmly, concisely, and naturally! (e.g., "नमस्ते! मैं हंस कॉम्पैन AI हूँ। मैं आपकी पढ़ाई, सवालों, नोट्स, किसी भी विषय या सामान्य जिज्ञासा में कैसे मदद कर सकता हूँ?")
-     NEVER treat "Hi" or casual greetings as an exam syllabus topic! NEVER say "यह बिंदु आगामी प्रतियोगी परीक्षाओं के नवीनतम सिलेबस के अनुसार अत्यंत महत्वपूर्ण है।" for greetings or casual text!
-2. DIRECT, PRECISE & KNOWLEDGEABLE ANSWERS FOR EVERYTHING:
-   - You know EVERYTHING across all academic and general subjects: Science, Physics, Chemistry, Biology, Mathematics, History, Geography, Indian Polity & Constitution, Shorthand/Stenography (Rishi & Pitman), Hindi Grammar, English Grammar, Reasoning, Current Affairs, World Affairs, and general knowledge.
-   - Answer the question directly, cleanly, and articulately without forcing unneeded exam headers or repetitive boilerplate.
-3. APP FEATURE RECOMMENDATION POLICY (STRICT USER RESTRICTION):
-   - DO NOT unsolicitedly list or promote all app features!
-   - ONLY recommend a specific app feature if the user explicitly asks about it (e.g., "App me kya hai?", "Steno kaise sikhein?", "Periodic table kahan hai?"), OR if the user's specific problem genuinely benefits from it (e.g., if asking about Ohm's law, you can casually mention: "💡 टिप: आप साइंस लैब में इसका लाइव सर्किट प्रयोग भी करके देख सकते हैं।").
-   - Otherwise, do NOT dump instructions or feature catalogs unprompted.
-4. ADAPTIVE LANGUAGE & TONE:
-   - Match the user's language: Pure Hindi (Devanagari), English, or natural Hinglish. Keep formatting clean with bullet points and bold text where helpful.
+PERSONALITY & TONE:
+1. Speak like a real human mentor—warm, encouraging, and clear. Avoid robotic or template-style lists unless specifically asked for a structured summary.
+2. Respond in a mix of Hindi and English (Hinglish) as common in Indian education, or use the language the user is speaking.
+3. Be direct and helpful. If a student asks a greeting (Hi/Hello), reply warmly without repeating your entire resume.
+4. You are an expert in SSC Stenography (Rishi/Pitman), Science, Maths, GK, and All Board Exams.
+5. NEVER use robotic headers like "Solution & Clear Analysis" or "Main Points" unless the user asks for a detailed breakdown.
+6. Keep your answers concise but complete.
 
-Document and Image Analysis:
-- You have advanced multi-modal vision and document comprehension.
-- When the user uploads one or more images (photos of questions, diagrams, handwritten notes, textbook pages) or PDF documents, analyze ALL attached files carefully.
-- Provide step-by-step verified solutions, formula derivations, and clear explanations.
+Founder Info: Hanslal Pal is the creator of this platform.`;
 
-Founder & Creator: Hanslal Pal (हंसलाल पाल).`;
-
-      const promptText = `${systemContext}\n\nMode: ${mode}\nExam Target: ${examTarget}\nSubject: ${subject}\nUser Question: "${questionText || 'कृपया संलग्न फोटो/दस्तावेज़ का समाधान एवं व्याख्या प्रदान करें'}"`;
+      const promptText = `User Query: "${questionText || 'Analyze the attachments'}"\n\nInstructions: Respond as Hansa AI using the natural persona described above.`;
 
       const parts: any[] = [];
-
-      // Collect all attachments from files array or legacy imageBase64
       const allAttachments: { data: string; mimeType: string }[] = [];
 
       if (Array.isArray(files) && files.length > 0) {
@@ -2386,29 +2372,16 @@ Founder & Creator: Hanslal Pal (हंसलाल पाल).`;
         allAttachments.push({ data: pureBase64, mimeType });
       }
 
-      // Add all files into parts
       for (const att of allAttachments) {
-        parts.push({
-          inlineData: {
-            mimeType: att.mimeType,
-            data: att.data
-          }
-        });
+        parts.push({ inlineData: { mimeType: att.mimeType, data: att.data } });
       }
-
-      // Append textual prompt
       parts.push({ text: promptText });
 
-      const contents = parts.length > 1 ? { parts } : promptText;
+      const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: systemContext });
+      const result = await model.generateContent({ contents: [{ role: 'user', parts }] });
 
-      const result = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents
-      });
-
-      if (result && result.text) {
-        return res.json({ solution: result.text, answer: result.text });
-      }
+      const responseText = result.response.text() || 'क्षमा करें, मैं अभी इस प्रश्न का उत्तर देने में असमर्थ हूँ।';
+      return res.json({ solution: responseText, answer: responseText });
     }
     return res.status(503).json({ error: 'AI service fallback triggered' });
   } catch (err) {
@@ -2456,7 +2429,7 @@ ${JSON.stringify({
 })}`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });
@@ -2559,7 +2532,7 @@ Return strictly valid JSON with these exact keys:
 }`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });
@@ -2592,7 +2565,7 @@ Return strictly valid JSON with keys:
 - examUsage: string (1 English example sentence + its Hindi translation)`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });
@@ -2704,7 +2677,7 @@ Return a valid JSON object with these keys:
 }`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-flash',
         contents: {
           parts: [
             { inlineData: { mimeType, data: pureBase64 } },
@@ -2752,7 +2725,7 @@ Return a valid JSON object with these keys:
     }
 
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: contents,
       config: {
         systemInstruction: 'You are HANS COMPAIN AI OCR & Study Analyzer. Read questions, study notes, or math equations with extreme precision and provide clear step-by-step solutions.'
@@ -2926,7 +2899,7 @@ Strict Requirements:
 
     const randomSeed = Math.floor(Math.random() * 100000);
     const aiPromise = ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: `Generate exactly ${examLength} live board exam questions for Class ${classLevel} ${board} ${subject} ${chapterName ? `on chapter "${chapterName.trim()}" (High Probability Exam Questions)` : 'full syllabus'}. Random Seed: ${randomSeed}. Language: ${language}. Mode: ${mode}.`,
       config: {
         systemInstruction,
@@ -3090,7 +3063,7 @@ Strict Rules:
 
     const randomSeed = Math.floor(Math.random() * 100000);
     const result = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: `Generate exactly ${numQuestions} live competitive exam MCQs for ${targetDescription}. Random Seed: ${randomSeed}. Quality: ${qualityLevel}. Language: ${language}.`,
       config: {
         systemInstruction,
@@ -3248,7 +3221,7 @@ STRICT SUBJECT INTEGRITY:
 
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.0-flash',
           contents: `Generate exactly ${targetCount} battle quiz questions for ${levelDesc} on Subject: "${activeSubject}"${cleanTopic ? ` Chapter: "${cleanTopic}"` : ''}. Difficulty: ${difficulty}.`,
           config: {
             systemInstruction,
@@ -3365,7 +3338,7 @@ Return strictly valid JSON with this schema:
 }`;
 
       const result = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -3544,7 +3517,7 @@ Return strictly valid JSON with this exact schema:
 
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.0-flash',
           contents: prompt,
           config: { responseMimeType: 'application/json' }
         });

@@ -471,7 +471,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden flex flex-col bg-[#03060E] text-white font-sans">
+    <div className="min-h-screen w-full max-w-full flex flex-col bg-[#03060E] text-white font-sans overflow-x-hidden">
       
       {/* 1. TOP HEADER (HIDDEN WHEN READING AN ARTICLE SO TOOLBAR #2 MOVES TO THE TOP) */}
       {!(isReadingArticle && (activeView === 'ca' || activeView === 'current-affairs')) && (
@@ -497,7 +497,7 @@ export const App: React.FC = () => {
             )}
 
             <div onClick={() => navigateTo('home')} className="flex items-center cursor-pointer select-none shrink-0 min-w-0">
-              <HansCompainLogo className="w-7 h-7 sm:w-10 sm:h-10 shrink-0" />
+              <HansCompainLogo className="w-8 h-8 sm:w-12 sm:h-12 shrink-0" />
             </div>
           </div>
 
@@ -557,7 +557,7 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      <div className="flex-1 min-h-0 relative w-full overflow-hidden">
+      <div className="flex-1 min-h-0 relative w-full flex flex-col">
         
         {/* 2. SIDE-DRAWER / 3-LINE MENU (OVERLAY ON ALL DEVICES SO ALL FEATURES ARE 100% FULL SCREEN) */}
         <div className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-[#060913] border-r border-slate-850/80 transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col justify-between ${
@@ -952,479 +952,470 @@ export const App: React.FC = () => {
           <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 transition-opacity" />
         )}
 
-        {/* 3. MAIN ROUTED VIEW AREA - 100% FULL SCREEN ON PC/LAPTOP & MOBILE */}
-        <main className="flex-1 w-full flex flex-col min-h-0 overflow-hidden bg-[#03060E] relative">
-          <div className={`flex-1 w-full min-h-0 ${
-            activeView === 'home'
-              ? 'overflow-y-auto p-2.5 sm:p-4'
-              : (activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
-                ? 'overflow-hidden p-0 flex flex-col h-full'
-                : (activeView === 'admin')
-                  ? 'overflow-y-auto p-0 flex flex-col h-full'
-                  : (activeView === 'ca' || activeView === 'current-affairs')
-                    ? 'overflow-y-auto px-2 py-2 sm:px-6 sm:py-4 w-full'
-                    : 'overflow-y-auto px-2.5 py-3 sm:px-6 sm:py-6 w-full'
-          } scrollbar-thin`}>
-            
-            {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
-            {activeView === 'home' && (
-              <div className="max-w-full lg:max-w-6xl xl:max-w-7xl mx-auto w-full flex flex-col items-center text-center space-y-6 sm:space-y-8 md:space-y-10 py-6 sm:py-12 pb-48 sm:pb-56 animate-fade-in px-4">
-                
-                {/* Center Official 3D Mascot Logo & Tagline */}
-                <div className="pt-4 sm:pt-6">
-                  <HansCompainLogo variant="center" className="w-32 h-32 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64" />
-                </div>
-
-                {/* Main Headline */}
-                <h1 className="text-[10px] sm:text-xs md:text-sm font-extrabold tracking-tight text-slate-200 leading-snug flex items-center justify-center gap-1.5 bg-[#091122]/90 border border-slate-800/80 px-4 py-1.5 rounded-full shadow-sm">
-                  <span className="text-cyan-400 font-black tracking-wider">HANS COMPAIN</span>
-                  <span className="text-slate-500 hidden sm:inline">•</span>
-                  <span className="text-slate-300 hidden sm:inline text-[9px] sm:text-xs">How can I help with Shorthand &amp; Exams today?</span>
-                </h1>
-
-                {/* Blue Pill Capsule: ALL STENOGRAPHER BANNER */}
-                <div 
-                  onClick={() => navigateTo('steno-master')}
-                  className="w-full bg-[#0066CC] hover:bg-[#0055B3] px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-blue-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <span className="text-base sm:text-lg">✍️</span>
-                    <span className="text-[11px] sm:text-xs font-black text-white tracking-wide uppercase">
-                      ALL STENOGRAPHER • सम्पूर्ण आशुलिपि
-                    </span>
-                  </div>
-                  <button className="px-3 py-1 bg-[#4D94FF] text-white font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-[#66A3FF] transition-colors pointer-events-none">
-                    OPEN
-                  </button>
-                </div>
-
-                {/* Gold Pill Capsule: FORMULA VAULT & POMODORO TIMER */}
-                <div 
-                  onClick={() => checkAuthAndExecute(() => setIsFormulaVaultOpen(true), 'पॉकेट फॉर्मूला व टाइमर')}
-                  className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-amber-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <span className="text-base sm:text-lg">⚡</span>
-                    <span className="text-[11px] sm:text-xs font-black text-white tracking-wide uppercase">
-                      POCKET FORMULA &amp; TIMER • पॉकेट फॉर्मूला व फोकस टाइमर
-                    </span>
-                  </div>
-                  <button className="px-3 py-1 bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-amber-300 transition-colors pointer-events-none">
-                    OPEN
-                  </button>
-                </div>
-
-                {/* 2 to 4 Column Grid (8 Feature Cards) */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 w-full text-left">
+        <main className="flex-1 w-full relative overflow-hidden bg-[#03060E]">
+          <div className="absolute inset-0 flex flex-col">
+            <div className={`flex-1 w-full overflow-y-auto ${activeView === 'home' ? 'scrollbar-thin' : 'overflow-hidden'}`}>
+              <div className="w-full flex flex-col">
+              
+              {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
+              {activeView === 'home' && (
+                <div className="max-w-full lg:max-w-6xl xl:max-w-7xl mx-auto w-full flex flex-col items-center text-center space-y-6 sm:space-y-8 md:space-y-10 py-6 sm:py-12 px-4">
                   
-                  {/* Row 1, Col 1: करेंट अफेयर्स 2026 */}
-                  <div 
-                    onClick={() => navigateTo('ca')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-indigo-900/60 hover:border-indigo-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-purple-900/40 border border-purple-500/40 flex items-center justify-center shrink-0 text-base">
-                      📰
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-white text-[11px] sm:text-xs truncate">करंट अफेयर्स 2026</div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">डेली 10 फैक्ट्स व क्विज़</div>
-                    </div>
+                  {/* Center Official 3D Mascot Logo & Tagline */}
+                  <div className="pt-4 sm:pt-6">
+                    <HansCompainLogo variant="center" className="w-32 h-32 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64" />
                   </div>
 
-                  {/* Row 1, Col 2: लाइव ग्रुप क्विज़ बैटल */}
+                  {/* Main Headline */}
+                  <h1 className="text-[10px] sm:text-xs md:text-sm font-extrabold tracking-tight text-slate-200 leading-snug flex items-center justify-center gap-1.5 bg-[#091122]/90 border border-slate-800/80 px-4 py-1.5 rounded-full shadow-sm">
+                    <span className="text-cyan-400 font-black tracking-wider">HANS COMPAIN</span>
+                    <span className="text-slate-500 hidden sm:inline">•</span>
+                    <span className="text-slate-300 hidden sm:inline text-[9px] sm:text-xs">How can I help with Shorthand &amp; Exams today?</span>
+                  </h1>
+
+                  {/* Blue Pill Capsule: ALL STENOGRAPHER BANNER */}
                   <div 
-                    onClick={() => navigateTo('group-quiz')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-emerald-900/60 hover:border-emerald-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    onClick={() => navigateTo('steno-master')}
+                    className="w-full bg-[#0066CC] hover:bg-[#0055B3] px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-blue-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-emerald-900/40 border border-emerald-500/40 flex items-center justify-center shrink-0 text-base">
-                      ⚔️
+                    <div className="flex items-center gap-2 text-left">
+                      <span className="text-base sm:text-lg">✍️</span>
+                      <span className="text-[11px] sm:text-xs font-black text-white tracking-wide uppercase">
+                        ALL STENOGRAPHER • सम्पूर्ण आशुलिपि
+                      </span>
                     </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-emerald-400 text-[11px] sm:text-xs truncate">ग्रुप क्विज़ बैटल (10-50 छात्र)</div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">AI व बोलकर प्रश्न बनाएं</div>
-                    </div>
+                    <button className="px-3 py-1 bg-[#4D94FF] text-white font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-[#66A3FF] transition-colors pointer-events-none">
+                      OPEN
+                    </button>
                   </div>
 
-                  {/* Row 2, Col 1: AI निमोनिक्स */}
+                  {/* Gold Pill Capsule: FORMULA VAULT & POMODORO TIMER */}
                   <div 
-                    onClick={() => navigateTo('mnemonics')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-amber-900/60 hover:border-amber-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    onClick={() => checkAuthAndExecute(() => setIsFormulaVaultOpen(true), 'पॉकेट फॉर्मूला व टाइमर')}
+                    className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 px-3.5 py-2 sm:py-2.5 rounded-full shadow-lg border border-amber-400/40 flex items-center justify-between cursor-pointer transition-all hover:scale-101 group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-amber-900/40 border border-amber-500/40 flex items-center justify-center shrink-0 text-base">
-                      💡
+                    <div className="flex items-center gap-2 text-left">
+                      <span className="text-base sm:text-lg">⚡</span>
+                      <span className="text-[11px] sm:text-xs font-black text-white tracking-wide uppercase">
+                        POCKET FORMULA &amp; TIMER • पॉकेट फॉर्मूला व फोकस टाइमर
+                      </span>
                     </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-amber-400 text-[11px] sm:text-xs truncate">AI निमोनिक्स</div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">तारीखें व कविताएं</div>
-                    </div>
+                    <button className="px-3 py-1 bg-amber-400 text-slate-950 font-black text-[10px] sm:text-xs rounded-full shadow group-hover:bg-amber-300 transition-colors pointer-events-none">
+                      OPEN
+                    </button>
                   </div>
 
-                  {/* Row 2, Col 2: साइंस लैब */}
-                  <div 
-                    onClick={() => navigateTo('science-lab')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-cyan-900/60 hover:border-cyan-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-cyan-900/40 border border-cyan-500/40 flex items-center justify-center shrink-0 text-base">
-                      🔬
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-cyan-400 text-[11px] sm:text-xs truncate">साइंस लैब (52+ लैब्स)</div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">सर्किट, लेंस व 118 आवर्त सारणी</div>
-                    </div>
-                  </div>
-
-                  {/* Row 3, Col 1: दैनिक लक्ष्य */}
-                  <div 
-                    onClick={() => navigateTo('daily-goals')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-blue-900/60 hover:border-blue-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-blue-900/40 border border-blue-500/40 flex items-center justify-center shrink-0 text-base">
-                      🎯
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-white text-[11px] sm:text-xs truncate">दैनिक लक्ष्य</div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">GK, English &amp; Math</div>
-                    </div>
-                  </div>
-
-                  {/* Row 3, Col 2: प्रतियोगी परीक्षा */}
-                  <div 
-                    onClick={() => checkAuthAndExecute(() => setIsCompetitiveHubOpen(true), 'प्रतियोगी परीक्षा हब')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-emerald-900/60 hover:border-emerald-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-emerald-900/40 border border-emerald-500/40 flex items-center justify-center shrink-0 text-base">
-                      📝
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1">
-                        <span className="font-bold text-emerald-400 text-[11px] sm:text-xs truncate">प्रतियोगी परीक्षा</span>
-                        <span className="bg-emerald-500 text-slate-950 font-black text-[8px] px-1 py-0.2 rounded">PYQ</span>
+                  {/* 2 to 4 Column Grid (8 Feature Cards) */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 w-full text-left">
+                    
+                    {/* Row 1, Col 1: करेंट अफेयर्स 2026 */}
+                    <div 
+                      onClick={() => navigateTo('ca')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-indigo-900/60 hover:border-indigo-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-purple-900/40 border border-purple-500/40 flex items-center justify-center shrink-0 text-base">
+                        📰
                       </div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">TCS iON टेस्ट व PYQ बैंक</div>
-                    </div>
-                  </div>
-
-                  {/* Row 4, Col 1: काल-यात्रा */}
-                  <div 
-                    onClick={() => navigateTo('time-travel')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-purple-900/60 hover:border-purple-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-purple-900/40 border border-purple-500/40 flex items-center justify-center shrink-0 text-base">
-                      ⏳
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-purple-300 text-[11px] sm:text-xs truncate">काल-यात्रा</div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">भगत सिंह व आंबेडकर</div>
-                    </div>
-                  </div>
-
-                  {/* Row 4, Col 2: बोर्ड परीक्षा */}
-                  <div 
-                    onClick={() => navigateTo('board-exam')}
-                    className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-amber-900/60 hover:border-amber-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-amber-900/40 border border-amber-500/40 flex items-center justify-center shrink-0 text-base">
-                      🎓
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1">
-                        <span className="font-bold text-amber-300 text-[11px] sm:text-xs truncate">बोर्ड परीक्षा</span>
-                        <span className="bg-amber-500 text-slate-950 font-black text-[8px] px-1 py-0.2 rounded">10th&amp;12th</span>
+                      <div className="min-w-0">
+                        <div className="font-bold text-white text-[11px] sm:text-xs truncate">करंट अफेयर्स 2026</div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">डेली 10 फैक्ट्स व क्विज़</div>
                       </div>
-                      <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">चैप्टर व विषय-वार टेस्ट</div>
+                    </div>
+
+                    {/* Row 1, Col 2: लाइव ग्रुप क्विज़ बैटल */}
+                    <div 
+                      onClick={() => navigateTo('group-quiz')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-emerald-900/60 hover:border-emerald-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-emerald-900/40 border border-emerald-500/40 flex items-center justify-center shrink-0 text-base">
+                        ⚔️
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-emerald-400 text-[11px] sm:text-xs truncate">ग्रुप क्विज़ बैटल (10-50 छात्र)</div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">AI व बोलकर प्रश्न बनाएं</div>
+                      </div>
+                    </div>
+
+                    {/* Row 2, Col 1: AI निमोनिक्स */}
+                    <div 
+                      onClick={() => navigateTo('mnemonics')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-amber-900/60 hover:border-amber-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-amber-900/40 border border-amber-500/40 flex items-center justify-center shrink-0 text-base">
+                        💡
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-amber-400 text-[11px] sm:text-xs truncate">AI निमोनिक्स</div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">तारीखें व कविताएं</div>
+                      </div>
+                    </div>
+
+                    {/* Row 2, Col 2: साइंस लैब */}
+                    <div 
+                      onClick={() => navigateTo('science-lab')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-cyan-900/60 hover:border-cyan-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-cyan-900/40 border border-cyan-500/40 flex items-center justify-center shrink-0 text-base">
+                        🔬
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-cyan-400 text-[11px] sm:text-xs truncate">साइंस लैब (52+ लैब्स)</div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">सर्किट, लेंस व 118 आवर्त सारणी</div>
+                      </div>
+                    </div>
+
+                    {/* Row 3, Col 1: दैनिक लक्ष्य */}
+                    <div 
+                      onClick={() => navigateTo('daily-goals')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-blue-900/60 hover:border-blue-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-blue-900/40 border border-blue-500/40 flex items-center justify-center shrink-0 text-base">
+                        🎯
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-white text-[11px] sm:text-xs truncate">दैनिक लक्ष्य</div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">GK, English &amp; Math</div>
+                      </div>
+                    </div>
+
+                    {/* Row 3, Col 2: प्रतियोगी परीक्षा */}
+                    <div 
+                      onClick={() => checkAuthAndExecute(() => setIsCompetitiveHubOpen(true), 'प्रतियोगी परीक्षा हब')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-emerald-900/60 hover:border-emerald-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-emerald-900/40 border border-emerald-500/40 flex items-center justify-center shrink-0 text-base">
+                        📝
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="font-bold text-emerald-400 text-[11px] sm:text-xs truncate">प्रतियोगी परीक्षा</span>
+                          <span className="bg-emerald-500 text-slate-950 font-black text-[8px] px-1 py-0.2 rounded">PYQ</span>
+                        </div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">TCS iON टेस्ट व PYQ बैंक</div>
+                      </div>
+                    </div>
+
+                    {/* Row 4, Col 1: काल-यात्रा */}
+                    <div 
+                      onClick={() => navigateTo('time-travel')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-purple-900/60 hover:border-purple-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-purple-900/40 border border-purple-500/40 flex items-center justify-center shrink-0 text-base">
+                        ⏳
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-purple-300 text-[11px] sm:text-xs truncate">काल-यात्रा</div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">भगत सिंह व आंबेडकर</div>
+                      </div>
+                    </div>
+
+                    {/* Row 4, Col 2: बोर्ड परीक्षा */}
+                    <div 
+                      onClick={() => navigateTo('board-exam')}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#091122] border border-amber-900/60 hover:border-amber-500/80 cursor-pointer transition-all hover:bg-[#0D1830] flex items-center gap-2 group shadow-md"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-amber-900/40 border border-amber-500/40 flex items-center justify-center shrink-0 text-base">
+                        🎓
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="font-bold text-amber-300 text-[11px] sm:text-xs truncate">बोर्ड परीक्षा</span>
+                          <span className="bg-amber-500 text-slate-950 font-black text-[8px] px-1 py-0.2 rounded">10th&amp;12th</span>
+                        </div>
+                        <div className="text-[9px] sm:text-[10px] text-slate-400 truncate">चैप्टर व विषय-वार टेस्ट</div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* 4 Quick-Action Tiles */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 w-full">
+                    
+                    {/* Syllabus */}
+                    <div 
+                      onClick={() => checkAuthAndExecute(() => setIsAllExamsSyllabusOpen(true), 'सिलेबस केंद्र')}
+                      className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-indigo-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
+                    >
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400 text-sm">
+                        📚
+                      </div>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Syllabus</span>
+                    </div>
+
+                    {/* Apps */}
+                    <div 
+                      onClick={() => checkAuthAndExecute(() => setIsAppsLauncherOpen(true), 'Apps लॉन्चर')}
+                      className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-cyan-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
+                    >
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-sm">
+                        🌐
+                      </div>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Apps</span>
+                    </div>
+
+                    {/* Interview */}
+                    <div 
+                      onClick={() => navigateTo('mock-interview')}
+                      className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-indigo-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
+                    >
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-sm">
+                        🎙️
+                      </div>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Interview</span>
+                    </div>
+
+                    {/* Analytics */}
+                    <div 
+                      onClick={() => navigateTo('analytics')}
+                      className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-emerald-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
+                    >
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm">
+                        📊
+                      </div>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Analytics</span>
+                    </div>
+                  </div>
+
+                  {/* Explicit Bottom Spacer to ensure full visibility ABOVE fixed input bar */}
+                  <div className="h-48 sm:h-64 w-full shrink-0" aria-hidden="true" />
                 </div>
+              )}
 
-                {/* 4 Quick-Action Tiles */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 w-full">
-                  
-                  {/* Syllabus */}
-                  <div 
-                    onClick={() => checkAuthAndExecute(() => setIsAllExamsSyllabusOpen(true), 'सिलेबस केंद्र')}
-                    className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-indigo-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
-                  >
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400 text-sm">
-                      📚
+              {/* --- DEDICATED FEATURE VIEWS (ROUTED CLEANLY TO EACH DEDICATED UI) --- */}
+
+              {(() => {
+                const viewToToggleId: Record<string, string> = {
+                  'steno-master': 'steno-master',
+                  'steno': 'steno-master',
+                  'ca': 'current-affairs',
+                  'current-affairs': 'current-affairs',
+                  'group-quiz': 'group-quiz',
+                  'battle': 'group-quiz',
+                  'quiz-battle': 'group-quiz',
+                  'battle-quiz': 'group-quiz',
+                  'group-battle': 'group-quiz',
+                  'science-lab': 'science-lab',
+                  'ai-chat': 'ai-chat',
+                  'chat': 'ai-chat',
+                  'doubt': 'ai-chat',
+                  'photo-doubt': 'ai-chat',
+                  'mnemonics': 'mnemonics',
+                  'daily-goals': 'daily-goals',
+                  'goals': 'daily-goals',
+                  'mock': 'competitive',
+                  'competitive': 'competitive',
+                  'pyq': 'competitive',
+                  'pyq-vault': 'competitive',
+                  'board-exam': 'board-exams',
+                  'board': 'board-exams',
+                  'time-travel': 'time-travel',
+                  'book-reader': 'library',
+                  'global-reader': 'library',
+                  'voice-reader': 'library',
+                  'ocr-scan': 'ocr-scan',
+                  'edu-reels': 'edu-reels',
+                  'flashcards': 'flashcards'
+                };
+                const toggleKey = viewToToggleId[activeView];
+                const isFeatureDisabled = toggleKey && featureToggles[toggleKey] === false;
+
+                if (isFeatureDisabled) {
+                  const featConfig = ALL_CONTROLLABLE_FEATURES.find(f => f.id === toggleKey);
+                  return (
+                    <div className="max-w-lg mx-auto my-12 bg-[#0B111E] border border-slate-800 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-xl">
+                      <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-400">
+                        <ShieldCheck className="w-6 h-6" />
+                      </div>
+                      <h2 className="text-base sm:text-lg font-bold text-white">
+                        {featConfig ? featConfig.hindiName : 'यह फीचर'} अभी बंद (OFF) है
+                      </h2>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        एडमिन कंट्रोल पैनल से इस फीचर को अस्थायी रूप से ऑफ़ किया गया है। आप इसे एडमिन पैनल से कभी भी एक क्लिक में वापस चालू (ON) कर सकते हैं।
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+                        <button
+                          onClick={() => setActiveView('admin')}
+                          className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs cursor-pointer shadow-md"
+                        >
+                          🛡️ एडमिन पैनल खोलें (Admin Panel)
+                        </button>
+                        <button
+                          onClick={() => setActiveView('home')}
+                          className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-semibold text-xs cursor-pointer"
+                        >
+                          होमपेज पर लौटें
+                        </button>
+                      </div>
                     </div>
-                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Syllabus</span>
-                  </div>
+                  );
+                }
 
-                  {/* Apps */}
-                  <div 
-                    onClick={() => checkAuthAndExecute(() => setIsAppsLauncherOpen(true), 'Apps लॉन्चर')}
-                    className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-cyan-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
-                  >
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-sm">
-                      🌐
-                    </div>
-                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Apps</span>
-                  </div>
-
-                  {/* Interview */}
-                  <div 
-                    onClick={() => navigateTo('mock-interview')}
-                    className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-indigo-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
-                  >
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-sm">
-                      🎙️
-                    </div>
-                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Interview</span>
-                  </div>
-
-                  {/* Analytics */}
-                  <div 
-                    onClick={() => navigateTo('analytics')}
-                    className="p-1.5 sm:p-2 rounded-xl bg-[#091122] border border-slate-800/80 hover:border-emerald-500/60 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-[#0D1830] transition-all group"
-                  >
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm">
-                      📊
-                    </div>
-                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 group-hover:text-white">Analytics</span>
-                  </div>
-                </div>
-
-                {/* Explicit Bottom Spacer to ensure full visibility on all screens */}
-                <div className="h-48 sm:h-64 w-full shrink-0" aria-hidden="true" />
-              </div>
-            )}
-
-            {/* --- DEDICATED FEATURE VIEWS (ROUTED CLEANLY TO EACH DEDICATED UI) --- */}
-
-            {/* Check if current view is disabled via Admin Feature Toggles */}
-            {(() => {
-              const viewToToggleId: Record<string, string> = {
-                'steno-master': 'steno-master',
-                'steno': 'steno-master',
-                'ca': 'current-affairs',
-                'current-affairs': 'current-affairs',
-                'group-quiz': 'group-quiz',
-                'battle': 'group-quiz',
-                'quiz-battle': 'group-quiz',
-                'battle-quiz': 'group-quiz',
-                'group-battle': 'group-quiz',
-                'science-lab': 'science-lab',
-                'ai-chat': 'ai-chat',
-                'chat': 'ai-chat',
-                'doubt': 'ai-chat',
-                'photo-doubt': 'ai-chat',
-                'mnemonics': 'mnemonics',
-                'daily-goals': 'daily-goals',
-                'goals': 'daily-goals',
-                'mock': 'competitive',
-                'competitive': 'competitive',
-                'pyq': 'competitive',
-                'pyq-vault': 'competitive',
-                'board-exam': 'board-exams',
-                'board': 'board-exams',
-                'time-travel': 'time-travel',
-                'book-reader': 'library',
-                'global-reader': 'library',
-                'voice-reader': 'library',
-                'ocr-scan': 'ocr-scan',
-                'edu-reels': 'edu-reels',
-                'flashcards': 'flashcards'
-              };
-              const toggleKey = viewToToggleId[activeView];
-              const isFeatureDisabled = toggleKey && featureToggles[toggleKey] === false;
-
-              if (isFeatureDisabled) {
-                const featConfig = ALL_CONTROLLABLE_FEATURES.find(f => f.id === toggleKey);
                 return (
-                  <div className="max-w-lg mx-auto my-12 bg-[#0B111E] border border-slate-800 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-xl">
-                    <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-400">
-                      <ShieldCheck className="w-6 h-6" />
-                    </div>
-                    <h2 className="text-base sm:text-lg font-bold text-white">
-                      {featConfig ? featConfig.hindiName : 'यह फीचर'} अभी बंद (OFF) है
-                    </h2>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      एडमिन कंट्रोल पैनल से इस फीचर को अस्थायी रूप से ऑफ़ किया गया है। आप इसे एडमिन पैनल से कभी भी एक क्लिक में वापस चालू (ON) कर सकते हैं।
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-                      <button
-                        onClick={() => setActiveView('admin')}
-                        className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs cursor-pointer shadow-md"
-                      >
-                        🛡️ एडमिन पैनल खोलें (Admin Panel)
-                      </button>
-                      <button
-                        onClick={() => setActiveView('home')}
-                        className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-semibold text-xs cursor-pointer"
-                      >
-                        होमपेज पर लौटें
-                      </button>
-                    </div>
+                  <div className="w-full h-full">
+                    {(activeView === 'steno-master' || activeView === 'steno') && <DedicatedStenoMasterStudio />}
+                    {(activeView === 'ca' || activeView === 'current-affairs') && (
+                      <CurrentAffairsHubView
+                        currentUser={currentUser}
+                        onLoginRequired={() => signInWithGoogle(targetExam)}
+                        onReturnHome={() => {
+                          setIsReadingArticle(false);
+                          setActiveView('home');
+                        }}
+                        onArticleOpenChange={(isOpen) => setIsReadingArticle(isOpen)}
+                      />
+                    )}
+                    {(activeView === 'mock' || activeView === 'competitive') && <MockTestsView />}
+                    {(activeView === 'board-exam' || activeView === 'board') && <BoardExamSingleTestBox language={language} />}
+                    {(activeView === 'group-quiz' || activeView === 'battle' || activeView === 'quiz-battle' || activeView === 'battle-quiz' || activeView === 'group-battle') && <LiveGroupQuizStudio />}
+                    {activeView === 'science-lab' && <ScienceFormulaLabView />}
+                    {activeView === 'mnemonics' && <MnemonicsTrickGeneratorView />}
+                    {(activeView === 'daily-goals' || activeView === 'goals') && <DailyGoalsView />}
+                    {activeView === 'time-travel' && <TimeTravelSimulatorView />}
+
+                    {/* Direct AI Chat ONLY when explicitly requested */}
+                    {(activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') && (
+                      <AIDoubtSolverView
+                        initialMode="chat"
+                        initialQuery={submittedHomeQuery}
+                        onQueryConsumed={() => setSubmittedHomeQuery('')}
+                        onNavigate={navigateTo}
+                      />
+                    )}
+
+                    {/* Dedicated 3-Step Handwritten Notes OCR Scanner Studio */}
+                    {activeView === 'ocr-scan' && (
+                      <AIDoubtSolverView initialMode="ocr" onNavigate={navigateTo} />
+                    )}
+
+                    {/* Dedicated 3-Step App Feature Map & Guide Hub */}
+                    {activeView === 'app-guide' && (
+                      <AIDoubtSolverView initialMode="app-guide" onNavigate={navigateTo} />
+                    )}
+
+                    {activeView === 'mock-interview' && <MockInterviewView />}
+                    {(activeView === 'analytics' || activeView === 'performance-analytics') && <AdminAnalyticsDashboard />}
+                    {activeView === 'about-creator' && (
+                      <div className="max-w-3xl mx-auto p-4 sm:p-8 space-y-6 animate-fade-in my-auto w-full">
+                        <div className="bg-gradient-to-r from-amber-950/80 via-slate-900 to-blue-950/80 p-6 sm:p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-5 text-white">
+                          <div className="flex flex-col sm:flex-row items-center gap-5 border-b border-slate-800 pb-5">
+                            <img
+                              src="/public/assets/aistudio/file_0000000058f081f49120dae0de21f633_e6442101.png"
+                              alt="Hanslal Pal - Founder"
+                              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-amber-400 shadow-xl shrink-0"
+                            />
+                            <div className="text-center sm:text-left">
+                              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-500 text-slate-950">
+                                FOUNDER & DEVELOPER • HANS AI
+                              </span>
+                              <h1 className="text-xl sm:text-2xl font-black text-white mt-1">
+                                Hanslal Pal
+                              </h1>
+                              <p className="text-xs sm:text-sm text-amber-300 font-bold">
+                                Undergraduate Student & Tech Enthusiast (Bihar, India)
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            <p>
+                              <strong>About the Creator:</strong> Hanslal Pal is an undergraduate student and tech enthusiast based in Bihar, India. Balancing rigorous competitive exam preparation with software development, Hanslal built <strong>Hans Compain</strong> and <strong>Hansa AI</strong> to solve real-world learning challenges faced by students.
+                            </p>
+                            <p>
+                              <strong>Our Mission & Hans AI Vision:</strong> His mission is to bridge the gap between traditional study methods and modern digital tools, providing aspirants with smart, accessible, and high-performance resources (including Hans AI doubt solver) for competitive exams like SSC Stenographer, UPSC, Railway, Banking, and Board Exams.
+                            </p>
+                            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+                              <h3 className="font-black text-cyan-300 text-xs sm:text-sm">💡 क्यों बनाया गया Hans Compain & Hans AI?</h3>
+                              <p className="text-xs text-slate-300 leading-relaxed">
+                                एक छात्र होने के नाते पढ़ाई के दौरान आने वाली कठिनाइयों (जैसे सही डिक्टेशन, त्वरित फॉर्मूले, सटीक नोट्स और Hans AI डाउट सॉल्विंग) को ध्यान में रखकर इस प्लेटफॉर्म को ज़मीन से तैयार किया गया है ताकि हर छात्र को उच्च गुणवत्तापूर्ण डिजिटल शिक्षा मिल सके।
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="pt-4 border-t border-slate-800 flex justify-end">
+                            <button
+                              onClick={() => setActiveView('home')}
+                              className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs cursor-pointer shadow-lg transition-all"
+                            >
+                              होमपेज पर लौटें
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeView === 'admin' && <AdminPanel onReturnHome={() => setActiveView('home')} currentUser={currentUser} />}
+
+                    {/* FULL MODULE WORK PAGES FROM ZIP & RENDER PROJECT */}
+                    {(activeView === 'bharati-bhawan' || activeView === 'bharti-bhawan' || activeView === 'bharatibhawan') && <BharatiBhawanStudyHub />}
+                    {(activeView === 'pyq' || activeView === 'pyq-vault') && <UnlimitedPyqVaultView />}
+                    {(activeView === 'sarkari' || activeView === 'sarkari-result') && <SarkariResultEligibilityHub />}
+                    {activeView === 'flashcards' && <FlashcardsView />}
+                    {activeView === 'edu-reels' && <EduReelsView />}
+                    {(activeView === 'book-reader' || activeView === 'global-reader') && <GlobalBookReader initialTab="library" />}
+                    {activeView === 'voice-reader' && <GlobalBookReader initialTab="voice-reader" />}
+                    {(activeView === 'periodic' || activeView === 'periodic-table') && <InteractivePeriodicTable />}
+                    {(activeView === 'music' || activeView === 'music-studio') && <MusicStudioView />}
+                    {(activeView === 'weather' || activeView === 'weather-alerts') && <WeatherAlertView />}
+                    {activeView === 'peer-challenge' && <PeerChallengeArena />}
+                    {activeView === 'neural-map' && <NeuralMemoryMapView />}
+                    {activeView === 'study-plan' && <StudyPlanView />}
+                    {(activeView === 'store' || activeView === 'affiliate-store' || activeView === 'affiliate') && <AffiliateStoreView />}
                   </div>
                 );
-              }
-
-              return (
-                <>
-                  {(activeView === 'steno-master' || activeView === 'steno') && <DedicatedStenoMasterStudio />}
-                  {(activeView === 'ca' || activeView === 'current-affairs') && (
-                    <CurrentAffairsHubView
-                      currentUser={currentUser}
-                      onLoginRequired={() => signInWithGoogle(targetExam)}
-                      onReturnHome={() => {
-                        setIsReadingArticle(false);
-                        setActiveView('home');
-                      }}
-                      onArticleOpenChange={(isOpen) => setIsReadingArticle(isOpen)}
-                    />
-                  )}
-                  {(activeView === 'mock' || activeView === 'competitive') && <MockTestsView />}
-                  {(activeView === 'board-exam' || activeView === 'board') && <BoardExamSingleTestBox language={language} />}
-                  {(activeView === 'group-quiz' || activeView === 'battle' || activeView === 'quiz-battle' || activeView === 'battle-quiz' || activeView === 'group-battle') && <LiveGroupQuizStudio />}
-                  {activeView === 'science-lab' && <ScienceFormulaLabView />}
-                  {activeView === 'mnemonics' && <MnemonicsTrickGeneratorView />}
-                  {(activeView === 'daily-goals' || activeView === 'goals') && <DailyGoalsView />}
-                  {activeView === 'time-travel' && <TimeTravelSimulatorView />}
-
-                  {/* Direct AI Chat ONLY when explicitly requested */}
-                  {(activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt') && (
-                    <AIDoubtSolverView
-                      initialMode="chat"
-                      initialQuery={submittedHomeQuery}
-                      onQueryConsumed={() => setSubmittedHomeQuery('')}
-                      onNavigate={navigateTo}
-                    />
-                  )}
-
-                  {/* Dedicated 3-Step Handwritten Notes OCR Scanner Studio */}
-                  {activeView === 'ocr-scan' && (
-                    <AIDoubtSolverView initialMode="ocr" onNavigate={navigateTo} />
-                  )}
-
-                  {/* Dedicated 3-Step App Feature Map & Guide Hub */}
-                  {activeView === 'app-guide' && (
-                    <AIDoubtSolverView initialMode="app-guide" onNavigate={navigateTo} />
-                  )}
-
-                  {activeView === 'mock-interview' && <MockInterviewView />}
-                  {(activeView === 'analytics' || activeView === 'performance-analytics') && <AdminAnalyticsDashboard />}
-                  {activeView === 'about-creator' && (
-                    <div className="max-w-3xl mx-auto p-4 sm:p-8 space-y-6 animate-fade-in my-auto w-full">
-                      <div className="bg-gradient-to-r from-amber-950/80 via-slate-900 to-blue-950/80 p-6 sm:p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-5 text-white">
-                        <div className="flex flex-col sm:flex-row items-center gap-5 border-b border-slate-800 pb-5">
-                          <img
-                            src="/public/assets/aistudio/file_0000000058f081f49120dae0de21f633_e6442101.png"
-                            alt="Hanslal Pal - Founder"
-                            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-amber-400 shadow-xl shrink-0"
-                          />
-                          <div className="text-center sm:text-left">
-                            <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-500 text-slate-950">
-                              FOUNDER & DEVELOPER • HANS AI
-                            </span>
-                            <h1 className="text-xl sm:text-2xl font-black text-white mt-1">
-                              Hanslal Pal
-                            </h1>
-                            <p className="text-xs sm:text-sm text-amber-300 font-bold">
-                              Undergraduate Student & Tech Enthusiast (Bihar, India)
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4 text-xs sm:text-sm text-slate-200 leading-relaxed">
-                          <p>
-                            <strong>About the Creator:</strong> Hanslal Pal is an undergraduate student and tech enthusiast based in Bihar, India. Balancing rigorous competitive exam preparation with software development, Hanslal built <strong>Hans Compain</strong> and <strong>Hansa AI</strong> to solve real-world learning challenges faced by students.
-                          </p>
-                          <p>
-                            <strong>Our Mission & Hans AI Vision:</strong> His mission is to bridge the gap between traditional study methods and modern digital tools, providing aspirants with smart, accessible, and high-performance resources (including Hans AI doubt solver) for competitive exams like SSC Stenographer, UPSC, Railway, Banking, and Board Exams.
-                          </p>
-                          <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
-                            <h3 className="font-black text-cyan-300 text-xs sm:text-sm">💡 क्यों बनाया गया Hans Compain & Hans AI?</h3>
-                            <p className="text-xs text-slate-300 leading-relaxed">
-                              एक छात्र होने के नाते पढ़ाई के दौरान आने वाली कठिनाइयों (जैसे सही डिक्टेशन, त्वरित फॉर्मूले, सटीक नोट्स और Hans AI डाउट सॉल्विंग) को ध्यान में रखकर इस प्लेटफॉर्म को ज़मीन से तैयार किया गया है ताकि हर छात्र को उच्च गुणवत्तापूर्ण डिजिटल शिक्षा मिल सके।
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="pt-4 border-t border-slate-800 flex justify-end">
-                          <button
-                            onClick={() => setActiveView('home')}
-                            className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs cursor-pointer shadow-lg transition-all"
-                          >
-                            होमपेज पर लौटें
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeView === 'admin' && <AdminPanel onReturnHome={() => setActiveView('home')} currentUser={currentUser} />}
-
-                  {/* FULL MODULE WORK PAGES FROM ZIP & RENDER PROJECT */}
-                  {(activeView === 'bharati-bhawan' || activeView === 'bharti-bhawan' || activeView === 'bharatibhawan') && <BharatiBhawanStudyHub />}
-                  {(activeView === 'pyq' || activeView === 'pyq-vault') && <UnlimitedPyqVaultView />}
-                  {(activeView === 'sarkari' || activeView === 'sarkari-result') && <SarkariResultEligibilityHub />}
-                  {activeView === 'flashcards' && <FlashcardsView />}
-                  {activeView === 'edu-reels' && <EduReelsView />}
-                  {(activeView === 'book-reader' || activeView === 'global-reader') && <GlobalBookReader initialTab="library" />}
-                  {activeView === 'voice-reader' && <GlobalBookReader initialTab="voice-reader" />}
-                  {(activeView === 'periodic' || activeView === 'periodic-table') && <InteractivePeriodicTable />}
-                  {(activeView === 'music' || activeView === 'music-studio') && <MusicStudioView />}
-                  {(activeView === 'weather' || activeView === 'weather-alerts') && <WeatherAlertView />}
-                  {activeView === 'peer-challenge' && <PeerChallengeArena />}
-                  {activeView === 'neural-map' && <NeuralMemoryMapView />}
-                  {activeView === 'study-plan' && <StudyPlanView />}
-                  {(activeView === 'store' || activeView === 'affiliate-store' || activeView === 'affiliate') && <AffiliateStoreView />}
-                </>
-              );
-            })()}
-
-          </div>
-          
-          {/* 4. BOTTOM INPUT BAR (ONLY ON HOME DASHBOARD) */}
-          {activeView === 'home' && (
-            <div className="p-4 sm:p-6 border-t border-slate-900 bg-[#03060E] z-10 shrink-0">
-              <div className="max-w-4xl mx-auto w-full flex flex-col gap-2">
-                <div className="flex items-center gap-2 bg-[#091122] border border-slate-800 rounded-3xl p-2 px-4 shadow-lg focus-within:border-cyan-500/80 transition-all">
-                  <button 
-                    onClick={() => navigateTo('ocr-scan')}
-                    className="p-1.5 text-slate-400 hover:text-white cursor-pointer" 
-                    title="नोट्स / डॉक्यूमेंट स्कैनर खोलें"
-                  >
-                    <Paperclip className="w-5 h-5 text-slate-400" />
-                  </button>
-                  <button 
-                    onClick={() => navigateTo('ocr-scan')}
-                    className="p-1.5 text-slate-400 hover:text-white cursor-pointer" 
-                    title="Camera OCR (हस्तलिखित नोट्स फोटो स्कैनर)"
-                  >
-                    <Camera className="w-5 h-5 text-cyan-400" />
-                  </button>
-                  <input 
-                    type="text" 
-                    value={homeInput}
-                    onChange={(e) => setHomeInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleHomeChatSubmit()}
-                    placeholder="हंस कॉम्पैन (HANS COMPAIN) से कुछ भी पूछें..." 
-                    className="flex-1 bg-transparent border-none outline-none text-white py-1.5 px-2 text-xs sm:text-sm placeholder:text-slate-500"
-                  />
-                  <button 
-                    onClick={handleVoiceMicInput}
-                    className={`p-1.5 rounded-full cursor-pointer transition-all ${
-                      isListeningMic ? 'bg-rose-600 text-white animate-pulse' : 'text-slate-400 hover:text-white'
-                    }`}
-                    title="वॉयस इनपुट (बोलकर लिखें)"
-                  >
-                    <Mic className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => handleHomeChatSubmit()}
-                    className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center cursor-pointer shadow-md transition-all shrink-0"
-                    title="Send Question to AI Tutor"
-                  >
-                    <Send className="w-4 h-4 ml-0.5" />
-                  </button>
-                </div>
-                <div className="text-center text-[10px] text-slate-500">
-                  HANS COMPAIN can make mistakes. Verify important academic facts &amp; formulas.
-                </div>
+              })()}
               </div>
             </div>
-          )}
+            
+            {/* 4. BOTTOM INPUT BAR (FIXED AT BOTTOM OF DASHBOARD viewport, NOT scrollable area) */}
+            {activeView === 'home' && (
+              <div className="p-4 sm:p-6 border-t border-slate-900 bg-[#03060E] z-10 shrink-0">
+                <div className="max-w-4xl mx-auto w-full flex flex-col gap-2">
+                  <div className="flex items-center gap-2 bg-[#091122] border border-slate-800 rounded-3xl p-2 px-4 shadow-lg focus-within:border-cyan-500/80 transition-all">
+                    <button 
+                      onClick={() => navigateTo('ocr-scan')}
+                      className="p-1.5 text-slate-400 hover:text-white cursor-pointer" 
+                      title="नोट्स / डॉक्यूमेंट स्कैनर खोलें"
+                    >
+                      <Paperclip className="w-5 h-5 text-slate-400" />
+                    </button>
+                    <button 
+                      onClick={() => navigateTo('ocr-scan')}
+                      className="p-1.5 text-slate-400 hover:text-white cursor-pointer" 
+                      title="Camera OCR (हस्तलिखित नोट्स फोटो स्कैनर)"
+                    >
+                      <Camera className="w-5 h-5 text-cyan-400" />
+                    </button>
+                    <input 
+                      type="text" 
+                      value={homeInput}
+                      onChange={(e) => setHomeInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleHomeChatSubmit()}
+                      placeholder="हंस कॉम्पैन (HANS COMPAIN) से कुछ भी पूछें..." 
+                      className="flex-1 bg-transparent border-none outline-none text-white py-1.5 px-2 text-xs sm:text-sm placeholder:text-slate-500"
+                    />
+                    <button 
+                      onClick={handleVoiceMicInput}
+                      className={`p-1.5 rounded-full cursor-pointer transition-all ${
+                        isListeningMic ? 'bg-rose-600 text-white animate-pulse' : 'text-slate-400 hover:text-white'
+                      }`}
+                      title="वॉयस इनपुट (बोलकर लिखें)"
+                    >
+                      <Mic className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => handleHomeChatSubmit()}
+                      className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center cursor-pointer shadow-md transition-all shrink-0"
+                      title="Send Question to AI Tutor"
+                    >
+                      <Send className="w-4 h-4 ml-0.5" />
+                    </button>
+                  </div>
+                  <div className="text-center text-[10px] text-slate-500">
+                    HANS COMPAIN can make mistakes. Verify important academic facts &amp; formulas.
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </main>
       </div>
 
