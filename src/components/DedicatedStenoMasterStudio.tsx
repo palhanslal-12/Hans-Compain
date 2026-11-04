@@ -212,27 +212,24 @@ export const DedicatedStenoMasterStudio: React.FC<{ onBackHome?: () => void }> =
     };
   }, []);
 
-  const getPointerPos = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const lastPos = useRef<{ x: number, y: number } | null>(null);
+  const lastTime = useRef<number>(0);
+
+  const getPointerPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
-    if ('touches' in e) {
-      const touch = e.touches[0] || e.changedTouches[0];
-      return {
-        x: (touch.clientX - rect.left) * scaleX,
-        y: (touch.clientY - rect.top) * scaleY
-      };
-    }
     return {
       x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      y: (e.clientY - rect.top) * scaleY,
+      pressure: e.pressure || 0.5
     };
   };
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -242,9 +239,15 @@ export const DedicatedStenoMasterStudio: React.FC<{ onBackHome?: () => void }> =
     setIsDrawing(true);
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
+    lastPos.current = { x: pos.x, y: pos.y };
+    lastTime.current = Date.now();
+    
+    // Set initial styles
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
   };
 
-  const drawStroke = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const drawStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -252,13 +255,38 @@ export const DedicatedStenoMasterStudio: React.FC<{ onBackHome?: () => void }> =
     if (!ctx) return;
 
     const pos = getPointerPos(e);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = isEraser ? 18 : strokeWidth;
+    const currentTime = Date.now();
+    
+    // Calculate speed for pressure-like effect if real pressure is 0 or constant
+    let dynamicWidth = strokeWidth;
+    if (!isEraser) {
+      if (lastPos.current) {
+        const dx = pos.x - lastPos.current.x;
+        const dy = pos.y - lastPos.current.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const dt = currentTime - lastTime.current || 1;
+        const speed = dist / dt;
+        
+        // Steno strokes: faster movement often means lighter/thinner lines in real shorthand
+        // or we can use pressure if available.
+        if (e.pressure > 0 && e.pointerType === 'pen') {
+          dynamicWidth = strokeWidth * (0.5 + e.pressure);
+        } else {
+          // Fallback: Speed-based thickness (Slower = Thicker, Faster = Thinner)
+          const speedFactor = Math.max(0.4, Math.min(1.4, 1.5 - (speed / 5)));
+          dynamicWidth = strokeWidth * speedFactor;
+        }
+      }
+    }
+
+    ctx.lineWidth = isEraser ? 24 : dynamicWidth;
     ctx.strokeStyle = isEraser ? '#050914' : strokeColor;
 
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
+
+    lastPos.current = { x: pos.x, y: pos.y };
+    lastTime.current = currentTime;
   };
 
   const stopDrawing = () => {
@@ -686,19 +714,16 @@ export const DedicatedStenoMasterStudio: React.FC<{ onBackHome?: () => void }> =
 
             {/* Interactive Canvas */}
             <div className="rounded-2xl overflow-hidden border-2 border-slate-800 bg-[#050914] shadow-inner">
-              <canvas
-                ref={canvasRef}
-                width={1000}
-                height={460}
-                onMouseDown={startDrawing}
-                onMouseMove={drawStroke}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-                onTouchStart={startDrawing}
-                onTouchMove={drawStroke}
-                onTouchEnd={stopDrawing}
-                className="w-full h-[360px] sm:h-[440px] cursor-crosshair touch-none"
-              />
+                <canvas
+                  ref={canvasRef}
+                  width={1000}
+                  height={460}
+                  onPointerDown={startDrawing}
+                  onPointerMove={drawStroke}
+                  onPointerUp={stopDrawing}
+                  onPointerLeave={stopDrawing}
+                  className="w-full h-[360px] sm:h-[440px] cursor-crosshair touch-none"
+                />
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-slate-400">

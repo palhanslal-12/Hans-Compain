@@ -393,6 +393,8 @@ export const GlobalBookReader: React.FC<{ initialTab?: 'library' | 'voice-reader
     }
   };
 
+  const [lineHeight, setLineHeight] = useState<number>(1.8);
+
   const themeClasses = {
     dark: 'bg-[#091122] text-slate-100 border-slate-800',
     sepia: 'bg-[#1E1B18] text-[#E0D7C6] border-[#38332C]',
@@ -400,7 +402,7 @@ export const GlobalBookReader: React.FC<{ initialTab?: 'library' | 'voice-reader
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-4 animate-fade-in pb-12 text-white">
+    <div className="w-full max-w-full lg:max-w-7xl mx-auto space-y-4 animate-fade-in pb-12 text-white">
       {/* Search Bar & Mode Switcher */}
       <div className="bg-[#091122] border-2 border-emerald-500/40 rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
@@ -529,57 +531,81 @@ export const GlobalBookReader: React.FC<{ initialTab?: 'library' | 'voice-reader
           </div>
 
           {/* Full-Page Book Reader Display with Page-by-Page Reading */}
-          <div className={`p-5 sm:p-8 rounded-3xl border-2 shadow-2xl transition-all space-y-5 min-h-[520px] flex flex-col justify-between ${themeClasses[theme]}`}>
+          <div className={`p-6 sm:p-10 rounded-3xl border-2 shadow-2xl transition-all space-y-6 min-h-[600px] flex flex-col justify-between ${themeClasses[theme]}`}>
             
             {/* Top Toolbar */}
-            <div className="border-b border-slate-800 pb-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
+            <div className="border-b border-slate-800/60 pb-5 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
                 <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-400">
                   {activeChapter.bookTitle} • {activeChapter.author}
                 </span>
-                <h2 className="text-base sm:text-xl font-black mt-1 leading-snug">
+                <h2 className="text-base sm:text-2xl font-black mt-1 leading-tight truncate">
                   {activeChapter.chapterTitle}
                 </h2>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setFontSize(Math.max(14, fontSize - 1))}
-                  className="p-1.5 px-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer hover:bg-slate-800"
-                  title="फॉन्ट छोटा करें"
-                >
-                  A-
-                </button>
-                <button
-                  onClick={() => setFontSize(Math.min(26, fontSize + 1))}
-                  className="p-1.5 px-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer hover:bg-slate-800"
-                  title="फॉन्ट बड़ा करें"
-                >
-                  A+
-                </button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => setFontSize(Math.max(14, fontSize - 1))}
+                    className="p-1.5 px-3 rounded-lg bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer hover:bg-slate-800"
+                    title="छोटा फॉन्ट"
+                  >
+                    A-
+                  </button>
+                  <button
+                    onClick={() => setFontSize(Math.min(32, fontSize + 1))}
+                    className="p-1.5 px-3 rounded-lg bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer hover:bg-slate-800"
+                    title="बड़ा फॉन्ट"
+                  >
+                    A+
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => setLineHeight(Math.max(1.2, lineHeight - 0.2))}
+                    className="p-1.5 px-2 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-400 cursor-pointer"
+                    title="लाइन स्पेसिंग कम करें"
+                  >
+                    ≡-
+                  </button>
+                  <button
+                    onClick={() => setLineHeight(Math.min(2.4, lineHeight + 0.2))}
+                    className="p-1.5 px-2 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-400 cursor-pointer"
+                    title="लाइन स्पेसिंग बढ़ाएं"
+                  >
+                    ≡+
+                  </button>
+                </div>
+
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'sepia' : theme === 'sepia' ? 'oled' : 'dark')}
-                  className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 cursor-pointer hover:bg-slate-800"
-                  title="थीम बदलें (Dark / Sepia / OLED)"
+                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 cursor-pointer hover:bg-slate-800"
+                  title="रीडिंग थीम"
                 >
-                  {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
+                
                 <button
                   onClick={() => toggleSpeech()}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-lg ${
+                  className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer shadow-lg ${
                     isPlayingAudio
                       ? 'bg-rose-600 text-white animate-pulse'
                       : 'bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black'
                   }`}
                 >
-                  {isPlayingAudio ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  <span>{isPlayingAudio ? 'रोकें' : 'बोलकर सुनें 📢'}</span>
+                  {isPlayingAudio ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  <span className="hidden xs:inline">{isPlayingAudio ? 'रोकें' : 'बोलकर सुनें 📢'}</span>
                 </button>
               </div>
             </div>
 
             {/* Distinct Paragraph Content for the current Page */}
-            <div className="space-y-5 leading-relaxed font-sans flex-1" style={{ fontSize: `${fontSize}px` }}>
+            <div 
+              className="space-y-8 font-sans flex-1 overflow-y-auto px-1 scrollbar-thin" 
+              style={{ fontSize: `${fontSize}px`, lineHeight: lineHeight }}
+            >
               {visibleParagraphs.map((para, pIdx) => (
                 <p key={pIdx} className="leading-loose text-justify">
                   {para}

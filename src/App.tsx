@@ -953,10 +953,10 @@ export const App: React.FC = () => {
         )}
 
         {/* 3. MAIN ROUTED VIEW AREA - 100% FULL SCREEN ON PC/LAPTOP & MOBILE */}
-        <main className="flex-1 w-full flex flex-col h-full overflow-hidden bg-[#03060E] relative">
-          <div className={`flex-1 w-full ${
+        <main className="flex-1 w-full flex flex-col min-h-0 overflow-hidden bg-[#03060E] relative">
+          <div className={`flex-1 w-full min-h-0 ${
             activeView === 'home'
-              ? 'overflow-y-auto flex flex-col justify-start items-center p-2.5 sm:p-4 min-h-full'
+              ? 'overflow-y-auto flex flex-col justify-start items-center p-2.5 sm:p-4'
               : (activeView === 'ai-chat' || activeView === 'chat' || activeView === 'doubt' || activeView === 'photo-doubt')
                 ? 'overflow-hidden p-0 flex flex-col h-full'
                 : (activeView === 'admin')
@@ -968,7 +968,7 @@ export const App: React.FC = () => {
             
             {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
             {activeView === 'home' && (
-              <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full flex flex-col justify-start items-center text-center space-y-4 sm:space-y-6 py-4 sm:py-8 animate-fade-in">
+              <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full flex flex-col justify-start items-center text-center space-y-4 sm:space-y-6 py-4 sm:py-8 pb-32 sm:pb-40 animate-fade-in">
                 
                 {/* Center Official 3D Mascot Logo & Tagline */}
                 <div className="pt-2 sm:pt-4">
@@ -976,10 +976,10 @@ export const App: React.FC = () => {
                 </div>
 
                 {/* Main Headline */}
-                <h1 className="text-xs sm:text-xs md:text-sm font-extrabold tracking-tight text-slate-200 leading-snug flex items-center justify-center gap-1.5 bg-[#091122]/90 border border-slate-800/80 px-3 py-1 rounded-full shadow-sm">
+                <h1 className="text-[10px] sm:text-xs md:text-sm font-extrabold tracking-tight text-slate-200 leading-snug flex items-center justify-center gap-1.5 bg-[#091122]/90 border border-slate-800/80 px-4 py-1.5 rounded-full shadow-sm">
                   <span className="text-cyan-400 font-black tracking-wider">HANS COMPAIN</span>
-                  <span className="text-slate-500">•</span>
-                  <span className="text-slate-300">How can I help with Shorthand &amp; Exams today?</span>
+                  <span className="text-slate-500 hidden sm:inline">•</span>
+                  <span className="text-slate-300 hidden sm:inline text-[9px] sm:text-xs">How can I help with Shorthand &amp; Exams today?</span>
                 </h1>
 
                 {/* Blue Pill Capsule: ALL STENOGRAPHER BANNER */}
@@ -1376,8 +1376,8 @@ export const App: React.FC = () => {
           {/* 4. BOTTOM INPUT BAR (ONLY ON HOME DASHBOARD) */}
           {activeView === 'home' && (
             <div className="p-4 sm:p-6 border-t border-slate-900 bg-[#03060E] z-10 shrink-0">
-              <div className="max-w-4xl mx-auto flex flex-col gap-2">
-                <div className="flex items-center gap-2 bg-[#091122] border border-slate-800 rounded-3xl p-2 px-3 shadow-lg focus-within:border-cyan-500/80 transition-all">
+              <div className="max-w-4xl mx-auto w-full flex flex-col gap-2">
+                <div className="flex items-center gap-2 bg-[#091122] border border-slate-800 rounded-3xl p-2 px-4 shadow-lg focus-within:border-cyan-500/80 transition-all">
                   <button 
                     onClick={() => navigateTo('ocr-scan')}
                     className="p-1.5 text-slate-400 hover:text-white cursor-pointer" 

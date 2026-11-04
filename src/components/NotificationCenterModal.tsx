@@ -42,12 +42,20 @@ export const NotificationCenterModal = ({ isOpen, onClose }: { isOpen: boolean; 
       <div className="bg-[#091122] border-2 border-amber-500/40 rounded-3xl p-5 sm:p-7 max-w-lg w-full space-y-4 shadow-2xl relative text-white max-h-[90vh] overflow-y-auto custom-scrollbar">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2.5 text-amber-400 font-black text-sm sm:text-base">
-            <Bell className="w-5 h-5" />
-            <span>स्मार्ट सूचना व अलर्ट केंद्र (Notification Hub)</span>
+        <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-2">
+          <div className="flex items-center gap-3 text-amber-400">
+            <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-black text-sm sm:text-base leading-tight tracking-tight uppercase">स्मार्ट सूचना व अलर्ट केंद्र</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">HANS Notification Hub</span>
+            </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-white rounded-xl bg-slate-950 border border-slate-800 cursor-pointer">
+          <button 
+            onClick={onClose} 
+            className="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-950/50 border border-slate-800 hover:border-amber-500/30 cursor-pointer transition-all shrink-0"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
