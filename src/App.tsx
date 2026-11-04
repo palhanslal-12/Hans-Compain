@@ -968,11 +968,11 @@ export const App: React.FC = () => {
             
             {/* --- HOME VIEW (DASHBOARD - BALANCED & RESPONSIVE FOR MOBILE, TABLET & DESKTOP) --- */}
             {activeView === 'home' && (
-              <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full flex flex-col items-center text-center space-y-5 sm:space-y-6 py-4 sm:py-8 pb-48 sm:pb-56 animate-fade-in">
+              <div className="max-w-full lg:max-w-6xl xl:max-w-7xl mx-auto w-full flex flex-col items-center text-center space-y-6 sm:space-y-8 md:space-y-10 py-6 sm:py-12 pb-48 sm:pb-56 animate-fade-in px-4">
                 
                 {/* Center Official 3D Mascot Logo & Tagline */}
-                <div className="pt-2 sm:pt-4">
-                  <HansCompainLogo variant="center" className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48" />
+                <div className="pt-4 sm:pt-6">
+                  <HansCompainLogo variant="center" className="w-32 h-32 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64" />
                 </div>
 
                 {/* Main Headline */}
@@ -1014,8 +1014,8 @@ export const App: React.FC = () => {
                   </button>
                 </div>
 
-                {/* 2-Column Grid (8 Feature Cards) */}
-                <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 w-full text-left">
+                {/* 2 to 4 Column Grid (8 Feature Cards) */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 w-full text-left">
                   
                   {/* Row 1, Col 1: करेंट अफेयर्स 2026 */}
                   <div 
@@ -1137,7 +1137,7 @@ export const App: React.FC = () => {
                 </div>
 
                 {/* 4 Quick-Action Tiles */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2.5 w-full">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 w-full">
                   
                   {/* Syllabus */}
                   <div 
@@ -1184,6 +1184,8 @@ export const App: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Explicit Bottom Spacer to ensure full visibility on all screens */}
+                <div className="h-48 sm:h-64 w-full shrink-0" aria-hidden="true" />
               </div>
             )}
 

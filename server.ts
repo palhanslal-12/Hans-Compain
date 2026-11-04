@@ -1962,7 +1962,7 @@ Return JSON with an "articles" array where each object has:
 - mainsQuestion: string`;
 
       const aiPromise = ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         contents: aiPrompt,
         config: { responseMimeType: 'application/json' }
       });
@@ -2289,7 +2289,7 @@ app.post('/api/current-affairs/daily', async (req, res) => {
       const prompt = `Generate 10 verified current affairs facts and articles for ${today} for competitive exams (SSC, UPSC, Railway, State Exams) in Hindi & English. Return an array of objects with keys: id, category, source, sourceUrl, imageUrl, titleHi, titleEn, summaryHi, summaryEn, date, readTime, examRelevance, keyFact, tag, deepAnalysisHi (array of strings), mcq (object with questionHi, questionEn, optionsHi (array of 4 strings), optionsEn (array of 4 strings), correctIndex (0-3), explanationHi, explanationEn).`;
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           contents: prompt,
           config: { responseMimeType: 'application/json' }
         });
@@ -2402,7 +2402,7 @@ Founder & Creator: Hanslal Pal (हंसलाल पाल).`;
       const contents = parts.length > 1 ? { parts } : promptText;
 
       const result = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         contents
       });
 
@@ -2456,7 +2456,7 @@ ${JSON.stringify({
 })}`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });
@@ -2559,7 +2559,7 @@ Return strictly valid JSON with these exact keys:
 }`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });
@@ -2592,7 +2592,7 @@ Return strictly valid JSON with keys:
 - examUsage: string (1 English example sentence + its Hindi translation)`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });
@@ -2704,7 +2704,7 @@ Return a valid JSON object with these keys:
 }`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         contents: {
           parts: [
             { inlineData: { mimeType, data: pureBase64 } },
@@ -2752,7 +2752,7 @@ Return a valid JSON object with these keys:
     }
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: contents,
       config: {
         systemInstruction: 'You are HANS COMPAIN AI OCR & Study Analyzer. Read questions, study notes, or math equations with extreme precision and provide clear step-by-step solutions.'
@@ -2926,7 +2926,7 @@ Strict Requirements:
 
     const randomSeed = Math.floor(Math.random() * 100000);
     const aiPromise = ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-1.5-flash',
       contents: `Generate exactly ${examLength} live board exam questions for Class ${classLevel} ${board} ${subject} ${chapterName ? `on chapter "${chapterName.trim()}" (High Probability Exam Questions)` : 'full syllabus'}. Random Seed: ${randomSeed}. Language: ${language}. Mode: ${mode}.`,
       config: {
         systemInstruction,
@@ -3090,7 +3090,7 @@ Strict Rules:
 
     const randomSeed = Math.floor(Math.random() * 100000);
     const result = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-1.5-flash',
       contents: `Generate exactly ${numQuestions} live competitive exam MCQs for ${targetDescription}. Random Seed: ${randomSeed}. Quality: ${qualityLevel}. Language: ${language}.`,
       config: {
         systemInstruction,
@@ -3248,7 +3248,7 @@ STRICT SUBJECT INTEGRITY:
 
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+          model: 'gemini-1.5-flash',
           contents: `Generate exactly ${targetCount} battle quiz questions for ${levelDesc} on Subject: "${activeSubject}"${cleanTopic ? ` Chapter: "${cleanTopic}"` : ''}. Difficulty: ${difficulty}.`,
           config: {
             systemInstruction,
@@ -3365,7 +3365,7 @@ Return strictly valid JSON with this schema:
 }`;
 
       const result = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-1.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -3544,7 +3544,7 @@ Return strictly valid JSON with this exact schema:
 
       try {
         const result = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+          model: 'gemini-1.5-flash',
           contents: prompt,
           config: { responseMimeType: 'application/json' }
         });
