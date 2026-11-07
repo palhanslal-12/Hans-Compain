@@ -32,6 +32,9 @@ app.get(['/health', '/api/health', '/_health'], (req, res) => {
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain').sendFile(path.join(process.cwd(), 'public', 'robots.txt'));
 });
+app.get('/google4b979116600de942.html', (req, res) => {
+  res.type('text/html').sendFile(path.join(process.cwd(), 'public', 'google4b979116600de942.html'));
+});
 app.get('/sitemap.xml', (req, res) => {
   res.type('application/xml').sendFile(path.join(process.cwd(), 'public', 'sitemap.xml'));
 });
